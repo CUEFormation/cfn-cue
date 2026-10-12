@@ -1,0 +1,4 @@
+/bin/
+/cfn-cue
+/.cfn-cue-stage-*/
+/.cfn-cue-backup-*/
