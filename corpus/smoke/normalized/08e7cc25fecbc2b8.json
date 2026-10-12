@@ -1,0 +1,39 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Required Properties.",
+  "Resources": {
+    "Function1": {
+      "Properties": {
+        "Code": {
+          "S3Bucket": "my-bucket",
+          "S3Key": "function.zip"
+        },
+        "Handler": "index.handler",
+        "Role": "arn:aws:iam::123456789012:role/lambda-role",
+        "Runtime": "python3.9"
+      },
+      "Type": "AWS::Lambda::Function"
+    },
+    "Function2": {
+      "Properties": {
+        "Code": {
+          "ZipFile": "import { LambdaClient } from '@aws-sdk/client-lambda';\nexports.handler = function(event, context) {}\n"
+        },
+        "Handler": "index.handler",
+        "Role": "arn:aws:iam::123456789012:role/lambda-role",
+        "Runtime": "nodejs22.x"
+      },
+      "Type": "AWS::Lambda::Function"
+    },
+    "Function3": {
+      "Properties": {
+        "Code": {
+          "ImageUri": "111122223333.dkr.ecr.us-east-1.amazonaws.com/hello-world:latest"
+        },
+        "PackageType": "Image",
+        "Role": "arn:aws:iam::123456789012:role/lambda-role"
+      },
+      "Type": "AWS::Lambda::Function"
+    }
+  }
+}

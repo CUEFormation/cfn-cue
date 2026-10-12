@@ -1,0 +1,31 @@
+Parameters:
+  Name:
+    Type: String
+Conditions:
+  Create:
+    Fn::Equals:
+    - Ref: Name
+    - 'yes'
+Resources:
+  Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Fn::Join:
+        - '-'
+        - - Fn::Sub:
+            - ${P}-bucket
+            - P:
+                Ref: Name
+          - Ref: Name
+      AccessControl:
+        Fn::If:
+        - Create
+        - Private
+        - Ref: AWS::NoValue
+Outputs:
+  BucketArn:
+    Value:
+      Fn::GetAtt:
+      - Bucket
+      - Arn

@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Creates an EFS file system with three mount targets and one access point.
+Outputs:
+  FileSystemId:
+    Description: ID of the created EFS File System
+    Value:
+      Ref: EFSFileSystem
+Parameters:
+  AccessPointName:
+    Default: SampleEFSAccessPoint
+    Description: Name for the EFS access point
+    Type: String
+  EFSFileSystemName:
+    Default: SampleEFSFilesystem
+    Description: Name for the EFS file system
+    Type: String
+  SecurityGroup1:
+    Description: Security group for the first EFS mount target
+    Type: AWS::EC2::SecurityGroup::Id
+  SecurityGroup2:
+    Description: Security group for the second EFS mount target
+    Type: AWS::EC2::SecurityGroup::Id
+  SecurityGroup3:
+    Description: Security group for the third EFS mount target
+    Type: AWS::EC2::SecurityGroup::Id
+  Subnet1:
+    Description: A subnet for the first EFS mount target
+    Type: AWS::EC2::Subnet::Id
+  Subnet2:
+    Description: A subnet for the second EFS mount target
+    Type: AWS::EC2::Subnet::Id
+  Subnet3:
+    Description: A subnet for the third EFS mount target
+    Type: AWS::EC2::Subnet::Id
+Resources:
+  EFSAccessPoint:
+    Properties:
+      AccessPointTags:
+      - Key: Name
+        Value:
+          Ref: AccessPointName
+      FileSystemId:
+        Ref: EFSFileSystem
+    Type: AWS::EFS::AccessPoint
+  EFSFileSystem:
+    Properties:
+      Encrypted: true
+      FileSystemTags:
+      - Key: Name
+        Value:
+          Ref: EFSFileSystemName
+      PerformanceMode: generalPurpose
+    Type: AWS::EFS::FileSystem
+  EFSMountTarget1:
+    Properties:
+      FileSystemId:
+        Ref: EFSFileSystem
+      SecurityGroups:
+      - Ref: SecurityGroup1
+      SubnetId:
+        Ref: Subnet1
+    Type: AWS::EFS::MountTarget
+  EFSMountTarget2:
+    Properties:
+      FileSystemId:
+        Ref: EFSFileSystem
+      SecurityGroups:
+      - Ref: SecurityGroup2
+      SubnetId:
+        Ref: Subnet2
+    Type: AWS::EFS::MountTarget
+  EFSMountTarget3:
+    Properties:
+      FileSystemId:
+        Ref: EFSFileSystem
+      SecurityGroups:
+      - Ref: SecurityGroup3
+      SubnetId:
+        Ref: Subnet3
+    Type: AWS::EFS::MountTarget

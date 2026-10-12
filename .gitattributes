@@ -1,1 +1,3 @@
 generated/** linguist-generated=true
+# Preserve upstream license notices byte for byte, including whitespace.
+corpus/smoke/licenses/** -whitespace

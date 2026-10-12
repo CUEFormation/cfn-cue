@@ -1,0 +1,10 @@
+{
+  "Resources": {
+    "Role": {
+      "Properties": {
+        "RoleName": "missing-policy"
+      },
+      "Type": "AWS::IAM::Role"
+    }
+  }
+}

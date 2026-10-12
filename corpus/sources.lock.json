@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": "aws-examples",
+      "repository": "aws-cloudformation/aws-cloudformation-templates",
+      "revision": "a0f43bc6d20813052892546f445037cf84c75b54",
+      "archive_sha256": "e0e85db0c4a4e4173abf72b584566b1228607a3ace0c48e9a4fd442cebf8ed34",
+      "license": "Apache-2.0",
+      "include": [
+        "*.yaml"
+      ],
+      "exclude": [
+        ".github/*"
+      ],
+      "license_files": [
+        "LICENSE.txt",
+        "NOTICE.txt"
+      ]
+    },
+    {
+      "id": "cfn-lint-good",
+      "repository": "aws-cloudformation/cfn-lint",
+      "revision": "be66fb3e224b41c85065cb3002ad0b24e31db535",
+      "archive_sha256": "c83e21ebf31d7fa58737d175747f9aa59d6895089cf689fd5bba71824d877cd2",
+      "license": "MIT-0",
+      "include": [
+        "test/fixtures/templates/good/*.yaml"
+      ],
+      "exclude": [
+        ".github/*"
+      ],
+      "license_files": [
+        "LICENSE",
+        "NOTICE"
+      ]
+    }
+  ]
+}

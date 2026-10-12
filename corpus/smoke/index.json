@@ -1,0 +1,565 @@
+{
+  "normalizer": {
+    "PyYAML": "6.0.3",
+    "cfn-lint": "1.57.2"
+  },
+  "skipped": [],
+  "source_lock_sha256": "e60f699ef95cda5ade7f0da6b8ecb296589c2a2670d4c299a153ccbb98a977d8",
+  "sources": [
+    {
+      "archive_sha256": "e0e85db0c4a4e4173abf72b584566b1228607a3ace0c48e9a4fd442cebf8ed34",
+      "exclude": [
+        ".github/*"
+      ],
+      "id": "aws-examples",
+      "include": [
+        "*.yaml"
+      ],
+      "license": "Apache-2.0",
+      "license_files": [
+        "LICENSE.txt",
+        "NOTICE.txt"
+      ],
+      "repository": "aws-cloudformation/aws-cloudformation-templates",
+      "revision": "a0f43bc6d20813052892546f445037cf84c75b54"
+    },
+    {
+      "archive_sha256": "c83e21ebf31d7fa58737d175747f9aa59d6895089cf689fd5bba71824d877cd2",
+      "exclude": [
+        ".github/*"
+      ],
+      "id": "cfn-lint-good",
+      "include": [
+        "test/fixtures/templates/good/*.yaml"
+      ],
+      "license": "MIT-0",
+      "license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "repository": "aws-cloudformation/cfn-lint",
+      "revision": "be66fb3e224b41c85065cb3002ad0b24e31db535"
+    }
+  ],
+  "templates": [
+    {
+      "depth": 10,
+      "id": "0cb0887d223fab58",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Base64": 1,
+        "Fn::Sub": 3
+      },
+      "license": "Apache-2.0",
+      "long_yaml": "normalized/0cb0887d223fab58.yaml",
+      "long_yaml_sha256": "f98f44b333891ee200870d6bb7b8f56639e8d5780f6631f043149d993869807e",
+      "nodes": 56,
+      "normalized": "normalized/0cb0887d223fab58.json",
+      "normalized_sha256": "00c02225cfd14b89f607dc0e65c8382cd04a4afe049bd36b58aefee231f5fceb",
+      "original": "original/aws-examples/EC2/InstanceWithCfnInit.yaml",
+      "original_sha256": "fef3f39d810ccf4159f9dfdc1388ff09a93e22807a85ecb1f3bf56135c44f3c6",
+      "path": "EC2/InstanceWithCfnInit.yaml",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::EC2::Instance"
+      ],
+      "revision": "a0f43bc6d20813052892546f445037cf84c75b54",
+      "source": "aws-examples",
+      "transform": null,
+      "url": "https://github.com/aws-cloudformation/aws-cloudformation-templates/blob/a0f43bc6d20813052892546f445037cf84c75b54/EC2/InstanceWithCfnInit.yaml"
+    },
+    {
+      "depth": 7,
+      "id": "6295685ddc4ca48e",
+      "intrinsic_depth": 1,
+      "intrinsics": {
+        "Ref": 13
+      },
+      "license": "Apache-2.0",
+      "long_yaml": "normalized/6295685ddc4ca48e.yaml",
+      "long_yaml_sha256": "8bb5692076cdf93552419c5129068395fdd1740d2a42758eaaf17d4e3da3ca44",
+      "nodes": 86,
+      "normalized": "normalized/6295685ddc4ca48e.json",
+      "normalized_sha256": "79ca11f4df84ab3962db84df1488087f766350905b39ebd75c3c8457b82263df",
+      "original": "original/aws-examples/EFS/EFSAccessPoint.yaml",
+      "original_sha256": "28a83e2600e59d302078cc5284c24670571e48017d0938df2f5419b723b5ea88",
+      "path": "EFS/EFSAccessPoint.yaml",
+      "resource_count": 5,
+      "resource_types": [
+        "AWS::EFS::AccessPoint",
+        "AWS::EFS::FileSystem",
+        "AWS::EFS::MountTarget"
+      ],
+      "revision": "a0f43bc6d20813052892546f445037cf84c75b54",
+      "source": "aws-examples",
+      "transform": null,
+      "url": "https://github.com/aws-cloudformation/aws-cloudformation-templates/blob/a0f43bc6d20813052892546f445037cf84c75b54/EFS/EFSAccessPoint.yaml"
+    },
+    {
+      "depth": 9,
+      "id": "00611feb1a1433ed",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::If": 2,
+        "Ref": 16
+      },
+      "license": "Apache-2.0",
+      "long_yaml": "normalized/00611feb1a1433ed.yaml",
+      "long_yaml_sha256": "583456f11d8827f89a10451108ef3370d09b3b7e3169d5f4eb670868af2e785d",
+      "nodes": 163,
+      "normalized": "normalized/00611feb1a1433ed.json",
+      "normalized_sha256": "de1b19c1bd857a7a2af9532826fb29aadd95fb314acc5a334657aec3bbcf395f",
+      "original": "original/aws-examples/EMR/EMRCLusterGangliaWithSparkOrS3backedHbase.yaml",
+      "original_sha256": "2a91eb996e91ae99e949427655f59ecd5cb616638433443c928117061ef35a8a",
+      "path": "EMR/EMRCLusterGangliaWithSparkOrS3backedHbase.yaml",
+      "resource_count": 4,
+      "resource_types": [
+        "AWS::EMR::Cluster",
+        "AWS::IAM::InstanceProfile",
+        "AWS::IAM::Role"
+      ],
+      "revision": "a0f43bc6d20813052892546f445037cf84c75b54",
+      "source": "aws-examples",
+      "transform": null,
+      "url": "https://github.com/aws-cloudformation/aws-cloudformation-templates/blob/a0f43bc6d20813052892546f445037cf84c75b54/EMR/EMRCLusterGangliaWithSparkOrS3backedHbase.yaml"
+    },
+    {
+      "depth": 5,
+      "id": "5dd84f15ec88192f",
+      "intrinsic_depth": 1,
+      "intrinsics": {
+        "Fn::GetAtt": 1,
+        "Ref": 4
+      },
+      "license": "Apache-2.0",
+      "long_yaml": "normalized/5dd84f15ec88192f.yaml",
+      "long_yaml_sha256": "3039f1ae62a90d2719404f85897bafe0348ccfd81868e6bd43d54ab335f8bb2c",
+      "nodes": 46,
+      "normalized": "normalized/5dd84f15ec88192f.json",
+      "normalized_sha256": "66e8fa976a264a759a79691cca027114cf592bf69c56bc596221b4a288cffa19",
+      "original": "original/aws-examples/SNS/SNSTopic.yaml",
+      "original_sha256": "d61ba39c830673c86f16c9ca25eb94fd3a0bc9f759e87bc3b3c76500aaa389fd",
+      "path": "SNS/SNSTopic.yaml",
+      "resource_count": 2,
+      "resource_types": [
+        "AWS::SNS::Subscription",
+        "AWS::SNS::Topic"
+      ],
+      "revision": "a0f43bc6d20813052892546f445037cf84c75b54",
+      "source": "aws-examples",
+      "transform": null,
+      "url": "https://github.com/aws-cloudformation/aws-cloudformation-templates/blob/a0f43bc6d20813052892546f445037cf84c75b54/SNS/SNSTopic.yaml"
+    },
+    {
+      "depth": 9,
+      "id": "15c2cb3e41e6d416",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Join": 2,
+        "Ref": 10
+      },
+      "license": "Apache-2.0",
+      "long_yaml": "normalized/15c2cb3e41e6d416.yaml",
+      "long_yaml_sha256": "b2623f4b18f2ac2233211c35bd674c2dabc0ca2681aa7252cf40067a7b76e03b",
+      "nodes": 108,
+      "normalized": "normalized/15c2cb3e41e6d416.json",
+      "normalized_sha256": "621d6479f01badc5accb6e138b09e20737a53189613df5937635da2ea6be5c5c",
+      "original": "original/aws-examples/SQS/SQSFIFOQueue.yaml",
+      "original_sha256": "599cd9899adcc29541bf7d5b2f069f493c27e97dd3b3d1836afa9349c59ea4c3",
+      "path": "SQS/SQSFIFOQueue.yaml",
+      "resource_count": 2,
+      "resource_types": [
+        "AWS::SQS::Queue"
+      ],
+      "revision": "a0f43bc6d20813052892546f445037cf84c75b54",
+      "source": "aws-examples",
+      "transform": null,
+      "url": "https://github.com/aws-cloudformation/aws-cloudformation-templates/blob/a0f43bc6d20813052892546f445037cf84c75b54/SQS/SQSFIFOQueue.yaml"
+    },
+    {
+      "depth": 7,
+      "id": "dbd5d3a56894fb15",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Fn::GetAtt": 1,
+        "Fn::Sub": 12,
+        "Ref": 12
+      },
+      "license": "Apache-2.0",
+      "long_yaml": "normalized/dbd5d3a56894fb15.yaml",
+      "long_yaml_sha256": "47d6698a03b6b31f427586be9933dc37f9c622acc9c590cd3ec80f3927b36b56",
+      "nodes": 214,
+      "normalized": "normalized/dbd5d3a56894fb15.json",
+      "normalized_sha256": "6ea43efcc4846bbffbf21197f515330748e267073ef770d6513dd1ab6881d4f3",
+      "original": "original/aws-examples/ServiceCatalog/Portfolio.yaml",
+      "original_sha256": "0fa46619e24e025c17c535f4616cf1721217c988ef4d3a417ba4b3447d41261a",
+      "path": "ServiceCatalog/Portfolio.yaml",
+      "resource_count": 6,
+      "resource_types": [
+        "AWS::ServiceCatalog::Portfolio",
+        "AWS::ServiceCatalog::PortfolioShare",
+        "AWS::ServiceCatalog::TagOption"
+      ],
+      "revision": "a0f43bc6d20813052892546f445037cf84c75b54",
+      "source": "aws-examples",
+      "transform": null,
+      "url": "https://github.com/aws-cloudformation/aws-cloudformation-templates/blob/a0f43bc6d20813052892546f445037cf84c75b54/ServiceCatalog/Portfolio.yaml"
+    },
+    {
+      "depth": 10,
+      "id": "51d011e0a49787b9",
+      "intrinsic_depth": 3,
+      "intrinsics": {
+        "Fn::And": 1,
+        "Fn::Contains": 2,
+        "Fn::Join": 1,
+        "Ref": 3
+      },
+      "license": "MIT-0",
+      "long_yaml": "normalized/51d011e0a49787b9.yaml",
+      "long_yaml_sha256": "79f381fca1121d1a66664ad27e5ece7e85f2310c424b7414320a24002ee224b5",
+      "nodes": 34,
+      "normalized": "normalized/51d011e0a49787b9.json",
+      "normalized_sha256": "617c25d586787b414e4c5dcad7509131f5e707a6d9ce8f10e611e3946932394b",
+      "original": "original/cfn-lint-good/test/fixtures/templates/good/conditions/and.yaml",
+      "original_sha256": "cc203878103741b22879676b34aa44b4500b401d972e4fcc82fae29a7bb05e1f",
+      "path": "test/fixtures/templates/good/conditions/and.yaml",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::S3::Bucket"
+      ],
+      "revision": "be66fb3e224b41c85065cb3002ad0b24e31db535",
+      "source": "cfn-lint-good",
+      "transform": null,
+      "url": "https://github.com/aws-cloudformation/cfn-lint/blob/be66fb3e224b41c85065cb3002ad0b24e31db535/test/fixtures/templates/good/conditions/and.yaml"
+    },
+    {
+      "depth": 8,
+      "id": "1c1367bd614e3f6f",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "MIT-0",
+      "long_yaml": "normalized/1c1367bd614e3f6f.yaml",
+      "long_yaml_sha256": "15c698435b871c1d3ab6522245287b79c119f82827f038014b51f779aa04eaf4",
+      "nodes": 16,
+      "normalized": "normalized/1c1367bd614e3f6f.json",
+      "normalized_sha256": "4117a1ec8cc2f65d80fa88df1faaa97c44d4cf034c89dabef8ba616751314eb2",
+      "original": "original/cfn-lint-good/test/fixtures/templates/good/resources/iam/managed_policy_description.yaml",
+      "original_sha256": "2f4d3297d1dc7bc1735e49b7a5c424d33d431a58fa373de217b7fa60eff95c16",
+      "path": "test/fixtures/templates/good/resources/iam/managed_policy_description.yaml",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::IAM::ManagedPolicy"
+      ],
+      "revision": "be66fb3e224b41c85065cb3002ad0b24e31db535",
+      "source": "cfn-lint-good",
+      "transform": null,
+      "url": "https://github.com/aws-cloudformation/cfn-lint/blob/be66fb3e224b41c85065cb3002ad0b24e31db535/test/fixtures/templates/good/resources/iam/managed_policy_description.yaml"
+    },
+    {
+      "depth": 5,
+      "id": "08e7cc25fecbc2b8",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "MIT-0",
+      "long_yaml": "normalized/08e7cc25fecbc2b8.yaml",
+      "long_yaml_sha256": "61d0b0688b8182136c3c70d6deb4d63468d6148af71d552544b0fd7cd8f5de24",
+      "nodes": 28,
+      "normalized": "normalized/08e7cc25fecbc2b8.json",
+      "normalized_sha256": "cc3801a8c8195dd81776cbe045adbfa94555d8778f6478791704fb1971fac54b",
+      "original": "original/cfn-lint-good/test/fixtures/templates/good/resources/lambda/required_properties.yaml",
+      "original_sha256": "e43125ae6b1ad779a3d26419d64f125dd4f07f2c5e6ef5496a58850fdd90cea8",
+      "path": "test/fixtures/templates/good/resources/lambda/required_properties.yaml",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::Lambda::Function"
+      ],
+      "revision": "be66fb3e224b41c85065cb3002ad0b24e31db535",
+      "source": "cfn-lint-good",
+      "transform": null,
+      "url": "https://github.com/aws-cloudformation/cfn-lint/blob/be66fb3e224b41c85065cb3002ad0b24e31db535/test/fixtures/templates/good/resources/lambda/required_properties.yaml"
+    },
+    {
+      "depth": 5,
+      "id": "b49191771a554abd",
+      "intrinsic_depth": 1,
+      "intrinsics": {
+        "Ref": 1
+      },
+      "license": "MIT-0",
+      "long_yaml": "normalized/b49191771a554abd.yaml",
+      "long_yaml_sha256": "94ff56c784dcbd22570161c06dc26704ef5603218710edeaf4d19cef954563c1",
+      "nodes": 13,
+      "normalized": "normalized/b49191771a554abd.json",
+      "normalized_sha256": "4006dfaa209e86d55f95ddd88e159b5db3f91893bb48f22272ac90abef7f264f",
+      "original": "original/cfn-lint-good/test/fixtures/templates/good/resources/properties/templated_code.yaml",
+      "original_sha256": "2237736d42e5a30c7f0daae3a58d41491fcd02418d9e0d33ab8c4a60835b9b99",
+      "path": "test/fixtures/templates/good/resources/properties/templated_code.yaml",
+      "resource_count": 2,
+      "resource_types": [
+        "AWS::AppSync::GraphQLApi",
+        "AWS::AppSync::GraphQLSchema"
+      ],
+      "revision": "be66fb3e224b41c85065cb3002ad0b24e31db535",
+      "source": "cfn-lint-good",
+      "transform": null,
+      "url": "https://github.com/aws-cloudformation/cfn-lint/blob/be66fb3e224b41c85065cb3002ad0b24e31db535/test/fixtures/templates/good/resources/properties/templated_code.yaml"
+    },
+    {
+      "depth": 11,
+      "id": "mutation-enum",
+      "intrinsic_depth": 3,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Fn::GetAtt": 1,
+        "Fn::Join": 1,
+        "Fn::Sub": 1,
+        "Ref": 3
+      },
+      "license": "Apache-2.0",
+      "nodes": 33,
+      "normalized": "normalized/mutation-enum.json",
+      "normalized_sha256": "7b81fd87dfdb8ebb3e89ec3566f18f4bceedda6b6b13d4c5da80300c2384d3ac",
+      "original": "original/mutations/enum.yaml",
+      "original_sha256": "77e719ad8d0a6b1f335bea8f8371d760d2091f8862ebac02e80fdd3229c9f766",
+      "path": "enum",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::S3::Bucket"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 4,
+      "id": "mutation-missing-required",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 6,
+      "normalized": "normalized/mutation-missing-required.json",
+      "normalized_sha256": "a99e256144470b146e11b78b85ec7c85f8b206b646b55e9707f3257823d483ac",
+      "original": "original/mutations/missing-required.yaml",
+      "original_sha256": "1eacd6bda330f622662692329033f50f8d4f0eb8de095ecb459ee1e2883b52c5",
+      "path": "missing-required",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::IAM::Role"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 11,
+      "id": "mutation-nested-intrinsics",
+      "intrinsic_depth": 3,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Fn::GetAtt": 1,
+        "Fn::If": 1,
+        "Fn::Join": 1,
+        "Fn::Sub": 1,
+        "Ref": 4
+      },
+      "license": "Apache-2.0",
+      "nodes": 38,
+      "normalized": "normalized/mutation-nested-intrinsics.json",
+      "normalized_sha256": "20a7939f030f005628d12da82b0039e4c582b4f6358eab914a79234c521e844b",
+      "original": "original/mutations/nested-intrinsics.yaml",
+      "original_sha256": "a112e3f43066b3483dc0f00d0214f9de540c6a8f898db1102812ff12b63a8d7c",
+      "path": "nested-intrinsics",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::S3::Bucket"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 11,
+      "id": "mutation-read-only-property",
+      "intrinsic_depth": 3,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Fn::GetAtt": 1,
+        "Fn::If": 1,
+        "Fn::Join": 1,
+        "Fn::Sub": 1,
+        "Ref": 4
+      },
+      "license": "Apache-2.0",
+      "nodes": 39,
+      "normalized": "normalized/mutation-read-only-property.json",
+      "normalized_sha256": "f8a8addcb38bbf595397a77a017db5b5fd780d6bf31ab299a6f48365589b933c",
+      "original": "original/mutations/read-only-property.yaml",
+      "original_sha256": "83cde66dfc52f09e467035b4487f11a6862839c8e9ed8008dbd16f0ea56c2918",
+      "path": "read-only-property",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::S3::Bucket"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 7,
+      "id": "mutation-two-function-keys",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Fn::GetAtt": 1,
+        "Fn::If": 1,
+        "Fn::Sub": 1,
+        "Ref": 3
+      },
+      "license": "Apache-2.0",
+      "nodes": 29,
+      "normalized": "normalized/mutation-two-function-keys.json",
+      "normalized_sha256": "742de97acb791ef344aaedb4fd566e49959d0d0b10c4eaea467d9763c7189bdb",
+      "original": "original/mutations/two-function-keys.yaml",
+      "original_sha256": "4622c242cf91cc6b5832ac9dcea0ca2b8895536c329b66ccfcab7c4bc462ef34",
+      "path": "two-function-keys",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::S3::Bucket"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 11,
+      "id": "mutation-unknown-property",
+      "intrinsic_depth": 3,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Fn::GetAtt": 1,
+        "Fn::If": 1,
+        "Fn::Join": 1,
+        "Fn::Sub": 1,
+        "Ref": 4
+      },
+      "license": "Apache-2.0",
+      "nodes": 39,
+      "normalized": "normalized/mutation-unknown-property.json",
+      "normalized_sha256": "88ac23c93d0058a5ac29938be20ecdd5fd31b5a1a3659b04332e582ee245c49e",
+      "original": "original/mutations/unknown-property.yaml",
+      "original_sha256": "63d3b19dccb5d37a5113cd877b4edbadf03093c88e7e0b6c96161238729076e5",
+      "path": "unknown-property",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::S3::Bucket"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 3,
+      "id": "mutation-unknown-resource",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 4,
+      "normalized": "normalized/mutation-unknown-resource.json",
+      "normalized_sha256": "fb228a7bc2a2da6d3ccbe4a90e4306c068b4148521879496914b0587713c36ec",
+      "original": "original/mutations/unknown-resource.yaml",
+      "original_sha256": "c5f9d8d437ab13f6a7e164ec7943a956746b2c5cb0b28186d7c78394044b45a3",
+      "path": "unknown-resource",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::DoesNotExist::Thing"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 7,
+      "id": "mutation-wrong-function-arity",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Fn::GetAtt": 1,
+        "Fn::If": 1,
+        "Fn::Sub": 1,
+        "Ref": 2
+      },
+      "license": "Apache-2.0",
+      "nodes": 29,
+      "normalized": "normalized/mutation-wrong-function-arity.json",
+      "normalized_sha256": "1c067a9571c0dab0c2a6be92ea0cc1805ff3bbad78c3f856d8a0d5f43a9c29c4",
+      "original": "original/mutations/wrong-function-arity.yaml",
+      "original_sha256": "c7e6a6257a15087078b9806c4adbcdcc7b11c7107c5141136af19db44547bc8f",
+      "path": "wrong-function-arity",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::S3::Bucket"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 7,
+      "id": "mutation-wrong-function-result",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Fn::GetAtt": 1,
+        "Fn::If": 1,
+        "Fn::Split": 1,
+        "Ref": 2
+      },
+      "license": "Apache-2.0",
+      "nodes": 30,
+      "normalized": "normalized/mutation-wrong-function-result.json",
+      "normalized_sha256": "477ac32b00e084313550e37e1eff6a2446672495955d50e614b0dc084eff25ea",
+      "original": "original/mutations/wrong-function-result.yaml",
+      "original_sha256": "b943597de8ccd7740b511fb08762c2bf753199f9596c70792f4beccf9dbefc43",
+      "path": "wrong-function-result",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::S3::Bucket"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 7,
+      "id": "mutation-wrong-if-branch",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Fn::GetAtt": 1,
+        "Fn::If": 2,
+        "Ref": 2
+      },
+      "license": "Apache-2.0",
+      "nodes": 31,
+      "normalized": "normalized/mutation-wrong-if-branch.json",
+      "normalized_sha256": "7be2c7db7c8056016a9439f9925e6b390da192d8a5b380e0678ad23203dd1bfe",
+      "original": "original/mutations/wrong-if-branch.yaml",
+      "original_sha256": "61d3721df75e86499d43b1b130fad9aedd7ab0c23c98ccc545bbaa0e46c3f790",
+      "path": "wrong-if-branch",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::S3::Bucket"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    }
+  ],
+  "version": 1
+}

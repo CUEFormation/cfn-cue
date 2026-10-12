@@ -1,0 +1,202 @@
+{
+  "00611feb1a1433ed:us-east-1": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Known gap: CUE reports an incomplete object-valued Fn::If in Applications; the three IAM resources pass in isolation."
+  },
+  "00611feb1a1433ed:us-west-2": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Known gap: CUE reports an incomplete object-valued Fn::If in Applications; the three IAM resources pass in isolation."
+  },
+  "08e7cc25fecbc2b8:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Pinned upstream example."
+  },
+  "08e7cc25fecbc2b8:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Pinned upstream example."
+  },
+  "0cb0887d223fab58:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Pinned upstream example."
+  },
+  "0cb0887d223fab58:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Pinned upstream example."
+  },
+  "15c2cb3e41e6d416:us-east-1": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Known gap: CloudFormation accepts the quoted boolean 'true'; CUE currently requires bool."
+  },
+  "15c2cb3e41e6d416:us-west-2": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Known gap: CloudFormation accepts the quoted boolean 'true'; CUE currently requires bool."
+  },
+  "1c1367bd614e3f6f:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Pinned upstream example."
+  },
+  "1c1367bd614e3f6f:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Pinned upstream example."
+  },
+  "51d011e0a49787b9:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Pinned upstream example."
+  },
+  "51d011e0a49787b9:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Pinned upstream example."
+  },
+  "5dd84f15ec88192f:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Pinned upstream example."
+  },
+  "5dd84f15ec88192f:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Pinned upstream example."
+  },
+  "6295685ddc4ca48e:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Pinned upstream example."
+  },
+  "6295685ddc4ca48e:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Pinned upstream example."
+  },
+  "b49191771a554abd:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Pinned upstream example."
+  },
+  "b49191771a554abd:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Pinned upstream example."
+  },
+  "dbd5d3a56894fb15:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Pinned upstream example."
+  },
+  "dbd5d3a56894fb15:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Pinned upstream example."
+  },
+  "mutation-enum:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: enum"
+  },
+  "mutation-enum:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: enum"
+  },
+  "mutation-missing-required:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: missing-required"
+  },
+  "mutation-missing-required:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: missing-required"
+  },
+  "mutation-nested-intrinsics:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-nested-intrinsics:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-read-only-property:us-east-1": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: read-only-property. Known lint gap: the read-only property is accepted by cfn-lint."
+  },
+  "mutation-read-only-property:us-west-2": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: read-only-property. Known lint gap: the read-only property is accepted by cfn-lint."
+  },
+  "mutation-two-function-keys:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: two-function-keys"
+  },
+  "mutation-two-function-keys:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: two-function-keys"
+  },
+  "mutation-unknown-property:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: unknown-property"
+  },
+  "mutation-unknown-property:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: unknown-property"
+  },
+  "mutation-unknown-resource:us-east-1": {
+    "cue": "unsupported",
+    "lint": "invalid",
+    "note": "Intentional mutation: unknown-resource"
+  },
+  "mutation-unknown-resource:us-west-2": {
+    "cue": "unsupported",
+    "lint": "invalid",
+    "note": "Intentional mutation: unknown-resource"
+  },
+  "mutation-wrong-function-arity:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: wrong-function-arity"
+  },
+  "mutation-wrong-function-arity:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: wrong-function-arity"
+  },
+  "mutation-wrong-function-result:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: wrong-function-result"
+  },
+  "mutation-wrong-function-result:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: wrong-function-result"
+  },
+  "mutation-wrong-if-branch:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: wrong-if-branch"
+  },
+  "mutation-wrong-if-branch:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: wrong-if-branch"
+  }
+}

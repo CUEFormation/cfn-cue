@@ -40,6 +40,12 @@ Output is generated in a staging directory. A failed run leaves the previous out
 
 ## Generated module
 
+To download AWS YAML examples and validate concrete templates against the CUE
+bundle, see the [example corpus harness](corpus/README.md). It preserves pinned
+source files, normalizes intrinsic tags, compares CUE with cfn-lint, and records
+resource coverage, disagreements, and evaluation timeouts. The
+`cmd/cfn-cue-validate` Go tool imports only resource schemas used by each input.
+
 ```text
 generated/
   cue.mod/module.cue
