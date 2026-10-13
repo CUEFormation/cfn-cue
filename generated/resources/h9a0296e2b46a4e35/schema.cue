@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(5) &
 	=~"^arn:aws(-[a-z]+)*:pca-connector-scep:[a-z]+(-[a-z]+)+-[1-9]\\d*:\\d{12}:connector\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
 	fn.#StringExpression
-	Tags?: _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	Tags?: _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/Tags": close({

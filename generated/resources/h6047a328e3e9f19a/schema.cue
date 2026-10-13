@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,62 +22,150 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-types.htmlin
 // the Amazon Elastic Container Service Developer Guide.
 #Properties: close({
-	CapacityProviderStrategy?: [
-		..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem" | fn.#ObjectExpression
-	] |
+	CapacityProviderStrategy?: [..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"] |
 		fn.#ListExpression
-	Cluster!:       string | fn.#StringExpression
-	ExternalId?:    string | fn.#StringExpression
-	LaunchType?:    "EC2" | "FARGATE" | fn.#StringExpression
-	LoadBalancers?: [..._#defs."/$defs/Properties/definitions/LoadBalancer" | fn.#ObjectExpression] | fn.#ListExpression
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration" | fn.#ObjectExpression
+	Cluster!:              string | fn.#StringExpression
+	ExternalId?:           string | fn.#StringExpression
+	LaunchType?:           "EC2" | "FARGATE" | fn.#StringExpression
+	LoadBalancers?:        [..._#defs."/$defs/Properties/definitions/LoadBalancer"] | fn.#ListExpression
+	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
 	PlatformVersion?:      string | fn.#StringExpression
 	Scale?:                _#defs."/$defs/Properties/definitions/Scale" | fn.#ObjectExpression
 	Service!:              string | fn.#StringExpression
-	ServiceRegistries?: [..._#defs."/$defs/Properties/definitions/ServiceRegistry" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ServiceRegistries?:    [..._#defs."/$defs/Properties/definitions/ServiceRegistry"] | fn.#ListExpression
+	Tags?:           list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TaskDefinition!: string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
 	AssignPublicIp?: "DISABLED" | "ENABLED" | fn.#StringExpression
-	SecurityGroups?: list.MaxItems(5) & [...string | fn.#StringExpression] | fn.#ListExpression
-	Subnets!:        list.MaxItems(16) & [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroups?: list.MaxItems(5) & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	Subnets!: list.MaxItems(16) & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
-	Base?:             int & <=100000 & >=0 | fn.#NumberExpression
+	Base?: int & <=100000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	CapacityProvider?: string | fn.#StringExpression
-	Weight?:           int & <=1000 & >=0 | fn.#NumberExpression
+	Weight?: int & <=1000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoadBalancer": close({
-	ContainerName?:  string | fn.#StringExpression
-	ContainerPort?:  int | fn.#NumberExpression
+	ContainerName?: string | fn.#StringExpression
+	ContainerPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	TargetGroupArn?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkConfiguration": close(
-	{AwsVpcConfiguration?: _#defs."/$defs/Properties/definitions/AwsVpcConfiguration" | fn.#ObjectExpression},
+	{AwsVpcConfiguration?: _#defs."/$defs/Properties/definitions/AwsVpcConfiguration"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Scale": close({
-	Unit?:  "PERCENT" | fn.#StringExpression
-	Value?: <=100 & >=0 | fn.#NumberExpression
+	Unit?: "PERCENT" | fn.#StringExpression
+	Value?: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceRegistry": close({
 	ContainerName?: string | fn.#StringExpression
-	ContainerPort?: int | fn.#NumberExpression
-	Port?:          int | fn.#NumberExpression
-	RegistryArn?:   string | fn.#StringExpression
+	ContainerPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RegistryArn?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

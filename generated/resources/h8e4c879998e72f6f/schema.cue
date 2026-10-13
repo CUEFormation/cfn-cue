@@ -4,30 +4,71 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::Campaign
 #Properties: close({
-	AdditionalTreatments?: [..._#defs."/$defs/Properties/definitions/WriteTreatmentResource" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ApplicationId!: string | fn.#StringExpression
-	CampaignHook?:  _#defs."/$defs/Properties/definitions/CampaignHook" | fn.#ObjectExpression
-	CustomDeliveryConfiguration?: _#defs."/$defs/Properties/definitions/CustomDeliveryConfiguration" |
-		fn.#ObjectExpression
-	Description?:           string | fn.#StringExpression
-	HoldoutPercent?:        int | fn.#NumberExpression
-	IsPaused?:              bool | fn.#BooleanExpression
-	Limits?:                _#defs."/$defs/Properties/definitions/Limits" | fn.#ObjectExpression
-	MessageConfiguration?:  _#defs."/$defs/Properties/definitions/MessageConfiguration" | fn.#ObjectExpression
-	Name!:                  string | fn.#StringExpression
-	Priority?:              int | fn.#NumberExpression
-	Schedule!:              _#defs."/$defs/Properties/definitions/Schedule" | fn.#ObjectExpression
-	SegmentId!:             string | fn.#StringExpression
-	SegmentVersion?:        int | fn.#NumberExpression
+	AdditionalTreatments?: [..._#defs."/$defs/Properties/definitions/WriteTreatmentResource"] | fn.#ListExpression
+	ApplicationId!:        string | fn.#StringExpression
+	CampaignHook?:         _#defs."/$defs/Properties/definitions/CampaignHook"
+	CustomDeliveryConfiguration?: _#defs."/$defs/Properties/definitions/CustomDeliveryConfiguration"
+	Description?:                 string | fn.#StringExpression
+	HoldoutPercent?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IsPaused?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Limits?:               _#defs."/$defs/Properties/definitions/Limits"
+	MessageConfiguration?: _#defs."/$defs/Properties/definitions/MessageConfiguration"
+	Name!:                 string | fn.#StringExpression
+	Priority?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Schedule!:  _#defs."/$defs/Properties/definitions/Schedule"
+	SegmentId!: string | fn.#StringExpression
+	SegmentVersion?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Tags?:                  string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	TemplateConfiguration?: _#defs."/$defs/Properties/definitions/TemplateConfiguration" | fn.#ObjectExpression
+	TemplateConfiguration?: _#defs."/$defs/Properties/definitions/TemplateConfiguration"
 	TreatmentDescription?:  string | fn.#StringExpression
 	TreatmentName?:         string | fn.#StringExpression
 })
@@ -44,7 +85,7 @@ _#defs: "/$defs/Properties/definitions/CampaignEmailMessage": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CampaignEventFilter": close({
-	Dimensions?: _#defs."/$defs/Properties/definitions/EventDimensions" | fn.#ObjectExpression
+	Dimensions?: _#defs."/$defs/Properties/definitions/EventDimensions"
 	FilterType?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -57,8 +98,7 @@ _#defs: "/$defs/Properties/definitions/CampaignHook": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CampaignInAppMessage": close({
-	Content?: [..._#defs."/$defs/Properties/definitions/InAppMessageContent" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Content?:      [..._#defs."/$defs/Properties/definitions/InAppMessageContent"] | fn.#ListExpression
 	CustomConfig?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
 	Layout?:       string | fn.#StringExpression
 }) |
@@ -82,17 +122,30 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultButtonConfiguration": close({
 	BackgroundColor?: string | fn.#StringExpression
-	BorderRadius?:    int | fn.#NumberExpression
-	ButtonAction?:    string | fn.#StringExpression
-	Link?:            string | fn.#StringExpression
-	Text?:            string | fn.#StringExpression
-	TextColor?:       string | fn.#StringExpression
+	BorderRadius?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ButtonAction?: string | fn.#StringExpression
+	Link?:         string | fn.#StringExpression
+	Text?:         string | fn.#StringExpression
+	TextColor?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EventDimensions": close({
 	Attributes?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	EventType?:  _#defs."/$defs/Properties/definitions/SetDimension" | fn.#ObjectExpression
+	EventType?:  _#defs."/$defs/Properties/definitions/SetDimension"
 	Metrics?:    string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -105,20 +158,20 @@ _#defs: "/$defs/Properties/definitions/InAppMessageBodyConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InAppMessageButton": close({
-	Android?:       _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration" | fn.#ObjectExpression
-	DefaultConfig?: _#defs."/$defs/Properties/definitions/DefaultButtonConfiguration" | fn.#ObjectExpression
-	IOS?:           _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration" | fn.#ObjectExpression
-	Web?:           _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration" | fn.#ObjectExpression
+	Android?:       _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration"
+	DefaultConfig?: _#defs."/$defs/Properties/definitions/DefaultButtonConfiguration"
+	IOS?:           _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration"
+	Web?:           _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InAppMessageContent": close({
 	BackgroundColor?: string | fn.#StringExpression
-	BodyConfig?:      _#defs."/$defs/Properties/definitions/InAppMessageBodyConfig" | fn.#ObjectExpression
-	HeaderConfig?:    _#defs."/$defs/Properties/definitions/InAppMessageHeaderConfig" | fn.#ObjectExpression
+	BodyConfig?:      _#defs."/$defs/Properties/definitions/InAppMessageBodyConfig"
+	HeaderConfig?:    _#defs."/$defs/Properties/definitions/InAppMessageHeaderConfig"
 	ImageUrl?:        string | fn.#StringExpression
-	PrimaryBtn?:      _#defs."/$defs/Properties/definitions/InAppMessageButton" | fn.#ObjectExpression
-	SecondaryBtn?:    _#defs."/$defs/Properties/definitions/InAppMessageButton" | fn.#ObjectExpression
+	PrimaryBtn?:      _#defs."/$defs/Properties/definitions/InAppMessageButton"
+	SecondaryBtn?:    _#defs."/$defs/Properties/definitions/InAppMessageButton"
 }) |
 fn.#ObjectExpression
 
@@ -130,11 +183,76 @@ _#defs: "/$defs/Properties/definitions/InAppMessageHeaderConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Limits": close({
-	Daily?:             int | fn.#NumberExpression
-	MaximumDuration?:   int | fn.#NumberExpression
-	MessagesPerSecond?: int | fn.#NumberExpression
-	Session?:           int | fn.#NumberExpression
-	Total?:             int | fn.#NumberExpression
+	Daily?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaximumDuration?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MessagesPerSecond?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Session?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Total?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -147,23 +265,36 @@ _#defs: "/$defs/Properties/definitions/Message": close({
 	JsonBody?:          string | fn.#StringExpression
 	MediaUrl?:          string | fn.#StringExpression
 	RawContent?:        string | fn.#StringExpression
-	SilentPush?:        bool | fn.#BooleanExpression
-	TimeToLive?:        int | fn.#NumberExpression
-	Title?:             string | fn.#StringExpression
-	Url?:               string | fn.#StringExpression
+	SilentPush?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	TimeToLive?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Title?: string | fn.#StringExpression
+	Url?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MessageConfiguration": close({
-	ADMMessage?:     _#defs."/$defs/Properties/definitions/Message" | fn.#ObjectExpression
-	APNSMessage?:    _#defs."/$defs/Properties/definitions/Message" | fn.#ObjectExpression
-	BaiduMessage?:   _#defs."/$defs/Properties/definitions/Message" | fn.#ObjectExpression
-	CustomMessage?:  _#defs."/$defs/Properties/definitions/CampaignCustomMessage" | fn.#ObjectExpression
-	DefaultMessage?: _#defs."/$defs/Properties/definitions/Message" | fn.#ObjectExpression
-	EmailMessage?:   _#defs."/$defs/Properties/definitions/CampaignEmailMessage" | fn.#ObjectExpression
-	GCMMessage?:     _#defs."/$defs/Properties/definitions/Message" | fn.#ObjectExpression
-	InAppMessage?:   _#defs."/$defs/Properties/definitions/CampaignInAppMessage" | fn.#ObjectExpression
-	SMSMessage?:     _#defs."/$defs/Properties/definitions/CampaignSmsMessage" | fn.#ObjectExpression
+	ADMMessage?:     _#defs."/$defs/Properties/definitions/Message"
+	APNSMessage?:    _#defs."/$defs/Properties/definitions/Message"
+	BaiduMessage?:   _#defs."/$defs/Properties/definitions/Message"
+	CustomMessage?:  _#defs."/$defs/Properties/definitions/CampaignCustomMessage"
+	DefaultMessage?: _#defs."/$defs/Properties/definitions/Message"
+	EmailMessage?:   _#defs."/$defs/Properties/definitions/CampaignEmailMessage"
+	GCMMessage?:     _#defs."/$defs/Properties/definitions/Message"
+	InAppMessage?:   _#defs."/$defs/Properties/definitions/CampaignInAppMessage"
+	SMSMessage?:     _#defs."/$defs/Properties/definitions/CampaignSmsMessage"
 }) |
 fn.#ObjectExpression
 
@@ -181,10 +312,10 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Schedule": close({
 	EndTime?:     string | fn.#StringExpression
-	EventFilter?: _#defs."/$defs/Properties/definitions/CampaignEventFilter" | fn.#ObjectExpression
+	EventFilter?: _#defs."/$defs/Properties/definitions/CampaignEventFilter"
 	Frequency?:   string | fn.#StringExpression
-	IsLocalTime?: bool | fn.#BooleanExpression
-	QuietTime?:   _#defs."/$defs/Properties/definitions/QuietTime" | fn.#ObjectExpression
+	IsLocalTime?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	QuietTime?:   _#defs."/$defs/Properties/definitions/QuietTime"
 	StartTime?:   string | fn.#StringExpression
 	TimeZone?:    string | fn.#StringExpression
 }) |
@@ -203,20 +334,32 @@ _#defs: "/$defs/Properties/definitions/Template": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TemplateConfiguration": close({
-	EmailTemplate?: _#defs."/$defs/Properties/definitions/Template" | fn.#ObjectExpression
-	PushTemplate?:  _#defs."/$defs/Properties/definitions/Template" | fn.#ObjectExpression
-	SMSTemplate?:   _#defs."/$defs/Properties/definitions/Template" | fn.#ObjectExpression
-	VoiceTemplate?: _#defs."/$defs/Properties/definitions/Template" | fn.#ObjectExpression
+	EmailTemplate?: _#defs."/$defs/Properties/definitions/Template"
+	PushTemplate?:  _#defs."/$defs/Properties/definitions/Template"
+	SMSTemplate?:   _#defs."/$defs/Properties/definitions/Template"
+	VoiceTemplate?: _#defs."/$defs/Properties/definitions/Template"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WriteTreatmentResource": close({
-	CustomDeliveryConfiguration?: _#defs."/$defs/Properties/definitions/CustomDeliveryConfiguration" |
-		fn.#ObjectExpression
-	MessageConfiguration?:  _#defs."/$defs/Properties/definitions/MessageConfiguration" | fn.#ObjectExpression
-	Schedule?:              _#defs."/$defs/Properties/definitions/Schedule" | fn.#ObjectExpression
-	SizePercent?:           int | fn.#NumberExpression
-	TemplateConfiguration?: _#defs."/$defs/Properties/definitions/TemplateConfiguration" | fn.#ObjectExpression
+	CustomDeliveryConfiguration?: _#defs."/$defs/Properties/definitions/CustomDeliveryConfiguration"
+	MessageConfiguration?:        _#defs."/$defs/Properties/definitions/MessageConfiguration"
+	Schedule?:                    _#defs."/$defs/Properties/definitions/Schedule"
+	SizePercent?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TemplateConfiguration?: _#defs."/$defs/Properties/definitions/TemplateConfiguration"
 	TreatmentDescription?:  string | fn.#StringExpression
 	TreatmentName?:         string | fn.#StringExpression
 }) |

@@ -9,6 +9,10 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -23,12 +27,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Environment?: close({
 		AgentCoreRuntimeEnvironment?: close({
 			FilesystemConfigurations?: list.MaxItems(5) & [...] & [
-				..._#defs."/$defs/Properties/definitions/FilesystemConfiguration" | fn.#ObjectExpression
+				..._#defs."/$defs/Properties/definitions/FilesystemConfiguration"
 			] |
 				fn.#ListExpression
-			LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration" |
-				fn.#ObjectExpression
-			NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration" | fn.#ObjectExpression
+			LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration"
+			NetworkConfiguration?:   _#defs."/$defs/Properties/definitions/NetworkConfiguration"
 		}) |
 		fn.#ObjectExpression
 	}) |
@@ -38,22 +41,65 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		{[=~"^[\\s\\S]*$"]: strings.MaxRunes(5000) & strings.MinRunes(0) | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	ExecutionRoleArn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" |
+	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" |
 	fn.#StringExpression
 	HarnessName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,39}$" | fn.#StringExpression
-	Hooks?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/HarnessHook" | fn.#ObjectExpression
-	] |
+	Hooks?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/HarnessHook"] |
 		fn.#ListExpression
-	MaxIterations?: int | fn.#NumberExpression
-	MaxTokens?:     int | fn.#NumberExpression
+	MaxIterations?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxTokens?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Memory?: close({
-		AgentCoreMemoryConfiguration?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreMemoryConfiguration" |
-			fn.#ObjectExpression
-		Disabled?: _#defs."/$defs/Properties/definitions/HarnessDisabledMemoryConfiguration" | fn.#ObjectExpression
+		AgentCoreMemoryConfiguration?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreMemoryConfiguration"
+		Disabled?:                     _#defs."/$defs/Properties/definitions/HarnessDisabledMemoryConfiguration"
 		ManagedMemoryConfiguration?: close({
-			EncryptionKeyArn?:    string | fn.#StringExpression
-			EventExpiryDuration?: int & <=365 & >=3 | fn.#NumberExpression
+			EncryptionKeyArn?: string | fn.#StringExpression
+			EventExpiryDuration?: int & <=365 & >=3 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=365 &
+									>=3,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
 			Strategies?: list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [
 				..."SEMANTIC" | "SUMMARIZATION" | "USER_PREFERENCE" | "EPISODIC" | fn.#StringExpression
 			] |
@@ -62,25 +108,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
-	Model!:  _#defs."/$defs/Properties/definitions/HarnessModelConfiguration" | fn.#ObjectExpression
-	Skills?: [..._#defs."/$defs/Properties/definitions/HarnessSkill" | fn.#ObjectExpression] | fn.#ListExpression
-	SystemPrompt?: [..._#defs."/$defs/Properties/definitions/HarnessSystemContentBlock" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TimeoutSeconds?: int | fn.#NumberExpression
-	Tools?:          [..._#defs."/$defs/Properties/definitions/HarnessTool" | fn.#ObjectExpression] | fn.#ListExpression
-	Truncation?:     _#defs."/$defs/Properties/definitions/HarnessTruncationConfiguration" | fn.#ObjectExpression
+	Model!:        _#defs."/$defs/Properties/definitions/HarnessModelConfiguration" | fn.#ObjectExpression
+	Skills?:       [..._#defs."/$defs/Properties/definitions/HarnessSkill"] | fn.#ListExpression
+	SystemPrompt?: [..._#defs."/$defs/Properties/definitions/HarnessSystemContentBlock"] | fn.#ListExpression
+	Tags?:         list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TimeoutSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Tools?:      [..._#defs."/$defs/Properties/definitions/HarnessTool"] | fn.#ListExpression
+	Truncation?: _#defs."/$defs/Properties/definitions/HarnessTruncationConfiguration" | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close({
-	CustomJWTAuthorizer?: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration" | fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close(
+	{CustomJWTAuthorizer?: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AuthorizingClaimMatchValueType": close({
 	ClaimMatchOperator!: "EQUALS" | "CONTAINS" | "CONTAINS_ANY" | fn.#StringExpression
-	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType" | fn.#ObjectExpression
+	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType"
 }) |
 fn.#ObjectExpression
 
@@ -108,8 +165,7 @@ _#defs: "/$defs/Properties/definitions/ContainerConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomClaimValidationType": close({
-	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType" |
-		fn.#ObjectExpression
+	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType"
 	InboundTokenClaimName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-:]+$" | fn.#StringExpression
 	InboundTokenClaimValueType!: "STRING" | "STRING_ARRAY" | fn.#StringExpression
 }) |
@@ -129,15 +185,11 @@ _#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close(
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	CustomClaims?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/CustomClaimValidationType" | fn.#ObjectExpression
-	] |
+	CustomClaims?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomClaimValidationType"] |
 		fn.#ListExpression
 	DiscoveryUrl!:    =~"^.+/\\.well-known/openid-configuration$" | fn.#StringExpression
-	PrivateEndpoint?: _#defs."/$defs/Properties/definitions/PrivateEndpoint" | fn.#ObjectExpression
-	PrivateEndpointOverrides?: list.MaxItems(5) & [
-		..._#defs."/$defs/Properties/definitions/PrivateEndpointOverride" | fn.#ObjectExpression
-	] |
+	PrivateEndpoint?: _#defs."/$defs/Properties/definitions/PrivateEndpoint"
+	PrivateEndpointOverrides?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/PrivateEndpointOverride"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -151,21 +203,21 @@ _#defs: "/$defs/Properties/definitions/EfsAccessPointConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilesystemConfiguration": close({
-	EfsAccessPoint?:     _#defs."/$defs/Properties/definitions/EfsAccessPointConfiguration" | fn.#ObjectExpression
-	S3FilesAccessPoint?: _#defs."/$defs/Properties/definitions/S3FilesAccessPointConfiguration" | fn.#ObjectExpression
-	SessionStorage?:     _#defs."/$defs/Properties/definitions/SessionStorageConfiguration" | fn.#ObjectExpression
+	EfsAccessPoint?:     _#defs."/$defs/Properties/definitions/EfsAccessPointConfiguration"
+	S3FilesAccessPoint?: _#defs."/$defs/Properties/definitions/S3FilesAccessPointConfiguration"
+	SessionStorage?:     _#defs."/$defs/Properties/definitions/SessionStorageConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessAfterInvocationHook": close({
 	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Target!: _#defs."/$defs/Properties/definitions/HarnessHookTarget" | fn.#ObjectExpression
+	Target!: _#defs."/$defs/Properties/definitions/HarnessHookTarget"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessAfterToolCallHook": close({
 	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Target!: _#defs."/$defs/Properties/definitions/HarnessHookTarget" | fn.#ObjectExpression
+	Target!: _#defs."/$defs/Properties/definitions/HarnessHookTarget"
 }) |
 fn.#ObjectExpression
 
@@ -184,7 +236,7 @@ _#defs: "/$defs/Properties/definitions/HarnessAgentCoreCodeInterpreterConfig": c
 _#defs: "/$defs/Properties/definitions/HarnessAgentCoreGatewayConfig": close({
 	GatewayArn!: =~"^arn:aws(|-cn|-us-gov):bedrock-agentcore:[a-z0-9-]{1,20}:[0-9]{12}:gateway/([0-9a-z][-]?){1,48}-[a-z0-9]{10}$" |
 		fn.#StringExpression
-	OutboundAuth?: _#defs."/$defs/Properties/definitions/HarnessGatewayOutboundAuth" | fn.#ObjectExpression
+	OutboundAuth?: _#defs."/$defs/Properties/definitions/HarnessGatewayOutboundAuth"
 }) |
 fn.#ObjectExpression
 
@@ -192,19 +244,62 @@ _#defs: "/$defs/Properties/definitions/HarnessAgentCoreMemoryConfiguration": clo
 	ActorId?: string | fn.#StringExpression
 	Arn!: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:memory/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
 		fn.#StringExpression
-	MessagesCount?: int | fn.#NumberExpression
+	MessagesCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	RetrievalConfig?: close({
 
-		{[=~"^[\\s\\S]*$"]: _#defs."/$defs/Properties/definitions/HarnessAgentCoreMemoryRetrievalConfig" |
-			fn.#ObjectExpression}}) |
+		{[=~"^[\\s\\S]*$"]: _#defs."/$defs/Properties/definitions/HarnessAgentCoreMemoryRetrievalConfig"}}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessAgentCoreMemoryRetrievalConfig": close({
-	RelevanceScore?: number | fn.#NumberExpression
-	StrategyId?:     string | fn.#StringExpression
-	TopK?:           int | fn.#NumberExpression
+	RelevanceScore?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StrategyId?: string | fn.#StringExpression
+	TopK?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -213,47 +308,98 @@ _#defs: "/$defs/Properties/definitions/HarnessAgentCoreRuntimeEnvironment": clos
 	AgentRuntimeId?:   string | fn.#StringExpression
 	AgentRuntimeName?: string | fn.#StringExpression
 	FilesystemConfigurations?: list.MaxItems(5) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FilesystemConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/FilesystemConfiguration"
 	] |
 		fn.#ListExpression
-	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration" | fn.#ObjectExpression
-	NetworkConfiguration?:   _#defs."/$defs/Properties/definitions/NetworkConfiguration" | fn.#ObjectExpression
+	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration"
+	NetworkConfiguration?:   _#defs."/$defs/Properties/definitions/NetworkConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessBedrockModelConfig": close({
 	AdditionalParams?: {[string]: fn.#Value} | fn.#ObjectExpression
 	ApiFormat?:        "converse_stream" | "responses" | "chat_completions" | fn.#StringExpression
-	MaxTokens?:        int & >=1 | fn.#NumberExpression
-	ModelId!:          string | fn.#StringExpression
-	Temperature?:      <=2 & >=0 | fn.#NumberExpression
-	TopP?:             <=1 & >=0 | fn.#NumberExpression
+	MaxTokens?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ModelId!: string | fn.#StringExpression
+	Temperature?: <=2 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=2 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TopP?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessBeforeInvocationHook": close({
 	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Target!: _#defs."/$defs/Properties/definitions/HarnessHookTarget" | fn.#ObjectExpression
+	Target!: _#defs."/$defs/Properties/definitions/HarnessHookTarget"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessBeforeToolCallHook": close({
 	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Target!: _#defs."/$defs/Properties/definitions/HarnessHookTarget" | fn.#ObjectExpression
+	Target!: _#defs."/$defs/Properties/definitions/HarnessHookTarget"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessDisabledMemoryConfiguration": close({}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessEnvironmentArtifact": close(
-	{ContainerConfiguration?: _#defs."/$defs/Properties/definitions/ContainerConfiguration" | fn.#ObjectExpression},
+	{ContainerConfiguration?: _#defs."/$defs/Properties/definitions/ContainerConfiguration"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessEnvironmentProvider": close({
-	AgentCoreRuntimeEnvironment?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreRuntimeEnvironment" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/HarnessEnvironmentProvider": close(
+	{AgentCoreRuntimeEnvironment?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreRuntimeEnvironment"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessGatewayOutboundAuth": matchN(1, [{
@@ -268,7 +414,7 @@ _#defs: "/$defs/Properties/definitions/HarnessGatewayOutboundAuth": matchN(1, [{
 }]) & close({
 	AwsIam?: close({}) | fn.#ObjectExpression
 	None?:   close({}) | fn.#ObjectExpression
-	Oauth?:  _#defs."/$defs/Properties/definitions/OAuthCredentialProvider" | fn.#ObjectExpression
+	Oauth?:  _#defs."/$defs/Properties/definitions/OAuthCredentialProvider"
 }) |
 fn.#ObjectExpression
 
@@ -276,11 +422,78 @@ _#defs: "/$defs/Properties/definitions/HarnessGeminiModelConfig": close({
 	AdditionalParams?: {[string]: fn.#Value} | fn.#ObjectExpression
 	ApiKeyArn!: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:token-vault/[a-zA-Z0-9-.]+/apikeycredentialprovider/[a-zA-Z0-9-.]+$" |
 		fn.#StringExpression
-	MaxTokens?:   int & >=1 | fn.#NumberExpression
-	ModelId!:     string | fn.#StringExpression
-	Temperature?: <=2 & >=0 | fn.#NumberExpression
-	TopK?:        int & <=500 & >=0 | fn.#NumberExpression
-	TopP?:        <=1 & >=0 | fn.#NumberExpression
+	MaxTokens?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ModelId!: string | fn.#StringExpression
+	Temperature?: <=2 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=2 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TopK?: int & <=500 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=500 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TopP?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -297,10 +510,10 @@ _#defs: "/$defs/Properties/definitions/HarnessHook": matchN(1, [{
 	AfterToolCall!: _
 	...
 }]) & close({
-	AfterInvocation?:  _#defs."/$defs/Properties/definitions/HarnessAfterInvocationHook" | fn.#ObjectExpression
-	AfterToolCall?:    _#defs."/$defs/Properties/definitions/HarnessAfterToolCallHook" | fn.#ObjectExpression
-	BeforeInvocation?: _#defs."/$defs/Properties/definitions/HarnessBeforeInvocationHook" | fn.#ObjectExpression
-	BeforeToolCall?:   _#defs."/$defs/Properties/definitions/HarnessBeforeToolCallHook" | fn.#ObjectExpression
+	AfterInvocation?:  _#defs."/$defs/Properties/definitions/HarnessAfterInvocationHook"
+	AfterToolCall?:    _#defs."/$defs/Properties/definitions/HarnessAfterToolCallHook"
+	BeforeInvocation?: _#defs."/$defs/Properties/definitions/HarnessBeforeInvocationHook"
+	BeforeToolCall?:   _#defs."/$defs/Properties/definitions/HarnessBeforeToolCallHook"
 }) |
 fn.#ObjectExpression
 
@@ -315,8 +528,23 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/HarnessHookLambdaTarget": close({
 	Arn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws(-[^:]+)?:lambda:[a-z0-9-]+:[0-9]{12}:function:.+$" |
 	fn.#StringExpression
-	FailureMode?:    "allow" | "deny" | fn.#StringExpression
-	TimeoutSeconds?: int & <=900 & >=1 | fn.#NumberExpression
+	FailureMode?: "allow" | "deny" | fn.#StringExpression
+	TimeoutSeconds?: int & <=900 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=900 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -336,9 +564,9 @@ _#defs: "/$defs/Properties/definitions/HarnessHookTarget": matchN(1, [{
 	EventBridge!: _
 	...
 }]) & close({
-	EventBridge?: _#defs."/$defs/Properties/definitions/HarnessHookEventBridgeTarget" | fn.#ObjectExpression
-	Lambda?:      _#defs."/$defs/Properties/definitions/HarnessHookLambdaTarget" | fn.#ObjectExpression
-	Sns?:         _#defs."/$defs/Properties/definitions/HarnessHookSnsTarget" | fn.#ObjectExpression
+	EventBridge?: _#defs."/$defs/Properties/definitions/HarnessHookEventBridgeTarget"
+	Lambda?:      _#defs."/$defs/Properties/definitions/HarnessHookLambdaTarget"
+	Sns?:         _#defs."/$defs/Properties/definitions/HarnessHookSnsTarget"
 }) |
 fn.#ObjectExpression
 
@@ -353,18 +581,85 @@ _#defs: "/$defs/Properties/definitions/HarnessLiteLlmModelConfig": close({
 	ApiBase?:          strings.MaxRunes(16383) & strings.MinRunes(1) | fn.#StringExpression
 	ApiKeyArn?: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:token-vault/[a-zA-Z0-9-.]+/apikeycredentialprovider/[a-zA-Z0-9-.]+$" |
 		fn.#StringExpression
-	MaxTokens?:   int & >=1 | fn.#NumberExpression
-	ModelId!:     string | fn.#StringExpression
-	Temperature?: <=2 & >=0 | fn.#NumberExpression
-	TopP?:        <=1 & >=0 | fn.#NumberExpression
+	MaxTokens?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ModelId!: string | fn.#StringExpression
+	Temperature?: <=2 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=2 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TopP?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessManagedMemoryConfiguration": close({
 	Arn?: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:memory/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
 		fn.#StringExpression
-	EncryptionKeyArn?:    string | fn.#StringExpression
-	EventExpiryDuration?: int & <=365 & >=3 | fn.#NumberExpression
+	EncryptionKeyArn?: string | fn.#StringExpression
+	EventExpiryDuration?: int & <=365 & >=3 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=365 &
+							>=3,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Strategies?: list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [
 		..."SEMANTIC" | "SUMMARIZATION" | "USER_PREFERENCE" | "EPISODIC" | fn.#StringExpression
 	] |
@@ -373,11 +668,9 @@ _#defs: "/$defs/Properties/definitions/HarnessManagedMemoryConfiguration": close
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessMemoryConfiguration": close({
-	AgentCoreMemoryConfiguration?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreMemoryConfiguration" |
-		fn.#ObjectExpression
-	Disabled?: _#defs."/$defs/Properties/definitions/HarnessDisabledMemoryConfiguration" | fn.#ObjectExpression
-	ManagedMemoryConfiguration?: _#defs."/$defs/Properties/definitions/HarnessManagedMemoryConfiguration" |
-		fn.#ObjectExpression
+	AgentCoreMemoryConfiguration?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreMemoryConfiguration"
+	Disabled?:                     _#defs."/$defs/Properties/definitions/HarnessDisabledMemoryConfiguration"
+	ManagedMemoryConfiguration?:   _#defs."/$defs/Properties/definitions/HarnessManagedMemoryConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -394,10 +687,10 @@ _#defs: "/$defs/Properties/definitions/HarnessModelConfiguration": matchN(1, [{
 	LiteLlmModelConfig!: _
 	...
 }]) & close({
-	BedrockModelConfig?: _#defs."/$defs/Properties/definitions/HarnessBedrockModelConfig" | fn.#ObjectExpression
-	GeminiModelConfig?:  _#defs."/$defs/Properties/definitions/HarnessGeminiModelConfig" | fn.#ObjectExpression
-	LiteLlmModelConfig?: _#defs."/$defs/Properties/definitions/HarnessLiteLlmModelConfig" | fn.#ObjectExpression
-	OpenAiModelConfig?:  _#defs."/$defs/Properties/definitions/HarnessOpenAiModelConfig" | fn.#ObjectExpression
+	BedrockModelConfig?: _#defs."/$defs/Properties/definitions/HarnessBedrockModelConfig"
+	GeminiModelConfig?:  _#defs."/$defs/Properties/definitions/HarnessGeminiModelConfig"
+	LiteLlmModelConfig?: _#defs."/$defs/Properties/definitions/HarnessLiteLlmModelConfig"
+	OpenAiModelConfig?:  _#defs."/$defs/Properties/definitions/HarnessOpenAiModelConfig"
 }) |
 fn.#ObjectExpression
 
@@ -407,10 +700,62 @@ _#defs: "/$defs/Properties/definitions/HarnessOpenAiModelConfig": close({
 	ApiFormat?:        "chat_completions" | "responses" | fn.#StringExpression
 	ApiKeyArn!: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:token-vault/[a-zA-Z0-9-.]+/apikeycredentialprovider/[a-zA-Z0-9-.]+$" |
 		fn.#StringExpression
-	MaxTokens?:   int & >=1 | fn.#NumberExpression
-	ModelId!:     string | fn.#StringExpression
-	Temperature?: <=2 & >=0 | fn.#NumberExpression
-	TopP?:        <=1 & >=0 | fn.#NumberExpression
+	MaxTokens?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ModelId!: string | fn.#StringExpression
+	Temperature?: <=2 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=2 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TopP?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -424,10 +769,10 @@ _#defs: "/$defs/Properties/definitions/HarnessRemoteMcpConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessSkill": close({
-	AwsSkills?: _#defs."/$defs/Properties/definitions/HarnessSkillAwsSkillsSource" | fn.#ObjectExpression
-	Git?:       _#defs."/$defs/Properties/definitions/HarnessSkillGitSource" | fn.#ObjectExpression
+	AwsSkills?: _#defs."/$defs/Properties/definitions/HarnessSkillAwsSkillsSource"
+	Git?:       _#defs."/$defs/Properties/definitions/HarnessSkillGitSource"
 	Path?:      strings.MinRunes(1) | fn.#StringExpression
-	S3?:        _#defs."/$defs/Properties/definitions/HarnessSkillS3Source" | fn.#ObjectExpression
+	S3?:        _#defs."/$defs/Properties/definitions/HarnessSkillS3Source"
 }) |
 fn.#ObjectExpression
 
@@ -445,7 +790,7 @@ _#defs: "/$defs/Properties/definitions/HarnessSkillGitAuth": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessSkillGitSource": close({
-	Auth?: _#defs."/$defs/Properties/definitions/HarnessSkillGitAuth" | fn.#ObjectExpression
+	Auth?: _#defs."/$defs/Properties/definitions/HarnessSkillGitAuth"
 	Path?: string | fn.#StringExpression
 	Url!:  strings.MinRunes(8) & =~"^https://" | fn.#StringExpression
 }) |
@@ -456,9 +801,22 @@ _#defs: "/$defs/Properties/definitions/HarnessSkillS3Source": close(
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessSlidingWindowConfiguration": close(
-	{MessagesCount?: int | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/HarnessSlidingWindowConfiguration": close({
+	MessagesCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessStatus": "CREATING" |
@@ -471,9 +829,40 @@ _#defs: "/$defs/Properties/definitions/HarnessStatus": "CREATING" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessSummarizationConfiguration": close({
-	PreserveRecentMessages?:    int | fn.#NumberExpression
+	PreserveRecentMessages?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SummarizationSystemPrompt?: string | fn.#StringExpression
-	SummaryRatio?:              number | fn.#NumberExpression
+	SummaryRatio?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -483,7 +872,7 @@ _#defs: "/$defs/Properties/definitions/HarnessSystemContentBlock": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessTool": close({
-	Config?: _#defs."/$defs/Properties/definitions/HarnessToolConfiguration" | fn.#ObjectExpression
+	Config?: _#defs."/$defs/Properties/definitions/HarnessToolConfiguration"
 	Name?:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	Type!: "remote_mcp" |
 		"agentcore_browser" |
@@ -510,37 +899,70 @@ _#defs: "/$defs/Properties/definitions/HarnessToolConfiguration": matchN(1, [{
 	AgentCoreCodeInterpreter!: _
 	...
 }]) & close({
-	AgentCoreBrowser?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreBrowserConfig" | fn.#ObjectExpression
-	AgentCoreCodeInterpreter?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreCodeInterpreterConfig" |
-		fn.#ObjectExpression
-	AgentCoreGateway?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreGatewayConfig" | fn.#ObjectExpression
-	InlineFunction?:   _#defs."/$defs/Properties/definitions/HarnessInlineFunctionConfig" | fn.#ObjectExpression
-	RemoteMcp?:        _#defs."/$defs/Properties/definitions/HarnessRemoteMcpConfig" | fn.#ObjectExpression
+	AgentCoreBrowser?:         _#defs."/$defs/Properties/definitions/HarnessAgentCoreBrowserConfig"
+	AgentCoreCodeInterpreter?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreCodeInterpreterConfig"
+	AgentCoreGateway?:         _#defs."/$defs/Properties/definitions/HarnessAgentCoreGatewayConfig"
+	InlineFunction?:           _#defs."/$defs/Properties/definitions/HarnessInlineFunctionConfig"
+	RemoteMcp?:                _#defs."/$defs/Properties/definitions/HarnessRemoteMcpConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessTruncationConfiguration": close({
-	Config?:   _#defs."/$defs/Properties/definitions/HarnessTruncationStrategyConfiguration" | fn.#ObjectExpression
+	Config?:   _#defs."/$defs/Properties/definitions/HarnessTruncationStrategyConfiguration"
 	Strategy!: "sliding_window" | "summarization" | "none" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessTruncationStrategyConfiguration": close({
-	SlidingWindow?: _#defs."/$defs/Properties/definitions/HarnessSlidingWindowConfiguration" | fn.#ObjectExpression
-	Summarization?: _#defs."/$defs/Properties/definitions/HarnessSummarizationConfiguration" | fn.#ObjectExpression
+	SlidingWindow?: _#defs."/$defs/Properties/definitions/HarnessSlidingWindowConfiguration"
+	Summarization?: _#defs."/$defs/Properties/definitions/HarnessSummarizationConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
-	IdleRuntimeSessionTimeout?: int & <=1209600 & >=60 | fn.#NumberExpression
-	MaxLifetime?:               int & <=1209600 & >=60 | fn.#NumberExpression
+	IdleRuntimeSessionTimeout?: int & <=1209600 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1209600 &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxLifetime?: int & <=1209600 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1209600 &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
 	EndpointIpAddressType!: "IPV4" | "IPV6" | fn.#StringExpression
 	RoutingDomain?:         strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-	SecurityGroupIds?: list.MaxItems(5) & [...] & [...=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" | fn.#StringExpression] |
+	SecurityGroupIds?: list.MaxItems(5) & [...] & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+			fn.#StringExpression
+	] |
 		fn.#ListExpression
 	SubnetIds!: [...=~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression] | fn.#ListExpression
 	Tags?: struct.MaxFields(50) & close({
@@ -554,7 +976,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
 	NetworkMode!:       "PUBLIC" | "VPC" | fn.#StringExpression
-	NetworkModeConfig?: _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
+	NetworkModeConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
 }) |
 fn.#ObjectExpression
 
@@ -573,15 +995,14 @@ _#defs: "/$defs/Properties/definitions/OAuthCredentialProvider": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateEndpoint": close({
-	ManagedVpcResource?: _#defs."/$defs/Properties/definitions/ManagedVpcResource" | fn.#ObjectExpression
-	SelfManagedLatticeResource?: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource" |
-		fn.#ObjectExpression
+	ManagedVpcResource?:         _#defs."/$defs/Properties/definitions/ManagedVpcResource"
+	SelfManagedLatticeResource?: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateEndpointOverride": close({
 	Domain!:          strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
-	PrivateEndpoint!: _#defs."/$defs/Properties/definitions/PrivateEndpoint" | fn.#ObjectExpression
+	PrivateEndpoint!: _#defs."/$defs/Properties/definitions/PrivateEndpoint"
 }) |
 fn.#ObjectExpression
 
@@ -613,7 +1034,11 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroups!: list.MaxItems(16) & list.MinItems(1) & [...=~"^sg-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression] |
+	SecurityGroups!: list.MaxItems(16) & list.MinItems(1) & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^sg-[0-9a-zA-Z]{8,17}$" |
+			fn.#StringExpression
+	] |
 		fn.#ListExpression
 	Subnets!: list.MaxItems(16) & list.MinItems(1) & [...=~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression] |
 		fn.#ListExpression

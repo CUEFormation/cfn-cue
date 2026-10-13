@@ -10,16 +10,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::DocDB::DBInstance
 #Properties: close({
-	AutoMinorVersionUpgrade?:    bool | fn.#BooleanExpression
+	AutoMinorVersionUpgrade?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AvailabilityZone?:           string | fn.#StringExpression
 	CACertificateIdentifier?:    string | fn.#StringExpression
-	CertificateRotationRestart?: bool | fn.#BooleanExpression
+	CertificateRotationRestart?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DBClusterIdentifier!:        string | fn.#StringExpression
 	DBInstanceClass!:            string | fn.#StringExpression
 	DBInstanceIdentifier?:       string | fn.#StringExpression
-	EnablePerformanceInsights?:  bool | fn.#BooleanExpression
+	EnablePerformanceInsights?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PreferredMaintenanceWindow?: string | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                       [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

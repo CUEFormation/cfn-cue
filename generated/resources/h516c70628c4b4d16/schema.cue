@@ -14,16 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::PaymentCryptography::Key Resource Type
 #Properties: close({
-	DeriveKeyUsage?:         _#defs."/$defs/Properties/definitions/DeriveKeyUsage" | fn.#StringExpression
-	Enabled?:                bool | fn.#BooleanExpression
-	Exportable!:             bool | fn.#BooleanExpression
-	KeyAttributes!:          _#defs."/$defs/Properties/definitions/KeyAttributes" | fn.#ObjectExpression
-	KeyCheckValueAlgorithm?: _#defs."/$defs/Properties/definitions/KeyCheckValueAlgorithm" | fn.#StringExpression
+	DeriveKeyUsage?:         _#defs."/$defs/Properties/definitions/DeriveKeyUsage"
+	Enabled?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Exportable!:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KeyAttributes!:          _#defs."/$defs/Properties/definitions/KeyAttributes"
+	KeyCheckValueAlgorithm?: _#defs."/$defs/Properties/definitions/KeyCheckValueAlgorithm"
 	Policy?: strings.MaxRunes(20480) & strings.MinRunes(1) & =~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
 	fn.#StringExpression
 	ReplicationRegions?: [...=~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$" | fn.#StringExpression] | fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DeriveKeyUsage": "TR31_B0_BASE_DERIVATION_KEY" |
@@ -65,10 +64,10 @@ _#defs: "/$defs/Properties/definitions/KeyAlgorithm": "TDES_2KEY" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/KeyAttributes": close({
-	KeyAlgorithm!:  _#defs."/$defs/Properties/definitions/KeyAlgorithm" | fn.#StringExpression
-	KeyClass!:      _#defs."/$defs/Properties/definitions/KeyClass" | fn.#StringExpression
-	KeyModesOfUse!: _#defs."/$defs/Properties/definitions/KeyModesOfUse" | fn.#ObjectExpression
-	KeyUsage!:      _#defs."/$defs/Properties/definitions/KeyUsage" | fn.#StringExpression
+	KeyAlgorithm!:  _#defs."/$defs/Properties/definitions/KeyAlgorithm"
+	KeyClass!:      _#defs."/$defs/Properties/definitions/KeyClass"
+	KeyModesOfUse!: _#defs."/$defs/Properties/definitions/KeyModesOfUse"
+	KeyUsage!:      _#defs."/$defs/Properties/definitions/KeyUsage"
 }) |
 fn.#ObjectExpression
 
@@ -85,15 +84,15 @@ _#defs: "/$defs/Properties/definitions/KeyClass": "SYMMETRIC_KEY" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/KeyModesOfUse": close({
-	Decrypt?:        bool | fn.#BooleanExpression
-	DeriveKey?:      bool | fn.#BooleanExpression
-	Encrypt?:        bool | fn.#BooleanExpression
-	Generate?:       bool | fn.#BooleanExpression
-	NoRestrictions?: bool | fn.#BooleanExpression
-	Sign?:           bool | fn.#BooleanExpression
-	Unwrap?:         bool | fn.#BooleanExpression
-	Verify?:         bool | fn.#BooleanExpression
-	Wrap?:           bool | fn.#BooleanExpression
+	Decrypt?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DeriveKey?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Encrypt?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Generate?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NoRestrictions?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Sign?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Unwrap?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Verify?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Wrap?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -139,18 +138,22 @@ _#defs: "/$defs/Properties/definitions/KeyUsage": "TR31_B0_BASE_DERIVATION_KEY" 
 
 _#defs: "/$defs/Properties/definitions/ReplicationStatus": close({
 
-	{[=~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$"]: _#defs."/$defs/Properties/definitions/ReplicationStatusType" |
-		fn.#ObjectExpression}}) |
+	{[=~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$"]: _#defs."/$defs/Properties/definitions/ReplicationStatusType"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReplicationStatusType": close({
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[^:]+)?:kms:[a-z0-9-]{1,20}:[0-9]{12}:key/[a-zA-Z0-9-]+$" |
 	fn.#StringExpression
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/_-]+$" |
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9:/_-]+$" |
 	fn.#StringExpression
-	Status!:        _#defs."/$defs/Properties/definitions/KeyReplicationState" | fn.#StringExpression
+	Status!:        _#defs."/$defs/Properties/definitions/KeyReplicationState"
 	StatusMessage?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

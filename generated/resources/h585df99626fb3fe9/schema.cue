@@ -11,7 +11,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::KinesisAnalyticsV2::ApplicationCloudWatchLoggingOption
 #Properties: close({
 	ApplicationName!:         string | fn.#StringExpression
-	CloudWatchLoggingOption!: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOption" | fn.#ObjectExpression
+	CloudWatchLoggingOption!: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOption"
 })
 
 _#defs: "/$defs/Properties/definitions/CloudWatchLoggingOption": close({LogStreamARN!: string | fn.#StringExpression}) |

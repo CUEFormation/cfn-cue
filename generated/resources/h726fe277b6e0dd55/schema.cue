@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -26,9 +30,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
 	fn.#StringExpression
 	Name!:                 strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	PrivacyConfiguration?: _#defs."/$defs/Properties/definitions/PrivacyConfiguration" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	PrivacyConfiguration?: _#defs."/$defs/Properties/definitions/PrivacyConfiguration"
+	Tags?:                 list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CustomEntityConfig": close({
@@ -48,10 +51,8 @@ _#defs: "/$defs/Properties/definitions/EntityType": "ALL_PERSONALLY_IDENTIFIABLE
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LogRedactionConfiguration": close({
-	CustomEntityConfig?: _#defs."/$defs/Properties/definitions/CustomEntityConfig" | fn.#ObjectExpression
-	EntitiesToRedact!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/EntityType" | fn.#StringExpression
-	] |
+	CustomEntityConfig?: _#defs."/$defs/Properties/definitions/CustomEntityConfig"
+	EntitiesToRedact!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EntityType"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -62,29 +63,27 @@ _#defs: "/$defs/Properties/definitions/LogsConfigurationPolicy": close({
 	AllowedAccountIds!: list.MaxItems(5) & list.MinItems(1) & [...=~"^[0-9]{12}$" | fn.#StringExpression] |
 		fn.#ListExpression
 	FilterPattern?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	LogRedactionConfiguration?: _#defs."/$defs/Properties/definitions/LogRedactionConfiguration" | fn.#ObjectExpression
-	LogType?:                   _#defs."/$defs/Properties/definitions/LogType" | fn.#StringExpression
+	LogRedactionConfiguration?: _#defs."/$defs/Properties/definitions/LogRedactionConfiguration"
+	LogType?:                   _#defs."/$defs/Properties/definitions/LogType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetricsConfigurationPolicy": close(
-	{NoiseLevel!: _#defs."/$defs/Properties/definitions/NoiseLevelType" | fn.#StringExpression},
+	{NoiseLevel!: _#defs."/$defs/Properties/definitions/NoiseLevelType"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NoiseLevelType": "HIGH" | "MEDIUM" | "LOW" | "NONE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PrivacyConfiguration": close(
-	{Policies!: _#defs."/$defs/Properties/definitions/PrivacyConfigurationPolicies" | fn.#ObjectExpression},
+	{Policies!: _#defs."/$defs/Properties/definitions/PrivacyConfigurationPolicies"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivacyConfigurationPolicies": close({
-	TrainedModelExports?: _#defs."/$defs/Properties/definitions/TrainedModelExportsConfigurationPolicy" |
-		fn.#ObjectExpression
-	TrainedModelInferenceJobs?: _#defs."/$defs/Properties/definitions/TrainedModelInferenceJobsConfigurationPolicy" |
-		fn.#ObjectExpression
-	TrainedModels?: _#defs."/$defs/Properties/definitions/TrainedModelsConfigurationPolicy" | fn.#ObjectExpression
+	TrainedModelExports?:       _#defs."/$defs/Properties/definitions/TrainedModelExportsConfigurationPolicy"
+	TrainedModelInferenceJobs?: _#defs."/$defs/Properties/definitions/TrainedModelInferenceJobsConfigurationPolicy"
+	TrainedModels?:             _#defs."/$defs/Properties/definitions/TrainedModelsConfigurationPolicy"
 }) |
 fn.#ObjectExpression
 
@@ -95,8 +94,27 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TrainedModelArtifactMaxSize": close({
-	Unit!:  _#defs."/$defs/Properties/definitions/TrainedModelArtifactMaxSizeUnitType" | fn.#StringExpression
-	Value!: <=10 & >=0.01 | fn.#NumberExpression
+	Unit!: _#defs."/$defs/Properties/definitions/TrainedModelArtifactMaxSizeUnitType"
+	Value!: <=10 & >=0.01 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=10 &
+							>=0.01,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -106,16 +124,35 @@ _#defs: "/$defs/Properties/definitions/TrainedModelExportFileType": "MODEL" | "O
 
 _#defs: "/$defs/Properties/definitions/TrainedModelExportsConfigurationPolicy": close({
 	FilesToExport!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TrainedModelExportFileType" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/TrainedModelExportFileType"
 	] |
 		fn.#ListExpression
-	MaxSize!: _#defs."/$defs/Properties/definitions/TrainedModelExportsMaxSize" | fn.#ObjectExpression
+	MaxSize!: _#defs."/$defs/Properties/definitions/TrainedModelExportsMaxSize"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TrainedModelExportsMaxSize": close({
-	Unit!:  _#defs."/$defs/Properties/definitions/TrainedModelExportsMaxSizeUnitType" | fn.#StringExpression
-	Value!: <=10 & >=0.01 | fn.#NumberExpression
+	Unit!: _#defs."/$defs/Properties/definitions/TrainedModelExportsMaxSizeUnitType"
+	Value!: <=10 & >=0.01 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=10 &
+							>=0.01,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -123,16 +160,35 @@ _#defs: "/$defs/Properties/definitions/TrainedModelExportsMaxSizeUnitType": "GB"
 
 _#defs: "/$defs/Properties/definitions/TrainedModelInferenceJobsConfigurationPolicy": close({
 	ContainerLogs?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/LogsConfigurationPolicy" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/LogsConfigurationPolicy"
 	] |
 		fn.#ListExpression
-	MaxOutputSize?: _#defs."/$defs/Properties/definitions/TrainedModelInferenceMaxOutputSize" | fn.#ObjectExpression
+	MaxOutputSize?: _#defs."/$defs/Properties/definitions/TrainedModelInferenceMaxOutputSize"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TrainedModelInferenceMaxOutputSize": close({
-	Unit!:  _#defs."/$defs/Properties/definitions/TrainedModelInferenceMaxOutputSizeUnitType" | fn.#StringExpression
-	Value!: <=50 & >=0.01 | fn.#NumberExpression
+	Unit!: _#defs."/$defs/Properties/definitions/TrainedModelInferenceMaxOutputSizeUnitType"
+	Value!: <=50 & >=0.01 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=50 &
+							>=0.01,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -140,11 +196,11 @@ _#defs: "/$defs/Properties/definitions/TrainedModelInferenceMaxOutputSizeUnitTyp
 
 _#defs: "/$defs/Properties/definitions/TrainedModelsConfigurationPolicy": close({
 	ContainerLogs?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/LogsConfigurationPolicy" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/LogsConfigurationPolicy"
 	] |
 		fn.#ListExpression
-	ContainerMetrics?: _#defs."/$defs/Properties/definitions/MetricsConfigurationPolicy" | fn.#ObjectExpression
-	MaxArtifactSize?:  _#defs."/$defs/Properties/definitions/TrainedModelArtifactMaxSize" | fn.#ObjectExpression
+	ContainerMetrics?: _#defs."/$defs/Properties/definitions/MetricsConfigurationPolicy"
+	MaxArtifactSize?:  _#defs."/$defs/Properties/definitions/TrainedModelArtifactMaxSize"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

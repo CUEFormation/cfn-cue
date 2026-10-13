@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // only one Cases domain.
 #Properties: close({
 	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DomainStatus": "Active" |

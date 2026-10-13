@@ -27,27 +27,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}
 ])]) & close({
 	ExcludeFilters?: list.MaxItems(1000) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricStreamFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MetricStreamFilter"
 	] |
 		fn.#ListExpression
 	FirehoseArn?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 	IncludeFilters?: list.MaxItems(1000) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricStreamFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MetricStreamFilter"
 	] |
 		fn.#ListExpression
-	IncludeLinkedAccountsMetrics?: bool | fn.#BooleanExpression
+	IncludeLinkedAccountsMetrics?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name?:                         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	OutputFormat?: ("json" | "opentelemetry0.7" | "opentelemetry1.0") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
 	fn.#StringExpression
-	RoleArn?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 	StatisticsConfigurations?: list.MaxItems(100) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricStreamStatisticsConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MetricStreamStatisticsConfiguration"
 	] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/MetricStreamFilter": close({
@@ -61,7 +59,7 @@ _#defs: "/$defs/Properties/definitions/MetricStreamStatisticsConfiguration": clo
 	AdditionalStatistics!: list.MaxItems(20) & list.UniqueItems() & [...string | fn.#StringExpression] |
 		fn.#ListExpression
 	IncludeMetrics!: list.MaxItems(100) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricStreamStatisticsMetric" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MetricStreamStatisticsMetric"
 	] |
 		fn.#ListExpression
 }) |

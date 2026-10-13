@@ -7,32 +7,131 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::MLTransform
 #Properties: close({
-	Description?:         strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	GlueVersion?:         strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
-	InputRecordTables!:   _#defs."/$defs/Properties/definitions/InputRecordTables" | fn.#ObjectExpression
-	MaxCapacity?:         <=100 & >=1 | fn.#NumberExpression
-	MaxRetries?:          int | fn.#NumberExpression
-	Name?:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	NumberOfWorkers?:     int | fn.#NumberExpression
-	Role!:                string | fn.#StringExpression
-	Tags?:                string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	Timeout?:             int & >=1 | fn.#NumberExpression
+	Description?:       strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+	GlueVersion?:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
+	InputRecordTables!: _#defs."/$defs/Properties/definitions/InputRecordTables" | fn.#ObjectExpression
+	MaxCapacity?: <=100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxRetries?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	NumberOfWorkers?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Role!: string | fn.#StringExpression
+	Tags?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Timeout?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	TransformEncryption?: _#defs."/$defs/Properties/definitions/TransformEncryption" | fn.#ObjectExpression
 	TransformParameters!: _#defs."/$defs/Properties/definitions/TransformParameters" | fn.#ObjectExpression
 	WorkerType?:          "G.025X" | "G.1X" | "G.2X" | "G.4X" | "G.8X" | "Standard" | "Z.2X" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/FindMatchesParameters": close({
-	AccuracyCostTradeoff?:    number | fn.#NumberExpression
-	EnforceProvidedLabels?:   bool | fn.#BooleanExpression
-	PrecisionRecallTradeoff?: number | fn.#NumberExpression
-	PrimaryKeyColumnName!:    string | fn.#StringExpression
+	AccuracyCostTradeoff?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	EnforceProvidedLabels?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PrecisionRecallTradeoff?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PrimaryKeyColumnName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -45,12 +144,14 @@ _#defs: "/$defs/Properties/definitions/GlueTables": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InputRecordTables": close(
-	{GlueTables?: [..._#defs."/$defs/Properties/definitions/GlueTables" | fn.#ObjectExpression] | fn.#ListExpression},
+	{GlueTables?: [..._#defs."/$defs/Properties/definitions/GlueTables"] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MLUserDataEncryption": close({
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(255) & strings.MinRunes(1)) | fn.#StringExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+	fn.#StringExpression
 	MLUserDataEncryptionMode!: "DISABLED" | "SSE-KMS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -62,13 +163,13 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TransformEncryption": close({
-	MLUserDataEncryption?: _#defs."/$defs/Properties/definitions/MLUserDataEncryption" | fn.#ObjectExpression
+	MLUserDataEncryption?:             _#defs."/$defs/Properties/definitions/MLUserDataEncryption"
 	TaskRunSecurityConfigurationName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TransformParameters": close({
-	FindMatchesParameters?: _#defs."/$defs/Properties/definitions/FindMatchesParameters" | fn.#ObjectExpression
+	FindMatchesParameters?: _#defs."/$defs/Properties/definitions/FindMatchesParameters"
 	TransformType!:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

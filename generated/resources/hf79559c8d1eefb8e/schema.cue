@@ -27,7 +27,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 _#defs: "/$defs/Properties/definitions/HostPropertiesRequest": close({
 	HostName?:    =~"^[a-zA-Z0-9_\\.\\-]{0,255}$" | fn.#StringExpression
-	IpAddresses?: _#defs."/$defs/Properties/definitions/IpAddresses" | fn.#ObjectExpression
+	IpAddresses?: _#defs."/$defs/Properties/definitions/IpAddresses"
 }) |
 fn.#ObjectExpression
 

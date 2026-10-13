@@ -64,7 +64,7 @@ import (
 	PluginAdminEnabled?: bool
 
 	// IAM Role that will be used to grant the Grafana workspace access to a customers AWS resources.
-	RoleArn?:                 strings.MaxRunes(2048) & strings.MinRunes(1)
+	RoleArn?:                 =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
 	SamlConfiguration?:       _#defs."/$defs/Properties/definitions/SamlConfiguration"
 	SamlConfigurationStatus?: _#defs."/$defs/Properties/definitions/SamlConfigurationStatus"
 
@@ -197,7 +197,7 @@ _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
 	// The list of Amazon EC2 security group IDs attached to the Amazon VPC for your
 	// Grafana workspace to connect.
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(255) & strings.MinRunes(1)
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1))
 	]
 
 	// The list of Amazon EC2 subnet IDs created in the Amazon VPC for your Grafana

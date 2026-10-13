@@ -3,11 +3,15 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"time"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -15,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::MPA::ApprovalTeam.
 #Properties: close({
-	ApprovalStrategy!: _#defs."/$defs/Properties/definitions/ApprovalStrategy" | fn.#ObjectExpression
+	ApprovalStrategy!: _#defs."/$defs/Properties/definitions/ApprovalStrategy"
 	Approvers!: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...close({
 		PrimaryIdentityId!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 		PrimaryIdentitySourceArn!: strings.MaxRunes(1000) | fn.#StringExpression
@@ -25,14 +29,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:        strings.MaxRunes(64) & =~"^[a-zA-Z0-9._-]+$" | fn.#StringExpression
 	Policies!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Policy" | fn.#ValueExpression
+		..._#defs."/$defs/Properties/definitions/Policy"
 	] |
 		fn.#ListExpression
-	Tags?: _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	Tags?: _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/ApprovalStrategy": close(
-	{MofN!: _#defs."/$defs/Properties/definitions/MofNApprovalStrategy" | fn.#ObjectExpression},
+	{MofN!: _#defs."/$defs/Properties/definitions/MofNApprovalStrategy"},
 ) |
 	fn.#ObjectExpression
 
@@ -41,11 +45,26 @@ _#defs: "/$defs/Properties/definitions/Approver": close({
 	PrimaryIdentityId!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	PrimaryIdentitySourceArn!: strings.MaxRunes(1000) | fn.#StringExpression
 	PrimaryIdentityStatus?:    string | fn.#StringExpression
-	ResponseTime?:             _#defs."/$defs/Properties/definitions/Timestamp" | fn.#StringExpression
+	ResponseTime?:             _#defs."/$defs/Properties/definitions/Timestamp"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MofNApprovalStrategy": close({MinApprovalsRequired!: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/MofNApprovalStrategy": close({
+	MinApprovalsRequired!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Policy": null |
@@ -62,9 +81,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/Timestamp": time.Time | fn.#StringExpression

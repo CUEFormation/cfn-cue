@@ -98,8 +98,11 @@ _#defs: "/$defs/Properties/definitions/RangedSocketAddress": close({
 })
 
 _#defs: "/$defs/Properties/definitions/SecurityDetails": close({
-	RoleArn?:          strings.MaxRunes(165) & strings.MinRunes(30) & =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
-	SecurityGroupIds?: [...string]
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(165) &
+	strings.MinRunes(30) &
+	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SubnetIds?:        [...string]
 })
 

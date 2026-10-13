@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,39 +20,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ContainerServiceDeployment?: _#defs."/$defs/Properties/definitions/ContainerServiceDeployment" |
 		fn.#ObjectExpression
-	IsDisabled?: bool | fn.#BooleanExpression
+	IsDisabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Power!:      "large" | "medium" | "micro" | "nano" | "small" | "xlarge" | fn.#StringExpression
-	PrivateRegistryAccess?: close(
-		{EcrImagePullerRole?: close({IsActive?: bool | fn.#BooleanExpression}) | fn.#ObjectExpression},
-	) |
+	PrivateRegistryAccess?: close({
+		EcrImagePullerRole?: close(
+			{IsActive?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+		) |
+			fn.#ObjectExpression
+	}) |
 		fn.#ObjectExpression
-	PublicDomainNames?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PublicDomainName" | fn.#ObjectExpression
-	] |
+	PublicDomainNames?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PublicDomainName"] |
 		fn.#ListExpression
-	Scale!: int & <=20 & >=1 | fn.#NumberExpression
+	Scale!: int & <=20 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=20 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ServiceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9]{1,2}|[a-z0-9][a-z0-9-]+[a-z0-9]$" |
 	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Container": close({
 	Command?:       list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	ContainerName?: string | fn.#StringExpression
-	Environment?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/EnvironmentVariable" | fn.#ObjectExpression
-	] |
+	Environment?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"] |
 		fn.#ListExpression
 	Image?: string | fn.#StringExpression
-	Ports?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortInfo" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Ports?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortInfo"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ContainerServiceDeployment": close({
-	Containers?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Container" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Containers?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Container"] | fn.#ListExpression
 	PublicEndpoint?: _#defs."/$defs/Properties/definitions/PublicEndpoint" | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -60,12 +75,64 @@ _#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
-	HealthyThreshold?:   int | fn.#NumberExpression
-	IntervalSeconds?:    int | fn.#NumberExpression
-	Path?:               string | fn.#StringExpression
-	SuccessCodes?:       string | fn.#StringExpression
-	TimeoutSeconds?:     int | fn.#NumberExpression
-	UnhealthyThreshold?: int | fn.#NumberExpression
+	HealthyThreshold?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IntervalSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Path?:         string | fn.#StringExpression
+	SuccessCodes?: string | fn.#StringExpression
+	TimeoutSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UnhealthyThreshold?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -77,7 +144,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateRegistryAccess": close({
 	EcrImagePullerRole?: close({
-		IsActive?:     bool | fn.#BooleanExpression
+		IsActive?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		PrincipalArn?: string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
@@ -91,8 +158,21 @@ _#defs: "/$defs/Properties/definitions/PublicDomainName": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PublicEndpoint": close({
-	ContainerName?:     string | fn.#StringExpression
-	ContainerPort?:     int | fn.#NumberExpression
+	ContainerName?: string | fn.#StringExpression
+	ContainerPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	HealthCheckConfig?: _#defs."/$defs/Properties/definitions/HealthCheckConfig" | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression

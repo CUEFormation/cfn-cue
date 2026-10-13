@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,24 +14,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::BedrockAgentCore::PaymentManager
 #Properties: close({
-	AuthorizerConfiguration?: _#defs."/$defs/Properties/definitions/AuthorizerConfiguration" | fn.#ObjectExpression
-	AuthorizerType!:          _#defs."/$defs/Properties/definitions/PaymentsAuthorizerType" | fn.#StringExpression
+	AuthorizerConfiguration?: _#defs."/$defs/Properties/definitions/AuthorizerConfiguration"
+	AuthorizerType!:          _#defs."/$defs/Properties/definitions/PaymentsAuthorizerType"
 	Description?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s]+$" | fn.#StringExpression
 	Name!:        =~"^[a-zA-Z][a-zA-Z0-9]{0,47}$" | fn.#StringExpression
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close({
-	CustomJWTAuthorizer!: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration" | fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close(
+	{CustomJWTAuthorizer!: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AuthorizingClaimMatchValueType": close({
 	ClaimMatchOperator!: "EQUALS" | "CONTAINS" | "CONTAINS_ANY" | fn.#StringExpression
-	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType" | fn.#ObjectExpression
+	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType"
 }) |
 fn.#ObjectExpression
 
@@ -45,8 +47,7 @@ _#defs: "/$defs/Properties/definitions/ClaimMatchValueType": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomClaimValidationType": close({
-	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType" |
-		fn.#ObjectExpression
+	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType"
 	InboundTokenClaimName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$" | fn.#StringExpression
 	InboundTokenClaimValueType!: "STRING" | "STRING_ARRAY" | fn.#StringExpression
 }) |
@@ -59,9 +60,7 @@ _#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close(
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	CustomClaims?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/CustomClaimValidationType" | fn.#ObjectExpression
-	] |
+	CustomClaims?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomClaimValidationType"] |
 		fn.#ListExpression
 	DiscoveryUrl!: =~"^.+/\\.well-known/openid-configuration$" | fn.#StringExpression
 }) |

@@ -31,6 +31,9 @@ _#defs: "/$defs/Properties/definitions/Unit": close({})
 _#defs: "/$defs/Properties/definitions/VpcInformation": close({
 	IpAddressType?: "IPV4" | "DUALSTACK"
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(20) & strings.MinRunes(11) & =~"^(?:sg-[0-9a-f]{8}|sg-[0-9a-f]{17})$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(20) &
+		strings.MinRunes(11) &
+		=~"^(?:sg-[0-9a-f]{8}|sg-[0-9a-f]{17})$"
 	]
 })

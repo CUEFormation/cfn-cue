@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,7 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:prompt/[0-9a-zA-Z]{10})$" |
 	fn.#StringExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
+	Tags?: _#defs."/$defs/Properties/definitions/TagsMap"
 })
 
 _#defs: "/$defs/Properties/definitions/AdditionalModelRequestFields": {[string]: fn.#Value} | fn.#ObjectExpression
@@ -29,37 +33,33 @@ _#defs: "/$defs/Properties/definitions/AnyToolChoice": close({}) | fn.#ObjectExp
 _#defs: "/$defs/Properties/definitions/AutoToolChoice": close({}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CachePointBlock": close(
-	{Type!: _#defs."/$defs/Properties/definitions/CachePointType" | fn.#StringExpression},
+	{Type!: _#defs."/$defs/Properties/definitions/CachePointType"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CachePointType": "default" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ChatPromptTemplateConfiguration": close({
-	InputVariables?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PromptInputVariable" | fn.#ObjectExpression
-	] |
+	InputVariables?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/PromptInputVariable"] |
 		fn.#ListExpression
-	Messages!: [...] & [..._#defs."/$defs/Properties/definitions/Message" | fn.#ObjectExpression] | fn.#ListExpression
-	System?: [...] & [..._#defs."/$defs/Properties/definitions/SystemContentBlock" | fn.#ValueExpression] |
-		fn.#ListExpression
-	ToolConfiguration?: _#defs."/$defs/Properties/definitions/ToolConfiguration" | fn.#ObjectExpression
+	Messages!:          [...] & [..._#defs."/$defs/Properties/definitions/Message"] | fn.#ListExpression
+	System?:            [...] & [..._#defs."/$defs/Properties/definitions/SystemContentBlock"] | fn.#ListExpression
+	ToolConfiguration?: _#defs."/$defs/Properties/definitions/ToolConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ContentBlock": matchN(1, [close(
 	{Text!: strings.MinRunes(1) | fn.#StringExpression},
 ), close(
-	{CachePoint!: _#defs."/$defs/Properties/definitions/CachePointBlock" | fn.#ObjectExpression},
+	{CachePoint!: _#defs."/$defs/Properties/definitions/CachePointBlock"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/ConversationRole": "user" | "assistant" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Message": close({
-	Content!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ContentBlock" | fn.#ValueExpression] |
-		fn.#ListExpression
-	Role!: _#defs."/$defs/Properties/definitions/ConversationRole" | fn.#StringExpression
+	Content!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ContentBlock"] | fn.#ListExpression
+	Role!:    _#defs."/$defs/Properties/definitions/ConversationRole"
 }) |
 fn.#ObjectExpression
 
@@ -71,12 +71,12 @@ _#defs: "/$defs/Properties/definitions/PromptAgentResource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PromptGenAiResource": close(
-	{Agent!: _#defs."/$defs/Properties/definitions/PromptAgentResource" | fn.#ObjectExpression},
+	{Agent!: _#defs."/$defs/Properties/definitions/PromptAgentResource"},
 ) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/PromptInferenceConfiguration": close(
-	{Text!: _#defs."/$defs/Properties/definitions/PromptModelInferenceConfiguration" | fn.#ObjectExpression},
+	{Text!: _#defs."/$defs/Properties/definitions/PromptModelInferenceConfiguration"},
 ) |
 	fn.#ValueExpression
 
@@ -86,8 +86,8 @@ _#defs: "/$defs/Properties/definitions/PromptInputVariable": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PromptMetadataEntry": close({
-	Key!:   _#defs."/$defs/Properties/definitions/PromptMetadataKey" | fn.#StringExpression
-	Value!: _#defs."/$defs/Properties/definitions/PromptMetadataValue" | fn.#StringExpression
+	Key!:   _#defs."/$defs/Properties/definitions/PromptMetadataKey"
+	Value!: _#defs."/$defs/Properties/definitions/PromptMetadataValue"
 }) |
 fn.#ObjectExpression
 
@@ -97,7 +97,7 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PromptMetadataList": list.MaxItems(50) & [...] & [
-	..._#defs."/$defs/Properties/definitions/PromptMetadataEntry" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/PromptMetadataEntry"
 ] |
 	fn.#ListExpression
 
@@ -107,35 +107,91 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PromptModelInferenceConfiguration": close({
-	MaxTokens?:     <=4096 & >=0 | fn.#NumberExpression
+	MaxTokens?: <=4096 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=4096 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	StopSequences?: list.MaxItems(4) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	Temperature?:   <=1 & >=0 | fn.#NumberExpression
-	TopP?:          <=1 & >=0 | fn.#NumberExpression
+	Temperature?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TopP?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PromptTemplateConfiguration": matchN(1, [close(
-	{Text!: _#defs."/$defs/Properties/definitions/TextPromptTemplateConfiguration" | fn.#ObjectExpression},
+	{Text!: _#defs."/$defs/Properties/definitions/TextPromptTemplateConfiguration"},
 ), close(
-	{Chat!: _#defs."/$defs/Properties/definitions/ChatPromptTemplateConfiguration" | fn.#ObjectExpression},
+	{Chat!: _#defs."/$defs/Properties/definitions/ChatPromptTemplateConfiguration"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/PromptTemplateType": "TEXT" | "CHAT" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PromptVariant": close({
-	AdditionalModelRequestFields?: _#defs."/$defs/Properties/definitions/AdditionalModelRequestFields" |
-		fn.#ObjectExpression
-	GenAiResource?:          _#defs."/$defs/Properties/definitions/PromptGenAiResource" | fn.#ValueExpression
-	InferenceConfiguration?: _#defs."/$defs/Properties/definitions/PromptInferenceConfiguration" | fn.#ValueExpression
-	Metadata?:               _#defs."/$defs/Properties/definitions/PromptMetadataList" | fn.#ListExpression
+	AdditionalModelRequestFields?: _#defs."/$defs/Properties/definitions/AdditionalModelRequestFields"
+	GenAiResource?:                _#defs."/$defs/Properties/definitions/PromptGenAiResource"
+	InferenceConfiguration?:       _#defs."/$defs/Properties/definitions/PromptInferenceConfiguration"
+	Metadata?:                     _#defs."/$defs/Properties/definitions/PromptMetadataList"
 	ModelId?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^(arn:aws(-[^:]{1,12})?:(bedrock|sagemaker):[a-z0-9-]{1,20}:([0-9]{12})?:([a-z-]+/)?)?([a-zA-Z0-9.-]{1,63}){0,2}(([:][a-z0-9-]{1,63}){0,2})?(/[a-z0-9]{1,12})?$" |
 	fn.#StringExpression
 	Name!:                  =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	TemplateConfiguration!: _#defs."/$defs/Properties/definitions/PromptTemplateConfiguration" | fn.#ValueExpression
-	TemplateType!:          _#defs."/$defs/Properties/definitions/PromptTemplateType" | fn.#StringExpression
+	TemplateConfiguration!: _#defs."/$defs/Properties/definitions/PromptTemplateConfiguration"
+	TemplateType!:          _#defs."/$defs/Properties/definitions/PromptTemplateType"
 }) |
 fn.#ObjectExpression
 
@@ -147,7 +203,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/SystemContentBlock": matchN(1, [close(
 	{Text!: strings.MinRunes(1) | fn.#StringExpression},
 ), close(
-	{CachePoint!: _#defs."/$defs/Properties/definitions/CachePointBlock" | fn.#ObjectExpression},
+	{CachePoint!: _#defs."/$defs/Properties/definitions/CachePointBlock"},
 )]) |
 fn.#ValueExpression
 
@@ -158,35 +214,32 @@ _#defs: "/$defs/Properties/definitions/TagsMap": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TextPromptTemplateConfiguration": close({
-	CachePoint?: _#defs."/$defs/Properties/definitions/CachePointBlock" | fn.#ObjectExpression
-	InputVariables?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PromptInputVariable" | fn.#ObjectExpression
-	] |
+	CachePoint?: _#defs."/$defs/Properties/definitions/CachePointBlock"
+	InputVariables?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/PromptInputVariable"] |
 		fn.#ListExpression
 	Text!: strings.MaxRunes(200000) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tool": matchN(1, [close(
-	{ToolSpec!: _#defs."/$defs/Properties/definitions/ToolSpecification" | fn.#ObjectExpression},
+	{ToolSpec!: _#defs."/$defs/Properties/definitions/ToolSpecification"},
 ), close(
-	{CachePoint!: _#defs."/$defs/Properties/definitions/CachePointBlock" | fn.#ObjectExpression},
+	{CachePoint!: _#defs."/$defs/Properties/definitions/CachePointBlock"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/ToolChoice": matchN(1, [close(
-	{Auto!: _#defs."/$defs/Properties/definitions/AutoToolChoice" | fn.#ObjectExpression},
+	{Auto!: _#defs."/$defs/Properties/definitions/AutoToolChoice"},
 ), close(
-	{Any!: _#defs."/$defs/Properties/definitions/AnyToolChoice" | fn.#ObjectExpression},
+	{Any!: _#defs."/$defs/Properties/definitions/AnyToolChoice"},
 ), close(
-	{Tool!: _#defs."/$defs/Properties/definitions/SpecificToolChoice" | fn.#ObjectExpression},
+	{Tool!: _#defs."/$defs/Properties/definitions/SpecificToolChoice"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/ToolConfiguration": close({
-	ToolChoice?: _#defs."/$defs/Properties/definitions/ToolChoice" | fn.#ValueExpression
-	Tools!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tool" | fn.#ValueExpression] |
-		fn.#ListExpression
+	ToolChoice?: _#defs."/$defs/Properties/definitions/ToolChoice"
+	Tools!:      list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tool"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -195,7 +248,7 @@ _#defs: "/$defs/Properties/definitions/ToolInputSchema": close({Json!: {[string]
 
 _#defs: "/$defs/Properties/definitions/ToolSpecification": close({
 	Description?: strings.MinRunes(1) | fn.#StringExpression
-	InputSchema!: _#defs."/$defs/Properties/definitions/ToolInputSchema" | fn.#ValueExpression
+	InputSchema!: _#defs."/$defs/Properties/definitions/ToolInputSchema"
 	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

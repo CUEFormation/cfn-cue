@@ -23,11 +23,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EnvironmentIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 	ManageAccessRole?: =~"^arn:aws(|-cn|-us-gov):iam::\\d{12}:(role|role/service-role)/[\\w+=,.@-]*$" |
 		fn.#StringExpression
-	Name!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Provider?: string | fn.#StringExpression
-	SubscriptionTargetConfig!: [..._#defs."/$defs/Properties/definitions/SubscriptionTargetForm" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Type!: string | fn.#StringExpression
+	Name!:                     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Provider?:                 string | fn.#StringExpression
+	SubscriptionTargetConfig!: [..._#defs."/$defs/Properties/definitions/SubscriptionTargetForm"] | fn.#ListExpression
+	Type!:                     string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/SubscriptionTargetForm": close({

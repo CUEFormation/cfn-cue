@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SecurityAgent::TargetDomain
 #Properties: close({
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetDomainName!:   string | fn.#StringExpression
 	VerificationMethod!: "DNS_TXT" | "HTTP_ROUTE" | "PRIVATE_VPC" | fn.#StringExpression
 })
@@ -38,8 +38,8 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VerificationDetails": close({
-	DnsTxt?:    _#defs."/$defs/Properties/definitions/DnsVerification" | fn.#ObjectExpression
-	HttpRoute?: _#defs."/$defs/Properties/definitions/HttpVerification" | fn.#ObjectExpression
+	DnsTxt?:    _#defs."/$defs/Properties/definitions/DnsVerification"
+	HttpRoute?: _#defs."/$defs/Properties/definitions/HttpVerification"
 	Method?:    "DNS_TXT" | "HTTP_ROUTE" | "PRIVATE_VPC" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

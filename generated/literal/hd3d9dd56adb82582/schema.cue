@@ -27,7 +27,7 @@ import "strings"
 	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
 
 	// The ID of the vpc. Required only if you don't specify SubnetId.
-	VpcId?: string
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 // A key-value pair to associate with a resource.

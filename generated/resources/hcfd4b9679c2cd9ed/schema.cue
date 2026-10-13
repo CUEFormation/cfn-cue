@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	S3BucketName!:   string | fn.#StringExpression
 	S3BucketPrefix?: string | fn.#StringExpression
 	Schedule!:       "hourly" | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

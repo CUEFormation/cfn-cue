@@ -14,7 +14,10 @@ import (
 	Arn?: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"arn:aws(-[^:]+)?:comprehend:[a-zA-Z0-9-]*:[0-9]{12}:document-classifier/[a-zA-Z0-9](-*[a-zA-Z0-9])*(/version/[a-zA-Z0-9](-*[a-zA-Z0-9])*)?"
-	DataAccessRoleArn!:      strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+"
+	DataAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+"
 	DocumentClassifierName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
 	InputDataConfig!:        _#defs."/$defs/Properties/definitions/DocumentClassifierInputDataConfig"
 	LanguageCode!:           "en" | "es" | "fr" | "it" | "de" | "pt"
@@ -63,7 +66,8 @@ _#defs: "/$defs/Properties/definitions/DocumentReaderConfig": close({
 	FeatureTypes?:       list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [..."TABLES" | "FORMS"]
 })
 
-_#defs: "/$defs/Properties/definitions/KmsKeyId": (string | string | string) &
+_#defs: "/$defs/Properties/definitions/KmsKeyId": (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	string) &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^\\p{ASCII}+$"
@@ -79,7 +83,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"[-0-9a-zA-Z]+"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(1) &
+		=~"[-0-9a-zA-Z]+"
 	]
 	Subnets!: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"[-0-9a-zA-Z]+"

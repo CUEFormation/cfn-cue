@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,22 +14,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Schema for ResourceGroups::Group
 #Properties: close({
-	Configuration?: _#defs."/$defs/Properties/definitions/Configuration" | fn.#ListExpression
+	Configuration?: _#defs."/$defs/Properties/definitions/Configuration"
 	Description?:   strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\sa-zA-Z0-9_\\.-]*$" | fn.#StringExpression
 	Name!:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\.-]+$" | fn.#StringExpression
-	ResourceQuery?: _#defs."/$defs/Properties/definitions/ResourceQuery" | fn.#ObjectExpression
+	ResourceQuery?: _#defs."/$defs/Properties/definitions/ResourceQuery"
 	Resources?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:          [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:          [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Configuration": list.MaxItems(2) & [...] & [
-	..._#defs."/$defs/Properties/definitions/ConfigurationItem" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ConfigurationItem"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ConfigurationItem": close({
-	Parameters?: [..._#defs."/$defs/Properties/definitions/ConfigurationParameter" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Parameters?: [..._#defs."/$defs/Properties/definitions/ConfigurationParameter"] | fn.#ListExpression
 	Type?: strings.MaxRunes(40) & strings.MinRunes(0) & =~"^AWS::[a-zA-Z0-9]+::[a-zA-Z0-9]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -44,12 +43,12 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/Query": close({
 	ResourceTypeFilters?: [...string | fn.#StringExpression] | fn.#ListExpression
 	StackIdentifier?:     string | fn.#StringExpression
-	TagFilters?: [..._#defs."/$defs/Properties/definitions/TagFilter" | fn.#ObjectExpression] | fn.#ListExpression
+	TagFilters?:          [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceQuery": close({
-	Query?: _#defs."/$defs/Properties/definitions/Query" | fn.#ObjectExpression
+	Query?: _#defs."/$defs/Properties/definitions/Query"
 	Type?:  "TAG_FILTERS_1_0" | "CLOUDFORMATION_STACK_1_0" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

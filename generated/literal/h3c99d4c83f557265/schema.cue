@@ -26,7 +26,7 @@ _#defs: "/$defs/Properties/definitions/ChannelStorage": close({
 _#defs: "/$defs/Properties/definitions/CustomerManagedS3": close({
 	Bucket!:    strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.\\-_]*$"
 	KeyPrefix?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/{}:-]*/$"
-	RoleArn!:   strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn!:   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
 _#defs: "/$defs/Properties/definitions/RetentionPeriod": close({

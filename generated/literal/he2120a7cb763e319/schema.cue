@@ -15,7 +15,9 @@ import (
 	// resources under the specified subnets. If not specified, App Runner uses the
 	// default security group of the Amazon VPC. The default security group allows
 	// all outbound traffic.
-	SecurityGroups?: list.UniqueItems() & [...strings.MaxRunes(51200) & strings.MinRunes(0)]
+	SecurityGroups?: list.UniqueItems() & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(51200) & strings.MinRunes(0))
+	]
 
 	// A list of IDs of subnets that App Runner should use when it associates your
 	// service with a custom Amazon VPC. Specify IDs of subnets of a single Amazon

@@ -16,9 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AuthorizedAccountId!: =~"^\\d{12}$" | fn.#StringExpression
 	AuthorizedAwsRegion!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

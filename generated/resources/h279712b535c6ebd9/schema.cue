@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,18 +18,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // HealthLake FHIR Datastore
 #Properties: close({
-	DatastoreName?:        _#defs."/$defs/Properties/definitions/DatastoreName" | fn.#StringExpression
-	DatastoreTypeVersion!: _#defs."/$defs/Properties/definitions/DatastoreTypeVersion" | fn.#StringExpression
-	IdentityProviderConfiguration?: _#defs."/$defs/Properties/definitions/IdentityProviderConfiguration" |
-		fn.#ObjectExpression
-	PreloadDataConfig?: _#defs."/$defs/Properties/definitions/PreloadDataConfig" | fn.#ObjectExpression
-	SseConfiguration?:  _#defs."/$defs/Properties/definitions/SseConfiguration" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	DatastoreName?:                 _#defs."/$defs/Properties/definitions/DatastoreName"
+	DatastoreTypeVersion!:          _#defs."/$defs/Properties/definitions/DatastoreTypeVersion"
+	IdentityProviderConfiguration?: _#defs."/$defs/Properties/definitions/IdentityProviderConfiguration"
+	PreloadDataConfig?:             _#defs."/$defs/Properties/definitions/PreloadDataConfig"
+	SseConfiguration?:              _#defs."/$defs/Properties/definitions/SseConfiguration"
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CreatedAt": close({
-	Nanos!:   int | fn.#NumberExpression
+	Nanos!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Seconds!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -51,8 +66,15 @@ _#defs: "/$defs/Properties/definitions/DatastoreStatus": "CREATING" |
 _#defs: "/$defs/Properties/definitions/DatastoreTypeVersion": "R4" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/IdentityProviderConfiguration": close({
-	AuthorizationStrategy!:           "SMART_ON_FHIR_V1" | "AWS_AUTH" | "SMART_ON_FHIR" | fn.#StringExpression
-	FineGrainedAuthorizationEnabled?: bool | fn.#BooleanExpression
+	AuthorizationStrategy!: "SMART_ON_FHIR_V1" | "AWS_AUTH" | "SMART_ON_FHIR" | fn.#StringExpression
+	FineGrainedAuthorizationEnabled?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 	IdpLambdaArn?: strings.MaxRunes(256) &
 	strings.MinRunes(49) &
 	=~"arn:aws[-a-z]*:lambda:[a-z]{2}-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9\\-_\\.]+(:(\\$LATEST|[a-zA-Z0-9\\-_]+))?" |
@@ -63,7 +85,8 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KmsEncryptionConfig": close({
 	CmkType!: "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KMS_KEY" | fn.#StringExpression
-	KmsKeyId?: (string | string | string) &
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) &
 	strings.MaxRunes(400) &
 	strings.MinRunes(1) &
 	=~"(arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:kms:)?([a-z]{2}-[a-z]+(-[a-z]+)?-\\d:)?(\\d{12}:)?(((key/)?[a-zA-Z0-9-_]+)|(alias/[a-zA-Z0-9:/_-]+))" |
@@ -75,7 +98,7 @@ _#defs: "/$defs/Properties/definitions/PreloadDataConfig": close({PreloadDataTyp
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SseConfiguration": close(
-	{KmsEncryptionConfig!: _#defs."/$defs/Properties/definitions/KmsEncryptionConfig" | fn.#ObjectExpression},
+	{KmsEncryptionConfig!: _#defs."/$defs/Properties/definitions/KmsEncryptionConfig"},
 ) |
 	fn.#ObjectExpression
 

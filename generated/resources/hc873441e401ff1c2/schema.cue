@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,8 +13,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Connect::SecurityKey
 #Properties: close({
-	InstanceId!: _#defs."/$defs/Properties/definitions/InstanceId" | fn.#StringExpression
-	Key!:        _#defs."/$defs/Properties/definitions/Key" | fn.#StringExpression
+	InstanceId!: _#defs."/$defs/Properties/definitions/InstanceId"
+	Key!:        _#defs."/$defs/Properties/definitions/Key"
 })
 
 _#defs: "/$defs/Properties/definitions/AssociationId": strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-z0-9]*$" |

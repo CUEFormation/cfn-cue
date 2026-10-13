@@ -8,13 +8,30 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::DataZone::Environment Resource Type
 #Properties: close({
-	DeploymentOrder?:                int | fn.#NumberExpression
+	DeploymentOrder?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Description?:                    strings.MaxRunes(2048) | fn.#StringExpression
 	DomainIdentifier!:               =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 	EnvironmentAccountIdentifier?:   =~"^\\d{12}$" | fn.#StringExpression
@@ -22,13 +39,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EnvironmentBlueprintIdentifier?: string | fn.#StringExpression
 	EnvironmentConfigurationId?:     string | fn.#StringExpression
 	EnvironmentProfileIdentifier?:   =~"^[a-zA-Z0-9_-]{0,36}$" | fn.#StringExpression
-	EnvironmentRoleArn?:             string | fn.#StringExpression
+	EnvironmentRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	GlossaryTerms?: list.MaxItems(20) & [...] & [...=~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression] |
 		fn.#ListExpression
 	Name!:              strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	ProjectIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	UserParameters?: [..._#defs."/$defs/Properties/definitions/EnvironmentParameter" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	UserParameters?:    [..._#defs."/$defs/Properties/definitions/EnvironmentParameter"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EnvironmentParameter": close({

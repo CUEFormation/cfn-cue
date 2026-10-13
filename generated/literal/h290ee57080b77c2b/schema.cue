@@ -23,7 +23,8 @@ strings.MinRunes(0) &
 _#defs: "/$defs/Properties/definitions/TargetAccountId": strings.MaxRunes(512) & strings.MinRunes(12) & =~"^[\\S]+$"
 
 // The Amazon Resource Name (ARN) of an IAM role for the target account.
-_#defs: "/$defs/Properties/definitions/TargetAccountRoleArn": strings.MaxRunes(1224) &
+_#defs: "/$defs/Properties/definitions/TargetAccountRoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+strings.MaxRunes(1224) &
 strings.MinRunes(20) &
 =~"^[\\S]+$"
 

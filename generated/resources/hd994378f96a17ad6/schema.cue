@@ -15,8 +15,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DataTableArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	DataTableRecord!: close({
-		PrimaryValues?: [..._#defs."/$defs/Properties/definitions/Value" | fn.#ObjectExpression] | fn.#ListExpression
-		Values!:        [..._#defs."/$defs/Properties/definitions/Value" | fn.#ObjectExpression] | fn.#ListExpression
+		PrimaryValues?: [..._#defs."/$defs/Properties/definitions/Value"] | fn.#ListExpression
+		Values!:        [..._#defs."/$defs/Properties/definitions/Value"] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
 	InstanceArn!: strings.MaxRunes(100) &

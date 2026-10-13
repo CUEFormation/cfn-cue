@@ -143,7 +143,7 @@ _#defs: "/$defs/Properties/definitions/RetryCriteria": close({
 // The ARN of an IAM role that grants grants permission to download files from
 // the S3 bucket where the job data/updates are stored. The role must also
 // grant permission for IoT to download the files.
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(2048) & strings.MinRunes(20)
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 // A key-value pair to associate with a resource.
 _#defs: "/$defs/Properties/definitions/Tag": close({

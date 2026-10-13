@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::GuardDuty::Member
 #Properties: close({
 	DetectorId?:               strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-	DisableEmailNotification?: bool | fn.#BooleanExpression
+	DisableEmailNotification?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Email!:                    string | fn.#StringExpression
 	MemberId?:                 string | fn.#StringExpression
 	Message?:                  string | fn.#StringExpression

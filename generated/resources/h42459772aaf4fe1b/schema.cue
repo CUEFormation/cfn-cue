@@ -14,27 +14,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::IVS::Channel
 #Properties: close({
-	Authorized?:      bool | fn.#BooleanExpression
-	ContainerFormat?: "TS" | "FRAGMENTED_MP4" | fn.#StringExpression
-	InsecureIngest?:  bool | fn.#BooleanExpression
-	LatencyMode?:     "NORMAL" | "LOW" | fn.#StringExpression
-	MultitrackInputConfiguration?: _#defs."/$defs/Properties/definitions/MultitrackInputConfiguration" |
-		fn.#ObjectExpression
+	Authorized?:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ContainerFormat?:              "TS" | "FRAGMENTED_MP4" | fn.#StringExpression
+	InsecureIngest?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	LatencyMode?:                  "NORMAL" | "LOW" | fn.#StringExpression
+	MultitrackInputConfiguration?: _#defs."/$defs/Properties/definitions/MultitrackInputConfiguration"
 	Name?:   strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
 	Preset?: "" | "HIGHER_BANDWIDTH_DELIVERY" | "CONSTRAINED_BANDWIDTH_DELIVERY" | fn.#StringExpression
 	RecordingConfigurationArn?: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^$|arn:aws:ivs:[a-z0-9-]+:[0-9]+:recording-configuration/[a-zA-Z0-9-]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Type?: "STANDARD" | "BASIC" | "ADVANCED_SD" | "ADVANCED_HD" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/MultitrackInputConfiguration": close({
-	Enabled?:           bool | fn.#BooleanExpression
+	Enabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaximumResolution?: "SD" | "HD" | "FULL_HD" | fn.#StringExpression
 	Policy?:            "ALLOW" | "REQUIRE" | fn.#StringExpression
 }) |

@@ -61,5 +61,5 @@ _#defs: "/$defs/Properties/definitions/VpcTransitConfiguration": close({
 	Ipv4CidrBlocks!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
 		...=~"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])/([0-9]|[1-2][0-9]|3[0-2])$"
 	]
-	VpcId!: strings.MaxRunes(32) & strings.MinRunes(1)
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(32) & strings.MinRunes(1))
 })

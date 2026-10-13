@@ -49,7 +49,7 @@ import "strings"
 	// If the secret is in a different AWS account from the credentials calling the
 	// API, then you can't use ``aws/secretsmanager`` to encrypt the secret, and
 	// you must create and use a customer managed KMS key.
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(0))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(0))
 
 	// The name of the new secret.
 	// The secret name can contain ASCII letters, numbers, and the following characters: /_+=.@-
@@ -167,7 +167,7 @@ _#defs: "/$defs/Properties/definitions/GenerateSecretString": close({
 _#defs: "/$defs/Properties/definitions/ReplicaRegion": close({
 	// The ARN, key ID, or alias of the KMS key to encrypt the secret. If you don't
 	// include this field, Secrets Manager uses ``aws/secretsmanager``.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// A string that represents a ``Region``, for example "us-east-1".
 	Region!: string

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,16 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::QBusiness::Application Resource Type
 #Properties: close({
-	AttachmentsConfiguration?: _#defs."/$defs/Properties/definitions/AttachmentsConfiguration" | fn.#ObjectExpression
-	AutoSubscriptionConfiguration?: _#defs."/$defs/Properties/definitions/AutoSubscriptionConfiguration" |
-		fn.#ObjectExpression
+	AttachmentsConfiguration?:      _#defs."/$defs/Properties/definitions/AttachmentsConfiguration"
+	AutoSubscriptionConfiguration?: _#defs."/$defs/Properties/definitions/AutoSubscriptionConfiguration"
 	ClientIdsForOIDC?: [
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.:/()*?=-]*$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	DisplayName!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
+	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
 	IamIdentityProviderArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::\\d{12}:(oidc-provider|saml-provider)/[a-zA-Z0-9_\\.\\/@\\-]+$" |
@@ -32,14 +31,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(10) &
 	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
 	fn.#StringExpression
-	IdentityType?: _#defs."/$defs/Properties/definitions/IdentityType" | fn.#StringExpression
-	PersonalizationConfiguration?: _#defs."/$defs/Properties/definitions/PersonalizationConfiguration" |
-		fn.#ObjectExpression
-	QAppsConfiguration?:      _#defs."/$defs/Properties/definitions/QAppsConfiguration" | fn.#ObjectExpression
-	QuickSightConfiguration?: _#defs."/$defs/Properties/definitions/QuickSightConfiguration" | fn.#ObjectExpression
-	RoleArn?:                 strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	IdentityType?:                 _#defs."/$defs/Properties/definitions/IdentityType"
+	PersonalizationConfiguration?: _#defs."/$defs/Properties/definitions/PersonalizationConfiguration"
+	QAppsConfiguration?:           _#defs."/$defs/Properties/definitions/QAppsConfiguration"
+	QuickSightConfiguration?:      _#defs."/$defs/Properties/definitions/QuickSightConfiguration"
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+	fn.#StringExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ApplicationStatus": "CREATING" |
@@ -50,23 +48,25 @@ _#defs: "/$defs/Properties/definitions/ApplicationStatus": "CREATING" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AttachmentsConfiguration": close(
-	{AttachmentsControlMode!: _#defs."/$defs/Properties/definitions/AttachmentsControlMode" | fn.#StringExpression},
+	{AttachmentsControlMode!: _#defs."/$defs/Properties/definitions/AttachmentsControlMode"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AttachmentsControlMode": "ENABLED" | "DISABLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AutoSubscriptionConfiguration": close({
-	AutoSubscribe!:           _#defs."/$defs/Properties/definitions/AutoSubscriptionStatus" | fn.#StringExpression
-	DefaultSubscriptionType?: _#defs."/$defs/Properties/definitions/SubscriptionType" | fn.#StringExpression
+	AutoSubscribe!:           _#defs."/$defs/Properties/definitions/AutoSubscriptionStatus"
+	DefaultSubscriptionType?: _#defs."/$defs/Properties/definitions/SubscriptionType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AutoSubscriptionStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close(
-	{KmsKeyId?: (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) | fn.#StringExpression},
-) |
+_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IdentityType": "AWS_IAM_IDP_SAML" |
@@ -76,16 +76,15 @@ _#defs: "/$defs/Properties/definitions/IdentityType": "AWS_IAM_IDP_SAML" |
 	"ANONYMOUS" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PersonalizationConfiguration": close({
-	PersonalizationControlMode!: _#defs."/$defs/Properties/definitions/PersonalizationControlMode" |
-		fn.#StringExpression
-}) |
+_#defs: "/$defs/Properties/definitions/PersonalizationConfiguration": close(
+	{PersonalizationControlMode!: _#defs."/$defs/Properties/definitions/PersonalizationControlMode"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PersonalizationControlMode": "ENABLED" | "DISABLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/QAppsConfiguration": close(
-	{QAppsControlMode!: _#defs."/$defs/Properties/definitions/QAppsControlMode" | fn.#StringExpression},
+	{QAppsControlMode!: _#defs."/$defs/Properties/definitions/QAppsControlMode"},
 ) |
 	fn.#ObjectExpression
 

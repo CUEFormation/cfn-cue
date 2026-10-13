@@ -3,27 +3,31 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for StateMachineAlias
-#Properties: ({
+#Properties: matchN(>=1, [{
 	RoutingConfiguration!: _
 	...
-} | {
+}, {
 	DeploymentPreference!: _
 	...
-}) & close({
-	DeploymentPreference?: _#defs."/$defs/Properties/definitions/DeploymentPreference" | fn.#ObjectExpression
+}]) & close({
+	DeploymentPreference?: _#defs."/$defs/Properties/definitions/DeploymentPreference"
 	Description?:          strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Name?:                 strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
-	RoutingConfiguration?: _#defs."/$defs/Properties/definitions/RoutingConfiguration" | fn.#ListExpression
+	RoutingConfiguration?: _#defs."/$defs/Properties/definitions/RoutingConfiguration"
 	StateMachineArn?:      strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 })
 
@@ -32,21 +36,66 @@ _#defs: "/$defs/Properties/definitions/DeploymentPreference": close({
 		...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Interval?:               int & <=2100 & >=1 | fn.#NumberExpression
-	Percentage?:             int & <=99 & >=1 | fn.#NumberExpression
+	Interval?: int & <=2100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2100 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Percentage?: int & <=99 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=99 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	StateMachineVersionArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	Type!:                   "LINEAR" | "ALL_AT_ONCE" | "CANARY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RoutingConfiguration": list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/RoutingConfigurationVersion" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/RoutingConfigurationVersion"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/RoutingConfigurationVersion": close({
 	StateMachineVersionArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Weight!:                 int & <=100 & >=0 | fn.#NumberExpression
+	Weight!: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

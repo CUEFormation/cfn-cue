@@ -23,11 +23,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/HadoopJarStepConfig": close({
-	Args?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	Jar!:       string | fn.#StringExpression
-	MainClass?: string | fn.#StringExpression
-	StepProperties?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/KeyValue" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Args?:           [...string | fn.#StringExpression] | fn.#ListExpression
+	Jar!:            string | fn.#StringExpression
+	MainClass?:      string | fn.#StringExpression
+	StepProperties?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/KeyValue"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

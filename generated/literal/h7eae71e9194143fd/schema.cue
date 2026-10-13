@@ -118,7 +118,9 @@ _#defs: "/$defs/Properties/definitions/ListenerTls": close({
 	Validation?:  _#defs."/$defs/Properties/definitions/ListenerTlsValidationContext"
 })
 
-_#defs: "/$defs/Properties/definitions/ListenerTlsAcmCertificate": close({CertificateArn!: string})
+_#defs: "/$defs/Properties/definitions/ListenerTlsAcmCertificate": close(
+	{CertificateArn!: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"},
+)
 
 _#defs: "/$defs/Properties/definitions/ListenerTlsCertificate": close({
 	ACM?:  _#defs."/$defs/Properties/definitions/ListenerTlsAcmCertificate"

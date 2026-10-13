@@ -10,19 +10,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::FSx::StorageVirtualMachine
 #Properties: close({
-	ActiveDirectoryConfiguration?: _#defs."/$defs/Properties/definitions/ActiveDirectoryConfiguration" |
-		fn.#ObjectExpression
-	FileSystemId!:            string | fn.#StringExpression
-	Name!:                    string | fn.#StringExpression
-	RootVolumeSecurityStyle?: string | fn.#StringExpression
-	SvmAdminPassword?:        string | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	ActiveDirectoryConfiguration?: _#defs."/$defs/Properties/definitions/ActiveDirectoryConfiguration"
+	FileSystemId!:                 string | fn.#StringExpression
+	Name!:                         string | fn.#StringExpression
+	RootVolumeSecurityStyle?:      string | fn.#StringExpression
+	SvmAdminPassword?:             string | fn.#StringExpression
+	Tags?:                         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ActiveDirectoryConfiguration": close({
 	NetBiosName?: string | fn.#StringExpression
-	SelfManagedActiveDirectoryConfiguration?: _#defs."/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration" |
-		fn.#ObjectExpression
+	SelfManagedActiveDirectoryConfiguration?:
+		_#defs."/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration"
 }) |
 fn.#ObjectExpression
 

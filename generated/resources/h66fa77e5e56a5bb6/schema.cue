@@ -17,9 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:       _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
 	MappedInputFields!: _#defs."/$defs/Properties/definitions/MappedInputFields" | fn.#ListExpression
 	SchemaName!:        _#defs."/$defs/Properties/definitions/EntityName" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
@@ -35,12 +33,26 @@ _#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(255) & str
 _#defs: "/$defs/Properties/definitions/EntityName": strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9-]*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HasWorkflows": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/HasWorkflows": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/Hashed": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/Hashed": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/MappedInputFields": list.MaxItems(35) & list.MinItems(2) & [
-	..._#defs."/$defs/Properties/definitions/SchemaInputAttribute" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/SchemaInputAttribute"
 ] |
 	fn.#ListExpression
 
@@ -67,12 +79,12 @@ _#defs: "/$defs/Properties/definitions/SchemaAttributeType": "NAME" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SchemaInputAttribute": close({
-	FieldName!: _#defs."/$defs/Properties/definitions/AttributeName" | fn.#StringExpression
-	GroupName?: _#defs."/$defs/Properties/definitions/AttributeName" | fn.#StringExpression
-	Hashed?:    _#defs."/$defs/Properties/definitions/Hashed" | fn.#BooleanExpression
-	MatchKey?:  _#defs."/$defs/Properties/definitions/AttributeName" | fn.#StringExpression
+	FieldName!: _#defs."/$defs/Properties/definitions/AttributeName"
+	GroupName?: _#defs."/$defs/Properties/definitions/AttributeName"
+	Hashed?:    _#defs."/$defs/Properties/definitions/Hashed"
+	MatchKey?:  _#defs."/$defs/Properties/definitions/AttributeName"
 	SubType?:   strings.MaxRunes(255) & =~"^[a-zA-Z_0-9- ]*$" | fn.#StringExpression
-	Type!:      _#defs."/$defs/Properties/definitions/SchemaAttributeType" | fn.#StringExpression
+	Type!:      _#defs."/$defs/Properties/definitions/SchemaAttributeType"
 }) |
 fn.#ObjectExpression
 

@@ -12,7 +12,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:  string | fn.#StringExpression
 	RegistryName?: string | fn.#StringExpression
-	Tags?:         [..._#defs."/$defs/Properties/definitions/TagsEntry" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:         [..._#defs."/$defs/Properties/definitions/TagsEntry"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/TagsEntry": close({

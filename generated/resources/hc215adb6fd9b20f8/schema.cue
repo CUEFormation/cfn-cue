@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,10 +18,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Associate a set of ECS Capacity Providers with a specified ECS Cluster
 #Properties: close({
-	CapacityProviders?: _#defs."/$defs/Properties/definitions/CapacityProviders" | fn.#ListExpression
-	Cluster!:           _#defs."/$defs/Properties/definitions/Cluster" | fn.#StringExpression
-	DefaultCapacityProviderStrategy!: _#defs."/$defs/Properties/definitions/DefaultCapacityProviderStrategy" |
-		fn.#ListExpression
+	CapacityProviders?:               _#defs."/$defs/Properties/definitions/CapacityProviders"
+	Cluster!:                         _#defs."/$defs/Properties/definitions/Cluster"
+	DefaultCapacityProviderStrategy!: _#defs."/$defs/Properties/definitions/DefaultCapacityProviderStrategy"
 })
 
 _#defs: "/$defs/Properties/definitions/CapacityProvider": "FARGATE" |
@@ -26,21 +29,51 @@ strings.MaxRunes(2048) & strings.MinRunes(1) |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CapacityProviderStrategy": close({
-	Base?:             int & <=100000 & >=0 | fn.#NumberExpression
-	CapacityProvider!: _#defs."/$defs/Properties/definitions/CapacityProvider" | fn.#StringExpression
-	Weight?:           int & <=1000 & >=0 | fn.#NumberExpression
+	Base?: int & <=100000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CapacityProvider!: _#defs."/$defs/Properties/definitions/CapacityProvider"
+	Weight?: int & <=1000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CapacityProviders": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/CapacityProvider" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/CapacityProvider"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/Cluster": strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultCapacityProviderStrategy": [
-	..._#defs."/$defs/Properties/definitions/CapacityProviderStrategy" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/CapacityProviderStrategy"
 ] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {

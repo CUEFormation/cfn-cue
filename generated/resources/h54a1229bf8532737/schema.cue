@@ -7,13 +7,17 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The `AWS::Redshift::ScheduledAction` resource creates an Amazon Redshift Scheduled Action.
 #Properties: close({
-	Enable?:                     bool | fn.#BooleanExpression
+	Enable?:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EndTime?:                    _#defs."/$defs/Properties/definitions/timestamp" | fn.#StringExpression
 	IamRole?:                    strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
 	Schedule?:                   strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
@@ -27,11 +31,24 @@ _#defs: "/$defs/Properties/definitions/PauseClusterMessage": close({ClusterIdent
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResizeClusterMessage": close({
-	Classic?:           bool | fn.#BooleanExpression
+	Classic?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ClusterIdentifier!: string | fn.#StringExpression
 	ClusterType?:       string | fn.#StringExpression
 	NodeType?:          string | fn.#StringExpression
-	NumberOfNodes?:     int | fn.#NumberExpression
+	NumberOfNodes?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -39,11 +56,11 @@ _#defs: "/$defs/Properties/definitions/ResumeClusterMessage": close({ClusterIden
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScheduledActionType": matchN(1, [close(
-	{ResizeCluster?: _#defs."/$defs/Properties/definitions/ResizeClusterMessage" | fn.#ObjectExpression},
+	{ResizeCluster?: _#defs."/$defs/Properties/definitions/ResizeClusterMessage"},
 ), close(
-	{PauseCluster?: _#defs."/$defs/Properties/definitions/PauseClusterMessage" | fn.#ObjectExpression},
+	{PauseCluster?: _#defs."/$defs/Properties/definitions/PauseClusterMessage"},
 ), close(
-	{ResumeCluster?: _#defs."/$defs/Properties/definitions/ResumeClusterMessage" | fn.#ObjectExpression},
+	{ResumeCluster?: _#defs."/$defs/Properties/definitions/ResumeClusterMessage"},
 )]) & {[string]: fn.#Value} |
 fn.#ObjectExpression
 

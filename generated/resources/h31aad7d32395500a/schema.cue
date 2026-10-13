@@ -12,7 +12,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApiKey!:        string | fn.#StringExpression
 	ApplicationId!: string | fn.#StringExpression
-	Enabled?:       bool | fn.#BooleanExpression
+	Enabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SecretKey!:     string | fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {

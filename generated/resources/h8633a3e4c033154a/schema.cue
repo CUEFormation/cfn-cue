@@ -9,6 +9,10 @@ import (
 	"math"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -54,45 +58,67 @@ _#defs: "/$defs/Properties/definitions/AccessControlExposeHeaders": close(
 
 _#defs: "/$defs/Properties/definitions/ContentSecurityPolicy": close({
 	ContentSecurityPolicy!: string | fn.#StringExpression
-	Override!:              bool | fn.#BooleanExpression
+	Override!:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContentTypeOptions": close({Override!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/ContentTypeOptions": close(
+	{Override!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CorsConfig": close({
-	AccessControlAllowCredentials!: bool | fn.#BooleanExpression
+	AccessControlAllowCredentials!: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 	AccessControlAllowHeaders!: _#defs."/$defs/Properties/definitions/AccessControlAllowHeaders" | fn.#ObjectExpression
 	AccessControlAllowMethods!: _#defs."/$defs/Properties/definitions/AccessControlAllowMethods" | fn.#ObjectExpression
 	AccessControlAllowOrigins!: _#defs."/$defs/Properties/definitions/AccessControlAllowOrigins" | fn.#ObjectExpression
 	AccessControlExposeHeaders?: _#defs."/$defs/Properties/definitions/AccessControlExposeHeaders" |
 		fn.#ObjectExpression
-	AccessControlMaxAgeSec?: int | fn.#NumberExpression
-	OriginOverride!:         bool | fn.#BooleanExpression
+	AccessControlMaxAgeSec?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	OriginOverride!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomHeader": close({
 	Header!:   string | fn.#StringExpression
-	Override!: bool | fn.#BooleanExpression
+	Override!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Value!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomHeadersConfig": close(
-	{Items!: [..._#defs."/$defs/Properties/definitions/CustomHeader" | fn.#ObjectExpression] | fn.#ListExpression},
+	{Items!: [..._#defs."/$defs/Properties/definitions/CustomHeader"] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FrameOptions": close({
 	FrameOption!: =~"^(DENY|SAMEORIGIN)$" | fn.#StringExpression
-	Override!:    bool | fn.#BooleanExpression
+	Override!:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReferrerPolicy": close({
-	Override!: bool | fn.#BooleanExpression
+	Override!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReferrerPolicy!: =~"^(no-referrer|no-referrer-when-downgrade|origin|origin-when-cross-origin|same-origin|strict-origin|strict-origin-when-cross-origin|unsafe-url)$" |
 		fn.#StringExpression
 }) |
@@ -101,10 +127,9 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/RemoveHeader": close({Header!: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RemoveHeadersConfig": close({
-	Items!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RemoveHeader" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/RemoveHeadersConfig": close(
+	{Items!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RemoveHeader"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResponseHeadersPolicyConfig": close({
@@ -129,23 +154,36 @@ _#defs: "/$defs/Properties/definitions/SecurityHeadersConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServerTimingHeadersConfig": close({
-	Enabled!:      bool | fn.#BooleanExpression
+	Enabled!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SamplingRate?: math.MultipleOf(0.0001) & <=100 & >=0 | fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StrictTransportSecurity": close({
-	AccessControlMaxAgeSec!: int | fn.#NumberExpression
-	IncludeSubdomains?:      bool | fn.#BooleanExpression
-	Override!:               bool | fn.#BooleanExpression
-	Preload?:                bool | fn.#BooleanExpression
+	AccessControlMaxAgeSec!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IncludeSubdomains?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Override!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Preload?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/XSSProtection": close({
-	ModeBlock?:  bool | fn.#BooleanExpression
-	Override!:   bool | fn.#BooleanExpression
-	Protection!: bool | fn.#BooleanExpression
+	ModeBlock?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Override!:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Protection!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReportUri?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

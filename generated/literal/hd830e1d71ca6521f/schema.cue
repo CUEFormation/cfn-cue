@@ -37,7 +37,8 @@ import (
 	// A unique identifier for an AWS IAM role that manages access to your AWS
 	// services. Create a role or look up a role's ARN from the IAM dashboard in
 	// the AWS Management Console.
-	FleetRoleArn!: strings.MaxRunes(256) &
+	FleetRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-.*)?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
 

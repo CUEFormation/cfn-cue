@@ -22,7 +22,7 @@ import (
 	ClusterCreationTime?: string
 
 	// The KMS key identifier used to encrypt the source elastic cluster.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The Amazon Resource Name (ARN) of the elastic cluster snapshot.
 	SnapshotArn?: string
@@ -46,7 +46,7 @@ import (
 	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
 
 	// The Amazon EC2 security group IDs associated with the source elastic cluster.
-	VpcSecurityGroupIds?: [...string]
+	VpcSecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 })
 
 // A key-value pair to associate with a resource.

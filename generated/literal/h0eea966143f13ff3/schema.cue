@@ -74,7 +74,7 @@ import (
 	// ``arn:aws:kms:us-west-2:444455556666:alias/projectKey1``.
 	//
 	// If ``KmsKeyId`` is specified, the ``Encrypted`` parameter must be set to true.
-	KmsKeyId?: (string | string | string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+|(arn:aws[-a-z]*:kms:[a-z0-9-]+:\\d{12}:((key/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})|(key/mrk-[0-9a-f]{32})|(alias/[a-zA-Z0-9/_-]+))))$"
@@ -243,7 +243,7 @@ _#defs: "/$defs/Properties/definitions/ReplicationDestination": close({
 	FileSystemId?: =~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$"
 
 	// The ID of an kms-key-long used to protect the encrypted file system.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The AWS-Region in which the destination file system is located.
 	// For One Zone file systems, the replication configuration must specify the
@@ -252,7 +252,7 @@ _#defs: "/$defs/Properties/definitions/ReplicationDestination": close({
 
 	// The Amazon Resource Name (ARN) of the current source file system in the
 	// replication configuration.
-	RoleArn?: string
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Describes the status of the replication configuration. For more information
 	// about replication status, see [Viewing replication

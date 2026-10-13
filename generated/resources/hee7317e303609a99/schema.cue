@@ -14,7 +14,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::BackupGateway::Hypervisor Resource Type
 #Properties: close({
 	Host?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^.+$" | fn.#StringExpression
-	KmsKeyArn?: strings.MaxRunes(500) &
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(500) &
 	strings.MinRunes(50) &
 	=~"^(^arn:(aws|aws-cn|aws-us-gov):kms:([a-zA-Z0-9-]+):([0-9]+):(key|alias)/(\\S+)$)|(^alias/(\\S+)$)$" |
 	fn.#StringExpression
@@ -24,7 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Name?:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
 	Password?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[ -~]+$" | fn.#StringExpression
-	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Username?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[ -\\.0-\\[\\]-~]*[!-\\.0-\\[\\]-~][ -\\.0-\\[\\]-~]*$" |
 	fn.#StringExpression
 })

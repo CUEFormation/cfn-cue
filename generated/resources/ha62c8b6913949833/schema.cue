@@ -15,8 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::WorkSpacesWeb::TrustStore Resource Type
 #Properties: close({
 	CertificateList!: [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:            list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

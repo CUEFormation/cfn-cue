@@ -364,7 +364,8 @@ _#defs: "/$defs/Properties/definitions/GrammarSlotTypeSetting": close(
 )
 
 _#defs: "/$defs/Properties/definitions/GrammarSlotTypeSource": close({
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w\\-]+:kms:[\\w\\-]+:[\\d]{12}:(?:key\\/[\\w\\-]+|alias\\/[a-zA-Z0-9:\\/_\\-]{1,256})$"
 	S3BucketName!: _#defs."/$defs/Properties/definitions/S3BucketName"
@@ -464,7 +465,8 @@ strings.MinRunes(32) &
 
 _#defs: "/$defs/Properties/definitions/LambdaCodeHook": close({
 	CodeHookInterfaceVersion!: strings.MaxRunes(5) & strings.MinRunes(1)
-	LambdaArn!:                strings.MaxRunes(2048) & strings.MinRunes(20)
+	LambdaArn!:
+		=~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
 _#defs: "/$defs/Properties/definitions/LocaleId": string
@@ -609,12 +611,14 @@ _#defs: "/$defs/Properties/definitions/ResponseSpecification": close({
 	MessageGroupsList!: _#defs."/$defs/Properties/definitions/MessageGroupsList"
 })
 
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(2048) &
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+strings.MaxRunes(2048) &
 strings.MinRunes(32) &
 =~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.*$"
 
 _#defs: "/$defs/Properties/definitions/S3BucketLogDestination": close({
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w\\-]+:kms:[\\w\\-]+:[\\d]{12}:(?:key\\/[\\w\\-]+|alias\\/[a-zA-Z0-9:\\/_\\-]{1,256})$"
 	LogPrefix!: strings.MaxRunes(1024) & strings.MinRunes(0)

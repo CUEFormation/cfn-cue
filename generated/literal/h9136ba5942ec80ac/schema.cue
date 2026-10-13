@@ -33,5 +33,6 @@ import "strings"
 	ProductId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$"
 
 	// The ARN of the IAM role used for the launch constraint.
-	RoleArn?: =~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role)\\/.*"
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role)\\/.*"
 })

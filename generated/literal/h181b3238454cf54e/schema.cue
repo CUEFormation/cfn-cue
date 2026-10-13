@@ -43,7 +43,8 @@ import (
 	// The ARN of the IAM role that the scheduled report uses to execute. AWS
 	// Billing and Cost Management Dashboards assumes this IAM role while executing
 	// the scheduled report.
-	ScheduledReportExecutionRoleArn!: strings.MaxRunes(2048) &
+	ScheduledReportExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role/[a-zA-Z0-9+=,.@_/-]+$"
 

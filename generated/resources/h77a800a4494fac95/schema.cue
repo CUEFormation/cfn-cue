@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Name!:           strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[A-Za-z0-9_\\s\\.-]+$" | fn.#StringExpression
 	Specifications?: _#defs."/$defs/Properties/definitions/DeploymentSpecifications" | fn.#ObjectExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:           [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
 	WorkloadName!:   strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z][a-zA-Z0-9-_]*$" | fn.#StringExpression
 })
 

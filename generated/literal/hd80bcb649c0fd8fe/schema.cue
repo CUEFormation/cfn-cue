@@ -19,7 +19,10 @@ import (
 
 	// The Amazon Resource Name (ARN) of the IAM role that grants Amazon Comprehend
 	// read access to your input data.
-	DataAccessRoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$"
+	DataAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$"
 
 	// Specifies the format and location of the input data. The S3 bucket containing
 	// the input data must be located in the same Region as the entity recognizer
@@ -149,7 +152,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	// The ID number for a security group on an instance of your private VPC.
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[-0-9a-zA-Z]+$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(1) &
+		=~"^[-0-9a-zA-Z]+$"
 	]
 
 	// The ID for each subnet being used in your private VPC.

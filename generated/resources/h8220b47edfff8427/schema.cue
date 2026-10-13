@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,8 +21,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Manager license configurations.
 #Properties: close({
 	Description?:         string | fn.#StringExpression
-	ReportContext!:       _#defs."/$defs/Properties/definitions/ReportContext" | fn.#ObjectExpression
-	ReportFrequency!:     _#defs."/$defs/Properties/definitions/ReportFrequency" | fn.#ObjectExpression
+	ReportContext!:       _#defs."/$defs/Properties/definitions/ReportContext"
+	ReportFrequency!:     _#defs."/$defs/Properties/definitions/ReportFrequency"
 	ReportGeneratorName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	ReportType!: [
 		..."LicenseConfigurationSummaryReport" |
@@ -27,8 +31,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ReportContext": close({
@@ -43,7 +46,20 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReportFrequency": close({
 	Period?: "DAY" | "WEEK" | "MONTH" | "ONE_TIME" | fn.#StringExpression
-	Value?:  int | fn.#NumberExpression
+	Value?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

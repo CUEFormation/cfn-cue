@@ -23,10 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	InactiveDate?: string | fn.#StringExpression
 	PrivateKey?: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\t\\n\\r\\x{0020}-\\x{00FF}]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Usage!: "SIGNING" | "ENCRYPTION" | "TLS" | fn.#StringExpression
 })
 

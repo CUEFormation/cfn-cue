@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -39,16 +43,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	KeySchema?:            null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
 	...
 }, _) & {...} & close({
-	AttributeDefinitions?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AttributeDefinition" | fn.#ObjectExpression
-	] |
+	AttributeDefinitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AttributeDefinition"] |
 		fn.#ListExpression
 	BillingMode?: "PAY_PER_REQUEST" | "PROVISIONED" | fn.#StringExpression
 	ContributorInsightsSpecification?: _#defs."/$defs/Properties/definitions/ContributorInsightsSpecification" |
 		fn.#ObjectExpression
-	DeletionProtectionEnabled?: bool | fn.#BooleanExpression
-	GlobalSecondaryIndexes?: [..._#defs."/$defs/Properties/definitions/GlobalSecondaryIndex" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	GlobalSecondaryIndexes?:    [..._#defs."/$defs/Properties/definitions/GlobalSecondaryIndex"] | fn.#ListExpression
 	ImportSourceSpecification?: _#defs."/$defs/Properties/definitions/ImportSourceSpecification" | fn.#ObjectExpression
 	KeySchema!: matchN(1, [
 		_#defs."/$defs/Properties/definitions/KeySchema" &
@@ -59,22 +60,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ValueExpression
 	KinesisStreamSpecification?: _#defs."/$defs/Properties/definitions/KinesisStreamSpecification" |
 		fn.#ObjectExpression
-	LocalSecondaryIndexes?: [..._#defs."/$defs/Properties/definitions/LocalSecondaryIndex" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	OnDemandThroughput?: _#defs."/$defs/Properties/definitions/OnDemandThroughput" | fn.#ObjectExpression
+	LocalSecondaryIndexes?: [..._#defs."/$defs/Properties/definitions/LocalSecondaryIndex"] | fn.#ListExpression
+	OnDemandThroughput?:    _#defs."/$defs/Properties/definitions/OnDemandThroughput" | fn.#ObjectExpression
 	PointInTimeRecoverySpecification?: _#defs."/$defs/Properties/definitions/PointInTimeRecoverySpecification" |
 		fn.#ObjectExpression
-	ProvisionedThroughput?: _#defs."/$defs/Properties/definitions/ProvisionedThroughput" | fn.#ObjectExpression
-	ResourcePolicy?:        _#defs."/$defs/Properties/definitions/ResourcePolicy" | fn.#ObjectExpression
-	SSESpecification?:      _#defs."/$defs/Properties/definitions/SSESpecification" | fn.#ObjectExpression
-	StreamSpecification?:   _#defs."/$defs/Properties/definitions/StreamSpecification" | fn.#ObjectExpression
-	TableClass?:            "STANDARD" | "STANDARD_INFREQUENT_ACCESS" | fn.#StringExpression
-	TableName?:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	ProvisionedThroughput?:   _#defs."/$defs/Properties/definitions/ProvisionedThroughput" | fn.#ObjectExpression
+	ResourcePolicy?:          _#defs."/$defs/Properties/definitions/ResourcePolicy" | fn.#ObjectExpression
+	SSESpecification?:        _#defs."/$defs/Properties/definitions/SSESpecification" | fn.#ObjectExpression
+	StreamSpecification?:     _#defs."/$defs/Properties/definitions/StreamSpecification" | fn.#ObjectExpression
+	TableClass?:              "STANDARD" | "STANDARD_INFREQUENT_ACCESS" | fn.#StringExpression
+	TableName?:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Tags?:                    [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TimeToLiveSpecification?: _#defs."/$defs/Properties/definitions/TimeToLiveSpecification" | fn.#ObjectExpression
-	VectorIndexes?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/VectorIndex" | fn.#ObjectExpression
-	] |
+	VectorIndexes?: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VectorIndex"] |
 		fn.#ListExpression
 	WarmThroughput?: _#defs."/$defs/Properties/definitions/WarmThroughput" | fn.#ObjectExpression
 })
@@ -86,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/AttributeDefinition": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ContributorInsightsSpecification": close({
-	Enabled!: bool | fn.#BooleanExpression
+	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Mode?:    "ACCESSED_AND_THROTTLED_KEYS" | "THROTTLED_KEYS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -104,7 +102,7 @@ _#defs: "/$defs/Properties/definitions/DeprecatedHashKeyElement": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DeprecatedKeySchema": close(
-	{HashKeyElement!: _#defs."/$defs/Properties/definitions/DeprecatedHashKeyElement" | fn.#ObjectExpression},
+	{HashKeyElement!: _#defs."/$defs/Properties/definitions/DeprecatedHashKeyElement"},
 ) |
 	fn.#ObjectExpression
 
@@ -148,7 +146,23 @@ _#defs: "/$defs/Properties/definitions/KeySchema": list.UniqueItems() & {
 		KeyType!: "RANGE" | fn.#StringExpression
 		...
 	} | fn.#ObjectExpression
-	[>=2]: close({
+	[>=2 | {
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						>=2,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	}]: close({
 		AttributeName!: string | fn.#StringExpression
 		KeyType!:       string | fn.#StringExpression
 	}) |
@@ -172,8 +186,36 @@ _#defs: "/$defs/Properties/definitions/LocalSecondaryIndex": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OnDemandThroughput": close({
-	MaxReadRequestUnits?:  int & >=1 | fn.#NumberExpression
-	MaxWriteRequestUnits?: int & >=1 | fn.#NumberExpression
+	MaxReadRequestUnits?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxWriteRequestUnits?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -183,8 +225,23 @@ _#defs: "/$defs/Properties/definitions/PointInTimeRecoverySpecification": close(
 		PointInTimeRecoveryEnabled!: _
 	}
 	{}
-	PointInTimeRecoveryEnabled?: bool | fn.#BooleanExpression
-	"RecoveryPeriodInDays"?:     int & <=35 & >=1 | fn.#NumberExpression
+	PointInTimeRecoveryEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	"RecoveryPeriodInDays"?: int & <=35 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=35 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -196,8 +253,36 @@ _#defs: "/$defs/Properties/definitions/Projection": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ProvisionedThroughput": close({
-	ReadCapacityUnits!:  int & >=0 | fn.#NumberExpression
-	WriteCapacityUnits!: int & >=0 | fn.#NumberExpression
+	ReadCapacityUnits!: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	WriteCapacityUnits!: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -219,8 +304,8 @@ _#defs: "/$defs/Properties/definitions/SSESpecification": close({
 		SSEType!: _
 	}
 	{}
-	"KMSMasterKeyId"?: string | string | string | fn.#StringExpression
-	SSEEnabled!:       bool | fn.#BooleanExpression
+	"KMSMasterKeyId"?: string & string | fn.#StringExpression
+	SSEEnabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SSEType?:          "KMS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -234,8 +319,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/StreamSpecification": close({
 	ResourcePolicy?: _#defs."/$defs/Properties/definitions/ResourcePolicy" | fn.#ObjectExpression
 	StreamViewType!: "KEYS_ONLY" | "NEW_AND_OLD_IMAGES" | "NEW_IMAGE" | "OLD_IMAGE" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -247,7 +331,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TimeToLiveSpecification": close({
 	AttributeName?: string | fn.#StringExpression
-	Enabled!:       bool | fn.#BooleanExpression
+	Enabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -257,27 +341,70 @@ _#defs: "/$defs/Properties/definitions/VectorAttribute": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VectorIndex": close({
-	Dimensions!:       int & <=4096 & >=1 | fn.#NumberExpression
+	Dimensions!: int & <=4096 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=4096 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	DistanceFunction!: "COSINE" | "DOT_PRODUCT" | "EUCLIDEAN" | fn.#StringExpression
 	IndexName!:        strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	Projection!:       _#defs."/$defs/Properties/definitions/Projection" | fn.#ObjectExpression
+	Projection!:       _#defs."/$defs/Properties/definitions/Projection"
 	SearchSchema?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SearchSchemaElement" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/SearchSchemaElement"
 	] |
 		fn.#ListExpression
-	VectorAttribute!: _#defs."/$defs/Properties/definitions/VectorAttribute" | fn.#ObjectExpression
+	VectorAttribute!: _#defs."/$defs/Properties/definitions/VectorAttribute"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WarmThroughput": ({
+_#defs: "/$defs/Properties/definitions/WarmThroughput": matchN(>=1, [{
 	ReadUnitsPerSecond!: _
 	...
-} | {
+}, {
 	WriteUnitsPerSecond!: _
 	...
-}) & close({
-	ReadUnitsPerSecond?:  int & >=1 | fn.#NumberExpression
-	WriteUnitsPerSecond?: int & >=1 | fn.#NumberExpression
+}]) & close({
+	ReadUnitsPerSecond?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	WriteUnitsPerSecond?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

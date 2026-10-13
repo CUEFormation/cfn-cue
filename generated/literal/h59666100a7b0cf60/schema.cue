@@ -27,7 +27,7 @@ import (
 // Specifies encryption settings for the table bucket
 _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 	// ARN of the KMS key to use for encryption
-	KMSKeyArn?: string
+	KMSKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 
 	// Server-side encryption algorithm
 	SSEAlgorithm?: "AES256" | "aws:kms"

@@ -15,8 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for Identity Center (SSO) Instance
 #Properties: close({
 	Name?: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(75) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(75) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

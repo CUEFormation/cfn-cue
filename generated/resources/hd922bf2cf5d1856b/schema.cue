@@ -13,8 +13,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SecurityAgent::AgentSpace
 #Properties: close({
-	AwsResources?:       _#defs."/$defs/Properties/definitions/AWSResources" | fn.#ObjectExpression
-	CodeReviewSettings?: _#defs."/$defs/Properties/definitions/CodeReviewSettings" | fn.#ObjectExpression
+	AwsResources?:       _#defs."/$defs/Properties/definitions/AWSResources"
+	CodeReviewSettings?: _#defs."/$defs/Properties/definitions/CodeReviewSettings"
 	Description?:        string | fn.#StringExpression
 	IntegratedResources?: [...close({
 		Integration!: string | fn.#StringExpression
@@ -43,33 +43,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			ConfluenceCapabilities!: _
 			...
 		}])]) & close({
-			BitbucketCapabilities?: _#defs."/$defs/Properties/definitions/BitbucketCapabilitiesResource" |
-				fn.#ObjectExpression
-			BitbucketRepository?: _#defs."/$defs/Properties/definitions/BitbucketRepositoryResource" |
-				fn.#ObjectExpression
-			ConfluenceCapabilities?: _#defs."/$defs/Properties/definitions/ConfluenceCapabilitiesResource" |
-				fn.#ObjectExpression
+			BitbucketCapabilities?:  _#defs."/$defs/Properties/definitions/BitbucketCapabilitiesResource"
+			BitbucketRepository?:    _#defs."/$defs/Properties/definitions/BitbucketRepositoryResource"
+			ConfluenceCapabilities?: _#defs."/$defs/Properties/definitions/ConfluenceCapabilitiesResource"
 			ConfluenceDocument?: close({
 				Name!:     string | fn.#StringExpression
 				PageId!:   string | fn.#StringExpression
 				SpaceKey!: string | fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
-			GitHubCapabilities?: _#defs."/$defs/Properties/definitions/GitHubCapabilitiesResource" |
-				fn.#ObjectExpression
-			GitHubRepository?: _#defs."/$defs/Properties/definitions/GitHubRepositoryResource" | fn.#ObjectExpression
-			GitLabCapabilities?: _#defs."/$defs/Properties/definitions/GitLabCapabilitiesResource" |
-				fn.#ObjectExpression
-			GitLabRepository?: _#defs."/$defs/Properties/definitions/GitLabRepositoryResource" | fn.#ObjectExpression
+			GitHubCapabilities?: _#defs."/$defs/Properties/definitions/GitHubCapabilitiesResource"
+			GitHubRepository?:   _#defs."/$defs/Properties/definitions/GitHubRepositoryResource"
+			GitLabCapabilities?: _#defs."/$defs/Properties/definitions/GitLabCapabilitiesResource"
+			GitLabRepository?:   _#defs."/$defs/Properties/definitions/GitLabRepositoryResource"
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	KmsKeyId?:        (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) | fn.#StringExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	fn.#StringExpression
 	Name!:            string | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetDomainIds?: [...string | fn.#StringExpression] | fn.#ListExpression
 })
 
@@ -79,13 +76,13 @@ _#defs: "/$defs/Properties/definitions/AWSResources": close({
 	LogGroups?:          [...string | fn.#StringExpression] | fn.#ListExpression
 	S3Buckets?:          [...string | fn.#StringExpression] | fn.#ListExpression
 	SecretArns?:         [...string | fn.#StringExpression] | fn.#ListExpression
-	Vpcs?: [..._#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression] | fn.#ListExpression
+	Vpcs?:               [..._#defs."/$defs/Properties/definitions/VpcConfig"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BitbucketCapabilitiesResource": close({
-	LeaveComments?: bool | fn.#BooleanExpression
-	RemediateCode?: bool | fn.#BooleanExpression
+	LeaveComments?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RemediateCode?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -96,15 +93,15 @@ _#defs: "/$defs/Properties/definitions/BitbucketRepositoryResource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CodeReviewSettings": close({
-	ControlsScanning!:       bool | fn.#BooleanExpression
-	GeneralPurposeScanning!: bool | fn.#BooleanExpression
+	ControlsScanning!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	GeneralPurposeScanning!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfluenceCapabilitiesResource": close({
-	CreateDocument?: bool | fn.#BooleanExpression
-	FetchDocument?:  bool | fn.#BooleanExpression
-	UpdateDocument?: bool | fn.#BooleanExpression
+	CreateDocument?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	FetchDocument?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UpdateDocument?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -118,8 +115,8 @@ _#defs: "/$defs/Properties/definitions/ConfluenceDocumentResource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GitHubCapabilitiesResource": close({
-	LeaveComments!: bool | fn.#BooleanExpression
-	RemediateCode!: bool | fn.#BooleanExpression
+	LeaveComments!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RemediateCode!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -130,8 +127,8 @@ _#defs: "/$defs/Properties/definitions/GitHubRepositoryResource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GitLabCapabilitiesResource": close({
-	LeaveComments?: bool | fn.#BooleanExpression
-	RemediateCode?: bool | fn.#BooleanExpression
+	LeaveComments?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RemediateCode?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -142,14 +139,13 @@ _#defs: "/$defs/Properties/definitions/GitLabRepositoryResource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IntegratedResource": close({
-	Integration!: string | fn.#StringExpression
-	ProviderResources!: [..._#defs."/$defs/Properties/definitions/ProviderResource" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Integration!:       string | fn.#StringExpression
+	ProviderResources!: [..._#defs."/$defs/Properties/definitions/ProviderResource"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IntegratedResources": [
-	..._#defs."/$defs/Properties/definitions/IntegratedResource" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/IntegratedResource"
 ] |
 	fn.#ListExpression
 
@@ -178,15 +174,14 @@ _#defs: "/$defs/Properties/definitions/ProviderResource": matchN(2, [matchN(1, [
 	ConfluenceCapabilities!: _
 	...
 }])]) & close({
-	BitbucketCapabilities?: _#defs."/$defs/Properties/definitions/BitbucketCapabilitiesResource" | fn.#ObjectExpression
-	BitbucketRepository?:   _#defs."/$defs/Properties/definitions/BitbucketRepositoryResource" | fn.#ObjectExpression
-	ConfluenceCapabilities?: _#defs."/$defs/Properties/definitions/ConfluenceCapabilitiesResource" |
-		fn.#ObjectExpression
-	ConfluenceDocument?: _#defs."/$defs/Properties/definitions/ConfluenceDocumentResource" | fn.#ObjectExpression
-	GitHubCapabilities?: _#defs."/$defs/Properties/definitions/GitHubCapabilitiesResource" | fn.#ObjectExpression
-	GitHubRepository?:   _#defs."/$defs/Properties/definitions/GitHubRepositoryResource" | fn.#ObjectExpression
-	GitLabCapabilities?: _#defs."/$defs/Properties/definitions/GitLabCapabilitiesResource" | fn.#ObjectExpression
-	GitLabRepository?:   _#defs."/$defs/Properties/definitions/GitLabRepositoryResource" | fn.#ObjectExpression
+	BitbucketCapabilities?:  _#defs."/$defs/Properties/definitions/BitbucketCapabilitiesResource"
+	BitbucketRepository?:    _#defs."/$defs/Properties/definitions/BitbucketRepositoryResource"
+	ConfluenceCapabilities?: _#defs."/$defs/Properties/definitions/ConfluenceCapabilitiesResource"
+	ConfluenceDocument?:     _#defs."/$defs/Properties/definitions/ConfluenceDocumentResource"
+	GitHubCapabilities?:     _#defs."/$defs/Properties/definitions/GitHubCapabilitiesResource"
+	GitHubRepository?:       _#defs."/$defs/Properties/definitions/GitHubRepositoryResource"
+	GitLabCapabilities?:     _#defs."/$defs/Properties/definitions/GitLabCapabilitiesResource"
+	GitLabRepository?:       _#defs."/$defs/Properties/definitions/GitLabRepositoryResource"
 }) |
 fn.#ObjectExpression
 

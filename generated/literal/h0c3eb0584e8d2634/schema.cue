@@ -116,7 +116,7 @@ _#defs: "/$defs/Properties/definitions/ManagedInstancesLocalStorageConfiguration
 _#defs: "/$defs/Properties/definitions/ManagedInstancesMonitoringOptions": "BASIC" | "DETAILED"
 
 _#defs: "/$defs/Properties/definitions/ManagedInstancesNetworkConfiguration": close({
-	SecurityGroups!: [...string]
+	SecurityGroups!: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	Subnets!:        [...string]
 })
 
@@ -138,7 +138,7 @@ _#defs: "/$defs/Properties/definitions/ManagedInstancesProvider": close({
 		// Specifies the number of seconds to wait before optimizing instances.
 		ScaleInAfter?: int & <=3600 & >=-1
 	})
-	InfrastructureRoleArn!:  string
+	InfrastructureRoleArn!:  =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	InstanceLaunchTemplate!: _#defs."/$defs/Properties/definitions/InstanceLaunchTemplate"
 	PropagateTags?:          "CAPACITY_PROVIDER" | "NONE"
 })

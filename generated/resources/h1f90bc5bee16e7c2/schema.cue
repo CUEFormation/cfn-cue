@@ -19,9 +19,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: string | fn.#StringExpression
 	Name!:        string | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TargetArns!: [...string | fn.#StringExpression] | fn.#ListExpression
+	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TargetArns!:  [...string | fn.#StringExpression] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

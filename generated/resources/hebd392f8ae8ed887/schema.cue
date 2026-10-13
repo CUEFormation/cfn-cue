@@ -16,14 +16,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DatasetGroupArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
 	fn.#StringExpression
-	DatasetImportJob?: _#defs."/$defs/Properties/definitions/DatasetImportJob" | fn.#ObjectExpression
+	DatasetImportJob?: _#defs."/$defs/Properties/definitions/DatasetImportJob"
 	DatasetType!: ("Interactions" | "Items" | "Users") & (strings.MaxRunes(256) & strings.MinRunes(0)) |
 	fn.#StringExpression
 	Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*" | fn.#StringExpression
 	SchemaArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DatasetImportJob": close({
@@ -32,7 +31,9 @@ _#defs: "/$defs/Properties/definitions/DatasetImportJob": close({
 	DatasetArn?:          strings.MaxRunes(256) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" | fn.#StringExpression
 	DatasetImportJobArn?: strings.MaxRunes(256) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" | fn.#StringExpression
 	JobName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*" | fn.#StringExpression
-	RoleArn?: strings.MaxRunes(256) & =~"arn:([a-z\\d-]+):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+" |
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(256) &
+	=~"arn:([a-z\\d-]+):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

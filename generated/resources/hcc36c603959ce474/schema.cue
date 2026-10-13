@@ -23,10 +23,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 	SessionName?:      strings.MaxRunes(64) & strings.MinRunes(2) | fn.#StringExpression
-	Status?:           _#defs."/$defs/Properties/definitions/UserProfileStatus" | fn.#StringExpression
+	Status?:           _#defs."/$defs/Properties/definitions/UserProfileStatus"
 	UserIdentifier!: =~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|^[a-zA-Z_0-9+=,.@-]+$|^arn:aws:iam::\\d{12}:.+$)" |
 		fn.#StringExpression
-	UserType?: _#defs."/$defs/Properties/definitions/UserType" | fn.#StringExpression
+	UserType?: _#defs."/$defs/Properties/definitions/UserType"
 })
 
 _#defs: "/$defs/Properties/definitions/IamUserProfileDetails": close({
@@ -44,9 +44,9 @@ _#defs: "/$defs/Properties/definitions/SsoUserProfileDetails": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UserProfileDetails": matchN(1, [close(
-	{Iam!: _#defs."/$defs/Properties/definitions/IamUserProfileDetails" | fn.#ObjectExpression},
+	{Iam!: _#defs."/$defs/Properties/definitions/IamUserProfileDetails"},
 ), close(
-	{Sso!: _#defs."/$defs/Properties/definitions/SsoUserProfileDetails" | fn.#ObjectExpression},
+	{Sso!: _#defs."/$defs/Properties/definitions/SsoUserProfileDetails"},
 )]) |
 fn.#ValueExpression
 

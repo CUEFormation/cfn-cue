@@ -12,7 +12,7 @@ import "strings"
 	Description?: strings.MaxRunes(500)
 
 	// KMS key for client-side encryption of pack contents
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048)
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & strings.MaxRunes(2048)
 
 	// Name of the security requirement pack
 	Name!: strings.MaxRunes(120) & strings.MinRunes(1)

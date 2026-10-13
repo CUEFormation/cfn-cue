@@ -4,15 +4,18 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaTailor::Program
 #Properties: close({
-	AdBreaks?: [..._#defs."/$defs/Properties/definitions/AdBreak" | fn.#ObjectExpression] | fn.#ListExpression
-	AudienceMedia?: [..._#defs."/$defs/Properties/definitions/AudienceMedia" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	AdBreaks?:              [..._#defs."/$defs/Properties/definitions/AdBreak"] | fn.#ListExpression
+	AudienceMedia?:         [..._#defs."/$defs/Properties/definitions/AudienceMedia"] | fn.#ListExpression
 	ChannelName!:           string | fn.#StringExpression
 	LiveSourceName?:        string | fn.#StringExpression
 	ProgramName!:           string | fn.#StringExpression
@@ -22,37 +25,100 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/AdBreak": close({
-	AdBreakMetadata?: [..._#defs."/$defs/Properties/definitions/KeyValuePair" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	MessageType?:         "SPLICE_INSERT" | "TIME_SIGNAL" | fn.#StringExpression
-	OffsetMillis!:        int | fn.#NumberExpression
-	Slate?:               _#defs."/$defs/Properties/definitions/SlateSource" | fn.#ObjectExpression
-	SpliceInsertMessage?: _#defs."/$defs/Properties/definitions/SpliceInsertMessage" | fn.#ObjectExpression
-	TimeSignalMessage?:   _#defs."/$defs/Properties/definitions/TimeSignalMessage" | fn.#ObjectExpression
+	AdBreakMetadata?: [..._#defs."/$defs/Properties/definitions/KeyValuePair"] | fn.#ListExpression
+	MessageType?:     "SPLICE_INSERT" | "TIME_SIGNAL" | fn.#StringExpression
+	OffsetMillis!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Slate?:               _#defs."/$defs/Properties/definitions/SlateSource"
+	SpliceInsertMessage?: _#defs."/$defs/Properties/definitions/SpliceInsertMessage"
+	TimeSignalMessage?:   _#defs."/$defs/Properties/definitions/TimeSignalMessage"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AlternateMedia": close({
-	AdBreaks?:       [..._#defs."/$defs/Properties/definitions/AdBreak" | fn.#ObjectExpression] | fn.#ListExpression
-	ClipRange?:      _#defs."/$defs/Properties/definitions/ClipRange" | fn.#ObjectExpression
-	DurationMillis?: int | fn.#NumberExpression
+	AdBreaks?:  [..._#defs."/$defs/Properties/definitions/AdBreak"] | fn.#ListExpression
+	ClipRange?: _#defs."/$defs/Properties/definitions/ClipRange"
+	DurationMillis?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	LiveSourceName?: string | fn.#StringExpression
-	ScheduledStartTimeMillis?: int | fn.#NumberExpression
-	SourceLocationName?:       string | fn.#StringExpression
-	VodSourceName?:            string | fn.#StringExpression
+	ScheduledStartTimeMillis?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SourceLocationName?: string | fn.#StringExpression
+	VodSourceName?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AudienceMedia": close({
-	AlternateMedia?: [..._#defs."/$defs/Properties/definitions/AlternateMedia" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Audience?: string | fn.#StringExpression
+	AlternateMedia?: [..._#defs."/$defs/Properties/definitions/AlternateMedia"] | fn.#ListExpression
+	Audience?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClipRange": close({
-	EndOffsetMillis?:   int | fn.#NumberExpression
-	StartOffsetMillis?: int | fn.#NumberExpression
+	EndOffsetMillis?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StartOffsetMillis?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -63,20 +129,111 @@ _#defs: "/$defs/Properties/definitions/KeyValuePair": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScheduleConfiguration": close({
-	ClipRange?:  _#defs."/$defs/Properties/definitions/ClipRange" | fn.#ObjectExpression
-	Transition!: _#defs."/$defs/Properties/definitions/Transition" | fn.#ObjectExpression
+	ClipRange?:  _#defs."/$defs/Properties/definitions/ClipRange"
+	Transition!: _#defs."/$defs/Properties/definitions/Transition"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SegmentationDescriptor": close({
-	SegmentNum?:           int | fn.#NumberExpression
-	SegmentationEventId?:  int | fn.#NumberExpression
-	SegmentationTypeId?:   int | fn.#NumberExpression
-	SegmentationUpid?:     string | fn.#StringExpression
-	SegmentationUpidType?: int | fn.#NumberExpression
-	SegmentsExpected?:     int | fn.#NumberExpression
-	SubSegmentNum?:        int | fn.#NumberExpression
-	SubSegmentsExpected?:  int | fn.#NumberExpression
+	SegmentNum?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SegmentationEventId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SegmentationTypeId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SegmentationUpid?: string | fn.#StringExpression
+	SegmentationUpidType?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SegmentsExpected?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SubSegmentNum?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SubSegmentsExpected?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -87,25 +244,102 @@ _#defs: "/$defs/Properties/definitions/SlateSource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SpliceInsertMessage": close({
-	AvailNum?:        int | fn.#NumberExpression
-	AvailsExpected?:  int | fn.#NumberExpression
-	SpliceEventId?:   int | fn.#NumberExpression
-	UniqueProgramId?: int | fn.#NumberExpression
+	AvailNum?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	AvailsExpected?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SpliceEventId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UniqueProgramId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeSignalMessage": close({
-	SegmentationDescriptors?: [..._#defs."/$defs/Properties/definitions/SegmentationDescriptor" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/TimeSignalMessage": close(
+	{SegmentationDescriptors?: [..._#defs."/$defs/Properties/definitions/SegmentationDescriptor"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Transition": close({
-	DurationMillis?:           int | fn.#NumberExpression
-	RelativePosition!:         "BEFORE_PROGRAM" | "AFTER_PROGRAM" | fn.#StringExpression
-	RelativeProgram?:          string | fn.#StringExpression
-	ScheduledStartTimeMillis?: int | fn.#NumberExpression
-	Type!:                     string | fn.#StringExpression
+	DurationMillis?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RelativePosition!: "BEFORE_PROGRAM" | "AFTER_PROGRAM" | fn.#StringExpression
+	RelativeProgram?:  string | fn.#StringExpression
+	ScheduledStartTimeMillis?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

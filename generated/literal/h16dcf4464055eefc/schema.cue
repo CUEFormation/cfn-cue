@@ -49,7 +49,7 @@ import (
 
 	// The Amazon Resource Name (ARN) of the IAM role that the proxy uses to access
 	// secrets in AWS Secrets Manager.
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 	// An optional set of key-value pairs to associate arbitrary data of your choosing with the proxy.
 	Tags?: [..._#defs."/$defs/Properties/definitions/TagFormat"]
@@ -60,10 +60,10 @@ import (
 	TargetConnectionNetworkType?: "IPV4" | "IPV6"
 
 	// VPC ID to associate with the new DB proxy.
-	VpcId?: string
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 
 	// VPC security group IDs to associate with the new proxy.
-	VpcSecurityGroupIds?: list.MinItems(1) & [...string]
+	VpcSecurityGroupIds?: list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// VPC subnet IDs to associate with the new proxy.
 	VpcSubnetIds!: list.MinItems(2) & [...string]

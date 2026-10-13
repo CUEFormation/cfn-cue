@@ -38,21 +38,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PortalName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression
 	PortalType?:              "SITEWISE_PORTAL_V1" | "SITEWISE_PORTAL_V2" | fn.#StringExpression
-	PortalTypeConfiguration?: _#defs."/$defs/Properties/definitions/PortalTypeConfiguration" | fn.#ObjectExpression
-	RoleArn!: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" |
+	PortalTypeConfiguration?: _#defs."/$defs/Properties/definitions/PortalTypeConfiguration"
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(1600) &
+	strings.MinRunes(1) &
+	=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" |
 	fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/PortalTools": [...string | fn.#StringExpression] | fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/PortalTypeConfiguration": close({
 
-	{[=~"^[a-z][a-zA-Z0-9_]*$"]: _#defs."/$defs/Properties/definitions/PortalTypeEntry" | fn.#ObjectExpression}}) |
+	{[=~"^[a-z][a-zA-Z0-9_]*$"]: _#defs."/$defs/Properties/definitions/PortalTypeEntry"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PortalTypeEntry": close(
-	{PortalTools!: _#defs."/$defs/Properties/definitions/PortalTools" | fn.#ListExpression},
+	{PortalTools!: _#defs."/$defs/Properties/definitions/PortalTools"},
 ) |
 	fn.#ObjectExpression
 

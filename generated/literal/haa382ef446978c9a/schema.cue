@@ -30,7 +30,7 @@ import (
 	LastUpdatedAt?: time.Time
 
 	// An IAM role that allows the IoT service principal to access your S3 files.
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 	// The stream ID.
 	StreamId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"

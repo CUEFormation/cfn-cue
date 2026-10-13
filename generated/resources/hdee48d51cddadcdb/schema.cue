@@ -8,42 +8,60 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EMRServerless::Application Type
 #Properties: close({
-	Architecture?:           _#defs."/$defs/Properties/definitions/Architecture" | fn.#StringExpression
+	Architecture?:           _#defs."/$defs/Properties/definitions/Architecture"
 	AutoStartConfiguration?: _#defs."/$defs/Properties/definitions/AutoStartConfiguration" | fn.#ObjectExpression
 	AutoStopConfiguration?:  _#defs."/$defs/Properties/definitions/AutoStopConfiguration" | fn.#ObjectExpression
 	IdentityCenterConfiguration?: _#defs."/$defs/Properties/definitions/IdentityCenterConfiguration" |
 		fn.#ObjectExpression
-	ImageConfiguration?:       _#defs."/$defs/Properties/definitions/ImageConfigurationInput" | fn.#ObjectExpression
+	ImageConfiguration?:       _#defs."/$defs/Properties/definitions/ImageConfigurationInput"
 	InitialCapacity?:          _#defs."/$defs/Properties/definitions/InitialCapacityConfigMap" | fn.#ListExpression
-	InteractiveConfiguration?: _#defs."/$defs/Properties/definitions/InteractiveConfiguration" | fn.#ObjectExpression
+	InteractiveConfiguration?: _#defs."/$defs/Properties/definitions/InteractiveConfiguration"
 	MaximumCapacity?:          _#defs."/$defs/Properties/definitions/MaximumAllowedResources" | fn.#ObjectExpression
-	MonitoringConfiguration?:  _#defs."/$defs/Properties/definitions/MonitoringConfiguration" | fn.#ObjectExpression
+	MonitoringConfiguration?:  _#defs."/$defs/Properties/definitions/MonitoringConfiguration"
 	Name?:                 strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9._\\/#-]+$" | fn.#StringExpression
 	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration" | fn.#ObjectExpression
 	ReleaseLabel!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9._/-]+$" | fn.#StringExpression
-	RuntimeConfiguration?: _#defs."/$defs/Properties/definitions/ConfigurationList" | fn.#ListExpression
+	RuntimeConfiguration?: _#defs."/$defs/Properties/definitions/ConfigurationList"
 	SchedulerConfiguration?: _#defs."/$defs/Properties/definitions/SchedulerConfiguration" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Type!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Type!:                   strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	WorkerTypeSpecifications?: _#defs."/$defs/Properties/definitions/WorkerTypeSpecificationInputMap" |
 		fn.#ObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Architecture": "ARM64" | "X86_64" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AutoStartConfiguration": close({Enabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/AutoStartConfiguration": close(
+	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AutoStopConfiguration": close({
-	Enabled?:            bool | fn.#BooleanExpression
-	IdleTimeoutMinutes?: int | fn.#NumberExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IdleTimeoutMinutes?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -56,32 +74,29 @@ number |
 string |
 [...] |
 close({
-	Enabled?:             bool | fn.#BooleanExpression
+	Enabled?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EncryptionKeyArn?:    _#defs."/$defs/Properties/definitions/EncryptionKeyArn" | fn.#StringExpression
 	LogGroupName?:        _#defs."/$defs/Properties/definitions/LogGroupName" | fn.#StringExpression
 	LogStreamNamePrefix?: _#defs."/$defs/Properties/definitions/LogStreamNamePrefix" | fn.#StringExpression
-	LogTypeMap?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/LogTypeMapKeyValuePair" | fn.#ObjectExpression
-	] |
+	LogTypeMap?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LogTypeMapKeyValuePair"] |
 		fn.#ListExpression
 }) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/ConfigurationList": list.MaxItems(100) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/ConfigurationObject" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ConfigurationObject"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ConfigurationObject": close({
 	Classification!: _#defs."/$defs/Properties/definitions/Classification" | fn.#StringExpression
 	Configurations?: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/ConfigurationObject" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ConfigurationObject"
 	] |
 		fn.#ListExpression
 	Properties?: close({
 
-		{[=~"^[a-zA-Z]+[-a-zA-Z0-9_.]*$"]: _#defs."/$defs/Properties/definitions/SensitivePropertiesMap" |
-			fn.#StringExpression}}) |
+		{[=~"^[a-zA-Z]+[-a-zA-Z0-9_.]*$"]: _#defs."/$defs/Properties/definitions/SensitivePropertiesMap"}}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -121,26 +136,41 @@ _#defs: "/$defs/Properties/definitions/ImageConfigurationInput": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InitialCapacityConfig": close({
-	WorkerConfiguration!: _#defs."/$defs/Properties/definitions/WorkerConfiguration" | fn.#ObjectExpression
-	WorkerCount!:         int & <=1000000 & >=1 | fn.#NumberExpression
+	WorkerConfiguration!: _#defs."/$defs/Properties/definitions/WorkerConfiguration"
+	WorkerCount!: int & <=1000000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InitialCapacityConfigKeyValuePair": close({
 	Key!:   strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z]+[-_]*[a-zA-Z]+$" | fn.#StringExpression
-	Value!: _#defs."/$defs/Properties/definitions/InitialCapacityConfig" | fn.#ObjectExpression
+	Value!: _#defs."/$defs/Properties/definitions/InitialCapacityConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InitialCapacityConfigMap": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/InitialCapacityConfigKeyValuePair" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/InitialCapacityConfigKeyValuePair"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/InteractiveConfiguration": close({
-	LivyEndpointEnabled?: bool | fn.#BooleanExpression
-	SessionEnabled?:      bool | fn.#BooleanExpression
-	StudioEnabled?:       bool | fn.#BooleanExpression
+	LivyEndpointEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SessionEnabled?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	StudioEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -153,13 +183,13 @@ _#defs: "/$defs/Properties/definitions/LogStreamNamePrefix": strings.MaxRunes(51
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LogTypeList": list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/LogTypeString" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/LogTypeString"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/LogTypeMapKeyValuePair": close({
-	Key!:   _#defs."/$defs/Properties/definitions/WorkerTypeString" | fn.#StringExpression
-	Value!: _#defs."/$defs/Properties/definitions/LogTypeList" | fn.#ListExpression
+	Key!:   _#defs."/$defs/Properties/definitions/WorkerTypeString"
+	Value!: _#defs."/$defs/Properties/definitions/LogTypeList"
 }) |
 fn.#ObjectExpression
 
@@ -174,7 +204,7 @@ number |
 string |
 [...] |
 close({
-	Enabled?:          bool | fn.#BooleanExpression
+	Enabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EncryptionKeyArn?: _#defs."/$defs/Properties/definitions/EncryptionKeyArn" | fn.#StringExpression
 }) |
 fn.#ValueExpression
@@ -204,11 +234,11 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
 	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SecurityGroupId" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/SecurityGroupId"
 	] |
 		fn.#ListExpression
 	SubnetIds?: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SubnetId" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/SubnetId"
 	] |
 		fn.#ListExpression
 }) |
@@ -234,17 +264,46 @@ string |
 [...] |
 close({
 	EncryptionKeyArn?: _#defs."/$defs/Properties/definitions/EncryptionKeyArn" | fn.#StringExpression
-	LogUri?:           _#defs."/$defs/Properties/definitions/UriString" | fn.#StringExpression
+	LogUri?:           _#defs."/$defs/Properties/definitions/UriString"
 }) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/SchedulerConfiguration": close({
-	MaxConcurrentRuns?:   int | fn.#NumberExpression
-	QueueTimeoutMinutes?: int | fn.#NumberExpression
+	MaxConcurrentRuns?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	QueueTimeoutMinutes?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[-0-9a-zA-Z]+" |
+_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(32) &
+strings.MinRunes(1) &
+=~"^[-0-9a-zA-Z]+" |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SensitivePropertiesKeyValuePair": strings.MaxRunes(1024) &
@@ -280,14 +339,13 @@ _#defs: "/$defs/Properties/definitions/WorkerConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WorkerTypeSpecificationInput": close(
-	{ImageConfiguration?: _#defs."/$defs/Properties/definitions/ImageConfigurationInput" | fn.#ObjectExpression},
+	{ImageConfiguration?: _#defs."/$defs/Properties/definitions/ImageConfigurationInput"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WorkerTypeSpecificationInputMap": close({
 
-	{[=~"^[a-zA-Z]+[-_]*[a-zA-Z]+$"]: _#defs."/$defs/Properties/definitions/WorkerTypeSpecificationInput" |
-		fn.#ObjectExpression}}) |
+	{[=~"^[a-zA-Z]+[-_]*[a-zA-Z]+$"]: _#defs."/$defs/Properties/definitions/WorkerTypeSpecificationInput"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WorkerTypeString": strings.MaxRunes(50) &

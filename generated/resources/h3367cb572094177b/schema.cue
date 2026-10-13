@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,8 +13,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::S3Tables::Namespace
 #Properties: close({
-	Namespace!:      _#defs."/$defs/Properties/definitions/Namespace" | fn.#StringExpression
-	TableBucketARN!: _#defs."/$defs/Properties/definitions/TableBucketARN" | fn.#StringExpression
+	Namespace!:      _#defs."/$defs/Properties/definitions/Namespace"
+	TableBucketARN!: _#defs."/$defs/Properties/definitions/TableBucketARN"
 })
 
 _#defs: "/$defs/Properties/definitions/Namespace": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression

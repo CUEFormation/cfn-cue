@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -21,65 +25,117 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...
 	}]) & {...}
 ]) & close({
-	AdditionalInfo?:   string | fn.#StringExpression
-	Affinity?:         "default" | "host" | fn.#StringExpression
-	AvailabilityZone?: string | fn.#StringExpression
-	BlockDeviceMappings?: [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	AdditionalInfo?:      string | fn.#StringExpression
+	Affinity?:            "default" | "host" | fn.#StringExpression
+	AvailabilityZone?:    string | fn.#StringExpression
+	BlockDeviceMappings?: [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"] | fn.#ListExpression
 	CpuOptions?: close({
-		CoreCount?:      int | fn.#NumberExpression
-		ThreadsPerCore?: int | fn.#NumberExpression
+		CoreCount?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ThreadsPerCore?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
-	CreditSpecification?:   close({CPUCredits?: string | fn.#StringExpression}) | fn.#ObjectExpression
-	DisableApiTermination?: bool | fn.#BooleanExpression
-	EbsOptimized?:          bool | fn.#BooleanExpression
-	ElasticGpuSpecifications?: [
-		..._#defs."/$defs/Properties/definitions/ElasticGpuSpecification" | fn.#ObjectExpression
-	] |
+	CreditSpecification?:      close({CPUCredits?: string | fn.#StringExpression}) | fn.#ObjectExpression
+	DisableApiTermination?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EbsOptimized?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ElasticGpuSpecifications?: [..._#defs."/$defs/Properties/definitions/ElasticGpuSpecification"] | fn.#ListExpression
+	ElasticInferenceAccelerators?: [..._#defs."/$defs/Properties/definitions/ElasticInferenceAccelerator"] |
 		fn.#ListExpression
-	ElasticInferenceAccelerators?: [
-		..._#defs."/$defs/Properties/definitions/ElasticInferenceAccelerator" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	EnclaveOptions?:                    close({Enabled?: bool | fn.#BooleanExpression}) | fn.#ObjectExpression
-	HibernationOptions?:                close({Configured?: bool | fn.#BooleanExpression}) | fn.#ObjectExpression
-	HostId?:                            string | fn.#StringExpression
-	HostResourceGroupArn?:              string | fn.#StringExpression
-	IamInstanceProfile?:                string | fn.#StringExpression
-	ImageId?:                           string | fn.#StringExpression
+	EnclaveOptions?: close(
+		{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+	) |
+		fn.#ObjectExpression
+	HibernationOptions?: close(
+		{Configured?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+	) |
+		fn.#ObjectExpression
+	HostId?:               string | fn.#StringExpression
+	HostResourceGroupArn?: string | fn.#StringExpression
+	IamInstanceProfile?:   string | fn.#StringExpression
+	ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	InstanceInitiatedShutdownBehavior?: "stop" | "terminate" | fn.#StringExpression
 	InstanceType?:                      string | fn.#StringExpression
-	Ipv6AddressCount?:                  int | fn.#NumberExpression
-	Ipv6Addresses?: [..._#defs."/$defs/Properties/definitions/InstanceIpv6Address" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	KernelId?: string | fn.#StringExpression
-	KeyName?:  string | fn.#StringExpression
+	Ipv6AddressCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ipv6Addresses?: [..._#defs."/$defs/Properties/definitions/InstanceIpv6Address"] | fn.#ListExpression
+	KernelId?:      string | fn.#StringExpression
+	KeyName?:       string | fn.#StringExpression
 	LaunchTemplate?: _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification" & {[string]: fn.#Value} |
 		fn.#ObjectExpression
-	LicenseSpecifications?: [..._#defs."/$defs/Properties/definitions/LicenseSpecification" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	LicenseSpecifications?: [..._#defs."/$defs/Properties/definitions/LicenseSpecification"] | fn.#ListExpression
 	MetadataOptions?: _#defs."/$defs/Properties/definitions/MetadataOptions" & {[string]: fn.#Value} |
 		fn.#ObjectExpression
-	Monitoring?: bool | fn.#BooleanExpression
-	NetworkInterfaces?: [..._#defs."/$defs/Properties/definitions/NetworkInterface" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Monitoring?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NetworkInterfaces?:  [..._#defs."/$defs/Properties/definitions/NetworkInterface"] | fn.#ListExpression
 	PlacementGroupName?: string | fn.#StringExpression
 	PrivateDnsNameOptions?: _#defs."/$defs/Properties/definitions/PrivateDnsNameOptions" & {[string]: fn.#Value} |
 		fn.#ObjectExpression
-	PrivateIpAddress?:                string | fn.#StringExpression
-	PropagateTagsToVolumeOnCreation?: bool | fn.#BooleanExpression
-	RamdiskId?:                       string | fn.#StringExpression
-	SecurityGroupIds?:                ([...] | [...]) & [...string | string | fn.#StringExpression] | fn.#ListExpression
-	SecurityGroups?:                  [...string | fn.#StringExpression] | fn.#ListExpression
-	SourceDestCheck?:                 bool | fn.#BooleanExpression
-	SsmAssociations?: [..._#defs."/$defs/Properties/definitions/SsmAssociation" | fn.#ObjectExpression] |
+	PrivateIpAddress?: string | fn.#StringExpression
+	PropagateTagsToVolumeOnCreation?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	RamdiskId?: string | fn.#StringExpression
+	SecurityGroupIds?: [...] & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string |
+			fn.#StringExpression
+	] |
 		fn.#ListExpression
-	SubnetId?: string | fn.#StringExpression
-	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	Tenancy?:  string | fn.#StringExpression
-	UserData?: string | fn.#StringExpression
-	Volumes?:  [..._#defs."/$defs/Properties/definitions/Volume" | fn.#ObjectExpression] | fn.#ListExpression
+	SecurityGroups?:  [...string | fn.#StringExpression] | fn.#ListExpression
+	SourceDestCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SsmAssociations?: [..._#defs."/$defs/Properties/definitions/SsmAssociation"] | fn.#ListExpression
+	SubnetId?:        string | fn.#StringExpression
+	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tenancy?:         string | fn.#StringExpression
+	UserData?:        string | fn.#StringExpression
+	Volumes?:         [..._#defs."/$defs/Properties/definitions/Volume"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AssociationParameter": close({
@@ -106,13 +162,41 @@ _#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Ebs": close({
-	DeleteOnTermination?: bool | fn.#BooleanExpression
-	Encrypted?:           bool | fn.#BooleanExpression
-	Iops?:                int | fn.#NumberExpression
-	KmsKeyId?:            string | string | string | fn.#StringExpression
-	SnapshotId?:          string | fn.#StringExpression
-	VolumeSize?:          int | fn.#NumberExpression
-	VolumeType?:          "gp2" | "gp3" | "io1" | "io2" | "sc1" | "st1" | "standard" | fn.#StringExpression
+	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Encrypted?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Iops?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	SnapshotId?: string | fn.#StringExpression
+	VolumeSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VolumeType?: "gp2" | "gp3" | "io1" | "io2" | "sc1" | "st1" | "standard" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -120,18 +204,34 @@ _#defs: "/$defs/Properties/definitions/ElasticGpuSpecification": close({Type!: s
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ElasticInferenceAccelerator": close({
-	Count?: int & >=0 | fn.#NumberExpression
-	Type!:  string | fn.#StringExpression
+	Count?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EnaSrdSpecification": close({
-	EnaSrdEnabled?:          bool | fn.#BooleanExpression
-	EnaSrdUdpSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdUdpSpecification" | fn.#ObjectExpression
+	EnaSrdEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnaSrdUdpSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdUdpSpecification"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnaSrdUdpSpecification": close({EnaSrdUdpEnabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/EnaSrdUdpSpecification": close(
+	{EnaSrdUdpEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InstanceIpv6Address": close({Ipv6Address!: string | fn.#StringExpression}) |
@@ -158,11 +258,26 @@ _#defs: "/$defs/Properties/definitions/LicenseSpecification": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetadataOptions": close({
-	HttpEndpoint?:            "disabled" | "enabled" | fn.#StringExpression
-	HttpProtocolIpv6?:        "disabled" | "enabled" | fn.#StringExpression
-	HttpPutResponseHopLimit?: int & <=64 & >=1 | fn.#NumberExpression
-	HttpTokens?:              "optional" | "required" | fn.#StringExpression
-	InstanceMetadataTags?:    "disabled" | "enabled" | fn.#StringExpression
+	HttpEndpoint?:     "disabled" | "enabled" | fn.#StringExpression
+	HttpProtocolIpv6?: "disabled" | "enabled" | fn.#StringExpression
+	HttpPutResponseHopLimit?: int & <=64 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=64 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	HttpTokens?:           "optional" | "required" | fn.#StringExpression
+	InstanceMetadataTags?: "disabled" | "enabled" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -188,44 +303,76 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
 		...
 	}]) & {...}
 ]) & close({
-	AssociateCarrierIpAddress?: bool | fn.#BooleanExpression
-	AssociatePublicIpAddress?:  bool | fn.#BooleanExpression
-	DeleteOnTermination?:       bool | fn.#BooleanExpression
+	AssociateCarrierIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AssociatePublicIpAddress?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DeleteOnTermination?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Description?:               string | fn.#StringExpression
 	DeviceIndex!:               string | fn.#StringExpression
-	EnaSrdSpecification?:       _#defs."/$defs/Properties/definitions/EnaSrdSpecification" | fn.#ObjectExpression
-	GroupSet?:                  [...string | fn.#StringExpression] | fn.#ListExpression
-	Ipv6AddressCount?:          int | fn.#NumberExpression
-	Ipv6Addresses?: [..._#defs."/$defs/Properties/definitions/InstanceIpv6Address" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	NetworkInterfaceId?: string | fn.#StringExpression
-	PrivateIpAddress?:   string | fn.#StringExpression
-	PrivateIpAddresses?: [
-		..._#defs."/$defs/Properties/definitions/PrivateIpAddressSpecification" | fn.#ObjectExpression
+	EnaSrdSpecification?:       _#defs."/$defs/Properties/definitions/EnaSrdSpecification"
+	GroupSet?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	SecondaryPrivateIpAddressCount?: int | fn.#NumberExpression
-	SubnetId?:                       string | fn.#StringExpression
+	Ipv6AddressCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ipv6Addresses?:      [..._#defs."/$defs/Properties/definitions/InstanceIpv6Address"] | fn.#ListExpression
+	NetworkInterfaceId?: string | fn.#StringExpression
+	PrivateIpAddress?:   string | fn.#StringExpression
+	PrivateIpAddresses?: [..._#defs."/$defs/Properties/definitions/PrivateIpAddressSpecification"] | fn.#ListExpression
+	SecondaryPrivateIpAddressCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SubnetId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateDnsNameOptions": close({
-	EnableResourceNameDnsAAAARecord?: bool | fn.#BooleanExpression
-	EnableResourceNameDnsARecord?:    bool | fn.#BooleanExpression
-	HostnameType?:                    "ip-name" | "resource-name" | fn.#StringExpression
+	EnableResourceNameDnsAAAARecord?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	EnableResourceNameDnsARecord?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	HostnameType?:                 "ip-name" | "resource-name" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateIpAddressSpecification": close({
-	Primary!:          bool | fn.#BooleanExpression
+	Primary!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PrivateIpAddress!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SsmAssociation": close({
-	AssociationParameters?: [..._#defs."/$defs/Properties/definitions/AssociationParameter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	DocumentName!: string | fn.#StringExpression
+	AssociationParameters?: [..._#defs."/$defs/Properties/definitions/AssociationParameter"] | fn.#ListExpression
+	DocumentName!:          string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

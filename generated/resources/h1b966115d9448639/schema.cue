@@ -16,18 +16,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::Location::PlaceIndex Resource Type
 #Properties: close({
 	DataSource!:              string | fn.#StringExpression
-	DataSourceConfiguration?: _#defs."/$defs/Properties/definitions/DataSourceConfiguration" | fn.#ObjectExpression
+	DataSourceConfiguration?: _#defs."/$defs/Properties/definitions/DataSourceConfiguration"
 	Description?:             strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
 	IndexName!:               strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
-	PricingPlan?:             _#defs."/$defs/Properties/definitions/PricingPlan" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	PricingPlan?:             _#defs."/$defs/Properties/definitions/PricingPlan"
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DataSourceConfiguration": close(
-	{IntendedUse?: _#defs."/$defs/Properties/definitions/IntendedUse" | fn.#StringExpression},
+	{IntendedUse?: _#defs."/$defs/Properties/definitions/IntendedUse"},
 ) |
 	fn.#ObjectExpression
 

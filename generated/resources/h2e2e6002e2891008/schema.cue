@@ -11,7 +11,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::EC2::ClientVpnAuthorizationRule
 #Properties: close({
 	AccessGroupId?:       string | fn.#StringExpression
-	AuthorizeAllGroups?:  bool | fn.#BooleanExpression
+	AuthorizeAllGroups?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ClientVpnEndpointId!: string | fn.#StringExpression
 	Description?:         string | fn.#StringExpression
 	TargetNetworkCidr!:   string | fn.#StringExpression

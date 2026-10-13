@@ -16,16 +16,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 	DlpSettingId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
-	Enabled!:      bool | fn.#BooleanExpression
+	Enabled!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9](?:[\\w- &]*[A-Za-z0-9])?$" |
 	fn.#StringExpression
-	ProviderConfig!:       _#defs."/$defs/Properties/definitions/ProviderConfig" | fn.#ValueExpression
-	ProviderOutageAction!: _#defs."/$defs/Properties/definitions/DlpAction" | fn.#StringExpression
-	ProviderType!:         _#defs."/$defs/Properties/definitions/DlpProviderType" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	ProviderConfig!:       _#defs."/$defs/Properties/definitions/ProviderConfig"
+	ProviderOutageAction!: _#defs."/$defs/Properties/definitions/DlpAction"
+	ProviderType!:         _#defs."/$defs/Properties/definitions/DlpProviderType"
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DlpAction": "ALLOW" | "WARN" | "BLOCK" | fn.#StringExpression
@@ -35,7 +32,7 @@ _#defs: "/$defs/Properties/definitions/DlpProviderType": "MICROSOFT_PURVIEW" | f
 _#defs: "/$defs/Properties/definitions/DlpSettingStatus": "ACTIVE" | "INACTIVE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LabelActionMapping": close({
-	Action!:    _#defs."/$defs/Properties/definitions/DlpAction" | fn.#StringExpression
+	Action!:    _#defs."/$defs/Properties/definitions/DlpAction"
 	LabelId!:   strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	LabelName!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 }) |
@@ -47,17 +44,15 @@ _#defs: "/$defs/Properties/definitions/MicrosoftPurviewCredentials": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MicrosoftPurviewProviderConfig": close({
-	Credentials!: _#defs."/$defs/Properties/definitions/MicrosoftPurviewCredentials" | fn.#ObjectExpression
-	LabelActionMappings!: list.MaxItems(100) & [
-		..._#defs."/$defs/Properties/definitions/LabelActionMapping" | fn.#ObjectExpression
-	] |
+	Credentials!: _#defs."/$defs/Properties/definitions/MicrosoftPurviewCredentials"
+	LabelActionMappings!: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/LabelActionMapping"] |
 		fn.#ListExpression
-	UnmappedAction!: _#defs."/$defs/Properties/definitions/DlpAction" | fn.#StringExpression
+	UnmappedAction!: _#defs."/$defs/Properties/definitions/DlpAction"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ProviderConfig": close(
-	{MicrosoftPurview!: _#defs."/$defs/Properties/definitions/MicrosoftPurviewProviderConfig" | fn.#ObjectExpression},
+	{MicrosoftPurview!: _#defs."/$defs/Properties/definitions/MicrosoftPurviewProviderConfig"},
 ) |
 	fn.#ValueExpression
 

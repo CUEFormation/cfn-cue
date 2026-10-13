@@ -17,10 +17,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // enables telemetry forwarding into the caller's CloudWatch dataset via a
 // customer-provided IAM role.
 #Properties: close({
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+$" |
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+$" |
 	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -23,15 +27,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	IbmDb2Settings?:            _#defs."/$defs/Properties/definitions/IbmDb2Settings" | fn.#ObjectExpression
 	KafkaSettings?:             _#defs."/$defs/Properties/definitions/KafkaSettings" | fn.#ObjectExpression
 	KinesisSettings?:           _#defs."/$defs/Properties/definitions/KinesisSettings" | fn.#ObjectExpression
-	KmsKeyId?:                  string | string | string | fn.#StringExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
 	MicrosoftSqlServerSettings?: _#defs."/$defs/Properties/definitions/MicrosoftSqlServerSettings" |
 		fn.#ObjectExpression
-	MongoDbSettings?:    _#defs."/$defs/Properties/definitions/MongoDbSettings" | fn.#ObjectExpression
-	MySqlSettings?:      _#defs."/$defs/Properties/definitions/MySqlSettings" | fn.#ObjectExpression
-	NeptuneSettings?:    _#defs."/$defs/Properties/definitions/NeptuneSettings" | fn.#ObjectExpression
-	OracleSettings?:     _#defs."/$defs/Properties/definitions/OracleSettings" | fn.#ObjectExpression
-	Password?:           string | fn.#StringExpression
-	Port?:               int | fn.#NumberExpression
+	MongoDbSettings?: _#defs."/$defs/Properties/definitions/MongoDbSettings" | fn.#ObjectExpression
+	MySqlSettings?:   _#defs."/$defs/Properties/definitions/MySqlSettings" | fn.#ObjectExpression
+	NeptuneSettings?: _#defs."/$defs/Properties/definitions/NeptuneSettings" | fn.#ObjectExpression
+	OracleSettings?:  _#defs."/$defs/Properties/definitions/OracleSettings" | fn.#ObjectExpression
+	Password?:        string | fn.#StringExpression
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	PostgreSqlSettings?: _#defs."/$defs/Properties/definitions/PostgreSqlSettings" | fn.#ObjectExpression
 	RedisSettings?:      _#defs."/$defs/Properties/definitions/RedisSettings" | fn.#ObjectExpression
 	RedshiftSettings?:   _#defs."/$defs/Properties/definitions/RedshiftSettings" | fn.#ObjectExpression
@@ -40,71 +59,241 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ServerName?:         string | fn.#StringExpression
 	SslMode?:            string | fn.#StringExpression
 	SybaseSettings?:     _#defs."/$defs/Properties/definitions/SybaseSettings" | fn.#ObjectExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Username?:           string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DocDbSettings": close({
-	DocsToInvestigate?:           int | fn.#NumberExpression
-	ExtractDocId?:                bool | fn.#BooleanExpression
-	NestingLevel?:                string | fn.#StringExpression
-	SecretsManagerAccessRoleArn?: string | fn.#StringExpression
-	SecretsManagerSecretId?:      string | fn.#StringExpression
+	DocsToInvestigate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ExtractDocId?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NestingLevel?: string | fn.#StringExpression
+	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	SecretsManagerSecretId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DynamoDbSettings": close({ServiceAccessRoleArn?: string | fn.#StringExpression}) |
+_#defs: "/$defs/Properties/definitions/DynamoDbSettings": close({
+	ServiceAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ElasticsearchSettings": close({
-	EndpointUri?:             string | fn.#StringExpression
-	ErrorRetryDuration?:      int | fn.#NumberExpression
-	FullLoadErrorPercentage?: int | fn.#NumberExpression
-	ServiceAccessRoleArn?:    string | fn.#StringExpression
+	EndpointUri?: string | fn.#StringExpression
+	ErrorRetryDuration?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FullLoadErrorPercentage?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ServiceAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GcpMySQLSettings": close({
-	AfterConnectScript?:            string | fn.#StringExpression
-	CleanSourceMetadataOnMismatch?: bool | fn.#BooleanExpression
-	DatabaseName?:                  string | fn.#StringExpression
-	EventsPollInterval?:            int | fn.#NumberExpression
-	MaxFileSize?:                   int | fn.#NumberExpression
-	ParallelLoadThreads?:           int | fn.#NumberExpression
-	Password?:                      string | fn.#StringExpression
-	Port?:                          int | fn.#NumberExpression
-	SecretsManagerAccessRoleArn?:   string | fn.#StringExpression
-	SecretsManagerSecretId?:        string | fn.#StringExpression
-	ServerName?:                    string | fn.#StringExpression
-	ServerTimezone?:                string | fn.#StringExpression
-	Username?:                      string | fn.#StringExpression
+	AfterConnectScript?: string | fn.#StringExpression
+	CleanSourceMetadataOnMismatch?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	DatabaseName?: string | fn.#StringExpression
+	EventsPollInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxFileSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ParallelLoadThreads?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Password?: string | fn.#StringExpression
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	SecretsManagerSecretId?: string | fn.#StringExpression
+	ServerName?:             string | fn.#StringExpression
+	ServerTimezone?:         string | fn.#StringExpression
+	Username?:               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IbmDb2Settings": close({
-	CurrentLsn?:                  string | fn.#StringExpression
-	KeepCsvFiles?:                bool | fn.#BooleanExpression
-	LoadTimeout?:                 int | fn.#NumberExpression
-	MaxFileSize?:                 int | fn.#NumberExpression
-	MaxKBytesPerRead?:            int | fn.#NumberExpression
-	SecretsManagerAccessRoleArn?: string | fn.#StringExpression
-	SecretsManagerSecretId?:      string | fn.#StringExpression
-	SetDataCaptureChanges?:       bool | fn.#BooleanExpression
-	WriteBufferSize?:             int | fn.#NumberExpression
+	CurrentLsn?:   string | fn.#StringExpression
+	KeepCsvFiles?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	LoadTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxFileSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxKBytesPerRead?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	SecretsManagerSecretId?: string | fn.#StringExpression
+	SetDataCaptureChanges?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	WriteBufferSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KafkaSettings": close({
 	Broker?:                      string | fn.#StringExpression
-	IncludeControlDetails?:       bool | fn.#BooleanExpression
-	IncludeNullAndEmpty?:         bool | fn.#BooleanExpression
-	IncludePartitionValue?:       bool | fn.#BooleanExpression
-	IncludeTableAlterOperations?: bool | fn.#BooleanExpression
-	IncludeTransactionDetails?:   bool | fn.#BooleanExpression
+	IncludeControlDetails?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeNullAndEmpty?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludePartitionValue?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeTableAlterOperations?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeTransactionDetails?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MessageFormat?:               string | fn.#StringExpression
-	MessageMaxBytes?:             int | fn.#NumberExpression
-	NoHexPrefix?:                 bool | fn.#BooleanExpression
-	PartitionIncludeSchemaTable?: bool | fn.#BooleanExpression
+	MessageMaxBytes?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	NoHexPrefix?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PartitionIncludeSchemaTable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SaslPassword?:                string | fn.#StringExpression
 	SaslUserName?:                string | fn.#StringExpression
 	SecurityProtocol?:            string | fn.#StringExpression
@@ -117,145 +306,443 @@ _#defs: "/$defs/Properties/definitions/KafkaSettings": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KinesisSettings": close({
-	IncludeControlDetails?:       bool | fn.#BooleanExpression
-	IncludeNullAndEmpty?:         bool | fn.#BooleanExpression
-	IncludePartitionValue?:       bool | fn.#BooleanExpression
-	IncludeTableAlterOperations?: bool | fn.#BooleanExpression
-	IncludeTransactionDetails?:   bool | fn.#BooleanExpression
+	IncludeControlDetails?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeNullAndEmpty?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludePartitionValue?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeTableAlterOperations?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeTransactionDetails?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MessageFormat?:               string | fn.#StringExpression
-	NoHexPrefix?:                 bool | fn.#BooleanExpression
-	PartitionIncludeSchemaTable?: bool | fn.#BooleanExpression
-	ServiceAccessRoleArn?:        string | fn.#StringExpression
-	StreamArn?:                   string | fn.#StringExpression
+	NoHexPrefix?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PartitionIncludeSchemaTable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ServiceAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	StreamArn?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MicrosoftSqlServerSettings": close({
-	BcpPacketSize?:               int | fn.#NumberExpression
-	ControlTablesFileGroup?:      string | fn.#StringExpression
-	DatabaseName?:                string | fn.#StringExpression
-	ForceLobLookup?:              bool | fn.#BooleanExpression
-	Password?:                    string | fn.#StringExpression
-	Port?:                        int | fn.#NumberExpression
-	QuerySingleAlwaysOnNode?:     bool | fn.#BooleanExpression
-	ReadBackupOnly?:              bool | fn.#BooleanExpression
-	SafeguardPolicy?:             string | fn.#StringExpression
-	SecretsManagerAccessRoleArn?: string | fn.#StringExpression
-	SecretsManagerSecretId?:      string | fn.#StringExpression
-	ServerName?:                  string | fn.#StringExpression
-	TlogAccessMode?:              string | fn.#StringExpression
-	TrimSpaceInChar?:             bool | fn.#BooleanExpression
-	UseBcpFullLoad?:              bool | fn.#BooleanExpression
-	UseThirdPartyBackupDevice?:   bool | fn.#BooleanExpression
-	Username?:                    string | fn.#StringExpression
+	BcpPacketSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ControlTablesFileGroup?: string | fn.#StringExpression
+	DatabaseName?:           string | fn.#StringExpression
+	ForceLobLookup?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Password?:               string | fn.#StringExpression
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	QuerySingleAlwaysOnNode?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ReadBackupOnly?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SafeguardPolicy?:         string | fn.#StringExpression
+	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	SecretsManagerSecretId?:    string | fn.#StringExpression
+	ServerName?:                string | fn.#StringExpression
+	TlogAccessMode?:            string | fn.#StringExpression
+	TrimSpaceInChar?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UseBcpFullLoad?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UseThirdPartyBackupDevice?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Username?:                  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MongoDbSettings": close({
-	AuthMechanism?:               string | fn.#StringExpression
-	AuthSource?:                  string | fn.#StringExpression
-	AuthType?:                    string | fn.#StringExpression
-	DatabaseName?:                string | fn.#StringExpression
-	DocsToInvestigate?:           string | fn.#StringExpression
-	ExtractDocId?:                string | fn.#StringExpression
-	NestingLevel?:                string | fn.#StringExpression
-	Password?:                    string | fn.#StringExpression
-	Port?:                        int | fn.#NumberExpression
-	SecretsManagerAccessRoleArn?: string | fn.#StringExpression
-	SecretsManagerSecretId?:      string | fn.#StringExpression
-	ServerName?:                  string | fn.#StringExpression
-	Username?:                    string | fn.#StringExpression
+	AuthMechanism?:     string | fn.#StringExpression
+	AuthSource?:        string | fn.#StringExpression
+	AuthType?:          string | fn.#StringExpression
+	DatabaseName?:      string | fn.#StringExpression
+	DocsToInvestigate?: string | fn.#StringExpression
+	ExtractDocId?:      string | fn.#StringExpression
+	NestingLevel?:      string | fn.#StringExpression
+	Password?:          string | fn.#StringExpression
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	SecretsManagerSecretId?: string | fn.#StringExpression
+	ServerName?:             string | fn.#StringExpression
+	Username?:               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MySqlSettings": close({
-	AfterConnectScript?:            string | fn.#StringExpression
-	CleanSourceMetadataOnMismatch?: bool | fn.#BooleanExpression
-	EventsPollInterval?:            int | fn.#NumberExpression
-	MaxFileSize?:                   int | fn.#NumberExpression
-	ParallelLoadThreads?:           int | fn.#NumberExpression
-	SecretsManagerAccessRoleArn?:   string | fn.#StringExpression
-	SecretsManagerSecretId?:        string | fn.#StringExpression
-	ServerTimezone?:                string | fn.#StringExpression
-	TargetDbType?:                  string | fn.#StringExpression
+	AfterConnectScript?: string | fn.#StringExpression
+	CleanSourceMetadataOnMismatch?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	EventsPollInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxFileSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ParallelLoadThreads?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	SecretsManagerSecretId?: string | fn.#StringExpression
+	ServerTimezone?:         string | fn.#StringExpression
+	TargetDbType?:           string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NeptuneSettings": close({
-	ErrorRetryDuration?:   int | fn.#NumberExpression
-	IamAuthEnabled?:       bool | fn.#BooleanExpression
-	MaxFileSize?:          int | fn.#NumberExpression
-	MaxRetryCount?:        int | fn.#NumberExpression
-	S3BucketFolder?:       string | fn.#StringExpression
-	S3BucketName?:         string | fn.#StringExpression
-	ServiceAccessRoleArn?: string | fn.#StringExpression
+	ErrorRetryDuration?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IamAuthEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MaxFileSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxRetryCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	S3BucketFolder?: string | fn.#StringExpression
+	S3BucketName?:   string | fn.#StringExpression
+	ServiceAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OracleSettings": close({
-	AccessAlternateDirectly?:                bool | fn.#BooleanExpression
-	AddSupplementalLogging?:                 bool | fn.#BooleanExpression
-	AdditionalArchivedLogDestId?:            int | fn.#NumberExpression
-	AllowSelectNestedTables?:                bool | fn.#BooleanExpression
-	ArchivedLogDestId?:                      int | fn.#NumberExpression
-	ArchivedLogsOnly?:                       bool | fn.#BooleanExpression
-	AsmPassword?:                            string | fn.#StringExpression
-	AsmServer?:                              string | fn.#StringExpression
-	AsmUser?:                                string | fn.#StringExpression
-	CharLengthSemantics?:                    string | fn.#StringExpression
-	DirectPathNoLog?:                        bool | fn.#BooleanExpression
-	DirectPathParallelLoad?:                 bool | fn.#BooleanExpression
-	EnableHomogenousTablespace?:             bool | fn.#BooleanExpression
-	ExtraArchivedLogDestIds?:                [...int | fn.#NumberExpression] | fn.#ListExpression
-	FailTasksOnLobTruncation?:               bool | fn.#BooleanExpression
-	NumberDatatypeScale?:                    int | fn.#NumberExpression
-	OraclePathPrefix?:                       string | fn.#StringExpression
-	ParallelAsmReadThreads?:                 int | fn.#NumberExpression
-	ReadAheadBlocks?:                        int | fn.#NumberExpression
-	ReadTableSpaceName?:                     bool | fn.#BooleanExpression
-	ReplacePathPrefix?:                      bool | fn.#BooleanExpression
-	RetryInterval?:                          int | fn.#NumberExpression
-	SecretsManagerAccessRoleArn?:            string | fn.#StringExpression
-	SecretsManagerOracleAsmAccessRoleArn?:   string | fn.#StringExpression
+	AccessAlternateDirectly?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AddSupplementalLogging?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AdditionalArchivedLogDestId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	AllowSelectNestedTables?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ArchivedLogDestId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ArchivedLogsOnly?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AsmPassword?:                string | fn.#StringExpression
+	AsmServer?:                  string | fn.#StringExpression
+	AsmUser?:                    string | fn.#StringExpression
+	CharLengthSemantics?:        string | fn.#StringExpression
+	DirectPathNoLog?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DirectPathParallelLoad?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableHomogenousTablespace?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExtraArchivedLogDestIds?: [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	FailTasksOnLobTruncation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NumberDatatypeScale?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	OraclePathPrefix?: string | fn.#StringExpression
+	ParallelAsmReadThreads?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ReadAheadBlocks?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ReadTableSpaceName?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ReplacePathPrefix?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RetryInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	SecretsManagerOracleAsmAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	SecretsManagerOracleAsmSecretId?:        string | fn.#StringExpression
 	SecretsManagerSecretId?:                 string | fn.#StringExpression
 	SecurityDbEncryption?:                   string | fn.#StringExpression
 	SecurityDbEncryptionName?:               string | fn.#StringExpression
 	SpatialDataOptionToGeoJsonFunctionName?: string | fn.#StringExpression
-	StandbyDelayTime?:                       int | fn.#NumberExpression
-	UseAlternateFolderForOnline?:            bool | fn.#BooleanExpression
-	UseBFile?:                               bool | fn.#BooleanExpression
-	UseDirectPathFullLoad?:                  bool | fn.#BooleanExpression
-	UseLogminerReader?:                      bool | fn.#BooleanExpression
-	UsePathPrefix?:                          string | fn.#StringExpression
+	StandbyDelayTime?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UseAlternateFolderForOnline?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UseBFile?:                    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UseDirectPathFullLoad?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UseLogminerReader?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UsePathPrefix?:               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PostgreSqlSettings": close({
-	AfterConnectScript?:          string | fn.#StringExpression
-	BabelfishDatabaseName?:       string | fn.#StringExpression
-	CaptureDdls?:                 bool | fn.#BooleanExpression
-	DatabaseMode?:                string | fn.#StringExpression
-	DdlArtifactsSchema?:          string | fn.#StringExpression
-	ExecuteTimeout?:              int | fn.#NumberExpression
-	FailTasksOnLobTruncation?:    bool | fn.#BooleanExpression
-	HeartbeatEnable?:             bool | fn.#BooleanExpression
-	HeartbeatFrequency?:          int | fn.#NumberExpression
-	HeartbeatSchema?:             string | fn.#StringExpression
-	MapBooleanAsBoolean?:         bool | fn.#BooleanExpression
-	MaxFileSize?:                 int | fn.#NumberExpression
-	PluginName?:                  string | fn.#StringExpression
-	SecretsManagerAccessRoleArn?: string | fn.#StringExpression
-	SecretsManagerSecretId?:      string | fn.#StringExpression
-	SlotName?:                    string | fn.#StringExpression
+	AfterConnectScript?:    string | fn.#StringExpression
+	BabelfishDatabaseName?: string | fn.#StringExpression
+	CaptureDdls?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DatabaseMode?:          string | fn.#StringExpression
+	DdlArtifactsSchema?:    string | fn.#StringExpression
+	ExecuteTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FailTasksOnLobTruncation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	HeartbeatEnable?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	HeartbeatFrequency?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	HeartbeatSchema?:     string | fn.#StringExpression
+	MapBooleanAsBoolean?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MaxFileSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PluginName?: string | fn.#StringExpression
+	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	SecretsManagerSecretId?: string | fn.#StringExpression
+	SlotName?:               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RedisSettings": close({
-	AuthPassword?:        string | fn.#StringExpression
-	AuthType?:            string | fn.#StringExpression
-	AuthUserName?:        string | fn.#StringExpression
-	Port?:                number | fn.#NumberExpression
+	AuthPassword?: string | fn.#StringExpression
+	AuthType?:     string | fn.#StringExpression
+	AuthUserName?: string | fn.#StringExpression
+	Port?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ServerName?:          string | fn.#StringExpression
 	SslCaCertificateArn?: string | fn.#StringExpression
 	SslSecurityProtocol?: string | fn.#StringExpression
@@ -263,83 +750,257 @@ _#defs: "/$defs/Properties/definitions/RedisSettings": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftSettings": close({
-	AcceptAnyDate?:                bool | fn.#BooleanExpression
-	AfterConnectScript?:           string | fn.#StringExpression
-	BucketFolder?:                 string | fn.#StringExpression
-	BucketName?:                   string | fn.#StringExpression
-	CaseSensitiveNames?:           bool | fn.#BooleanExpression
-	CompUpdate?:                   bool | fn.#BooleanExpression
-	ConnectionTimeout?:            int | fn.#NumberExpression
-	DateFormat?:                   string | fn.#StringExpression
-	EmptyAsNull?:                  bool | fn.#BooleanExpression
-	EncryptionMode?:               string | fn.#StringExpression
-	ExplicitIds?:                  bool | fn.#BooleanExpression
-	FileTransferUploadStreams?:    int | fn.#NumberExpression
-	LoadTimeout?:                  int | fn.#NumberExpression
-	MapBooleanAsBoolean?:          bool | fn.#BooleanExpression
-	MaxFileSize?:                  int | fn.#NumberExpression
-	RemoveQuotes?:                 bool | fn.#BooleanExpression
-	ReplaceChars?:                 string | fn.#StringExpression
-	ReplaceInvalidChars?:          string | fn.#StringExpression
-	SecretsManagerAccessRoleArn?:  string | fn.#StringExpression
+	AcceptAnyDate?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AfterConnectScript?: string | fn.#StringExpression
+	BucketFolder?:       string | fn.#StringExpression
+	BucketName?:         string | fn.#StringExpression
+	CaseSensitiveNames?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CompUpdate?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ConnectionTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DateFormat?:     string | fn.#StringExpression
+	EmptyAsNull?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EncryptionMode?: string | fn.#StringExpression
+	ExplicitIds?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	FileTransferUploadStreams?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LoadTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MapBooleanAsBoolean?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MaxFileSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RemoveQuotes?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ReplaceChars?:        string | fn.#StringExpression
+	ReplaceInvalidChars?: string | fn.#StringExpression
+	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	SecretsManagerSecretId?:       string | fn.#StringExpression
 	ServerSideEncryptionKmsKeyId?: string | fn.#StringExpression
-	ServiceAccessRoleArn?:         string | fn.#StringExpression
-	TimeFormat?:                   string | fn.#StringExpression
-	TrimBlanks?:                   bool | fn.#BooleanExpression
-	TruncateColumns?:              bool | fn.#BooleanExpression
-	WriteBufferSize?:              int | fn.#NumberExpression
+	ServiceAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	TimeFormat?:      string | fn.#StringExpression
+	TrimBlanks?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	TruncateColumns?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	WriteBufferSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3Settings": close({
-	AddColumnName?:                        bool | fn.#BooleanExpression
-	AddTrailingPaddingCharacter?:          bool | fn.#BooleanExpression
-	BucketFolder?:                         string | fn.#StringExpression
-	BucketName?:                           string | fn.#StringExpression
-	CannedAclForObjects?:                  string | fn.#StringExpression
-	CdcInsertsAndUpdates?:                 bool | fn.#BooleanExpression
-	CdcInsertsOnly?:                       bool | fn.#BooleanExpression
-	CdcMaxBatchInterval?:                  int | fn.#NumberExpression
-	CdcMinFileSize?:                       int | fn.#NumberExpression
-	CdcPath?:                              string | fn.#StringExpression
-	CompressionType?:                      string | fn.#StringExpression
-	CsvDelimiter?:                         string | fn.#StringExpression
-	CsvNoSupValue?:                        string | fn.#StringExpression
-	CsvNullValue?:                         string | fn.#StringExpression
-	CsvRowDelimiter?:                      string | fn.#StringExpression
-	DataFormat?:                           string | fn.#StringExpression
-	DataPageSize?:                         int | fn.#NumberExpression
-	DatePartitionDelimiter?:               string | fn.#StringExpression
-	DatePartitionEnabled?:                 bool | fn.#BooleanExpression
-	DatePartitionSequence?:                string | fn.#StringExpression
-	DatePartitionTimezone?:                string | fn.#StringExpression
-	DictPageSizeLimit?:                    int | fn.#NumberExpression
-	EnableStatistics?:                     bool | fn.#BooleanExpression
-	EncodingType?:                         string | fn.#StringExpression
-	EncryptionMode?:                       string | fn.#StringExpression
-	ExpectedBucketOwner?:                  string | fn.#StringExpression
-	ExternalTableDefinition?:              string | fn.#StringExpression
-	GlueCatalogGeneration?:                bool | fn.#BooleanExpression
-	IgnoreHeaderRows?:                     int | fn.#NumberExpression
-	IncludeOpForFullLoad?:                 bool | fn.#BooleanExpression
-	MaxFileSize?:                          int | fn.#NumberExpression
-	ParquetTimestampInMillisecond?:        bool | fn.#BooleanExpression
-	ParquetVersion?:                       string | fn.#StringExpression
-	PreserveTransactions?:                 bool | fn.#BooleanExpression
-	Rfc4180?:                              bool | fn.#BooleanExpression
-	RowGroupLength?:                       int | fn.#NumberExpression
-	ServerSideEncryptionKmsKeyId?:         string | fn.#StringExpression
-	ServiceAccessRoleArn?:                 string | fn.#StringExpression
-	TimestampColumnName?:                  string | fn.#StringExpression
-	UseCsvNoSupValue?:                     bool | fn.#BooleanExpression
-	UseTaskStartTimeForFullLoadTimestamp?: bool | fn.#BooleanExpression
+	AddColumnName?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AddTrailingPaddingCharacter?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	BucketFolder?:                string | fn.#StringExpression
+	BucketName?:                  string | fn.#StringExpression
+	CannedAclForObjects?:         string | fn.#StringExpression
+	CdcInsertsAndUpdates?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CdcInsertsOnly?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CdcMaxBatchInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CdcMinFileSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CdcPath?:         string | fn.#StringExpression
+	CompressionType?: string | fn.#StringExpression
+	CsvDelimiter?:    string | fn.#StringExpression
+	CsvNoSupValue?:   string | fn.#StringExpression
+	CsvNullValue?:    string | fn.#StringExpression
+	CsvRowDelimiter?: string | fn.#StringExpression
+	DataFormat?:      string | fn.#StringExpression
+	DataPageSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DatePartitionDelimiter?: string | fn.#StringExpression
+	DatePartitionEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DatePartitionSequence?:  string | fn.#StringExpression
+	DatePartitionTimezone?:  string | fn.#StringExpression
+	DictPageSizeLimit?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	EnableStatistics?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EncodingType?:            string | fn.#StringExpression
+	EncryptionMode?:          string | fn.#StringExpression
+	ExpectedBucketOwner?:     string | fn.#StringExpression
+	ExternalTableDefinition?: string | fn.#StringExpression
+	GlueCatalogGeneration?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IgnoreHeaderRows?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IncludeOpForFullLoad?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MaxFileSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ParquetTimestampInMillisecond?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	ParquetVersion?:       string | fn.#StringExpression
+	PreserveTransactions?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Rfc4180?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RowGroupLength?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ServerSideEncryptionKmsKeyId?: string | fn.#StringExpression
+	ServiceAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	TimestampColumnName?: string | fn.#StringExpression
+	UseCsvNoSupValue?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UseTaskStartTimeForFullLoadTimestamp?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SybaseSettings": close({
-	SecretsManagerAccessRoleArn?: string | fn.#StringExpression
-	SecretsManagerSecretId?:      string | fn.#StringExpression
+	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	SecretsManagerSecretId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

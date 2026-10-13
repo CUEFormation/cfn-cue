@@ -19,26 +19,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		DataLakeAccessProperties?: close({
 			AllowFullTableExternalDataAccess?: "True" | "False" | fn.#StringExpression
 			CatalogType?:                      string | fn.#StringExpression
-			DataLakeAccess?:                   bool | fn.#BooleanExpression
-			DataTransferRole?:                 string | fn.#StringExpression
-			KmsKey?:                           string | fn.#StringExpression
+			DataLakeAccess?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			DataTransferRole?: string | fn.#StringExpression
+			KmsKey?:           string | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
-	CreateDatabaseDefaultPermissions?: [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
-	CreateTableDefaultPermissions?:    [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
-	Description?:                      strings.MaxRunes(2048) | fn.#StringExpression
-	FederatedCatalog?:                 _#defs."/$defs/Properties/definitions/FederatedCatalog" | fn.#ObjectExpression
-	Name!:                             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	CreateDatabaseDefaultPermissions?:             [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
+	CreateTableDefaultPermissions?:                [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
+	Description?:                                  strings.MaxRunes(2048) | fn.#StringExpression
+	FederatedCatalog?:                             _#defs."/$defs/Properties/definitions/FederatedCatalog"
+	Name!:                                         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	OverwriteChildResourcePermissionsWithDefault?: "Accept" | "Deny" | fn.#StringExpression
 	Parameters?: close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TargetRedshiftCatalog?: _#defs."/$defs/Properties/definitions/TargetRedshiftCatalog" | fn.#ObjectExpression
+	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TargetRedshiftCatalog?: _#defs."/$defs/Properties/definitions/TargetRedshiftCatalog"
 })
 
 _#defs: "/$defs/Properties/definitions/CatalogProperties": close({
@@ -46,19 +45,19 @@ _#defs: "/$defs/Properties/definitions/CatalogProperties": close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	DataLakeAccessProperties?: _#defs."/$defs/Properties/definitions/DataLakeAccessProperties" | fn.#ObjectExpression
+	DataLakeAccessProperties?: _#defs."/$defs/Properties/definitions/DataLakeAccessProperties"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataLakeAccessProperties": close({
 	AllowFullTableExternalDataAccess?: "True" | "False" | fn.#StringExpression
 	CatalogType?:                      string | fn.#StringExpression
-	DataLakeAccess?:                   bool | fn.#BooleanExpression
-	DataTransferRole?:                 string | fn.#StringExpression
-	KmsKey?:                           string | fn.#StringExpression
-	ManagedWorkgroupName?:             string | fn.#StringExpression
-	ManagedWorkgroupStatus?:           string | fn.#StringExpression
-	RedshiftDatabaseName?:             string | fn.#StringExpression
+	DataLakeAccess?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DataTransferRole?:       string | fn.#StringExpression
+	KmsKey?:                 string | fn.#StringExpression
+	ManagedWorkgroupName?:   string | fn.#StringExpression
+	ManagedWorkgroupStatus?: string | fn.#StringExpression
+	RedshiftDatabaseName?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -87,7 +86,7 @@ _#defs: "/$defs/Properties/definitions/PrincipalPermissions": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	Principal?: _#defs."/$defs/Properties/definitions/DataLakePrincipal" | fn.#ObjectExpression
+	Principal?: _#defs."/$defs/Properties/definitions/DataLakePrincipal"
 }) |
 fn.#ObjectExpression
 

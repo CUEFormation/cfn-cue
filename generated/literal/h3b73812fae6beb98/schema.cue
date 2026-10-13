@@ -46,4 +46,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$"
 })
 
-_#defs: "/$defs/Properties/definitions/VpcId": strings.MaxRunes(128) & strings.MinRunes(1) & =~"^vpc-[0-9a-f]+$"
+_#defs: "/$defs/Properties/definitions/VpcId": =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+strings.MaxRunes(128) &
+strings.MinRunes(1) &
+=~"^vpc-[0-9a-f]+$"

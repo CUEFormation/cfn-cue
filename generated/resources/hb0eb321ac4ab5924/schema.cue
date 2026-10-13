@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AcceptLanguage?:  strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
 	AccountId!:       =~"^[0-9]{12}$" | fn.#StringExpression
 	PortfolioId!:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
-	ShareTagOptions?: bool | fn.#BooleanExpression
+	ShareTagOptions?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ServiceCatalog::PortfolioShare"

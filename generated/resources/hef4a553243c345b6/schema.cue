@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,14 +18,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // An event trigger resource of Amazon Connect Customer Profiles
 #Properties: close({
-	Description?:            _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	DomainName!:             _#defs."/$defs/Properties/definitions/DomainName" | fn.#StringExpression
-	EventTriggerConditions!: _#defs."/$defs/Properties/definitions/EventTriggerConditions" | fn.#ListExpression
-	EventTriggerLimits?:     _#defs."/$defs/Properties/definitions/EventTriggerLimits" | fn.#ObjectExpression
-	EventTriggerName!:       _#defs."/$defs/Properties/definitions/EventTriggerName" | fn.#StringExpression
-	ObjectTypeName!:         _#defs."/$defs/Properties/definitions/ObjectTypeName" | fn.#StringExpression
-	SegmentFilter?:          _#defs."/$defs/Properties/definitions/SegmentFilter" | fn.#StringExpression
-	Tags?:                   _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	Description?:            _#defs."/$defs/Properties/definitions/Description"
+	DomainName!:             _#defs."/$defs/Properties/definitions/DomainName"
+	EventTriggerConditions!: _#defs."/$defs/Properties/definitions/EventTriggerConditions"
+	EventTriggerLimits?:     _#defs."/$defs/Properties/definitions/EventTriggerLimits"
+	EventTriggerName!:       _#defs."/$defs/Properties/definitions/EventTriggerName"
+	ObjectTypeName!:         _#defs."/$defs/Properties/definitions/ObjectTypeName"
+	SegmentFilter?:          _#defs."/$defs/Properties/definitions/SegmentFilter"
+	Tags?:                   _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
@@ -29,32 +33,44 @@ _#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1000) & st
 _#defs: "/$defs/Properties/definitions/DomainName": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EventExpiration": int | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/EventExpiration": int |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/EventTriggerCondition": close({
-	EventTriggerDimensions!: _#defs."/$defs/Properties/definitions/EventTriggerDimensions" | fn.#ListExpression
-	LogicalOperator!:        _#defs."/$defs/Properties/definitions/EventTriggerLogicalOperator" | fn.#StringExpression
+	EventTriggerDimensions!: _#defs."/$defs/Properties/definitions/EventTriggerDimensions"
+	LogicalOperator!:        _#defs."/$defs/Properties/definitions/EventTriggerLogicalOperator"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EventTriggerConditions": list.MaxItems(5) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/EventTriggerCondition" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/EventTriggerCondition"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/EventTriggerDimension": close(
-	{ObjectAttributes!: _#defs."/$defs/Properties/definitions/ObjectAttributes" | fn.#ListExpression},
+	{ObjectAttributes!: _#defs."/$defs/Properties/definitions/ObjectAttributes"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EventTriggerDimensions": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/EventTriggerDimension" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/EventTriggerDimension"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/EventTriggerLimits": close({
-	EventExpiration?: _#defs."/$defs/Properties/definitions/EventExpiration" | fn.#NumberExpression
-	Periods?:         _#defs."/$defs/Properties/definitions/Periods" | fn.#ListExpression
+	EventExpiration?: _#defs."/$defs/Properties/definitions/EventExpiration"
+	Periods?:         _#defs."/$defs/Properties/definitions/Periods"
 }) |
 fn.#ObjectExpression
 
@@ -92,7 +108,7 @@ _#defs: "/$defs/Properties/definitions/ObjectAttribute": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ObjectAttributes": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ObjectAttribute" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ObjectAttribute"
 ] |
 	fn.#ListExpression
 
@@ -102,15 +118,45 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Period": close({
-	MaxInvocationsPerProfile?: int & <=1000 & >=1 | fn.#NumberExpression
-	Unit!:                     "MINUTES" | "HOURS" | "DAYS" | "WEEKS" | "MONTHS" | fn.#StringExpression
-	Unlimited?:                bool | fn.#BooleanExpression
-	Value!:                    int & <=60 & >=1 | fn.#NumberExpression
+	MaxInvocationsPerProfile?: int & <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Unit!:      "MINUTES" | "HOURS" | "DAYS" | "WEEKS" | "MONTHS" | fn.#StringExpression
+	Unlimited?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Value!: int & <=60 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=60 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Periods": list.MaxItems(4) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/Period" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Period"
 ] |
 	fn.#ListExpression
 
@@ -124,7 +170,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {

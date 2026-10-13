@@ -21,8 +21,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	RuleVersion!:      "CostCategoryExpression.v1" | fn.#StringExpression
 	Rules!:            string | fn.#StringExpression
 	SplitChargeRules?: string | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceTag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceTag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ResourceTag": close({

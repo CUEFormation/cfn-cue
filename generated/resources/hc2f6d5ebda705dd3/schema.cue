@@ -15,16 +15,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // An example resource schema demonstrating some basic constructs and validation rules.
 #Properties: close({
 	SuiteDefinitionConfiguration!: close({
-		DevicePermissionRoleArn!: _#defs."/$defs/Properties/definitions/DevicePermissionRoleArn" | fn.#StringExpression
-		Devices?:                 _#defs."/$defs/Properties/definitions/Devices" | fn.#ListExpression
-		IntendedForQualification?: _#defs."/$defs/Properties/definitions/IntendedForQualification" |
-			fn.#BooleanExpression
-		RootGroup!:           _#defs."/$defs/Properties/definitions/RootGroup" | fn.#StringExpression
-		SuiteDefinitionName?: _#defs."/$defs/Properties/definitions/SuiteDefinitionName" | fn.#StringExpression
+		DevicePermissionRoleArn!:  _#defs."/$defs/Properties/definitions/DevicePermissionRoleArn"
+		Devices?:                  _#defs."/$defs/Properties/definitions/Devices"
+		IntendedForQualification?: _#defs."/$defs/Properties/definitions/IntendedForQualification"
+		RootGroup!:                _#defs."/$defs/Properties/definitions/RootGroup"
+		SuiteDefinitionName?:      _#defs."/$defs/Properties/definitions/SuiteDefinitionName"
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DevicePermissionRoleArn": strings.MaxRunes(2048) & strings.MinRunes(20) |
@@ -37,11 +35,18 @@ _#defs: "/$defs/Properties/definitions/DeviceUnderTest": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Devices": list.MaxItems(2) & [...] & [
-	..._#defs."/$defs/Properties/definitions/DeviceUnderTest" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/DeviceUnderTest"
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/IntendedForQualification": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/IntendedForQualification": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/RootGroup": strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 

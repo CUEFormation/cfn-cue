@@ -17,7 +17,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CustomerOwnedIpv4Pool?: =~"^ipv4pool-coip-([0-9a-f]{17})$" | fn.#StringExpression
 	FailedReason?:          _#defs."/$defs/Properties/definitions/FailedReason" | fn.#ObjectExpression
 	OutpostId!:             =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$" | fn.#StringExpression
-	SecurityGroupId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^sg-([0-9a-f]{8}|[0-9a-f]{17})$" |
+	SecurityGroupId!: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(100) &
+	strings.MinRunes(1) &
+	=~"^sg-([0-9a-f]{8}|[0-9a-f]{17})$" |
 	fn.#StringExpression
 	SubnetId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^subnet-([0-9a-f]{8}|[0-9a-f]{17})$" |
 	fn.#StringExpression

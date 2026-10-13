@@ -80,9 +80,9 @@ _#defs: "/$defs/Properties/definitions/AuthenticationConfigurationInput": close(
 	AuthenticationType?:              _#defs."/$defs/Properties/definitions/AuthenticationType"
 	BasicAuthenticationCredentials?:  _#defs."/$defs/Properties/definitions/BasicAuthenticationCredentials"
 	CustomAuthenticationCredentials?: _#defs."/$defs/Properties/definitions/CredentialMap"
-	KmsKeyArn?:                       =~"^$|arn:aws[a-z0-9-]*:kms:.*$"
-	OAuth2Properties?:                _#defs."/$defs/Properties/definitions/OAuth2Properties"
-	SecretArn?:                       =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:secretsmanager:.*$"
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & =~"^$|arn:aws[a-z0-9-]*:kms:.*$"
+	OAuth2Properties?: _#defs."/$defs/Properties/definitions/OAuth2Properties"
+	SecretArn?:        =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:secretsmanager:.*$"
 })
 
 // Authentication Type
@@ -214,7 +214,8 @@ _#defs: "/$defs/Properties/definitions/IamPropertiesInput": close({
 	GlueLineageSyncEnabled?: bool
 
 	// The ARN of the IAM role to associate with the connection as the project user role.
-	RoleArn?: strings.MaxRunes(2048) &
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	=~"^arn:aws[^:]*:iam::\\d{12}:role(\\/[a-zA-Z0-9+=,.@_-]+)*\\/[a-zA-Z0-9+=,.@_-]+$"
 })
 
@@ -257,10 +258,12 @@ _#defs: "/$defs/Properties/definitions/OAuth2Properties": close({
 
 // Physical Connection Requirements
 _#defs: "/$defs/Properties/definitions/PhysicalConnectionRequirements": close({
-	AvailabilityZone?:    strings.MaxRunes(255) & strings.MinRunes(1)
-	SecurityGroupIdList?: list.MaxItems(50) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(1)]
-	SubnetId?:            strings.MaxRunes(32) & =~"^subnet-[a-z0-9]+$"
-	SubnetIdList?:        list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(32) & =~"^subnet-[a-z0-9]+$"]
+	AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1)
+	SecurityGroupIdList?: list.MaxItems(50) & [...] & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1))
+	]
+	SubnetId?:     strings.MaxRunes(32) & =~"^subnet-[a-z0-9]+$"
+	SubnetIdList?: list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(32) & =~"^subnet-[a-z0-9]+$"]
 })
 
 // Property Map

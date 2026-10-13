@@ -21,7 +21,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CrossRegionS3RestoreSources?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	CustomDomainName?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	DefaultDnsPrefix?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DeleteAssociatedResources?:   bool | fn.#BooleanExpression
+	DeleteAssociatedResources?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DisplayName?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	KmsAccess?:                   "ENABLED" | "DISABLED" | fn.#StringExpression
 	KmsPolicyDocument?:           strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
@@ -29,8 +29,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	S3PolicyDocument?:            strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
 	StsAccess?:                   "ENABLED" | "DISABLED" | fn.#StringExpression
 	StsPolicyDocument?:           strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
-	Tags?:          [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	ZeroEtlAccess?: "ENABLED" | "DISABLED" | fn.#StringExpression
+	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	ZeroEtlAccess?:               "ENABLED" | "DISABLED" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CrossRegionS3RestoreSourcesAccess": close({
@@ -48,7 +48,7 @@ _#defs: "/$defs/Properties/definitions/ManagedResourceStatus": "ENABLED" |
 
 _#defs: "/$defs/Properties/definitions/ManagedServices": close({
 	CrossRegionS3RestoreSourcesAccess?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/CrossRegionS3RestoreSourcesAccess" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/CrossRegionS3RestoreSourcesAccess"
 	] |
 		fn.#ListExpression
 	KmsAccess?: close({

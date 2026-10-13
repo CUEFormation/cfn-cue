@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:  _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
 	FileFormat?:   _#defs."/$defs/Properties/definitions/FileFormat" | fn.#StringExpression
 	IndexId!:      _#defs."/$defs/Properties/definitions/IndexId" | fn.#StringExpression
-	LanguageCode?: _#defs."/$defs/Properties/definitions/LanguageCode" | fn.#StringExpression
+	LanguageCode?: _#defs."/$defs/Properties/definitions/LanguageCode"
 	Name!:         _#defs."/$defs/Properties/definitions/FaqName" | fn.#StringExpression
 	RoleArn!:      _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
 	S3Path!:       _#defs."/$defs/Properties/definitions/S3Path" | fn.#ObjectExpression
@@ -44,7 +44,8 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/LanguageCode": strings.MaxRunes(10) & strings.MinRunes(2) & =~"[a-zA-Z-]*" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(1284) & strings.MinRunes(1) | fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(1)) |
+fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/S3BucketName": strings.MaxRunes(63) &
 strings.MinRunes(3) &
@@ -54,8 +55,8 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/S3ObjectKey": strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/S3Path": close({
-	Bucket!: _#defs."/$defs/Properties/definitions/S3BucketName" | fn.#StringExpression
-	Key!:    _#defs."/$defs/Properties/definitions/S3ObjectKey" | fn.#StringExpression
+	Bucket!: _#defs."/$defs/Properties/definitions/S3BucketName"
+	Key!:    _#defs."/$defs/Properties/definitions/S3ObjectKey"
 }) |
 fn.#ObjectExpression
 
@@ -66,7 +67,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TagList": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {

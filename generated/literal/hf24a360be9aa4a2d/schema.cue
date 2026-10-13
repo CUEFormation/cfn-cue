@@ -37,7 +37,7 @@ import (
 
 	// The Amazon Resource Name (ARN) of the IAM service role for AWS Systems
 	// Manager to assume when running a maintenance window task.
-	ServiceRoleArn?: string
+	ServiceRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The targets (either instances or window target ids).
 	Targets?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Target"]
@@ -95,7 +95,7 @@ _#defs: "/$defs/Properties/definitions/MaintenanceWindowRunCommandParameters": c
 	OutputS3BucketName?:     string
 	OutputS3KeyPrefix?:      string
 	Parameters?:             string | {...}
-	ServiceRoleArn?:         string
+	ServiceRoleArn?:         =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	TimeoutSeconds?:         int
 })
 

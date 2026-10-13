@@ -8,35 +8,30 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::HoursOfOperation
 #Properties: close({
-	ChildHoursOfOperations?: [
-		..._#defs."/$defs/Properties/definitions/HoursOfOperationsIdentifier" | fn.#ObjectExpression
-	] |
+	ChildHoursOfOperations?: [..._#defs."/$defs/Properties/definitions/HoursOfOperationsIdentifier"] |
 		fn.#ListExpression
 	Config!: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/HoursOfOperationConfig" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/HoursOfOperationConfig"
 	] |
 		fn.#ListExpression
 	Description?: strings.MaxRunes(250) & strings.MinRunes(1) & =~"^[\\P{C}\\r\\n\\t]{1,250}$" | fn.#StringExpression
-	HoursOfOperationOverrides?: list.MaxItems(50) & [
-		..._#defs."/$defs/Properties/definitions/HoursOfOperationOverride" | fn.#ObjectExpression
-	] |
+	HoursOfOperationOverrides?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/HoursOfOperationOverride"] |
 		fn.#ListExpression
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 	Name!:        strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\P{C}\\r\\n\\t]{1,127}$" | fn.#StringExpression
-	ParentHoursOfOperations?: [
-		..._#defs."/$defs/Properties/definitions/HoursOfOperationsIdentifier" | fn.#ObjectExpression
-	] |
+	ParentHoursOfOperations?: [..._#defs."/$defs/Properties/definitions/HoursOfOperationsIdentifier"] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TimeZone!: string | fn.#StringExpression
 })
 
@@ -52,15 +47,14 @@ _#defs: "/$defs/Properties/definitions/HoursOfOperationConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HoursOfOperationOverride": close({
-	EffectiveFrom!: _#defs."/$defs/Properties/definitions/EffectiveFrom" | fn.#StringExpression
-	EffectiveTill!: _#defs."/$defs/Properties/definitions/EffectiveTill" | fn.#StringExpression
-	HoursOfOperationOverrideId?: _#defs."/$defs/Properties/definitions/HoursOfOperationOverrideId" |
-		fn.#StringExpression
-	OverrideConfig!:      _#defs."/$defs/Properties/definitions/OverrideConfig" | fn.#ListExpression
-	OverrideDescription?: _#defs."/$defs/Properties/definitions/OverrideDescription" | fn.#StringExpression
-	OverrideName!:        _#defs."/$defs/Properties/definitions/OverrideName" | fn.#StringExpression
-	OverrideType?:        _#defs."/$defs/Properties/definitions/OverrideType" | fn.#StringExpression
-	RecurrenceConfig?:    _#defs."/$defs/Properties/definitions/RecurrenceConfig" | fn.#ObjectExpression
+	EffectiveFrom!:              _#defs."/$defs/Properties/definitions/EffectiveFrom"
+	EffectiveTill!:              _#defs."/$defs/Properties/definitions/EffectiveTill"
+	HoursOfOperationOverrideId?: _#defs."/$defs/Properties/definitions/HoursOfOperationOverrideId"
+	OverrideConfig!:             _#defs."/$defs/Properties/definitions/OverrideConfig"
+	OverrideDescription?:        _#defs."/$defs/Properties/definitions/OverrideDescription"
+	OverrideName!:               _#defs."/$defs/Properties/definitions/OverrideName"
+	OverrideType?:               _#defs."/$defs/Properties/definitions/OverrideType"
+	RecurrenceConfig?:           _#defs."/$defs/Properties/definitions/RecurrenceConfig"
 }) |
 fn.#ObjectExpression
 
@@ -74,8 +68,38 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/HoursOfOperationOverrideId": =~"^[-a-zA-Z0-9]*$" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/HoursOfOperationTimeSlice": close({
-	Hours!:   int & <=23 & >=0 | fn.#NumberExpression
-	Minutes!: int & <=59 & >=0 | fn.#NumberExpression
+	Hours!: int & <=23 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=23 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Minutes!: int & <=59 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=59 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -85,12 +109,48 @@ _#defs: "/$defs/Properties/definitions/HoursOfOperationsIdentifier": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MonthDayList": [...int & <=31 & >=-1 | fn.#NumberExpression] | fn.#ListExpression
+_#defs: "/$defs/Properties/definitions/MonthDayList": [
+	...int & <=31 & >=-1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=31 &
+							>=-1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+] |
+	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/MonthList": [...int & <=12 & >=1 | fn.#NumberExpression] | fn.#ListExpression
+_#defs: "/$defs/Properties/definitions/MonthList": [
+	...int & <=12 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=12 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+] |
+	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/OverrideConfig": list.MaxItems(100) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/HoursOfOperationOverrideConfig" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/HoursOfOperationOverrideConfig"
 ] |
 	fn.#ListExpression
 
@@ -100,26 +160,91 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/OverrideName": strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/OverrideTimeSlice": close({
-	Hours!:   int & <=23 & >=0 | fn.#NumberExpression
-	Minutes!: int & <=59 & >=0 | fn.#NumberExpression
+	Hours!: int & <=23 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=23 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Minutes!: int & <=59 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=59 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OverrideType": "STANDARD" | "OPEN" | "CLOSED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RecurrenceConfig": close(
-	{RecurrencePattern!: _#defs."/$defs/Properties/definitions/RecurrencePattern" | fn.#ObjectExpression},
+	{RecurrencePattern!: _#defs."/$defs/Properties/definitions/RecurrencePattern"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RecurrenceFrequency": "WEEKLY" | "MONTHLY" | "YEARLY" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RecurrencePattern": close({
-	ByMonth?:             _#defs."/$defs/Properties/definitions/MonthList" | fn.#ListExpression
-	ByMonthDay?:          _#defs."/$defs/Properties/definitions/MonthDayList" | fn.#ListExpression
-	ByWeekdayOccurrence?: list.MaxItems(1) & [...] & [...int & <=4 & >=-1 | fn.#NumberExpression] | fn.#ListExpression
-	Frequency?:           _#defs."/$defs/Properties/definitions/RecurrenceFrequency" | fn.#StringExpression
-	Interval?:            int & <=6 & >=1 | fn.#NumberExpression
+	ByMonth?:    _#defs."/$defs/Properties/definitions/MonthList"
+	ByMonthDay?: _#defs."/$defs/Properties/definitions/MonthDayList"
+	ByWeekdayOccurrence?: list.MaxItems(1) & [...] & [
+		...int & <=4 & >=-1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=4 &
+								>=-1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	Frequency?: _#defs."/$defs/Properties/definitions/RecurrenceFrequency"
+	Interval?: int & <=6 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=6 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

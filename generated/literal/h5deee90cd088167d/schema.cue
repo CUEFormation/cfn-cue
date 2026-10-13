@@ -14,7 +14,7 @@ package schema
 	InternetGatewayId?: string
 
 	// The ID of the VPC.
-	VpcId!: string
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 
 	// The ID of the virtual private gateway. You must specify either
 	// InternetGatewayId or VpnGatewayId, but not both.

@@ -229,7 +229,8 @@ _#defs: "/$defs/Properties/definitions/MonitoringJobDefinition": close({
 
 	// The Amazon Resource Name (ARN) of an IAM role that Amazon SageMaker can
 	// assume to perform tasks on your behalf.
-	RoleArn!: strings.MaxRunes(2048) &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 	StoppingCondition?: _#defs."/$defs/Properties/definitions/StoppingCondition"
@@ -244,7 +245,10 @@ _#defs: "/$defs/Properties/definitions/MonitoringOutput": close(
 _#defs: "/$defs/Properties/definitions/MonitoringOutputConfig": close({
 	// The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to
 	// encrypt the model artifacts at rest using Amazon S3 server-side encryption.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~".*"
 
 	// Monitoring outputs for monitoring jobs. This is where the output of the
 	// periodic monitoring jobs is uploaded.
@@ -366,7 +370,10 @@ _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	// The VPC security group IDs, in the form sg-xxxxxxxx. Specify the security
 	// groups for the VPC that is specified in the Subnets field.
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+"
 	]
 
 	// The ID of the subnets in the VPC to which you want to connect to your monitoring jobs.

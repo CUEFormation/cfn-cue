@@ -4,15 +4,32 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EC2::IPAMPoolCidr Type
 #Properties: close({
-	Cidr?:          string | fn.#StringExpression
-	IpamPoolId!:    string | fn.#StringExpression
-	NetmaskLength?: int | fn.#NumberExpression
+	Cidr?:       string | fn.#StringExpression
+	IpamPoolId!: string | fn.#StringExpression
+	NetmaskLength?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EC2::IPAMPoolCidr"

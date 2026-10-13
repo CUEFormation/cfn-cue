@@ -18,78 +18,78 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(36) &
 	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
 	fn.#StringExpression
-	DefaultJobResultConfiguration?: _#defs."/$defs/Properties/definitions/MembershipProtectedJobResultConfiguration" |
-		fn.#ObjectExpression
-	DefaultResultConfiguration?: _#defs."/$defs/Properties/definitions/MembershipProtectedQueryResultConfiguration" |
-		fn.#ObjectExpression
-	IsMetricsEnabled?:     bool | fn.#BooleanExpression
-	JobLogStatus?:         _#defs."/$defs/Properties/definitions/MembershipJobLogStatus" | fn.#StringExpression
-	PaymentConfiguration?: _#defs."/$defs/Properties/definitions/MembershipPaymentConfiguration" | fn.#ObjectExpression
-	QueryLogStatus!:       _#defs."/$defs/Properties/definitions/MembershipQueryLogStatus" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	DefaultJobResultConfiguration?: _#defs."/$defs/Properties/definitions/MembershipProtectedJobResultConfiguration"
+	DefaultResultConfiguration?:    _#defs."/$defs/Properties/definitions/MembershipProtectedQueryResultConfiguration"
+	IsMetricsEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	JobLogStatus?:         _#defs."/$defs/Properties/definitions/MembershipJobLogStatus"
+	PaymentConfiguration?: _#defs."/$defs/Properties/definitions/MembershipPaymentConfiguration"
+	QueryLogStatus!:       _#defs."/$defs/Properties/definitions/MembershipQueryLogStatus"
+	Tags?:                 list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/MembershipJobComputePaymentConfig": close(
-	{IsResponsible!: bool | fn.#BooleanExpression},
+	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MembershipJobLogStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/MembershipMLPaymentConfig": close({
-	ModelInference?: _#defs."/$defs/Properties/definitions/MembershipModelInferencePaymentConfig" | fn.#ObjectExpression
-	ModelTraining?:  _#defs."/$defs/Properties/definitions/MembershipModelTrainingPaymentConfig" | fn.#ObjectExpression
-	SyntheticDataGeneration?: _#defs."/$defs/Properties/definitions/MembershipSyntheticDataGenerationPaymentConfig" |
-		fn.#ObjectExpression
+	ModelInference?:          _#defs."/$defs/Properties/definitions/MembershipModelInferencePaymentConfig"
+	ModelTraining?:           _#defs."/$defs/Properties/definitions/MembershipModelTrainingPaymentConfig"
+	SyntheticDataGeneration?: _#defs."/$defs/Properties/definitions/MembershipSyntheticDataGenerationPaymentConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MembershipModelInferencePaymentConfig": close(
-	{IsResponsible!: bool | fn.#BooleanExpression},
+	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MembershipModelTrainingPaymentConfig": close(
-	{IsResponsible!: bool | fn.#BooleanExpression},
+	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MembershipPaymentConfiguration": close({
-	JobCompute?:      _#defs."/$defs/Properties/definitions/MembershipJobComputePaymentConfig" | fn.#ObjectExpression
-	MachineLearning?: _#defs."/$defs/Properties/definitions/MembershipMLPaymentConfig" | fn.#ObjectExpression
-	QueryCompute!:    _#defs."/$defs/Properties/definitions/MembershipQueryComputePaymentConfig" | fn.#ObjectExpression
+	JobCompute?:      _#defs."/$defs/Properties/definitions/MembershipJobComputePaymentConfig"
+	MachineLearning?: _#defs."/$defs/Properties/definitions/MembershipMLPaymentConfig"
+	QueryCompute!:    _#defs."/$defs/Properties/definitions/MembershipQueryComputePaymentConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MembershipProtectedJobOutputConfiguration": close(
-	{S3!: _#defs."/$defs/Properties/definitions/ProtectedJobS3OutputConfigurationInput" | fn.#ObjectExpression},
+	{S3!: _#defs."/$defs/Properties/definitions/ProtectedJobS3OutputConfigurationInput"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MembershipProtectedJobResultConfiguration": close({
-	OutputConfiguration!: _#defs."/$defs/Properties/definitions/MembershipProtectedJobOutputConfiguration" |
-		fn.#ObjectExpression
-	RoleArn!: strings.MaxRunes(512) & strings.MinRunes(32) & =~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$" |
+	OutputConfiguration!: _#defs."/$defs/Properties/definitions/MembershipProtectedJobOutputConfiguration"
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(32) &
+	=~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MembershipProtectedQueryOutputConfiguration": close(
-	{S3!: _#defs."/$defs/Properties/definitions/ProtectedQueryS3OutputConfiguration" | fn.#ObjectExpression},
+	{S3!: _#defs."/$defs/Properties/definitions/ProtectedQueryS3OutputConfiguration"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MembershipProtectedQueryResultConfiguration": close({
-	OutputConfiguration!: _#defs."/$defs/Properties/definitions/MembershipProtectedQueryOutputConfiguration" |
-		fn.#ObjectExpression
-	RoleArn?: strings.MaxRunes(512) & strings.MinRunes(32) & =~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$" |
+	OutputConfiguration!: _#defs."/$defs/Properties/definitions/MembershipProtectedQueryOutputConfiguration"
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(32) &
+	=~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MembershipQueryComputePaymentConfig": close(
-	{IsResponsible!: bool | fn.#BooleanExpression},
+	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
@@ -101,7 +101,7 @@ _#defs: "/$defs/Properties/definitions/MembershipStatus": "ACTIVE" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/MembershipSyntheticDataGenerationPaymentConfig": close(
-	{IsResponsible!: bool | fn.#BooleanExpression},
+	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
@@ -114,8 +114,8 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ProtectedQueryS3OutputConfiguration": close({
 	Bucket!:           strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 	KeyPrefix?:        string | fn.#StringExpression
-	ResultFormat!:     _#defs."/$defs/Properties/definitions/ResultFormat" | fn.#StringExpression
-	SingleFileOutput?: bool | fn.#BooleanExpression
+	ResultFormat!:     _#defs."/$defs/Properties/definitions/ResultFormat"
+	SingleFileOutput?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 

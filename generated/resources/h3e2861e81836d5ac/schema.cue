@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // identified by the ARN of the resource being monitored.
 #Properties: close({
 	MetricSelections?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ResourceMetricSelection" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ResourceMetricSelection"
 	] |
 		fn.#ListExpression
 	ResourceArn!: strings.MaxRunes(2048) &

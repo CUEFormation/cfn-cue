@@ -17,9 +17,15 @@ import (
 	Description?: strings.MaxRunes(255) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$"
 	InferenceContainerConfig?: _#defs."/$defs/Properties/definitions/InferenceContainerConfig"
-	KmsKeyArn?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[-a-z]*:kms:[-a-z0-9]+:[0-9]{12}:key/.+$"
-	Name!:      strings.MaxRunes(63) & strings.MinRunes(1)
-	RoleArn!:   strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[-a-z]*:iam::[0-9]{12}:role/.+$"
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:aws[-a-z]*:kms:[-a-z0-9]+:[0-9]{12}:key/.+$"
+	Name!: strings.MaxRunes(63) & strings.MinRunes(1)
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:aws[-a-z]*:iam::[0-9]{12}:role/.+$"
 
 	// An arbitrary set of tags (key-value pairs) for this cleanrooms-ml configured model algorithm.
 	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]

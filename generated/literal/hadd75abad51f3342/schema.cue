@@ -21,7 +21,8 @@ import (
 	OutputConfig!: _#defs."/$defs/Properties/definitions/EdgeOutputConfig"
 
 	// Role associated with the device fleet
-	RoleArn!: strings.MaxRunes(2048) &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
@@ -31,7 +32,10 @@ import (
 
 _#defs: "/$defs/Properties/definitions/EdgeOutputConfig": close({
 	// The KMS key id used for encryption on the S3 bucket
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"[a-zA-Z0-9:_-]+"
 
 	// The Amazon Simple Storage (S3) bucket URI
 	S3OutputLocation!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^s3://([^/]+)/?(.*)$"

@@ -20,19 +20,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ConfigurationValues?: strings.MinRunes(1) | fn.#StringExpression
 	NamespaceConfig?: close({Namespace!: strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression}) |
 	fn.#ObjectExpression
-	PodIdentityAssociations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PodIdentityAssociation" | fn.#ObjectExpression
-	] |
+	PodIdentityAssociations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PodIdentityAssociation"] |
 		fn.#ListExpression
-	PreserveOnDelete?:      bool | fn.#BooleanExpression
-	ResolveConflicts?:      ("NONE" | "OVERWRITE" | "PRESERVE") & strings.MinRunes(1) | fn.#StringExpression
-	ServiceAccountRoleArn?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	PreserveOnDelete?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ResolveConflicts?: ("NONE" | "OVERWRITE" | "PRESERVE") & strings.MinRunes(1) | fn.#StringExpression
+	ServiceAccountRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+	fn.#StringExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/PodIdentityAssociation": close({
-	RoleArn!:        =~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:(role)\\/*" | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:(role)\\/*" |
+		fn.#StringExpression
 	ServiceAccount!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

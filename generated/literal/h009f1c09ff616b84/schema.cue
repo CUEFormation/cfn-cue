@@ -35,5 +35,8 @@ _#defs: "/$defs/Properties/definitions/ConnectorProvisioningConfig": close({
 // registered as the connector.
 _#defs: "/$defs/Properties/definitions/LambdaConnectorProvisioningConfig": close({
 	// Lambda ARN of the connector being registered.
-	LambdaArn!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"arn:*:.*:.*:[0-9]+:.*"
+	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(0) &
+	=~"arn:*:.*:.*:[0-9]+:.*"
 })

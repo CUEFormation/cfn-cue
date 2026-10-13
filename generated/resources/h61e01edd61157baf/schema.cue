@@ -16,7 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	S3BucketName!: string | fn.#StringExpression
 	S3KeyPrefix?:  string | fn.#StringExpression
 	S3KmsKeyArn?:  string | fn.#StringExpression
-	SnsTopicARN?:  string | fn.#StringExpression
+	SnsTopicARN?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ConfigSnapshotDeliveryProperties": close({

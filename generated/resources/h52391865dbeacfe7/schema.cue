@@ -15,16 +15,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates a monitor for specific network flows between local and remote
 // resources to monitor network performance for workloads.
 #Properties: close({
-	LocalResources!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MonitorLocalResource" | fn.#ObjectExpression
-	] |
+	LocalResources!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/MonitorLocalResource"] |
 		fn.#ListExpression
-	MonitorName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	RemoteResources?: [..._#defs."/$defs/Properties/definitions/MonitorRemoteResource" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ScopeArn?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	MonitorName!:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+	RemoteResources?: [..._#defs."/$defs/Properties/definitions/MonitorRemoteResource"] | fn.#ListExpression
+	ScopeArn?:        strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*$" | fn.#StringExpression
+	Tags?:            list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/MonitorLocalResource": close({

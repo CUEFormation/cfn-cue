@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -24,52 +28,167 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	KinesisDataStream!:  _
 	...
 }]) & close({
-	BoundingBoxRegionsOfInterest?: list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/BoundingBox" | fn.#ObjectExpression
-	] |
+	BoundingBoxRegionsOfInterest?: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/BoundingBox"] |
 		fn.#ListExpression
-	ConnectedHomeSettings?: _#defs."/$defs/Properties/definitions/ConnectedHomeSettings" | fn.#ObjectExpression
-	DataSharingPreference?: _#defs."/$defs/Properties/definitions/DataSharingPreference" | fn.#ObjectExpression
-	FaceSearchSettings?:    _#defs."/$defs/Properties/definitions/FaceSearchSettings" | fn.#ObjectExpression
-	KinesisDataStream?:     _#defs."/$defs/Properties/definitions/KinesisDataStream" | fn.#ObjectExpression
-	KinesisVideoStream!:    _#defs."/$defs/Properties/definitions/KinesisVideoStream" | fn.#ObjectExpression
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) | fn.#StringExpression
-	Name?:     strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]+" | fn.#StringExpression
-	NotificationChannel?: _#defs."/$defs/Properties/definitions/NotificationChannel" | fn.#ObjectExpression
-	PolygonRegionsOfInterest?: list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Polygon" | fn.#ListExpression
-	] |
+	ConnectedHomeSettings?: _#defs."/$defs/Properties/definitions/ConnectedHomeSettings"
+	DataSharingPreference?: _#defs."/$defs/Properties/definitions/DataSharingPreference"
+	FaceSearchSettings?:    _#defs."/$defs/Properties/definitions/FaceSearchSettings"
+	KinesisDataStream?:     _#defs."/$defs/Properties/definitions/KinesisDataStream"
+	KinesisVideoStream!:    _#defs."/$defs/Properties/definitions/KinesisVideoStream"
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	fn.#StringExpression
+	Name?:                strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]+" | fn.#StringExpression
+	NotificationChannel?: _#defs."/$defs/Properties/definitions/NotificationChannel"
+	PolygonRegionsOfInterest?: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Polygon"] |
 		fn.#ListExpression
-	RoleArn!:       strings.MaxRunes(2048) & =~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" | fn.#StringExpression
-	S3Destination?: _#defs."/$defs/Properties/definitions/S3Destination" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" |
+	fn.#StringExpression
+	S3Destination?: _#defs."/$defs/Properties/definitions/S3Destination"
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/BoundingBox": close({
-	Height!: <=100 & >=0 | fn.#NumberExpression
-	Left!:   <=100 & >=0 | fn.#NumberExpression
-	Top!:    <=100 & >=0 | fn.#NumberExpression
-	Width!:  <=100 & >=0 | fn.#NumberExpression
+	Height!: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Left!: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Top!: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Width!: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConnectedHomeSettings": close({
-	Labels!:        _#defs."/$defs/Properties/definitions/Labels" | fn.#ListExpression
-	MinConfidence?: <=100 & >=0 | fn.#NumberExpression
+	Labels!: _#defs."/$defs/Properties/definitions/Labels"
+	MinConfidence?: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataSharingPreference": close({OptIn!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/DataSharingPreference": close(
+	{OptIn!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FaceSearchSettings": close({
-	CollectionId!:       strings.MaxRunes(255) & =~"\\A[a-zA-Z0-9_\\.\\-]+$" | fn.#StringExpression
-	FaceMatchThreshold?: <=100 & >=0 | fn.#NumberExpression
+	CollectionId!: strings.MaxRunes(255) & =~"\\A[a-zA-Z0-9_\\.\\-]+$" | fn.#StringExpression
+	FaceMatchThreshold?: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -94,13 +213,49 @@ _#defs: "/$defs/Properties/definitions/NotificationChannel": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Point": close({
-	X!: number | fn.#NumberExpression
-	Y!: number | fn.#NumberExpression
+	X!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Y!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Polygon": list.MinItems(3) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Point" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Point"
 ] |
 	fn.#ListExpression
 

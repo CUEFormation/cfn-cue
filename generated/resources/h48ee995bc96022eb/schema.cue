@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	PlatformId!:              _#defs."/$defs/Properties/definitions/PlatformId" | fn.#StringExpression
 	SignatureValidityPeriod?: _#defs."/$defs/Properties/definitions/SignatureValidityPeriod" | fn.#ObjectExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                    [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": =~"^arn:aws(-[a-z]{1,4}){0,2}:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
@@ -33,8 +37,21 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/ProfileVersion": =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SignatureValidityPeriod": close({
-	Type?:  "DAYS" | "MONTHS" | "YEARS" | fn.#StringExpression
-	Value?: int | fn.#NumberExpression
+	Type?: "DAYS" | "MONTHS" | "YEARS" | fn.#StringExpression
+	Value?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

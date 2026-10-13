@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,21 +21,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // cross-cutting software agents independently across your Amazon ECS
 // infrastructure.
 #Properties: close({
-	ContainerDefinitions?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DaemonContainerDefinition" | fn.#ObjectExpression
-	] |
+	ContainerDefinitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DaemonContainerDefinition"] |
 		fn.#ListExpression
-	Cpu?:              string | fn.#StringExpression
-	ExecutionRoleArn?: string | fn.#StringExpression
-	Family?:           string | fn.#StringExpression
-	IpcMode?:          "none" | "shared" | fn.#StringExpression
-	Memory?:           string | fn.#StringExpression
-	PidMode?:          "none" | "shared" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TaskRoleArn?: string | fn.#StringExpression
-	Volumes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Volume" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Cpu?: string | fn.#StringExpression
+	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Family?:  string | fn.#StringExpression
+	IpcMode?: "none" | "shared" | fn.#StringExpression
+	Memory?:  string | fn.#StringExpression
+	PidMode?: "none" | "shared" | fn.#StringExpression
+	Tags?:    list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Volumes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Volume"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ContainerDependency": close({
@@ -42,35 +44,97 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DaemonContainerDefinition": close({
 	Command?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Cpu?:     int | fn.#NumberExpression
-	DependsOn?: [..._#defs."/$defs/Properties/definitions/ContainerDependency" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	EntryPoint?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	Environment?: [..._#defs."/$defs/Properties/definitions/KeyValuePair" | fn.#ObjectExpression] | fn.#ListExpression
-	EnvironmentFiles?: [..._#defs."/$defs/Properties/definitions/EnvironmentFile" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Essential?:             bool | fn.#BooleanExpression
+	Cpu?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DependsOn?:             [..._#defs."/$defs/Properties/definitions/ContainerDependency"] | fn.#ListExpression
+	EntryPoint?:            [...string | fn.#StringExpression] | fn.#ListExpression
+	Environment?:           [..._#defs."/$defs/Properties/definitions/KeyValuePair"] | fn.#ListExpression
+	EnvironmentFiles?:      [..._#defs."/$defs/Properties/definitions/EnvironmentFile"] | fn.#ListExpression
+	Essential?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FirelensConfiguration?: _#defs."/$defs/Properties/definitions/FirelensConfiguration" | fn.#ObjectExpression
 	HealthCheck?:           _#defs."/$defs/Properties/definitions/HealthCheck" | fn.#ObjectExpression
 	Image!:                 string | fn.#StringExpression
-	Interactive?:           bool | fn.#BooleanExpression
+	Interactive?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LinuxParameters?:       _#defs."/$defs/Properties/definitions/LinuxParameters" | fn.#ObjectExpression
 	LogConfiguration?:      _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
-	Memory?:                int | fn.#NumberExpression
-	MemoryReservation?:     int | fn.#NumberExpression
-	MountPoints?:    [..._#defs."/$defs/Properties/definitions/MountPoint" | fn.#ObjectExpression] | fn.#ListExpression
-	Name!:           string | fn.#StringExpression
-	Privileged?:     bool | fn.#BooleanExpression
-	PseudoTerminal?: bool | fn.#BooleanExpression
-	ReadonlyRootFilesystem?: bool | fn.#BooleanExpression
+	Memory?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MemoryReservation?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MountPoints?:            [..._#defs."/$defs/Properties/definitions/MountPoint"] | fn.#ListExpression
+	Name!:                   string | fn.#StringExpression
+	Privileged?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PseudoTerminal?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ReadonlyRootFilesystem?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RepositoryCredentials?:  _#defs."/$defs/Properties/definitions/RepositoryCredentials" | fn.#ObjectExpression
 	RestartPolicy?:          _#defs."/$defs/Properties/definitions/RestartPolicy" | fn.#ObjectExpression
-	Secrets?:      [..._#defs."/$defs/Properties/definitions/Secret" | fn.#ObjectExpression] | fn.#ListExpression
-	StartTimeout?: int | fn.#NumberExpression
-	StopTimeout?:  int | fn.#NumberExpression
-	SystemControls?: [..._#defs."/$defs/Properties/definitions/SystemControl" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Ulimits?:          [..._#defs."/$defs/Properties/definitions/Ulimit" | fn.#ObjectExpression] | fn.#ListExpression
+	Secrets?:                [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
+	StartTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StopTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SystemControls?:   [..._#defs."/$defs/Properties/definitions/SystemControl"] | fn.#ListExpression
+	Ulimits?:          [..._#defs."/$defs/Properties/definitions/Ulimit"] | fn.#ListExpression
 	User?:             string | fn.#StringExpression
 	WorkingDirectory?: string | fn.#StringExpression
 }) |
@@ -99,11 +163,63 @@ _#defs: "/$defs/Properties/definitions/FirelensConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HealthCheck": close({
-	Command?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	Interval?:    int | fn.#NumberExpression
-	Retries?:     int | fn.#NumberExpression
-	StartPeriod?: int | fn.#NumberExpression
-	Timeout?:     int | fn.#NumberExpression
+	Command?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Interval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Retries?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StartPeriod?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Timeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -124,9 +240,9 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LinuxParameters": close({
 	Capabilities?:       _#defs."/$defs/Properties/definitions/KernelCapabilities" | fn.#ObjectExpression
-	Devices?:            [..._#defs."/$defs/Properties/definitions/Device" | fn.#ObjectExpression] | fn.#ListExpression
-	InitProcessEnabled?: bool | fn.#BooleanExpression
-	Tmpfs?:              [..._#defs."/$defs/Properties/definitions/Tmpfs" | fn.#ObjectExpression] | fn.#ListExpression
+	Devices?:            [..._#defs."/$defs/Properties/definitions/Device"] | fn.#ListExpression
+	InitProcessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tmpfs?:              [..._#defs."/$defs/Properties/definitions/Tmpfs"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -136,13 +252,13 @@ _#defs: "/$defs/Properties/definitions/LogConfiguration": close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	SecretOptions?: [..._#defs."/$defs/Properties/definitions/Secret" | fn.#ObjectExpression] | fn.#ListExpression
+	SecretOptions?: [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MountPoint": close({
 	ContainerPath?: string | fn.#StringExpression
-	ReadOnly?:      bool | fn.#BooleanExpression
+	ReadOnly?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SourceVolume?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -153,9 +269,40 @@ _#defs: "/$defs/Properties/definitions/RepositoryCredentials": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RestartPolicy": close({
-	Enabled?:              bool | fn.#BooleanExpression
-	IgnoredExitCodes?:     [...int | fn.#NumberExpression] | fn.#ListExpression
-	RestartAttemptPeriod?: int | fn.#NumberExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IgnoredExitCodes?: [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	RestartAttemptPeriod?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -180,12 +327,38 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/Tmpfs": close({
 	ContainerPath?: string | fn.#StringExpression
 	MountOptions?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	Size!:          int | fn.#NumberExpression
+	Size!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Ulimit": close({
-	HardLimit!: int | fn.#NumberExpression
+	HardLimit!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Name!: "core" |
 		"cpu" |
 		"data" |
@@ -202,7 +375,20 @@ _#defs: "/$defs/Properties/definitions/Ulimit": close({
 		"sigpending" |
 		"stack" |
 		fn.#StringExpression
-	SoftLimit!: int | fn.#NumberExpression
+	SoftLimit!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	BundleId?:                    string | fn.#StringExpression
 	Certificate?:                 string | fn.#StringExpression
 	DefaultAuthenticationMethod?: string | fn.#StringExpression
-	Enabled?:                     bool | fn.#BooleanExpression
+	Enabled?:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PrivateKey?:                  string | fn.#StringExpression
 	TeamId?:                      string | fn.#StringExpression
 	TokenKey?:                    string | fn.#StringExpression

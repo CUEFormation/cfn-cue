@@ -18,8 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Mode!:   "LIVE" | "DRY_RUN" | fn.#StringExpression
 	RuleId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9]+(-[a-z0-9]+)*$" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagItem" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagItem"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/TagItem": close({

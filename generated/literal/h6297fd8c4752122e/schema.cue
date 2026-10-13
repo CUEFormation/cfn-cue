@@ -45,11 +45,13 @@ import "strings"
 		VpcEndpointId?: string
 
 		// The VPC identifier that the endpoint is associated.
-		VpcId?: string
+		VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 	})
 
 	// A list of vpc security group ids to apply to the created endpoint access.
-	VpcSecurityGroupIds!: [...strings.MaxRunes(2147483647) & strings.MinRunes(0)]
+	VpcSecurityGroupIds!: [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0))
+	]
 
 	// A list of Virtual Private Cloud (VPC) security groups to be associated with the endpoint.
 	VpcSecurityGroups?: [..._#defs."/$defs/Properties/definitions/VpcSecurityGroup"]
@@ -76,5 +78,5 @@ _#defs: "/$defs/Properties/definitions/VpcSecurityGroup": close({
 	Status?: string
 
 	// The identifier of the VPC security group.
-	VpcSecurityGroupId?: string
+	VpcSecurityGroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 })

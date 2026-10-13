@@ -11,24 +11,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Backup::BackupSelection
 #Properties: close({
 	BackupPlanId!:    string | fn.#StringExpression
-	BackupSelection!: _#defs."/$defs/Properties/definitions/BackupSelectionResourceType" | fn.#ObjectExpression
+	BackupSelection!: _#defs."/$defs/Properties/definitions/BackupSelectionResourceType"
 })
 
 _#defs: "/$defs/Properties/definitions/BackupSelectionResourceType": close({
 	Conditions?: close({
-		StringEquals?: [..._#defs."/$defs/Properties/definitions/ConditionParameter" | fn.#ObjectExpression] |
-			fn.#ListExpression
-		StringLike?: [..._#defs."/$defs/Properties/definitions/ConditionParameter" | fn.#ObjectExpression] |
-			fn.#ListExpression
-		StringNotEquals?: [..._#defs."/$defs/Properties/definitions/ConditionParameter" | fn.#ObjectExpression] |
-			fn.#ListExpression
-		StringNotLike?: [..._#defs."/$defs/Properties/definitions/ConditionParameter" | fn.#ObjectExpression] |
-			fn.#ListExpression
+		StringEquals?:    [..._#defs."/$defs/Properties/definitions/ConditionParameter"] | fn.#ListExpression
+		StringLike?:      [..._#defs."/$defs/Properties/definitions/ConditionParameter"] | fn.#ListExpression
+		StringNotEquals?: [..._#defs."/$defs/Properties/definitions/ConditionParameter"] | fn.#ListExpression
+		StringNotLike?:   [..._#defs."/$defs/Properties/definitions/ConditionParameter"] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
-	IamRoleArn!: string | fn.#StringExpression
-	ListOfTags?: [..._#defs."/$defs/Properties/definitions/ConditionResourceType" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	ListOfTags?:    [..._#defs."/$defs/Properties/definitions/ConditionResourceType"] | fn.#ListExpression
 	NotResources?:  [...string | fn.#StringExpression] | fn.#ListExpression
 	Resources?:     [...string | fn.#StringExpression] | fn.#ListExpression
 	SelectionName!: =~"^[a-zA-Z0-9\\-\\_\\.\\:]+$" | fn.#StringExpression

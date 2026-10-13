@@ -16,8 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{0,64}$" | fn.#StringExpression
 	Principals?: [...strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(^\\d{12}$|arn:.*)$" | fn.#StringExpression] |
 	fn.#ListExpression
-	Resources?: [..._#defs."/$defs/Properties/definitions/Resource" | fn.#ObjectExpression] | fn.#ListExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Resources?: [..._#defs."/$defs/Properties/definitions/Resource"] | fn.#ListExpression
+	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Resource": close({

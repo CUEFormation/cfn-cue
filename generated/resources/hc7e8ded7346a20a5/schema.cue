@@ -18,7 +18,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	LogBucketList?: list.MaxItems(10) & [...] & [...strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression] |
 	fn.#ListExpression
-	RoleArn!: strings.MaxRunes(2048) | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MaxRunes(2048) |
+	fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Shield::DRTAccess"

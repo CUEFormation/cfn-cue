@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,13 +19,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::KMS::ReplicaKey resource specifies a multi-region replica AWS KMS
 // key in AWS Key Management Service (AWS KMS).
 #Properties: close({
-	Description?:         strings.MaxRunes(8192) & strings.MinRunes(0) | fn.#StringExpression
-	Enabled?:             bool | fn.#BooleanExpression
-	KeyPolicy!:           string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	PendingWindowInDays?: int & <=30 & >=7 | fn.#NumberExpression
-	PrimaryKeyArn!:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Description?: strings.MaxRunes(8192) & strings.MinRunes(0) | fn.#StringExpression
+	Enabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KeyPolicy!:   string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	PendingWindowInDays?: int & <=30 & >=7 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=30 &
+							>=7,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PrimaryKeyArn!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

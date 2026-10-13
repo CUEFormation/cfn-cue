@@ -59,7 +59,7 @@ import (
 	ClusterParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(0)
 
 	// A list of security groups to be associated with this cluster.
-	ClusterSecurityGroups?: [...(string | string) & (strings.MaxRunes(2147483647) & strings.MinRunes(0))]
+	ClusterSecurityGroups?: [...string & (strings.MaxRunes(2147483647) & strings.MinRunes(0))]
 
 	// The name of a cluster subnet group to be associated with this cluster.
 	ClusterSubnetGroupName?: strings.MaxRunes(2147483647) & strings.MinRunes(0)
@@ -136,7 +136,7 @@ import (
 
 	// The AWS Key Management Service (KMS) key ID of the encryption key that you
 	// want to use to encrypt data in the cluster.
-	KmsKeyId?:          (string | string | string) & (strings.MaxRunes(2147483647) & strings.MinRunes(0))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2147483647) & strings.MinRunes(0))
 	LoggingProperties?: _#defs."/$defs/Properties/definitions/LoggingProperties"
 
 	// The name for the maintenance track that you want to assign for the cluster.
@@ -166,7 +166,7 @@ import (
 
 	// The ID of the Key Management Service (KMS) key used to encrypt and store the
 	// cluster's admin user credentials secret.
-	MasterPasswordSecretKmsKeyId?: (string | string) & (strings.MaxRunes(2147483647) & strings.MinRunes(0))
+	MasterPasswordSecretKmsKeyId?: string & (strings.MaxRunes(2147483647) & strings.MinRunes(0))
 
 	// The password associated with the master user account for the cluster that is
 	// being created. You can't use MasterUserPassword if ManageMasterPassword is
@@ -247,7 +247,9 @@ import (
 	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
 
 	// A list of Virtual Private Cloud (VPC) security groups to be associated with the cluster.
-	VpcSecurityGroupIds?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0)]
+	VpcSecurityGroupIds?: [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0))
+	]
 })
 
 _#defs: "/$defs/Properties/definitions/Endpoint": close({

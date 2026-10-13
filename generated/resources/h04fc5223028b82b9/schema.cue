@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"time"
 )
 
@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DataFilterExpression?: close({
 		Dimensions?: close({
-			Key?: _#defs."/$defs/Properties/definitions/DimensionKey" | fn.#StringExpression
+			Key?: _#defs."/$defs/Properties/definitions/DimensionKey"
 			Values?: list.MaxItems(200) & list.MinItems(1) & [
 				...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
 			] |
@@ -33,8 +33,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) |
 		fn.#ObjectExpression
 		TimeRange?: close({
-			BeginDateInclusive?: _#defs."/$defs/Properties/definitions/Timestamp" | fn.#StringExpression
-			EndDateInclusive?:   _#defs."/$defs/Properties/definitions/Timestamp" | fn.#StringExpression
+			BeginDateInclusive?: _#defs."/$defs/Properties/definitions/Timestamp"
+			EndDateInclusive?:   _#defs."/$defs/Properties/definitions/Timestamp"
 		}) |
 		fn.#ObjectExpression
 	}) |
@@ -46,9 +46,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...=~"arn:aws[a-z-]*:(billing)::[0-9]{12}:billingview/[a-zA-Z0-9_+=.@-]{1,75}" | fn.#StringExpression
 	] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

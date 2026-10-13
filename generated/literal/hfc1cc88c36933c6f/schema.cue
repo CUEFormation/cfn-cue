@@ -17,7 +17,7 @@ import (
 // quotas](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-quotas.html)
 // in the *IAM User Guide*.
 #Properties: close({
-	Arn?: string
+	Arn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The trust policy that is associated with this role. Trust policies define
 	// which entities can assume the role. You can associate only one trust policy

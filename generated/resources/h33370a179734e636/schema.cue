@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,8 +13,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Applies an IAM resource policy to a table bucket.
 #Properties: close({
-	ResourcePolicy!: _#defs."/$defs/Properties/definitions/ResourcePolicy" | fn.#ObjectExpression | fn.#StringExpression
-	TableBucketARN!: _#defs."/$defs/Properties/definitions/TableBucketARN" | fn.#StringExpression
+	ResourcePolicy!: _#defs."/$defs/Properties/definitions/ResourcePolicy"
+	TableBucketARN!: _#defs."/$defs/Properties/definitions/TableBucketARN"
 })
 
 _#defs: "/$defs/Properties/definitions/ResourcePolicy": strings.MaxRunes(20480) & strings.MinRunes(1) |

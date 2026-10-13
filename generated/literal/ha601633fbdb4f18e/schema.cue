@@ -37,7 +37,8 @@ import (
 	PipelineName!: strings.MaxRunes(28) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+"
 
 	// The Pipeline Role (ARN) for the pipeline.
-	PipelineRoleArn?: strings.MaxRunes(2048) &
+	PipelineRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws\\-cn|aws\\-us\\-gov|aws\\-iso|aws\\-iso\\-b|aws\\-iso\\-e|aws\\-iso\\-f):iam::[0-9]+:role\\/.*$"
 	ResourcePolicy?: _#defs."/$defs/Properties/definitions/ResourcePolicy"
@@ -62,7 +63,8 @@ _#defs: "/$defs/Properties/definitions/BufferOptions": close({
 // Key-value pairs to configure encryption at rest.
 _#defs: "/$defs/Properties/definitions/EncryptionAtRestOptions": close({
 	// The KMS key to use for encrypting data. By default an AWS owned key is used
-	KmsKeyArn!: strings.MaxRunes(2048) & strings.MinRunes(7)
+	KmsKeyArn!:
+		=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(7))
 })
 
 // Key-value pairs to configure log publishing.
@@ -99,7 +101,7 @@ _#defs: "/$defs/Properties/definitions/VpcEndpoint": close({
 	VpcEndpointId?: string
 
 	// The ID for your VPC. AWS Privatelink generates this value when you create a VPC.
-	VpcId?:      string
+	VpcId?:      =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 	VpcOptions?: _#defs."/$defs/Properties/definitions/VpcOptions"
 })
 
@@ -109,7 +111,10 @@ _#defs: "/$defs/Properties/definitions/VpcEndpoint": close({
 _#defs: "/$defs/Properties/definitions/VpcOptions": close({
 	// A list of security groups associated with the VPC endpoint.
 	SecurityGroupIds?: list.MaxItems(12) & list.MinItems(1) & [
-		...strings.MaxRunes(20) & strings.MinRunes(11) & =~"sg-\\w{8}(\\w{9})?"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(20) &
+		strings.MinRunes(11) &
+		=~"sg-\\w{8}(\\w{9})?"
 	]
 
 	// A list of subnet IDs associated with the VPC endpoint.

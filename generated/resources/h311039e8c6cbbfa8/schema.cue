@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -15,10 +15,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // field-level encryption profile maps CloudFront public keys and provider
 // identities to the request-body field patterns that CloudFront encrypts with
 // them.
-#Properties: close({
-	FieldLevelEncryptionProfileConfig!: _#defs."/$defs/Properties/definitions/FieldLevelEncryptionProfileConfig" |
-		fn.#ObjectExpression
-})
+#Properties: close(
+	{FieldLevelEncryptionProfileConfig!: _#defs."/$defs/Properties/definitions/FieldLevelEncryptionProfileConfig"},
+)
 
 _#defs: "/$defs/Properties/definitions/EncryptionEntity": close({
 	FieldPatterns!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
@@ -30,9 +29,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/FieldLevelEncryptionProfileConfig": close({
 	CallerReference!: string | fn.#StringExpression
 	Comment?:         string | fn.#StringExpression
-	EncryptionEntities!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EncryptionEntity" | fn.#ObjectExpression
-	] |
+	EncryptionEntities!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EncryptionEntity"] |
 		fn.#ListExpression
 	Name!: string | fn.#StringExpression
 }) |

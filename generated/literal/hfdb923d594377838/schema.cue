@@ -80,5 +80,5 @@ _#defs: "/$defs/Properties/definitions/ScanMode": "FULL_SCAN" | "INCREMENTAL_SCA
 _#defs: "/$defs/Properties/definitions/ScanSettingResourceType": close({
 	MalwareScanner?: _#defs."/$defs/Properties/definitions/MalwareScanner"
 	ResourceTypes?:  _#defs."/$defs/Properties/definitions/ResourceTypes"
-	ScannerRoleArn?: string
+	ScannerRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })

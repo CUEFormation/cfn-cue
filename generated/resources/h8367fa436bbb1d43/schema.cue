@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -21,11 +25,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Control!: close({
 		AttributeValues?: close({
 
-			{[=~"^[a-zA-Z0-9._-]+$"]: _#defs."/$defs/Properties/definitions/AttributeValue" | fn.#ObjectExpression}}) |
+			{[=~"^[a-zA-Z0-9._-]+$"]: _#defs."/$defs/Properties/definitions/AttributeValue"}}) |
 		fn.#ObjectExpression
 		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Enabled!:     bool | fn.#BooleanExpression
-		Weight!:      >=0 | fn.#NumberExpression
+		Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Weight!: >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								>=0,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
 	EnvironmentIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
@@ -33,27 +55,83 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Hypothesis?:     strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	LaunchCriteria?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:           strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Treatments!: list.MaxItems(5) & list.MinItems(1) & [...close({
 		AttributeValues?: close({
 
-			{[=~"^[a-zA-Z0-9._-]+$"]: _#defs."/$defs/Properties/definitions/AttributeValue" | fn.#ObjectExpression}}) |
+			{[=~"^[a-zA-Z0-9._-]+$"]: _#defs."/$defs/Properties/definitions/AttributeValue"}}) |
 		fn.#ObjectExpression
 		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Enabled!:     bool | fn.#BooleanExpression
-		Weight!:      >=0 | fn.#NumberExpression
+		Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Weight!: >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								>=0,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AttributeValue": close({
-	BooleanValue?: bool | fn.#BooleanExpression
-	NumberArray?:  [...number | fn.#NumberExpression] | fn.#ListExpression
-	NumberValue?:  number | fn.#NumberExpression
-	StringArray?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	StringValue?:  string | fn.#StringExpression
+	BooleanValue?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NumberArray?: [
+		...number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	NumberValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StringArray?: [...string | fn.#StringExpression] | fn.#ListExpression
+	StringValue?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -66,12 +144,30 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/Treatment": close({
 	AttributeValues?: close({
 
-		{[=~"^[a-zA-Z0-9._-]+$"]: _#defs."/$defs/Properties/definitions/AttributeValue" | fn.#ObjectExpression}}) |
+		{[=~"^[a-zA-Z0-9._-]+$"]: _#defs."/$defs/Properties/definitions/AttributeValue"}}) |
 	fn.#ObjectExpression
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Enabled!:     bool | fn.#BooleanExpression
+	Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Key?:         string | fn.#StringExpression
-	Weight!:      >=0 | fn.#NumberExpression
+	Weight!: >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

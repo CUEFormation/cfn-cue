@@ -16,16 +16,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApplicationId!:   =~"[\\w\\d\\.-]{1,60}" | fn.#StringExpression
 	ApplicationType!: "HANA" | "SAP_ABAP" | fn.#StringExpression
-	ComponentsInfo?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ComponentInfo" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Credentials?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Credential" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	DatabaseArn?: =~"^arn:(.+:){2,4}.+$|^arn:(.+:){1,3}.+\\/.+$" | fn.#StringExpression
-	Instances?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Instance" | fn.#StringExpression] |
-		fn.#ListExpression
+	ComponentsInfo?:  list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ComponentInfo"] | fn.#ListExpression
+	Credentials?:     list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Credential"] | fn.#ListExpression
+	DatabaseArn?:     =~"^arn:(.+:){2,4}.+$|^arn:(.+:){1,3}.+\\/.+$" | fn.#StringExpression
+	Instances?:       list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Instance"] | fn.#ListExpression
 	SapInstanceNumber?: =~"[0-9]{2}" | fn.#StringExpression
 	Sid?:               =~"[A-Z][A-Z0-9]{2}" | fn.#StringExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ComponentInfo": {

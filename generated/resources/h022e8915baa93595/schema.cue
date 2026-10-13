@@ -15,13 +15,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::Route53GlobalResolver::FirewallDomainList
 #Properties: close({
 	ClientToken?:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:      _#defs."/$defs/Properties/definitions/ResourceDescription" | fn.#StringExpression
+	Description?:      _#defs."/$defs/Properties/definitions/ResourceDescription"
 	DomainFileUrl?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Domains?:          _#defs."/$defs/Properties/definitions/Domains" | fn.#ListExpression
+	Domains?:          _#defs."/$defs/Properties/definitions/Domains"
 	GlobalResolverId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
-	Name!:             _#defs."/$defs/Properties/definitions/ResourceName" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Name!:             _#defs."/$defs/Properties/definitions/ResourceName"
+	Tags?:             list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CRResourceStatus": "CREATING" |

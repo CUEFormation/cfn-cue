@@ -18,10 +18,11 @@ import "list"
 	NetworkInterfaceIds?: [...string]
 
 	// Role Arn MediaConnect can assume to create ENIs in customer's account.
-	RoleArn!: =~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$"
 
 	// Security Group IDs to be used on ENI.
-	SecurityGroupIds!: [...string]
+	SecurityGroupIds!: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// Subnet must be in the AZ of the Flow
 	SubnetId!: string

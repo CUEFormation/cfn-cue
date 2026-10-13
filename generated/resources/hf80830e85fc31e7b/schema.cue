@@ -13,8 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::Cassandra::Type
 #Properties: close({
-	Fields!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Field" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Fields!:       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Field"] | fn.#ListExpression
 	KeyspaceName!: string | fn.#StringExpression
 	TypeName!:     string | fn.#StringExpression
 })

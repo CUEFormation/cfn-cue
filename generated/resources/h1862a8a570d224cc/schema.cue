@@ -19,16 +19,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // testing and country launch registrations are submitted and approved by
 // carriers.
 #Properties: close({
-	DeletionProtectionEnabled?: bool | fn.#BooleanExpression
+	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	OptOutListName?:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
-	SelfManagedOptOutsEnabled?: bool | fn.#BooleanExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	SelfManagedOptOutsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	TwoWayChannelArn?:  strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^\\S+$" | fn.#StringExpression
 	TwoWayChannelRole?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:\\S+$" | fn.#StringExpression
-	TwoWayEnabled?:     bool | fn.#BooleanExpression
+	TwoWayEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TwoWayMediaS3BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$" |
 	fn.#StringExpression
 	TwoWayMediaS3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\S]+$" | fn.#StringExpression

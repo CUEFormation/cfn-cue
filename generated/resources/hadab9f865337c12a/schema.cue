@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(0) &
 	=~"^(us(-gov)?|ap|ca|cn|eu|eusc|sa|af|me|il)-([a-z]{2}-)?(central|north|(north(?:east|west))|south|south(?:east|west)|east|west)-[0-9]$" |
 	fn.#StringExpression
-	Tags?:  [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VpcID!: strings.MaxRunes(21) & strings.MinRunes(12) & =~"^vpc-[0-9a-fA-F]{8,}$" | fn.#StringExpression
 })
 

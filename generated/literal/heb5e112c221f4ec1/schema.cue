@@ -43,7 +43,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 	KmsEncryptionContext?: _#defs."/$defs/Properties/definitions/KmsEncryptionContext"
 
 	// KMS Key Identifier
-	KmsKeyId!: (string | string | string) &
+	KmsKeyId!: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^[A-Za-z0-9][A-Za-z0-9:_/+=,@.-]+$"

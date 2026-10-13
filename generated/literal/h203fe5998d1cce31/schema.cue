@@ -58,7 +58,7 @@ import (
 	EnvironmentProfileIdentifier?: =~"^[a-zA-Z0-9_-]{0,36}$"
 
 	// Environment role arn for custom aws environment permissions
-	EnvironmentRoleArn?: string
+	EnvironmentRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The glossary terms that can be used in the Amazon DataZone environment.
 	GlossaryTerms?: list.MaxItems(20) & [...] & [...=~"^[a-zA-Z0-9_-]{1,36}$"]

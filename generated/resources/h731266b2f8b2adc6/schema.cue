@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,24 +18,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Bedrock::FlowAlias Resource Type
 #Properties: close({
-	ConcurrencyConfiguration?: _#defs."/$defs/Properties/definitions/FlowAliasConcurrencyConfiguration" |
-		fn.#ObjectExpression
-	Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	ConcurrencyConfiguration?: _#defs."/$defs/Properties/definitions/FlowAliasConcurrencyConfiguration"
+	Description?:              strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 	FlowArn!: strings.MaxRunes(2048) & =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:flow/[0-9a-zA-Z]{10}$" |
 	fn.#StringExpression
 	Name!: =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
 	RoutingConfiguration!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FlowAliasRoutingConfigurationListItem" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/FlowAliasRoutingConfigurationListItem"
 	] |
 		fn.#ListExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
+	Tags?: _#defs."/$defs/Properties/definitions/TagsMap"
 })
 
 _#defs: "/$defs/Properties/definitions/ConcurrencyType": "Automatic" | "Manual" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/FlowAliasConcurrencyConfiguration": close({
-	MaxConcurrency?: <=100 & >=1 | fn.#NumberExpression
-	Type!:           _#defs."/$defs/Properties/definitions/ConcurrencyType" | fn.#StringExpression
+	MaxConcurrency?: <=100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type!: _#defs."/$defs/Properties/definitions/ConcurrencyType"
 }) |
 fn.#ObjectExpression
 

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,11 +13,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Notifications::NotificationConfiguration
 #Properties: close({
-	AggregationDuration?: _#defs."/$defs/Properties/definitions/AggregationDuration" | fn.#StringExpression
+	AggregationDuration?: _#defs."/$defs/Properties/definitions/AggregationDuration"
 	Description!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[^\\x{0001}-\\x{001F}\\x{007F}-\\x{009F}]*$" |
 	fn.#StringExpression
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_\\-]+$" | fn.#StringExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagMap" | fn.#ListExpression
+	Tags?: _#defs."/$defs/Properties/definitions/TagMap"
 })
 
 _#defs: "/$defs/Properties/definitions/AggregationDuration": "LONG" | "SHORT" | "NONE" | fn.#StringExpression
@@ -34,8 +34,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-	fn.#ListExpression
+_#defs: "/$defs/Properties/definitions/TagMap": [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Notifications::NotificationConfiguration"
 	Properties!: #Properties

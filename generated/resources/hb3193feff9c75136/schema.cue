@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -25,25 +29,98 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	ComputeCapacity?:             _#defs."/$defs/Properties/definitions/ComputeCapacity" | fn.#ObjectExpression
-	Description?:                 strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	DisableIMDSV1?:               bool | fn.#BooleanExpression
-	DisconnectTimeoutInSeconds?:  int & <=360000 & >=60 | fn.#NumberExpression
+	ComputeCapacity?: _#defs."/$defs/Properties/definitions/ComputeCapacity"
+	Description?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	DisableIMDSV1?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DisconnectTimeoutInSeconds?: int & <=360000 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=360000 &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	DisplayName?:                 strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	DomainJoinInfo?:              _#defs."/$defs/Properties/definitions/DomainJoinInfo" | fn.#ObjectExpression
-	EnableDefaultInternetAccess?: bool | fn.#BooleanExpression
+	DomainJoinInfo?:              _#defs."/$defs/Properties/definitions/DomainJoinInfo"
+	EnableDefaultInternetAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FleetType?:                   =~"^ALWAYS_ON$|^ON_DEMAND$|^ELASTIC$" | fn.#StringExpression
-	IamRoleArn?: =~"^arn:aws(?:\\-cn|\\-iso\\-b|\\-iso|\\-us\\-gov)?:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	IdleDisconnectTimeoutInSeconds?: int & <=3600 & >=0 | fn.#NumberExpression
+	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:aws(?:\\-cn|\\-iso\\-b|\\-iso|\\-us\\-gov)?:iam::[0-9]{12}:role/.+$" |
+		fn.#StringExpression
+	IdleDisconnectTimeoutInSeconds?: int & <=3600 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=3600 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ImageArn?: strings.MaxRunes(1024) & =~"^arn:[a-z-]+:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:.+$" |
 	fn.#StringExpression
 	ImageName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" |
 	fn.#StringExpression
-	InstanceType!:             strings.MinRunes(1) | fn.#StringExpression
-	MaxConcurrentSessions?:    int | fn.#NumberExpression
-	MaxSessionsPerInstance?:   int | fn.#NumberExpression
-	MaxUserDurationInSeconds?: int & <=360000 & >=600 | fn.#NumberExpression
-	Name!:                     strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	InstanceType!: strings.MinRunes(1) | fn.#StringExpression
+	MaxConcurrentSessions?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxSessionsPerInstance?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxUserDurationInSeconds?: int & <=360000 & >=600 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=360000 &
+							>=600,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	Platform?: "AMAZON_LINUX2" |
 		"RHEL8" |
 		"ROCKY_LINUX8" |
@@ -54,11 +131,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"WINDOWS_SERVER_2022" |
 		"WINDOWS_SERVER_2025" |
 		fn.#StringExpression
-	RootVolumeConfig?:        _#defs."/$defs/Properties/definitions/VolumeConfig" | fn.#ObjectExpression
-	SessionScriptS3Location?: _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
+	RootVolumeConfig?:        _#defs."/$defs/Properties/definitions/VolumeConfig"
+	SessionScriptS3Location?: _#defs."/$defs/Properties/definitions/S3Location"
 	StreamView?:              "APP" | "DESKTOP" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	UsbDeviceFilterStrings?: [
 		...strings.MaxRunes(100) &
 		strings.MinRunes(0) &
@@ -66,12 +142,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
+	VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
 })
 
 _#defs: "/$defs/Properties/definitions/ComputeCapacity": close({
-	DesiredInstances?: int | fn.#NumberExpression
-	DesiredSessions?:  int | fn.#NumberExpression
+	DesiredInstances?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DesiredSessions?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -93,12 +195,31 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VolumeConfig": close({VolumeSizeInGb?: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/VolumeConfig": close({
+	VolumeSizeInGb?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroupIds?: list.MaxItems(5) & [...] & [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	SubnetIds?:        [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds?: list.MaxItems(5) & [...] & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
+		fn.#StringExpression
+	] |
+	fn.#ListExpression
+	SubnetIds?: [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

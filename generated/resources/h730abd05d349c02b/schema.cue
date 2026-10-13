@@ -8,31 +8,33 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a stored analysis within a collaboration
 #Properties: close({
-	AnalysisParameters?: list.MaxItems(50) & [...] & [
-		..._#defs."/$defs/Properties/definitions/AnalysisParameter" | fn.#ObjectExpression
-	] |
+	AnalysisParameters?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/AnalysisParameter"] |
 		fn.#ListExpression
 	Description?: strings.MaxRunes(255) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
 	fn.#StringExpression
-	ErrorMessageConfiguration?: _#defs."/$defs/Properties/definitions/ErrorMessageConfiguration" | fn.#ObjectExpression
+	ErrorMessageConfiguration?: _#defs."/$defs/Properties/definitions/ErrorMessageConfiguration"
 	Format!:                    "SQL" | "PYSPARK_1_0" | fn.#StringExpression
 	MembershipIdentifier!: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
 	fn.#StringExpression
 	Name!:   strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" | fn.#StringExpression
-	Schema?: _#defs."/$defs/Properties/definitions/AnalysisSchema" | fn.#ObjectExpression
-	Source!: _#defs."/$defs/Properties/definitions/AnalysisSource" | fn.#ValueExpression
-	SourceMetadata?:          _#defs."/$defs/Properties/definitions/AnalysisSourceMetadata" | fn.#ValueExpression
-	SyntheticDataParameters?: _#defs."/$defs/Properties/definitions/SyntheticDataParameters" | fn.#ValueExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Schema?: _#defs."/$defs/Properties/definitions/AnalysisSchema"
+	Source!: _#defs."/$defs/Properties/definitions/AnalysisSource"
+	SourceMetadata?:          _#defs."/$defs/Properties/definitions/AnalysisSourceMetadata"
+	SyntheticDataParameters?: _#defs."/$defs/Properties/definitions/SyntheticDataParameters"
+	Tags?:                    [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AnalysisParameter": close({
@@ -71,47 +73,47 @@ _#defs: "/$defs/Properties/definitions/AnalysisParameter": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AnalysisSchema": close(
-	{ReferencedTables!: _#defs."/$defs/Properties/definitions/ReferencedTables" | fn.#ListExpression},
+	{ReferencedTables!: _#defs."/$defs/Properties/definitions/ReferencedTables"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AnalysisSource": matchN(1, [close(
 	{Text!: strings.MaxRunes(90000) & strings.MinRunes(0) | fn.#StringExpression},
 ), close(
-	{Artifacts!: _#defs."/$defs/Properties/definitions/AnalysisTemplateArtifacts" | fn.#ObjectExpression},
+	{Artifacts!: _#defs."/$defs/Properties/definitions/AnalysisTemplateArtifacts"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/AnalysisSourceMetadata": close(
-	{Artifacts!: _#defs."/$defs/Properties/definitions/AnalysisTemplateArtifactMetadata" | fn.#ObjectExpression},
+	{Artifacts!: _#defs."/$defs/Properties/definitions/AnalysisTemplateArtifactMetadata"},
 ) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/AnalysisTemplateArtifact": close(
-	{Location!: _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression},
+	{Location!: _#defs."/$defs/Properties/definitions/S3Location"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AnalysisTemplateArtifactMetadata": close({
-	AdditionalArtifactHashes?: [..._#defs."/$defs/Properties/definitions/Hash" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	EntryPointHash!: _#defs."/$defs/Properties/definitions/Hash" | fn.#ObjectExpression
+	AdditionalArtifactHashes?: [..._#defs."/$defs/Properties/definitions/Hash"] | fn.#ListExpression
+	EntryPointHash!:           _#defs."/$defs/Properties/definitions/Hash"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AnalysisTemplateArtifacts": close({
 	AdditionalArtifacts?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AnalysisTemplateArtifact" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/AnalysisTemplateArtifact"
 	] |
 		fn.#ListExpression
-	EntryPoint!: _#defs."/$defs/Properties/definitions/AnalysisTemplateArtifact" | fn.#ObjectExpression
-	RoleArn!:    strings.MaxRunes(512) & strings.MinRunes(32) | fn.#StringExpression
+	EntryPoint!: _#defs."/$defs/Properties/definitions/AnalysisTemplateArtifact"
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(512) & strings.MinRunes(32)) |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ColumnClassificationDetails": close({
 	ColumnMapping!: list.MaxItems(1000) & list.MinItems(5) & [
-		..._#defs."/$defs/Properties/definitions/SyntheticDataColumnProperties" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/SyntheticDataColumnProperties"
 	] |
 		fn.#ListExpression
 }) |
@@ -123,15 +125,51 @@ _#defs: "/$defs/Properties/definitions/ErrorMessageConfiguration": close({Type!:
 _#defs: "/$defs/Properties/definitions/Hash": close({Sha256?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MLSyntheticDataParameters": close({
-	ColumnClassification!: _#defs."/$defs/Properties/definitions/ColumnClassificationDetails" | fn.#ObjectExpression
-	Epsilon!:              <=10 & >=0.0001 | fn.#NumberExpression
-	MaxMembershipInferenceAttackScore!: <=1 & >=0.5 | fn.#NumberExpression
+	ColumnClassification!: _#defs."/$defs/Properties/definitions/ColumnClassificationDetails"
+	Epsilon!: <=10 & >=0.0001 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=10 &
+							>=0.0001,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxMembershipInferenceAttackScore!: <=1 & >=0.5 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0.5,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReferencedTables": [...] & [
-	..._#defs."/$defs/Properties/definitions/TableName" | fn.#StringExpression
-] |
+_#defs: "/$defs/Properties/definitions/ReferencedTables": [...] & [..._#defs."/$defs/Properties/definitions/TableName"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/S3Location": close({
@@ -143,13 +181,13 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/SyntheticDataColumnProperties": close({
 	ColumnName!:        strings.MaxRunes(128) & =~"^[a-z0-9_](([a-z0-9_]+-)*([a-z0-9_]+))?$" | fn.#StringExpression
 	ColumnType!:        "CATEGORICAL" | "NUMERICAL" | fn.#StringExpression
-	IsPredictiveValue!: bool | fn.#BooleanExpression
+	IsPredictiveValue!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SyntheticDataParameters": close({
-	MlSyntheticDataParameters!: _#defs."/$defs/Properties/definitions/MLSyntheticDataParameters" | fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/SyntheticDataParameters": close(
+	{MlSyntheticDataParameters!: _#defs."/$defs/Properties/definitions/MLSyntheticDataParameters"},
+) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/TableName": strings.MaxRunes(128) &

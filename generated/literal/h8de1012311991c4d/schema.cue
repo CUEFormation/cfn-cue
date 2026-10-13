@@ -486,7 +486,7 @@ _#defs: "/$defs/Properties/definitions/SSESpecification": close({
 	// its key ID, Amazon Resource Name (ARN), alias name, or alias ARN. Note that
 	// you should only provide this parameter if the key is different from the
 	// default DynamoDB key ``alias/aws/dynamodb``.
-	"KMSMasterKeyId"?: string | string | string
+	"KMSMasterKeyId"?: string & string
 
 	// Indicates whether server-side encryption is done using an AWS managed key or
 	// an AWS owned key. If enabled (true), server-side encryption type is set to
@@ -595,13 +595,13 @@ _#defs: "/$defs/Properties/definitions/VectorIndex": close({
 // or secondary index can instantaneously support. The settings can be modified
 // using the ``UpdateTable`` operation to meet the throughput requirements of
 // an upcoming peak event.
-_#defs: "/$defs/Properties/definitions/WarmThroughput": ({
+_#defs: "/$defs/Properties/definitions/WarmThroughput": matchN(>=1, [{
 	ReadUnitsPerSecond!: _
 	...
-} | {
+}, {
 	WriteUnitsPerSecond!: _
 	...
-}) & close({
+}]) & close({
 	// Represents the number of read operations your base table can instantaneously support.
 	ReadUnitsPerSecond?: int & >=1
 

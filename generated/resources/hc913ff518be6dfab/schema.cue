@@ -16,18 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ConfigurationSetName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
 	DefaultSenderId?:      =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
-	EventDestinations?: list.MaxItems(5) & [
-		..._#defs."/$defs/Properties/definitions/EventDestination" | fn.#ObjectExpression
-	] |
+	EventDestinations?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/EventDestination"] |
 		fn.#ListExpression
-	MessageFeedbackEnabled?: bool | fn.#BooleanExpression
+	MessageFeedbackEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ProtectConfigurationId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CloudWatchLogsDestination": close({
-	IamRoleArn!:  =~"^arn:\\S+$" | fn.#StringExpression
+	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:\\S+$" |
+		fn.#StringExpression
 	LogGroupArn!: =~"^arn:\\S+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -43,7 +42,7 @@ _#defs: "/$defs/Properties/definitions/EventDestination": matchN(1, [{
 	...
 }]) & close({
 	CloudWatchLogsDestination?: _#defs."/$defs/Properties/definitions/CloudWatchLogsDestination" | fn.#ObjectExpression
-	Enabled!:                   bool | fn.#BooleanExpression
+	Enabled!:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EventDestinationName!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
 	KinesisFirehoseDestination?: _#defs."/$defs/Properties/definitions/KinesisFirehoseDestination" |
 		fn.#ObjectExpression
@@ -54,11 +53,17 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KinesisFirehoseDestination": close({
 	DeliveryStreamArn!: =~"^arn:\\S+$" | fn.#StringExpression
-	IamRoleArn!:        =~"^arn:\\S+$" | fn.#StringExpression
+	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:\\S+$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnsDestination": close({TopicArn!: =~"^arn:\\S+$" | fn.#StringExpression}) |
+_#defs: "/$defs/Properties/definitions/SnsDestination": close({
+	TopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:\\S+$" |
+		fn.#StringExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

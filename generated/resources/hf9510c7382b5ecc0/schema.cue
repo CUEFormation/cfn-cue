@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,29 +24,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SubnetMappings!: _
 	...
 }]) & close({
-	EnableCapacityReservationProvisionStabilize?:          bool | fn.#BooleanExpression
+	EnableCapacityReservationProvisionStabilize?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 	EnablePrefixForIpv6SourceNat?:                         "off" | "on" | fn.#StringExpression
 	EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic?: string | fn.#StringExpression
 	IpAddressType?:  "dualstack" | "dualstack-without-public-ipv4" | "ipv4" | fn.#StringExpression
 	Ipv4IpamPoolId?: string | fn.#StringExpression
-	LoadBalancerAttributes?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/LoadBalancerAttribute" | fn.#ObjectExpression
-	] |
+	LoadBalancerAttributes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LoadBalancerAttribute"] |
 		fn.#ListExpression
 	MinimumLoadBalancerCapacity?: _#defs."/$defs/Properties/definitions/MinimumLoadBalancerCapacity" & {
 		[string]: fn.#Value
 	} |
 		fn.#ObjectExpression
-	Name?:           string | fn.#StringExpression
-	Scheme?:         "internal" | "internet-facing" | fn.#StringExpression
-	SecurityGroups?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SubnetMappings?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SubnetMapping" | fn.#ObjectExpression
+	Name?:   string | fn.#StringExpression
+	Scheme?: "internal" | "internet-facing" | fn.#StringExpression
+	SecurityGroups?: list.UniqueItems() & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	Subnets?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:    [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	Type?:    "application" | "gateway" | "network" | fn.#StringExpression
+	SubnetMappings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SubnetMapping"] | fn.#ListExpression
+	Subnets?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Type?:           "application" | "gateway" | "network" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/LoadBalancerAttribute": close({
@@ -51,7 +61,22 @@ _#defs: "/$defs/Properties/definitions/LoadBalancerAttribute": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MinimumLoadBalancerCapacity": close({CapacityUnits!: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/MinimumLoadBalancerCapacity": close({
+	CapacityUnits!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SubnetMapping": close({

@@ -18,7 +18,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ExchangeUrlPrivateConnectionName?: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
 	fn.#StringExpression
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
 	fn.#StringExpression
@@ -27,34 +28,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	ServiceDetails?: _#defs."/$defs/Properties/definitions/ServiceDetails" | fn.#ObjectExpression
 	ServiceType!:    _#defs."/$defs/Properties/definitions/ServiceType" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetUrlPrivateConnectionName?: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
 	fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AdditionalServiceDetails": matchN(1, [close(
-	{MCPServer!: _#defs."/$defs/Properties/definitions/RegisteredMCPServerDetails" | fn.#ObjectExpression},
+	{MCPServer!: _#defs."/$defs/Properties/definitions/RegisteredMCPServerDetails"},
 ), close(
-	{GitLab!: _#defs."/$defs/Properties/definitions/RegisteredGitLabServiceDetails" | fn.#ObjectExpression},
+	{GitLab!: _#defs."/$defs/Properties/definitions/RegisteredGitLabServiceDetails"},
 ), close(
-	{GitHub!: _#defs."/$defs/Properties/definitions/RegisteredGitHubServiceDetails" | fn.#ObjectExpression},
+	{GitHub!: _#defs."/$defs/Properties/definitions/RegisteredGitHubServiceDetails"},
 ), close(
-	{MCPServerSplunk!: _#defs."/$defs/Properties/definitions/RegisteredMCPServerDetails" | fn.#ObjectExpression},
+	{MCPServerSplunk!: _#defs."/$defs/Properties/definitions/RegisteredMCPServerDetails"},
 ), close(
-	{MCPServerNewRelic!: _#defs."/$defs/Properties/definitions/RegisteredNewRelicDetails" | fn.#ObjectExpression},
+	{MCPServerNewRelic!: _#defs."/$defs/Properties/definitions/RegisteredNewRelicDetails"},
 ), close(
-	{Dynatrace!: _#defs."/$defs/Properties/definitions/RegisteredDynatraceDetails" | fn.#ObjectExpression},
+	{Dynatrace!: _#defs."/$defs/Properties/definitions/RegisteredDynatraceDetails"},
 ), close(
-	{ServiceNow!: _#defs."/$defs/Properties/definitions/RegisteredServiceNowDetails" | fn.#ObjectExpression},
+	{ServiceNow!: _#defs."/$defs/Properties/definitions/RegisteredServiceNowDetails"},
 ), close(
-	{PagerDuty!: _#defs."/$defs/Properties/definitions/RegisteredPagerDutyDetails" | fn.#ObjectExpression},
+	{PagerDuty!: _#defs."/$defs/Properties/definitions/RegisteredPagerDutyDetails"},
 ), close(
-	{AzureIdentity!: _#defs."/$defs/Properties/definitions/RegisteredAzureIdentityDetails" | fn.#ObjectExpression},
+	{AzureIdentity!: _#defs."/$defs/Properties/definitions/RegisteredAzureIdentityDetails"},
 ), close(
-	{MCPServerSigV4!: _#defs."/$defs/Properties/definitions/RegisteredMCPServerSigV4Details" | fn.#ObjectExpression},
+	{MCPServerSigV4!: _#defs."/$defs/Properties/definitions/RegisteredMCPServerSigV4Details"},
 ), close(
-	{MCPServerGrafana!: _#defs."/$defs/Properties/definitions/RegisteredMCPServerGrafanaDetails" | fn.#ObjectExpression},
+	{MCPServerGrafana!: _#defs."/$defs/Properties/definitions/RegisteredMCPServerGrafanaDetails"},
 )]) & {[string]: fn.#Value} |
 fn.#ObjectExpression
 
@@ -68,7 +68,9 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/AzureIdentityServiceDetails": close({
 	ClientId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" | fn.#StringExpression
 	TenantId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" | fn.#StringExpression
-	WebIdentityRoleArn!:        =~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
+	WebIdentityRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+$" |
+		fn.#StringExpression
 	WebIdentityTokenAudiences!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -81,13 +83,13 @@ _#defs: "/$defs/Properties/definitions/BearerTokenDetails": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DynatraceAuthorizationConfig": close(
-	{OAuthClientCredentials?: _#defs."/$defs/Properties/definitions/OAuthClientDetails" | fn.#ObjectExpression},
+	{OAuthClientCredentials?: _#defs."/$defs/Properties/definitions/OAuthClientDetails"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DynatraceServiceDetails": close({
 	AccountUrn!:          string | fn.#StringExpression
-	AuthorizationConfig?: _#defs."/$defs/Properties/definitions/DynatraceAuthorizationConfig" | fn.#ObjectExpression
+	AuthorizationConfig?: _#defs."/$defs/Properties/definitions/DynatraceAuthorizationConfig"
 }) |
 fn.#ObjectExpression
 
@@ -104,9 +106,9 @@ _#defs: "/$defs/Properties/definitions/GitHubAppVerificationDetails": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GitHubDetails": matchN(1, [close(
-	{AppVerification!: _#defs."/$defs/Properties/definitions/GitHubAppVerificationDetails" | fn.#ObjectExpression},
+	{AppVerification!: _#defs."/$defs/Properties/definitions/GitHubAppVerificationDetails"},
 ), close(
-	{DirectAccess!: _#defs."/$defs/Properties/definitions/GitHubPatDetails" | fn.#ObjectExpression},
+	{DirectAccess!: _#defs."/$defs/Properties/definitions/GitHubPatDetails"},
 )]) & {[string]: fn.#Value} |
 fn.#ObjectExpression
 
@@ -129,18 +131,17 @@ _#defs: "/$defs/Properties/definitions/GitLabDetails": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MCPServerAuthorizationConfig": matchN(1, [close({
-	OAuthClientCredentials!: _#defs."/$defs/Properties/definitions/MCPServerOAuthClientCredentialsConfig" |
-		fn.#ObjectExpression
-}), close(
-	{ApiKey!: _#defs."/$defs/Properties/definitions/ApiKeyDetails" | fn.#ObjectExpression},
+_#defs: "/$defs/Properties/definitions/MCPServerAuthorizationConfig": matchN(1, [close(
+	{OAuthClientCredentials!: _#defs."/$defs/Properties/definitions/MCPServerOAuthClientCredentialsConfig"},
 ), close(
-	{BearerToken!: _#defs."/$defs/Properties/definitions/BearerTokenDetails" | fn.#ObjectExpression},
+	{ApiKey!: _#defs."/$defs/Properties/definitions/ApiKeyDetails"},
+), close(
+	{BearerToken!: _#defs."/$defs/Properties/definitions/BearerTokenDetails"},
 )]) & {[string]: fn.#Value} |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MCPServerDetails": close({
-	AuthorizationConfig!: _#defs."/$defs/Properties/definitions/MCPServerAuthorizationConfig" | fn.#ObjectExpression
+	AuthorizationConfig!: _#defs."/$defs/Properties/definitions/MCPServerAuthorizationConfig"
 	Description?:         strings.MaxRunes(500) | fn.#StringExpression
 	Endpoint!:            =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
 	Name!:                =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
@@ -148,16 +149,15 @@ _#defs: "/$defs/Properties/definitions/MCPServerDetails": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MCPServerGrafanaAuthorizationConfig": close(
-	{BearerToken!: _#defs."/$defs/Properties/definitions/BearerTokenDetails" | fn.#ObjectExpression},
+	{BearerToken!: _#defs."/$defs/Properties/definitions/BearerTokenDetails"},
 ) & {[string]: fn.#Value} |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MCPServerGrafanaDetails": close({
-	AuthorizationConfig!: _#defs."/$defs/Properties/definitions/MCPServerGrafanaAuthorizationConfig" |
-		fn.#ObjectExpression
-	Description?: strings.MaxRunes(500) | fn.#StringExpression
-	Endpoint!:    =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
-	Name!:        =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	AuthorizationConfig!: _#defs."/$defs/Properties/definitions/MCPServerGrafanaAuthorizationConfig"
+	Description?:         strings.MaxRunes(500) | fn.#StringExpression
+	Endpoint!:            =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
+	Name!:                =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -176,33 +176,35 @@ _#defs: "/$defs/Properties/definitions/MCPServerSigV4AuthorizationConfig": close
 
 		{[=~"^[a-zA-Z0-9-_]+$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	McpRoleArn?: =~"^arn:aws:iam::\\d{12}:role/[a-zA-Z0-9+=,.@_/-]+$" | fn.#StringExpression
-	Region!:     =~"^(\\*|[a-z]{2,4}(-[a-z]+)+-\\d+)$" | fn.#StringExpression
-	RoleArn?:    =~"^$|^arn:aws:iam::\\d{12}:role/[a-zA-Z0-9+=,.@_/-]+$" | fn.#StringExpression
-	Service!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	McpRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:aws:iam::\\d{12}:role/[a-zA-Z0-9+=,.@_/-]+$" |
+		fn.#StringExpression
+	Region!: =~"^(\\*|[a-z]{2,4}(-[a-z]+)+-\\d+)$" | fn.#StringExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^$|^arn:aws:iam::\\d{12}:role/[a-zA-Z0-9+=,.@_/-]+$" |
+		fn.#StringExpression
+	Service!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MCPServerSigV4Details": close({
-	AuthorizationConfig!: _#defs."/$defs/Properties/definitions/MCPServerSigV4AuthorizationConfig" |
-		fn.#ObjectExpression
-	Description?: strings.MaxRunes(500) | fn.#StringExpression
-	Endpoint!:    =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
-	Name!:        =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	AuthorizationConfig!: _#defs."/$defs/Properties/definitions/MCPServerSigV4AuthorizationConfig"
+	Description?:         strings.MaxRunes(500) | fn.#StringExpression
+	Endpoint!:            =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
+	Name!:                =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MCPServerSplunkAuthorizationConfig": close(
-	{BearerToken!: _#defs."/$defs/Properties/definitions/BearerTokenDetails" | fn.#ObjectExpression},
+	{BearerToken!: _#defs."/$defs/Properties/definitions/BearerTokenDetails"},
 ) & {[string]: fn.#Value} |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MCPServerSplunkDetails": close({
-	AuthorizationConfig!: _#defs."/$defs/Properties/definitions/MCPServerSplunkAuthorizationConfig" |
-		fn.#ObjectExpression
-	Description?: strings.MaxRunes(500) | fn.#StringExpression
-	Endpoint!:    =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
-	Name!:        =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	AuthorizationConfig!: _#defs."/$defs/Properties/definitions/MCPServerSplunkAuthorizationConfig"
+	Description?:         strings.MaxRunes(500) | fn.#StringExpression
+	Endpoint!:            =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
+	Name!:                =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -217,12 +219,12 @@ _#defs: "/$defs/Properties/definitions/NewRelicApiKeyConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NewRelicAuthorizationConfig": close(
-	{ApiKey!: _#defs."/$defs/Properties/definitions/NewRelicApiKeyConfig" | fn.#ObjectExpression},
+	{ApiKey!: _#defs."/$defs/Properties/definitions/NewRelicApiKeyConfig"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NewRelicServiceDetails": close(
-	{AuthorizationConfig!: _#defs."/$defs/Properties/definitions/NewRelicAuthorizationConfig" | fn.#ObjectExpression},
+	{AuthorizationConfig!: _#defs."/$defs/Properties/definitions/NewRelicAuthorizationConfig"},
 ) |
 	fn.#ObjectExpression
 
@@ -235,12 +237,12 @@ _#defs: "/$defs/Properties/definitions/OAuthClientDetails": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PagerDutyAuthorizationConfig": close(
-	{OAuthClientCredentials?: _#defs."/$defs/Properties/definitions/OAuthClientDetails" | fn.#ObjectExpression},
+	{OAuthClientCredentials?: _#defs."/$defs/Properties/definitions/OAuthClientDetails"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PagerDutyDetails": close({
-	AuthorizationConfig!: _#defs."/$defs/Properties/definitions/PagerDutyAuthorizationConfig" | fn.#ObjectExpression
+	AuthorizationConfig!: _#defs."/$defs/Properties/definitions/PagerDutyAuthorizationConfig"
 	Scopes!:              [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -248,7 +250,9 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/RegisteredAzureIdentityDetails": close({
 	ClientId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" | fn.#StringExpression
 	TenantId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" | fn.#StringExpression
-	WebIdentityRoleArn!:        =~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
+	WebIdentityRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+$" |
+		fn.#StringExpression
 	WebIdentityTokenAudiences!: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -297,11 +301,13 @@ _#defs: "/$defs/Properties/definitions/RegisteredMCPServerSigV4Details": close({
 	fn.#ObjectExpression
 	Description?: string | fn.#StringExpression
 	Endpoint!:    string | fn.#StringExpression
-	McpRoleArn?:  string | fn.#StringExpression
-	Name!:        string | fn.#StringExpression
-	Region!:      string | fn.#StringExpression
-	RoleArn!:     string | fn.#StringExpression
-	Service!:     string | fn.#StringExpression
+	McpRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Name!:   string | fn.#StringExpression
+	Region!: string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Service!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -323,39 +329,39 @@ _#defs: "/$defs/Properties/definitions/RegisteredServiceNowDetails": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceDetails": matchN(1, [close(
-	{Dynatrace!: _#defs."/$defs/Properties/definitions/DynatraceServiceDetails" | fn.#ObjectExpression},
+	{Dynatrace!: _#defs."/$defs/Properties/definitions/DynatraceServiceDetails"},
 ), close(
-	{MCPServer!: _#defs."/$defs/Properties/definitions/MCPServerDetails" | fn.#ObjectExpression},
+	{MCPServer!: _#defs."/$defs/Properties/definitions/MCPServerDetails"},
 ), close(
-	{MCPServerSplunk!: _#defs."/$defs/Properties/definitions/MCPServerSplunkDetails" | fn.#ObjectExpression},
+	{MCPServerSplunk!: _#defs."/$defs/Properties/definitions/MCPServerSplunkDetails"},
 ), close(
-	{MCPServerNewRelic!: _#defs."/$defs/Properties/definitions/NewRelicServiceDetails" | fn.#ObjectExpression},
+	{MCPServerNewRelic!: _#defs."/$defs/Properties/definitions/NewRelicServiceDetails"},
 ), close(
-	{GitLab!: _#defs."/$defs/Properties/definitions/GitLabDetails" | fn.#ObjectExpression},
+	{GitLab!: _#defs."/$defs/Properties/definitions/GitLabDetails"},
 ), close(
-	{GitHub!: _#defs."/$defs/Properties/definitions/GitHubDetails" | fn.#ObjectExpression},
+	{GitHub!: _#defs."/$defs/Properties/definitions/GitHubDetails"},
 ), close(
-	{ServiceNow!: _#defs."/$defs/Properties/definitions/ServiceNowServiceDetails" | fn.#ObjectExpression},
+	{ServiceNow!: _#defs."/$defs/Properties/definitions/ServiceNowServiceDetails"},
 ), close(
-	{PagerDuty!: _#defs."/$defs/Properties/definitions/PagerDutyDetails" | fn.#ObjectExpression},
+	{PagerDuty!: _#defs."/$defs/Properties/definitions/PagerDutyDetails"},
 ), close(
-	{AzureIdentity!: _#defs."/$defs/Properties/definitions/AzureIdentityServiceDetails" | fn.#ObjectExpression},
+	{AzureIdentity!: _#defs."/$defs/Properties/definitions/AzureIdentityServiceDetails"},
 ), close(
-	{MCPServerSigV4!: _#defs."/$defs/Properties/definitions/MCPServerSigV4Details" | fn.#ObjectExpression},
+	{MCPServerSigV4!: _#defs."/$defs/Properties/definitions/MCPServerSigV4Details"},
 ), close(
-	{MCPServerGrafana!: _#defs."/$defs/Properties/definitions/MCPServerGrafanaDetails" | fn.#ObjectExpression},
+	{MCPServerGrafana!: _#defs."/$defs/Properties/definitions/MCPServerGrafanaDetails"},
 )]) & {[string]: fn.#Value} |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceId": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceNowAuthorizationConfig": close(
-	{OAuthClientCredentials?: _#defs."/$defs/Properties/definitions/OAuthClientDetails" | fn.#ObjectExpression},
+	{OAuthClientCredentials?: _#defs."/$defs/Properties/definitions/OAuthClientDetails"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceNowServiceDetails": close({
-	AuthorizationConfig?: _#defs."/$defs/Properties/definitions/ServiceNowAuthorizationConfig" | fn.#ObjectExpression
+	AuthorizationConfig?: _#defs."/$defs/Properties/definitions/ServiceNowAuthorizationConfig"
 	InstanceUrl!:         =~"^https://[a-zA-Z0-9-]+\\.service-now\\.com/?$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

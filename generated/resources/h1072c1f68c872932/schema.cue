@@ -7,32 +7,52 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WorkSpaces::WorkspacesPool
 #Properties: close({
-	ApplicationSettings?: _#defs."/$defs/Properties/definitions/ApplicationSettings" | fn.#ObjectExpression
+	ApplicationSettings?: _#defs."/$defs/Properties/definitions/ApplicationSettings"
 	BundleId!:            =~"^wsb-[0-9a-z]{8,63}$" | fn.#StringExpression
-	Capacity!:            _#defs."/$defs/Properties/definitions/Capacity" | fn.#ObjectExpression
+	Capacity!:            _#defs."/$defs/Properties/definitions/Capacity"
 	Description?:         strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_./() -]+$" | fn.#StringExpression
 	DirectoryId!:         strings.MaxRunes(65) & strings.MinRunes(10) & =~"^wsd-[0-9a-z]{8,63}$" | fn.#StringExpression
 	PoolName!:            =~"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$" | fn.#StringExpression
-	RunningMode?:         _#defs."/$defs/Properties/definitions/RunningMode" | fn.#StringExpression
-	Tags?:                [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	TimeoutSettings?:     _#defs."/$defs/Properties/definitions/TimeoutSettings" | fn.#ObjectExpression
+	RunningMode?:         _#defs."/$defs/Properties/definitions/RunningMode"
+	Tags?:                [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TimeoutSettings?:     _#defs."/$defs/Properties/definitions/TimeoutSettings"
 })
 
 _#defs: "/$defs/Properties/definitions/ApplicationSettings": close({
 	SettingsGroup?: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^[A-Za-z0-9_./()!*'-]+$" | fn.#StringExpression
-	Status!:        _#defs."/$defs/Properties/definitions/ApplicationSettingsStatus" | fn.#StringExpression
+	Status!:        _#defs."/$defs/Properties/definitions/ApplicationSettingsStatus"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ApplicationSettingsStatus": "DISABLED" | "ENABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Capacity": close({DesiredUserSessions!: int & >=0 | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/Capacity": close({
+	DesiredUserSessions!: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RunningMode": "ALWAYS_ON" | "AUTO_STOP" | fn.#StringExpression
@@ -44,9 +64,54 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TimeoutSettings": close({
-	DisconnectTimeoutInSeconds?:     int & <=36000 & >=60 | fn.#NumberExpression
-	IdleDisconnectTimeoutInSeconds?: int & <=36000 & >=0 | fn.#NumberExpression
-	MaxUserDurationInSeconds?:       int & <=432000 & >=600 | fn.#NumberExpression
+	DisconnectTimeoutInSeconds?: int & <=36000 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=36000 &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IdleDisconnectTimeoutInSeconds?: int & <=36000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=36000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxUserDurationInSeconds?: int & <=432000 & >=600 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=432000 &
+							>=600,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

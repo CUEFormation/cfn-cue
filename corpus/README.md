@@ -32,7 +32,7 @@ or newer dependencies. An offline version check rejects stale or manually
 upgraded Python packages and points back to setup.
 
 `test` runs formatting checks, Go tests and vet, the pinned S3/IAM integration,
-Python parser/provenance tests, and the 20-template contract in two regions.
+Python parser/provenance tests, and the 39-template contract in two regions.
 Expected failures remain explicit. The final report is
 `.corpus-smoke-report/report.md`; a changed expectation makes the command fail.
 
@@ -54,6 +54,7 @@ To reproduce the larger investigation:
 | `schemas` | Checked-in schema ZIP; all regions and types | `.corpus-generated/` scratch bundle |
 | `regenerate` | Downloaded locked examples and authored mutations | Updates `corpus/smoke/`; review the diff |
 | `setup-flip`, then `flip` | Hash-locked optional CFN Flip comparison | `.corpus-flip/` |
+| `compare BEFORE AFTER` | Identical input, harness, lint runtime, and budget checks | `.corpus-comparison/` |
 
 The example survey is a discovery run and can exit successfully while reporting
 disagreements or timeouts. Its results depend on the machine's evaluation speed;
@@ -77,6 +78,20 @@ binary from the original run; the harness checks its hash and rejects changed
 inputs, dependency versions, or options. Other profiles rebuild with checkout
 paths and Git metadata excluded, so identical Go sources and toolchains produce
 stable binary hashes. Changing Go source or toolchain requires a new report.
+
+To measure a generator change, retain the full report before changing the code,
+regenerate schemas and run the same profile into a second directory, then use:
+
+```sh
+./scripts/corpus.sh compare .corpus-before .corpus-after
+```
+
+Both report directories must contain `run.json` and `report.json`. The comparison
+refuses changed corpus checksums, schema source, harness, lint runtime, selected
+cases, or budgets. Validator and generated-schema fingerprints may change.
+It records every classification transition in JSON and Markdown; machine load
+can still affect timeout outcomes. Keep timeouts separate from accept/reject
+disagreements when assessing improvements.
 
 `CORPUS_PYTHON` selects the setup interpreter, `CORPUS_VENV` selects the virtual
 environment, and `CORPUS_DIR` selects downloaded data. Defaults are `python3`,

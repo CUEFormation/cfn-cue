@@ -38,7 +38,7 @@ strings.MinRunes(50) &
 // The ARN of the IAM role to be assumed by Amazon ECR to authenticate to ECR
 // upstream registry. This role must be in the same account as the registry
 // that you are configuring.
-_#defs: "/$defs/Properties/definitions/CustomRoleArn": strings.MaxRunes(2048) & strings.MinRunes(0)
+_#defs: "/$defs/Properties/definitions/CustomRoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(0))
 
 // The ECRRepositoryPrefix is a custom alias for upstream registry url.
 _#defs: "/$defs/Properties/definitions/EcrRepositoryPrefix": strings.MaxRunes(30) &

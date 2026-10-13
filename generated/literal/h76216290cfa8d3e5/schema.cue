@@ -17,9 +17,9 @@ import (
 	Description?:                   strings.MaxRunes(1000) & strings.MinRunes(0)
 	EventBridgeEnabled?:            bool
 	KmsKeyEnableGeospatialQueries?: bool
-	KmsKeyId?:                      (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
-	PositionFiltering?:             _#defs."/$defs/Properties/definitions/PositionFiltering"
-	PricingPlan?:                   _#defs."/$defs/Properties/definitions/PricingPlan"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
+	PositionFiltering?: _#defs."/$defs/Properties/definitions/PositionFiltering"
+	PricingPlan?:       _#defs."/$defs/Properties/definitions/PricingPlan"
 
 	// This shape is deprecated since 2022-02-01: Deprecated. No longer allowed.
 	PricingPlanDataSource?: string

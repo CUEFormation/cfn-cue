@@ -16,8 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description!:          strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
 	ParameterGroupFamily!: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
 	ParameterGroupName?:   strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	Parameters?: [..._#defs."/$defs/Properties/definitions/Parameter" | fn.#ObjectExpression] | fn.#ListExpression
-	Tags?:       [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Parameters?:           [..._#defs."/$defs/Properties/definitions/Parameter"] | fn.#ListExpression
+	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Parameter": close({

@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,21 +19,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The ``AWS::ApiGateway::Stage`` resource creates a stage for a deployment.
 #Properties: close({
 	AccessLogSetting?:     _#defs."/$defs/Properties/definitions/AccessLogSetting" | fn.#ObjectExpression
-	CacheClusterEnabled?:  bool | fn.#BooleanExpression
+	CacheClusterEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CacheClusterSize?:     string | fn.#StringExpression
 	CanarySetting?:        _#defs."/$defs/Properties/definitions/CanarySetting" | fn.#ObjectExpression
 	ClientCertificateId?:  string | fn.#StringExpression
 	DeploymentId?:         string | fn.#StringExpression
 	Description?:          string | fn.#StringExpression
 	DocumentationVersion?: string | fn.#StringExpression
-	MethodSettings?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MethodSetting" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	MethodSettings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MethodSetting"] | fn.#ListExpression
 	RestApiId!:      string | fn.#StringExpression
 	StageName?:      string | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	TracingEnabled?: bool | fn.#BooleanExpression
+	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TracingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Variables?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
@@ -43,27 +44,91 @@ _#defs: "/$defs/Properties/definitions/AccessLogSetting": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CanarySetting": close({
-	DeploymentId?:   string | fn.#StringExpression
-	PercentTraffic?: <=100 & >=0 | fn.#NumberExpression
+	DeploymentId?: string | fn.#StringExpression
+	PercentTraffic?: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	StageVariableOverrides?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	UseStageCache?: bool | fn.#BooleanExpression
+	UseStageCache?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MethodSetting": close({
-	CacheDataEncrypted?:   bool | fn.#BooleanExpression
-	CacheTtlInSeconds?:    int | fn.#NumberExpression
-	CachingEnabled?:       bool | fn.#BooleanExpression
-	DataTraceEnabled?:     bool | fn.#BooleanExpression
-	HttpMethod?:           string | fn.#StringExpression
-	LoggingLevel?:         string | fn.#StringExpression
-	MetricsEnabled?:       bool | fn.#BooleanExpression
-	ResourcePath?:         string | fn.#StringExpression
-	ThrottlingBurstLimit?: int & >=0 | fn.#NumberExpression
-	ThrottlingRateLimit?:  >=0 | fn.#NumberExpression
+	CacheDataEncrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CacheTtlInSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CachingEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DataTraceEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	HttpMethod?:       string | fn.#StringExpression
+	LoggingLevel?:     string | fn.#StringExpression
+	MetricsEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ResourcePath?:     string | fn.#StringExpression
+	ThrottlingBurstLimit?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ThrottlingRateLimit?: >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

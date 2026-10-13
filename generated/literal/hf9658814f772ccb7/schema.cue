@@ -67,7 +67,7 @@ import "list"
 	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
 
 	// The ID of the VPC in which the EC2 Instance Connect Endpoint was created
-	VpcId?: string
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 // The DNS names of the endpoint.
@@ -94,7 +94,7 @@ _#defs: "/$defs/Properties/definitions/InstanceConnectEndpointPublicDnsNames": c
 _#defs: "/$defs/Properties/definitions/NetworkInterfaceId": string
 
 // The ID of the security group.
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": string
+_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 
 // A key-value pair to associate with a resource.
 _#defs: "/$defs/Properties/definitions/Tag": close({

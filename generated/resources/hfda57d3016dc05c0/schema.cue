@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -35,12 +39,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AmazonManagedKafkaEventSourceConfig?: _#defs."/$defs/Properties/definitions/AmazonManagedKafkaEventSourceConfig" |
 		fn.#ObjectExpression
-	BatchSize?:                  int & <=10000 & >=1 | fn.#NumberExpression
-	BisectBatchOnFunctionError?: bool | fn.#BooleanExpression
+	BatchSize?: int & <=10000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	BisectBatchOnFunctionError?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DestinationConfig?:          _#defs."/$defs/Properties/definitions/DestinationConfig" | fn.#ObjectExpression
 	DocumentDBEventSourceConfig?: _#defs."/$defs/Properties/definitions/DocumentDBEventSourceConfig" |
 		fn.#ObjectExpression
-	Enabled?: bool | fn.#BooleanExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EventSourceArn?: strings.MaxRunes(1024) &
 	strings.MinRunes(12) &
 	=~"arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" |
@@ -54,14 +73,77 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		..."ReportBatchItemFailures" | fn.#StringExpression
 	] |
 		fn.#ListExpression
-	KmsKeyArn?: strings.MaxRunes(2048) & strings.MinRunes(12) & =~"(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()" |
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(12) &
+	=~"(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()" |
 	fn.#StringExpression
-	LoggingConfig?:                  _#defs."/$defs/Properties/definitions/LoggingConfig" | fn.#ObjectExpression
-	MaximumBatchingWindowInSeconds?: int & <=300 & >=0 | fn.#NumberExpression
-	MaximumRecordAgeInSeconds?:      int & <=604800 & >=-1 | fn.#NumberExpression
-	MaximumRetryAttempts?:           int & <=10000 & >=-1 | fn.#NumberExpression
-	MetricsConfig?:                  _#defs."/$defs/Properties/definitions/MetricsConfig" | fn.#ObjectExpression
-	ParallelizationFactor?:          int & <=10 & >=1 | fn.#NumberExpression
+	LoggingConfig?: _#defs."/$defs/Properties/definitions/LoggingConfig" | fn.#ObjectExpression
+	MaximumBatchingWindowInSeconds?: int & <=300 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=300 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaximumRecordAgeInSeconds?: int & <=604800 & >=-1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=604800 &
+							>=-1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaximumRetryAttempts?: int & <=10000 & >=-1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10000 &
+							>=-1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MetricsConfig?: _#defs."/$defs/Properties/definitions/MetricsConfig" | fn.#ObjectExpression
+	ParallelizationFactor?: int & <=10 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ProvisionedPollerConfig?: _#defs."/$defs/Properties/definitions/ProvisionedPollerConfig" | fn.#ObjectExpression
 	Queues?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
@@ -72,19 +154,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SelfManagedKafkaEventSourceConfig?: _#defs."/$defs/Properties/definitions/SelfManagedKafkaEventSourceConfig" |
 		fn.#ObjectExpression
 	SourceAccessConfigurations?: list.MaxItems(29) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SourceAccessConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/SourceAccessConfiguration"
 	] |
 		fn.#ListExpression
 	StartingPosition?: strings.MaxRunes(12) & strings.MinRunes(6) & =~"(LATEST|TRIM_HORIZON|AT_TIMESTAMP)+" |
 	fn.#StringExpression
-	StartingPositionTimestamp?: number | fn.#NumberExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	StartingPositionTimestamp?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Topics?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(249) & strings.MinRunes(1) & =~"^[^.]([a-zA-Z0-9\\-_.]+)" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	TumblingWindowInSeconds?: int & <=900 & >=0 | fn.#NumberExpression
+	TumblingWindowInSeconds?: int & <=900 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=900 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AmazonManagedKafkaEventSourceConfig": close({
@@ -130,7 +244,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilterCriteria": close({
 	Filters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Filter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/Filter"
 	] |
 		fn.#ListExpression
 }) |
@@ -141,7 +255,22 @@ _#defs: "/$defs/Properties/definitions/LoggingConfig": close(
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaximumConcurrency": int & <=1000 & >=2 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/MaximumConcurrency": int & <=1000 & >=2 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=1000 &
+						>=2,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/MetricsConfig": close({
 	Metrics?: list.MaxItems(3) & list.UniqueItems() & [...] & [
@@ -160,8 +289,38 @@ _#defs: "/$defs/Properties/definitions/OnFailure": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ProvisionedPollerConfig": close({
-	MaximumPollers?:  int & <=10000 & >=1 | fn.#NumberExpression
-	MinimumPollers?:  int & <=200 & >=1 | fn.#NumberExpression
+	MaximumPollers?: int & <=10000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinimumPollers?: int & <=200 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=200 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	PollerGroupName?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -186,14 +345,14 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SchemaRegistryConfig": close({
 	AccessConfigs?: list.MaxItems(2) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SchemaRegistryAccessConfig" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/SchemaRegistryAccessConfig"
 	] |
 		fn.#ListExpression
 	EventRecordFormat?: "JSON" | "SOURCE" | fn.#StringExpression
 	SchemaRegistryURI?: strings.MaxRunes(10000) & strings.MinRunes(1) & =~"[a-zA-Z0-9-/*:_+=.@-]*" |
 	fn.#StringExpression
 	SchemaValidationConfigs?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SchemaValidationConfig" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/SchemaValidationConfig"
 	] |
 		fn.#ListExpression
 }) |

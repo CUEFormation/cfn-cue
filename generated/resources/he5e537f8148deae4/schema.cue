@@ -35,16 +35,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [AWS::IAM::RolePolicy](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-rolepolicy.html)
 // +
 // [AWS::IAM::UserPolicy](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-userpolicy.html)
-#Properties: ({
+#Properties: matchN(>=1, [{
 	Users!: _
 	...
-} | {
+}, {
 	Groups!: _
 	...
-} | {
+}, {
 	Roles!: _
 	...
-}) & close({
+}]) & close({
 	Groups?: [...string | fn.#StringExpression] | fn.#ListExpression
 	PolicyDocument!: strings.MaxRunes(131072) &
 	strings.MinRunes(1) &

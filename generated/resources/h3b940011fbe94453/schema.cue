@@ -15,9 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ResourceSetName?: string | fn.#StringExpression
 	ResourceSetType!: =~"^AWS::[A-Za-z0-9]+::[A-Za-z0-9]+$" | fn.#StringExpression
-	Resources!: list.MaxItems(6) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Resource" | fn.#ObjectExpression
-	] |
+	Resources!: list.MaxItems(6) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Resource"] |
 		fn.#ListExpression
 	Tags?: [
 		..._#defs."/$defs/Properties/definitions/Tag" & (null | bool | number | string | list.MaxItems(20) | {...}) |
@@ -31,7 +29,7 @@ _#defs: "/$defs/Properties/definitions/DNSTargetResource": close({
 	HostedZoneArn?:  string | fn.#StringExpression
 	RecordSetId?:    string | fn.#StringExpression
 	RecordType?:     string | fn.#StringExpression
-	TargetResource?: _#defs."/$defs/Properties/definitions/TargetResource" | fn.#ObjectExpression
+	TargetResource?: _#defs."/$defs/Properties/definitions/TargetResource"
 }) |
 fn.#ObjectExpression
 
@@ -45,7 +43,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Resource": close({
 	ComponentId?:       string | fn.#StringExpression
-	DnsTargetResource?: _#defs."/$defs/Properties/definitions/DNSTargetResource" | fn.#ObjectExpression
+	DnsTargetResource?: _#defs."/$defs/Properties/definitions/DNSTargetResource"
 	ReadinessScopes?:   [...string | fn.#StringExpression] | fn.#ListExpression
 	ResourceArn?:       string | fn.#StringExpression
 }) |
@@ -64,8 +62,8 @@ _#defs: "/$defs/Properties/definitions/TargetResource": matchN(1, [{
 	R53Resource!: _
 	...
 }]) & close({
-	NLBResource?: _#defs."/$defs/Properties/definitions/NLBResource" | fn.#ObjectExpression
-	R53Resource?: _#defs."/$defs/Properties/definitions/R53ResourceRecord" | fn.#ObjectExpression
+	NLBResource?: _#defs."/$defs/Properties/definitions/NLBResource"
+	R53Resource?: _#defs."/$defs/Properties/definitions/R53ResourceRecord"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

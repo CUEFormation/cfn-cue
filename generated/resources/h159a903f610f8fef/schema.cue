@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	ScheduleDescription?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
 	ScheduleIdentifier!:  strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?:                [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

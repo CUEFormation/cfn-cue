@@ -17,9 +17,47 @@ SAMPLES = {
     "test/fixtures/templates/good/resources/iam/managed_policy_description.yaml": "valid",
     "test/fixtures/templates/good/resources/lambda/required_properties.yaml": "valid",
     "test/fixtures/templates/good/resources/properties/templated_code.yaml": "valid",
-    "SQS/SQSFIFOQueue.yaml": "invalid",
-    "EMR/EMRCLusterGangliaWithSparkOrS3backedHbase.yaml": "invalid",
+    "SQS/SQSFIFOQueue.yaml": "valid",
+    "EMR/EMRCLusterGangliaWithSparkOrS3backedHbase.yaml": "valid",
+    "Solutions/AmazonCloudWatchAgent/inline/redhat.yaml": "valid",
 }
+
+
+def compatibility_cases():
+    """Small real-resource positives and negatives for the first fixes."""
+    cases = {}
+
+    def pair(name, resource_type, properties, key, good, bad):
+        for label, value, status in (("valid", good, "valid"), ("invalid", bad, "invalid")):
+            props = copy.deepcopy(properties)
+            props[key] = value
+            template = {"Resources": {"Thing": {"Type": resource_type, "Properties": props}}}
+            cases[name + "-" + label] = (template, status, status)
+
+    pair("quoted-boolean", "AWS::SQS::Queue", {"QueueName": "compatibility.fifo"},
+         "FifoQueue", "true", "maybe")
+    ingress = {"GroupId": "sg-12345678", "IpProtocol": "tcp", "FromPort": "22", "ToPort": "22", "CidrIp": "10.0.0.0/24"}
+    pair("quoted-port", "AWS::EC2::SecurityGroupIngress", ingress, "FromPort", "22", "ssh")
+    pair("quoted-retention", "AWS::SQS::Queue", {}, "MessageRetentionPeriod", "60", "1209601")
+    pair("vpc-id", "AWS::EC2::Subnet", {"CidrBlock": "10.0.0.0/24"}, "VpcId", "vpc-12345678", "vpc-1234567")
+    pair("security-group-id", "AWS::EC2::SecurityGroupIngress", ingress, "GroupId", "sg-12345678", "sg-test")
+    pair("ami-id", "AWS::EC2::Instance", {"InstanceType": "t3.micro"}, "ImageId", "ami-12345678", "ami-123456")
+    pair("role-arn", "AWS::Events::Rule", {"ScheduleExpression": "rate(5 minutes)", "State": "DISABLED"},
+         "RoleArn", "arn:aws:iam::123456789012:role/MyRole", "SomeOptionalParameter")
+    cases["dynamic-vpc-id"] = ({"Resources": {"Thing": {"Type": "AWS::EC2::Subnet", "Properties": {
+        "CidrBlock": "10.0.0.0/24", "VpcId": "{{resolve:ssm:VpcId:1}}"}}}}, "valid", "valid")
+    parameters = {"Parameters": {
+        "Text": {"Type": "String", "MinLength": "1", "MaxLength": "18", "NoEcho": "TRUE", "Default": "abc"},
+        "Count": {"Type": "Number", "MinValue": "1.5", "MaxValue": "20", "Default": "2"}},
+        "Resources": {"Queue": {"Type": "AWS::SQS::Queue"}}}
+    cases["quoted-parameter-limits-valid"] = (parameters, "valid", "valid")
+    malformed_length = copy.deepcopy(parameters)
+    malformed_length["Parameters"]["Text"]["MinLength"] = "not-a-length"
+    cases["quoted-parameter-length-invalid"] = (malformed_length, "invalid", "invalid")
+    malformed_value = copy.deepcopy(parameters)
+    malformed_value["Parameters"]["Count"]["MinValue"] = "not-a-number"
+    cases["quoted-parameter-value-invalid"] = (malformed_value, "invalid", "invalid")
+    return cases
 
 
 def build(source, output):
@@ -35,9 +73,11 @@ def build(source, output):
         for region in ("us-east-1", "us-west-2"):
             note = "Pinned upstream example."
             if record["path"] == "SQS/SQSFIFOQueue.yaml":
-                note = "Known gap: CloudFormation accepts the quoted boolean 'true'; CUE currently requires bool."
+                note = "Regression: quoted CloudFormation boolean is accepted without changing the original input."
             elif record["path"].startswith("EMR/"):
-                note = "Known gap: CUE reports an incomplete object-valued Fn::If in Applications; the three IAM resources pass in isolation."
+                note = "Regression: object-valued Fn::If stays complete through a locally referenced schema."
+            elif record["path"].endswith("inline/redhat.yaml"):
+                note = "Regression: quoted parameter length limits and resource ports remain accepted without rewriting the input."
             expected[record["id"] + ":" + region] = dict(cue=SAMPLES[record["path"]], lint="valid", note=note)
     if len(records) != len(SAMPLES):
         raise ValueError("pinned sample missing from source corpus")
@@ -66,6 +106,7 @@ def build(source, output):
         cases[name] = (case, "invalid", "valid" if name == "read-only-property" else "invalid")
     cases["missing-required"] = ({"Resources": {"Role": {"Type": "AWS::IAM::Role", "Properties": {"RoleName": "missing-policy"}}}}, "invalid", "invalid")
     cases["unknown-resource"] = ({"Resources": {"Thing": {"Type": "AWS::DoesNotExist::Thing"}}}, "unsupported", "invalid")
+    cases.update(compatibility_cases())
     for name, (value, cue_status, lint_status) in sorted(cases.items()):
         cid = "mutation-" + name
         raw = yaml.safe_dump(value, sort_keys=False).encode()

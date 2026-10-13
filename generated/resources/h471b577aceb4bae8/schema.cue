@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,27 +19,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS:AppIntegrations::Application
 #Properties: close({
 	ApplicationConfig?: _#defs."/$defs/Properties/definitions/ApplicationConfig" | fn.#ObjectExpression
-	ApplicationSourceConfig!: close(
-		{ExternalUrlConfig!: _#defs."/$defs/Properties/definitions/ExternalUrlConfig" | fn.#ObjectExpression},
-	) |
+	ApplicationSourceConfig!: close({ExternalUrlConfig!: _#defs."/$defs/Properties/definitions/ExternalUrlConfig"}) |
 		fn.#ObjectExpression
-	ApplicationType?:       "STANDARD" | "SERVICE" | "MCP_SERVER" | fn.#StringExpression
-	Description?:           strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	IframeConfig?:          _#defs."/$defs/Properties/definitions/IframeConfig" | fn.#ObjectExpression
-	InitializationTimeout?: int & <=600000 & >=1 | fn.#NumberExpression
-	IsService?:             bool | fn.#BooleanExpression
+	ApplicationType?: "STANDARD" | "SERVICE" | "MCP_SERVER" | fn.#StringExpression
+	Description?:     strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+	IframeConfig?:    _#defs."/$defs/Properties/definitions/IframeConfig" | fn.#ObjectExpression
+	InitializationTimeout?: int & <=600000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=600000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IsService?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\/\\._ \\-]+$" | fn.#StringExpression
 	Namespace!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
-	Permissions?: list.MaxItems(150) & [...] & [
-		..._#defs."/$defs/Properties/definitions/Permissions" | fn.#StringExpression
-	] |
+	Permissions?: list.MaxItems(150) & [...] & [..._#defs."/$defs/Properties/definitions/Permissions"] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ApplicationConfig": close(
-	{ContactHandling?: _#defs."/$defs/Properties/definitions/ContactHandling" | fn.#ObjectExpression},
+	{ContactHandling?: _#defs."/$defs/Properties/definitions/ContactHandling"},
 ) |
 	fn.#ObjectExpression
 
@@ -51,9 +65,7 @@ _#defs: "/$defs/Properties/definitions/ContactHandling": close(
 
 _#defs: "/$defs/Properties/definitions/ExternalUrlConfig": close({
 	AccessUrl!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\w+\\:\\/\\/.*$" | fn.#StringExpression
-	ApprovedOrigins?: list.MaxItems(50) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ApprovedOrigins" | fn.#StringExpression
-	] |
+	ApprovedOrigins?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/ApprovedOrigins"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression

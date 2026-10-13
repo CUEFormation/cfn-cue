@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource for Greengrass component version.
 #Properties: close({
 	InlineRecipe?:   string | fn.#StringExpression
-	LambdaFunction?: _#defs."/$defs/Properties/definitions/LambdaFunctionRecipeSource" | fn.#ObjectExpression
+	LambdaFunction?: _#defs."/$defs/Properties/definitions/LambdaFunctionRecipeSource"
 	Tags?:           struct.MaxFields(50) & {...} | fn.#ObjectExpression
 })
 
@@ -36,20 +40,40 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilesystemPath": string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaAddGroupOwnerBoolean": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/LambdaAddGroupOwnerBoolean": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/LambdaContainerParams": close({
-	Devices?: [..._#defs."/$defs/Properties/definitions/LambdaDeviceMount" | fn.#ObjectExpression] | fn.#ListExpression
-	MemorySizeInKB?: int | fn.#NumberExpression
-	MountROSysfs?:   bool | fn.#BooleanExpression
-	Volumes?: [..._#defs."/$defs/Properties/definitions/LambdaVolumeMount" | fn.#ObjectExpression] | fn.#ListExpression
+	Devices?: [..._#defs."/$defs/Properties/definitions/LambdaDeviceMount"] | fn.#ListExpression
+	MemorySizeInKB?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MountROSysfs?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Volumes?:      [..._#defs."/$defs/Properties/definitions/LambdaVolumeMount"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LambdaDeviceMount": close({
-	AddGroupOwner?: _#defs."/$defs/Properties/definitions/LambdaAddGroupOwnerBoolean" | fn.#BooleanExpression
-	Path?:          _#defs."/$defs/Properties/definitions/FilesystemPath" | fn.#StringExpression
-	Permission?:    _#defs."/$defs/Properties/definitions/LambdaFilesystemPermission" | fn.#StringExpression
+	AddGroupOwner?: _#defs."/$defs/Properties/definitions/LambdaAddGroupOwnerBoolean"
+	Path?:          _#defs."/$defs/Properties/definitions/FilesystemPath"
+	Permission?:    _#defs."/$defs/Properties/definitions/LambdaFilesystemPermission"
 }) |
 fn.#ObjectExpression
 
@@ -64,17 +88,81 @@ _#defs: "/$defs/Properties/definitions/LambdaExecutionParameters": close({
 
 		{[=~".+"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	EventSources?: [..._#defs."/$defs/Properties/definitions/LambdaEventSource" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	EventSources?:             [..._#defs."/$defs/Properties/definitions/LambdaEventSource"] | fn.#ListExpression
 	ExecArgs?:                 [...string | fn.#StringExpression] | fn.#ListExpression
 	InputPayloadEncodingType?: "json" | "binary" | fn.#StringExpression
-	LinuxProcessParams?:       _#defs."/$defs/Properties/definitions/LambdaLinuxProcessParams" | fn.#ObjectExpression
-	MaxIdleTimeInSeconds?:     int | fn.#NumberExpression
-	MaxInstancesCount?:        int | fn.#NumberExpression
-	MaxQueueSize?:             int | fn.#NumberExpression
-	Pinned?:                   bool | fn.#BooleanExpression
-	StatusTimeoutInSeconds?:   int | fn.#NumberExpression
-	TimeoutInSeconds?:         int | fn.#NumberExpression
+	LinuxProcessParams?:       _#defs."/$defs/Properties/definitions/LambdaLinuxProcessParams"
+	MaxIdleTimeInSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxInstancesCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxQueueSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Pinned?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	StatusTimeoutInSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TimeoutInSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -83,29 +171,30 @@ _#defs: "/$defs/Properties/definitions/LambdaFilesystemPermission": "ro" | "rw" 
 _#defs: "/$defs/Properties/definitions/LambdaFunctionRecipeSource": close({
 	ComponentDependencies?: close({
 
-		{[=~".*"]: _#defs."/$defs/Properties/definitions/ComponentDependencyRequirement" | fn.#ObjectExpression}}) |
+		{[=~".*"]: _#defs."/$defs/Properties/definitions/ComponentDependencyRequirement"}}) |
 	fn.#ObjectExpression
-	ComponentLambdaParameters?: _#defs."/$defs/Properties/definitions/LambdaExecutionParameters" | fn.#ObjectExpression
+	ComponentLambdaParameters?: _#defs."/$defs/Properties/definitions/LambdaExecutionParameters"
 	ComponentName?:             strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	ComponentPlatforms?: [..._#defs."/$defs/Properties/definitions/ComponentPlatform" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ComponentVersion?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	LambdaArn?: strings.MinRunes(1) & =~"^arn:[^:]*:lambda:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
+	ComponentPlatforms?:        [..._#defs."/$defs/Properties/definitions/ComponentPlatform"] | fn.#ListExpression
+	ComponentVersion?:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	LambdaArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MinRunes(1) &
+	=~"^arn:[^:]*:lambda:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LambdaLinuxProcessParams": close({
-	ContainerParams?: _#defs."/$defs/Properties/definitions/LambdaContainerParams" | fn.#ObjectExpression
+	ContainerParams?: _#defs."/$defs/Properties/definitions/LambdaContainerParams"
 	IsolationMode?:   "GreengrassContainer" | "NoContainer" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LambdaVolumeMount": close({
-	AddGroupOwner?:   _#defs."/$defs/Properties/definitions/LambdaAddGroupOwnerBoolean" | fn.#BooleanExpression
-	DestinationPath?: _#defs."/$defs/Properties/definitions/FilesystemPath" | fn.#StringExpression
-	Permission?:      _#defs."/$defs/Properties/definitions/LambdaFilesystemPermission" | fn.#StringExpression
-	SourcePath?:      _#defs."/$defs/Properties/definitions/FilesystemPath" | fn.#StringExpression
+	AddGroupOwner?:   _#defs."/$defs/Properties/definitions/LambdaAddGroupOwnerBoolean"
+	DestinationPath?: _#defs."/$defs/Properties/definitions/FilesystemPath"
+	Permission?:      _#defs."/$defs/Properties/definitions/LambdaFilesystemPermission"
+	SourcePath?:      _#defs."/$defs/Properties/definitions/FilesystemPath"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

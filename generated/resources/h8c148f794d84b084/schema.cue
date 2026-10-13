@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,16 +23,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Balancers](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-limits.html)
 // in the *User Guide for Application Load Balancers*.
 #Properties: close({
-	Actions!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Conditions!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RuleCondition" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Actions!:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
+	Conditions!:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RuleCondition"] | fn.#ListExpression
 	ListenerArn?: string | fn.#StringExpression
-	Priority!:    int & <=50000 & >=1 | fn.#NumberExpression
-	Tags?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Transforms?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Transform" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Priority!: int & <=50000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=50000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Tags?:       list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Transforms?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Transform"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Action": close({
@@ -37,9 +52,24 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 	FixedResponseConfig?:       _#defs."/$defs/Properties/definitions/FixedResponseConfig" | fn.#ObjectExpression
 	ForwardConfig?:             _#defs."/$defs/Properties/definitions/ForwardConfig" | fn.#ObjectExpression
 	JwtValidationConfig?:       _#defs."/$defs/Properties/definitions/JwtValidationConfig" | fn.#ObjectExpression
-	Order?:                     int & <=50000 & >=1 | fn.#NumberExpression
-	RedirectConfig?:            _#defs."/$defs/Properties/definitions/RedirectConfig" | fn.#ObjectExpression
-	TargetGroupArn?:            string | fn.#StringExpression
+	Order?: int & <=50000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=50000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RedirectConfig?: _#defs."/$defs/Properties/definitions/RedirectConfig" | fn.#ObjectExpression
+	TargetGroupArn?: string | fn.#StringExpression
 	Type!: "authenticate-cognito" |
 		"authenticate-oidc" |
 		"fixed-response" |
@@ -58,20 +88,33 @@ _#defs: "/$defs/Properties/definitions/AuthenticateCognitoConfig": close({
 	OnUnauthenticatedRequest?: "allow" | "authenticate" | "deny" | fn.#StringExpression
 	Scope?:                    string | fn.#StringExpression
 	SessionCookieName?:        string | fn.#StringExpression
-	SessionTimeout?:           int | fn.#NumberExpression
-	UserPoolArn!:              string | fn.#StringExpression
-	UserPoolClientId!:         string | fn.#StringExpression
-	UserPoolDomain!:           string | fn.#StringExpression
+	SessionTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UserPoolArn!:      string | fn.#StringExpression
+	UserPoolClientId!: string | fn.#StringExpression
+	UserPoolDomain!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": ({
+_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": matchN(>=1, [{
 	ClientSecret!: _
 	...
-} | {
+}, {
 	UseExistingClientSecret!: _
 	...
-}) & close({
+}]) & close({
 	AuthenticationRequestExtraParams?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
@@ -83,10 +126,23 @@ _#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": ({
 	OnUnauthenticatedRequest?: "allow" | "authenticate" | "deny" | fn.#StringExpression
 	Scope?:                    string | fn.#StringExpression
 	SessionCookieName?:        string | fn.#StringExpression
-	SessionTimeout?:           int | fn.#NumberExpression
-	TokenEndpoint!:            string | fn.#StringExpression
-	UseExistingClientSecret?:  bool | fn.#BooleanExpression
-	UserInfoEndpoint!:         string | fn.#StringExpression
+	SessionTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TokenEndpoint!:           string | fn.#StringExpression
+	UseExistingClientSecret?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UserInfoEndpoint!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -100,9 +156,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ForwardConfig": close({
 	TargetGroupStickinessConfig?: _#defs."/$defs/Properties/definitions/TargetGroupStickinessConfig" |
 		fn.#ObjectExpression
-	TargetGroups?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TargetGroupTuple" | fn.#ObjectExpression
-	] |
+	TargetGroups?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroupTuple"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -134,7 +188,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/JwtValidationConfig": close({
 	AdditionalClaims?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/JwtValidationActionAdditionalClaim" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/JwtValidationActionAdditionalClaim"
 	] |
 		fn.#ListExpression
 	Issuer!:       string | fn.#StringExpression
@@ -153,10 +207,9 @@ _#defs: "/$defs/Properties/definitions/PathPatternConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryStringConfig": close({
-	Values?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/QueryStringKeyValue" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/QueryStringConfig": close(
+	{Values?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/QueryStringKeyValue"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/QueryStringKeyValue": close({
@@ -182,7 +235,7 @@ _#defs: "/$defs/Properties/definitions/RewriteConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RewriteConfigList": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/RewriteConfig" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/RewriteConfig"
 ] |
 	fn.#ListExpression
 
@@ -217,14 +270,40 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TargetGroupStickinessConfig": close({
-	DurationSeconds?: int | fn.#NumberExpression
-	Enabled?:         bool | fn.#BooleanExpression
+	DurationSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TargetGroupTuple": close({
 	TargetGroupArn?: string | fn.#StringExpression
-	Weight?:         int | fn.#NumberExpression
+	Weight?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

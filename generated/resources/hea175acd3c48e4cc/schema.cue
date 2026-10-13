@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,16 +20,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
 	fn.#StringExpression
-	CapacityConfiguration?: _#defs."/$defs/Properties/definitions/IndexCapacityConfiguration" | fn.#ObjectExpression
+	CapacityConfiguration?: _#defs."/$defs/Properties/definitions/IndexCapacityConfiguration"
 	Description?:           strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	DisplayName!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
 	DocumentAttributeConfigurations?: list.MaxItems(500) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DocumentAttributeConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/DocumentAttributeConfiguration"
 	] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Type?: _#defs."/$defs/Properties/definitions/IndexType" | fn.#StringExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Type?: _#defs."/$defs/Properties/definitions/IndexType"
 })
 
 _#defs: "/$defs/Properties/definitions/AttributeType": "STRING" |
@@ -36,16 +39,36 @@ _#defs: "/$defs/Properties/definitions/AttributeType": "STRING" |
 
 _#defs: "/$defs/Properties/definitions/DocumentAttributeConfiguration": close({
 	Name?:   strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_][a-zA-Z0-9_-]*$" | fn.#StringExpression
-	Search?: _#defs."/$defs/Properties/definitions/Status" | fn.#StringExpression
-	Type?:   _#defs."/$defs/Properties/definitions/AttributeType" | fn.#StringExpression
+	Search?: _#defs."/$defs/Properties/definitions/Status"
+	Type?:   _#defs."/$defs/Properties/definitions/AttributeType"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IndexCapacityConfiguration": close({Units?: >=1 | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/IndexCapacityConfiguration": close({
+	Units?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IndexStatistics": close(
-	{TextDocumentStatistics?: _#defs."/$defs/Properties/definitions/TextDocumentStatistics" | fn.#ObjectExpression},
+	{TextDocumentStatistics?: _#defs."/$defs/Properties/definitions/TextDocumentStatistics"},
 ) |
 	fn.#ObjectExpression
 
@@ -67,8 +90,44 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TextDocumentStatistics": close({
-	IndexedTextBytes?:         >=0 | fn.#NumberExpression
-	IndexedTextDocumentCount?: >=0 | fn.#NumberExpression
+	IndexedTextBytes?: >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IndexedTextDocumentCount?: >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -14,12 +14,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SageMaker::ModelPackageGroup
 #Properties: close({
-	ModelPackageGroupDescription?: _#defs."/$defs/Properties/definitions/ModelPackageGroupDescription" |
-		fn.#StringExpression
-	ModelPackageGroupName!:   _#defs."/$defs/Properties/definitions/ModelPackageGroupName" | fn.#StringExpression
-	ModelPackageGroupPolicy?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ModelPackageGroupDescription?: _#defs."/$defs/Properties/definitions/ModelPackageGroupDescription"
+	ModelPackageGroupName!:        _#defs."/$defs/Properties/definitions/ModelPackageGroupName"
+	ModelPackageGroupPolicy?:      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ModelPackageGroupArn": strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:.*" |

@@ -17,16 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ApplicationId!:           =~"[a-z0-9]{4,7}" | fn.#StringExpression
 	DeletionProtectionCheck?: "ACCOUNT_DEFAULT" | "APPLY" | "BYPASS" | fn.#StringExpression
 	Description?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Monitors?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Monitor" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Monitors?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Monitor"] | fn.#ListExpression
+	Name!:     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Tags?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Monitor": close({
 	AlarmArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	AlarmRoleArn?: strings.MaxRunes(2048) &
+	AlarmRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((arn):(aws|aws-cn|aws-iso|aws-iso-[a-z]{1}|aws-us-gov|aws-eusc):(iam)::\\d{12}:role[/].*)$" |
 	fn.#StringExpression

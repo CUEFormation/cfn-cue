@@ -6,6 +6,10 @@ import structs "struct"
 
 import list "list"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 #Scalar: string | number | bool | null
 #Object: [string & !="Ref" & !~"^Fn::"]: #Value
 #List:                [...#Value]
@@ -15,18 +19,36 @@ import list "list"
 #RuleList:            #ListValue | #Choice3
 #ConditionExpression: bool | bool | #Choice1
 #StringValue:         string | #StringExpression
-#NumberValue:         number | #NumberExpression
-#BooleanValue:        bool | #BooleanExpression
-#ListValue:           #List | #ListExpression
-#ObjectValue:         #Object | #ObjectExpression
-#String:              #StringValue
-#Number:              #NumberValue
-#StringExpression:    #Choice4
-#NumberExpression:    #Choice5
-#BooleanExpression:   #Choice6
-#ListExpression:      #Choice7
-#ObjectExpression:    #Choice8
-#ValueExpression:     #Choice9
+#NumberValue: number |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						number,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	#NumberExpression
+#BooleanValue:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #BooleanExpression
+#ListValue:         #List | #ListExpression
+#ObjectValue:       #Object | #ObjectExpression
+#String:            #StringValue
+#Number:            #NumberValue
+#StringExpression:  #Choice4
+#NumberExpression:  #Choice5
+#BooleanExpression: #Choice6
+#ListExpression:    #Choice7
+#ObjectExpression:  #Choice8
+#ValueExpression:   #Choice9
 #Function: {
 	"Fn::And"?:              [...bool | #Choice1] & matchN(1, [list.MinItems(2) & list.MaxItems(10)])
 	"Fn::Base64"?:           #String

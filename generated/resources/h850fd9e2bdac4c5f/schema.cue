@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -47,7 +51,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 _#defs: "/$defs/Properties/definitions/AliasTarget": close({
 	DNSName!:              strings.MaxRunes(1024) | fn.#StringExpression
-	EvaluateTargetHealth?: bool | fn.#BooleanExpression
+	EvaluateTargetHealth?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	HostedZoneId!:         _#defs."/$defs/Properties/definitions/HostedZoneId" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -91,8 +95,23 @@ _#defs: "/$defs/Properties/definitions/GeoProximityLocation": matchN(1, [{
 	Coordinates!: _
 	...
 }]) & close({
-	AWSRegion?:      strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Bias?:           int & <=99 & >=-99 | fn.#NumberExpression
+	AWSRegion?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Bias?: int & <=99 & >=-99 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=99 &
+							>=-99,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Coordinates?:    _#defs."/$defs/Properties/definitions/Coordinates" | fn.#ObjectExpression
 	LocalZoneGroup?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 }) |
@@ -104,7 +123,14 @@ _#defs: "/$defs/Properties/definitions/HostedZoneId": strings.MaxRunes(44) | fn.
 
 _#defs: "/$defs/Properties/definitions/HostedZoneName": strings.MaxRunes(256) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MultiValueAnswer": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/MultiValueAnswer": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(1024) | fn.#StringExpression
 
@@ -122,7 +148,19 @@ _#defs: "/$defs/Properties/definitions/TTL": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Type": string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Weight": int | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Weight": int |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Route53::RecordSet"
 	Properties!: #Properties

@@ -77,12 +77,12 @@ _#defs: "/$defs/Properties/definitions/HealthCheckPath": close({
 })
 
 _#defs: "/$defs/Properties/definitions/HealthCheckPathDestination": close({
-	SecurityGroupId?: string
+	SecurityGroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 	SubnetId?:        string
 })
 
 _#defs: "/$defs/Properties/definitions/HealthCheckPathSource": close({
-	SecurityGroupId?: string
+	SecurityGroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 	SubnetId?:        string
 })
 

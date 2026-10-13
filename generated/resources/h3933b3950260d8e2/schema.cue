@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,11 +20,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	PoolName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[ -\\.0-\\[\\]-~]*[!-\\.0-\\[\\]-~][ -\\.0-\\[\\]-~]*$" |
 	fn.#StringExpression
-	RetentionLockTimeInDays?: int & <=36500 & >=0 | fn.#NumberExpression
-	RetentionLockType?:       "COMPLIANCE" | "GOVERNANCE" | "NONE" | fn.#StringExpression
-	StorageClass!:            "DEEP_ARCHIVE" | "GLACIER" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	RetentionLockTimeInDays?: int & <=36500 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=36500 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RetentionLockType?: "COMPLIANCE" | "GOVERNANCE" | "NONE" | fn.#StringExpression
+	StorageClass!:      "DEEP_ARCHIVE" | "GLACIER" | fn.#StringExpression
+	Tags?:              list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

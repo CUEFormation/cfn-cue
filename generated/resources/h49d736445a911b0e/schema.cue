@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -26,19 +30,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...strings.MaxRunes(50) & strings.MinRunes(1) & =~"^([a-z]{2,}-){2,}[0-9]$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	RevisionWeights?: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RevisionWeight" | fn.#ObjectExpression
-	] |
+	RevisionWeights?: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RevisionWeight"] |
 		fn.#ListExpression
 	ScalingConfig?:  _#defs."/$defs/Properties/definitions/ScalingConfig" | fn.#ObjectExpression
 	ThrottleConfig?: _#defs."/$defs/Properties/definitions/ThrottleConfig" | fn.#ObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/RegionalEndpoint": close({
-	AuthType?:   "ApplicationManaged" | "IamAuth" | fn.#StringExpression
-	DomainName?: string | fn.#StringExpression
-	RevisionWeights?: [..._#defs."/$defs/Properties/definitions/RevisionWeight" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	AuthType?:           "ApplicationManaged" | "IamAuth" | fn.#StringExpression
+	DomainName?:         string | fn.#StringExpression
+	RevisionWeights?:    [..._#defs."/$defs/Properties/definitions/RevisionWeight"] | fn.#ListExpression
 	ScalingConfig?:      _#defs."/$defs/Properties/definitions/ScalingConfig" | fn.#ObjectExpression
 	State?:              "Pending" | "Active" | "Failed" | "Deleting" | fn.#StringExpression
 	StateReason?:        string | fn.#StringExpression
@@ -50,14 +51,61 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RevisionWeight": close({
 	RevisionId!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Weight!:     int & <=100 & >=1 | fn.#NumberExpression
+	Weight!: int & <=100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingConfig": close({MaxEnvironments?: int & >=2 | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/ScalingConfig": close({
+	MaxEnvironments?: int & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=2,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ThrottleConfig": close({RateLimit?: int & >=0 | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/ThrottleConfig": close({
+	RateLimit?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Lambda::WebFunctionEndpoint"

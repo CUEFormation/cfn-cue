@@ -27,24 +27,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) |
 	fn.#ObjectExpression
 	SourceDataProviderDescriptors?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DataProviderDescriptor" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/DataProviderDescriptor"
 	] |
 		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetDataProviderDescriptors?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DataProviderDescriptor" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/DataProviderDescriptor"
 	] |
 		fn.#ListExpression
 	TransformationRules?: string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DataProviderDescriptor": close({
-	DataProviderArn?:             string | fn.#StringExpression
-	DataProviderIdentifier?:      string | fn.#StringExpression
-	DataProviderName?:            string | fn.#StringExpression
-	SecretsManagerAccessRoleArn?: string | fn.#StringExpression
-	SecretsManagerSecretId?:      string | fn.#StringExpression
+	DataProviderArn?:        string | fn.#StringExpression
+	DataProviderIdentifier?: string | fn.#StringExpression
+	DataProviderName?:       string | fn.#StringExpression
+	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	SecretsManagerSecretId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

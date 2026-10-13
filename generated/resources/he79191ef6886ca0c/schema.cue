@@ -16,17 +16,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DisplayName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	FarmId!:      =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
-	FileSystemLocations?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FileSystemLocation" | fn.#ObjectExpression
-	] |
+	FileSystemLocations?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/FileSystemLocation"] |
 		fn.#ListExpression
-	OsFamily!: _#defs."/$defs/Properties/definitions/StorageProfileOperatingSystemFamily" | fn.#StringExpression
+	OsFamily!: _#defs."/$defs/Properties/definitions/StorageProfileOperatingSystemFamily"
 })
 
 _#defs: "/$defs/Properties/definitions/FileSystemLocation": close({
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z ]*$" | fn.#StringExpression
 	Path!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Type!: _#defs."/$defs/Properties/definitions/FileSystemLocationType" | fn.#StringExpression
+	Type!: _#defs."/$defs/Properties/definitions/FileSystemLocationType"
 }) |
 fn.#ObjectExpression
 

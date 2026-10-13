@@ -17,11 +17,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // account in non opt-in region in which you configure region linking mode.
 #Properties: close({
 	LinkedRegions!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Region" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/Region"
 	] |
 		fn.#ListExpression
 	RegionLinkingMode!: "SPECIFIED_REGIONS" | fn.#StringExpression
-	Tags?:              _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	Tags?:              _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/Region": =~"^[a-zA-Z0-9-]{1,32}$" | fn.#StringExpression

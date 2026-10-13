@@ -102,7 +102,8 @@ _#defs: "/$defs/Properties/definitions/ErrorCode": string
 _#defs: "/$defs/Properties/definitions/ErrorMessage": strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.+$"
 
 // IAM role to be used by tasks.
-_#defs: "/$defs/Properties/definitions/ExecutionRoleArn": strings.MaxRunes(1224) &
+_#defs: "/$defs/Properties/definitions/ExecutionRoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+strings.MaxRunes(1224) &
 strings.MinRunes(1) &
 =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
@@ -206,7 +207,8 @@ _#defs: "/$defs/Properties/definitions/S3ObjectVersion": strings.MaxRunes(1024) 
 // Scheduler compute units.
 _#defs: "/$defs/Properties/definitions/Schedulers": int & <=5 & >=1
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": strings.MaxRunes(1024) &
+_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+strings.MaxRunes(1024) &
 strings.MinRunes(1) &
 =~"^sg-[a-zA-Z0-9\\-._]+$"
 

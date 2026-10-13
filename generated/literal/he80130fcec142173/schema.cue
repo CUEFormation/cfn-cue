@@ -28,7 +28,7 @@ package schema
 	SubnetIds!:        [...string]
 	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"]
 	TransitGatewayId!: string
-	VpcId!:            string
+	VpcId!:            =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

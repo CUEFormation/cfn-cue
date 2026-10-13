@@ -1,0 +1,22 @@
+{
+  "Parameters": {
+    "Count": {
+      "Default": "2",
+      "MaxValue": "20",
+      "MinValue": "not-a-number",
+      "Type": "Number"
+    },
+    "Text": {
+      "Default": "abc",
+      "MaxLength": "18",
+      "MinLength": "1",
+      "NoEcho": "TRUE",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "Queue": {
+      "Type": "AWS::SQS::Queue"
+    }
+  }
+}

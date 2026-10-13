@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,19 +21,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // allowlisting](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/request-static-ips.html)
 // in the *Amazon CloudFront Developer Guide*.
 #Properties: close({
-	IpAddressType?:   _#defs."/$defs/Properties/definitions/IpAddressType" | fn.#StringExpression
-	IpCount!:         int | fn.#NumberExpression
+	IpAddressType?: _#defs."/$defs/Properties/definitions/IpAddressType" | fn.#StringExpression
+	IpCount!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	IpamCidrConfigs?: _#defs."/$defs/Properties/definitions/IpamCidrConfigs" | fn.#ListExpression
 	Name!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
 	Tags?:            _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AnycastIpList": close({
-	AnycastIps!:            [...string | fn.#StringExpression] | fn.#ListExpression
-	Arn!:                   string | fn.#StringExpression
-	Id!:                    string | fn.#StringExpression
-	IpAddressType?:         _#defs."/$defs/Properties/definitions/IpAddressType" | fn.#StringExpression
-	IpCount!:               int | fn.#NumberExpression
+	AnycastIps!:    [...string | fn.#StringExpression] | fn.#ListExpression
+	Arn!:           string | fn.#StringExpression
+	Id!:            string | fn.#StringExpression
+	IpAddressType?: _#defs."/$defs/Properties/definitions/IpAddressType" | fn.#StringExpression
+	IpCount!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	IpamCidrConfigResults?: _#defs."/$defs/Properties/definitions/IpamCidrConfigResults" | fn.#ListExpression
 	LastModifiedTime!:      time.Time | fn.#StringExpression
 	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
@@ -54,13 +84,11 @@ _#defs: "/$defs/Properties/definitions/IpamCidrConfigResult": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IpamCidrConfigResults": [
-	..._#defs."/$defs/Properties/definitions/IpamCidrConfigResult" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/IpamCidrConfigResult"
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/IpamCidrConfigs": [
-	..._#defs."/$defs/Properties/definitions/IpamCidrConfig" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/IpamCidrConfigs": [..._#defs."/$defs/Properties/definitions/IpamCidrConfig"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
@@ -70,7 +98,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": close(
-	{Items?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression},
+	{Items?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

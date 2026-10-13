@@ -10,6 +10,10 @@ import (
 	"time"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,17 +23,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // rules](https://docs.aws.amazon.com/securityhub/latest/userguide/automation-rules.html)
 // in the *User Guide*.
 #Properties: close({
-	Actions!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AutomationRulesAction" | fn.#ObjectExpression
-	] |
+	Actions!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AutomationRulesAction"] |
 		fn.#ListExpression
 	Criteria!:    _#defs."/$defs/Properties/definitions/AutomationRulesFindingFilters" | fn.#ObjectExpression
 	Description!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	IsTerminal?:  bool | fn.#BooleanExpression
+	IsTerminal?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RuleName!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	RuleOrder!:   int & <=1000 & >=1 | fn.#NumberExpression
-	RuleStatus?:  "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	RuleOrder!: int & <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RuleStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
+	Tags?:       _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AutomationRulesAction": {
@@ -43,9 +60,7 @@ _#defs: "/$defs/Properties/definitions/AutomationRulesFindingFieldsUpdate": {
 	Confidence?:  _#defs."/$defs/Properties/definitions/int100" | fn.#NumberExpression
 	Criticality?: _#defs."/$defs/Properties/definitions/int100" | fn.#NumberExpression
 	Note?:        _#defs."/$defs/Properties/definitions/NoteUpdate" & {[string]: fn.#Value} | fn.#ObjectExpression
-	RelatedFindings?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RelatedFinding" | fn.#ObjectExpression
-	] |
+	RelatedFindings?: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RelatedFinding"] |
 		fn.#ListExpression
 	Severity?: _#defs."/$defs/Properties/definitions/SeverityUpdate" & {[string]: fn.#Value} | fn.#ObjectExpression
 	Types?: list.MaxItems(50) & list.UniqueItems() & [...=~"^([^/]+)(/[^/]+){0,2}$" | fn.#StringExpression] |
@@ -57,96 +72,54 @@ _#defs: "/$defs/Properties/definitions/AutomationRulesFindingFieldsUpdate": {
 } | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AutomationRulesFindingFilters": close({
-	AwsAccountId?: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
+	AwsAccountId?: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	CompanyName?:  list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	ComplianceAssociatedStandardsId?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	CompanyName?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
+	ComplianceSecurityControlId?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	ComplianceAssociatedStandardsId?: list.MaxItems(20) & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	ComplianceStatus?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	Confidence?:       list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/NumberFilter"] | fn.#ListExpression
+	CreatedAt?:        list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/DateFilter"] | fn.#ListExpression
+	Criticality?:      list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/NumberFilter"] | fn.#ListExpression
+	Description?:      list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	FirstObservedAt?:  list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/DateFilter"] | fn.#ListExpression
+	GeneratorId?:    list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	Id?:             list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	LastObservedAt?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/DateFilter"] | fn.#ListExpression
+	NoteText?:       list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	NoteUpdatedAt?:  list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/DateFilter"] | fn.#ListExpression
+	NoteUpdatedBy?:  list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	ProductArn?:     list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	ProductName?:    list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	RecordState?:    list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	RelatedFindingsId?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	ComplianceSecurityControlId?: list.MaxItems(20) & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	RelatedFindingsProductArn?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	ComplianceStatus?: list.MaxItems(20) & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	ResourceDetailsOther?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/MapFilter"] |
 		fn.#ListExpression
-	Confidence?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/NumberFilter" | fn.#ObjectExpression] |
+	ResourceId?: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	ResourcePartition?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	CreatedAt?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/DateFilter" | fn.#ObjectExpression] |
+	ResourceRegion?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	ResourceTags?:   list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/MapFilter"] | fn.#ListExpression
+	ResourceType?:   list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	SeverityLabel?:  list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	SourceUrl?:      list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	Title?:          list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	Type?:           list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
+	UpdatedAt?:      list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/DateFilter"] | fn.#ListExpression
+	UserDefinedFields?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/MapFilter"] | fn.#ListExpression
+	VerificationState?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	Criticality?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/NumberFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Description?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	FirstObservedAt?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/DateFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	GeneratorId?: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Id?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	LastObservedAt?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/DateFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	NoteText?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	NoteUpdatedAt?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/DateFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	NoteUpdatedBy?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ProductArn?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ProductName?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	RecordState?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	RelatedFindingsId?: list.MaxItems(20) & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	RelatedFindingsProductArn?: list.MaxItems(20) & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	ResourceDetailsOther?: list.MaxItems(20) & [
-		..._#defs."/$defs/Properties/definitions/MapFilter" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	ResourceId?: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ResourcePartition?: list.MaxItems(20) & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	ResourceRegion?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ResourceTags?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/MapFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ResourceType?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	SeverityLabel?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	SourceUrl?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Title?: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Type?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	UpdatedAt?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/DateFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	UserDefinedFields?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/MapFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	VerificationState?: list.MaxItems(20) & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	WorkflowStatus?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	WorkflowStatus?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BooleanFilter": close({Value!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/BooleanFilter": close(
+	{Value!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DateFilter": matchN(1, [
@@ -169,8 +142,26 @@ _#defs: "/$defs/Properties/definitions/DateFilter": matchN(1, [
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DateRange": close({
-	Unit!:  "DAYS" | fn.#StringExpression
-	Value!: number | fn.#NumberExpression
+	Unit!: "DAYS" | fn.#StringExpression
+	Value!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -192,22 +183,73 @@ _#defs: "/$defs/Properties/definitions/NoteUpdate": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NumberFilter": matchN(1, [
-	{
-		Eq!: _
-		...
-	},
-	{
-		Gte!: _
-		...
-	} | {
-		Lte!: _
-		...
-	}
-]) & close({
-	Eq?:  number | fn.#NumberExpression
-	Gte?: number | fn.#NumberExpression
-	Lte?: number | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/NumberFilter": matchN(1, [{
+	Eq!: _
+	...
+}, matchN(>=1, [{
+	Gte!: _
+	...
+}, {
+	Lte!: _
+	...
+}])]) & close({
+	Eq?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Gte?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Lte?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -220,7 +262,25 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/SeverityUpdate": close({
 	Label?:      "INFORMATIONAL" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | fn.#StringExpression
 	Normalized?: _#defs."/$defs/Properties/definitions/int100" | fn.#NumberExpression
-	Product?:    number | fn.#NumberExpression
+	Product?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -258,7 +318,22 @@ _#defs."/$defs/Properties/definitions/arn") &
 (null | bool | number | =~"\\S" | [...] | {...}) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/int100": int & <=100 & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/int100": int & <=100 & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=100 &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/map": struct.MaxFields(50) & struct.MinFields(1) & close({
 

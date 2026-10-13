@@ -8,35 +8,54 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityLake::DataLake
 #Properties: close({
-	EncryptionConfiguration?:  _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
-	LifecycleConfiguration?:   _#defs."/$defs/Properties/definitions/LifecycleConfiguration" | fn.#ObjectExpression
-	MetaStoreManagerRoleArn?:  =~"^arn:.*$" | fn.#StringExpression
-	ReplicationConfiguration?: _#defs."/$defs/Properties/definitions/ReplicationConfiguration" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	LifecycleConfiguration?:  _#defs."/$defs/Properties/definitions/LifecycleConfiguration"
+	MetaStoreManagerRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:.*$" |
+		fn.#StringExpression
+	ReplicationConfiguration?: _#defs."/$defs/Properties/definitions/ReplicationConfiguration"
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Days": int & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Days": int & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close(
-	{KmsKeyId?: string | string | string | fn.#StringExpression},
-) |
+_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Expiration": close(
-	{Days?: _#defs."/$defs/Properties/definitions/Days" | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/Expiration": close({Days?: _#defs."/$defs/Properties/definitions/Days"}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
-	Expiration?:  _#defs."/$defs/Properties/definitions/Expiration" | fn.#ObjectExpression
-	Transitions?: [..._#defs."/$defs/Properties/definitions/Transitions" | fn.#ObjectExpression] | fn.#ListExpression
+	Expiration?:  _#defs."/$defs/Properties/definitions/Expiration"
+	Transitions?: [..._#defs."/$defs/Properties/definitions/Transitions"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -47,8 +66,10 @@ _#defs: "/$defs/Properties/definitions/Regions": list.UniqueItems() & [
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ReplicationConfiguration": close({
-	Regions?: _#defs."/$defs/Properties/definitions/Regions" | fn.#ListExpression
-	RoleArn?: =~"^arn:.*$" | fn.#StringExpression
+	Regions?: _#defs."/$defs/Properties/definitions/Regions"
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -59,7 +80,21 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Transitions": close({
-	Days?:         int & >=1 | fn.#NumberExpression
+	Days?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	StorageClass?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

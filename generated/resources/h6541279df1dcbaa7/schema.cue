@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,23 +21,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // devices.
 #Properties: close({
 	AbortConfig?: close({
-		CriteriaList!: list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/AbortCriteria" | fn.#ObjectExpression
-		] |
-			fn.#ListExpression
+		CriteriaList!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AbortCriteria"] | fn.#ListExpression
 	}) |
 		fn.#ObjectExpression
 	Description!: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"[^\\p{C}]+" | fn.#StringExpression
-	DestinationPackageVersions?: [
-		..._#defs."/$defs/Properties/definitions/DestinationPackageVersion" | fn.#StringExpression
-	] |
+	DestinationPackageVersions?: [..._#defs."/$defs/Properties/definitions/DestinationPackageVersion"] |
 		fn.#ListExpression
 	Document?:       strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
 	DocumentSource?: strings.MaxRunes(1350) & strings.MinRunes(1) | fn.#StringExpression
 	JobArn?:         string | fn.#StringExpression
 	JobExecutionsRetryConfig?: close({
 		RetryCriteriaList?: list.MaxItems(2) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/RetryCriteria" | fn.#ObjectExpression
+			..._#defs."/$defs/Properties/definitions/RetryCriteria"
 		] |
 			fn.#ListExpression
 	}) |
@@ -43,22 +42,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		MaximumPerMinute?:       _#defs."/$defs/Properties/definitions/MaximumPerMinute" | fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
-	JobTemplateId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
-	MaintenanceWindows?: [..._#defs."/$defs/Properties/definitions/MaintenanceWindow" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	JobTemplateId!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
+	MaintenanceWindows?: [..._#defs."/$defs/Properties/definitions/MaintenanceWindow"] | fn.#ListExpression
 	PresignedUrlConfig?: close({
-		ExpiresInSec?: _#defs."/$defs/Properties/definitions/ExpiresInSec" | fn.#NumberExpression
-		RoleArn!:      _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
+		ExpiresInSec?: _#defs."/$defs/Properties/definitions/ExpiresInSec"
+		RoleArn!:      _#defs."/$defs/Properties/definitions/RoleArn"
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	TimeoutConfig?: close({
-		InProgressTimeoutInMinutes!: _#defs."/$defs/Properties/definitions/InProgressTimeoutInMinutes" |
-			fn.#NumberExpression
-	}) |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TimeoutConfig?: close(
+		{InProgressTimeoutInMinutes!: _#defs."/$defs/Properties/definitions/InProgressTimeoutInMinutes"},
+	) |
 		fn.#ObjectExpression
 })
 
@@ -72,14 +66,43 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Action": "CANCEL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BaseRatePerMinute": int & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/BaseRatePerMinute": int & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/DestinationPackageVersion": strings.MaxRunes(1600) &
 strings.MinRunes(1) &
 =~"^arn:[!-~]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ExpiresInSec": int & <=3600 & >=60 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/ExpiresInSec": int & <=3600 & >=60 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=3600 &
+						>=60,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/ExponentialRolloutRate": close({
 	BaseRatePerMinute!: _#defs."/$defs/Properties/definitions/BaseRatePerMinute" | fn.#NumberExpression
@@ -91,39 +114,160 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FailureType": "FAILED" | "REJECTED" | "TIMED_OUT" | "ALL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InProgressTimeoutInMinutes": int & <=10080 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/InProgressTimeoutInMinutes": int & <=10080 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=10080 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/IncrementFactor": <=5 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/IncrementFactor": <=5 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						<=5 &
+						>=1,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/JobRetryFailureType": "FAILED" | "TIMED_OUT" | "ALL" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
-	DurationInMinutes?: int & <=1430 & >=1 | fn.#NumberExpression
-	StartTime?:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	DurationInMinutes?: int & <=1430 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1430 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StartTime?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaximumPerMinute": int & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/MaximumPerMinute": int & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MinNumberOfExecutedThings": int & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/MinNumberOfExecutedThings": int & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/NumberOfNotifiedThings": int & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/NumberOfNotifiedThings": int & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/NumberOfSucceededThings": int & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/NumberOfSucceededThings": int & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/RateIncreaseCriteria": close({
-	NumberOfNotifiedThings?:  _#defs."/$defs/Properties/definitions/NumberOfNotifiedThings" | fn.#NumberExpression
-	NumberOfSucceededThings?: _#defs."/$defs/Properties/definitions/NumberOfSucceededThings" | fn.#NumberExpression
+	NumberOfNotifiedThings?:  _#defs."/$defs/Properties/definitions/NumberOfNotifiedThings"
+	NumberOfSucceededThings?: _#defs."/$defs/Properties/definitions/NumberOfSucceededThings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RetryCriteria": close({
-	FailureType?:     _#defs."/$defs/Properties/definitions/JobRetryFailureType" | fn.#StringExpression
-	NumberOfRetries?: int & <=10 & >=0 | fn.#NumberExpression
+	FailureType?: _#defs."/$defs/Properties/definitions/JobRetryFailureType"
+	NumberOfRetries?: int & <=10 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
@@ -131,7 +275,25 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ThresholdPercentage": <=100 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/ThresholdPercentage": <=100 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						<=100,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::IoT::JobTemplate"
 	Properties!: #Properties

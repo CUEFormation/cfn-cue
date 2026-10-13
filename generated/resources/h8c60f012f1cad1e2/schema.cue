@@ -16,32 +16,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ConnectivityInfo?: close({
 		PrivateRouteServerPeerings!: list.MaxItems(2) & list.MinItems(2) & [
-			..._#defs."/$defs/Properties/definitions/RouteServerPeering" | fn.#StringExpression
+			..._#defs."/$defs/Properties/definitions/RouteServerPeering"
 		] |
 			fn.#ListExpression
 	}) |
 		fn.#ObjectExpression
 	EnvironmentName?: =~"^[a-zA-Z0-9_-]{1,100}$" | fn.#StringExpression
-	Hosts?: list.MaxItems(4) & list.MinItems(4) & [
-		..._#defs."/$defs/Properties/definitions/HostInfoForCreate" | fn.#ObjectExpression
-	] |
+	Hosts?: list.MaxItems(4) & list.MinItems(4) & [..._#defs."/$defs/Properties/definitions/HostInfoForCreate"] |
 		fn.#ListExpression
 	InitialVlans?: close({
-		EdgeVTep!:        _#defs."/$defs/Properties/definitions/InitialVlanInfo" | fn.#ObjectExpression
-		ExpansionVlan1!:  _#defs."/$defs/Properties/definitions/InitialVlanInfo" | fn.#ObjectExpression
-		ExpansionVlan2!:  _#defs."/$defs/Properties/definitions/InitialVlanInfo" | fn.#ObjectExpression
-		Hcx!:             _#defs."/$defs/Properties/definitions/InitialVlanInfo" | fn.#ObjectExpression
-		HcxNetworkAclId?: _#defs."/$defs/Properties/definitions/NetworkAclId" | fn.#StringExpression
-		IsHcxPublic?:     bool | fn.#BooleanExpression
-		NsxUpLink!:       _#defs."/$defs/Properties/definitions/InitialVlanInfo" | fn.#ObjectExpression
-		VMotion!:         _#defs."/$defs/Properties/definitions/InitialVlanInfo" | fn.#ObjectExpression
-		VSan!:            _#defs."/$defs/Properties/definitions/InitialVlanInfo" | fn.#ObjectExpression
-		VTep!:            _#defs."/$defs/Properties/definitions/InitialVlanInfo" | fn.#ObjectExpression
-		VmManagement!:    _#defs."/$defs/Properties/definitions/InitialVlanInfo" | fn.#ObjectExpression
-		VmkManagement!:   _#defs."/$defs/Properties/definitions/InitialVlanInfo" | fn.#ObjectExpression
+		EdgeVTep!:        _#defs."/$defs/Properties/definitions/InitialVlanInfo"
+		ExpansionVlan1!:  _#defs."/$defs/Properties/definitions/InitialVlanInfo"
+		ExpansionVlan2!:  _#defs."/$defs/Properties/definitions/InitialVlanInfo"
+		Hcx!:             _#defs."/$defs/Properties/definitions/InitialVlanInfo"
+		HcxNetworkAclId?: _#defs."/$defs/Properties/definitions/NetworkAclId"
+		IsHcxPublic?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		NsxUpLink!:       _#defs."/$defs/Properties/definitions/InitialVlanInfo"
+		VMotion!:         _#defs."/$defs/Properties/definitions/InitialVlanInfo"
+		VSan!:            _#defs."/$defs/Properties/definitions/InitialVlanInfo"
+		VTep!:            _#defs."/$defs/Properties/definitions/InitialVlanInfo"
+		VmManagement!:    _#defs."/$defs/Properties/definitions/InitialVlanInfo"
+		VmkManagement!:   _#defs."/$defs/Properties/definitions/InitialVlanInfo"
 	}) |
 	fn.#ObjectExpression
-	KmsKeyId?: string | string | string | fn.#StringExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
 	LicenseInfo?: close({
 		SolutionKey!: =~"^[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}$" |
 			fn.#StringExpression
@@ -50,37 +50,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) |
 	fn.#ObjectExpression
 	ServiceAccessSecurityGroups?: close({
-		SecurityGroups?: list.MaxItems(2) & [
-			..._#defs."/$defs/Properties/definitions/SecurityGroupId" | fn.#StringExpression
-		] |
+		SecurityGroups?: list.MaxItems(2) & [..._#defs."/$defs/Properties/definitions/SecurityGroupId"] |
 			fn.#ListExpression
 	}) |
 		fn.#ObjectExpression
 	ServiceAccessSubnetId!: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[a-f0-9]{8}([a-f0-9]{9})?$" |
 	fn.#StringExpression
-	SiteId?: string | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TermsAccepted!: bool | fn.#BooleanExpression
+	SiteId?:        string | fn.#StringExpression
+	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TermsAccepted!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VcfHostnames?: close({
-		CloudBuilder!: _#defs."/$defs/Properties/definitions/HostName" | fn.#StringExpression
-		Nsx!:          _#defs."/$defs/Properties/definitions/HostName" | fn.#StringExpression
-		NsxEdge1!:     _#defs."/$defs/Properties/definitions/HostName" | fn.#StringExpression
-		NsxEdge2!:     _#defs."/$defs/Properties/definitions/HostName" | fn.#StringExpression
-		NsxManager1!:  _#defs."/$defs/Properties/definitions/HostName" | fn.#StringExpression
-		NsxManager2!:  _#defs."/$defs/Properties/definitions/HostName" | fn.#StringExpression
-		NsxManager3!:  _#defs."/$defs/Properties/definitions/HostName" | fn.#StringExpression
-		SddcManager!:  _#defs."/$defs/Properties/definitions/HostName" | fn.#StringExpression
-		VCenter!:      _#defs."/$defs/Properties/definitions/HostName" | fn.#StringExpression
+		CloudBuilder!: _#defs."/$defs/Properties/definitions/HostName"
+		Nsx!:          _#defs."/$defs/Properties/definitions/HostName"
+		NsxEdge1!:     _#defs."/$defs/Properties/definitions/HostName"
+		NsxEdge2!:     _#defs."/$defs/Properties/definitions/HostName"
+		NsxManager1!:  _#defs."/$defs/Properties/definitions/HostName"
+		NsxManager2!:  _#defs."/$defs/Properties/definitions/HostName"
+		NsxManager3!:  _#defs."/$defs/Properties/definitions/HostName"
+		SddcManager!:  _#defs."/$defs/Properties/definitions/HostName"
+		VCenter!:      _#defs."/$defs/Properties/definitions/HostName"
 	}) |
 	fn.#ObjectExpression
 	VcfVersion!: "VCF-5.2.1" | "VCF-5.2.2" | "SELF_DEPLOYED" | fn.#StringExpression
-	VpcId!: strings.MaxRunes(21) & strings.MinRunes(12) & =~"^vpc-[a-f0-9]{8}([a-f0-9]{9})?$" | fn.#StringExpression
+	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(21) &
+	strings.MinRunes(12) &
+	=~"^vpc-[a-f0-9]{8}([a-f0-9]{9})?$" |
+	fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Check": close({
 	ImpairedSince?: string | fn.#StringExpression
-	Result!:        _#defs."/$defs/Properties/definitions/CheckResult" | fn.#StringExpression
+	Result!:        _#defs."/$defs/Properties/definitions/CheckResult"
 	Type!:          "KEY_REUSE" | "KEY_COVERAGE" | "REACHABILITY" | "VCF_VERSION" | "HOST_COUNT" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -108,7 +109,7 @@ _#defs: "/$defs/Properties/definitions/HostInfoForCreate": close({
 	{}
 	DedicatedHostId?: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^h-[a-f0-9]{8}([a-f0-9]{9})?$" |
 	fn.#StringExpression
-	HostName!:     _#defs."/$defs/Properties/definitions/HostName" | fn.#StringExpression
+	HostName!:     _#defs."/$defs/Properties/definitions/HostName"
 	InstanceType!: "i4i.metal" | "i7i.metal-24xl" | "i7i.metal-48xl" | fn.#StringExpression
 	KeyName!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	"PlacementGroupId"?: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^pg-[a-f0-9]{8}([a-f0-9]{9})?$" |
@@ -135,7 +136,8 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/Secret": close({SecretArn?: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": strings.MaxRunes(25) &
+_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(25) &
 strings.MinRunes(3) &
 =~"^sg-[0-9a-zA-Z]*$" |
 fn.#StringExpression

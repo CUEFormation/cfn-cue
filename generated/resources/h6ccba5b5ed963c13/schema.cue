@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,8 +22,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Content!:                string | fn.#StringExpression
 	ContentType!:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Description?:            strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	LatestVersionNumber?:    int | fn.#NumberExpression
-	VersionLabel?:           strings.MaxRunes(64) & strings.MinRunes(0) & =~"^$|.*[^0-9].*" | fn.#StringExpression
+	LatestVersionNumber?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VersionLabel?: strings.MaxRunes(64) & strings.MinRunes(0) & =~"^$|.*[^0-9].*" | fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::AppConfig::HostedConfigurationVersion"

@@ -59,7 +59,7 @@ import (
 })
 
 _#defs: "/$defs/Properties/definitions/S3Location": null | bool | number | string | [...] | {
-	RoleArn?: _
+	RoleArn?: null | bool | number | =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" | [...] | {...}
 	...
 }
 
@@ -79,7 +79,7 @@ _#defs: "/$defs/Properties/definitions/StorageLocation": close({
 
 	// The Amazon Resource Name (ARN) for an IAM role that allows Amazon GameLift to
 	// access the S3 bucket.
-	RoleArn!: strings.MinRunes(1)
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1)
 })
 
 // A key-value pair to associate with a resource.

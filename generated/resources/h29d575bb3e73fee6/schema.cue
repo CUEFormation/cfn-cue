@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -11,10 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Pinpoint::ApplicationSettings
 #Properties: close({
 	ApplicationId!:            string | fn.#StringExpression
-	CampaignHook?:             _#defs."/$defs/Properties/definitions/CampaignHook" | fn.#ObjectExpression
-	CloudWatchMetricsEnabled?: bool | fn.#BooleanExpression
-	Limits?:                   _#defs."/$defs/Properties/definitions/Limits" | fn.#ObjectExpression
-	QuietTime?:                _#defs."/$defs/Properties/definitions/QuietTime" | fn.#ObjectExpression
+	CampaignHook?:             _#defs."/$defs/Properties/definitions/CampaignHook"
+	CloudWatchMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Limits?:                   _#defs."/$defs/Properties/definitions/Limits"
+	QuietTime?:                _#defs."/$defs/Properties/definitions/QuietTime"
 })
 
 _#defs: "/$defs/Properties/definitions/CampaignHook": close({
@@ -25,10 +29,62 @@ _#defs: "/$defs/Properties/definitions/CampaignHook": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Limits": close({
-	Daily?:             int | fn.#NumberExpression
-	MaximumDuration?:   int | fn.#NumberExpression
-	MessagesPerSecond?: int | fn.#NumberExpression
-	Total?:             int | fn.#NumberExpression
+	Daily?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaximumDuration?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MessagesPerSecond?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Total?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

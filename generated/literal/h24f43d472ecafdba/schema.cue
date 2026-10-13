@@ -29,7 +29,7 @@ import (
 	AgentName!: =~"^([0-9a-zA-Z][_-]?){1,100}$"
 
 	// ARN of a IAM role.
-	AgentResourceRoleArn?: strings.MaxRunes(2048)
+	AgentResourceRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MaxRunes(2048)
 	AgentStatus?:          _#defs."/$defs/Properties/definitions/AgentStatus"
 
 	// Draft Agent Version.

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -16,28 +16,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // that you can publish for use in different parts of your workflow, such as
 // development, beta deployment, and production.
 #Properties: close({
-	BotId!: _#defs."/$defs/Properties/definitions/Id" | fn.#StringExpression
-	BotVersionLocaleSpecification!: _#defs."/$defs/Properties/definitions/BotVersionLocaleSpecificationList" |
-		fn.#ListExpression
-	Description?: _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
+	BotId!:                         _#defs."/$defs/Properties/definitions/Id"
+	BotVersionLocaleSpecification!: _#defs."/$defs/Properties/definitions/BotVersionLocaleSpecificationList"
+	Description?:                   _#defs."/$defs/Properties/definitions/Description"
 })
 
 _#defs: "/$defs/Properties/definitions/BotVersion": strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]+)$" |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/BotVersionLocaleDetails": close(
-	{SourceBotVersion!: _#defs."/$defs/Properties/definitions/BotVersion" | fn.#StringExpression},
+	{SourceBotVersion!: _#defs."/$defs/Properties/definitions/BotVersion"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BotVersionLocaleSpecification": close({
-	BotVersionLocaleDetails!: _#defs."/$defs/Properties/definitions/BotVersionLocaleDetails" | fn.#ObjectExpression
-	LocaleId!:                _#defs."/$defs/Properties/definitions/LocaleId" | fn.#StringExpression
+	BotVersionLocaleDetails!: _#defs."/$defs/Properties/definitions/BotVersionLocaleDetails"
+	LocaleId!:                _#defs."/$defs/Properties/definitions/LocaleId"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BotVersionLocaleSpecificationList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/BotVersionLocaleSpecification" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/BotVersionLocaleSpecification"
 ] |
 	fn.#ListExpression
 

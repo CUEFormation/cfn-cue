@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,18 +19,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of the AWS::QuickSight::Topic Resource Type.
 #Properties: close({
 	AwsAccountId?:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	ConfigOptions?:      _#defs."/$defs/Properties/definitions/TopicConfigOptions" | fn.#ObjectExpression
-	CustomInstructions?: _#defs."/$defs/Properties/definitions/CustomInstructions" | fn.#ObjectExpression
-	DataSets?: [..._#defs."/$defs/Properties/definitions/DatasetMetadata" | fn.#ObjectExpression] | fn.#ListExpression
-	Description?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	FolderArns?:  list.MaxItems(20) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	Name?:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	ConfigOptions?:      _#defs."/$defs/Properties/definitions/TopicConfigOptions"
+	CustomInstructions?: _#defs."/$defs/Properties/definitions/CustomInstructions"
+	DataSets?:           [..._#defs."/$defs/Properties/definitions/DatasetMetadata"] | fn.#ListExpression
+	Description?:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	FolderArns?:         list.MaxItems(20) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+	Name?:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TopicId?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9-_.\\\\+]*$" | fn.#StringExpression
-	UserExperienceVersion?: _#defs."/$defs/Properties/definitions/TopicUserExperienceVersion" | fn.#StringExpression
+	UserExperienceVersion?: _#defs."/$defs/Properties/definitions/TopicUserExperienceVersion"
 })
 
 _#defs: "/$defs/Properties/definitions/AggregationFunctionParameters": close({
@@ -74,10 +75,9 @@ _#defs: "/$defs/Properties/definitions/ColumnOrderingType": "GREATER_IS_BETTER" 
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ComparativeOrder": close({
-	SpecifedOrder?: [...string | fn.#StringExpression] | fn.#ListExpression
-	TreatUndefinedSpecifiedValues?: _#defs."/$defs/Properties/definitions/UndefinedSpecifiedValueType" |
-		fn.#StringExpression
-	UseOrdering?: _#defs."/$defs/Properties/definitions/ColumnOrderingType" | fn.#StringExpression
+	SpecifedOrder?:                 [...string | fn.#StringExpression] | fn.#ListExpression
+	TreatUndefinedSpecifiedValues?: _#defs."/$defs/Properties/definitions/UndefinedSpecifiedValueType"
+	UseOrdering?:                   _#defs."/$defs/Properties/definitions/ColumnOrderingType"
 }) |
 fn.#ObjectExpression
 
@@ -89,22 +89,20 @@ _#defs: "/$defs/Properties/definitions/CustomInstructions": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataAggregation": close({
-	DatasetRowDateGranularity?: _#defs."/$defs/Properties/definitions/TopicTimeGranularity" | fn.#StringExpression
+	DatasetRowDateGranularity?: _#defs."/$defs/Properties/definitions/TopicTimeGranularity"
 	DefaultDateColumnName?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DatasetMetadata": close({
-	CalculatedFields?: [..._#defs."/$defs/Properties/definitions/TopicCalculatedField" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Columns?: [..._#defs."/$defs/Properties/definitions/TopicColumn" | fn.#ObjectExpression] | fn.#ListExpression
-	DataAggregation?:    _#defs."/$defs/Properties/definitions/DataAggregation" | fn.#ObjectExpression
+	CalculatedFields?:   [..._#defs."/$defs/Properties/definitions/TopicCalculatedField"] | fn.#ListExpression
+	Columns?:            [..._#defs."/$defs/Properties/definitions/TopicColumn"] | fn.#ListExpression
+	DataAggregation?:    _#defs."/$defs/Properties/definitions/DataAggregation"
 	DatasetArn!:         string | fn.#StringExpression
 	DatasetDescription?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	DatasetName?:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Filters?: [..._#defs."/$defs/Properties/definitions/TopicFilter" | fn.#ObjectExpression] | fn.#ListExpression
-	NamedEntities?: [..._#defs."/$defs/Properties/definitions/TopicNamedEntity" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Filters?:            [..._#defs."/$defs/Properties/definitions/TopicFilter"] | fn.#ListExpression
+	NamedEntities?:      [..._#defs."/$defs/Properties/definitions/TopicNamedEntity"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -122,8 +120,8 @@ _#defs: "/$defs/Properties/definitions/DefaultAggregation": "SUM" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultFormatting": close({
-	DisplayFormat?:        _#defs."/$defs/Properties/definitions/DisplayFormat" | fn.#StringExpression
-	DisplayFormatOptions?: _#defs."/$defs/Properties/definitions/DisplayFormatOptions" | fn.#ObjectExpression
+	DisplayFormat?:        _#defs."/$defs/Properties/definitions/DisplayFormat"
+	DisplayFormatOptions?: _#defs."/$defs/Properties/definitions/DisplayFormatOptions"
 }) |
 fn.#ObjectExpression
 
@@ -136,18 +134,36 @@ _#defs: "/$defs/Properties/definitions/DisplayFormat": "AUTO" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DisplayFormatOptions": close({
-	BlankCellFormat?:    strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	CurrencySymbol?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	DateFormat?:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	DecimalSeparator?:   _#defs."/$defs/Properties/definitions/TopicNumericSeparatorSymbol" | fn.#StringExpression
-	FractionDigits?:     number | fn.#NumberExpression
+	BlankCellFormat?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	CurrencySymbol?:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	DateFormat?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	DecimalSeparator?: _#defs."/$defs/Properties/definitions/TopicNumericSeparatorSymbol"
+	FractionDigits?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	GroupingSeparator?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	NegativeFormat?:     _#defs."/$defs/Properties/definitions/NegativeFormat" | fn.#ObjectExpression
+	NegativeFormat?:     _#defs."/$defs/Properties/definitions/NegativeFormat"
 	Prefix?:             strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	Suffix?:             strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	UnitScaler?:         _#defs."/$defs/Properties/definitions/NumberScale" | fn.#StringExpression
-	UseBlankCellFormat?: bool | fn.#BooleanExpression
-	UseGrouping?:        bool | fn.#BooleanExpression
+	UnitScaler?:         _#defs."/$defs/Properties/definitions/NumberScale"
+	UseBlankCellFormat?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UseGrouping?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -174,17 +190,16 @@ _#defs: "/$defs/Properties/definitions/NamedEntityAggType": "SUM" |
 
 _#defs: "/$defs/Properties/definitions/NamedEntityDefinition": close({
 	FieldName?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Metric?:        _#defs."/$defs/Properties/definitions/NamedEntityDefinitionMetric" | fn.#ObjectExpression
+	Metric?:        _#defs."/$defs/Properties/definitions/NamedEntityDefinitionMetric"
 	PropertyName?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	PropertyRole?:  _#defs."/$defs/Properties/definitions/PropertyRole" | fn.#StringExpression
-	PropertyUsage?: _#defs."/$defs/Properties/definitions/PropertyUsage" | fn.#StringExpression
+	PropertyRole?:  _#defs."/$defs/Properties/definitions/PropertyRole"
+	PropertyUsage?: _#defs."/$defs/Properties/definitions/PropertyUsage"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NamedEntityDefinitionMetric": close({
-	Aggregation?: _#defs."/$defs/Properties/definitions/NamedEntityAggType" | fn.#StringExpression
-	AggregationFunctionParameters?: _#defs."/$defs/Properties/definitions/AggregationFunctionParameters" |
-		fn.#ObjectExpression
+	Aggregation?:                   _#defs."/$defs/Properties/definitions/NamedEntityAggType"
+	AggregationFunctionParameters?: _#defs."/$defs/Properties/definitions/AggregationFunctionParameters"
 }) |
 fn.#ObjectExpression
 
@@ -239,7 +254,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/SemanticEntityType": close({
 	SubTypeName?:    strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	TypeName?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	TypeParameters?: _#defs."/$defs/Properties/definitions/TypeParameters" | fn.#ObjectExpression
+	TypeParameters?: _#defs."/$defs/Properties/definitions/TypeParameters"
 }) |
 fn.#ObjectExpression
 
@@ -250,7 +265,7 @@ _#defs: "/$defs/Properties/definitions/SemanticType": close({
 	TruthyCellValue?:         string | fn.#StringExpression
 	TruthyCellValueSynonyms?: [...string | fn.#StringExpression] | fn.#ListExpression
 	TypeName?:                strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	TypeParameters?:          _#defs."/$defs/Properties/definitions/TypeParameters" | fn.#ObjectExpression
+	TypeParameters?:          _#defs."/$defs/Properties/definitions/TypeParameters"
 }) |
 fn.#ObjectExpression
 
@@ -261,144 +276,132 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopicCalculatedField": close({
-	Aggregation?: _#defs."/$defs/Properties/definitions/DefaultAggregation" | fn.#StringExpression
-	AllowedAggregations?: [..._#defs."/$defs/Properties/definitions/AuthorSpecifiedAggregation" | fn.#StringExpression] |
-		fn.#ListExpression
+	Aggregation?:         _#defs."/$defs/Properties/definitions/DefaultAggregation"
+	AllowedAggregations?: [..._#defs."/$defs/Properties/definitions/AuthorSpecifiedAggregation"] | fn.#ListExpression
 	CalculatedFieldDescription?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
 	CalculatedFieldName!:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	CalculatedFieldSynonyms?: [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] |
 	fn.#ListExpression
-	CellValueSynonyms?: [..._#defs."/$defs/Properties/definitions/CellValueSynonym" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ColumnDataRole?:         _#defs."/$defs/Properties/definitions/ColumnDataRole" | fn.#StringExpression
-	ComparativeOrder?:       _#defs."/$defs/Properties/definitions/ComparativeOrder" | fn.#ObjectExpression
-	DefaultFormatting?:      _#defs."/$defs/Properties/definitions/DefaultFormatting" | fn.#ObjectExpression
-	DisableIndexing?:        bool | fn.#BooleanExpression
+	CellValueSynonyms?:      [..._#defs."/$defs/Properties/definitions/CellValueSynonym"] | fn.#ListExpression
+	ColumnDataRole?:         _#defs."/$defs/Properties/definitions/ColumnDataRole"
+	ComparativeOrder?:       _#defs."/$defs/Properties/definitions/ComparativeOrder"
+	DefaultFormatting?:      _#defs."/$defs/Properties/definitions/DefaultFormatting"
+	DisableIndexing?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Expression!:             strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	IsIncludedInTopic?:      bool | fn.#BooleanExpression
-	NeverAggregateInFilter?: bool | fn.#BooleanExpression
-	NonAdditive?:            bool | fn.#BooleanExpression
-	NotAllowedAggregations?: [
-		..._#defs."/$defs/Properties/definitions/AuthorSpecifiedAggregation" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SemanticType?:    _#defs."/$defs/Properties/definitions/SemanticType" | fn.#ObjectExpression
-	TimeGranularity?: _#defs."/$defs/Properties/definitions/TopicTimeGranularity" | fn.#StringExpression
+	IsIncludedInTopic?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NeverAggregateInFilter?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NonAdditive?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NotAllowedAggregations?: [..._#defs."/$defs/Properties/definitions/AuthorSpecifiedAggregation"] | fn.#ListExpression
+	SemanticType?:           _#defs."/$defs/Properties/definitions/SemanticType"
+	TimeGranularity?:        _#defs."/$defs/Properties/definitions/TopicTimeGranularity"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopicCategoryFilter": close({
-	CategoryFilterFunction?: _#defs."/$defs/Properties/definitions/CategoryFilterFunction" | fn.#StringExpression
-	CategoryFilterType?:     _#defs."/$defs/Properties/definitions/CategoryFilterType" | fn.#StringExpression
-	Constant?:               _#defs."/$defs/Properties/definitions/TopicCategoryFilterConstant" | fn.#ObjectExpression
-	Inverse?:                bool | fn.#BooleanExpression
+	CategoryFilterFunction?: _#defs."/$defs/Properties/definitions/CategoryFilterFunction"
+	CategoryFilterType?:     _#defs."/$defs/Properties/definitions/CategoryFilterType"
+	Constant?:               _#defs."/$defs/Properties/definitions/TopicCategoryFilterConstant"
+	Inverse?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopicCategoryFilterConstant": close({
-	CollectiveConstant?: _#defs."/$defs/Properties/definitions/CollectiveConstant" | fn.#ObjectExpression
-	ConstantType?:       _#defs."/$defs/Properties/definitions/ConstantType" | fn.#StringExpression
+	CollectiveConstant?: _#defs."/$defs/Properties/definitions/CollectiveConstant"
+	ConstantType?:       _#defs."/$defs/Properties/definitions/ConstantType"
 	SingularConstant?:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopicColumn": close({
-	Aggregation?: _#defs."/$defs/Properties/definitions/DefaultAggregation" | fn.#StringExpression
-	AllowedAggregations?: [..._#defs."/$defs/Properties/definitions/AuthorSpecifiedAggregation" | fn.#StringExpression] |
-		fn.#ListExpression
-	CellValueSynonyms?: [..._#defs."/$defs/Properties/definitions/CellValueSynonym" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ColumnDataRole?:     _#defs."/$defs/Properties/definitions/ColumnDataRole" | fn.#StringExpression
-	ColumnDescription?:  strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	ColumnFriendlyName?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	ColumnName!:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	ColumnSynonyms?:     [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
-	ComparativeOrder?:   _#defs."/$defs/Properties/definitions/ComparativeOrder" | fn.#ObjectExpression
-	DefaultFormatting?:  _#defs."/$defs/Properties/definitions/DefaultFormatting" | fn.#ObjectExpression
-	DisableIndexing?:    bool | fn.#BooleanExpression
-	IsIncludedInTopic?:  bool | fn.#BooleanExpression
-	NeverAggregateInFilter?: bool | fn.#BooleanExpression
-	NonAdditive?:            bool | fn.#BooleanExpression
-	NotAllowedAggregations?: [
-		..._#defs."/$defs/Properties/definitions/AuthorSpecifiedAggregation" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SemanticType?:    _#defs."/$defs/Properties/definitions/SemanticType" | fn.#ObjectExpression
-	TimeGranularity?: _#defs."/$defs/Properties/definitions/TopicTimeGranularity" | fn.#StringExpression
+	Aggregation?:         _#defs."/$defs/Properties/definitions/DefaultAggregation"
+	AllowedAggregations?: [..._#defs."/$defs/Properties/definitions/AuthorSpecifiedAggregation"] | fn.#ListExpression
+	CellValueSynonyms?:   [..._#defs."/$defs/Properties/definitions/CellValueSynonym"] | fn.#ListExpression
+	ColumnDataRole?:      _#defs."/$defs/Properties/definitions/ColumnDataRole"
+	ColumnDescription?:   strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
+	ColumnFriendlyName?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	ColumnName!:          strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	ColumnSynonyms?:      [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
+	ComparativeOrder?:    _#defs."/$defs/Properties/definitions/ComparativeOrder"
+	DefaultFormatting?:   _#defs."/$defs/Properties/definitions/DefaultFormatting"
+	DisableIndexing?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IsIncludedInTopic?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NeverAggregateInFilter?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NonAdditive?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NotAllowedAggregations?: [..._#defs."/$defs/Properties/definitions/AuthorSpecifiedAggregation"] | fn.#ListExpression
+	SemanticType?:           _#defs."/$defs/Properties/definitions/SemanticType"
+	TimeGranularity?:        _#defs."/$defs/Properties/definitions/TopicTimeGranularity"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopicConfigOptions": close(
-	{QBusinessInsightsEnabled?: bool | fn.#BooleanExpression},
+	{QBusinessInsightsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopicDateRangeFilter": close({
-	Constant?:  _#defs."/$defs/Properties/definitions/TopicRangeFilterConstant" | fn.#ObjectExpression
-	Inclusive?: bool | fn.#BooleanExpression
+	Constant?:  _#defs."/$defs/Properties/definitions/TopicRangeFilterConstant"
+	Inclusive?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopicDetails": close({
-	ConfigOptions?: _#defs."/$defs/Properties/definitions/TopicConfigOptions" | fn.#ObjectExpression
-	DataSets?: [..._#defs."/$defs/Properties/definitions/DatasetMetadata" | fn.#ObjectExpression] | fn.#ListExpression
+	ConfigOptions?:         _#defs."/$defs/Properties/definitions/TopicConfigOptions"
+	DataSets?:              [..._#defs."/$defs/Properties/definitions/DatasetMetadata"] | fn.#ListExpression
 	Description?:           strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	Name?:                  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	UserExperienceVersion?: _#defs."/$defs/Properties/definitions/TopicUserExperienceVersion" | fn.#StringExpression
+	UserExperienceVersion?: _#defs."/$defs/Properties/definitions/TopicUserExperienceVersion"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopicFilter": close({
-	CategoryFilter?:        _#defs."/$defs/Properties/definitions/TopicCategoryFilter" | fn.#ObjectExpression
-	DateRangeFilter?:       _#defs."/$defs/Properties/definitions/TopicDateRangeFilter" | fn.#ObjectExpression
-	FilterClass?:           _#defs."/$defs/Properties/definitions/FilterClass" | fn.#StringExpression
+	CategoryFilter?:        _#defs."/$defs/Properties/definitions/TopicCategoryFilter"
+	DateRangeFilter?:       _#defs."/$defs/Properties/definitions/TopicDateRangeFilter"
+	FilterClass?:           _#defs."/$defs/Properties/definitions/FilterClass"
 	FilterDescription?:     strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
 	FilterName!:            strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	FilterSynonyms?:        [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
-	FilterType?:            _#defs."/$defs/Properties/definitions/NamedFilterType" | fn.#StringExpression
-	NumericEqualityFilter?: _#defs."/$defs/Properties/definitions/TopicNumericEqualityFilter" | fn.#ObjectExpression
-	NumericRangeFilter?:    _#defs."/$defs/Properties/definitions/TopicNumericRangeFilter" | fn.#ObjectExpression
+	FilterType?:            _#defs."/$defs/Properties/definitions/NamedFilterType"
+	NumericEqualityFilter?: _#defs."/$defs/Properties/definitions/TopicNumericEqualityFilter"
+	NumericRangeFilter?:    _#defs."/$defs/Properties/definitions/TopicNumericRangeFilter"
 	OperandFieldName!:      strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	RelativeDateFilter?:    _#defs."/$defs/Properties/definitions/TopicRelativeDateFilter" | fn.#ObjectExpression
+	RelativeDateFilter?:    _#defs."/$defs/Properties/definitions/TopicRelativeDateFilter"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopicNamedEntity": close({
-	Definition?: [..._#defs."/$defs/Properties/definitions/NamedEntityDefinition" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Definition?:         [..._#defs."/$defs/Properties/definitions/NamedEntityDefinition"] | fn.#ListExpression
 	EntityDescription?:  strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
 	EntityName!:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	EntitySynonyms?:     [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
-	SemanticEntityType?: _#defs."/$defs/Properties/definitions/SemanticEntityType" | fn.#ObjectExpression
+	SemanticEntityType?: _#defs."/$defs/Properties/definitions/SemanticEntityType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopicNumericEqualityFilter": close({
-	Aggregation?: _#defs."/$defs/Properties/definitions/NamedFilterAggType" | fn.#StringExpression
-	Constant?:    _#defs."/$defs/Properties/definitions/TopicSingularFilterConstant" | fn.#ObjectExpression
+	Aggregation?: _#defs."/$defs/Properties/definitions/NamedFilterAggType"
+	Constant?:    _#defs."/$defs/Properties/definitions/TopicSingularFilterConstant"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopicNumericRangeFilter": close({
-	Aggregation?: _#defs."/$defs/Properties/definitions/NamedFilterAggType" | fn.#StringExpression
-	Constant?:    _#defs."/$defs/Properties/definitions/TopicRangeFilterConstant" | fn.#ObjectExpression
-	Inclusive?:   bool | fn.#BooleanExpression
+	Aggregation?: _#defs."/$defs/Properties/definitions/NamedFilterAggType"
+	Constant?:    _#defs."/$defs/Properties/definitions/TopicRangeFilterConstant"
+	Inclusive?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopicNumericSeparatorSymbol": "COMMA" | "DOT" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TopicRangeFilterConstant": close({
-	ConstantType?:  _#defs."/$defs/Properties/definitions/ConstantType" | fn.#StringExpression
-	RangeConstant?: _#defs."/$defs/Properties/definitions/RangeConstant" | fn.#ObjectExpression
+	ConstantType?:  _#defs."/$defs/Properties/definitions/ConstantType"
+	RangeConstant?: _#defs."/$defs/Properties/definitions/RangeConstant"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopicRelativeDateFilter": close({
-	Constant?: _#defs."/$defs/Properties/definitions/TopicSingularFilterConstant" | fn.#ObjectExpression
-	RelativeDateFilterFunction?: _#defs."/$defs/Properties/definitions/TopicRelativeDateFilterFunction" |
-		fn.#StringExpression
-	TimeGranularity?: _#defs."/$defs/Properties/definitions/TopicTimeGranularity" | fn.#StringExpression
+	Constant?:                   _#defs."/$defs/Properties/definitions/TopicSingularFilterConstant"
+	RelativeDateFilterFunction?: _#defs."/$defs/Properties/definitions/TopicRelativeDateFilterFunction"
+	TimeGranularity?:            _#defs."/$defs/Properties/definitions/TopicTimeGranularity"
 }) |
 fn.#ObjectExpression
 
@@ -410,7 +413,7 @@ _#defs: "/$defs/Properties/definitions/TopicRelativeDateFilterFunction": "PREVIO
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TopicSingularFilterConstant": close({
-	ConstantType?:     _#defs."/$defs/Properties/definitions/ConstantType" | fn.#StringExpression
+	ConstantType?:     _#defs."/$defs/Properties/definitions/ConstantType"
 	SingularConstant?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,12 +14,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::CustomerProfiles::DomainObjectType
 #Properties: close({
-	Description?:    _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	DomainName!:     _#defs."/$defs/Properties/definitions/DomainName" | fn.#StringExpression
-	EncryptionKey?:  _#defs."/$defs/Properties/definitions/EncryptionKey" | fn.#StringExpression
-	Fields!:         _#defs."/$defs/Properties/definitions/DomainObjectTypeFields" | fn.#ObjectExpression
-	ObjectTypeName!: _#defs."/$defs/Properties/definitions/ObjectTypeName" | fn.#StringExpression
-	Tags?:           _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	Description?:    _#defs."/$defs/Properties/definitions/Description"
+	DomainName!:     _#defs."/$defs/Properties/definitions/DomainName"
+	EncryptionKey?:  _#defs."/$defs/Properties/definitions/EncryptionKey"
+	Fields!:         _#defs."/$defs/Properties/definitions/DomainObjectTypeFields"
+	ObjectTypeName!: _#defs."/$defs/Properties/definitions/ObjectTypeName"
+	Tags?:           _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(10000) & strings.MinRunes(1) |
@@ -38,7 +38,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DomainObjectTypeFields": close({
 
-	{[=~"^[a-zA-Z0-9_.-]+$"]: _#defs."/$defs/Properties/definitions/DomainObjectTypeField" | fn.#ObjectExpression}}) |
+	{[=~"^[a-zA-Z0-9_.-]+$"]: _#defs."/$defs/Properties/definitions/DomainObjectTypeField"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionKey": strings.MaxRunes(255) & strings.MinRunes(0) |
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {

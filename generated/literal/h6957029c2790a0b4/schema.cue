@@ -60,10 +60,18 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // use with your web app.
 _#defs: "/$defs/Properties/definitions/Vpc": close({
 	// The IP address type for the VPC endpoint used by the web app.
-	IpAddressType?:    "IPV4" | "DUALSTACK"
-	SecurityGroupIds?: list.MaxItems(10) & [...strings.MaxRunes(20) & strings.MinRunes(11) & =~"^sg-[0-9a-f]{8,17}$"]
+	IpAddressType?: "IPV4" | "DUALSTACK"
+	SecurityGroupIds?: list.MaxItems(10) & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(20) &
+		strings.MinRunes(11) &
+		=~"^sg-[0-9a-f]{8,17}$"
+	]
 	SubnetIds?: list.MaxItems(10) & [...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[0-9a-f]{8,17}$"]
-	VpcId?:     strings.MaxRunes(21) & strings.MinRunes(12) & =~"^vpc-[0-9a-f]{8,17}$"
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(21) &
+	strings.MinRunes(12) &
+	=~"^vpc-[0-9a-f]{8,17}$"
 })
 
 _#defs: "/$defs/Properties/definitions/WebAppCustomization": close({

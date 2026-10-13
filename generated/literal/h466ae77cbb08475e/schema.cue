@@ -20,7 +20,7 @@ import "strings"
 // encryption.
 _#defs: "/$defs/Properties/definitions/ConnectionPasswordEncryption": close({
 	// An AWS KMS key that is used to encrypt the connection password.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// When the ReturnConnectionPasswordEncrypted flag is set to 'true', passwords
 	// remain encrypted in the responses of GetConnection and GetConnections. This

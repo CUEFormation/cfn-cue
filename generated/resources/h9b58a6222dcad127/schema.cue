@@ -13,10 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Kinesis::ResourcePolicy
 #Properties: close({
-	ResourceArn!: (string | string) &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"arn:aws.*:kinesis:.*:\\d{12}:stream/\\S+" |
+	ResourceArn!: string & strings.MaxRunes(2048) & strings.MinRunes(1) & =~"arn:aws.*:kinesis:.*:\\d{12}:stream/\\S+" |
 	fn.#StringExpression
 	ResourcePolicy!: {[string]: fn.#Value} | fn.#ObjectExpression
 })

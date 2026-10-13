@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,9 +14,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SecurityLake::Subscriber
 #Properties: close({
-	AccessTypes!: _#defs."/$defs/Properties/definitions/AccessTypes" | fn.#ListExpression
-	DataLakeArn!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Sources!:     [..._#defs."/$defs/Properties/definitions/Source" | fn.#ValueExpression] | fn.#ListExpression
+	AccessTypes!:           _#defs."/$defs/Properties/definitions/AccessTypes"
+	DataLakeArn!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Sources!:               [..._#defs."/$defs/Properties/definitions/Source"] | fn.#ListExpression
 	SubscriberDescription?: =~"^[\\\\\\w\\s\\-_:/,.@=+]*$" | fn.#StringExpression
 	SubscriberIdentity!: close({
 		ExternalId!: strings.MaxRunes(1224) & strings.MinRunes(2) & =~"^[\\w+=,.@:/-]*$" | fn.#StringExpression
@@ -24,8 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) |
 	fn.#ObjectExpression
 	SubscriberName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\\\\\w\\s\\-_:/,.@=+]*$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:           list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccessTypes": list.MinItems(1) & list.UniqueItems() & [
@@ -61,8 +60,8 @@ number |
 string |
 [...] |
 close({
-	AwsLogSource?:    _#defs."/$defs/Properties/definitions/AwsLogSource" | fn.#ObjectExpression
-	CustomLogSource?: _#defs."/$defs/Properties/definitions/CustomLogSource" | fn.#ObjectExpression
+	AwsLogSource?:    _#defs."/$defs/Properties/definitions/AwsLogSource"
+	CustomLogSource?: _#defs."/$defs/Properties/definitions/CustomLogSource"
 })) |
 fn.#ValueExpression
 

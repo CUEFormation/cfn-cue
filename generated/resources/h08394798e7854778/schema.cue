@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,60 +18,55 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::B2BI::Transformer Resource Type
 #Properties: close({
-	EdiType?:          _#defs."/$defs/Properties/definitions/EdiType" | fn.#ValueExpression
-	FileFormat?:       _#defs."/$defs/Properties/definitions/FileFormat" | fn.#StringExpression
-	InputConversion?:  _#defs."/$defs/Properties/definitions/InputConversion" | fn.#ObjectExpression
-	Mapping?:          _#defs."/$defs/Properties/definitions/Mapping" | fn.#ObjectExpression
+	EdiType?:          _#defs."/$defs/Properties/definitions/EdiType"
+	FileFormat?:       _#defs."/$defs/Properties/definitions/FileFormat"
+	InputConversion?:  _#defs."/$defs/Properties/definitions/InputConversion"
+	Mapping?:          _#defs."/$defs/Properties/definitions/Mapping"
 	MappingTemplate?:  strings.MaxRunes(350000) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:             strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,512}$" | fn.#StringExpression
-	OutputConversion?: _#defs."/$defs/Properties/definitions/OutputConversion" | fn.#ObjectExpression
+	OutputConversion?: _#defs."/$defs/Properties/definitions/OutputConversion"
 	SampleDocument?:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	SampleDocuments?:  _#defs."/$defs/Properties/definitions/SampleDocuments" | fn.#ObjectExpression
-	Status!:           _#defs."/$defs/Properties/definitions/TransformerStatus" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	SampleDocuments?:  _#defs."/$defs/Properties/definitions/SampleDocuments"
+	Status!:           _#defs."/$defs/Properties/definitions/TransformerStatus"
+	Tags?:             list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AdvancedOptions": close(
-	{X12?: _#defs."/$defs/Properties/definitions/X12AdvancedOptions" | fn.#ObjectExpression},
+	{X12?: _#defs."/$defs/Properties/definitions/X12AdvancedOptions"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EdiType": close(
-	{X12Details!: _#defs."/$defs/Properties/definitions/X12Details" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/EdiType": close({X12Details!: _#defs."/$defs/Properties/definitions/X12Details"}) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/ElementRequirement": "OPTIONAL" | "MANDATORY" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/FileFormat": "XML" | "JSON" | "NOT_USED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FormatOptions": close(
-	{X12!: _#defs."/$defs/Properties/definitions/X12Details" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/FormatOptions": close({X12!: _#defs."/$defs/Properties/definitions/X12Details"}) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/FromFormat": "X12" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/InputConversion": close({
-	AdvancedOptions?: _#defs."/$defs/Properties/definitions/AdvancedOptions" | fn.#ObjectExpression
-	FormatOptions?:   _#defs."/$defs/Properties/definitions/FormatOptions" | fn.#ValueExpression
-	FromFormat!:      _#defs."/$defs/Properties/definitions/FromFormat" | fn.#StringExpression
+	AdvancedOptions?: _#defs."/$defs/Properties/definitions/AdvancedOptions"
+	FormatOptions?:   _#defs."/$defs/Properties/definitions/FormatOptions"
+	FromFormat!:      _#defs."/$defs/Properties/definitions/FromFormat"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Mapping": close({
 	Template?:         strings.MaxRunes(350000) & strings.MinRunes(0) | fn.#StringExpression
-	TemplateLanguage!: _#defs."/$defs/Properties/definitions/MappingTemplateLanguage" | fn.#StringExpression
+	TemplateLanguage!: _#defs."/$defs/Properties/definitions/MappingTemplateLanguage"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MappingTemplateLanguage": "XSLT" | "JSONATA" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/OutputConversion": close({
-	AdvancedOptions?: _#defs."/$defs/Properties/definitions/AdvancedOptions" | fn.#ObjectExpression
-	FormatOptions?:   _#defs."/$defs/Properties/definitions/FormatOptions" | fn.#ValueExpression
-	ToFormat!:        _#defs."/$defs/Properties/definitions/ToFormat" | fn.#StringExpression
+	AdvancedOptions?: _#defs."/$defs/Properties/definitions/AdvancedOptions"
+	FormatOptions?:   _#defs."/$defs/Properties/definitions/FormatOptions"
+	ToFormat!:        _#defs."/$defs/Properties/definitions/ToFormat"
 }) |
 fn.#ObjectExpression
 
@@ -79,7 +78,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SampleDocuments": close({
 	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	Keys!: [..._#defs."/$defs/Properties/definitions/SampleDocumentKeys" | fn.#ObjectExpression] | fn.#ListExpression
+	Keys!:       [..._#defs."/$defs/Properties/definitions/SampleDocumentKeys"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -94,8 +93,8 @@ _#defs: "/$defs/Properties/definitions/ToFormat": "X12" | fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/TransformerStatus": "active" | "inactive" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/X12AdvancedOptions": close({
-	SplitOptions?:      _#defs."/$defs/Properties/definitions/X12SplitOptions" | fn.#ObjectExpression
-	ValidationOptions?: _#defs."/$defs/Properties/definitions/X12ValidationOptions" | fn.#ObjectExpression
+	SplitOptions?:      _#defs."/$defs/Properties/definitions/X12SplitOptions"
+	ValidationOptions?: _#defs."/$defs/Properties/definitions/X12ValidationOptions"
 }) |
 fn.#ObjectExpression
 
@@ -107,28 +106,66 @@ _#defs: "/$defs/Properties/definitions/X12CodeListValidationRule": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/X12Details": close({
-	TransactionSet?: _#defs."/$defs/Properties/definitions/X12TransactionSet" | fn.#StringExpression
-	Version?:        _#defs."/$defs/Properties/definitions/X12Version" | fn.#StringExpression
+	TransactionSet?: _#defs."/$defs/Properties/definitions/X12TransactionSet"
+	Version?:        _#defs."/$defs/Properties/definitions/X12Version"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/X12ElementLengthValidationRule": close({
 	ElementId!: strings.MaxRunes(4) & strings.MinRunes(4) & =~"^[0-9]{4}$" | fn.#StringExpression
-	MaxLength!: <=1000000 & >=1 | fn.#NumberExpression
-	MinLength!: <=1000000 & >=1 | fn.#NumberExpression
+	MaxLength!: <=1000000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1000000 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinLength!: <=1000000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1000000 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/X12ElementRequirementValidationRule": close({
 	ElementPosition!: =~"^[a-zA-Z0-9]+(?:-\\d{2})(?:-\\d{2})?$" | fn.#StringExpression
-	Requirement!:     _#defs."/$defs/Properties/definitions/ElementRequirement" | fn.#StringExpression
+	Requirement!:     _#defs."/$defs/Properties/definitions/ElementRequirement"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/X12SplitBy": "NONE" | "TRANSACTION" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/X12SplitOptions": close(
-	{SplitBy?: _#defs."/$defs/Properties/definitions/X12SplitBy" | fn.#StringExpression},
+	{SplitBy?: _#defs."/$defs/Properties/definitions/X12SplitBy"},
 ) |
 	fn.#ObjectExpression
 
@@ -476,21 +513,18 @@ _#defs: "/$defs/Properties/definitions/X12TransactionSet": "X12_100" |
 	"X12_999_X231" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/X12ValidationOptions": close({
-	ValidationRules?: [..._#defs."/$defs/Properties/definitions/X12ValidationRule" | fn.#ValueExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/X12ValidationOptions": close(
+	{ValidationRules?: [..._#defs."/$defs/Properties/definitions/X12ValidationRule"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/X12ValidationRule": matchN(1, [close(
-	{CodeListValidationRule!: _#defs."/$defs/Properties/definitions/X12CodeListValidationRule" | fn.#ObjectExpression},
-), close({
-	ElementLengthValidationRule!: _#defs."/$defs/Properties/definitions/X12ElementLengthValidationRule" |
-		fn.#ObjectExpression
-}), close({
-	ElementRequirementValidationRule!: _#defs."/$defs/Properties/definitions/X12ElementRequirementValidationRule" |
-		fn.#ObjectExpression
-})]) |
+	{CodeListValidationRule!: _#defs."/$defs/Properties/definitions/X12CodeListValidationRule"},
+), close(
+	{ElementLengthValidationRule!: _#defs."/$defs/Properties/definitions/X12ElementLengthValidationRule"},
+), close(
+	{ElementRequirementValidationRule!: _#defs."/$defs/Properties/definitions/X12ElementRequirementValidationRule"},
+)]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/X12Version": "VERSION_4010" |

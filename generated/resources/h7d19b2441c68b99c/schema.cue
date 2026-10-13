@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SageMaker::Cluster
 #Properties: close({
-	AutoScaling?: _#defs."/$defs/Properties/definitions/ClusterAutoScalingConfig" | fn.#ObjectExpression
+	AutoScaling?: _#defs."/$defs/Properties/definitions/ClusterAutoScalingConfig"
 	ClusterName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 	fn.#StringExpression
 	ClusterRole?: strings.MaxRunes(2048) &
@@ -23,29 +27,79 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	InstanceGroups?: list.MaxItems(100) & list.MinItems(1) & [...close({
 		AutoPatchConfig?: close({
-			DeploymentConfig?: _#defs."/$defs/Properties/definitions/DeploymentConfig" | fn.#ObjectExpression
+			DeploymentConfig?: _#defs."/$defs/Properties/definitions/DeploymentConfig"
 			PatchSchedule?:    close({}) | fn.#ObjectExpression
 			PatchingStrategy!: "WhenIdle" | "WhenAllIdle" | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
-		CapacityRequirements?: _#defs."/$defs/Properties/definitions/ClusterCapacityRequirements" | fn.#ObjectExpression
-		ExecutionRole!:        _#defs."/$defs/Properties/definitions/ExecutionRole" | fn.#StringExpression
-		ImageId?:              _#defs."/$defs/Properties/definitions/ImageId" | fn.#StringExpression
-		InstanceCount!:        int & <=6758 & >=0 | fn.#NumberExpression
-		InstanceGroupName!:    _#defs."/$defs/Properties/definitions/InstanceGroupName" | fn.#StringExpression
-		InstanceRequirements?: _#defs."/$defs/Properties/definitions/InstanceRequirements" | fn.#ObjectExpression
-		InstanceStorageConfigs?: _#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfigs" |
-			fn.#ListExpression
-		InstanceType?:            _#defs."/$defs/Properties/definitions/InstanceType" | fn.#StringExpression
-		KubernetesConfig?:        _#defs."/$defs/Properties/definitions/ClusterKubernetesConfig" | fn.#ObjectExpression
-		LifeCycleConfig?:         _#defs."/$defs/Properties/definitions/ClusterLifeCycleConfig" | fn.#ObjectExpression
-		MinInstanceCount?:        int & <=6758 & >=0 | fn.#NumberExpression
-		NetworkInterface?:        _#defs."/$defs/Properties/definitions/ClusterNetworkInterface" | fn.#ObjectExpression
-		OnStartDeepHealthChecks?: _#defs."/$defs/Properties/definitions/OnStartDeepHealthChecks" | fn.#ListExpression
-		OverrideVpcConfig?:       _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
-		ScheduledUpdateConfig?:   _#defs."/$defs/Properties/definitions/ScheduledUpdateConfig" | fn.#ObjectExpression
-		SlurmConfig?:             _#defs."/$defs/Properties/definitions/ClusterSlurmConfig" | fn.#ObjectExpression
-		ThreadsPerCore?:          int & <=2 & >=1 | fn.#NumberExpression
+		CapacityRequirements?: _#defs."/$defs/Properties/definitions/ClusterCapacityRequirements"
+		ExecutionRole!:        _#defs."/$defs/Properties/definitions/ExecutionRole"
+		ImageId?:              _#defs."/$defs/Properties/definitions/ImageId"
+		InstanceCount!: int & <=6758 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=6758 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		InstanceGroupName!:      _#defs."/$defs/Properties/definitions/InstanceGroupName"
+		InstanceRequirements?:   _#defs."/$defs/Properties/definitions/InstanceRequirements"
+		InstanceStorageConfigs?: _#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfigs"
+		InstanceType?:           _#defs."/$defs/Properties/definitions/InstanceType"
+		KubernetesConfig?:       _#defs."/$defs/Properties/definitions/ClusterKubernetesConfig"
+		LifeCycleConfig?:        _#defs."/$defs/Properties/definitions/ClusterLifeCycleConfig"
+		MinInstanceCount?: int & <=6758 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=6758 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		NetworkInterface?:        _#defs."/$defs/Properties/definitions/ClusterNetworkInterface"
+		OnStartDeepHealthChecks?: _#defs."/$defs/Properties/definitions/OnStartDeepHealthChecks"
+		OverrideVpcConfig?:       _#defs."/$defs/Properties/definitions/VpcConfig"
+		ScheduledUpdateConfig?:   _#defs."/$defs/Properties/definitions/ScheduledUpdateConfig"
+		SlurmConfig?:             _#defs."/$defs/Properties/definitions/ClusterSlurmConfig"
+		ThreadsPerCore?: int & <=2 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=2 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 		TrainingPlanArn?: strings.MaxRunes(2048) &
 		strings.MinRunes(50) &
 		=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" |
@@ -55,18 +109,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	NodeProvisioningMode?: "Continuous" | fn.#StringExpression
 	NodeRecovery?:         "Automatic" | "None" | fn.#StringExpression
-	Orchestrator?:         _#defs."/$defs/Properties/definitions/Orchestrator" | fn.#ObjectExpression
+	Orchestrator?:         _#defs."/$defs/Properties/definitions/Orchestrator"
 	RestrictedInstanceGroups?: list.MaxItems(100) & list.MinItems(1) & [...close({
-		EnvironmentConfig?: _#defs."/$defs/Properties/definitions/EnvironmentConfig" | fn.#ObjectExpression
-		ExecutionRole!:     _#defs."/$defs/Properties/definitions/ExecutionRole" | fn.#StringExpression
-		InstanceCount!:     int & <=6758 & >=0 | fn.#NumberExpression
-		InstanceGroupName!: _#defs."/$defs/Properties/definitions/InstanceGroupName" | fn.#StringExpression
-		InstanceStorageConfigs?: _#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfigs" |
-			fn.#ListExpression
-		InstanceType!:            _#defs."/$defs/Properties/definitions/InstanceType" | fn.#StringExpression
-		OnStartDeepHealthChecks?: _#defs."/$defs/Properties/definitions/OnStartDeepHealthChecks" | fn.#ListExpression
-		OverrideVpcConfig?:       _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
-		ThreadsPerCore?:          int & <=2 & >=1 | fn.#NumberExpression
+		EnvironmentConfig?: _#defs."/$defs/Properties/definitions/EnvironmentConfig"
+		ExecutionRole!:     _#defs."/$defs/Properties/definitions/ExecutionRole"
+		InstanceCount!: int & <=6758 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=6758 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		InstanceGroupName!:       _#defs."/$defs/Properties/definitions/InstanceGroupName"
+		InstanceStorageConfigs?:  _#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfigs"
+		InstanceType!:            _#defs."/$defs/Properties/definitions/InstanceType"
+		OnStartDeepHealthChecks?: _#defs."/$defs/Properties/definitions/OnStartDeepHealthChecks"
+		OverrideVpcConfig?:       _#defs."/$defs/Properties/definitions/VpcConfig"
+		ThreadsPerCore?: int & <=2 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=2 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 		TrainingPlanArn?: strings.MaxRunes(2048) &
 		strings.MinRunes(50) &
 		=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" |
@@ -74,14 +161,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	RestrictedInstanceGroupsConfig?: _#defs."/$defs/Properties/definitions/RestrictedInstanceGroupsConfig" |
-		fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	RestrictedInstanceGroupsConfig?: _#defs."/$defs/Properties/definitions/RestrictedInstanceGroupsConfig"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
-	TieredStorageConfig?: _#defs."/$defs/Properties/definitions/TieredStorageConfig" | fn.#ObjectExpression
-	VpcConfig?:           _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
+	TieredStorageConfig?: _#defs."/$defs/Properties/definitions/TieredStorageConfig"
+	VpcConfig?:           _#defs."/$defs/Properties/definitions/VpcConfig"
 })
 
 _#defs: "/$defs/Properties/definitions/AlarmDetails": close(
@@ -90,27 +174,56 @@ _#defs: "/$defs/Properties/definitions/AlarmDetails": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AutoPatchConfig": close({
-	DeploymentConfig?: _#defs."/$defs/Properties/definitions/DeploymentConfig" | fn.#ObjectExpression
-	PatchSchedule?:    _#defs."/$defs/Properties/definitions/PatchSchedule" | fn.#ObjectExpression
+	DeploymentConfig?: _#defs."/$defs/Properties/definitions/DeploymentConfig"
+	PatchSchedule?:    _#defs."/$defs/Properties/definitions/PatchSchedule"
 	PatchingStrategy!: "WhenIdle" | "WhenAllIdle" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AutoRollbackConfiguration": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AlarmDetails" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/AlarmDetails"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/CapacitySizeConfig": close({
-	Type!:  =~"INSTANCE_COUNT|CAPACITY_PERCENTAGE" | fn.#StringExpression
-	Value!: int & >=1 | fn.#NumberExpression
+	Type!: =~"INSTANCE_COUNT|CAPACITY_PERCENTAGE" | fn.#StringExpression
+	Value!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClusterAccountingDatabase": close({
-	Endpoint!:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9$_]+$" | fn.#StringExpression
-	Port?:      int & <=65535 & >=1 | fn.#NumberExpression
+	Endpoint!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Name?:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9$_]+$" | fn.#StringExpression
+	Port?: int & <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SecretArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -122,15 +235,30 @@ _#defs: "/$defs/Properties/definitions/ClusterAutoScalingConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClusterCapacityRequirements": close({
-	OnDemand?: _#defs."/$defs/Properties/definitions/ClusterOnDemandOptions" | fn.#ObjectExpression
-	Spot?:     _#defs."/$defs/Properties/definitions/ClusterSpotOptions" | fn.#ObjectExpression
+	OnDemand?: _#defs."/$defs/Properties/definitions/ClusterOnDemandOptions"
+	Spot?:     _#defs."/$defs/Properties/definitions/ClusterSpotOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClusterEbsVolumeConfig": close({
-	RootVolume?:     bool | fn.#BooleanExpression
+	RootVolume?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9:/_-]*$" | fn.#StringExpression
-	VolumeSizeInGB?: int & <=16384 & >=1 | fn.#NumberExpression
+	VolumeSizeInGB?: int & <=16384 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=16384 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -150,25 +278,84 @@ _#defs: "/$defs/Properties/definitions/ClusterFsxOpenZfsConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClusterInstanceGroup": close({
-	AutoPatchConfig?:         _#defs."/$defs/Properties/definitions/AutoPatchConfig" | fn.#ObjectExpression
-	CapacityRequirements?:    _#defs."/$defs/Properties/definitions/ClusterCapacityRequirements" | fn.#ObjectExpression
-	CurrentCount?:            int & >=0 | fn.#NumberExpression
-	ExecutionRole!:           _#defs."/$defs/Properties/definitions/ExecutionRole" | fn.#StringExpression
-	ImageId?:                 _#defs."/$defs/Properties/definitions/ImageId" | fn.#StringExpression
-	InstanceCount!:           int & <=6758 & >=0 | fn.#NumberExpression
-	InstanceGroupName!:       _#defs."/$defs/Properties/definitions/InstanceGroupName" | fn.#StringExpression
-	InstanceRequirements?:    _#defs."/$defs/Properties/definitions/InstanceRequirements" | fn.#ObjectExpression
-	InstanceStorageConfigs?:  _#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfigs" | fn.#ListExpression
-	InstanceType?:            _#defs."/$defs/Properties/definitions/InstanceType" | fn.#StringExpression
-	KubernetesConfig?:        _#defs."/$defs/Properties/definitions/ClusterKubernetesConfig" | fn.#ObjectExpression
-	LifeCycleConfig?:         _#defs."/$defs/Properties/definitions/ClusterLifeCycleConfig" | fn.#ObjectExpression
-	MinInstanceCount?:        int & <=6758 & >=0 | fn.#NumberExpression
-	NetworkInterface?:        _#defs."/$defs/Properties/definitions/ClusterNetworkInterface" | fn.#ObjectExpression
-	OnStartDeepHealthChecks?: _#defs."/$defs/Properties/definitions/OnStartDeepHealthChecks" | fn.#ListExpression
-	OverrideVpcConfig?:       _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
-	ScheduledUpdateConfig?:   _#defs."/$defs/Properties/definitions/ScheduledUpdateConfig" | fn.#ObjectExpression
-	SlurmConfig?:             _#defs."/$defs/Properties/definitions/ClusterSlurmConfig" | fn.#ObjectExpression
-	ThreadsPerCore?:          int & <=2 & >=1 | fn.#NumberExpression
+	AutoPatchConfig?:      _#defs."/$defs/Properties/definitions/AutoPatchConfig"
+	CapacityRequirements?: _#defs."/$defs/Properties/definitions/ClusterCapacityRequirements"
+	CurrentCount?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ExecutionRole!: _#defs."/$defs/Properties/definitions/ExecutionRole"
+	ImageId?:       _#defs."/$defs/Properties/definitions/ImageId"
+	InstanceCount!: int & <=6758 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=6758 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	InstanceGroupName!:      _#defs."/$defs/Properties/definitions/InstanceGroupName"
+	InstanceRequirements?:   _#defs."/$defs/Properties/definitions/InstanceRequirements"
+	InstanceStorageConfigs?: _#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfigs"
+	InstanceType?:           _#defs."/$defs/Properties/definitions/InstanceType"
+	KubernetesConfig?:       _#defs."/$defs/Properties/definitions/ClusterKubernetesConfig"
+	LifeCycleConfig?:        _#defs."/$defs/Properties/definitions/ClusterLifeCycleConfig"
+	MinInstanceCount?: int & <=6758 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=6758 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	NetworkInterface?:        _#defs."/$defs/Properties/definitions/ClusterNetworkInterface"
+	OnStartDeepHealthChecks?: _#defs."/$defs/Properties/definitions/OnStartDeepHealthChecks"
+	OverrideVpcConfig?:       _#defs."/$defs/Properties/definitions/VpcConfig"
+	ScheduledUpdateConfig?:   _#defs."/$defs/Properties/definitions/ScheduledUpdateConfig"
+	SlurmConfig?:             _#defs."/$defs/Properties/definitions/ClusterSlurmConfig"
+	ThreadsPerCore?: int & <=2 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	TrainingPlanArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(50) &
 	=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" |
@@ -177,27 +364,27 @@ _#defs: "/$defs/Properties/definitions/ClusterInstanceGroup": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClusterInstanceGroupsList": list.MaxItems(100) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ClusterInstanceGroup" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ClusterInstanceGroup"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ClusterInstanceStorageConfig": matchN(1, [close(
-	{EbsVolumeConfig?: _#defs."/$defs/Properties/definitions/ClusterEbsVolumeConfig" | fn.#ObjectExpression},
+	{EbsVolumeConfig?: _#defs."/$defs/Properties/definitions/ClusterEbsVolumeConfig"},
 ), close(
-	{FsxLustreConfig?: _#defs."/$defs/Properties/definitions/ClusterFsxLustreConfig" | fn.#ObjectExpression},
+	{FsxLustreConfig?: _#defs."/$defs/Properties/definitions/ClusterFsxLustreConfig"},
 ), close(
-	{FsxOpenZfsConfig?: _#defs."/$defs/Properties/definitions/ClusterFsxOpenZfsConfig" | fn.#ObjectExpression},
+	{FsxOpenZfsConfig?: _#defs."/$defs/Properties/definitions/ClusterFsxOpenZfsConfig"},
 )]) & {[string]: fn.#Value} |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClusterInstanceStorageConfigs": list.MaxItems(4) & [...] & [
-	..._#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfig" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfig"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ClusterKubernetesConfig": close({
-	Labels?: _#defs."/$defs/Properties/definitions/ClusterKubernetesLabels" | fn.#ObjectExpression
-	Taints?: _#defs."/$defs/Properties/definitions/ClusterKubernetesTaints" | fn.#ListExpression
+	Labels?: _#defs."/$defs/Properties/definitions/ClusterKubernetesLabels"
+	Taints?: _#defs."/$defs/Properties/definitions/ClusterKubernetesTaints"
 }) |
 fn.#ObjectExpression
 
@@ -218,7 +405,7 @@ _#defs: "/$defs/Properties/definitions/ClusterKubernetesTaint": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClusterKubernetesTaints": list.MaxItems(50) & [...] & [
-	..._#defs."/$defs/Properties/definitions/ClusterKubernetesTaint" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ClusterKubernetesTaint"
 ] |
 	fn.#ListExpression
 
@@ -242,22 +429,66 @@ _#defs: "/$defs/Properties/definitions/ClusterOrchestratorEksConfig": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClusterOrchestratorSlurmConfig": close({
-	AccountingDatabase?:  _#defs."/$defs/Properties/definitions/ClusterAccountingDatabase" | fn.#ObjectExpression
+	AccountingDatabase?:  _#defs."/$defs/Properties/definitions/ClusterAccountingDatabase"
 	SlurmConfigStrategy?: "Overwrite" | "Managed" | "Merge" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClusterRestrictedInstanceGroup": close({
-	CurrentCount?:            int & >=0 | fn.#NumberExpression
-	EnvironmentConfig?:       _#defs."/$defs/Properties/definitions/EnvironmentConfig" | fn.#ObjectExpression
-	ExecutionRole!:           _#defs."/$defs/Properties/definitions/ExecutionRole" | fn.#StringExpression
-	InstanceCount!:           int & <=6758 & >=0 | fn.#NumberExpression
-	InstanceGroupName!:       _#defs."/$defs/Properties/definitions/InstanceGroupName" | fn.#StringExpression
-	InstanceStorageConfigs?:  _#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfigs" | fn.#ListExpression
-	InstanceType!:            _#defs."/$defs/Properties/definitions/InstanceType" | fn.#StringExpression
-	OnStartDeepHealthChecks?: _#defs."/$defs/Properties/definitions/OnStartDeepHealthChecks" | fn.#ListExpression
-	OverrideVpcConfig?:       _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
-	ThreadsPerCore?:          int & <=2 & >=1 | fn.#NumberExpression
+	CurrentCount?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	EnvironmentConfig?: _#defs."/$defs/Properties/definitions/EnvironmentConfig"
+	ExecutionRole!:     _#defs."/$defs/Properties/definitions/ExecutionRole"
+	InstanceCount!: int & <=6758 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=6758 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	InstanceGroupName!:       _#defs."/$defs/Properties/definitions/InstanceGroupName"
+	InstanceStorageConfigs?:  _#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfigs"
+	InstanceType!:            _#defs."/$defs/Properties/definitions/InstanceType"
+	OnStartDeepHealthChecks?: _#defs."/$defs/Properties/definitions/OnStartDeepHealthChecks"
+	OverrideVpcConfig?:       _#defs."/$defs/Properties/definitions/VpcConfig"
+	ThreadsPerCore?: int & <=2 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	TrainingPlanArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(50) &
 	=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" |
@@ -266,7 +497,7 @@ _#defs: "/$defs/Properties/definitions/ClusterRestrictedInstanceGroup": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClusterRestrictedInstanceGroupsList": list.MaxItems(100) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ClusterRestrictedInstanceGroup" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ClusterRestrictedInstanceGroup"
 ] |
 	fn.#ListExpression
 
@@ -286,14 +517,29 @@ _#defs: "/$defs/Properties/definitions/DeepHealthCheckType": "InstanceStress" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DeploymentConfig": close({
-	AutoRollbackConfiguration?: _#defs."/$defs/Properties/definitions/AutoRollbackConfiguration" | fn.#ListExpression
-	RollingUpdatePolicy?:       _#defs."/$defs/Properties/definitions/RollingUpdatePolicy" | fn.#ObjectExpression
-	WaitIntervalInSeconds?:     int & <=3600 & >=0 | fn.#NumberExpression
+	AutoRollbackConfiguration?: _#defs."/$defs/Properties/definitions/AutoRollbackConfiguration"
+	RollingUpdatePolicy?:       _#defs."/$defs/Properties/definitions/RollingUpdatePolicy"
+	WaitIntervalInSeconds?: int & <=3600 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=3600 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EnvironmentConfig": close(
-	{FSxLustreConfig?: _#defs."/$defs/Properties/definitions/FSxLustreConfig" | fn.#ObjectExpression},
+	{FSxLustreConfig?: _#defs."/$defs/Properties/definitions/FSxLustreConfig"},
 ) |
 	fn.#ObjectExpression
 
@@ -303,12 +549,43 @@ strings.MinRunes(20) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/FSxLustreConfig": close({
-	PerUnitStorageThroughput!: int & <=1000 & >=125 | fn.#NumberExpression
-	SizeInGiB!:                int & <=100800 & >=1200 | fn.#NumberExpression
+	PerUnitStorageThroughput!: int & <=1000 & >=125 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=125,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SizeInGiB!: int & <=100800 & >=1200 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100800 &
+							>=1200,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageId": strings.MaxRunes(21) &
+_#defs: "/$defs/Properties/definitions/ImageId": =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(21) &
 strings.MinRunes(7) &
 =~"^ami-[0-9a-fA-F]{8,17}|default$" |
 fn.#StringExpression
@@ -319,9 +596,7 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
-	InstanceTypes!: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/InstanceType" | fn.#StringExpression
-	] |
+	InstanceTypes!: list.MaxItems(20) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/InstanceType"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -329,14 +604,14 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 _#defs: "/$defs/Properties/definitions/InstanceType": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/OnStartDeepHealthChecks": list.MaxItems(3) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/DeepHealthCheckType" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/DeepHealthCheckType"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/Orchestrator": matchN(1, [close(
-	{Eks?: _#defs."/$defs/Properties/definitions/ClusterOrchestratorEksConfig" | fn.#ObjectExpression},
+	{Eks?: _#defs."/$defs/Properties/definitions/ClusterOrchestratorEksConfig"},
 ), close(
-	{Slurm?: _#defs."/$defs/Properties/definitions/ClusterOrchestratorSlurmConfig" | fn.#ObjectExpression},
+	{Slurm?: _#defs."/$defs/Properties/definitions/ClusterOrchestratorSlurmConfig"},
 )]) & {[string]: fn.#Value} |
 fn.#ObjectExpression
 
@@ -344,18 +619,18 @@ _#defs: "/$defs/Properties/definitions/PatchSchedule": close({NextPatchDate?: st
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RestrictedInstanceGroupsConfig": close(
-	{SharedEnvironmentConfig!: _#defs."/$defs/Properties/definitions/SharedEnvironmentConfig" | fn.#ObjectExpression},
+	{SharedEnvironmentConfig!: _#defs."/$defs/Properties/definitions/SharedEnvironmentConfig"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RollingUpdatePolicy": close({
-	MaximumBatchSize!:         _#defs."/$defs/Properties/definitions/CapacitySizeConfig" | fn.#ObjectExpression
-	RollbackMaximumBatchSize?: _#defs."/$defs/Properties/definitions/CapacitySizeConfig" | fn.#ObjectExpression
+	MaximumBatchSize!:         _#defs."/$defs/Properties/definitions/CapacitySizeConfig"
+	RollbackMaximumBatchSize?: _#defs."/$defs/Properties/definitions/CapacitySizeConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScheduledUpdateConfig": close({
-	DeploymentConfig?: _#defs."/$defs/Properties/definitions/DeploymentConfig" | fn.#ObjectExpression
+	DeploymentConfig?: _#defs."/$defs/Properties/definitions/DeploymentConfig"
 	ScheduleExpression!: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"cron\\((?:[0-5][0-9]|[0-9]|) (?:[01][0-9]|2[0-3]|[0-9]) (?:[1-9]|0[1-9]|[12][0-9]|3[01]|\\?) (?:[1-9]|0[1-9]|1[0-2]|\\*|\\*/(?:[1-9]|1[0-2])|) (?:MON|TUE|WED|THU|FRI|SAT|SUN|[1-7]|\\?|L|(?:[1-7]#[1-5])|(?:[1-7]L)) (?:20[2-9][0-9]|\\*|)\\)" |
@@ -364,7 +639,7 @@ _#defs: "/$defs/Properties/definitions/ScheduledUpdateConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SharedEnvironmentConfig": close({
-	FSxLustreConfig?:         _#defs."/$defs/Properties/definitions/FSxLustreConfig" | fn.#ObjectExpression
+	FSxLustreConfig?:         _#defs."/$defs/Properties/definitions/FSxLustreConfig"
 	FSxLustreDeletionPolicy!: "Keep" | "DeleteIfNotUsed" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -376,14 +651,33 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TieredStorageConfig": close({
-	InstanceMemoryAllocationPercentage?: int & <=100 & >=0 | fn.#NumberExpression
-	Mode!:                               "Enable" | "Disable" | fn.#StringExpression
+	InstanceMemoryAllocationPercentage?: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Mode!: "Enable" | "Disable" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	Subnets!: list.MaxItems(16) & list.MinItems(1) & [

@@ -15,7 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Family!:      string | fn.#StringExpression
 	Name?:        string | fn.#StringExpression
 	Parameters!:  string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

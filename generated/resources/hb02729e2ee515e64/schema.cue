@@ -21,17 +21,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	AutoSubDomainIAMRole?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^$|^arn:.+:iam::\\d{12}:role.+" |
 	fn.#StringExpression
-	CertificateSettings?: _#defs."/$defs/Properties/definitions/CertificateSettings" | fn.#ObjectExpression
+	CertificateSettings?: _#defs."/$defs/Properties/definitions/CertificateSettings"
 	DomainName!:          strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	EnableAutoSubDomain?: bool | fn.#BooleanExpression
-	SubDomainSettings!: list.MaxItems(255) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SubDomainSetting" | fn.#ObjectExpression
-	] |
+	EnableAutoSubDomain?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SubDomainSettings!: list.MaxItems(255) & [...] & [..._#defs."/$defs/Properties/definitions/SubDomainSetting"] |
 		fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Certificate": close({
-	CertificateArn?:                   =~"\"^arn:aws:acm:[a-z0-9-]+:\\d{12}:certificate\\/.+$\"" | fn.#StringExpression
+	CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"\"^arn:aws:acm:[a-z0-9-]+:\\d{12}:certificate\\/.+$\"" |
+		fn.#StringExpression
 	CertificateType?:                  "AMPLIFY_MANAGED" | "CUSTOM" | fn.#StringExpression
 	CertificateVerificationDNSRecord?: strings.MaxRunes(1000) | fn.#StringExpression
 }) |

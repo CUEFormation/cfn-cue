@@ -9,32 +9,33 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTAnalytics::Pipeline
 #Properties: close({
-	PipelineActivities!: list.MaxItems(25) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Activity" | fn.#ObjectExpression
-	] |
+	PipelineActivities!: list.MaxItems(25) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Activity"] |
 		fn.#ListExpression
 	PipelineName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Activity": close({
-	AddAttributes?:        _#defs."/$defs/Properties/definitions/AddAttributes" | fn.#ObjectExpression
-	Channel?:              _#defs."/$defs/Properties/definitions/Channel" | fn.#ObjectExpression
-	Datastore?:            _#defs."/$defs/Properties/definitions/Datastore" | fn.#ObjectExpression
-	DeviceRegistryEnrich?: _#defs."/$defs/Properties/definitions/DeviceRegistryEnrich" | fn.#ObjectExpression
-	DeviceShadowEnrich?:   _#defs."/$defs/Properties/definitions/DeviceShadowEnrich" | fn.#ObjectExpression
-	Filter?:               _#defs."/$defs/Properties/definitions/Filter" | fn.#ObjectExpression
-	Lambda?:               _#defs."/$defs/Properties/definitions/Lambda" | fn.#ObjectExpression
-	Math?:                 _#defs."/$defs/Properties/definitions/Math" | fn.#ObjectExpression
-	RemoveAttributes?:     _#defs."/$defs/Properties/definitions/RemoveAttributes" | fn.#ObjectExpression
-	SelectAttributes?:     _#defs."/$defs/Properties/definitions/SelectAttributes" | fn.#ObjectExpression
+	AddAttributes?:        _#defs."/$defs/Properties/definitions/AddAttributes"
+	Channel?:              _#defs."/$defs/Properties/definitions/Channel"
+	Datastore?:            _#defs."/$defs/Properties/definitions/Datastore"
+	DeviceRegistryEnrich?: _#defs."/$defs/Properties/definitions/DeviceRegistryEnrich"
+	DeviceShadowEnrich?:   _#defs."/$defs/Properties/definitions/DeviceShadowEnrich"
+	Filter?:               _#defs."/$defs/Properties/definitions/Filter"
+	Lambda?:               _#defs."/$defs/Properties/definitions/Lambda"
+	Math?:                 _#defs."/$defs/Properties/definitions/Math"
+	RemoveAttributes?:     _#defs."/$defs/Properties/definitions/RemoveAttributes"
+	SelectAttributes?:     _#defs."/$defs/Properties/definitions/SelectAttributes"
 }) |
 fn.#ObjectExpression
 
@@ -65,7 +66,8 @@ _#defs: "/$defs/Properties/definitions/DeviceRegistryEnrich": close({
 	Attribute!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Next?:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	RoleArn!:   strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 	ThingName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -74,7 +76,8 @@ _#defs: "/$defs/Properties/definitions/DeviceShadowEnrich": close({
 	Attribute!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Next?:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	RoleArn!:   strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 	ThingName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -87,7 +90,22 @@ _#defs: "/$defs/Properties/definitions/Filter": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Lambda": close({
-	BatchSize!:  int & <=1000 & >=1 | fn.#NumberExpression
+	BatchSize!: int & <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	LambdaName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
 	Name!:       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Next?:       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

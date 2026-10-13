@@ -14,15 +14,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Create and manage partner account
 #Properties: close({
-	AccountLinked?:    bool | fn.#BooleanExpression
+	AccountLinked?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PartnerAccountId?: strings.MaxRunes(256) | fn.#StringExpression
 	PartnerType?:      "Sidewalk" | fn.#StringExpression
 	Sidewalk?:         _#defs."/$defs/Properties/definitions/SidewalkAccountInfo" | fn.#ObjectExpression
 	SidewalkResponse?: _#defs."/$defs/Properties/definitions/SidewalkAccountInfoWithFingerprint" | fn.#ObjectExpression
 	SidewalkUpdate?:   _#defs."/$defs/Properties/definitions/SidewalkUpdateAccount" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

@@ -18,9 +18,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CaseId!:   strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
 	Content!:  _#defs."/$defs/Properties/definitions/RelatedItemContent" | fn.#ObjectExpression
 	DomainId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Type!: "Contact" | "Comment" | "File" | "Sla" | "ConnectCase" | "Custom" | fn.#StringExpression
+	Tags?:     list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Type!:     "Contact" | "Comment" | "File" | "Sla" | "ConnectCase" | "Custom" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CommentContent": close({
@@ -30,7 +29,7 @@ _#defs: "/$defs/Properties/definitions/CommentContent": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RelatedItemContent": close(
-	{Comment?: _#defs."/$defs/Properties/definitions/CommentContent" | fn.#ObjectExpression},
+	{Comment?: _#defs."/$defs/Properties/definitions/CommentContent"},
 ) |
 	fn.#ObjectExpression
 

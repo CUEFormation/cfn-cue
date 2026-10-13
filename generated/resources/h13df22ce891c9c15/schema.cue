@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,50 +21,132 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Context?:                         string | fn.#StringExpression
 	ExcessCapacityTerminationPolicy?: "termination" | "no-termination" | fn.#StringExpression
 	LaunchTemplateConfigs!: list.MaxItems(50) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FleetLaunchTemplateConfigRequest" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/FleetLaunchTemplateConfigRequest"
 	] |
 		fn.#ListExpression
-	OnDemandOptions?:           _#defs."/$defs/Properties/definitions/OnDemandOptionsRequest" | fn.#ObjectExpression
-	ReplaceUnhealthyInstances?: bool | fn.#BooleanExpression
-	ReservedCapacityOptions?: _#defs."/$defs/Properties/definitions/ReservedCapacityOptionsRequest" |
-		fn.#ObjectExpression
-	SpotOptions?: _#defs."/$defs/Properties/definitions/SpotOptionsRequest" | fn.#ObjectExpression
-	TagSpecifications?: [..._#defs."/$defs/Properties/definitions/TagSpecification" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TargetCapacitySpecification!: _#defs."/$defs/Properties/definitions/TargetCapacitySpecificationRequest" |
-		fn.#ObjectExpression
-	TerminateInstancesWithExpiration?: bool | fn.#BooleanExpression
-	Type?:                             "maintain" | "request" | "instant" | fn.#StringExpression
-	ValidFrom?:                        string | fn.#StringExpression
-	ValidUntil?:                       string | fn.#StringExpression
+	OnDemandOptions?:             _#defs."/$defs/Properties/definitions/OnDemandOptionsRequest"
+	ReplaceUnhealthyInstances?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ReservedCapacityOptions?:     _#defs."/$defs/Properties/definitions/ReservedCapacityOptionsRequest"
+	SpotOptions?:                 _#defs."/$defs/Properties/definitions/SpotOptionsRequest"
+	TagSpecifications?:           [..._#defs."/$defs/Properties/definitions/TagSpecification"] | fn.#ListExpression
+	TargetCapacitySpecification!: _#defs."/$defs/Properties/definitions/TargetCapacitySpecificationRequest"
+	TerminateInstancesWithExpiration?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	Type?:       "maintain" | "request" | "instant" | fn.#StringExpression
+	ValidFrom?:  string | fn.#StringExpression
+	ValidUntil?: string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AcceleratorCountRequest": close({
-	Max?: int | fn.#NumberExpression
-	Min?: int | fn.#NumberExpression
+	Max?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Min?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest": close({
-	Max?: int | fn.#NumberExpression
-	Min?: int | fn.#NumberExpression
+	Max?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Min?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest": close({
-	Max?: int | fn.#NumberExpression
-	Min?: int | fn.#NumberExpression
+	Max?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Min?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BaselinePerformanceFactorsRequest": close(
-	{Cpu?: _#defs."/$defs/Properties/definitions/CpuPerformanceFactorRequest" | fn.#ObjectExpression},
+	{Cpu?: _#defs."/$defs/Properties/definitions/CpuPerformanceFactorRequest"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
 	DeviceName?:  string | fn.#StringExpression
-	Ebs?:         _#defs."/$defs/Properties/definitions/EbsBlockDevice" | fn.#ObjectExpression
+	Ebs?:         _#defs."/$defs/Properties/definitions/EbsBlockDevice"
 	NoDevice?:    string | fn.#StringExpression
 	VirtualName?: string | fn.#StringExpression
 }) |
@@ -68,7 +154,20 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CapacityRebalance": close({
 	ReplacementStrategy?: "launch" | "launch-before-terminate" | fn.#StringExpression
-	TerminationDelay?:    int | fn.#NumberExpression
+	TerminationDelay?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -83,54 +182,110 @@ _#defs: "/$defs/Properties/definitions/CapacityReservationTargetRequest": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CpuPerformanceFactorRequest": close({
-	References?: [..._#defs."/$defs/Properties/definitions/PerformanceFactorReferenceRequest" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/CpuPerformanceFactorRequest": close(
+	{References?: [..._#defs."/$defs/Properties/definitions/PerformanceFactorReferenceRequest"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EbsBlockDevice": close({
-	DeleteOnTermination?: bool | fn.#BooleanExpression
-	Encrypted?:           bool | fn.#BooleanExpression
-	Iops?:                int | fn.#NumberExpression
-	KmsKeyId?:            string | string | string | fn.#StringExpression
-	MultiAvailabilityZoneConfiguration?: _#defs."/$defs/Properties/definitions/MultiAvailabilityZoneConfiguration" |
-		fn.#ObjectExpression
-	SnapshotId?: string | fn.#StringExpression
-	VolumeSize?: int | fn.#NumberExpression
+	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Encrypted?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Iops?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	MultiAvailabilityZoneConfiguration?: _#defs."/$defs/Properties/definitions/MultiAvailabilityZoneConfiguration"
+	SnapshotId?:                         string | fn.#StringExpression
+	VolumeSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	VolumeType?: "gp2" | "gp3" | "io1" | "io2" | "sc1" | "st1" | "standard" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FleetLaunchTemplateConfigRequest": close({
-	LaunchTemplateSpecification?: _#defs."/$defs/Properties/definitions/FleetLaunchTemplateSpecificationRequest" |
-		fn.#ObjectExpression
-	Overrides?: [..._#defs."/$defs/Properties/definitions/FleetLaunchTemplateOverridesRequest" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	LaunchTemplateSpecification?: _#defs."/$defs/Properties/definitions/FleetLaunchTemplateSpecificationRequest"
+	Overrides?: [..._#defs."/$defs/Properties/definitions/FleetLaunchTemplateOverridesRequest"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FleetLaunchTemplateOverridesRequest": close({
 	AvailabilityZone?:   string | fn.#StringExpression
 	AvailabilityZoneId?: string | fn.#StringExpression
-	BlockDeviceMappings?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/BlockDeviceMapping" | fn.#ObjectExpression
-	] |
+	BlockDeviceMappings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"] |
 		fn.#ListExpression
-	IamInstanceProfile?:   _#defs."/$defs/Properties/definitions/IamInstanceProfileSpecification" | fn.#ObjectExpression
-	InstanceRequirements?: _#defs."/$defs/Properties/definitions/InstanceRequirementsRequest" | fn.#ObjectExpression
+	IamInstanceProfile?:   _#defs."/$defs/Properties/definitions/IamInstanceProfileSpecification"
+	InstanceRequirements?: _#defs."/$defs/Properties/definitions/InstanceRequirementsRequest"
 	InstanceType?:         string | fn.#StringExpression
 	KeyName?:              string | fn.#StringExpression
 	MaxPrice?:             string | fn.#StringExpression
-	MetadataOptions?:      _#defs."/$defs/Properties/definitions/InstanceMetadataOptionsRequest" | fn.#ObjectExpression
-	NetworkInterfaces?: [
-		..._#defs."/$defs/Properties/definitions/NetworkInterfaceSpecificationRequest" | fn.#ObjectExpression
-	] |
+	MetadataOptions?:      _#defs."/$defs/Properties/definitions/InstanceMetadataOptionsRequest"
+	NetworkInterfaces?: [..._#defs."/$defs/Properties/definitions/NetworkInterfaceSpecificationRequest"] |
 		fn.#ListExpression
-	Placement?:        _#defs."/$defs/Properties/definitions/Placement" | fn.#ObjectExpression
-	Priority?:         number | fn.#NumberExpression
-	SubnetId?:         string | fn.#StringExpression
-	WeightedCapacity?: number | fn.#NumberExpression
+	Placement?: _#defs."/$defs/Properties/definitions/Placement"
+	Priority?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SubnetId?: string | fn.#StringExpression
+	WeightedCapacity?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -150,14 +305,27 @@ _#defs: "/$defs/Properties/definitions/IamInstanceProfileSpecification": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InstanceMetadataOptionsRequest": close({
-	HttpEndpoint?:            "disabled" | "enabled" | fn.#StringExpression
-	HttpPutResponseHopLimit?: int | fn.#NumberExpression
-	HttpTokens?:              "optional" | "required" | fn.#StringExpression
+	HttpEndpoint?: "disabled" | "enabled" | fn.#StringExpression
+	HttpPutResponseHopLimit?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	HttpTokens?: "optional" | "required" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InstanceRequirementsRequest": close({
-	AcceleratorCount?: _#defs."/$defs/Properties/definitions/AcceleratorCountRequest" | fn.#ObjectExpression
+	AcceleratorCount?: _#defs."/$defs/Properties/definitions/AcceleratorCountRequest"
 	AcceleratorManufacturers?: [
 		..."amazon-web-services" | "amd" | "habana" | "nvidia" | "xilinx" | fn.#StringExpression
 	] |
@@ -185,19 +353,16 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirementsRequest": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	AcceleratorTotalMemoryMiB?: _#defs."/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest" |
-		fn.#ObjectExpression
-	AcceleratorTypes?: [..."gpu" | "fpga" | "inference" | "media" | fn.#StringExpression] | fn.#ListExpression
+	AcceleratorTotalMemoryMiB?: _#defs."/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest"
+	AcceleratorTypes?:          [..."gpu" | "fpga" | "inference" | "media" | fn.#StringExpression] | fn.#ListExpression
 	AllowedInstanceTypes?: list.MaxItems(400) & [...] & [
 		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	BareMetal?: "included" | "required" | "excluded" | fn.#StringExpression
-	BaselineEbsBandwidthMbps?: _#defs."/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest" |
-		fn.#ObjectExpression
-	BaselinePerformanceFactors?: _#defs."/$defs/Properties/definitions/BaselinePerformanceFactorsRequest" |
-		fn.#ObjectExpression
-	BurstablePerformance?: "included" | "required" | "excluded" | fn.#StringExpression
+	BareMetal?:                  "included" | "required" | "excluded" | fn.#StringExpression
+	BaselineEbsBandwidthMbps?:   _#defs."/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest"
+	BaselinePerformanceFactors?: _#defs."/$defs/Properties/definitions/BaselinePerformanceFactorsRequest"
+	BurstablePerformance?:       "included" | "required" | "excluded" | fn.#StringExpression
 	CpuManufacturers?: [..."intel" | "amd" | "amazon-web-services" | "apple" | fn.#StringExpression] |
 		fn.#ListExpression
 	ExcludedInstanceTypes?: list.MaxItems(400) & [...] & [
@@ -207,17 +372,56 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirementsRequest": close({
 	InstanceGenerations?: [..."current" | "previous" | fn.#StringExpression] | fn.#ListExpression
 	LocalStorage?:        "included" | "required" | "excluded" | fn.#StringExpression
 	LocalStorageTypes?:   [..."hdd" | "ssd" | fn.#StringExpression] | fn.#ListExpression
-	MaxSpotPriceAsPercentageOfOptimalOnDemandPrice?: int | fn.#NumberExpression
-	MemoryGiBPerVCpu?:      _#defs."/$defs/Properties/definitions/MemoryGiBPerVCpuRequest" | fn.#ObjectExpression
-	MemoryMiB?:             _#defs."/$defs/Properties/definitions/MemoryMiBRequest" | fn.#ObjectExpression
-	NetworkBandwidthGbps?:  _#defs."/$defs/Properties/definitions/NetworkBandwidthGbpsRequest" | fn.#ObjectExpression
-	NetworkInterfaceCount?: _#defs."/$defs/Properties/definitions/NetworkInterfaceCountRequest" | fn.#ObjectExpression
-	OnDemandMaxPricePercentageOverLowestPrice?: int | fn.#NumberExpression
-	RequireEncryptionInTransit?:                bool | fn.#BooleanExpression
-	RequireHibernateSupport?:                   bool | fn.#BooleanExpression
-	SpotMaxPricePercentageOverLowestPrice?:     int | fn.#NumberExpression
-	TotalLocalStorageGB?: _#defs."/$defs/Properties/definitions/TotalLocalStorageGBRequest" | fn.#ObjectExpression
-	VCpuCount?:           _#defs."/$defs/Properties/definitions/VCpuCountRangeRequest" | fn.#ObjectExpression
+	MaxSpotPriceAsPercentageOfOptimalOnDemandPrice?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MemoryGiBPerVCpu?:      _#defs."/$defs/Properties/definitions/MemoryGiBPerVCpuRequest"
+	MemoryMiB?:             _#defs."/$defs/Properties/definitions/MemoryMiBRequest"
+	NetworkBandwidthGbps?:  _#defs."/$defs/Properties/definitions/NetworkBandwidthGbpsRequest"
+	NetworkInterfaceCount?: _#defs."/$defs/Properties/definitions/NetworkInterfaceCountRequest"
+	OnDemandMaxPricePercentageOverLowestPrice?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RequireEncryptionInTransit?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RequireHibernateSupport?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SpotMaxPricePercentageOverLowestPrice?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TotalLocalStorageGB?: _#defs."/$defs/Properties/definitions/TotalLocalStorageGBRequest"
+	VCpuCount?:           _#defs."/$defs/Properties/definitions/VCpuCountRangeRequest"
 }) |
 fn.#ObjectExpression
 
@@ -225,73 +429,256 @@ _#defs: "/$defs/Properties/definitions/Ipv6AddressRequest": close({Ipv6Address?:
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MaintenanceStrategies": close(
-	{CapacityRebalance?: _#defs."/$defs/Properties/definitions/CapacityRebalance" | fn.#ObjectExpression},
+	{CapacityRebalance?: _#defs."/$defs/Properties/definitions/CapacityRebalance"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MemoryGiBPerVCpuRequest": close({
-	Max?: number | fn.#NumberExpression
-	Min?: number | fn.#NumberExpression
+	Max?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Min?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MemoryMiBRequest": close({
-	Max?: int | fn.#NumberExpression
-	Min?: int | fn.#NumberExpression
+	Max?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Min?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MultiAvailabilityZoneConfiguration": close({
 	ConfigurationType?: string | fn.#StringExpression
-	StandbyAvailabilityZones?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StandbyAvailabilityZone" | fn.#ObjectExpression
-	] |
+	StandbyAvailabilityZones?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StandbyAvailabilityZone"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkBandwidthGbpsRequest": close({
-	Max?: number | fn.#NumberExpression
-	Min?: number | fn.#NumberExpression
+	Max?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Min?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkInterfaceCountRequest": close({
-	Max?: int | fn.#NumberExpression
-	Min?: int | fn.#NumberExpression
+	Max?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Min?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkInterfaceSpecificationRequest": close({
-	AssociatePublicIpAddress?: bool | fn.#BooleanExpression
-	DeleteOnTermination?:      bool | fn.#BooleanExpression
+	AssociatePublicIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DeleteOnTermination?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Description?:              string | fn.#StringExpression
-	DeviceIndex?:              int | fn.#NumberExpression
-	Groups?:                   [...string | fn.#StringExpression] | fn.#ListExpression
-	InterfaceType?:            string | fn.#StringExpression
-	Ipv6AddressCount?:         int | fn.#NumberExpression
-	Ipv6Addresses?: [..._#defs."/$defs/Properties/definitions/Ipv6AddressRequest" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	NetworkCardIndex?:   int | fn.#NumberExpression
+	DeviceIndex?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Groups?:        [...string | fn.#StringExpression] | fn.#ListExpression
+	InterfaceType?: string | fn.#StringExpression
+	Ipv6AddressCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ipv6Addresses?: [..._#defs."/$defs/Properties/definitions/Ipv6AddressRequest"] | fn.#ListExpression
+	NetworkCardIndex?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	NetworkInterfaceId?: string | fn.#StringExpression
 	PrivateIpAddress?:   string | fn.#StringExpression
-	PrivateIpAddresses?: [
-		..._#defs."/$defs/Properties/definitions/PrivateIpAddressSpecificationRequest" | fn.#ObjectExpression
-	] |
+	PrivateIpAddresses?: [..._#defs."/$defs/Properties/definitions/PrivateIpAddressSpecificationRequest"] |
 		fn.#ListExpression
-	SecondaryPrivateIpAddressCount?: int | fn.#NumberExpression
-	SubnetId?:                       string | fn.#StringExpression
+	SecondaryPrivateIpAddressCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SubnetId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OnDemandOptionsRequest": close({
-	AllocationStrategy?: "lowest-price" | "prioritized" | fn.#StringExpression
-	CapacityReservationOptions?: _#defs."/$defs/Properties/definitions/CapacityReservationOptionsRequest" |
-		fn.#ObjectExpression
-	MaxTotalPrice?:          string | fn.#StringExpression
-	MinTargetCapacity?:      int | fn.#NumberExpression
-	SingleAvailabilityZone?: bool | fn.#BooleanExpression
-	SingleInstanceType?:     bool | fn.#BooleanExpression
+	AllocationStrategy?:         "lowest-price" | "prioritized" | fn.#StringExpression
+	CapacityReservationOptions?: _#defs."/$defs/Properties/definitions/CapacityReservationOptionsRequest"
+	MaxTotalPrice?:              string | fn.#StringExpression
+	MinTargetCapacity?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SingleAvailabilityZone?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SingleInstanceType?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -306,14 +693,27 @@ _#defs: "/$defs/Properties/definitions/Placement": close({
 	GroupName?:            string | fn.#StringExpression
 	HostId?:               string | fn.#StringExpression
 	HostResourceGroupArn?: string | fn.#StringExpression
-	PartitionNumber?:      int | fn.#NumberExpression
-	SpreadDomain?:         string | fn.#StringExpression
-	Tenancy?:              "dedicated" | "default" | "host" | fn.#StringExpression
+	PartitionNumber?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SpreadDomain?: string | fn.#StringExpression
+	Tenancy?:      "dedicated" | "default" | "host" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateIpAddressSpecificationRequest": close({
-	Primary?:          bool | fn.#BooleanExpression
+	Primary?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PrivateIpAddress?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -324,9 +724,8 @@ _#defs: "/$defs/Properties/definitions/ReservedCapacityFallbackOptionsRequest": 
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReservedCapacityOptionsRequest": close({
-	AllocationStrategy?: "prioritized" | fn.#StringExpression
-	CapacityReservationTarget?: _#defs."/$defs/Properties/definitions/CapacityReservationTargetRequest" |
-		fn.#ObjectExpression
+	AllocationStrategy?:        "prioritized" | fn.#StringExpression
+	CapacityReservationTarget?: _#defs."/$defs/Properties/definitions/CapacityReservationTargetRequest"
 	ReservationTypes?: list.UniqueItems() & [
 		..."on-demand-capacity-reservation" |
 			"capacity-block" |
@@ -334,8 +733,7 @@ _#defs: "/$defs/Properties/definitions/ReservedCapacityOptionsRequest": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	ReservedCapacityFallbackOptions?: _#defs."/$defs/Properties/definitions/ReservedCapacityFallbackOptionsRequest" |
-		fn.#ObjectExpression
+	ReservedCapacityFallbackOptions?: _#defs."/$defs/Properties/definitions/ReservedCapacityFallbackOptionsRequest"
 }) |
 fn.#ObjectExpression
 
@@ -351,12 +749,38 @@ _#defs: "/$defs/Properties/definitions/SpotOptionsRequest": close({
 		"price-capacity-optimized" |
 		fn.#StringExpression
 	InstanceInterruptionBehavior?: "hibernate" | "stop" | "terminate" | fn.#StringExpression
-	InstancePoolsToUseCount?:      int | fn.#NumberExpression
-	MaintenanceStrategies?:        _#defs."/$defs/Properties/definitions/MaintenanceStrategies" | fn.#ObjectExpression
-	MaxTotalPrice?:                string | fn.#StringExpression
-	MinTargetCapacity?:            int | fn.#NumberExpression
-	SingleAvailabilityZone?:       bool | fn.#BooleanExpression
-	SingleInstanceType?:           bool | fn.#BooleanExpression
+	InstancePoolsToUseCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaintenanceStrategies?: _#defs."/$defs/Properties/definitions/MaintenanceStrategies"
+	MaxTotalPrice?:         string | fn.#StringExpression
+	MinTargetCapacity?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SingleAvailabilityZone?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SingleInstanceType?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -421,28 +845,129 @@ _#defs: "/$defs/Properties/definitions/TagSpecification": close({
 		"vpn-connection" |
 		"vpn-gateway" |
 		fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TargetCapacitySpecificationRequest": close({
 	DefaultTargetCapacityType?: "on-demand" | "spot" | "capacity-block" | "reserved-capacity" | fn.#StringExpression
-	OnDemandTargetCapacity?:    int | fn.#NumberExpression
-	SpotTargetCapacity?:        int | fn.#NumberExpression
-	TargetCapacityUnitType?:    "vcpu" | "memory-mib" | "units" | fn.#StringExpression
-	TotalTargetCapacity!:       int | fn.#NumberExpression
+	OnDemandTargetCapacity?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SpotTargetCapacity?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TargetCapacityUnitType?: "vcpu" | "memory-mib" | "units" | fn.#StringExpression
+	TotalTargetCapacity!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TotalLocalStorageGBRequest": close({
-	Max?: number | fn.#NumberExpression
-	Min?: number | fn.#NumberExpression
+	Max?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Min?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VCpuCountRangeRequest": close({
-	Max?: int | fn.#NumberExpression
-	Min?: int | fn.#NumberExpression
+	Max?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Min?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

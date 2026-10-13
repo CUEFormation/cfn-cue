@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,14 +14,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::Route53GlobalResolver::AccessSource
 #Properties: close({
-	Cidr!:          _#defs."/$defs/Properties/definitions/Cidr" | fn.#StringExpression
+	Cidr!:          _#defs."/$defs/Properties/definitions/Cidr"
 	ClientToken?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	DnsViewId!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
-	IpAddressType?: _#defs."/$defs/Properties/definitions/IpAddressType" | fn.#StringExpression
-	Name?:          _#defs."/$defs/Properties/definitions/ResourceName" | fn.#StringExpression
-	Protocol!:      _#defs."/$defs/Properties/definitions/DnsProtocol" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	IpAddressType?: _#defs."/$defs/Properties/definitions/IpAddressType"
+	Name?:          _#defs."/$defs/Properties/definitions/ResourceName"
+	Protocol!:      _#defs."/$defs/Properties/definitions/DnsProtocol"
+	Tags?:          list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CRResourceStatus": "CREATING" |

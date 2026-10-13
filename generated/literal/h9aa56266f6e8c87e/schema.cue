@@ -39,7 +39,10 @@ import (
 		{[=~"^[\\s\\S]*$"]: strings.MaxRunes(5000) & strings.MinRunes(0)}})
 
 	// The ARN of the IAM role that the harness assumes when running.
-	ExecutionRoleArn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$"
+	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$"
 
 	// The unique identifier of the harness.
 	HarnessId?: =~"^[a-zA-Z][a-zA-Z0-9_]{0,39}-[a-zA-Z0-9]{10}$"
@@ -542,8 +545,10 @@ _#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
 _#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
 	EndpointIpAddressType!: "IPV4" | "IPV6"
 	RoutingDomain?:         strings.MaxRunes(255) & strings.MinRunes(3)
-	SecurityGroupIds?:      list.MaxItems(5) & [...] & [...=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$"]
-	SubnetIds!:             [...=~"^subnet-[0-9a-zA-Z]{8,17}$"]
+	SecurityGroupIds?: list.MaxItems(5) & [...] & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$"
+	]
+	SubnetIds!: [...=~"^subnet-[0-9a-zA-Z]{8,17}$"]
 	Tags?: struct.MaxFields(50) & close({
 
 		{[=~"^[a-zA-Z0-9\\s_.:/=+\\-@]{1,128}$"]: strings.MaxRunes(256) & =~"^[a-zA-Z0-9\\s_.:/=+\\-@]*$"}})
@@ -603,6 +608,8 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroups!: list.MaxItems(16) & list.MinItems(1) & [...=~"^sg-[0-9a-zA-Z]{8,17}$"]
-	Subnets!:        list.MaxItems(16) & list.MinItems(1) & [...=~"^subnet-[0-9a-zA-Z]{8,17}$"]
+	SecurityGroups!: list.MaxItems(16) & list.MinItems(1) & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-[0-9a-zA-Z]{8,17}$"
+	]
+	Subnets!: list.MaxItems(16) & list.MinItems(1) & [...=~"^subnet-[0-9a-zA-Z]{8,17}$"]
 })

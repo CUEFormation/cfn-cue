@@ -8,31 +8,47 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RTBFabric::ResponderGateway Resource Type
 #Properties: close({
-	AcmCertificateArn?: _#defs."/$defs/Properties/definitions/AcmCertificateArn" | fn.#StringExpression
-	Description?:       _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	DomainName?:        _#defs."/$defs/Properties/definitions/DomainName" | fn.#StringExpression
-	GatewayType?:       _#defs."/$defs/Properties/definitions/GatewayType" | fn.#StringExpression
-	ListenerConfig?:    _#defs."/$defs/Properties/definitions/ListenerConfig" | fn.#ObjectExpression
-	ManagedEndpointConfiguration?: _#defs."/$defs/Properties/definitions/ManagedEndpointConfiguration" |
-		fn.#ObjectExpression
-	Port!:                    _#defs."/$defs/Properties/definitions/Port" | fn.#NumberExpression
-	Protocol!:                _#defs."/$defs/Properties/definitions/Protocol" | fn.#StringExpression
-	SecurityGroupIds!:        _#defs."/$defs/Properties/definitions/SecurityGroupIds" | fn.#ListExpression
-	SubnetIds!:               _#defs."/$defs/Properties/definitions/SubnetIds" | fn.#ListExpression
-	Tags?:                    _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
-	TrustStoreConfiguration?: _#defs."/$defs/Properties/definitions/TrustStoreConfiguration" | fn.#ObjectExpression
-	VpcId!:                   _#defs."/$defs/Properties/definitions/VpcId" | fn.#StringExpression
+	AcmCertificateArn?:            _#defs."/$defs/Properties/definitions/AcmCertificateArn"
+	Description?:                  _#defs."/$defs/Properties/definitions/Description"
+	DomainName?:                   _#defs."/$defs/Properties/definitions/DomainName"
+	GatewayType?:                  _#defs."/$defs/Properties/definitions/GatewayType"
+	ListenerConfig?:               _#defs."/$defs/Properties/definitions/ListenerConfig"
+	ManagedEndpointConfiguration?: _#defs."/$defs/Properties/definitions/ManagedEndpointConfiguration"
+	Port!:                         _#defs."/$defs/Properties/definitions/Port"
+	Protocol!:                     _#defs."/$defs/Properties/definitions/Protocol"
+	SecurityGroupIds!:             _#defs."/$defs/Properties/definitions/SecurityGroupIds"
+	SubnetIds!:                    _#defs."/$defs/Properties/definitions/SubnetIds"
+	Tags?:                         _#defs."/$defs/Properties/definitions/Tags"
+	TrustStoreConfiguration?:      _#defs."/$defs/Properties/definitions/TrustStoreConfiguration"
+	VpcId!:                        _#defs."/$defs/Properties/definitions/VpcId"
 })
 
-_#defs: "/$defs/Properties/definitions/AcmCertificateArn": string | fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/AcmCertificateArn": =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ActiveLinksCount": int | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/ActiveLinksCount": int |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
 strings.MinRunes(20) &
@@ -45,9 +61,10 @@ _#defs: "/$defs/Properties/definitions/AutoScalingGroupNameList": list.UniqueIte
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/AutoScalingGroupsConfiguration": close({
-	AutoScalingGroupNameList!: _#defs."/$defs/Properties/definitions/AutoScalingGroupNameList" | fn.#ListExpression
-	HealthCheckConfig?:        _#defs."/$defs/Properties/definitions/HealthCheckConfig" | fn.#ObjectExpression
-	RoleArn!:                  string | fn.#StringExpression
+	AutoScalingGroupNameList!: _#defs."/$defs/Properties/definitions/AutoScalingGroupNameList"
+	HealthCheckConfig?:        _#defs."/$defs/Properties/definitions/HealthCheckConfig"
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -63,7 +80,7 @@ _#defs: "/$defs/Properties/definitions/CertificateAssociationStatus": "PENDING_A
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CertificateAuthorityCertificates": list.MaxItems(1) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Base64EncodedCertificateChain" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/Base64EncodedCertificateChain"
 ] |
 	fn.#ListExpression
 
@@ -85,12 +102,12 @@ _#defs: "/$defs/Properties/definitions/EksEndpointsConfiguration": close({
 	ClusterName!:                =~"^[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]$" | fn.#StringExpression
 	EndpointsResourceName!:      =~"^[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]$" | fn.#StringExpression
 	EndpointsResourceNamespace!: =~"^[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]$" | fn.#StringExpression
-	RoleArn!:                    string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExternalInboundEndpoint": _#defs."/$defs/Properties/definitions/DomainName" |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/ExternalInboundEndpoint": _#defs."/$defs/Properties/definitions/DomainName"
 
 _#defs: "/$defs/Properties/definitions/GatewayId": =~"^(rtbapp-[a-z0-9-]{1,25}|rtb-gw-[a-z0-9-]{1,25})$" |
 	fn.#StringExpression
@@ -98,36 +115,135 @@ _#defs: "/$defs/Properties/definitions/GatewayId": =~"^(rtbapp-[a-z0-9-]{1,25}|r
 _#defs: "/$defs/Properties/definitions/GatewayType": "EXTERNAL" | "INTERNAL" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
-	HealthyThresholdCount?:   int & <=10 & >=2 | fn.#NumberExpression
-	IntervalSeconds?:         int & <=60 & >=5 | fn.#NumberExpression
-	Path!:                    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/.*$" | fn.#StringExpression
-	Port!:                    int & <=65535 & >=80 | fn.#NumberExpression
-	Protocol?:                _#defs."/$defs/Properties/definitions/Protocol" | fn.#StringExpression
-	StatusCodeMatcher?:       strings.MaxRunes(2000) & strings.MinRunes(3) & =~"^[0-9,\\-]+$" | fn.#StringExpression
-	TimeoutMs?:               int & <=5000 & >=100 | fn.#NumberExpression
-	UnhealthyThresholdCount?: int & <=10 & >=2 | fn.#NumberExpression
+	HealthyThresholdCount?: int & <=10 & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10 &
+							>=2,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IntervalSeconds?: int & <=60 & >=5 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=60 &
+							>=5,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Path!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/.*$" | fn.#StringExpression
+	Port!: int & <=65535 & >=80 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=80,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Protocol?:          _#defs."/$defs/Properties/definitions/Protocol"
+	StatusCodeMatcher?: strings.MaxRunes(2000) & strings.MinRunes(3) & =~"^[0-9,\\-]+$" | fn.#StringExpression
+	TimeoutMs?: int & <=5000 & >=100 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=5000 &
+							>=100,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UnhealthyThresholdCount?: int & <=10 & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10 &
+							>=2,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InboundLinksCount": int | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/InboundLinksCount": int |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/ListenerConfig": close({
-	Protocols!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Protocol" | fn.#StringExpression
-	] |
+	Protocols!: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Protocol"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedEndpointConfiguration": matchN(1, [close({
-	AutoScalingGroupsConfiguration!: _#defs."/$defs/Properties/definitions/AutoScalingGroupsConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	EksEndpointsConfiguration!: _#defs."/$defs/Properties/definitions/EksEndpointsConfiguration" | fn.#ObjectExpression
-})]) & {[string]: fn.#Value} |
+_#defs: "/$defs/Properties/definitions/ManagedEndpointConfiguration": matchN(1, [close(
+	{AutoScalingGroupsConfiguration!: _#defs."/$defs/Properties/definitions/AutoScalingGroupsConfiguration"},
+), close(
+	{EksEndpointsConfiguration!: _#defs."/$defs/Properties/definitions/EksEndpointsConfiguration"},
+)]) & {[string]: fn.#Value} |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=65535 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Protocol": "HTTP" | "HTTPS" | fn.#StringExpression
 
@@ -143,7 +259,12 @@ _#defs: "/$defs/Properties/definitions/ResponderGatewayStatus": "PENDING_CREATIO
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SecurityGroupIds": list.MinItems(1) & list.UniqueItems() & [
-	...(string | string) & strings.MaxRunes(43) & strings.MinRunes(11) & =~"^sg-[0-9a-f]{8,40}$" | fn.#StringExpression
+	...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	string &
+	strings.MaxRunes(43) &
+	strings.MinRunes(11) &
+	=~"^sg-[0-9a-f]{8,40}$" |
+	fn.#StringExpression
 ] |
 fn.#ListExpression
 
@@ -160,21 +281,35 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/TotalLinksCount": int | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/TotalLinksCount": int |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/TrustStoreConfiguration": close({
-	CertificateAuthorityCertificates!: _#defs."/$defs/Properties/definitions/CertificateAuthorityCertificates" |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/TrustStoreConfiguration": close(
+	{CertificateAuthorityCertificates!: _#defs."/$defs/Properties/definitions/CertificateAuthorityCertificates"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UpdatedTimestamp": string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VpcId": strings.MaxRunes(50) & strings.MinRunes(5) & =~"^vpc-[a-f0-9]{8,17}$" |
+_#defs: "/$defs/Properties/definitions/VpcId": =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(50) &
+strings.MinRunes(5) &
+=~"^vpc-[a-f0-9]{8,17}$" |
 fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::RTBFabric::ResponderGateway"

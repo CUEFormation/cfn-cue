@@ -32,9 +32,7 @@ fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CatalogResource": string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ColumnNames": [
-	..._#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-] |
+_#defs: "/$defs/Properties/definitions/ColumnNames": [..._#defs."/$defs/Properties/definitions/NameString"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ColumnWildcard": close(
@@ -56,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/DataLakePrincipal": close({
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataLakePrincipalList": [
-	..._#defs."/$defs/Properties/definitions/DataLakePrincipal" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/DataLakePrincipal"
 ] |
 	fn.#ListExpression
 
@@ -76,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/DatabaseResource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Expression": list.MaxItems(5) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/LFTag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/LFTag"
 ] |
 	fn.#ListExpression
 
@@ -98,9 +96,9 @@ _#defs: "/$defs/Properties/definitions/LFTagKeyResource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LFTagPair": close({
-	CatalogId?: _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	TagKey!:    _#defs."/$defs/Properties/definitions/LFTagKey" | fn.#StringExpression
-	TagValues!: _#defs."/$defs/Properties/definitions/TagValueList" | fn.#ListExpression
+	CatalogId?: _#defs."/$defs/Properties/definitions/CatalogIdString"
+	TagKey!:    _#defs."/$defs/Properties/definitions/LFTagKey"
+	TagValues!: _#defs."/$defs/Properties/definitions/TagValueList"
 }) |
 fn.#ObjectExpression
 
@@ -113,14 +111,20 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LFTagValue": strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LFTagsList": [
-	..._#defs."/$defs/Properties/definitions/LFTagPair" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/LFTagsList": [..._#defs."/$defs/Properties/definitions/LFTagPair"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/NameString": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NullableBoolean": null | bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/NullableBoolean": null |
+	bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/PathString": string | fn.#StringExpression
 
@@ -139,25 +143,23 @@ _#defs: "/$defs/Properties/definitions/Permission": "ALL" |
 	"GRANT_WITH_LF_TAG_EXPRESSION" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PermissionList": [
-	..._#defs."/$defs/Properties/definitions/Permission" | fn.#StringExpression
-] |
+_#defs: "/$defs/Properties/definitions/PermissionList": [..._#defs."/$defs/Properties/definitions/Permission"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/PrincipalPermissions": close({
-	DataLakePrincipal?: _#defs."/$defs/Properties/definitions/DataLakePrincipal" | fn.#ObjectExpression
-	PermissionList?:    _#defs."/$defs/Properties/definitions/PermissionList" | fn.#ListExpression
+	DataLakePrincipal?: _#defs."/$defs/Properties/definitions/DataLakePrincipal"
+	PermissionList?:    _#defs."/$defs/Properties/definitions/PermissionList"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrincipalPermissionsList": [
-	..._#defs."/$defs/Properties/definitions/PrincipalPermissions" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/PrincipalPermissions"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/PrincipalResourcePair": close({
-	Principal!: _#defs."/$defs/Properties/definitions/DataLakePrincipal" | fn.#ObjectExpression
-	Resource!:  _#defs."/$defs/Properties/definitions/Resource" | fn.#ObjectExpression
+	Principal!: _#defs."/$defs/Properties/definitions/DataLakePrincipal"
+	Resource!:  _#defs."/$defs/Properties/definitions/Resource"
 }) |
 fn.#ObjectExpression
 
@@ -200,7 +202,7 @@ _#defs: "/$defs/Properties/definitions/TableWithColumnsResource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TagValueList": list.MaxItems(50) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/LFTagValue" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/LFTagValue"
 ] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {

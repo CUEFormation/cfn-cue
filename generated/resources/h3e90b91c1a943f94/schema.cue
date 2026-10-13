@@ -16,14 +16,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Action!: _#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression
 	Event!:  _#defs."/$defs/Properties/definitions/Event" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Action": close({
-	ExportRevisionToS3?: _#defs."/$defs/Properties/definitions/AutoExportRevisionToS3RequestDetails" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/Action": close(
+	{ExportRevisionToS3?: _#defs."/$defs/Properties/definitions/AutoExportRevisionToS3RequestDetails"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AutoExportRevisionDestinationEntry": close({
@@ -33,20 +31,20 @@ _#defs: "/$defs/Properties/definitions/AutoExportRevisionDestinationEntry": clos
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AutoExportRevisionToS3RequestDetails": close({
-	Encryption?: _#defs."/$defs/Properties/definitions/ExportServerSideEncryption" | fn.#ObjectExpression
-	RevisionDestination!: _#defs."/$defs/Properties/definitions/AutoExportRevisionDestinationEntry" |
-		fn.#ObjectExpression
+	Encryption?:          _#defs."/$defs/Properties/definitions/ExportServerSideEncryption"
+	RevisionDestination!: _#defs."/$defs/Properties/definitions/AutoExportRevisionDestinationEntry"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Event": close(
-	{RevisionPublished?: _#defs."/$defs/Properties/definitions/RevisionPublished" | fn.#ObjectExpression},
+	{RevisionPublished?: _#defs."/$defs/Properties/definitions/RevisionPublished"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExportServerSideEncryption": close({
-	KmsKeyArn?: string | fn.#StringExpression
-	Type!:      "aws:kms" | "AES256" | fn.#StringExpression
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Type!: "aws:kms" | "AES256" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

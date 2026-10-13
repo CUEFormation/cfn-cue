@@ -13,16 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::DirectConnect::DirectConnectGatewayAssociation
 #Properties: close({
-	AcceptDirectConnectGatewayAssociationProposalRoleArn?: =~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$" |
+	AcceptDirectConnectGatewayAssociationProposalRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$" |
 		fn.#StringExpression
 	AllowedPrefixesToDirectConnectGateway?: list.MinItems(1) & list.UniqueItems() & [
 		...=~"^[0-9a-fA-F:.]+/[0-9]+$" | fn.#StringExpression
 	] |
 		fn.#ListExpression
-	AssociatedGatewayId!: (string | string | string) &
+	AssociatedGatewayId!: string &
 		=~"^((arn:aws[a-z-]*:ec2:[a-z0-9-]+:[0-9]{12}:(vpn-gateway/vgw|transit-gateway/tgw))|(vgw|tgw))-[a-zA-Z0-9]{8,32}$" |
 		fn.#StringExpression
-	DirectConnectGatewayId!: (string | string) &
+	DirectConnectGatewayId!: string &
 		=~"^(arn:aws[a-z-]*:directconnect::[0-9]{12}:dx-gateway/)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
 		fn.#StringExpression
 })

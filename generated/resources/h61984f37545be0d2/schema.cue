@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"struct"
 	"time"
 )
@@ -15,16 +15,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::MWAAServerless::Workflow resource
 #Properties: close({
-	Code?:                    _#defs."/$defs/Properties/definitions/Code" | fn.#ObjectExpression
-	DefinitionS3Location!:    _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
-	Description?:             _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
-	LoggingConfiguration?:    _#defs."/$defs/Properties/definitions/LoggingConfiguration" | fn.#ObjectExpression
-	Name?:                    _#defs."/$defs/Properties/definitions/Name" | fn.#StringExpression
-	NetworkConfiguration?:    _#defs."/$defs/Properties/definitions/NetworkConfiguration" | fn.#ObjectExpression
-	RoleArn!:                 _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
-	Tags?:                    _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
-	TriggerMode?:             _#defs."/$defs/Properties/definitions/TriggerMode" | fn.#StringExpression
+	Code?:                    _#defs."/$defs/Properties/definitions/Code"
+	DefinitionS3Location!:    _#defs."/$defs/Properties/definitions/S3Location"
+	Description?:             _#defs."/$defs/Properties/definitions/Description"
+	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	LoggingConfiguration?:    _#defs."/$defs/Properties/definitions/LoggingConfiguration"
+	Name?:                    _#defs."/$defs/Properties/definitions/Name"
+	NetworkConfiguration?:    _#defs."/$defs/Properties/definitions/NetworkConfiguration"
+	RoleArn!:                 _#defs."/$defs/Properties/definitions/RoleArn"
+	Tags?:                    _#defs."/$defs/Properties/definitions/Tags"
+	TriggerMode?:             _#defs."/$defs/Properties/definitions/TriggerMode"
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
@@ -33,7 +33,7 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Code": close(
-	{S3Location?: _#defs."/$defs/Properties/definitions/CodeS3Location" | fn.#ObjectExpression},
+	{S3Location?: _#defs."/$defs/Properties/definitions/CodeS3Location"},
 ) |
 	fn.#ObjectExpression
 
@@ -48,8 +48,10 @@ _#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1024) & st
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	KmsKeyId?: string | string | string | fn.#StringExpression
-	Type!:     "AWS_MANAGED_KEY" | "CUSTOMER_MANAGED_KEY" | fn.#StringExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	Type!: "AWS_MANAGED_KEY" | "CUSTOMER_MANAGED_KEY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -64,14 +66,21 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
-	SecurityGroupIds?: [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^sg-[a-z0-9]*$" | fn.#StringExpression] |
+	SecurityGroupIds?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^sg-[a-z0-9]*$" |
+		fn.#StringExpression
+	] |
 	fn.#ListExpression
 	SubnetIds?: [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^subnet-[a-z0-9]*$" | fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(2048) &
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(?:-(?:cn|us-gov|iso|iso-b|iso-e|iso-f))?:iam::[0-9]{12}:role(/[a-zA-Z0-9+=,.@_-]{1,512})*?/[a-zA-Z0-9+=,.@_-]{1,64}$" |
 fn.#StringExpression

@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Transfer::WebApp
 #Properties: close({
 	AccessEndpoint?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	EndpointDetails?: _#defs."/$defs/Properties/definitions/EndpointDetails" | fn.#ObjectExpression
+	EndpointDetails?: _#defs."/$defs/Properties/definitions/EndpointDetails"
 	IdentityProviderDetails!: close({
 		InstanceArn?: strings.MaxRunes(1224) &
 		strings.MinRunes(10) &
@@ -25,16 +29,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	WebAppCustomization?:  _#defs."/$defs/Properties/definitions/WebAppCustomization" | fn.#ObjectExpression
-	WebAppEndpointPolicy?: _#defs."/$defs/Properties/definitions/WebAppEndpointPolicy" | fn.#StringExpression
-	WebAppUnits?:          _#defs."/$defs/Properties/definitions/WebAppUnits" | fn.#ValueExpression
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	WebAppCustomization?:  _#defs."/$defs/Properties/definitions/WebAppCustomization"
+	WebAppEndpointPolicy?: _#defs."/$defs/Properties/definitions/WebAppEndpointPolicy"
+	WebAppUnits?:          _#defs."/$defs/Properties/definitions/WebAppUnits"
 })
 
-_#defs: "/$defs/Properties/definitions/EndpointDetails": close(
-	{Vpc?: _#defs."/$defs/Properties/definitions/Vpc" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/EndpointDetails": close({Vpc?: _#defs."/$defs/Properties/definitions/Vpc"}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IdentityProviderDetails": close({
@@ -60,14 +61,22 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/Vpc": close({
 	IpAddressType?: "IPV4" | "DUALSTACK" | fn.#StringExpression
 	SecurityGroupIds?: list.MaxItems(10) & [
-		...strings.MaxRunes(20) & strings.MinRunes(11) & =~"^sg-[0-9a-f]{8,17}$" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(20) &
+		strings.MinRunes(11) &
+		=~"^sg-[0-9a-f]{8,17}$" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SubnetIds?: list.MaxItems(10) & [
 		...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[0-9a-f]{8,17}$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	VpcId?: strings.MaxRunes(21) & strings.MinRunes(12) & =~"^vpc-[0-9a-f]{8,17}$" | fn.#StringExpression
+	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(21) &
+	strings.MinRunes(12) &
+	=~"^vpc-[0-9a-f]{8,17}$" |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -80,7 +89,23 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WebAppEndpointPolicy": "STANDARD" | "FIPS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WebAppUnits": close({Provisioned!: int & >=1 | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/WebAppUnits": close({
+	Provisioned!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ValueExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Transfer::WebApp"

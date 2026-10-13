@@ -7,23 +7,39 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAF::WebACL
 #Properties: close({
-	DefaultAction!: _#defs."/$defs/Properties/definitions/WafAction" | fn.#ObjectExpression
+	DefaultAction!: _#defs."/$defs/Properties/definitions/WafAction"
 	MetricName!:    string | fn.#StringExpression
 	Name!:          string | fn.#StringExpression
-	Rules?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ActivatedRule" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Rules?:         list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ActivatedRule"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ActivatedRule": close({
-	Action?:   _#defs."/$defs/Properties/definitions/WafAction" | fn.#ObjectExpression
-	Priority!: int | fn.#NumberExpression
-	RuleId!:   string | fn.#StringExpression
+	Action?: _#defs."/$defs/Properties/definitions/WafAction"
+	Priority!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RuleId!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

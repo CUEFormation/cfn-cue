@@ -9,5 +9,5 @@ package schema
 	ApplicationId!:        string
 	DestinationStreamArn!: string
 	Id?:                   string
-	RoleArn!:              string
+	RoleArn!:              =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })

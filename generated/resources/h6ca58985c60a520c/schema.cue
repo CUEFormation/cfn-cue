@@ -15,8 +15,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::ControlTower::LandingZone Resource Type
 #Properties: close({
 	Manifest!:         string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	RemediationTypes?: _#defs."/$defs/Properties/definitions/RemediationTypes" | fn.#ListExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	RemediationTypes?: _#defs."/$defs/Properties/definitions/RemediationTypes"
+	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Version!:          strings.MaxRunes(10) & strings.MinRunes(3) & =~"\\d+.\\d+" | fn.#StringExpression
 })
 

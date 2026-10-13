@@ -39,7 +39,7 @@ import (
 	NetworkType?: "IPV4" | "DUALSTACK"
 
 	// The identifier (ID) of the cluster's security group.
-	SecurityGroup?: =~"^sg-[0-9a-fA-F]{8,17}$"
+	SecurityGroup?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-[0-9a-fA-F]{8,17}$"
 
 	// The cluster's state.
 	State?: "CREATE_IN_PROGRESS" |
@@ -73,5 +73,5 @@ import (
 	})]
 
 	// The identifier (ID) of the virtual private cloud (VPC) that contains the cluster.
-	VpcId?: string
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })

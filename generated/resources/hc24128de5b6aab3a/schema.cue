@@ -18,16 +18,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // there's an exact match of a query, then one or more specific documents are
 // featured in the search results.
 #Properties: close({
-	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-	FeaturedDocuments?: [..._#defs."/$defs/Properties/definitions/FeaturedDocument" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Description?:       strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
+	FeaturedDocuments?: [..._#defs."/$defs/Properties/definitions/FeaturedDocument"] | fn.#ListExpression
 	FeaturedResultsSetName!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][ a-zA-Z0-9_-]*$" |
 	fn.#StringExpression
 	IndexId!:    strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" | fn.#StringExpression
 	QueryTexts?: list.MaxItems(49) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 	Status?:     "ACTIVE" | "INACTIVE" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:       list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/FeaturedDocument": close(

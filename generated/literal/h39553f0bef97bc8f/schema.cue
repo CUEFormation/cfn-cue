@@ -6,7 +6,7 @@ package schema
 
 // Resource Type definition for AWS::Backup::RestoreTestingSelection
 #Properties: close({
-	IamRoleArn!:                  string
+	IamRoleArn!:                  =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	ProtectedResourceArns?:       [...string]
 	ProtectedResourceConditions?: _#defs."/$defs/Properties/definitions/ProtectedResourceConditions"
 	ProtectedResourceType!:       string

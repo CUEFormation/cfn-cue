@@ -14,17 +14,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Deadline::LicenseEndpoint
 #Properties: close({
-	SecurityGroupIds!: list.MaxItems(10) & list.MinItems(1) & [...=~"^sg-[\\w]{1,120}$" | fn.#StringExpression] |
+	SecurityGroupIds!: list.MaxItems(10) & list.MinItems(1) & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^sg-[\\w]{1,120}$" |
+			fn.#StringExpression
+	] |
 		fn.#ListExpression
 	SubnetIds!: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"^subnet-[\\w]{1,120}$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	VpcId!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^vpc-[\\w]{1,120}$" | fn.#StringExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(1) &
+	=~"^vpc-[\\w]{1,120}$" |
+	fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/LicenseEndpointStatus": "CREATE_IN_PROGRESS" |

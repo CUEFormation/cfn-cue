@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::IoT::Thing
 #Properties: close({
-	AttributePayload?: _#defs."/$defs/Properties/definitions/AttributePayload" | fn.#ObjectExpression
+	AttributePayload?: _#defs."/$defs/Properties/definitions/AttributePayload"
 	ThingName?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
 })
 

@@ -12,8 +12,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	MeshName!:           string | fn.#StringExpression
 	MeshOwner?:          string | fn.#StringExpression
-	Spec!:               _#defs."/$defs/Properties/definitions/VirtualServiceSpec" | fn.#ObjectExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Spec!:               _#defs."/$defs/Properties/definitions/VirtualServiceSpec"
+	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VirtualServiceName!: string | fn.#StringExpression
 })
 
@@ -34,13 +34,13 @@ _#defs: "/$defs/Properties/definitions/VirtualRouterServiceProvider": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualServiceProvider": close({
-	VirtualNode?:   _#defs."/$defs/Properties/definitions/VirtualNodeServiceProvider" | fn.#ObjectExpression
-	VirtualRouter?: _#defs."/$defs/Properties/definitions/VirtualRouterServiceProvider" | fn.#ObjectExpression
+	VirtualNode?:   _#defs."/$defs/Properties/definitions/VirtualNodeServiceProvider"
+	VirtualRouter?: _#defs."/$defs/Properties/definitions/VirtualRouterServiceProvider"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualServiceSpec": close(
-	{Provider?: _#defs."/$defs/Properties/definitions/VirtualServiceProvider" | fn.#ObjectExpression},
+	{Provider?: _#defs."/$defs/Properties/definitions/VirtualServiceProvider"},
 ) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -9,6 +9,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,28 +20,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::S3::StorageLensGroup resource is an Amazon S3 resource type that you
 // can use to create Storage Lens Group.
 #Properties: close({
-	Filter!: _#defs."/$defs/Properties/definitions/Filter" | fn.#ObjectExpression
-	Name!:   _#defs."/$defs/Properties/definitions/Name" | fn.#StringExpression
-	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Filter!: _#defs."/$defs/Properties/definitions/Filter"
+	Name!:   _#defs."/$defs/Properties/definitions/Name"
+	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/And": struct.MinFields(2) & close({
-	MatchAnyPrefix?:  _#defs."/$defs/Properties/definitions/MatchAnyPrefix" | fn.#ListExpression
-	MatchAnySuffix?:  _#defs."/$defs/Properties/definitions/MatchAnySuffix" | fn.#ListExpression
-	MatchAnyTag?:     _#defs."/$defs/Properties/definitions/MatchAnyTag" | fn.#ListExpression
-	MatchObjectAge?:  _#defs."/$defs/Properties/definitions/MatchObjectAge" | fn.#ObjectExpression
-	MatchObjectSize?: _#defs."/$defs/Properties/definitions/MatchObjectSize" | fn.#ObjectExpression
+	MatchAnyPrefix?:  _#defs."/$defs/Properties/definitions/MatchAnyPrefix"
+	MatchAnySuffix?:  _#defs."/$defs/Properties/definitions/MatchAnySuffix"
+	MatchAnyTag?:     _#defs."/$defs/Properties/definitions/MatchAnyTag"
+	MatchObjectAge?:  _#defs."/$defs/Properties/definitions/MatchObjectAge"
+	MatchObjectSize?: _#defs."/$defs/Properties/definitions/MatchObjectSize"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Filter": close({
-	And?:             _#defs."/$defs/Properties/definitions/And" | fn.#ObjectExpression
-	MatchAnyPrefix?:  _#defs."/$defs/Properties/definitions/MatchAnyPrefix" | fn.#ListExpression
-	MatchAnySuffix?:  _#defs."/$defs/Properties/definitions/MatchAnySuffix" | fn.#ListExpression
-	MatchAnyTag?:     _#defs."/$defs/Properties/definitions/MatchAnyTag" | fn.#ListExpression
-	MatchObjectAge?:  _#defs."/$defs/Properties/definitions/MatchObjectAge" | fn.#ObjectExpression
-	MatchObjectSize?: _#defs."/$defs/Properties/definitions/MatchObjectSize" | fn.#ObjectExpression
-	Or?:              _#defs."/$defs/Properties/definitions/Or" | fn.#ObjectExpression
+	And?:             _#defs."/$defs/Properties/definitions/And"
+	MatchAnyPrefix?:  _#defs."/$defs/Properties/definitions/MatchAnyPrefix"
+	MatchAnySuffix?:  _#defs."/$defs/Properties/definitions/MatchAnySuffix"
+	MatchAnyTag?:     _#defs."/$defs/Properties/definitions/MatchAnyTag"
+	MatchObjectAge?:  _#defs."/$defs/Properties/definitions/MatchObjectAge"
+	MatchObjectSize?: _#defs."/$defs/Properties/definitions/MatchObjectSize"
+	Or?:              _#defs."/$defs/Properties/definitions/Or"
 }) |
 fn.#ObjectExpression
 
@@ -52,19 +56,75 @@ _#defs: "/$defs/Properties/definitions/MatchAnySuffix": list.UniqueItems() & [
 fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/MatchAnyTag": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/MatchObjectAge": close({
-	DaysGreaterThan?: int & >=1 | fn.#NumberExpression
-	DaysLessThan?:    int & >=1 | fn.#NumberExpression
+	DaysGreaterThan?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DaysLessThan?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MatchObjectSize": close({
-	BytesGreaterThan?: int & >=1 | fn.#NumberExpression
-	BytesLessThan?:    int & >=1 | fn.#NumberExpression
+	BytesGreaterThan?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	BytesLessThan?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -72,11 +132,11 @@ _#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(64) & strings.Min
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Or": struct.MinFields(2) & close({
-	MatchAnyPrefix?:  _#defs."/$defs/Properties/definitions/MatchAnyPrefix" | fn.#ListExpression
-	MatchAnySuffix?:  _#defs."/$defs/Properties/definitions/MatchAnySuffix" | fn.#ListExpression
-	MatchAnyTag?:     _#defs."/$defs/Properties/definitions/MatchAnyTag" | fn.#ListExpression
-	MatchObjectAge?:  _#defs."/$defs/Properties/definitions/MatchObjectAge" | fn.#ObjectExpression
-	MatchObjectSize?: _#defs."/$defs/Properties/definitions/MatchObjectSize" | fn.#ObjectExpression
+	MatchAnyPrefix?:  _#defs."/$defs/Properties/definitions/MatchAnyPrefix"
+	MatchAnySuffix?:  _#defs."/$defs/Properties/definitions/MatchAnySuffix"
+	MatchAnyTag?:     _#defs."/$defs/Properties/definitions/MatchAnyTag"
+	MatchObjectAge?:  _#defs."/$defs/Properties/definitions/MatchObjectAge"
+	MatchObjectSize?: _#defs."/$defs/Properties/definitions/MatchObjectSize"
 }) |
 fn.#ObjectExpression
 

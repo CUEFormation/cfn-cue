@@ -3,9 +3,13 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -13,15 +17,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for Activity
 #Properties: close({
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
+	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
 	Name!:                    strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/TagsEntry" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                    [..._#defs."/$defs/Properties/definitions/TagsEntry"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	KmsDataKeyReusePeriodSeconds?: int & <=900 & >=60 | fn.#NumberExpression
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) | fn.#StringExpression
-	Type!:     "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KEY" | fn.#StringExpression
+	KmsDataKeyReusePeriodSeconds?: int & <=900 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=900 &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	fn.#StringExpression
+	Type!: "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KEY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

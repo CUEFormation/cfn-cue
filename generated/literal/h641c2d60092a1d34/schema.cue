@@ -37,7 +37,7 @@ import (
 	FullEngineVersion?: string
 
 	// The ID of the KMS key used to encrypt the cluster.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The major engine version of the Serverless Cache.
 	MajorEngineVersion?: string
@@ -45,7 +45,7 @@ import (
 	ReaderEndpoint?:     _#defs."/$defs/Properties/definitions/Endpoint"
 
 	// One or more Amazon VPC security groups associated with this Serverless Cache.
-	SecurityGroupIds?: list.UniqueItems() & [...string]
+	SecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// The name of the Serverless Cache. This value must be unique.
 	ServerlessCacheName!: string

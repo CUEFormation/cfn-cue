@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,10 +20,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Rules!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Rule" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	TargetArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	Rules!:       list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression
+	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TargetArn!:   strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ColumnSelector": close({
@@ -28,7 +31,14 @@ _#defs: "/$defs/Properties/definitions/ColumnSelector": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Disabled": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/Disabled": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/Expression": strings.MaxRunes(1024) &
 strings.MinRunes(4) &
@@ -36,15 +46,12 @@ strings.MinRunes(4) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Rule": close({
-	CheckExpression!: _#defs."/$defs/Properties/definitions/Expression" | fn.#StringExpression
-	ColumnSelectors?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ColumnSelector" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Disabled?:        _#defs."/$defs/Properties/definitions/Disabled" | fn.#BooleanExpression
+	CheckExpression!: _#defs."/$defs/Properties/definitions/Expression"
+	ColumnSelectors?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnSelector"] | fn.#ListExpression
+	Disabled?:        _#defs."/$defs/Properties/definitions/Disabled"
 	Name!:            strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	SubstitutionMap?: _#defs."/$defs/Properties/definitions/ValuesMap" | fn.#ListExpression
-	Threshold?:       _#defs."/$defs/Properties/definitions/Threshold" | fn.#ObjectExpression
+	SubstitutionMap?: _#defs."/$defs/Properties/definitions/ValuesMap"
+	Threshold?:       _#defs."/$defs/Properties/definitions/Threshold"
 }) |
 fn.#ObjectExpression
 
@@ -61,9 +68,9 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Threshold": close({
-	Type?:  _#defs."/$defs/Properties/definitions/ThresholdType" | fn.#StringExpression
-	Unit?:  _#defs."/$defs/Properties/definitions/ThresholdUnit" | fn.#StringExpression
-	Value!: _#defs."/$defs/Properties/definitions/ThresholdValue" | fn.#NumberExpression
+	Type?:  _#defs."/$defs/Properties/definitions/ThresholdType"
+	Unit?:  _#defs."/$defs/Properties/definitions/ThresholdUnit"
+	Value!: _#defs."/$defs/Properties/definitions/ThresholdValue"
 }) |
 fn.#ObjectExpression
 
@@ -75,11 +82,27 @@ _#defs: "/$defs/Properties/definitions/ThresholdType": "GREATER_THAN_OR_EQUAL" |
 
 _#defs: "/$defs/Properties/definitions/ThresholdUnit": "COUNT" | "PERCENTAGE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ThresholdValue": >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/ThresholdValue": >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						>=0,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ValuesMap": [
-	..._#defs."/$defs/Properties/definitions/SubstitutionValue" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/ValuesMap": [..._#defs."/$defs/Properties/definitions/SubstitutionValue"] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::DataBrew::Ruleset"

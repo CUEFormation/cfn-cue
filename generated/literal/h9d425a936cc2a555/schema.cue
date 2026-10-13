@@ -120,5 +120,8 @@ _#defs: "/$defs/Properties/definitions/S3AccessPointOpenZFSConfiguration": close
 _#defs: "/$defs/Properties/definitions/S3AccessPointVpcConfiguration": close({
 	// Specifies the virtual private cloud (VPC) for the S3 access point VPC
 	// configuration, if one exists.
-	VpcId!: strings.MaxRunes(21) & strings.MinRunes(12) & =~"^(vpc-[0-9a-f]{8,})$"
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(21) &
+	strings.MinRunes(12) &
+	=~"^(vpc-[0-9a-f]{8,})$"
 })

@@ -28,7 +28,7 @@ import (
 	Tags?: _#defs."/$defs/Properties/definitions/Tags"
 
 	// The ID of the VPC.
-	VpcId!: string
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

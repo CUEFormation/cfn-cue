@@ -1,0 +1,6 @@
+Resources:
+  Thing:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: compatibility.fifo
+      FifoQueue: maybe

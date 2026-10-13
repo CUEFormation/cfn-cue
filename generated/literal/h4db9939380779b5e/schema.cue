@@ -17,7 +17,10 @@ import "strings"
 	BasicAuthConfig?:          _#defs."/$defs/Properties/definitions/BasicAuthConfig"
 	BuildSpec?:                strings.MaxRunes(25000) & strings.MinRunes(1) & =~"(?s).+"
 	CacheConfig?:              _#defs."/$defs/Properties/definitions/CacheConfig"
-	ComputeRoleArn?:           strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*"
+	ComputeRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1000) &
+	strings.MinRunes(0) &
+	=~"(?s).*"
 	CustomHeaders?:            strings.MaxRunes(25000) & strings.MinRunes(0) & =~"(?s).*"
 	CustomRules?:              [..._#defs."/$defs/Properties/definitions/CustomRule"]
 	DefaultDomain?:            strings.MaxRunes(1000) & strings.MinRunes(0)

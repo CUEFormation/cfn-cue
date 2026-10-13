@@ -124,7 +124,10 @@ _#defs: "/$defs/Properties/definitions/LoggingConfig": close({
 
 	// The ARN of the role that CloudFormation should assume when sending log
 	// entries to CloudWatch Logs.
-	LogRoleArn!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:.+:iam::[0-9]{12}:role/.+"
+	LogRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"arn:.+:iam::[0-9]{12}:role/.+"
 })
 
 // IAM Role ARN

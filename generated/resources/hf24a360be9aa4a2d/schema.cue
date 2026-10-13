@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -21,12 +25,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	MaxErrors?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]*|[0]|[1-9][0-9]%|[0-9]%|100%)$" |
 	fn.#StringExpression
-	Name?:           strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
-	Priority!:       int & >=0 | fn.#NumberExpression
-	ServiceRoleArn?: string | fn.#StringExpression
-	Targets?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Target" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TaskArn!:                  strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+	Name?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
+	Priority!: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ServiceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Targets?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Target"] | fn.#ListExpression
+	TaskArn!: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
 	TaskInvocationParameters?: _#defs."/$defs/Properties/definitions/TaskInvocationParameters" | fn.#ObjectExpression
 	TaskParameters?:           string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
 	TaskType!:                 "AUTOMATION" | "LAMBDA" | "RUN_COMMAND" | "STEP_FUNCTIONS" | fn.#StringExpression
@@ -35,7 +53,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 _#defs: "/$defs/Properties/definitions/CloudWatchOutputConfig": close({
 	CloudWatchLogGroupName?:  string | fn.#StringExpression
-	CloudWatchOutputEnabled?: bool | fn.#BooleanExpression
+	CloudWatchOutputEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -60,17 +78,31 @@ _#defs: "/$defs/Properties/definitions/MaintenanceWindowLambdaParameters": close
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MaintenanceWindowRunCommandParameters": close({
-	CloudWatchOutputConfig?: _#defs."/$defs/Properties/definitions/CloudWatchOutputConfig" | fn.#ObjectExpression
+	CloudWatchOutputConfig?: _#defs."/$defs/Properties/definitions/CloudWatchOutputConfig"
 	Comment?:                string | fn.#StringExpression
 	DocumentHash?:           string | fn.#StringExpression
 	DocumentHashType?:       string | fn.#StringExpression
 	DocumentVersion?:        string | fn.#StringExpression
-	NotificationConfig?:     _#defs."/$defs/Properties/definitions/NotificationConfig" | fn.#ObjectExpression
+	NotificationConfig?:     _#defs."/$defs/Properties/definitions/NotificationConfig"
 	OutputS3BucketName?:     string | fn.#StringExpression
 	OutputS3KeyPrefix?:      string | fn.#StringExpression
 	Parameters?:             string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	ServiceRoleArn?:         string | fn.#StringExpression
-	TimeoutSeconds?:         int | fn.#NumberExpression
+	ServiceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	TimeoutSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -99,14 +131,11 @@ _#defs: "/$defs/Properties/definitions/Target": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TaskInvocationParameters": close({
-	MaintenanceWindowAutomationParameters?: _#defs."/$defs/Properties/definitions/MaintenanceWindowAutomationParameters" |
-		fn.#ObjectExpression
-	MaintenanceWindowLambdaParameters?: _#defs."/$defs/Properties/definitions/MaintenanceWindowLambdaParameters" |
-		fn.#ObjectExpression
-	MaintenanceWindowRunCommandParameters?: _#defs."/$defs/Properties/definitions/MaintenanceWindowRunCommandParameters" |
-		fn.#ObjectExpression
-	MaintenanceWindowStepFunctionsParameters?: _#defs."/$defs/Properties/definitions/MaintenanceWindowStepFunctionsParameters" |
-		fn.#ObjectExpression
+	MaintenanceWindowAutomationParameters?: _#defs."/$defs/Properties/definitions/MaintenanceWindowAutomationParameters"
+	MaintenanceWindowLambdaParameters?:     _#defs."/$defs/Properties/definitions/MaintenanceWindowLambdaParameters"
+	MaintenanceWindowRunCommandParameters?: _#defs."/$defs/Properties/definitions/MaintenanceWindowRunCommandParameters"
+	MaintenanceWindowStepFunctionsParameters?:
+		_#defs."/$defs/Properties/definitions/MaintenanceWindowStepFunctionsParameters"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -30,7 +30,7 @@ import (
 
 	// The ID or the Amazon Resource Name (ARN) of the customer managed KMS Key used
 	// for encrypting environment-related resources.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048)
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & strings.MaxRunes(2048)
 
 	// The name of the environment.
 	Name!:        =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$"
@@ -44,7 +44,7 @@ import (
 	PubliclyAccessible?: bool
 
 	// The list of security groups for the VPC associated with this environment.
-	SecurityGroupIds?: [...=~"^\\S{1,50}$"]
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^\\S{1,50}$"]
 
 	// The storage configurations defined for the runtime environment.
 	StorageConfigurations?: [..._#defs."/$defs/Properties/definitions/StorageConfiguration"]

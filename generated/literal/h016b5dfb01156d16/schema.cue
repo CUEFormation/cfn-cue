@@ -32,7 +32,7 @@ import (
 
 _#defs: "/$defs/Properties/definitions/Snapshot": close({
 	AdminUsername?:      string
-	KmsKeyId?:           string | string | string
+	KmsKeyId?:           =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 	NamespaceArn?:       string
 	NamespaceName?:      strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$"
 	OwnerAccount?:       string

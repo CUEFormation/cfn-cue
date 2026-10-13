@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,10 +19,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::SES::MailManagerRuleSet Resource Type
 #Properties: close({
 	RuleSetName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	Rules!: list.MaxItems(40) & [...] & [..._#defs."/$defs/Properties/definitions/Rule" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Rules!:       list.MaxItems(40) & [...] & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression
+	Tags?:        list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ActionFailurePolicy": "CONTINUE" | "DROP" | fn.#StringExpression
@@ -36,16 +38,20 @@ _#defs: "/$defs/Properties/definitions/Analysis": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ArchiveAction": close({
-	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy" | fn.#StringExpression
+	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy"
 	TargetArchive!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BounceAction": close({
-	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy" | fn.#StringExpression
+	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy"
 	DiagnosticMessage!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x20-\\x7e]+$" | fn.#StringExpression
-	Message?:       strings.MaxRunes(500) & strings.MinRunes(1) & =~"^[\\r\\n\\x20-\\x7e]+$" | fn.#StringExpression
-	RoleArn!:       strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" | fn.#StringExpression
+	Message?: strings.MaxRunes(500) & strings.MinRunes(1) & =~"^[\\r\\n\\x20-\\x7e]+$" | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	fn.#StringExpression
 	Sender!:        strings.MaxRunes(254) & strings.MinRunes(0) & =~"^[0-9A-Za-z@+.-]+$" | fn.#StringExpression
 	SmtpReplyCode!: strings.MaxRunes(3) & strings.MinRunes(3) & =~"^[45][0-9][0-9]$" | fn.#StringExpression
 	StatusCode!: strings.MaxRunes(9) & strings.MinRunes(5) & =~"^[45]\\.[0-9]{1,3}\\.[0-9]{1,3}$" | fn.#StringExpression
@@ -53,28 +59,59 @@ _#defs: "/$defs/Properties/definitions/BounceAction": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DeliverToMailboxAction": close({
-	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy" | fn.#StringExpression
+	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy"
 	MailboxArn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" | fn.#StringExpression
-	RoleArn!:    strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DeliverToQBusinessAction": close({
-	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy" | fn.#StringExpression
+	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy"
 	ApplicationId!:       strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-z0-9-]+$" | fn.#StringExpression
 	IndexId!:             strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-z0-9-]+$" | fn.#StringExpression
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DropAction": close({}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InvokeLambdaAction": close({
-	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy" | fn.#StringExpression
-	FunctionArn!:    strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" | fn.#StringExpression
-	InvocationType!: _#defs."/$defs/Properties/definitions/LambdaInvocationType" | fn.#StringExpression
-	RetryTimeMinutes?: int & <=2160 & >=0 | fn.#NumberExpression
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" | fn.#StringExpression
+	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy"
+	FunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	fn.#StringExpression
+	InvocationType!: _#defs."/$defs/Properties/definitions/LambdaInvocationType"
+	RetryTimeMinutes?: int & <=2160 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2160 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -83,8 +120,8 @@ _#defs: "/$defs/Properties/definitions/LambdaInvocationType": "EVENT" | "REQUEST
 _#defs: "/$defs/Properties/definitions/MailFrom": "REPLACE" | "PRESERVE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RelayAction": close({
-	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy" | fn.#StringExpression
-	MailFrom?:            _#defs."/$defs/Properties/definitions/MailFrom" | fn.#StringExpression
+	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy"
+	MailFrom?:            _#defs."/$defs/Properties/definitions/MailFrom"
 	Relay!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -98,44 +135,39 @@ _#defs: "/$defs/Properties/definitions/ReplaceRecipientAction": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Rule": close({
-	Actions!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RuleAction" | fn.#ValueExpression
-	] |
+	Actions!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RuleAction"] |
 		fn.#ListExpression
-	Conditions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/RuleCondition" | fn.#ValueExpression
-	] |
+	Conditions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/RuleCondition"] |
 		fn.#ListExpression
-	Name?: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	Unless?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/RuleCondition" | fn.#ValueExpression] |
-		fn.#ListExpression
+	Name?:   strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+	Unless?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/RuleCondition"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RuleAction": matchN(1, [close(
-	{Drop!: _#defs."/$defs/Properties/definitions/DropAction" | fn.#ObjectExpression},
+	{Drop!: _#defs."/$defs/Properties/definitions/DropAction"},
 ), close(
-	{Relay!: _#defs."/$defs/Properties/definitions/RelayAction" | fn.#ObjectExpression},
+	{Relay!: _#defs."/$defs/Properties/definitions/RelayAction"},
 ), close(
-	{Archive!: _#defs."/$defs/Properties/definitions/ArchiveAction" | fn.#ObjectExpression},
+	{Archive!: _#defs."/$defs/Properties/definitions/ArchiveAction"},
 ), close(
-	{WriteToS3!: _#defs."/$defs/Properties/definitions/S3Action" | fn.#ObjectExpression},
+	{WriteToS3!: _#defs."/$defs/Properties/definitions/S3Action"},
 ), close(
-	{Send!: _#defs."/$defs/Properties/definitions/SendAction" | fn.#ObjectExpression},
+	{Send!: _#defs."/$defs/Properties/definitions/SendAction"},
 ), close(
-	{AddHeader!: _#defs."/$defs/Properties/definitions/AddHeaderAction" | fn.#ObjectExpression},
+	{AddHeader!: _#defs."/$defs/Properties/definitions/AddHeaderAction"},
 ), close(
-	{ReplaceRecipient!: _#defs."/$defs/Properties/definitions/ReplaceRecipientAction" | fn.#ObjectExpression},
+	{ReplaceRecipient!: _#defs."/$defs/Properties/definitions/ReplaceRecipientAction"},
 ), close(
-	{DeliverToMailbox!: _#defs."/$defs/Properties/definitions/DeliverToMailboxAction" | fn.#ObjectExpression},
+	{DeliverToMailbox!: _#defs."/$defs/Properties/definitions/DeliverToMailboxAction"},
 ), close(
-	{DeliverToQBusiness!: _#defs."/$defs/Properties/definitions/DeliverToQBusinessAction" | fn.#ObjectExpression},
+	{DeliverToQBusiness!: _#defs."/$defs/Properties/definitions/DeliverToQBusinessAction"},
 ), close(
-	{PublishToSns!: _#defs."/$defs/Properties/definitions/SnsAction" | fn.#ObjectExpression},
+	{PublishToSns!: _#defs."/$defs/Properties/definitions/SnsAction"},
 ), close(
-	{Bounce!: _#defs."/$defs/Properties/definitions/BounceAction" | fn.#ObjectExpression},
+	{Bounce!: _#defs."/$defs/Properties/definitions/BounceAction"},
 ), close(
-	{InvokeLambda!: _#defs."/$defs/Properties/definitions/InvokeLambdaAction" | fn.#ObjectExpression},
+	{InvokeLambda!: _#defs."/$defs/Properties/definitions/InvokeLambdaAction"},
 )]) |
 fn.#ValueExpression
 
@@ -153,19 +185,19 @@ _#defs: "/$defs/Properties/definitions/RuleBooleanEmailAttribute": "READ_RECEIPT
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RuleBooleanExpression": close({
-	Evaluate!: _#defs."/$defs/Properties/definitions/RuleBooleanToEvaluate" | fn.#ValueExpression
-	Operator!: _#defs."/$defs/Properties/definitions/RuleBooleanOperator" | fn.#StringExpression
+	Evaluate!: _#defs."/$defs/Properties/definitions/RuleBooleanToEvaluate"
+	Operator!: _#defs."/$defs/Properties/definitions/RuleBooleanOperator"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RuleBooleanOperator": "IS_TRUE" | "IS_FALSE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RuleBooleanToEvaluate": matchN(1, [close(
-	{Attribute!: _#defs."/$defs/Properties/definitions/RuleBooleanEmailAttribute" | fn.#StringExpression},
+	{Attribute!: _#defs."/$defs/Properties/definitions/RuleBooleanEmailAttribute"},
 ), close(
-	{Analysis!: _#defs."/$defs/Properties/definitions/Analysis" | fn.#ObjectExpression},
+	{Analysis!: _#defs."/$defs/Properties/definitions/Analysis"},
 ), close(
-	{IsInAddressList!: _#defs."/$defs/Properties/definitions/RuleIsInAddressList" | fn.#ObjectExpression},
+	{IsInAddressList!: _#defs."/$defs/Properties/definitions/RuleIsInAddressList"},
 )]) |
 fn.#ValueExpression
 
@@ -180,25 +212,23 @@ _#defs: "/$defs/Properties/definitions/RuleClientCertificateAttribute": "CN" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RuleCondition": matchN(1, [close(
-	{BooleanExpression!: _#defs."/$defs/Properties/definitions/RuleBooleanExpression" | fn.#ObjectExpression},
+	{BooleanExpression!: _#defs."/$defs/Properties/definitions/RuleBooleanExpression"},
 ), close(
-	{StringExpression!: _#defs."/$defs/Properties/definitions/RuleStringExpression" | fn.#ObjectExpression},
+	{StringExpression!: _#defs."/$defs/Properties/definitions/RuleStringExpression"},
 ), close(
-	{NumberExpression!: _#defs."/$defs/Properties/definitions/RuleNumberExpression" | fn.#ObjectExpression},
+	{NumberExpression!: _#defs."/$defs/Properties/definitions/RuleNumberExpression"},
 ), close(
-	{IpExpression!: _#defs."/$defs/Properties/definitions/RuleIpExpression" | fn.#ObjectExpression},
+	{IpExpression!: _#defs."/$defs/Properties/definitions/RuleIpExpression"},
 ), close(
-	{VerdictExpression!: _#defs."/$defs/Properties/definitions/RuleVerdictExpression" | fn.#ObjectExpression},
+	{VerdictExpression!: _#defs."/$defs/Properties/definitions/RuleVerdictExpression"},
 ), close(
-	{DmarcExpression!: _#defs."/$defs/Properties/definitions/RuleDmarcExpression" | fn.#ObjectExpression},
+	{DmarcExpression!: _#defs."/$defs/Properties/definitions/RuleDmarcExpression"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/RuleDmarcExpression": close({
-	Operator!: _#defs."/$defs/Properties/definitions/RuleDmarcOperator" | fn.#StringExpression
-	Values!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RuleDmarcPolicy" | fn.#StringExpression
-	] |
+	Operator!: _#defs."/$defs/Properties/definitions/RuleDmarcOperator"
+	Values!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RuleDmarcPolicy"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -210,8 +240,8 @@ _#defs: "/$defs/Properties/definitions/RuleDmarcPolicy": "NONE" | "QUARANTINE" |
 _#defs: "/$defs/Properties/definitions/RuleIpEmailAttribute": "SOURCE_IP" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RuleIpExpression": close({
-	Evaluate!: _#defs."/$defs/Properties/definitions/RuleIpToEvaluate" | fn.#ValueExpression
-	Operator!: _#defs."/$defs/Properties/definitions/RuleIpOperator" | fn.#StringExpression
+	Evaluate!: _#defs."/$defs/Properties/definitions/RuleIpToEvaluate"
+	Operator!: _#defs."/$defs/Properties/definitions/RuleIpOperator"
 	Values!: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(43) & strings.MinRunes(1) & =~"^(([0-9]|.|:|/)*)$" | fn.#StringExpression
 	] |
@@ -222,23 +252,41 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/RuleIpOperator": "CIDR_MATCHES" | "NOT_CIDR_MATCHES" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RuleIpToEvaluate": close(
-	{Attribute!: _#defs."/$defs/Properties/definitions/RuleIpEmailAttribute" | fn.#StringExpression},
+	{Attribute!: _#defs."/$defs/Properties/definitions/RuleIpEmailAttribute"},
 ) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/RuleIsInAddressList": close({
 	AddressLists!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
 		fn.#ListExpression
-	Attribute!: _#defs."/$defs/Properties/definitions/RuleAddressListEmailAttribute" | fn.#StringExpression
+	Attribute!: _#defs."/$defs/Properties/definitions/RuleAddressListEmailAttribute"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RuleNumberEmailAttribute": "MESSAGE_SIZE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RuleNumberExpression": close({
-	Evaluate!: _#defs."/$defs/Properties/definitions/RuleNumberToEvaluate" | fn.#ValueExpression
-	Operator!: _#defs."/$defs/Properties/definitions/RuleNumberOperator" | fn.#StringExpression
-	Value!:    number | fn.#NumberExpression
+	Evaluate!: _#defs."/$defs/Properties/definitions/RuleNumberToEvaluate"
+	Operator!: _#defs."/$defs/Properties/definitions/RuleNumberOperator"
+	Value!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -251,7 +299,7 @@ _#defs: "/$defs/Properties/definitions/RuleNumberOperator": "EQUALS" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RuleNumberToEvaluate": close(
-	{Attribute!: _#defs."/$defs/Properties/definitions/RuleNumberEmailAttribute" | fn.#StringExpression},
+	{Attribute!: _#defs."/$defs/Properties/definitions/RuleNumberEmailAttribute"},
 ) |
 	fn.#ValueExpression
 
@@ -266,8 +314,8 @@ _#defs: "/$defs/Properties/definitions/RuleStringEmailAttribute": "MAIL_FROM" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RuleStringExpression": close({
-	Evaluate!: _#defs."/$defs/Properties/definitions/RuleStringToEvaluate" | fn.#ValueExpression
-	Operator!: _#defs."/$defs/Properties/definitions/RuleStringOperator" | fn.#StringExpression
+	Evaluate!: _#defs."/$defs/Properties/definitions/RuleStringToEvaluate"
+	Operator!: _#defs."/$defs/Properties/definitions/RuleStringOperator"
 	Values!: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -283,15 +331,14 @@ _#defs: "/$defs/Properties/definitions/RuleStringOperator": "EQUALS" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RuleStringToEvaluate": matchN(1, [close(
-	{Attribute!: _#defs."/$defs/Properties/definitions/RuleStringEmailAttribute" | fn.#StringExpression},
+	{Attribute!: _#defs."/$defs/Properties/definitions/RuleStringEmailAttribute"},
 ), close(
 	{MimeHeaderAttribute!: =~"^X-[a-zA-Z0-9-]{1,256}$" | fn.#StringExpression},
 ), close(
-	{Analysis!: _#defs."/$defs/Properties/definitions/Analysis" | fn.#ObjectExpression},
-), close({
-	ClientCertificateAttribute!: _#defs."/$defs/Properties/definitions/RuleClientCertificateAttribute" |
-		fn.#StringExpression
-})]) |
+	{Analysis!: _#defs."/$defs/Properties/definitions/Analysis"},
+), close(
+	{ClientCertificateAttribute!: _#defs."/$defs/Properties/definitions/RuleClientCertificateAttribute"},
+)]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/RuleVerdict": "PASS" |
@@ -303,11 +350,9 @@ _#defs: "/$defs/Properties/definitions/RuleVerdict": "PASS" |
 _#defs: "/$defs/Properties/definitions/RuleVerdictAttribute": "SPF" | "DKIM" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RuleVerdictExpression": close({
-	Evaluate!: _#defs."/$defs/Properties/definitions/RuleVerdictToEvaluate" | fn.#ValueExpression
-	Operator!: _#defs."/$defs/Properties/definitions/RuleVerdictOperator" | fn.#StringExpression
-	Values!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RuleVerdict" | fn.#StringExpression
-	] |
+	Evaluate!: _#defs."/$defs/Properties/definitions/RuleVerdictToEvaluate"
+	Operator!: _#defs."/$defs/Properties/definitions/RuleVerdictOperator"
+	Values!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RuleVerdict"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -315,15 +360,19 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/RuleVerdictOperator": "EQUALS" | "NOT_EQUALS" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RuleVerdictToEvaluate": matchN(1, [close(
-	{Attribute!: _#defs."/$defs/Properties/definitions/RuleVerdictAttribute" | fn.#StringExpression},
+	{Attribute!: _#defs."/$defs/Properties/definitions/RuleVerdictAttribute"},
 ), close(
-	{Analysis!: _#defs."/$defs/Properties/definitions/Analysis" | fn.#ObjectExpression},
+	{Analysis!: _#defs."/$defs/Properties/definitions/Analysis"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/S3Action": close({
-	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy" | fn.#StringExpression
-	RoleArn!:       strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" | fn.#StringExpression
+	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy"
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	fn.#StringExpression
 	S3Bucket!:      strings.MaxRunes(62) & strings.MinRunes(1) & =~"^[a-zA-Z0-9.-]+$" | fn.#StringExpression
 	S3Prefix?:      strings.MaxRunes(62) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/-]+$" | fn.#StringExpression
 	S3SseKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9-:/]+$" | fn.#StringExpression
@@ -331,17 +380,26 @@ _#defs: "/$defs/Properties/definitions/S3Action": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SendAction": close({
-	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy" | fn.#StringExpression
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" | fn.#StringExpression
+	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy"
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SnsAction": close({
-	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy" | fn.#StringExpression
-	Encoding?:            _#defs."/$defs/Properties/definitions/SnsNotificationEncoding" | fn.#StringExpression
-	PayloadType?:         _#defs."/$defs/Properties/definitions/SnsNotificationPayloadType" | fn.#StringExpression
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" | fn.#StringExpression
-	TopicArn!: strings.MaxRunes(2048) &
+	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy"
+	Encoding?:            _#defs."/$defs/Properties/definitions/SnsNotificationEncoding"
+	PayloadType?:         _#defs."/$defs/Properties/definitions/SnsNotificationPayloadType"
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	fn.#StringExpression
+	TopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc):sns:[a-z]{2}-([a-z]+-)+\\d{1}:\\d{12}:[\\w\\-]{1,256}$" |
 	fn.#StringExpression

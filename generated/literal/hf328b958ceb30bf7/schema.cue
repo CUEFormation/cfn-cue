@@ -35,7 +35,10 @@ import (
 	Issues?: [..._#defs."/$defs/Properties/definitions/HealthIssue"]
 
 	// The ARN of KMS key used for the connector
-	KmsKeyArn?:     strings.MaxRunes(2048) & strings.MinRunes(20) & =~".*\\S.*"
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~".*\\S.*"
 	LastCheckedAt?: _#defs."/$defs/Properties/definitions/ISO8601DateString"
 	LastUpdatedAt?: _#defs."/$defs/Properties/definitions/ISO8601DateString"
 

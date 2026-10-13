@@ -12,9 +12,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ARCZonalShift::AutoshiftObserverNotificationStatus Resource Type
-#Properties: close(
-	{Status!: _#defs."/$defs/Properties/definitions/AutoshiftObserverNotificationStatus" | fn.#StringExpression},
-)
+#Properties: close({Status!: _#defs."/$defs/Properties/definitions/AutoshiftObserverNotificationStatus"})
 
 _#defs: "/$defs/Properties/definitions/AccountId": =~"^\\d{12}$" | fn.#StringExpression
 

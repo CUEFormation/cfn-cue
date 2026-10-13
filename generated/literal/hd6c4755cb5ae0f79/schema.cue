@@ -18,7 +18,8 @@ import (
 	// The Amazon Resource Name (ARN) of an IAM service role in the environment
 	// account. AWS Proton uses this role to provision infrastructure resources
 	// using CodeBuild-based provisioning in the associated environment account.
-	CodebuildRoleArn?: strings.MaxRunes(200) &
+	CodebuildRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(200) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws|aws-cn|aws-us-gov):iam::\\d{12}:role/([\\w+=,.@-]{1,512}[/:])*([\\w+=,.@-]{1,64})$"
 
@@ -26,7 +27,8 @@ import (
 	// when provisioning directly defined components in the associated environment
 	// account. It determines the scope of infrastructure that a component can
 	// provision in the account.
-	ComponentRoleArn?: strings.MaxRunes(200) &
+	ComponentRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(200) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws|aws-cn|aws-us-gov):iam::\\d{12}:role/([\\w+=,.@-]{1,512}[/:])*([\\w+=,.@-]{1,64})$"
 
@@ -49,7 +51,8 @@ import (
 	// The Amazon Resource Name (ARN) of the IAM service role that's created in the
 	// environment account. AWS Proton uses this role to provision infrastructure
 	// resources in the associated environment account.
-	RoleArn?: strings.MaxRunes(200) &
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(200) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws|aws-cn|aws-us-gov):iam::\\d{12}:role/([\\w+=,.@-]{1,512}[/:])*([\\w+=,.@-]{1,64})$"
 

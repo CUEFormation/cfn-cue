@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,24 +18,97 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EncodingConfig?:   _#defs."/$defs/Properties/definitions/EncodingConfig" | fn.#ObjectExpression
 	FlowSize?:         "MEDIUM" | "LARGE" | "LARGE_4X" | fn.#StringExpression
 	Maintenance?:      _#defs."/$defs/Properties/definitions/Maintenance" | fn.#ObjectExpression
-	MediaStreams?: [..._#defs."/$defs/Properties/definitions/MediaStream" | fn.#ObjectExpression] | fn.#ListExpression
-	Name!:         string | fn.#StringExpression
-	NdiConfig?:    _#defs."/$defs/Properties/definitions/NdiConfig" | fn.#ObjectExpression
+	MediaStreams?:     [..._#defs."/$defs/Properties/definitions/MediaStream"] | fn.#ListExpression
+	Name!:             string | fn.#StringExpression
+	NdiConfig?:        _#defs."/$defs/Properties/definitions/NdiConfig" | fn.#ObjectExpression
 	Source!: close({
 		Decryption?:  _#defs."/$defs/Properties/definitions/Encryption" | fn.#ObjectExpression
 		Description?: string | fn.#StringExpression
 		EntitlementArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:entitlement:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 			fn.#StringExpression
 		GatewayBridgeSource?: _#defs."/$defs/Properties/definitions/GatewayBridgeSource" | fn.#ObjectExpression
-		IngestPort?:          int | fn.#NumberExpression
-		MaxBitrate?:          int | fn.#NumberExpression
-		MaxLatency?:          int | fn.#NumberExpression
-		MaxSyncBuffer?:       int | fn.#NumberExpression
-		MediaStreamSourceConfigurations?: [
-			..._#defs."/$defs/Properties/definitions/MediaStreamSourceConfiguration" | fn.#ObjectExpression
-		] |
+		IngestPort?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaxBitrate?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaxLatency?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaxSyncBuffer?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MediaStreamSourceConfigurations?: [..._#defs."/$defs/Properties/definitions/MediaStreamSourceConfiguration"] |
 			fn.#ListExpression
-		MinLatency?:        int | fn.#NumberExpression
+		MinLatency?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 		Name?:              string | fn.#StringExpression
 		NdiSourceSettings?: _#defs."/$defs/Properties/definitions/NdiSourceSettings" | fn.#ObjectExpression
 		Protocol?: "zixi-push" |
@@ -44,41 +121,96 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"cdi" |
 			"ndi-speed-hq" |
 			fn.#StringExpression
-		RouterIntegrationState?: "ENABLED" | "DISABLED" | fn.#StringExpression
-		RouterIntegrationTransitDecryption?: _#defs."/$defs/Properties/definitions/FlowTransitEncryption" |
-			fn.#ObjectExpression
-		SenderControlPort?:     int | fn.#NumberExpression
+		RouterIntegrationState?:             "ENABLED" | "DISABLED" | fn.#StringExpression
+		RouterIntegrationTransitDecryption?: _#defs."/$defs/Properties/definitions/FlowTransitEncryption"
+		SenderControlPort?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 		SenderIpAddress?:       string | fn.#StringExpression
 		SourceListenerAddress?: string | fn.#StringExpression
-		SourceListenerPort?:    int | fn.#NumberExpression
-		StreamId?:              string | fn.#StringExpression
-		Tags?:             [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+		SourceListenerPort?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		StreamId?:         string | fn.#StringExpression
+		Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 		VpcInterfaceName?: string | fn.#StringExpression
 		WhitelistCidr?:    string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	SourceFailoverConfig?:   _#defs."/$defs/Properties/definitions/FailoverConfig" | fn.#ObjectExpression
 	SourceMonitoringConfig?: _#defs."/$defs/Properties/definitions/SourceMonitoringConfig" | fn.#ObjectExpression
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	VpcInterfaces?: [..._#defs."/$defs/Properties/definitions/VpcInterface" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VpcInterfaces?:          [..._#defs."/$defs/Properties/definitions/VpcInterface"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AudioMonitoringSetting": close(
-	{SilentAudio?: _#defs."/$defs/Properties/definitions/SilentAudio" | fn.#ObjectExpression},
+	{SilentAudio?: _#defs."/$defs/Properties/definitions/SilentAudio"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration": close({}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BlackFrames": close({
-	State?:            "ENABLED" | "DISABLED" | fn.#StringExpression
-	ThresholdSeconds?: int | fn.#NumberExpression
+	State?: "ENABLED" | "DISABLED" | fn.#StringExpression
+	ThresholdSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EncodingConfig": close({
-	EncodingProfile?: _#defs."/$defs/Properties/definitions/EncodingProfile" | fn.#StringExpression
-	VideoMaxBitrate?: int | fn.#NumberExpression
+	EncodingProfile?: _#defs."/$defs/Properties/definitions/EncodingProfile"
+	VideoMaxBitrate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -93,7 +225,9 @@ _#defs: "/$defs/Properties/definitions/Encryption": close({
 	KeyType?:                      "speke" | "static-key" | "srt-password" | fn.#StringExpression
 	Region?:                       string | fn.#StringExpression
 	ResourceId?:                   string | fn.#StringExpression
-	RoleArn!: =~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" |
+		fn.#StringExpression
 	SecretArn?: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$" |
 		fn.#StringExpression
 	Url?: string | fn.#StringExpression
@@ -101,25 +235,36 @@ _#defs: "/$defs/Properties/definitions/Encryption": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FailoverConfig": close({
-	FailoverMode?:   "MERGE" | "FAILOVER" | fn.#StringExpression
-	RecoveryWindow?: int | fn.#NumberExpression
+	FailoverMode?: "MERGE" | "FAILOVER" | fn.#StringExpression
+	RecoveryWindow?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SourcePriority?: close({PrimarySource!: string | fn.#StringExpression}) | fn.#ObjectExpression
 	State?:          "ENABLED" | "DISABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FlowTransitEncryption": close({
-	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration" |
-		fn.#ValueExpression
-	EncryptionKeyType?: _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyType" | fn.#StringExpression
+	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration"
+	EncryptionKeyType?:          _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyType"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration": matchN(1, [close({
-	SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration" |
-		fn.#ObjectExpression
-}), close(
-	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration" | fn.#ObjectExpression},
+_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration": matchN(1, [close(
+	{SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
+), close(
+	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration"},
 )]) |
 fn.#ValueExpression
 
@@ -148,8 +293,21 @@ _#defs: "/$defs/Properties/definitions/Fmtp": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FrozenFrames": close({
-	State?:            "ENABLED" | "DISABLED" | fn.#StringExpression
-	ThresholdSeconds?: int | fn.#NumberExpression
+	State?: "ENABLED" | "DISABLED" | fn.#StringExpression
+	ThresholdSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -161,7 +319,20 @@ _#defs: "/$defs/Properties/definitions/GatewayBridgeSource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InputConfiguration": close({
-	InputPort!: int | fn.#NumberExpression
+	InputPort!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Interface!: _#defs."/$defs/Properties/definitions/Interface" | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -182,14 +353,53 @@ _#defs: "/$defs/Properties/definitions/Maintenance": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MediaStream": close({
-	Attributes?:      _#defs."/$defs/Properties/definitions/MediaStreamAttributes" | fn.#ObjectExpression
-	ClockRate?:       int | fn.#NumberExpression
-	Description?:     string | fn.#StringExpression
-	Fmt?:             int | fn.#NumberExpression
-	MediaStreamId!:   int | fn.#NumberExpression
+	Attributes?: _#defs."/$defs/Properties/definitions/MediaStreamAttributes" | fn.#ObjectExpression
+	ClockRate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Description?: string | fn.#StringExpression
+	Fmt?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MediaStreamId!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	MediaStreamName!: string | fn.#StringExpression
 	MediaStreamType!: "video" | "audio" | "ancillary-data" | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VideoFormat?:     "2160p" | "1080p" | "1080i" | "720p" | "480p" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -201,25 +411,36 @@ _#defs: "/$defs/Properties/definitions/MediaStreamAttributes": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MediaStreamSourceConfiguration": close({
-	EncodingName!: "jxsv" | "raw" | "smpte291" | "pcm" | fn.#StringExpression
-	InputConfigurations?: [..._#defs."/$defs/Properties/definitions/InputConfiguration" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	MediaStreamName!: string | fn.#StringExpression
+	EncodingName!:        "jxsv" | "raw" | "smpte291" | "pcm" | fn.#StringExpression
+	InputConfigurations?: [..._#defs."/$defs/Properties/definitions/InputConfiguration"] | fn.#ListExpression
+	MediaStreamName!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NdiConfig": close({
-	MachineName?: string | fn.#StringExpression
-	NdiDiscoveryServers?: [..._#defs."/$defs/Properties/definitions/NdiDiscoveryServerConfig" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	NdiState?: _#defs."/$defs/Properties/definitions/NdiState" | fn.#StringExpression
+	MachineName?:         string | fn.#StringExpression
+	NdiDiscoveryServers?: [..._#defs."/$defs/Properties/definitions/NdiDiscoveryServerConfig"] | fn.#ListExpression
+	NdiState?:            _#defs."/$defs/Properties/definitions/NdiState" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NdiDiscoveryServerConfig": close({
 	DiscoveryServerAddress!: string | fn.#StringExpression
-	DiscoveryServerPort?:    int | fn.#NumberExpression
-	VpcInterfaceAdapter!:    string | fn.#StringExpression
+	DiscoveryServerPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VpcInterfaceAdapter!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -229,15 +450,30 @@ _#defs: "/$defs/Properties/definitions/NdiSourceSettings": close({SourceName?: s
 _#defs: "/$defs/Properties/definitions/NdiState": "ENABLED" | "DISABLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration": close({
-	RoleArn!: =~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" |
+		fn.#StringExpression
 	SecretArn!: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SilentAudio": close({
-	State?:            "ENABLED" | "DISABLED" | fn.#StringExpression
-	ThresholdSeconds?: int | fn.#NumberExpression
+	State?: "ENABLED" | "DISABLED" | fn.#StringExpression
+	ThresholdSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -248,15 +484,78 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 		fn.#StringExpression
 	GatewayBridgeSource?: _#defs."/$defs/Properties/definitions/GatewayBridgeSource" | fn.#ObjectExpression
 	IngestIp?:            string | fn.#StringExpression
-	IngestPort?:          int | fn.#NumberExpression
-	MaxBitrate?:          int | fn.#NumberExpression
-	MaxLatency?:          int | fn.#NumberExpression
-	MaxSyncBuffer?:       int | fn.#NumberExpression
-	MediaStreamSourceConfigurations?: [
-		..._#defs."/$defs/Properties/definitions/MediaStreamSourceConfiguration" | fn.#ObjectExpression
-	] |
+	IngestPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxBitrate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxLatency?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxSyncBuffer?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MediaStreamSourceConfigurations?: [..._#defs."/$defs/Properties/definitions/MediaStreamSourceConfiguration"] |
 		fn.#ListExpression
-	MinLatency?:        int | fn.#NumberExpression
+	MinLatency?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Name?:              string | fn.#StringExpression
 	NdiSourceSettings?: _#defs."/$defs/Properties/definitions/NdiSourceSettings" | fn.#ObjectExpression
 	Protocol?: "zixi-push" |
@@ -269,30 +568,53 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 		"cdi" |
 		"ndi-speed-hq" |
 		fn.#StringExpression
-	RouterIntegrationState?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	RouterIntegrationTransitDecryption?: _#defs."/$defs/Properties/definitions/FlowTransitEncryption" |
-		fn.#ObjectExpression
-	SenderControlPort?: int | fn.#NumberExpression
-	SenderIpAddress?:   string | fn.#StringExpression
+	RouterIntegrationState?:             "ENABLED" | "DISABLED" | fn.#StringExpression
+	RouterIntegrationTransitDecryption?: _#defs."/$defs/Properties/definitions/FlowTransitEncryption"
+	SenderControlPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SenderIpAddress?: string | fn.#StringExpression
 	SourceArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:source:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 		fn.#StringExpression
 	SourceIngestPort?:      string | fn.#StringExpression
 	SourceListenerAddress?: string | fn.#StringExpression
-	SourceListenerPort?:    int | fn.#NumberExpression
-	StreamId?:              string | fn.#StringExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	VpcInterfaceName?:      string | fn.#StringExpression
-	WhitelistCidr?:         string | fn.#StringExpression
+	SourceListenerPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StreamId?:         string | fn.#StringExpression
+	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VpcInterfaceName?: string | fn.#StringExpression
+	WhitelistCidr?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SourceMonitoringConfig": close({
-	AudioMonitoringSettings?: [..._#defs."/$defs/Properties/definitions/AudioMonitoringSetting" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	AudioMonitoringSettings?: [..._#defs."/$defs/Properties/definitions/AudioMonitoringSetting"] | fn.#ListExpression
 	ContentQualityAnalysisState?: "ENABLED" | "DISABLED" | fn.#StringExpression
 	ThumbnailState?:              "ENABLED" | "DISABLED" | fn.#StringExpression
-	VideoMonitoringSettings?: [..._#defs."/$defs/Properties/definitions/VideoMonitoringSetting" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	VideoMonitoringSettings?: [..._#defs."/$defs/Properties/definitions/VideoMonitoringSetting"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -303,8 +625,8 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VideoMonitoringSetting": close({
-	BlackFrames?:  _#defs."/$defs/Properties/definitions/BlackFrames" | fn.#ObjectExpression
-	FrozenFrames?: _#defs."/$defs/Properties/definitions/FrozenFrames" | fn.#ObjectExpression
+	BlackFrames?:  _#defs."/$defs/Properties/definitions/BlackFrames"
+	FrozenFrames?: _#defs."/$defs/Properties/definitions/FrozenFrames"
 }) |
 fn.#ObjectExpression
 
@@ -312,10 +634,16 @@ _#defs: "/$defs/Properties/definitions/VpcInterface": close({
 	Name!:                 string | fn.#StringExpression
 	NetworkInterfaceIds?:  [...string | fn.#StringExpression] | fn.#ListExpression
 	NetworkInterfaceType?: "ena" | "efa" | fn.#StringExpression
-	RoleArn!:              =~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" | fn.#StringExpression
-	SecurityGroupIds!:     [...string | fn.#StringExpression] | fn.#ListExpression
-	SubnetId!:             string | fn.#StringExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" |
+		fn.#StringExpression
+	SecurityGroupIds!: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	SubnetId!: string | fn.#StringExpression
+	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

@@ -11,7 +11,10 @@ import (
 
 // Represents a feed that receives media for inference processing
 #Properties: close({
-	AccessRoleArn?: strings.MaxRunes(255) & strings.MinRunes(32) & =~"^arn:aws[a-z\\-]*:iam::[0-9]{12}:role/.+$"
+	AccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(255) &
+	strings.MinRunes(32) &
+	=~"^arn:aws[a-z\\-]*:iam::[0-9]{12}:role/.+$"
 	Arn?:           string
 	DataEndpoints?: [...string]
 	Id?:            =~"^[a-z0-9]{19}$"

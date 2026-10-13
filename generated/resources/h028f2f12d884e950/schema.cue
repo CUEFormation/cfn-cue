@@ -14,19 +14,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Wisdom::QuickResponse Resource Type.
 #Properties: close({
-	Channels?:    [..._#defs."/$defs/Properties/definitions/ChannelType" | fn.#StringExpression] | fn.#ListExpression
-	Content!:     _#defs."/$defs/Properties/definitions/QuickResponseContentProvider" | fn.#ObjectExpression
-	ContentType?: =~"^(application/x\\.quickresponse;format=(plain|markdown))$" | fn.#StringExpression
-	Description?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	GroupingConfiguration?: _#defs."/$defs/Properties/definitions/GroupingConfiguration" | fn.#ObjectExpression
-	IsActive?:              bool | fn.#BooleanExpression
+	Channels?:              [..._#defs."/$defs/Properties/definitions/ChannelType"] | fn.#ListExpression
+	Content!:               _#defs."/$defs/Properties/definitions/QuickResponseContentProvider"
+	ContentType?:           =~"^(application/x\\.quickresponse;format=(plain|markdown))$" | fn.#StringExpression
+	Description?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	GroupingConfiguration?: _#defs."/$defs/Properties/definitions/GroupingConfiguration"
+	IsActive?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KnowledgeBaseArn!: =~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" |
 		fn.#StringExpression
 	Language?:    strings.MaxRunes(5) & strings.MinRunes(2) | fn.#StringExpression
 	Name!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	ShortcutKey?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ChannelType": ("Chat" | "Email") & (strings.MaxRunes(10) & strings.MinRunes(1)) |
@@ -34,8 +33,7 @@ fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/GroupingConfiguration": close({
 	Criteria!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Values!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GroupingValue" | fn.#StringExpression] |
-		fn.#ListExpression
+	Values!:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GroupingValue"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -48,8 +46,8 @@ _#defs: "/$defs/Properties/definitions/QuickResponseContentProvider": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/QuickResponseContents": close({
-	Markdown?:  _#defs."/$defs/Properties/definitions/QuickResponseContentProvider" | fn.#ObjectExpression
-	PlainText?: _#defs."/$defs/Properties/definitions/QuickResponseContentProvider" | fn.#ObjectExpression
+	Markdown?:  _#defs."/$defs/Properties/definitions/QuickResponseContentProvider"
+	PlainText?: _#defs."/$defs/Properties/definitions/QuickResponseContentProvider"
 }) |
 fn.#ObjectExpression
 

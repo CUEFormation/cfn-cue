@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,18 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Glue::Integration
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/IntegrationAdditionalEncryptionContextMap" |
-		fn.#ObjectExpression
-	DataFilter?:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:       strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
-	IntegrationConfig?: _#defs."/$defs/Properties/definitions/IntegrationConfig" | fn.#ObjectExpression
-	IntegrationName!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	KmsKeyId?:  (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) | fn.#StringExpression
+	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/IntegrationAdditionalEncryptionContextMap"
+	DataFilter?:                  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	Description?:                 strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
+	IntegrationConfig?:           _#defs."/$defs/Properties/definitions/IntegrationConfig"
+	IntegrationName!:             strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	fn.#StringExpression
 	SourceArn!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetArn!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*" | fn.#StringExpression
 })
 
@@ -35,9 +33,9 @@ _#defs: "/$defs/Properties/definitions/IntegrationAdditionalEncryptionContextMap
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IntegrationConfig": close({
-	ContinuousSync?:   bool | fn.#BooleanExpression
+	ContinuousSync?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RefreshInterval?:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	SourceProperties?: _#defs."/$defs/Properties/definitions/SourceProperties" | fn.#ObjectExpression
+	SourceProperties?: _#defs."/$defs/Properties/definitions/SourceProperties"
 }) |
 fn.#ObjectExpression
 
@@ -53,7 +51,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {

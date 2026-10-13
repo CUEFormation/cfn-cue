@@ -63,7 +63,8 @@ _#defs: "/$defs/Properties/definitions/StreamsKmsKey": matchN(1, [{
 }]) & close({
 	KmsAliasArn?:  =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
 	KmsAliasName?: =~"^alias/[a-zA-Z0-9:/_-]+$"
-	KmsKeyArn?:    =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

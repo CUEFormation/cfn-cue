@@ -13,15 +13,13 @@ import (
 #Properties: {
 	ResourceIdentifier!: _
 	...
-} &
-({
+} & matchN(>=1, [{
 	ZonalAutoshiftStatus!: _
 	...
-} | {
+}, {
 	PracticeRunConfiguration!: _
 	...
-}) &
-close({
+}]) & close({
 	PracticeRunConfiguration?: _#defs."/$defs/Properties/definitions/PracticeRunConfiguration"
 	ResourceIdentifier?:       strings.MaxRunes(1024) & strings.MinRunes(8)
 	ZonalAutoshiftStatus?:     _#defs."/$defs/Properties/definitions/ZonalAutoshiftStatus"

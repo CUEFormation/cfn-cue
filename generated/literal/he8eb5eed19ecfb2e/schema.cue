@@ -14,7 +14,7 @@ package schema
 // Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-custom-domains.html)
 // in the *API Gateway Developer Guide*.
 #Properties: close({
-	CertificateArn?:           string
+	CertificateArn?:           =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"
 	DistributionDomainName?:   string
 	DistributionHostedZoneId?: string
 	DomainName?:               string

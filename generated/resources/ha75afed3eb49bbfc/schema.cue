@@ -14,14 +14,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Schema for AWS::EKS::FargateProfile
 #Properties: close({
-	ClusterName!:         strings.MinRunes(1) | fn.#StringExpression
-	FargateProfileName?:  strings.MinRunes(1) | fn.#StringExpression
-	PodExecutionRoleArn!: strings.MinRunes(1) | fn.#StringExpression
-	Selectors!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Selector" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Subnets?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ClusterName!:        strings.MinRunes(1) | fn.#StringExpression
+	FargateProfileName?: strings.MinRunes(1) | fn.#StringExpression
+	PodExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
+	fn.#StringExpression
+	Selectors!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Selector"] | fn.#ListExpression
+	Subnets?:   [...string | fn.#StringExpression] | fn.#ListExpression
+	Tags?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Label": close({
@@ -31,7 +30,7 @@ _#defs: "/$defs/Properties/definitions/Label": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Selector": close({
-	Labels?:    [..._#defs."/$defs/Properties/definitions/Label" | fn.#ObjectExpression] | fn.#ListExpression
+	Labels?:    [..._#defs."/$defs/Properties/definitions/Label"] | fn.#ListExpression
 	Namespace!: strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression

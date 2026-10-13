@@ -18,23 +18,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	BuyerDomain!:     "NetworkID" | fn.#StringExpression
 	BuyerIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
-	Contacts!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Contact" | fn.#ObjectExpression
-	] |
+	Contacts!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Contact"] |
 		fn.#ListExpression
-	EinvoiceDeliveryEnabled!: bool | fn.#BooleanExpression
-	EinvoiceDeliveryPreference?: _#defs."/$defs/Properties/definitions/EinvoiceDeliveryPreference" |
-		fn.#ObjectExpression
+	EinvoiceDeliveryEnabled!:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EinvoiceDeliveryPreference?: _#defs."/$defs/Properties/definitions/EinvoiceDeliveryPreference"
 	ProcurementPortalInstanceEndpoint?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
 	ProcurementPortalName!:             "SAP_BUSINESS_NETWORK" | "COUPA" | fn.#StringExpression
 	ProcurementPortalSharedSecret?:     strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
-	PurchaseOrderRetrievalEnabled!:     bool | fn.#BooleanExpression
-	Selector?:       _#defs."/$defs/Properties/definitions/ProcurementPortalPreferenceSelector" | fn.#ObjectExpression
-	SupplierDomain!: "NetworkID" | fn.#StringExpression
+	PurchaseOrderRetrievalEnabled!: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	Selector?:           _#defs."/$defs/Properties/definitions/ProcurementPortalPreferenceSelector"
+	SupplierDomain!:     "NetworkID" | fn.#StringExpression
 	SupplierIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TestEnvPreference?: _#defs."/$defs/Properties/definitions/TestEnvPreference" | fn.#ObjectExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TestEnvPreference?: _#defs."/$defs/Properties/definitions/TestEnvPreference"
 })
 
 _#defs: "/$defs/Properties/definitions/Contact": close({
@@ -57,11 +60,8 @@ _#defs: "/$defs/Properties/definitions/EinvoiceDeliveryPreference": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	Protocol?: "CXML" | fn.#StringExpression
-	PurchaseOrderDataSources?: [
-		..._#defs."/$defs/Properties/definitions/PurchaseOrderDataSource" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Protocol?:                 "CXML" | fn.#StringExpression
+	PurchaseOrderDataSources?: [..._#defs."/$defs/Properties/definitions/PurchaseOrderDataSource"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

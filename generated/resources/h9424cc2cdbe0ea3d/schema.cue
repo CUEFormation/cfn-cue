@@ -26,7 +26,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	IpamPoolId?:         string | fn.#StringExpression
 	NetworkBorderGroup?: string | fn.#StringExpression
 	PublicIpv4Pool?:     string | fn.#StringExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TransferAddress?:    string | fn.#StringExpression
 })
 

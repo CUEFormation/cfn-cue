@@ -34,5 +34,8 @@ _#defs: "/$defs/Properties/definitions/DataSourceType": close(
 _#defs: "/$defs/Properties/definitions/S3GlueDataCatalog": close({
 	// The ARN of the IAM role that grants OpenSearch Service permission to access
 	// the Glue Data Catalog.
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*:iam::\\d{12}:role/.+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:.*:iam::\\d{12}:role/.+$"
 })

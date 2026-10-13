@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,11 +21,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:     strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
 	ExecutionStatus?: _#defs."/$defs/Properties/definitions/ExecutionStatusObject" | fn.#ObjectExpression
 	Groups!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/LaunchGroupObject" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/LaunchGroupObject"
 	] |
 		fn.#ListExpression
 	MetricMonitors?: list.MaxItems(3) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/MetricDefinitionObject" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MetricDefinitionObject"
 	] |
 		fn.#ListExpression
 	Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
@@ -31,11 +35,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	RandomizationSalt?: strings.MaxRunes(127) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 	ScheduledSplitsConfig!: list.MaxItems(6) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StepConfig" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StepConfig"
 	] |
 		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ExecutionStatusObject": close({
@@ -46,8 +49,21 @@ _#defs: "/$defs/Properties/definitions/ExecutionStatusObject": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GroupToWeight": close({
-	GroupName!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
-	SplitWeight!: int | fn.#NumberExpression
+	GroupName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
+	SplitWeight!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -69,22 +85,31 @@ _#defs: "/$defs/Properties/definitions/MetricDefinitionObject": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SegmentOverride": close({
-	EvaluationOrder!: int | fn.#NumberExpression
+	EvaluationOrder!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Segment!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:segment/[-a-zA-Z0-9._]*)" |
 	fn.#StringExpression
-	Weights!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GroupToWeight" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Weights!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GroupToWeight"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StepConfig": close({
-	GroupWeights!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GroupToWeight" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	SegmentOverrides?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SegmentOverride" | fn.#ObjectExpression
-	] |
+	GroupWeights!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GroupToWeight"] | fn.#ListExpression
+	SegmentOverrides?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SegmentOverride"] |
 		fn.#ListExpression
 	StartTime!: string | fn.#StringExpression
 }) |

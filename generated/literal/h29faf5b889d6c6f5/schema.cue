@@ -23,7 +23,7 @@ import "list"
 	// The security group Ids associated with the VPC where you want the private
 	// graph endpoint to be created, ie, the graph will be reachable from within
 	// the VPC.
-	SecurityGroupIds?: [...string]
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// The subnet Ids associated with the VPC where you want the private graph
 	// endpoint to be created, ie, the graph will be reachable from within the VPC.
@@ -34,5 +34,5 @@ import "list"
 
 	// The VPC where you want the private graph endpoint to be created, ie, the
 	// graph will be reachable from within the VPC.
-	VpcId!: =~"^vpc-[a-z0-9]+$"
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^vpc-[a-z0-9]+$"
 })

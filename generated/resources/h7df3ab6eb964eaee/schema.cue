@@ -13,20 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::MediaTailor::LiveSource Resource Type
 #Properties: close({
-	HttpPackageConfigurations!: [
-		..._#defs."/$defs/Properties/definitions/HttpPackageConfiguration" | fn.#ObjectExpression
-	] |
+	HttpPackageConfigurations!: [..._#defs."/$defs/Properties/definitions/HttpPackageConfiguration"] |
 		fn.#ListExpression
 	LiveSourceName!:     string | fn.#StringExpression
 	SourceLocationName!: string | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/HttpPackageConfiguration": close({
 	Path!:        string | fn.#StringExpression
 	SourceGroup!: string | fn.#StringExpression
-	Type!:        _#defs."/$defs/Properties/definitions/Type" | fn.#StringExpression
+	Type!:        _#defs."/$defs/Properties/definitions/Type"
 }) |
 fn.#ObjectExpression
 

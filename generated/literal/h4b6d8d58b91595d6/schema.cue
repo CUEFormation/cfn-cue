@@ -80,7 +80,7 @@ import (
 	// interfaces. If this parameter is not specified, we use the default security
 	// group for the VPC. Security groups are supported only for interface
 	// endpoints.
-	SecurityGroupIds?: list.UniqueItems() & [...string | string | string]
+	SecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & string]
 
 	// The name of the endpoint service.
 	ServiceName?: string
@@ -105,7 +105,7 @@ import (
 	VpcEndpointType?: "Interface" | "Gateway" | "GatewayLoadBalancer" | "ServiceNetwork" | "Resource" | "Tunnel"
 
 	// The ID of the VPC.
-	VpcId!: string
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 // Describes the DNS options for an endpoint.

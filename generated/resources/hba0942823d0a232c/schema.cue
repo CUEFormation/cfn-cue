@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,36 +20,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Actions!: close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/Actions" | fn.#ListExpression}}) |
+		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/Actions"}}) |
 	fn.#ObjectExpression
-	Description?:         strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	LatestVersionNumber?: int | fn.#NumberExpression
-	Name!:                =~"^[^\\/#:\\n]{1,64}$" | fn.#StringExpression
+	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	LatestVersionNumber?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name!: =~"^[^\\/#:\\n]{1,64}$" | fn.#StringExpression
 	Parameters?: close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/Parameter" | fn.#ObjectExpression}}) |
+		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/Parameter"}}) |
 	fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Action": close({
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	RoleArn?:     strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	Uri!:         strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
+	Uri!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Actions": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/Actions": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Action"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/Parameter": close({
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Dynamic?:     bool | fn.#BooleanExpression
-	Required!:    bool | fn.#BooleanExpression
+	Dynamic?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Required!:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 

@@ -3,11 +3,15 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"struct"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -15,27 +19,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::BedrockAgentCore::Gateway Resource Type
 #Properties: close({
-	AuthorizerConfiguration?: _#defs."/$defs/Properties/definitions/AuthorizerConfiguration" | fn.#ValueExpression
-	AuthorizerType!:          _#defs."/$defs/Properties/definitions/AuthorizerType" | fn.#StringExpression
+	AuthorizerConfiguration?: _#defs."/$defs/Properties/definitions/AuthorizerConfiguration"
+	AuthorizerType!:          _#defs."/$defs/Properties/definitions/AuthorizerType"
 	Description?:             strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	ExceptionLevel?:          _#defs."/$defs/Properties/definitions/ExceptionLevel" | fn.#StringExpression
+	ExceptionLevel?:          _#defs."/$defs/Properties/definitions/ExceptionLevel"
 	InterceptorConfigurations?: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/GatewayInterceptorConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/GatewayInterceptorConfiguration"
 	] |
 		fn.#ListExpression
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
 	fn.#StringExpression
-	Name!: =~"^([0-9a-zA-Z][-]?){1,48}$" | fn.#StringExpression
-	PolicyEngineConfiguration?: _#defs."/$defs/Properties/definitions/GatewayPolicyEngineConfiguration" |
-		fn.#ObjectExpression
-	ProtocolConfiguration?: _#defs."/$defs/Properties/definitions/GatewayProtocolConfiguration" | fn.#ValueExpression
-	ProtocolType?:          _#defs."/$defs/Properties/definitions/GatewayProtocolType" | fn.#ValueExpression
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
+	Name!:                      =~"^([0-9a-zA-Z][-]?){1,48}$" | fn.#StringExpression
+	PolicyEngineConfiguration?: _#defs."/$defs/Properties/definitions/GatewayPolicyEngineConfiguration"
+	ProtocolConfiguration?:     _#defs."/$defs/Properties/definitions/GatewayProtocolConfiguration"
+	ProtocolType?:              _#defs."/$defs/Properties/definitions/GatewayProtocolType" | fn.#ValueExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
 	fn.#StringExpression
-	Tags?:             _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
-	WafConfiguration?: _#defs."/$defs/Properties/definitions/WafConfiguration" | fn.#ObjectExpression
+	Tags?:             _#defs."/$defs/Properties/definitions/TagsMap"
+	WafConfiguration?: _#defs."/$defs/Properties/definitions/WafConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/AdvertisedScopeMappingType": struct.MaxFields(50) & struct.MinFields(1) & close({
@@ -46,9 +53,9 @@ _#defs: "/$defs/Properties/definitions/AdvertisedScopeMappingType": struct.MaxFi
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close({
-	CustomJWTAuthorizer!: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration" | fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close(
+	{CustomJWTAuthorizer!: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration"},
+) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/AuthorizerType": "CUSTOM_JWT" |
@@ -58,8 +65,8 @@ _#defs: "/$defs/Properties/definitions/AuthorizerType": "CUSTOM_JWT" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AuthorizingClaimMatchValueType": close({
-	ClaimMatchOperator!: _#defs."/$defs/Properties/definitions/ClaimMatchOperatorType" | fn.#StringExpression
-	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType" | fn.#ValueExpression
+	ClaimMatchOperator!: _#defs."/$defs/Properties/definitions/ClaimMatchOperatorType"
+	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType"
 }) |
 fn.#ObjectExpression
 
@@ -79,28 +86,24 @@ _#defs: "/$defs/Properties/definitions/ClaimMatchValueType": matchN(1, [close(
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/CustomClaimValidationType": close({
-	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType" |
-		fn.#ObjectExpression
+	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType"
 	InboundTokenClaimName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:-]+$" | fn.#StringExpression
-	InboundTokenClaimValueType!: _#defs."/$defs/Properties/definitions/InboundTokenClaimValueType" |
-		fn.#StringExpression
+	InboundTokenClaimValueType!: _#defs."/$defs/Properties/definitions/InboundTokenClaimValueType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close({
-	AdvertisedScopeMapping?: _#defs."/$defs/Properties/definitions/AdvertisedScopeMappingType" | fn.#ObjectExpression
+	AdvertisedScopeMapping?: _#defs."/$defs/Properties/definitions/AdvertisedScopeMappingType"
 	AllowedAudience?:        list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	AllowedClients?:         list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	AllowedScopes?: list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	CustomClaims?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/CustomClaimValidationType" | fn.#ObjectExpression
-	] |
+	CustomClaims?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomClaimValidationType"] |
 		fn.#ListExpression
 	DiscoveryUrl!:    =~"^.+/\\.well-known/openid-configuration$" | fn.#StringExpression
-	PrivateEndpoint?: _#defs."/$defs/Properties/definitions/PrivateEndpoint" | fn.#ValueExpression
+	PrivateEndpoint?: _#defs."/$defs/Properties/definitions/PrivateEndpoint"
 }) |
 fn.#ObjectExpression
 
@@ -111,12 +114,12 @@ _#defs: "/$defs/Properties/definitions/ExceptionLevel": "DEBUG" | fn.#StringExpr
 _#defs: "/$defs/Properties/definitions/GatewayInterceptionPoint": "REQUEST" | "RESPONSE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/GatewayInterceptorConfiguration": close({
-	InputConfiguration?: _#defs."/$defs/Properties/definitions/InterceptorInputConfiguration" | fn.#ObjectExpression
+	InputConfiguration?: _#defs."/$defs/Properties/definitions/InterceptorInputConfiguration"
 	InterceptionPoints!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/GatewayInterceptionPoint" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/GatewayInterceptionPoint"
 	] |
 		fn.#ListExpression
-	Interceptor!: _#defs."/$defs/Properties/definitions/InterceptorConfiguration" | fn.#ValueExpression
+	Interceptor!: _#defs."/$defs/Properties/definitions/InterceptorConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -125,14 +128,14 @@ _#defs: "/$defs/Properties/definitions/GatewayPolicyEngineConfiguration": close(
 	strings.MinRunes(1) &
 	=~"^arn:aws:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:policy-engine\\/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9_]{10}$" |
 	fn.#StringExpression
-	Mode!: _#defs."/$defs/Properties/definitions/GatewayPolicyEngineMode" | fn.#StringExpression
+	Mode!: _#defs."/$defs/Properties/definitions/GatewayPolicyEngineMode"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GatewayPolicyEngineMode": "LOG_ONLY" | "ENFORCE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/GatewayProtocolConfiguration": close(
-	{Mcp!: _#defs."/$defs/Properties/definitions/MCPGatewayConfiguration" | fn.#ObjectExpression},
+	{Mcp!: _#defs."/$defs/Properties/definitions/MCPGatewayConfiguration"},
 ) |
 	fn.#ValueExpression
 
@@ -149,26 +152,26 @@ _#defs: "/$defs/Properties/definitions/GatewayStatus": "CREATING" |
 _#defs: "/$defs/Properties/definitions/InboundTokenClaimValueType": "STRING" | "STRING_ARRAY" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/InterceptorConfiguration": close(
-	{Lambda!: _#defs."/$defs/Properties/definitions/LambdaInterceptorConfiguration" | fn.#ObjectExpression},
+	{Lambda!: _#defs."/$defs/Properties/definitions/LambdaInterceptorConfiguration"},
 ) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/InterceptorInputConfiguration": close({
-	PassRequestHeaders!: bool | fn.#BooleanExpression
-	PayloadFilter?:      _#defs."/$defs/Properties/definitions/InterceptorPayloadFilter" | fn.#ObjectExpression
+	PassRequestHeaders!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PayloadFilter?:      _#defs."/$defs/Properties/definitions/InterceptorPayloadFilter"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InterceptorPayloadExclusion": "RESPONSE_BODY" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/InterceptorPayloadExclusionSelector": close(
-	{Field!: _#defs."/$defs/Properties/definitions/InterceptorPayloadExclusion" | fn.#StringExpression},
+	{Field!: _#defs."/$defs/Properties/definitions/InterceptorPayloadExclusion"},
 ) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/InterceptorPayloadFilter": close({
 	Exclude!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/InterceptorPayloadExclusionSelector" | fn.#ValueExpression
+		..._#defs."/$defs/Properties/definitions/InterceptorPayloadExclusionSelector"
 	] |
 		fn.#ListExpression
 }) |
@@ -184,28 +187,32 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MCPGatewayConfiguration": close({
 	Instructions?:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	SearchType?:             _#defs."/$defs/Properties/definitions/SearchType" | fn.#StringExpression
-	SessionConfiguration?:   _#defs."/$defs/Properties/definitions/SessionConfiguration" | fn.#ObjectExpression
-	StreamingConfiguration?: _#defs."/$defs/Properties/definitions/StreamingConfiguration" | fn.#ObjectExpression
+	SearchType?:             _#defs."/$defs/Properties/definitions/SearchType"
+	SessionConfiguration?:   _#defs."/$defs/Properties/definitions/SessionConfiguration"
+	StreamingConfiguration?: _#defs."/$defs/Properties/definitions/StreamingConfiguration"
 	SupportedVersions?:      [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
-	EndpointIpAddressType!: _#defs."/$defs/Properties/definitions/EndpointIpAddressType" | fn.#StringExpression
+	EndpointIpAddressType!: _#defs."/$defs/Properties/definitions/EndpointIpAddressType"
 	RoutingDomain?:         strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-	SecurityGroupIds?: list.MaxItems(5) & [...] & [...=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" | fn.#StringExpression] |
+	SecurityGroupIds?: list.MaxItems(5) & [...] & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+			fn.#StringExpression
+	] |
 		fn.#ListExpression
 	SubnetIds!:     [...=~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression] | fn.#ListExpression
-	Tags?:          _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
+	Tags?:          _#defs."/$defs/Properties/definitions/TagsMap"
 	VpcIdentifier!: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateEndpoint": matchN(1, [close({
-	SelfManagedLatticeResource!: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource" | fn.#ValueExpression
-}), close(
-	{ManagedVpcResource!: _#defs."/$defs/Properties/definitions/ManagedVpcResource" | fn.#ObjectExpression},
+_#defs: "/$defs/Properties/definitions/PrivateEndpoint": matchN(1, [close(
+	{SelfManagedLatticeResource!: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource"},
+), close(
+	{ManagedVpcResource!: _#defs."/$defs/Properties/definitions/ManagedVpcResource"},
 )]) |
 fn.#ValueExpression
 
@@ -219,13 +226,32 @@ _#defs: "/$defs/Properties/definitions/SelfManagedLatticeResource": close({
 }) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/SessionConfiguration": close(
-	{SessionTimeoutInSeconds?: <=28800 & >=900 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/SessionConfiguration": close({
+	SessionTimeoutInSeconds?: <=28800 & >=900 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=28800 &
+							>=900,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StreamingConfiguration": close(
-	{EnableResponseStreaming?: bool | fn.#BooleanExpression},
+	{EnableResponseStreaming?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
@@ -236,7 +262,7 @@ _#defs: "/$defs/Properties/definitions/TagsMap": struct.MaxFields(50) & struct.M
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WafConfiguration": close(
-	{FailureMode?: _#defs."/$defs/Properties/definitions/WafFailureMode" | fn.#StringExpression},
+	{FailureMode?: _#defs."/$defs/Properties/definitions/WafFailureMode"},
 ) |
 	fn.#ObjectExpression
 

@@ -45,12 +45,14 @@ _#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1024) & =~
 _#defs: "/$defs/Properties/definitions/ForceDelete": bool
 
 // The KMS key with which the Policy's assets will be encrypted at rest.
-_#defs: "/$defs/Properties/definitions/KmsKeyArn": strings.MaxRunes(2048) &
+_#defs: "/$defs/Properties/definitions/KmsKeyArn": =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$"
 
 // The KMS key with which the Policy's assets will be encrypted at rest.
-_#defs: "/$defs/Properties/definitions/KmsKeyId": (string | string | string) &
+_#defs: "/$defs/Properties/definitions/KmsKeyId": (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	string) &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^(arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:((key/[a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)))|([a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)$"

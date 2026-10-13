@@ -22,8 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DBSubnetGroupDescription!: string | fn.#StringExpression
 	DBSubnetGroupName?:        string | fn.#StringExpression
 	SubnetIds!:                [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:                     list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

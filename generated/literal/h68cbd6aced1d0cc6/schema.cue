@@ -51,7 +51,7 @@ _#defs: "/$defs/Properties/definitions/EventSubscription": close({
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1)
 
 	// Amazon Resource Name (ARN) of the Amazon Simple Notification Service topic.
-	SnsTopicArn?: string
+	SnsTopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/IamRoleArn": =~"arn:(aws|aws-cn|aws-iso|aws-iso-[a-z]{1}|aws-us-gov):iam::[0-9]{12}:role\\/(([\\x{0021}-\\x{007E}]+\\x{002F}){1,511})?[A-Za-z0-9+=,.@_/-]{1,64}$"

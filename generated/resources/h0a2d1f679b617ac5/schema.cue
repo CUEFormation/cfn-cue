@@ -10,7 +10,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::OpsWorks::UserProfile
 #Properties: close({
-	AllowSelfManagement?: bool | fn.#BooleanExpression
+	AllowSelfManagement?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IamUserArn!:          string | fn.#StringExpression
 	SshPublicKey?:        string | fn.#StringExpression
 	SshUsername?:         string | fn.#StringExpression

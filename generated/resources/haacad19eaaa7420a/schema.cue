@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,20 +21,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	BucketName!:             strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration" | fn.#ObjectExpression
 	OutpostId!:              =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close(
-	{DaysAfterInitiation!: int & >=0 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close({
+	DaysAfterInitiation!: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilterAndOperator": close({
 	Prefix?: _#defs."/$defs/Properties/definitions/FilterPrefix" | fn.#StringExpression
-	Tags!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/FilterTag" | fn.#ObjectExpression
-	] |
+	Tags!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/FilterTag"] |
 		fn.#ListExpression
 }) |
 fn.#ValueExpression
@@ -45,29 +60,42 @@ _#defs: "/$defs/Properties/definitions/FilterTag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
-	Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Rule" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close(
+	{Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": ({
+_#defs: "/$defs/Properties/definitions/Rule": matchN(>=1, [{
 	Status!:                         _
 	AbortIncompleteMultipartUpload!: _
 	...
-} | {
+}, {
 	Status!:         _
 	ExpirationDate!: _
 	...
-} | {
+}, {
 	Status!:           _
 	ExpirationInDays!: _
 	...
-}) & close({
+}]) & close({
 	AbortIncompleteMultipartUpload?: _#defs."/$defs/Properties/definitions/AbortIncompleteMultipartUpload" |
 		fn.#ObjectExpression
-	ExpirationDate?:   _#defs."/$defs/Properties/definitions/iso8601UTC" | fn.#StringExpression
-	ExpirationInDays?: int & >=1 | fn.#NumberExpression
+	ExpirationDate?: _#defs."/$defs/Properties/definitions/iso8601UTC" | fn.#StringExpression
+	ExpirationInDays?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Filter?: matchN(1, [{
 		Prefix!: _
 		...

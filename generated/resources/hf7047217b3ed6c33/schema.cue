@@ -7,6 +7,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -36,19 +40,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AllocationId?:     string | fn.#StringExpression
 	AvailabilityMode?: "regional" | "zonal" | fn.#StringExpression
-	AvailabilityZoneAddresses?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AvailabilityZoneAddress" | fn.#ObjectExpression
-	] |
+	AvailabilityZoneAddresses?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AvailabilityZoneAddress"] |
 		fn.#ListExpression
-	ConnectivityType?:               "private" | "public" | fn.#StringExpression
-	MaxDrainDurationSeconds?:        int | fn.#NumberExpression
-	PrivateIpAddress?:               string | fn.#StringExpression
-	SecondaryAllocationIds?:         list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SecondaryPrivateIpAddressCount?: int & <=31 & >=1 | fn.#NumberExpression
-	SecondaryPrivateIpAddresses?:    list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SubnetId?:                       string | fn.#StringExpression
-	Tags?:  [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	VpcId?: string | fn.#StringExpression
+	ConnectivityType?: "private" | "public" | fn.#StringExpression
+	MaxDrainDurationSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PrivateIpAddress?:       string | fn.#StringExpression
+	SecondaryAllocationIds?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	SecondaryPrivateIpAddressCount?: int & <=31 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=31 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SecondaryPrivateIpAddresses?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	SubnetId?:                    string | fn.#StringExpression
+	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AvailabilityZoneAddress": close({

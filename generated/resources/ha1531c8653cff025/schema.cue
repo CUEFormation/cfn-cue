@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // name, use case, enabled channels, and enabled countries.
 #Properties: close({
 	DefaultTemplateId?:         strings.MaxRunes(256) & =~"^[A-Za-z0-9_-]*$" | fn.#StringExpression
-	DeletionProtectionEnabled?: bool | fn.#BooleanExpression
+	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DisplayName!: strings.MaxRunes(15) & strings.MinRunes(1) & =~"^[A-Za-z0-9_ -]+$" | fn.#StringExpression
 	EnabledChannels!: list.MaxItems(4) & list.MinItems(1) & [..."SMS" | "VOICE" | "MMS" | "RCS" | fn.#StringExpression] |
 		fn.#ListExpression
@@ -25,9 +25,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...strings.MaxRunes(2) & strings.MinRunes(2) & =~"^[A-Z]{2}$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	PoolId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	PoolId?:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" | fn.#StringExpression
+	Tags?:    list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	UseCase!: "CODE_VERIFICATION" | fn.#StringExpression
 })
 

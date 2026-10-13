@@ -12,10 +12,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DisplayName?:        string | fn.#StringExpression
 	EndTime?:            string | fn.#StringExpression
-	MetadataProperties?: _#defs."/$defs/Properties/definitions/MetadataProperties" | fn.#ObjectExpression
+	MetadataProperties?: _#defs."/$defs/Properties/definitions/MetadataProperties"
 	StartTime?:          string | fn.#StringExpression
-	Status?:             _#defs."/$defs/Properties/definitions/Status" | fn.#ObjectExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/TagsItems" | fn.#ObjectExpression] | fn.#ListExpression
+	Status?:             _#defs."/$defs/Properties/definitions/Status"
+	Tags?:               [..._#defs."/$defs/Properties/definitions/TagsItems"] | fn.#ListExpression
 	TrialComponentName!: string | fn.#StringExpression
 })
 

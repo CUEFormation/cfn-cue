@@ -1,0 +1,7 @@
+Resources:
+  Thing:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: rate(5 minutes)
+      State: DISABLED
+      RoleArn: SomeOptionalParameter

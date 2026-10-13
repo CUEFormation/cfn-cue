@@ -23,7 +23,10 @@ import (
 	=~"^arn:(aws|aws-us-gov|aws-cn):aps:[a-z0-9-]+:[0-9]+:workspace/[a-zA-Z0-9-]+$"
 
 	// KMS Key ARN used to encrypt and decrypt AMP workspace data.
-	KmsKeyArn?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[-a-z]*:kms:[-a-z0-9]+:[0-9]{12}:key/.+$"
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:aws[-a-z]*:kms:[-a-z0-9]+:[0-9]{12}:key/.+$"
 	LoggingConfiguration?: _#defs."/$defs/Properties/definitions/LoggingConfiguration"
 
 	// AMP Workspace prometheus endpoint

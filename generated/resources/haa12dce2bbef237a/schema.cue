@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,15 +23,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Guide*.
 #Properties: close({
 	CustomerGatewayId!:     string | fn.#StringExpression
-	EnableAcceleration?:    bool | fn.#BooleanExpression
+	EnableAcceleration?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LocalIpv4NetworkCidr?:  string | fn.#StringExpression
 	LocalIpv6NetworkCidr?:  string | fn.#StringExpression
 	OutsideIpAddressType?:  string | fn.#StringExpression
 	PreSharedKeyStorage?:   "Standard" | "SecretsManager" | fn.#StringExpression
 	RemoteIpv4NetworkCidr?: string | fn.#StringExpression
 	RemoteIpv6NetworkCidr?: string | fn.#StringExpression
-	StaticRoutesOnly?:      bool | fn.#BooleanExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	StaticRoutesOnly?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TransitGatewayId?:      string | fn.#StringExpression
 	TransportTransitGatewayAttachmentId?: string | fn.#StringExpression
 	TunnelBandwidth?:                     "standard" | "large" | fn.#StringExpression
@@ -35,17 +39,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!:                                string | fn.#StringExpression
 	VpnConcentratorId?:                   string | fn.#StringExpression
 	VpnGatewayId?:                        string | fn.#StringExpression
-	VpnTunnelOptionsSpecifications?: [
-		..._#defs."/$defs/Properties/definitions/VpnTunnelOptionsSpecification" | fn.#ObjectExpression
-	] |
+	VpnTunnelOptionsSpecifications?: [..._#defs."/$defs/Properties/definitions/VpnTunnelOptionsSpecification"] |
 		fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CloudwatchLogOptionsSpecification": close({
-	BgpLogEnabled?:      bool | fn.#BooleanExpression
+	BgpLogEnabled?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	BgpLogGroupArn?:     string | fn.#StringExpression
 	BgpLogOutputFormat?: "json" | "text" | fn.#StringExpression
-	LogEnabled?:         bool | fn.#BooleanExpression
+	LogEnabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LogGroupArn?:        string | fn.#StringExpression
 	LogOutputFormat?:    "json" | "text" | fn.#StringExpression
 }) |
@@ -101,45 +103,120 @@ _#defs: "/$defs/Properties/definitions/VpnTunnelLogOptionsSpecification": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpnTunnelOptionsSpecification": close({
-	DPDTimeoutAction?:             "clear" | "none" | "restart" | fn.#StringExpression
-	DPDTimeoutSeconds?:            int & >=30 | fn.#NumberExpression
-	EnableTunnelLifecycleControl?: bool | fn.#BooleanExpression
-	IKEVersions?: [..._#defs."/$defs/Properties/definitions/IKEVersionsRequestListValue" | fn.#ObjectExpression] |
+	DPDTimeoutAction?: "clear" | "none" | "restart" | fn.#StringExpression
+	DPDTimeoutSeconds?: int & >=30 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=30,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	EnableTunnelLifecycleControl?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IKEVersions?: [..._#defs."/$defs/Properties/definitions/IKEVersionsRequestListValue"] | fn.#ListExpression
+	LogOptions?:  _#defs."/$defs/Properties/definitions/VpnTunnelLogOptionsSpecification" | fn.#ObjectExpression
+	Phase1DHGroupNumbers?: [..._#defs."/$defs/Properties/definitions/Phase1DHGroupNumbersRequestListValue"] |
 		fn.#ListExpression
-	LogOptions?: _#defs."/$defs/Properties/definitions/VpnTunnelLogOptionsSpecification" | fn.#ObjectExpression
-	Phase1DHGroupNumbers?: [
-		..._#defs."/$defs/Properties/definitions/Phase1DHGroupNumbersRequestListValue" | fn.#ObjectExpression
-	] |
+	Phase1EncryptionAlgorithms?: [..._#defs."/$defs/Properties/definitions/Phase1EncryptionAlgorithmsRequestListValue"] |
 		fn.#ListExpression
-	Phase1EncryptionAlgorithms?: [
-		..._#defs."/$defs/Properties/definitions/Phase1EncryptionAlgorithmsRequestListValue" | fn.#ObjectExpression
-	] |
+	Phase1IntegrityAlgorithms?: [..._#defs."/$defs/Properties/definitions/Phase1IntegrityAlgorithmsRequestListValue"] |
 		fn.#ListExpression
-	Phase1IntegrityAlgorithms?: [
-		..._#defs."/$defs/Properties/definitions/Phase1IntegrityAlgorithmsRequestListValue" | fn.#ObjectExpression
-	] |
+	Phase1LifetimeSeconds?: int & <=28800 & >=900 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=28800 &
+							>=900,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Phase2DHGroupNumbers?: [..._#defs."/$defs/Properties/definitions/Phase2DHGroupNumbersRequestListValue"] |
 		fn.#ListExpression
-	Phase1LifetimeSeconds?: int & <=28800 & >=900 | fn.#NumberExpression
-	Phase2DHGroupNumbers?: [
-		..._#defs."/$defs/Properties/definitions/Phase2DHGroupNumbersRequestListValue" | fn.#ObjectExpression
-	] |
+	Phase2EncryptionAlgorithms?: [..._#defs."/$defs/Properties/definitions/Phase2EncryptionAlgorithmsRequestListValue"] |
 		fn.#ListExpression
-	Phase2EncryptionAlgorithms?: [
-		..._#defs."/$defs/Properties/definitions/Phase2EncryptionAlgorithmsRequestListValue" | fn.#ObjectExpression
-	] |
+	Phase2IntegrityAlgorithms?: [..._#defs."/$defs/Properties/definitions/Phase2IntegrityAlgorithmsRequestListValue"] |
 		fn.#ListExpression
-	Phase2IntegrityAlgorithms?: [
-		..._#defs."/$defs/Properties/definitions/Phase2IntegrityAlgorithmsRequestListValue" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Phase2LifetimeSeconds?:  int & <=3600 & >=900 | fn.#NumberExpression
-	PreSharedKey?:           string | fn.#StringExpression
-	RekeyFuzzPercentage?:    int & <=100 & >=0 | fn.#NumberExpression
-	RekeyMarginTimeSeconds?: int & >=60 | fn.#NumberExpression
-	ReplayWindowSize?:       int & <=2048 & >=64 | fn.#NumberExpression
-	StartupAction?:          "add" | "start" | fn.#StringExpression
-	TunnelInsideCidr?:       string | fn.#StringExpression
-	TunnelInsideIpv6Cidr?:   string | fn.#StringExpression
+	Phase2LifetimeSeconds?: int & <=3600 & >=900 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=3600 &
+							>=900,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PreSharedKey?: string | fn.#StringExpression
+	RekeyFuzzPercentage?: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RekeyMarginTimeSeconds?: int & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ReplayWindowSize?: int & <=2048 & >=64 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2048 &
+							>=64,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StartupAction?:        "add" | "start" | fn.#StringExpression
+	TunnelInsideCidr?:     string | fn.#StringExpression
+	TunnelInsideIpv6Cidr?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -66,7 +66,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/CustomPolicyDetails": close({
-	EnableDebugLogDelivery?: bool | fn.#BooleanExpression
+	EnableDebugLogDelivery?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PolicyRuntime?:          string | fn.#StringExpression
 	PolicyText?:             string | fn.#StringExpression
 }) |

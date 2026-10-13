@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):fsx:[a-z\\-0-9]+:[0-9]{12}:file-system/fs-[0-9a-f]+$" |
 	fn.#StringExpression
-	Protocol!: _#defs."/$defs/Properties/definitions/Protocol" | fn.#ObjectExpression
+	Protocol!: _#defs."/$defs/Properties/definitions/Protocol"
 	SecurityGroupArns!: list.MaxItems(5) & list.MinItems(1) & [
 		...strings.MaxRunes(128) &
 		strings.MinRunes(0) &
@@ -28,9 +28,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
@@ -39,14 +37,10 @@ _#defs: "/$defs/Properties/definitions/MountOptions": close(
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NFS": close(
-	{MountOptions!: _#defs."/$defs/Properties/definitions/MountOptions" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/NFS": close({MountOptions!: _#defs."/$defs/Properties/definitions/MountOptions"}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Protocol": close(
-	{NFS?: _#defs."/$defs/Properties/definitions/NFS" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/Protocol": close({NFS?: _#defs."/$defs/Properties/definitions/NFS"}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

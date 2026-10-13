@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Comment?:      strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	ImportSource?: _#defs."/$defs/Properties/definitions/ImportSource" | fn.#ObjectExpression
 	Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
-	Tags?:         [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ImportSource": close({

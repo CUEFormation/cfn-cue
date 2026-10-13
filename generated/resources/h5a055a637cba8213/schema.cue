@@ -14,23 +14,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Amazon OpenSearchService application resource
 #Properties: close({
-	AppConfigs?:  [..._#defs."/$defs/Properties/definitions/AppConfig" | fn.#ObjectExpression] | fn.#ListExpression
-	DataSources?: [..._#defs."/$defs/Properties/definitions/DataSource" | fn.#ObjectExpression] | fn.#ListExpression
+	AppConfigs?:  [..._#defs."/$defs/Properties/definitions/AppConfig"] | fn.#ListExpression
+	DataSources?: [..._#defs."/$defs/Properties/definitions/DataSource"] | fn.#ListExpression
 	Endpoint?:    string | fn.#StringExpression
 	IamIdentityCenterOptions?: close({
-		Enabled?: bool | fn.#BooleanExpression
+		Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		IamIdentityCenterInstanceArn?: _#defs."/$defs/Properties/definitions/_PropertyRefb91010e65b1f7292" |
 			fn.#StringExpression
 		IamRoleForIdentityCenterApplicationArn?: string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[a-z]+)*:kms:[a-z0-9-]+:\\d{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
 	fn.#StringExpression
 	Name!: strings.MaxRunes(40) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AppConfig": close({

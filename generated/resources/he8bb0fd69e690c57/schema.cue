@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -15,15 +15,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Represents a router network interface in AWS Elemental MediaConnect that is
 // used to define a network boundary for router resources
 #Properties: close({
-	Configuration!: _#defs."/$defs/Properties/definitions/RouterNetworkInterfaceConfiguration" | fn.#ValueExpression
+	Configuration!: _#defs."/$defs/Properties/definitions/RouterNetworkInterfaceConfiguration"
 	Name!:          strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	RegionName?:    string | fn.#StringExpression
-	Tags?:          [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:          [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/PublicRouterNetworkInterfaceConfiguration": close({
 	AllowRules!: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PublicRouterNetworkInterfaceRule" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/PublicRouterNetworkInterfaceRule"
 	] |
 		fn.#ListExpression
 }) |
@@ -33,9 +33,9 @@ _#defs: "/$defs/Properties/definitions/PublicRouterNetworkInterfaceRule": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RouterNetworkInterfaceConfiguration": matchN(1, [close(
-	{Public!: _#defs."/$defs/Properties/definitions/PublicRouterNetworkInterfaceConfiguration" | fn.#ObjectExpression},
+	{Public!: _#defs."/$defs/Properties/definitions/PublicRouterNetworkInterfaceConfiguration"},
 ), close(
-	{Vpc!: _#defs."/$defs/Properties/definitions/VpcRouterNetworkInterfaceConfiguration" | fn.#ObjectExpression},
+	{Vpc!: _#defs."/$defs/Properties/definitions/VpcRouterNetworkInterfaceConfiguration"},
 )]) |
 fn.#ValueExpression
 
@@ -58,8 +58,12 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/Unit": close({}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcRouterNetworkInterfaceConfiguration": close({
-	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	SubnetId!:         string | fn.#StringExpression
+	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	SubnetId!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

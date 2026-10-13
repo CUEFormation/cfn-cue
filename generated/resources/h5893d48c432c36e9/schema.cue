@@ -19,12 +19,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: strings.MaxRunes(255) | fn.#StringExpression
 	DomainId?:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
-	Type!:        _#defs."/$defs/Properties/definitions/FieldType" | fn.#StringExpression
+	Tags?:        _#defs."/$defs/Properties/definitions/Tags"
+	Type!:        _#defs."/$defs/Properties/definitions/FieldType"
 })
 
 _#defs: "/$defs/Properties/definitions/FieldAttributes": close(
-	{Text?: _#defs."/$defs/Properties/definitions/TextAttributes" | fn.#ObjectExpression},
+	{Text?: _#defs."/$defs/Properties/definitions/TextAttributes"},
 ) |
 	fn.#ObjectExpression
 
@@ -43,10 +43,11 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-	fn.#ListExpression
+_#defs: "/$defs/Properties/definitions/Tags": [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/TextAttributes": close({IsMultiline!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/TextAttributes": close(
+	{IsMultiline!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Cases::Field"

@@ -17,38 +17,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ContainerProvider?: _#defs."/$defs/Properties/definitions/ContainerProvider" | fn.#ObjectExpression
 	Name?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
 	SecurityConfigurationData!: _#defs."/$defs/Properties/definitions/SecurityConfigurationData" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AtRestEncryptionConfiguration": close({
-	LocalDiskEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/LocalDiskEncryptionConfiguration" |
-		fn.#ObjectExpression
-	S3EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/S3EncryptionConfiguration" | fn.#ObjectExpression
+	LocalDiskEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/LocalDiskEncryptionConfiguration"
+	S3EncryptionConfiguration?:        _#defs."/$defs/Properties/definitions/S3EncryptionConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
-	IAMConfiguration?: _#defs."/$defs/Properties/definitions/IAMConfiguration" | fn.#ObjectExpression
-	IdentityCenterConfiguration?: _#defs."/$defs/Properties/definitions/IdentityCenterConfiguration" |
-		fn.#ObjectExpression
+	IAMConfiguration?:            _#defs."/$defs/Properties/definitions/IAMConfiguration"
+	IdentityCenterConfiguration?: _#defs."/$defs/Properties/definitions/IdentityCenterConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthorizationConfiguration": close({
-	LakeFormationConfiguration?: _#defs."/$defs/Properties/definitions/LakeFormationConfiguration" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/AuthorizationConfiguration": close(
+	{LakeFormationConfiguration?: _#defs."/$defs/Properties/definitions/LakeFormationConfiguration"},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerInfo": close(
-	{EksInfo?: _#defs."/$defs/Properties/definitions/EksInfo" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/ContainerInfo": close({EksInfo?: _#defs."/$defs/Properties/definitions/EksInfo"}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ContainerProvider": close({
 	Id!:   strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*$" | fn.#StringExpression
-	Info?: _#defs."/$defs/Properties/definitions/ContainerInfo" | fn.#ObjectExpression
+	Info?: _#defs."/$defs/Properties/definitions/ContainerInfo"
 	Type!: "EKS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -57,10 +51,8 @@ _#defs: "/$defs/Properties/definitions/EksInfo": close({Namespace?: string | fn.
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	AtRestEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/AtRestEncryptionConfiguration" |
-		fn.#ObjectExpression
-	InTransitEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/InTransitEncryptionConfiguration" |
-		fn.#ObjectExpression
+	AtRestEncryptionConfiguration?:    _#defs."/$defs/Properties/definitions/AtRestEncryptionConfiguration"
+	InTransitEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/InTransitEncryptionConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -73,8 +65,15 @@ _#defs: "/$defs/Properties/definitions/IAMConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IdentityCenterConfiguration": close({
-	EnableIdentityCenter?:                        bool | fn.#BooleanExpression
-	IdentityCenterApplicationAssignmentRequired?: bool | fn.#BooleanExpression
+	EnableIdentityCenter?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IdentityCenterApplicationAssignmentRequired?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 	IdentityCenterInstanceARN?: strings.MaxRunes(1224) &
 	strings.MinRunes(10) &
 	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
@@ -82,21 +81,21 @@ _#defs: "/$defs/Properties/definitions/IdentityCenterConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InTransitEncryptionConfiguration": close({
-	TLSCertificateConfiguration?: _#defs."/$defs/Properties/definitions/TLSCertificateConfiguration" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/InTransitEncryptionConfiguration": close(
+	{TLSCertificateConfiguration?: _#defs."/$defs/Properties/definitions/TLSCertificateConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LakeFormationConfiguration": close({
 	AuthorizedSessionTagValue?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9 ]+$" |
 	fn.#StringExpression
-	QueryAccessControlEnabled?: bool | fn.#BooleanExpression
-	QueryEngineRoleArn?: strings.MaxRunes(2048) &
+	QueryAccessControlEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	QueryEngineRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::\\d{12}:role/.+$" |
 	fn.#StringExpression
-	SecureNamespaceInfo?: _#defs."/$defs/Properties/definitions/SecureNamespaceInfo" | fn.#ObjectExpression
+	SecureNamespaceInfo?: _#defs."/$defs/Properties/definitions/SecureNamespaceInfo"
 }) |
 fn.#ObjectExpression
 
@@ -108,7 +107,9 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3EncryptionConfiguration": close({
 	EncryptionOption?: "SSE-S3" | "SSE-KMS" | "CSE-KMS" | fn.#StringExpression
-	KMSKeyId?:         string | string | string | fn.#StringExpression
+	KMSKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -119,11 +120,9 @@ _#defs: "/$defs/Properties/definitions/SecureNamespaceInfo": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SecurityConfigurationData": close({
-	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/AuthenticationConfiguration" |
-		fn.#ObjectExpression
-	AuthorizationConfiguration?: _#defs."/$defs/Properties/definitions/AuthorizationConfiguration" |
-		fn.#ObjectExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
+	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/AuthenticationConfiguration"
+	AuthorizationConfiguration?:  _#defs."/$defs/Properties/definitions/AuthorizationConfiguration"
+	EncryptionConfiguration?:     _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
 }) |
 fn.#ObjectExpression
 

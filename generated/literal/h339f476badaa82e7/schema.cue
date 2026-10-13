@@ -19,7 +19,10 @@ import (
 
 	// The Amazon Resource Name(ARN) of a AWS Key Management Service (KMS) key used
 	// to encrypt the datasets.
-	KmsKeyArn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"arn:aws.*:kms:.*:[0-9]{12}:key/.*"
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~"arn:aws.*:kms:.*:[0-9]{12}:key/.*"
 
 	// The name for the new dataset group.
 	Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*"
@@ -27,7 +30,8 @@ import (
 	// The ARN of the AWS Identity and Access Management (IAM) role that has
 	// permissions to access the AWS Key Management Service (KMS) key. Supplying an
 	// IAM role is only valid when also specifying a KMS key.
-	RoleArn?: strings.MaxRunes(256) &
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"arn:([a-z\\d-]+):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+"
 

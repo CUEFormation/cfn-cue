@@ -21,7 +21,8 @@ import (
 	// supplied role when the customRoleArn is specified. When this field isn't
 	// specified, Amazon ECR will use the service-linked role for the repository
 	// creation template.
-	CustomRoleArn?: strings.MaxRunes(2048) &
+	CustomRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role/[A-Za-z0-9+=,-.@_]*$"
 

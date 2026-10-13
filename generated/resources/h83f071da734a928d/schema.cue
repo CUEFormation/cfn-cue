@@ -25,9 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 _#defs: "/$defs/Properties/definitions/CatalogIdString": strings.MaxRunes(12) & strings.MinRunes(12) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ColumnNames": [
-	..._#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-] |
+_#defs: "/$defs/Properties/definitions/ColumnNames": [..._#defs."/$defs/Properties/definitions/NameString"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ColumnWildcard": close(

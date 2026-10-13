@@ -35,7 +35,7 @@ import (
 		CustomerManagedKeyEnabled?: bool
 
 		// KMS Key Arn used to encrypt the group policy
-		KmsKeyArn?: string
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 	})
 
 	// An array of key-value pairs to apply to this resource.

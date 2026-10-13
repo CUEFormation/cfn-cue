@@ -28,10 +28,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	Name!:              strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _.-]+$" | fn.#StringExpression
 	NetworkType?:       "IPV4_ONLY" | "DUAL_STACK" | fn.#StringExpression
-	RequireEncryption!: bool | fn.#BooleanExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	RequireEncryption!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

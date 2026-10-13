@@ -15,9 +15,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::Oam::Link Resource Type
 #Properties: close({
 	LabelTemplate?:     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	LinkConfiguration?: _#defs."/$defs/Properties/definitions/LinkConfiguration" | fn.#ObjectExpression
+	LinkConfiguration?: _#defs."/$defs/Properties/definitions/LinkConfiguration"
 	ResourceTypes!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ResourceType" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/ResourceType"
 	] |
 		fn.#ListExpression
 	SinkIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
@@ -25,8 +25,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/LinkConfiguration": close({
-	LogGroupConfiguration?: _#defs."/$defs/Properties/definitions/LinkFilter" | fn.#ObjectExpression
-	MetricConfiguration?:   _#defs."/$defs/Properties/definitions/LinkFilter" | fn.#ObjectExpression
+	LogGroupConfiguration?: _#defs."/$defs/Properties/definitions/LinkFilter"
+	MetricConfiguration?:   _#defs."/$defs/Properties/definitions/LinkFilter"
 }) |
 fn.#ObjectExpression
 

@@ -15,14 +15,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::IoTSiteWise::Gateway
 #Properties: close({
 	GatewayCapabilitySummaries?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/GatewayCapabilitySummary" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/GatewayCapabilitySummary"
 	] |
 		fn.#ListExpression
 	GatewayName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression
 	GatewayPlatform!: _#defs."/$defs/Properties/definitions/GatewayPlatform" | fn.#ObjectExpression
 	GatewayVersion?:  strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]+$" | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CapabilityConfiguration": string | fn.#StringExpression
@@ -30,8 +30,8 @@ _#defs: "/$defs/Properties/definitions/CapabilityConfiguration": string | fn.#St
 _#defs: "/$defs/Properties/definitions/CapabilityNamespace": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/GatewayCapabilitySummary": close({
-	CapabilityConfiguration?: _#defs."/$defs/Properties/definitions/CapabilityConfiguration" | fn.#StringExpression
-	CapabilityNamespace!:     _#defs."/$defs/Properties/definitions/CapabilityNamespace" | fn.#StringExpression
+	CapabilityConfiguration?: _#defs."/$defs/Properties/definitions/CapabilityConfiguration"
+	CapabilityNamespace!:     _#defs."/$defs/Properties/definitions/CapabilityNamespace"
 }) |
 fn.#ObjectExpression
 

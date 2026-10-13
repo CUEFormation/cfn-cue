@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::WorkSpaces::ConnectionAlias
 #Properties: close({
 	ConnectionString!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[.0-9a-zA-Z\\-]{1,255}$" | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ConnectionAliasAssociation": close({

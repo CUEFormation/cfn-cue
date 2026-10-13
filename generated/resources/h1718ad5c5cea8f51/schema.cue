@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -36,47 +40,155 @@ _#defs: "/$defs/Properties/definitions/IcebergInput": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergPartitionField": close({
-	FieldId?:   int | fn.#NumberExpression
-	Name!:      string | fn.#StringExpression
-	SourceId!:  int | fn.#NumberExpression
+	FieldId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name!: string | fn.#StringExpression
+	SourceId!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Transform!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergPartitionSpec": close({
-	Fields!: [..._#defs."/$defs/Properties/definitions/IcebergPartitionField" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	SpecId?: int | fn.#NumberExpression
+	Fields!: [..._#defs."/$defs/Properties/definitions/IcebergPartitionField"] | fn.#ListExpression
+	SpecId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergSchema": close({
-	Fields!: [..._#defs."/$defs/Properties/definitions/IcebergStructField" | fn.#ObjectExpression] | fn.#ListExpression
-	IdentifierFieldIds?: [...int | fn.#NumberExpression] | fn.#ListExpression
-	SchemaId?:           int | fn.#NumberExpression
-	Type?:               string | fn.#StringExpression
+	Fields!: [..._#defs."/$defs/Properties/definitions/IcebergStructField"] | fn.#ListExpression
+	IdentifierFieldIds?: [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	SchemaId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergSortField": close({
 	Direction!: string | fn.#StringExpression
 	NullOrder!: string | fn.#StringExpression
-	SourceId!:  int | fn.#NumberExpression
+	SourceId!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Transform!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergSortOrder": close({
-	Fields!:  [..._#defs."/$defs/Properties/definitions/IcebergSortField" | fn.#ObjectExpression] | fn.#ListExpression
-	OrderId!: int | fn.#NumberExpression
+	Fields!: [..._#defs."/$defs/Properties/definitions/IcebergSortField"] | fn.#ListExpression
+	OrderId!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergStructField": close({
-	Doc?:      string | fn.#StringExpression
-	Id!:       int | fn.#NumberExpression
+	Doc?: string | fn.#StringExpression
+	Id!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Name!:     string | fn.#StringExpression
-	Required!: bool | fn.#BooleanExpression
+	Required!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Type!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -101,8 +213,23 @@ _#defs: "/$defs/Properties/definitions/OpenTableFormatInput": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Order": close({
-	Column!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	SortOrder!: int & <=1 & >=0 | fn.#NumberExpression
+	Column!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	SortOrder!: int & <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -120,7 +247,22 @@ _#defs: "/$defs/Properties/definitions/SchemaReference": close({
 	strings.MinRunes(36) &
 	=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
 	fn.#StringExpression
-	SchemaVersionNumber?: int & <=100000 & >=1 | fn.#NumberExpression
+	SchemaVersionNumber?: int & <=100000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -139,19 +281,32 @@ _#defs: "/$defs/Properties/definitions/SkewedInfo": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StorageDescriptor": close({
-	BucketColumns?:   [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Columns?:         [..._#defs."/$defs/Properties/definitions/Column" | fn.#ObjectExpression] | fn.#ListExpression
-	Compressed?:      bool | fn.#BooleanExpression
-	InputFormat?:     strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Location?:        strings.MaxRunes(2056) & strings.MinRunes(0) | fn.#StringExpression
-	NumberOfBuckets?: int | fn.#NumberExpression
+	BucketColumns?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+	Columns?:       [..._#defs."/$defs/Properties/definitions/Column"] | fn.#ListExpression
+	Compressed?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InputFormat?:   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+	Location?:      strings.MaxRunes(2056) & strings.MinRunes(0) | fn.#StringExpression
+	NumberOfBuckets?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	OutputFormat?:    strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Parameters?:      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
 	SchemaReference?: _#defs."/$defs/Properties/definitions/SchemaReference" | fn.#ObjectExpression
 	SerdeInfo?:       _#defs."/$defs/Properties/definitions/SerdeInfo" | fn.#ObjectExpression
 	SkewedInfo?:      _#defs."/$defs/Properties/definitions/SkewedInfo" | fn.#ObjectExpression
 	SortColumns?:     [..._#defs."/$defs/Properties/definitions/Order" | fn.#ObjectExpression] | fn.#ListExpression
-	StoredAsSubDirectories?: bool | fn.#BooleanExpression
+	StoredAsSubDirectories?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -164,12 +319,26 @@ _#defs: "/$defs/Properties/definitions/TableIdentifier": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableInput": close({
-	Description?:       strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Name?:              strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Owner?:             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters?:        string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	PartitionKeys?:     [..._#defs."/$defs/Properties/definitions/Column" | fn.#ObjectExpression] | fn.#ListExpression
-	Retention?:         int & >=0 | fn.#NumberExpression
+	Description?:   strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+	Name?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Owner?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Parameters?:    string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	PartitionKeys?: [..._#defs."/$defs/Properties/definitions/Column"] | fn.#ListExpression
+	Retention?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	StorageDescriptor?: _#defs."/$defs/Properties/definitions/StorageDescriptor" | fn.#ObjectExpression
 	TableType?: ("EXTERNAL_TABLE" | "VIRTUAL_VIEW") & (strings.MaxRunes(255) & strings.MinRunes(0)) |
 	fn.#StringExpression
@@ -182,9 +351,9 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ViewDefinition": close({
 	Definer?:     strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	IsProtected?: bool | fn.#BooleanExpression
+	IsProtected?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Representations?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ViewRepresentation" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ViewRepresentation"
 	] |
 		fn.#ListExpression
 	SubObjects?: list.MaxItems(10) & [...] & [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] |

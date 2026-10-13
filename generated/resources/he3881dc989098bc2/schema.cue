@@ -16,11 +16,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DatasetGroupArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^arn:([a-z\\d-]+):personalize:.*:.*:.+$" |
 	fn.#StringExpression
-	Metrics!: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MetricAttribute" | fn.#ObjectExpression
-	] |
+	Metrics!: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/MetricAttribute"] |
 		fn.#ListExpression
-	MetricsOutputConfig!: _#defs."/$defs/Properties/definitions/MetricsOutputConfig" | fn.#ObjectExpression
+	MetricsOutputConfig!: _#defs."/$defs/Properties/definitions/MetricsOutputConfig"
 	Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*$" | fn.#StringExpression
 })
 
@@ -32,16 +30,20 @@ _#defs: "/$defs/Properties/definitions/MetricAttribute": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetricsOutputConfig": close({
-	RoleArn!: strings.MaxRunes(256) &
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^arn:([a-z\\d-]+):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
-	S3DataDestination?: _#defs."/$defs/Properties/definitions/S3DataDestination" | fn.#ObjectExpression
+	S3DataDestination?: _#defs."/$defs/Properties/definitions/S3DataDestination"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3DataDestination": close({
-	KmsKeyArn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:aws.*:kms:.*:[0-9]{12}:key/" |
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~"^arn:aws.*:kms:.*:[0-9]{12}:key/" |
 	fn.#StringExpression
 	Path!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(s3|http|https)://.+$" | fn.#StringExpression
 }) |

@@ -15,11 +15,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates a fleet provisioning template.
 #Properties: close({
 	Description?:         strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" | fn.#StringExpression
-	Enabled?:             bool | fn.#BooleanExpression
-	PreProvisioningHook?: _#defs."/$defs/Properties/definitions/ProvisioningHook" | fn.#ObjectExpression
-	ProvisioningRoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Enabled?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PreProvisioningHook?: _#defs."/$defs/Properties/definitions/ProvisioningHook"
+	ProvisioningRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
+	Tags?:         list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TemplateBody!: strings.MaxRunes(10240) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	TemplateName?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
 	TemplateType?: "FLEET_PROVISIONING" | "JITP" | fn.#StringExpression

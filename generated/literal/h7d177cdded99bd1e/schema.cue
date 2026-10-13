@@ -203,7 +203,7 @@ _#defs: "/$defs/Properties/definitions/ClusterSettings": close({
 // The details of the execute command configuration.
 _#defs: "/$defs/Properties/definitions/ExecuteCommandConfiguration": close({
 	// Specify an KMSlong key ID to encrypt the data between the local client and the container.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The log configuration for the results of the execute command actions. The
 	// logs can be sent to CloudWatch Logs or an Amazon S3 bucket. When
@@ -266,7 +266,7 @@ _#defs: "/$defs/Properties/definitions/ManagedStorageConfiguration": close({
 	// ECS](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ebs-kms-encryption.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
 	// The key must be a single Region key.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 })
 
 // Use this parameter to set a default Service Connect namespace. After you set

@@ -16,12 +16,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ControlIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
 	fn.#StringExpression
-	Parameters?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EnabledControlParameter" | fn.#ObjectExpression
-	] |
+	Parameters?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EnabledControlParameter"] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
 	fn.#StringExpression
 })

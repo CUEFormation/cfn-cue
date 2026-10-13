@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		TransitGatewayAddress?: string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                       [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TransitGatewayAttachmentId!: string | fn.#StringExpression
 })
 
@@ -27,18 +31,52 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TransitGatewayAttachmentBgpConfiguration": close({
-	BgpStatus?:             string | fn.#StringExpression
-	PeerAddress?:           string | fn.#StringExpression
-	PeerAsn?:               number | fn.#NumberExpression
+	BgpStatus?:   string | fn.#StringExpression
+	PeerAddress?: string | fn.#StringExpression
+	PeerAsn?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	TransitGatewayAddress?: string | fn.#StringExpression
-	TransitGatewayAsn?:     number | fn.#NumberExpression
+	TransitGatewayAsn?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TransitGatewayConnectPeerConfiguration": close({
-	BgpConfigurations?: [
-		..._#defs."/$defs/Properties/definitions/TransitGatewayAttachmentBgpConfiguration" | fn.#ObjectExpression
-	] |
+	BgpConfigurations?: [..._#defs."/$defs/Properties/definitions/TransitGatewayAttachmentBgpConfiguration"] |
 		fn.#ListExpression
 	InsideCidrBlocks!:      [...string | fn.#StringExpression] | fn.#ListExpression
 	PeerAddress!:           string | fn.#StringExpression

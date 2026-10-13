@@ -14,12 +14,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::SecurityAgent::SecurityRequirementPack
 #Properties: close({
 	Description?: strings.MaxRunes(500) | fn.#StringExpression
-	KmsKeyId?:    (string | string | string) & strings.MaxRunes(2048) | fn.#StringExpression
-	Name!:        strings.MaxRunes(120) & strings.MinRunes(1) | fn.#StringExpression
-	SecurityRequirements?: [..._#defs."/$defs/Properties/definitions/SecurityRequirement" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Status?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & strings.MaxRunes(2048) |
+	fn.#StringExpression
+	Name!:                 strings.MaxRunes(120) & strings.MinRunes(1) | fn.#StringExpression
+	SecurityRequirements?: [..._#defs."/$defs/Properties/definitions/SecurityRequirement"] | fn.#ListExpression
+	Status?:               "ENABLED" | "DISABLED" | fn.#StringExpression
+	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/SecurityRequirement": close({

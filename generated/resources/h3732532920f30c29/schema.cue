@@ -8,35 +8,36 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WorkSpaces::Directory
 #Properties: close({
-	ActiveDirectoryConfig?: _#defs."/$defs/Properties/definitions/ActiveDirectoryConfig" | fn.#ObjectExpression
-	CertificateBasedAuthProperties?: _#defs."/$defs/Properties/definitions/CertificateBasedAuthProperties" |
-		fn.#ObjectExpression
-	EnableSelfService?:      bool | fn.#BooleanExpression
+	ActiveDirectoryConfig?:          _#defs."/$defs/Properties/definitions/ActiveDirectoryConfig"
+	CertificateBasedAuthProperties?: _#defs."/$defs/Properties/definitions/CertificateBasedAuthProperties"
+	EnableSelfService?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EndpointEncryptionMode?: "STANDARD_TLS" | "FIPS_VALIDATED" | fn.#StringExpression
 	IdcInstanceArn?:         string | fn.#StringExpression
 	IpGroupIds?:             [...=~"^wsipg-[0-9a-z]{8,63}$" | fn.#StringExpression] | fn.#ListExpression
-	MicrosoftEntraConfig?:   _#defs."/$defs/Properties/definitions/MicrosoftEntraConfig" | fn.#ObjectExpression
-	SamlProperties?:         _#defs."/$defs/Properties/definitions/SamlProperties" | fn.#ObjectExpression
-	SelfservicePermissions?: _#defs."/$defs/Properties/definitions/SelfservicePermissions" | fn.#ObjectExpression
-	StreamingProperties?:    _#defs."/$defs/Properties/definitions/StreamingProperties" | fn.#ObjectExpression
+	MicrosoftEntraConfig?:   _#defs."/$defs/Properties/definitions/MicrosoftEntraConfig"
+	SamlProperties?:         _#defs."/$defs/Properties/definitions/SamlProperties"
+	SelfservicePermissions?: _#defs."/$defs/Properties/definitions/SelfservicePermissions"
+	StreamingProperties?:    _#defs."/$defs/Properties/definitions/StreamingProperties"
 	SubnetIds?: list.MaxItems(2) & [...] & [
 		...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^(subnet-([0-9a-f]{8}|[0-9a-f]{17}))$" |
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Tenancy?:          "DEDICATED" | "SHARED" | fn.#StringExpression
 	UserIdentityType?: "CUSTOMER_MANAGED" | "AWS_DIRECTORY_SERVICE" | "AWS_IAM_IDENTITY_CENTER" | fn.#StringExpression
-	WorkspaceAccessProperties?: _#defs."/$defs/Properties/definitions/WorkspaceAccessProperties" | fn.#ObjectExpression
-	WorkspaceCreationProperties?: _#defs."/$defs/Properties/definitions/DefaultWorkspaceCreationProperties" |
-		fn.#ObjectExpression
+	WorkspaceAccessProperties?:     _#defs."/$defs/Properties/definitions/WorkspaceAccessProperties"
+	WorkspaceCreationProperties?:   _#defs."/$defs/Properties/definitions/DefaultWorkspaceCreationProperties"
 	WorkspaceDirectoryDescription?: =~"^([a-zA-Z0-9_])[\\\\a-zA-Z0-9_@#%*+=:?./!\\s-]{1,255}$" | fn.#StringExpression
 	WorkspaceDirectoryName?:        =~"^[a-zA-Z0-9][a-zA-Z0-9_.\\s-]{1,64}$" | fn.#StringExpression
 	WorkspaceType?:                 "PERSONAL" | "POOLS" | fn.#StringExpression
@@ -49,8 +50,7 @@ _#defs: "/$defs/Properties/definitions/AccessEndpoint": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AccessEndpointConfig": close({
-	AccessEndpoints!: [..._#defs."/$defs/Properties/definitions/AccessEndpoint" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	AccessEndpoints!:           [..._#defs."/$defs/Properties/definitions/AccessEndpoint"] | fn.#ListExpression
 	InternetFallbackProtocols?: [..."PCOIP" | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -74,11 +74,19 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/DefaultWorkspaceCreationProperties": close({
 	CustomSecurityGroupId?: strings.MaxRunes(20) & strings.MinRunes(11) & =~"^(sg-([0-9a-f]{8}|[0-9a-f]{17}))$" |
 	fn.#StringExpression
-	DefaultOu?:                       string | fn.#StringExpression
-	EnableInternetAccess?:            bool | fn.#BooleanExpression
-	EnableMaintenanceMode?:           bool | fn.#BooleanExpression
-	InstanceIamRoleArn?:              string | fn.#StringExpression
-	UserEnabledAsLocalAdministrator?: bool | fn.#BooleanExpression
+	DefaultOu?:             string | fn.#StringExpression
+	EnableInternetAccess?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableMaintenanceMode?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InstanceIamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	UserEnabledAsLocalAdministrator?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -124,14 +132,11 @@ _#defs: "/$defs/Properties/definitions/StorageConnector": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StreamingProperties": close({
-	GlobalAccelerator?: _#defs."/$defs/Properties/definitions/GlobalAcceleratorForDirectory" | fn.#ObjectExpression
-	StorageConnectors?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/StorageConnector" | fn.#ObjectExpression
-	] |
+	GlobalAccelerator?: _#defs."/$defs/Properties/definitions/GlobalAcceleratorForDirectory"
+	StorageConnectors?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/StorageConnector"] |
 		fn.#ListExpression
 	StreamingExperiencePreferredProtocol?: "TCP" | "UDP" | fn.#StringExpression
-	UserSettings?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/UserSetting" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	UserSettings?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/UserSetting"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -147,13 +152,27 @@ _#defs: "/$defs/Properties/definitions/UserSetting": close({
 		"PRINTING_TO_LOCAL_DEVICE" |
 		"SMART_CARD" |
 		fn.#StringExpression
-	MaximumLength?: int & >=0 | fn.#NumberExpression
-	Permission!:    "ENABLED" | "DISABLED" | fn.#StringExpression
+	MaximumLength?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Permission!: "ENABLED" | "DISABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WorkspaceAccessProperties": close({
-	AccessEndpointConfig?:           _#defs."/$defs/Properties/definitions/AccessEndpointConfig" | fn.#ObjectExpression
+	AccessEndpointConfig?:           _#defs."/$defs/Properties/definitions/AccessEndpointConfig"
 	DeviceTypeAndroid?:              "ALLOW" | "DENY" | fn.#StringExpression
 	DeviceTypeChromeOs?:             "ALLOW" | "DENY" | fn.#StringExpression
 	DeviceTypeIos?:                  "ALLOW" | "DENY" | fn.#StringExpression

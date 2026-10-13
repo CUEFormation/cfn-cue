@@ -16,7 +16,7 @@ help() {
 Usage: ./scripts/corpus.sh COMMAND [harness options]
 
   setup       Install hash-locked dependencies and build the Go tools
-  test        Run Go checks, parser tests, and 40 offline region expectations
+  test        Run Go checks, parser tests, and offline region expectations
   fetch       Download and normalize the pinned YAML examples
   sample      Survey 50 examples with a 6-second deadline per template
   full        Survey every example with the original 6-second deadline
@@ -26,6 +26,7 @@ Usage: ./scripts/corpus.sh COMMAND [harness options]
   regenerate  Rebuild the checked-in smoke fixtures and expectations
   setup-flip  Install the optional, hash-locked CFN Flip comparison tools
   flip        Fetch examples with both parsers and report normalization differences
+  compare     Compare two report directories with identical inputs and budgets
 
 Start with setup, then test. Download examples with fetch before sample/full/
 diagnose. Read .corpus-*-report/report.md after a survey.
@@ -100,6 +101,10 @@ full() {
 case "$corpus_command" in
     help|-h|--help)
         help
+        ;;
+    compare)
+        require_environment
+        "$corpus_python" corpus/compare.py "$@"
         ;;
     setup|setup-flip)
         [ "$#" -eq 0 ] || die 'Setup takes no options; use CORPUS_PYTHON or CORPUS_VENV to change the environment.'

@@ -15,15 +15,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Schema for AWS::Personalize::DatasetGroup.
 #Properties: close({
 	Domain?: "ECOMMERCE" | "VIDEO_ON_DEMAND" | fn.#StringExpression
-	KmsKeyArn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"arn:aws.*:kms:.*:[0-9]{12}:key/.*" |
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~"arn:aws.*:kms:.*:[0-9]{12}:key/.*" |
 	fn.#StringExpression
 	Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*" | fn.#StringExpression
-	RoleArn?: strings.MaxRunes(256) &
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"arn:([a-z\\d-]+):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

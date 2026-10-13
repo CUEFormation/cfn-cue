@@ -103,7 +103,8 @@ _#defs: "/$defs/Properties/definitions/ManifestPayloadData": strings.MaxRunes(51
 
 _#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$"
 
-_#defs: "/$defs/Properties/definitions/RuntimeRoleArn": strings.MaxRunes(255) &
+_#defs: "/$defs/Properties/definitions/RuntimeRoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+strings.MaxRunes(255) &
 strings.MinRunes(1) &
 =~"^arn:[a-z0-9][-.a-z0-9]{0,62}:iam::[0-9]{12}:role/.+$"
 

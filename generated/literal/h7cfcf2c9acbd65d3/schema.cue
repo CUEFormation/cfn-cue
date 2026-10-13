@@ -13,7 +13,8 @@ import (
 #Properties: close({
 	// The Amazon Resource Name (ARN) of the private certificate authority (CA) that
 	// will be used to issue the certificate.
-	CertificateArn?: strings.MaxRunes(2048) &
+	CertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:acm:[\\w+=/,.@-]*:[0-9]+:[\\w+=,.@-]+(/[\\w+=,.@-]+)*$"
 
@@ -35,7 +36,7 @@ import (
 
 	// Domain information that domain name registrars use to verify your identity.
 	DomainValidationOptions?: [..._#defs."/$defs/Properties/definitions/DomainValidationOption"]
-	Id?:                      _
+	Id?: null | bool | number | =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" | [...] | {...}
 
 	// Specifies the algorithm of the public and private key pair that your
 	// certificate uses to encrypt data.

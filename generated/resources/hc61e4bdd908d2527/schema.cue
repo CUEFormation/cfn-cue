@@ -18,13 +18,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // ingest events into CloudTrail from sources outside AWS.
 #Properties: close({
 	Destinations?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Destination" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/Destination"
 	] |
 		fn.#ListExpression
-	Name?:   _#defs."/$defs/Properties/definitions/ChannelName" | fn.#StringExpression
+	Name?:   _#defs."/$defs/Properties/definitions/ChannelName"
 	Source?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"(.*)" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:   list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ChannelArn": strings.MaxRunes(256) &

@@ -16,12 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AuthorizerFunctionArn!: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	AuthorizerName?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w=,@-]+" | fn.#StringExpression
-	EnableCachingForHttp?:  bool | fn.#BooleanExpression
-	SigningDisabled?:       bool | fn.#BooleanExpression
+	EnableCachingForHttp?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SigningDisabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Status?:                "ACTIVE" | "INACTIVE" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TokenKeyName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TokenKeyName?:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	TokenSigningPublicKeys?: close({
 
 		{[=~"[a-zA-Z0-9:_-]+"]: strings.MaxRunes(5120) | fn.#StringExpression}}) |

@@ -17,10 +17,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EventDestination!:     _#defs."/$defs/Properties/definitions/EventDestination" | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchDestination": close({
-	DimensionConfigurations?: [..._#defs."/$defs/Properties/definitions/DimensionConfiguration" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/CloudWatchDestination": close(
+	{DimensionConfigurations?: [..._#defs."/$defs/Properties/definitions/DimensionConfiguration"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DimensionConfiguration": close({
@@ -47,7 +46,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EventDestination": close({
 	CloudWatchDestination?:  _#defs."/$defs/Properties/definitions/CloudWatchDestination" | fn.#ObjectExpression
-	Enabled?:                bool | fn.#BooleanExpression
+	Enabled?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EventBridgeDestination?: _#defs."/$defs/Properties/definitions/EventBridgeDestination" | fn.#ObjectExpression
 	KinesisFirehoseDestination?: _#defs."/$defs/Properties/definitions/KinesisFirehoseDestination" |
 		fn.#ObjectExpression
@@ -59,12 +58,16 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KinesisFirehoseDestination": close({
 	DeliveryStreamARN!: string | fn.#StringExpression
-	IAMRoleARN!:        string | fn.#StringExpression
+	IAMRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SnsDestination": close({
-	TopicARN!: strings.MaxRunes(1024) & strings.MinRunes(36) & =~"^arn:aws[a-z0-9-]*:sns:[a-z0-9-]+:\\d{12}:[^:]+$" |
+	TopicARN!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(36) &
+	=~"^arn:aws[a-z0-9-]*:sns:[a-z0-9-]+:\\d{12}:[^:]+$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,30 +18,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type Definition for Resiliency Policy.
 #Properties: close({
 	DataLocationConstraint?: "AnyLocation" | "SameContinent" | "SameCountry" | fn.#StringExpression
-	Policy!:                 _#defs."/$defs/Properties/definitions/PolicyMap" | fn.#ObjectExpression
+	Policy!:                 _#defs."/$defs/Properties/definitions/PolicyMap"
 	PolicyDescription?:      strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
 	PolicyName!:             =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-	Tags?:                   _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
+	Tags?:                   _#defs."/$defs/Properties/definitions/TagMap"
 	Tier!: "MissionCritical" | "Critical" | "Important" | "CoreServices" | "NonCritical" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/FailurePolicy": close({
-	RpoInSecs!: int | fn.#NumberExpression
-	RtoInSecs!: int | fn.#NumberExpression
+	RpoInSecs!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RtoInSecs!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PolicyMap": close({
-	AZ!:       _#defs."/$defs/Properties/definitions/FailurePolicy" | fn.#ObjectExpression
-	Hardware!: _#defs."/$defs/Properties/definitions/FailurePolicy" | fn.#ObjectExpression
-	Region?:   _#defs."/$defs/Properties/definitions/FailurePolicy" | fn.#ObjectExpression
-	Software!: _#defs."/$defs/Properties/definitions/FailurePolicy" | fn.#ObjectExpression
+	AZ!:       _#defs."/$defs/Properties/definitions/FailurePolicy"
+	Hardware!: _#defs."/$defs/Properties/definitions/FailurePolicy"
+	Region?:   _#defs."/$defs/Properties/definitions/FailurePolicy"
+	Software!: _#defs."/$defs/Properties/definitions/FailurePolicy"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TagMap": close({
 
-	{[=~".{1,128}"]: _#defs."/$defs/Properties/definitions/TagValue" | fn.#StringExpression}}) |
+	{[=~".{1,128}"]: _#defs."/$defs/Properties/definitions/TagValue"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TagValue": strings.MaxRunes(256) | fn.#StringExpression

@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,22 +22,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...=~"^sp-[0-9a-f]{32}$" | fn.#StringExpression
 	] |
 		fn.#ListExpression
-	DefaultBudgetAction?:   _#defs."/$defs/Properties/definitions/DefaultQueueBudgetAction" | fn.#StringExpression
+	DefaultBudgetAction?:   _#defs."/$defs/Properties/definitions/DefaultQueueBudgetAction"
 	Description?:           strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
 	DisplayName!:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	FarmId!:                =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
-	JobAttachmentSettings?: _#defs."/$defs/Properties/definitions/JobAttachmentSettings" | fn.#ObjectExpression
-	JobRunAsUser?:          _#defs."/$defs/Properties/definitions/JobRunAsUser" | fn.#ObjectExpression
+	JobAttachmentSettings?: _#defs."/$defs/Properties/definitions/JobAttachmentSettings"
+	JobRunAsUser?:          _#defs."/$defs/Properties/definitions/JobRunAsUser"
 	RequiredFileSystemLocationNames?: list.MaxItems(20) & list.UniqueItems() & [...] & [
 		...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z ]*$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	RoleArn?: =~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" | fn.#StringExpression
-	SchedulingConfiguration?: _#defs."/$defs/Properties/definitions/SchedulingConfiguration" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" |
+		fn.#StringExpression
+	SchedulingConfiguration?: _#defs."/$defs/Properties/definitions/SchedulingConfiguration"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DefaultQueueBudgetAction": "NONE" |
@@ -48,9 +51,9 @@ _#defs: "/$defs/Properties/definitions/JobAttachmentSettings": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/JobRunAsUser": close({
-	Posix?:   _#defs."/$defs/Properties/definitions/PosixUser" | fn.#ObjectExpression
-	RunAs!:   _#defs."/$defs/Properties/definitions/RunAs" | fn.#StringExpression
-	Windows?: _#defs."/$defs/Properties/definitions/WindowsUser" | fn.#ObjectExpression
+	Posix?:   _#defs."/$defs/Properties/definitions/PosixUser"
+	RunAs!:   _#defs."/$defs/Properties/definitions/RunAs"
+	Windows?: _#defs."/$defs/Properties/definitions/WindowsUser"
 }) |
 fn.#ObjectExpression
 
@@ -60,9 +63,24 @@ _#defs: "/$defs/Properties/definitions/PosixUser": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PriorityBalancedSchedulingConfiguration": close(
-	{RenderingTaskBuffer?: int & <=1000 & >=0 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/PriorityBalancedSchedulingConfiguration": close({
+	RenderingTaskBuffer?: int & <=1000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PriorityFifoSchedulingConfiguration": close({}) | fn.#ObjectExpression
@@ -70,29 +88,25 @@ _#defs: "/$defs/Properties/definitions/PriorityFifoSchedulingConfiguration": clo
 _#defs: "/$defs/Properties/definitions/RunAs": "QUEUE_CONFIGURED_USER" | "WORKER_AGENT_USER" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SchedulingConfiguration": matchN(1, [close(
-	{PriorityFifo!: _#defs."/$defs/Properties/definitions/PriorityFifoSchedulingConfiguration" | fn.#ObjectExpression},
-), close({
-	PriorityBalanced!: _#defs."/$defs/Properties/definitions/PriorityBalancedSchedulingConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	WeightedBalanced!: _#defs."/$defs/Properties/definitions/WeightedBalancedSchedulingConfiguration" |
-		fn.#ObjectExpression
-})]) & {[string]: fn.#Value} |
+	{PriorityFifo!: _#defs."/$defs/Properties/definitions/PriorityFifoSchedulingConfiguration"},
+), close(
+	{PriorityBalanced!: _#defs."/$defs/Properties/definitions/PriorityBalancedSchedulingConfiguration"},
+), close(
+	{WeightedBalanced!: _#defs."/$defs/Properties/definitions/WeightedBalancedSchedulingConfiguration"},
+)]) & {[string]: fn.#Value} |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchedulingMaxPriorityOverride": close({
-	AlwaysScheduleFirst!: _#defs."/$defs/Properties/definitions/SchedulingMaxPriorityOverrideAlwaysScheduleFirst" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/SchedulingMaxPriorityOverride": close(
+	{AlwaysScheduleFirst!: _#defs."/$defs/Properties/definitions/SchedulingMaxPriorityOverrideAlwaysScheduleFirst"},
+) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/SchedulingMaxPriorityOverrideAlwaysScheduleFirst": close({}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchedulingMinPriorityOverride": close({
-	AlwaysScheduleLast!: _#defs."/$defs/Properties/definitions/SchedulingMinPriorityOverrideAlwaysScheduleLast" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/SchedulingMinPriorityOverride": close(
+	{AlwaysScheduleLast!: _#defs."/$defs/Properties/definitions/SchedulingMinPriorityOverrideAlwaysScheduleLast"},
+) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/SchedulingMinPriorityOverrideAlwaysScheduleLast": close({}) |
@@ -105,13 +119,104 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WeightedBalancedSchedulingConfiguration": close({
-	ErrorWeight?:          <=10000 & >=-10000 | fn.#NumberExpression
-	MaxPriorityOverride?:  _#defs."/$defs/Properties/definitions/SchedulingMaxPriorityOverride" | fn.#ValueExpression
-	MinPriorityOverride?:  _#defs."/$defs/Properties/definitions/SchedulingMinPriorityOverride" | fn.#ValueExpression
-	PriorityWeight?:       <=10000 & >=0 | fn.#NumberExpression
-	RenderingTaskBuffer?:  int & <=1000 & >=0 | fn.#NumberExpression
-	RenderingTaskWeight?:  <=10000 & >=-10000 | fn.#NumberExpression
-	SubmissionTimeWeight?: <=10000 & >=0 | fn.#NumberExpression
+	ErrorWeight?: <=10000 & >=-10000 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=10000 &
+							>=-10000,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxPriorityOverride?: _#defs."/$defs/Properties/definitions/SchedulingMaxPriorityOverride"
+	MinPriorityOverride?: _#defs."/$defs/Properties/definitions/SchedulingMinPriorityOverride"
+	PriorityWeight?: <=10000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=10000 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RenderingTaskBuffer?: int & <=1000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RenderingTaskWeight?: <=10000 & >=-10000 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=10000 &
+							>=-10000,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SubmissionTimeWeight?: <=10000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=10000 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

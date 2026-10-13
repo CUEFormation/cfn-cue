@@ -25,5 +25,5 @@ import (
 	// your AWS account to assist with DDoS attack mitigation during potential
 	// attacks. This enables the SRT to inspect your AWS WAF configuration and
 	// create or update AWS WAF rules and web ACLs.
-	RoleArn!: strings.MaxRunes(2048)
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MaxRunes(2048)
 })

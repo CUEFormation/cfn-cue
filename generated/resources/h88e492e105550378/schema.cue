@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,13 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::BedrockAgentCore::Policy
 #Properties: close({
-	Definition!:      _#defs."/$defs/Properties/definitions/PolicyDefinition" | fn.#ObjectExpression
+	Definition!:      _#defs."/$defs/Properties/definitions/PolicyDefinition"
 	Description?:     strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	EnforcementMode?: _#defs."/$defs/Properties/definitions/EnforcementMode" | fn.#StringExpression
+	EnforcementMode?: _#defs."/$defs/Properties/definitions/EnforcementMode"
 	Name!:            strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]*$" | fn.#StringExpression
 	PolicyEngineId!: strings.MaxRunes(59) & strings.MinRunes(12) & =~"^[A-Za-z][A-Za-z0-9_]*-[a-z0-9_]{10}$" |
 	fn.#StringExpression
-	ValidationMode?: _#defs."/$defs/Properties/definitions/PolicyValidationMode" | fn.#StringExpression
+	ValidationMode?: _#defs."/$defs/Properties/definitions/PolicyValidationMode"
 })
 
 _#defs: "/$defs/Properties/definitions/CedarPolicy": close(
@@ -36,8 +36,8 @@ _#defs: "/$defs/Properties/definitions/PolicyDefinition": matchN(1, [{
 	Policy!: _
 	...
 }]) & close({
-	Cedar?:  _#defs."/$defs/Properties/definitions/CedarPolicy" | fn.#ObjectExpression
-	Policy?: _#defs."/$defs/Properties/definitions/PolicyStatement" | fn.#ObjectExpression
+	Cedar?:  _#defs."/$defs/Properties/definitions/CedarPolicy"
+	Policy?: _#defs."/$defs/Properties/definitions/PolicyStatement"
 }) |
 fn.#ObjectExpression
 

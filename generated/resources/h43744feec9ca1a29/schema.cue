@@ -19,12 +19,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ConnectorDestinationId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" | fn.#StringExpression
 	Description?:            strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-	GeneralAuthorization?:   _#defs."/$defs/Properties/definitions/GeneralAuthorization" | fn.#ObjectExpression
+	GeneralAuthorization?:   _#defs."/$defs/Properties/definitions/GeneralAuthorization"
 	Name?:                   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/GeneralAuthorization": close(

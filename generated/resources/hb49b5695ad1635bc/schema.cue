@@ -21,19 +21,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Policy?: {[string]: fn.#Value} | fn.#ObjectExpression
 	PublicAccessBlockConfiguration?: _#defs."/$defs/Properties/definitions/PublicAccessBlockConfiguration" |
 		fn.#ObjectExpression
-	Scope?: _#defs."/$defs/Properties/definitions/Scope" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Scope?:            _#defs."/$defs/Properties/definitions/Scope" | fn.#ObjectExpression
+	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration" | fn.#ObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": {
-	BlockPublicAcls?:       bool | fn.#BooleanExpression
-	BlockPublicPolicy?:     bool | fn.#BooleanExpression
-	IgnorePublicAcls?:      bool | fn.#BooleanExpression
-	RestrictPublicBuckets?: bool | fn.#BooleanExpression
+	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	BlockPublicPolicy?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IgnorePublicAcls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RestrictPublicBuckets?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	...
 } | fn.#ObjectExpression
 
@@ -62,7 +61,8 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfiguration": {
-	VpcId?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

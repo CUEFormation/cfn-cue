@@ -18,12 +18,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: strings.MaxRunes(600) & strings.MinRunes(0) & =~"^[^\\x00]*$" | fn.#StringExpression
 	Name!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\s\\x00]( *[^\\s\\x00])*$" | fn.#StringExpression
 	ScopeTags?:   _#defs."/$defs/Properties/definitions/ScopeTagsMap" | fn.#ObjectExpression
-	SourceConfigurations!: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SourceConfiguration" | fn.#ObjectExpression
-	] |
+	SourceConfigurations!: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/SourceConfiguration"] |
 		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetDeployment?:      "SINGLE_ACCOUNT" | "MULTI_ACCOUNT" | fn.#StringExpression
 	TargetNetwork!:         _#defs."/$defs/Properties/definitions/TargetNetwork" | fn.#ObjectExpression
 	TargetS3Configuration!: _#defs."/$defs/Properties/definitions/TargetS3Configuration" | fn.#ObjectExpression
@@ -40,7 +37,7 @@ _#defs: "/$defs/Properties/definitions/SourceConfiguration": close({
 		"LOGICAL_MODEL" |
 		"MODELIZE_IT" |
 		fn.#StringExpression
-	SourceS3Configuration!: _#defs."/$defs/Properties/definitions/SourceS3Configuration" | fn.#ObjectExpression
+	SourceS3Configuration!: _#defs."/$defs/Properties/definitions/SourceS3Configuration"
 }) |
 fn.#ObjectExpression
 

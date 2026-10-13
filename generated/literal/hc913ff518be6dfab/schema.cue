@@ -35,7 +35,7 @@ import (
 _#defs: "/$defs/Properties/definitions/CloudWatchLogsDestination": close({
 	// The Amazon Resource Name (ARN) of an AWS Identity and Access Management role
 	// that is able to write event data to an Amazon CloudWatch destination.
-	IamRoleArn!: =~"^arn:\\S+$"
+	IamRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:\\S+$"
 
 	// The name of the Amazon CloudWatch log group that you want to record events in.
 	LogGroupArn!: =~"^arn:\\S+$"
@@ -84,12 +84,12 @@ _#defs: "/$defs/Properties/definitions/KinesisFirehoseDestination": close({
 
 	// The Amazon Resource Name (ARN) of an AWS Identity and Access Management role
 	// that is able to write event data to an Amazon CloudWatch destination.
-	IamRoleArn!: =~"^arn:\\S+$"
+	IamRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:\\S+$"
 })
 
 _#defs: "/$defs/Properties/definitions/SnsDestination": close({
 	// The Amazon Resource Name (ARN) of the Amazon SNS topic that you want to publish events to.
-	TopicArn!: =~"^arn:\\S+$"
+	TopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & =~"^arn:\\S+$"
 })
 
 // A key-value pair to associate with a resource.

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,25 +14,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Cognito::ManagedLoginBranding
 #Properties: close({
-	Assets?:                   _#defs."/$defs/Properties/definitions/AssetList" | fn.#ListExpression
+	Assets?:                   _#defs."/$defs/Properties/definitions/AssetList"
 	ClientId?:                 strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+]+$" | fn.#StringExpression
-	ReturnMergedResources?:    bool | fn.#BooleanExpression
+	ReturnMergedResources?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Settings?:                 {[string]: fn.#Value} | fn.#ObjectExpression
-	UseCognitoProvidedValues?: bool | fn.#BooleanExpression
+	UseCognitoProvidedValues?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AssetList": list.MaxItems(40) & [...] & [
-	..._#defs."/$defs/Properties/definitions/AssetType" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/AssetType"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/AssetType": close({
-	Bytes?:      _#defs."/$defs/Properties/definitions/BytesType" | fn.#StringExpression
-	Category!:   _#defs."/$defs/Properties/definitions/CategoryType" | fn.#StringExpression
-	ColorMode!:  _#defs."/$defs/Properties/definitions/ColorModeType" | fn.#StringExpression
-	Extension!:  _#defs."/$defs/Properties/definitions/ExtensionType" | fn.#StringExpression
-	ResourceId?: _#defs."/$defs/Properties/definitions/ResourceIdType" | fn.#StringExpression
+	Bytes?:      _#defs."/$defs/Properties/definitions/BytesType"
+	Category!:   _#defs."/$defs/Properties/definitions/CategoryType"
+	ColorMode!:  _#defs."/$defs/Properties/definitions/ColorModeType"
+	Extension!:  _#defs."/$defs/Properties/definitions/ExtensionType"
+	ResourceId?: _#defs."/$defs/Properties/definitions/ResourceIdType"
 }) |
 fn.#ObjectExpression
 

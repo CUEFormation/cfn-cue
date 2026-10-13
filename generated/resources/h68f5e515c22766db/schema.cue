@@ -8,19 +8,36 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::DHCPOptions
 #Properties: close({
-	DomainName?:                    string | fn.#StringExpression
-	DomainNameServers?:             list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Ipv6AddressPreferredLeaseTime?: int | fn.#NumberExpression
-	NetbiosNameServers?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	NetbiosNodeType?:               (==1 | ==2 | ==4 | ==8) & int | fn.#NumberExpression
-	NtpServers?:                    [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	DomainName?:        string | fn.#StringExpression
+	DomainNameServers?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Ipv6AddressPreferredLeaseTime?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	NetbiosNameServers?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	NetbiosNodeType?:    (==1 | ==2 | ==4 | ==8) & int | fn.#NumberExpression
+	NtpServers?:         [...string | fn.#StringExpression] | fn.#ListExpression
+	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

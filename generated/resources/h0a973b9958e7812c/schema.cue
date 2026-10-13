@@ -15,12 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::DataBrew::Schedule.
 #Properties: close({
 	CronExpression!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	JobNames?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/JobName" | fn.#StringExpression
-	] |
+	JobNames?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/JobName"] |
 		fn.#ListExpression
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/JobName": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression

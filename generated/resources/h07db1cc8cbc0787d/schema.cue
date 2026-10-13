@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -13,26 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApplicationSignals::GroupingConfiguration
-#Properties: close({
-	GroupingAttributeDefinitions!: _#defs."/$defs/Properties/definitions/GroupingAttributeDefinitions" |
-		fn.#ListExpression
-})
+#Properties: close({GroupingAttributeDefinitions!: _#defs."/$defs/Properties/definitions/GroupingAttributeDefinitions"})
 
 _#defs: "/$defs/Properties/definitions/AccountId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/GroupingAttributeDefinition": close({
-	DefaultGroupingValue?: _#defs."/$defs/Properties/definitions/GroupingString" | fn.#StringExpression
-	GroupingName!:         _#defs."/$defs/Properties/definitions/GroupingString" | fn.#StringExpression
-	GroupingSourceKeys!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/GroupingString" | fn.#StringExpression
-	] |
+	DefaultGroupingValue?: _#defs."/$defs/Properties/definitions/GroupingString"
+	GroupingName!:         _#defs."/$defs/Properties/definitions/GroupingString"
+	GroupingSourceKeys!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/GroupingString"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GroupingAttributeDefinitions": [
-	..._#defs."/$defs/Properties/definitions/GroupingAttributeDefinition" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/GroupingAttributeDefinition"
 ] |
 	fn.#ListExpression
 

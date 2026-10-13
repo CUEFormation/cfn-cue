@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,7 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	PathOptions?:   _#defs."/$defs/Properties/definitions/PathOptions" | fn.#ObjectExpression
 	Source?:        "S3" | "DATA-CATALOG" | "DATABASE" | fn.#StringExpression
-	Tags?:          [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:          [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/BucketOwner": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
@@ -28,7 +32,7 @@ fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CsvOptions": close({
 	Delimiter?: strings.MaxRunes(1) & strings.MinRunes(1) | fn.#StringExpression
-	HeaderRow?: bool | fn.#BooleanExpression
+	HeaderRow?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -36,7 +40,7 @@ _#defs: "/$defs/Properties/definitions/DataCatalogInputDefinition": close({
 	CatalogId?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	DatabaseName?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	TableName?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TempDirectory?: _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
+	TempDirectory?: _#defs."/$defs/Properties/definitions/S3Location"
 }) |
 fn.#ObjectExpression
 
@@ -44,15 +48,15 @@ _#defs: "/$defs/Properties/definitions/DatabaseInputDefinition": close({
 	DatabaseTableName?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	GlueConnectionName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	QueryString?:        strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression
-	TempDirectory?:      _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
+	TempDirectory?:      _#defs."/$defs/Properties/definitions/S3Location"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DatasetParameter": close({
-	CreateColumn?:    bool | fn.#BooleanExpression
-	DatetimeOptions?: _#defs."/$defs/Properties/definitions/DatetimeOptions" | fn.#ObjectExpression
-	Filter?:          _#defs."/$defs/Properties/definitions/FilterExpression" | fn.#ObjectExpression
-	Name!:            _#defs."/$defs/Properties/definitions/PathParameterName" | fn.#StringExpression
+	CreateColumn?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DatetimeOptions?: _#defs."/$defs/Properties/definitions/DatetimeOptions"
+	Filter?:          _#defs."/$defs/Properties/definitions/FilterExpression"
+	Name!:            _#defs."/$defs/Properties/definitions/PathParameterName"
 	Type!:            "String" | "Number" | "Datetime" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -72,8 +76,27 @@ _#defs: "/$defs/Properties/definitions/ExcelOptions": matchN(1, [{
 	SheetIndexes!: _
 	...
 }]) & close({
-	HeaderRow?: bool | fn.#BooleanExpression
-	SheetIndexes?: list.MaxItems(1) & list.MinItems(1) & [...int & <=200 & >=0 | fn.#NumberExpression] |
+	HeaderRow?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SheetIndexes?: list.MaxItems(1) & list.MinItems(1) & [
+		...int & <=200 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=200 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
 		fn.#ListExpression
 	SheetNames?: list.MaxItems(1) & list.MinItems(1) & [
 		...strings.MaxRunes(31) & strings.MinRunes(1) | fn.#StringExpression
@@ -83,7 +106,21 @@ _#defs: "/$defs/Properties/definitions/ExcelOptions": matchN(1, [{
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilesLimit": close({
-	MaxFiles!:  int & >=1 | fn.#NumberExpression
+	MaxFiles!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Order?:     "ASCENDING" | "DESCENDING" | fn.#StringExpression
 	OrderedBy?: "LAST_MODIFIED_DATE" | fn.#StringExpression
 }) |
@@ -91,7 +128,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilterExpression": close({
 	Expression!: strings.MaxRunes(1024) & strings.MinRunes(4) & =~"^[><0-9A-Za-z_.,:)(!= ]+$" | fn.#StringExpression
-	ValuesMap!:  [..._#defs."/$defs/Properties/definitions/FilterValue" | fn.#ObjectExpression] | fn.#ListExpression
+	ValuesMap!:  [..._#defs."/$defs/Properties/definitions/FilterValue"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -102,22 +139,23 @@ _#defs: "/$defs/Properties/definitions/FilterValue": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FormatOptions": close({
-	Csv?:   _#defs."/$defs/Properties/definitions/CsvOptions" | fn.#ObjectExpression
-	Excel?: _#defs."/$defs/Properties/definitions/ExcelOptions" | fn.#ObjectExpression
-	Json?:  _#defs."/$defs/Properties/definitions/JsonOptions" | fn.#ObjectExpression
+	Csv?:   _#defs."/$defs/Properties/definitions/CsvOptions"
+	Excel?: _#defs."/$defs/Properties/definitions/ExcelOptions"
+	Json?:  _#defs."/$defs/Properties/definitions/JsonOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Input": close({
-	DataCatalogInputDefinition?: _#defs."/$defs/Properties/definitions/DataCatalogInputDefinition" |
-		fn.#ObjectExpression
-	DatabaseInputDefinition?: _#defs."/$defs/Properties/definitions/DatabaseInputDefinition" | fn.#ObjectExpression
-	Metadata?:                _#defs."/$defs/Properties/definitions/Metadata" | fn.#ObjectExpression
-	S3InputDefinition?:       _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
+	DataCatalogInputDefinition?: _#defs."/$defs/Properties/definitions/DataCatalogInputDefinition"
+	DatabaseInputDefinition?:    _#defs."/$defs/Properties/definitions/DatabaseInputDefinition"
+	Metadata?:                   _#defs."/$defs/Properties/definitions/Metadata"
+	S3InputDefinition?:          _#defs."/$defs/Properties/definitions/S3Location"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JsonOptions": close({MultiLine?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/JsonOptions": close(
+	{MultiLine?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Metadata": close(
@@ -126,15 +164,15 @@ _#defs: "/$defs/Properties/definitions/Metadata": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PathOptions": close({
-	FilesLimit?:                _#defs."/$defs/Properties/definitions/FilesLimit" | fn.#ObjectExpression
-	LastModifiedDateCondition?: _#defs."/$defs/Properties/definitions/FilterExpression" | fn.#ObjectExpression
-	Parameters?: [..._#defs."/$defs/Properties/definitions/PathParameter" | fn.#ObjectExpression] | fn.#ListExpression
+	FilesLimit?:                _#defs."/$defs/Properties/definitions/FilesLimit"
+	LastModifiedDateCondition?: _#defs."/$defs/Properties/definitions/FilterExpression"
+	Parameters?:                [..._#defs."/$defs/Properties/definitions/PathParameter"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PathParameter": close({
-	DatasetParameter!:  _#defs."/$defs/Properties/definitions/DatasetParameter" | fn.#ObjectExpression
-	PathParameterName!: _#defs."/$defs/Properties/definitions/PathParameterName" | fn.#StringExpression
+	DatasetParameter!:  _#defs."/$defs/Properties/definitions/DatasetParameter"
+	PathParameterName!: _#defs."/$defs/Properties/definitions/PathParameterName"
 }) |
 fn.#ObjectExpression
 
@@ -143,7 +181,7 @@ fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/S3Location": close({
 	Bucket!:      strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	BucketOwner?: _#defs."/$defs/Properties/definitions/BucketOwner" | fn.#StringExpression
+	BucketOwner?: _#defs."/$defs/Properties/definitions/BucketOwner"
 	Key?:         strings.MaxRunes(1280) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression

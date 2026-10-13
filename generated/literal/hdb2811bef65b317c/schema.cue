@@ -45,7 +45,7 @@ package schema
 	//
 	// You must specify the GroupName property or the GroupId property. For security
 	// groups that are in a VPC, you must use the GroupId property.
-	GroupId?: string
+	GroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 
 	// The name of the security group.
 	GroupName?: string
@@ -69,7 +69,7 @@ package schema
 	// The ID of the security group. You must specify either the security group ID
 	// or the security group name. For security groups in a nondefault VPC, you
 	// must specify the security group ID.
-	SourceSecurityGroupId?: string
+	SourceSecurityGroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 
 	// [EC2-Classic, default VPC] The name of the source security group.
 	//

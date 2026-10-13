@@ -75,7 +75,7 @@ _#defs: "/$defs/Properties/definitions/EbsVolumeConfiguration": close({
 	Iops?: int & <=256000 & >=100
 
 	// Identifier of the KMS key to use for encryption.
-	KmsKeyId?: (string | string | string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[^:]+)?:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
@@ -129,7 +129,7 @@ _#defs: "/$defs/Properties/definitions/EphemeralEBSVolumeConfiguration": close({
 	Iops?: int & <=256000 & >=100
 
 	// Identifier of the customer managed KMS key to use for EBS encryption.
-	KmsKeyId?: (string | string | string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[^:]+)?:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
@@ -219,7 +219,8 @@ _#defs: "/$defs/Properties/definitions/LicenseSpecification": close({
 // Configuration for permissions associated with a capacity provider.
 _#defs: "/$defs/Properties/definitions/PermissionsConfiguration": close({
 	// The ARN of the IAM role that operators use to manage the capacity provider.
-	CapacityProviderOperatorRoleArn!: strings.MaxRunes(2048) &
+	CapacityProviderOperatorRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$"
 })
@@ -247,7 +248,7 @@ _#defs: "/$defs/Properties/definitions/RootVolumeConfiguration": close({
 	Iops?: int & <=256000 & >=100
 
 	// Identifier of the customer managed KMS key to use for EBS encryption.
-	KmsKeyId?: (string | string | string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[^:]+)?:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
@@ -276,7 +277,9 @@ _#defs: "/$defs/Properties/definitions/VolumeConfiguration": close(
 // VPC configuration for launching EC2 instances.
 _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
 	// The IDs of the security groups to associate with the instances.
-	SecurityGroups!: list.MaxItems(16) & list.MinItems(1) & [...=~"^sg-[0-9a-zA-Z]{8,17}$"]
+	SecurityGroups!: list.MaxItems(16) & list.MinItems(1) & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-[0-9a-zA-Z]{8,17}$"
+	]
 
 	// The IDs of the subnets in which to launch instances.
 	Subnets!: list.MaxItems(16) & list.MinItems(1) & [...=~"^subnet-[0-9a-zA-Z]{8,17}$"]

@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -77,9 +81,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DurableConfig?:    _#defs."/$defs/Properties/definitions/DurableConfig" | fn.#ObjectExpression
 	Environment?:      _#defs."/$defs/Properties/definitions/Environment" | fn.#ObjectExpression
 	EphemeralStorage?: _#defs."/$defs/Properties/definitions/EphemeralStorage" | fn.#ObjectExpression
-	FileSystemConfigs?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FileSystemConfig" | fn.#ObjectExpression
-	] |
+	FileSystemConfigs?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/FileSystemConfig"] |
 		fn.#ListExpression
 	FunctionName?: strings.MinRunes(1) &
 	=~"^([a-zA-Z0-9_-]{1,64}|arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:function:[a-zA-Z0-9_-]{1,64})$" |
@@ -87,7 +89,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	FunctionScalingConfig?: _#defs."/$defs/Properties/definitions/FunctionScalingConfig" | fn.#ObjectExpression
 	Handler?:               strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[^\\s]+$" | fn.#StringExpression
 	ImageConfig?:           _#defs."/$defs/Properties/definitions/ImageConfig" | fn.#ObjectExpression
-	KmsKeyArn?: strings.MaxRunes(10000) & strings.MinRunes(0) & =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(10000) &
+	strings.MinRunes(0) &
+	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
 	fn.#StringExpression
 	Layers?: list.MaxItems(5) & list.UniqueItems() & [
 		...strings.MinRunes(1) &
@@ -95,12 +100,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	LoggingConfig?:                _#defs."/$defs/Properties/definitions/LoggingConfig" | fn.#ObjectExpression
-	MemorySize?:                   int & <=32768 & >=128 | fn.#NumberExpression
-	PackageType?:                  "Image" | "Zip" | fn.#StringExpression
-	PublishToLatestPublished?:     bool | fn.#BooleanExpression
-	RecursiveLoop?:                _#defs."/$defs/Properties/definitions/RecursiveLoop" | fn.#StringExpression
-	ReservedConcurrentExecutions?: int & >=0 | fn.#NumberExpression
+	LoggingConfig?: _#defs."/$defs/Properties/definitions/LoggingConfig" | fn.#ObjectExpression
+	MemorySize?: int & <=32768 & >=128 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=32768 &
+							>=128,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PackageType?:              "Image" | "Zip" | fn.#StringExpression
+	PublishToLatestPublished?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RecursiveLoop?:            _#defs."/$defs/Properties/definitions/RecursiveLoop" | fn.#StringExpression
+	ReservedConcurrentExecutions?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Role!: strings.MaxRunes(10000) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
@@ -159,10 +193,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	RuntimeManagementConfig?: _#defs."/$defs/Properties/definitions/RuntimeManagementConfig" | fn.#ObjectExpression
 	SnapStart?:               _#defs."/$defs/Properties/definitions/SnapStart" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TenancyConfig?: _#defs."/$defs/Properties/definitions/TenancyConfig" | fn.#ObjectExpression
-	Timeout?:       int & <=5400 & >=1 | fn.#NumberExpression
+	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TenancyConfig?:           _#defs."/$defs/Properties/definitions/TenancyConfig" | fn.#ObjectExpression
+	Timeout?: int & <=5400 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=5400 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	TracingConfig?: _#defs."/$defs/Properties/definitions/TracingConfig" | fn.#ObjectExpression
 	VpcConfig?:     _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
 })
@@ -192,10 +240,43 @@ _#defs: "/$defs/Properties/definitions/DeadLetterConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DurableConfig": close({
-	ExecutionTimeout!: int & <=31622400 & >=1 | fn.#NumberExpression
-	KMSKeyArn?: strings.MaxRunes(10000) & strings.MinRunes(0) & =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+	ExecutionTimeout!: int & <=31622400 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=31622400 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	KMSKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(10000) &
+	strings.MinRunes(0) &
+	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
 	fn.#StringExpression
-	RetentionPeriodInDays?: int & <=90 & >=1 | fn.#NumberExpression
+	RetentionPeriodInDays?: int & <=90 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=90 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -216,7 +297,24 @@ _#defs: "/$defs/Properties/definitions/Environment": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EphemeralStorage": close({Size!: int & <=32768 & >=512 | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/EphemeralStorage": close({
+	Size!: int & <=32768 & >=512 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=32768 &
+							>=512,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FileSystemConfig": close({
@@ -229,8 +327,38 @@ _#defs: "/$defs/Properties/definitions/FileSystemConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FunctionScalingConfig": close({
-	MaxExecutionEnvironments?: int & <=15000 & >=0 | fn.#NumberExpression
-	MinExecutionEnvironments?: int & <=15000 & >=0 | fn.#NumberExpression
+	MaxExecutionEnvironments?: int & <=15000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=15000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinExecutionEnvironments?: int & <=15000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=15000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -247,8 +375,42 @@ _#defs: "/$defs/Properties/definitions/LambdaManagedInstancesCapacityProviderCon
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:capacity-provider:[a-zA-Z0-9-_]+$" |
 	fn.#StringExpression
-	ExecutionEnvironmentMemoryGiBPerVCpu?:  <=8 & >=2 | fn.#NumberExpression
-	PerExecutionEnvironmentMaxConcurrency?: int & <=1600 & >=1 | fn.#NumberExpression
+	ExecutionEnvironmentMemoryGiBPerVCpu?: <=8 & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=8 &
+							>=2,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PerExecutionEnvironmentMaxConcurrency?: int & <=1600 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1600 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -299,9 +461,13 @@ _#defs: "/$defs/Properties/definitions/TracingConfig": close({Mode?: "Active" | 
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	Ipv6AllowedForDualStack?: bool | fn.#BooleanExpression
+	Ipv6AllowedForDualStack?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SecurityGroupIds?: list.MaxItems(5) & [...] & [
-		...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^sg-[0-9a-zA-Z]*$" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(0) &
+		=~"^sg-[0-9a-zA-Z]*$" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SubnetIds?: list.MaxItems(16) & [...] & [

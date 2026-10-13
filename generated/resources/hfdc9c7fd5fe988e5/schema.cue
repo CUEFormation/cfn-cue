@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"time"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
 )
@@ -15,9 +15,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Bedrock::AutomatedReasoningPolicyVersion Resource Type
 #Properties: close({
-	LastUpdatedDefinitionHash?: _#defs."/$defs/Properties/definitions/DefinitionHash" | fn.#StringExpression
-	PolicyArn!:                 _#defs."/$defs/Properties/definitions/PolicyArn" | fn.#StringExpression
-	Tags?:                      _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	LastUpdatedDefinitionHash?: _#defs."/$defs/Properties/definitions/DefinitionHash"
+	PolicyArn!:                 _#defs."/$defs/Properties/definitions/PolicyArn"
+	Tags?:                      _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/CreatedAt": time.Time | fn.#StringExpression
@@ -47,7 +47,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 

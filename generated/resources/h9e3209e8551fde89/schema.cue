@@ -3,9 +3,13 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -13,20 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::FIS::ExperimentTemplate
 #Properties: close({
-	Actions?:     _#defs."/$defs/Properties/definitions/ExperimentTemplateActionMap" | fn.#ObjectExpression
-	Description!: _#defs."/$defs/Properties/definitions/ExperimentTemplateDescription" | fn.#StringExpression
-	ExperimentOptions?: _#defs."/$defs/Properties/definitions/ExperimentTemplateExperimentOptions" |
-		fn.#ObjectExpression
-	ExperimentReportConfiguration?: _#defs."/$defs/Properties/definitions/ExperimentTemplateExperimentReportConfiguration" |
-		fn.#ObjectExpression
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/ExperimentTemplateLogConfiguration" | fn.#ObjectExpression
-	RoleArn!:          _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
-	StopConditions!:   _#defs."/$defs/Properties/definitions/ExperimentTemplateStopConditionList" | fn.#ListExpression
+	Actions?:           _#defs."/$defs/Properties/definitions/ExperimentTemplateActionMap"
+	Description!:       _#defs."/$defs/Properties/definitions/ExperimentTemplateDescription"
+	ExperimentOptions?: _#defs."/$defs/Properties/definitions/ExperimentTemplateExperimentOptions"
+	ExperimentReportConfiguration?:
+		_#defs."/$defs/Properties/definitions/ExperimentTemplateExperimentReportConfiguration"
+	LogConfiguration?: _#defs."/$defs/Properties/definitions/ExperimentTemplateLogConfiguration"
+	RoleArn!:          _#defs."/$defs/Properties/definitions/RoleArn"
+	StopConditions!:   _#defs."/$defs/Properties/definitions/ExperimentTemplateStopConditionList"
 	Tags?: close({
 
 		{[=~".{1,128}"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Targets!: _#defs."/$defs/Properties/definitions/ExperimentTemplateTargetMap" | fn.#ObjectExpression
+	Targets!: _#defs."/$defs/Properties/definitions/ExperimentTemplateTargetMap"
 })
 
 _#defs: "/$defs/Properties/definitions/ActionId": strings.MaxRunes(64) | fn.#StringExpression
@@ -37,17 +40,16 @@ _#defs: "/$defs/Properties/definitions/CloudWatchDashboard": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExperimentTemplateAction": close({
-	ActionId!:    _#defs."/$defs/Properties/definitions/ActionId" | fn.#StringExpression
-	Description?: _#defs."/$defs/Properties/definitions/ExperimentTemplateActionItemDescription" | fn.#StringExpression
+	ActionId!:    _#defs."/$defs/Properties/definitions/ActionId"
+	Description?: _#defs."/$defs/Properties/definitions/ExperimentTemplateActionItemDescription"
 	Parameters?: close({
 
-		{[=~".{1,64}"]: _#defs."/$defs/Properties/definitions/ExperimentTemplateActionItemParameter" |
-			fn.#StringExpression}}) |
+		{[=~".{1,64}"]: _#defs."/$defs/Properties/definitions/ExperimentTemplateActionItemParameter"}}) |
 	fn.#ObjectExpression
-	StartAfter?: _#defs."/$defs/Properties/definitions/ExperimentTemplateActionItemStartAfterList" | fn.#ListExpression
+	StartAfter?: _#defs."/$defs/Properties/definitions/ExperimentTemplateActionItemStartAfterList"
 	Targets?: close({
 
-		{[=~".{1,64}"]: _#defs."/$defs/Properties/definitions/ExperimentTemplateActionItemTarget" | fn.#StringExpression}}) |
+		{[=~".{1,64}"]: _#defs."/$defs/Properties/definitions/ExperimentTemplateActionItemTarget"}}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -62,7 +64,7 @@ _#defs: "/$defs/Properties/definitions/ExperimentTemplateActionItemStartAfter": 
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ExperimentTemplateActionItemStartAfterList": [
-	..._#defs."/$defs/Properties/definitions/ExperimentTemplateActionItemStartAfter" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/ExperimentTemplateActionItemStartAfter"
 ] |
 	fn.#ListExpression
 
@@ -70,7 +72,7 @@ _#defs: "/$defs/Properties/definitions/ExperimentTemplateActionItemTarget": stri
 
 _#defs: "/$defs/Properties/definitions/ExperimentTemplateActionMap": close({
 
-	{[=~"[\\S]{1,64}"]: _#defs."/$defs/Properties/definitions/ExperimentTemplateAction" | fn.#ObjectExpression}}) |
+	{[=~"[\\S]{1,64}"]: _#defs."/$defs/Properties/definitions/ExperimentTemplateAction"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExperimentTemplateDescription": strings.MaxRunes(512) &
@@ -85,10 +87,9 @@ _#defs: "/$defs/Properties/definitions/ExperimentTemplateExperimentOptions": clo
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExperimentTemplateExperimentReportConfiguration": close({
-	DataSources?: close({
-		CloudWatchDashboards?: [..._#defs."/$defs/Properties/definitions/CloudWatchDashboard" | fn.#ObjectExpression] |
-			fn.#ListExpression
-	}) |
+	DataSources?: close(
+		{CloudWatchDashboards?: [..._#defs."/$defs/Properties/definitions/CloudWatchDashboard"] | fn.#ListExpression},
+	) |
 		fn.#ObjectExpression
 	Outputs!: close({
 		ExperimentReportS3Configuration!: close({
@@ -110,7 +111,21 @@ _#defs: "/$defs/Properties/definitions/ExperimentTemplateLogConfiguration": clos
 		{LogGroupArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[\\S]+$" | fn.#StringExpression},
 	) |
 	fn.#ObjectExpression
-	LogSchemaVersion!: int & >=1 | fn.#NumberExpression
+	LogSchemaVersion!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	S3Configuration?: close({
 		BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[\\S]+$" | fn.#StringExpression
 		Prefix?:     strings.MaxRunes(700) & strings.MinRunes(1) & =~"^[\\s\\S]+$" | fn.#StringExpression
@@ -120,40 +135,40 @@ _#defs: "/$defs/Properties/definitions/ExperimentTemplateLogConfiguration": clos
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExperimentTemplateStopCondition": close({
-	Source!: _#defs."/$defs/Properties/definitions/StopConditionSource" | fn.#StringExpression
-	Value?:  _#defs."/$defs/Properties/definitions/StopConditionValue" | fn.#StringExpression
+	Source!: _#defs."/$defs/Properties/definitions/StopConditionSource"
+	Value?:  _#defs."/$defs/Properties/definitions/StopConditionValue"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExperimentTemplateStopConditionList": [
-	..._#defs."/$defs/Properties/definitions/ExperimentTemplateStopCondition" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ExperimentTemplateStopCondition"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ExperimentTemplateTarget": close({
-	Filters?: _#defs."/$defs/Properties/definitions/ExperimentTemplateTargetFilterList" | fn.#ListExpression
+	Filters?: _#defs."/$defs/Properties/definitions/ExperimentTemplateTargetFilterList"
 	Parameters?: close({
 
 		{[=~".{1,64}"]: strings.MaxRunes(1024) | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	ResourceArns?: _#defs."/$defs/Properties/definitions/ResourceArnList" | fn.#ListExpression
+	ResourceArns?: _#defs."/$defs/Properties/definitions/ResourceArnList"
 	ResourceTags?: close({
 
 		{[=~".{1,128}"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	ResourceType!:  _#defs."/$defs/Properties/definitions/ResourceType" | fn.#StringExpression
-	SelectionMode!: _#defs."/$defs/Properties/definitions/ExperimentTemplateTargetSelectionMode" | fn.#StringExpression
+	ResourceType!:  _#defs."/$defs/Properties/definitions/ResourceType"
+	SelectionMode!: _#defs."/$defs/Properties/definitions/ExperimentTemplateTargetSelectionMode"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExperimentTemplateTargetFilter": close({
-	Path!:   _#defs."/$defs/Properties/definitions/ExperimentTemplateTargetFilterPath" | fn.#StringExpression
-	Values!: _#defs."/$defs/Properties/definitions/ExperimentTemplateTargetFilterValues" | fn.#ListExpression
+	Path!:   _#defs."/$defs/Properties/definitions/ExperimentTemplateTargetFilterPath"
+	Values!: _#defs."/$defs/Properties/definitions/ExperimentTemplateTargetFilterValues"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExperimentTemplateTargetFilterList": [
-	..._#defs."/$defs/Properties/definitions/ExperimentTemplateTargetFilter" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ExperimentTemplateTargetFilter"
 ] |
 	fn.#ListExpression
 
@@ -163,13 +178,13 @@ _#defs: "/$defs/Properties/definitions/ExperimentTemplateTargetFilterValue": str
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ExperimentTemplateTargetFilterValues": [
-	..._#defs."/$defs/Properties/definitions/ExperimentTemplateTargetFilterValue" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/ExperimentTemplateTargetFilterValue"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ExperimentTemplateTargetMap": close({
 
-	{[=~".{1,64}"]: _#defs."/$defs/Properties/definitions/ExperimentTemplateTarget" | fn.#ObjectExpression}}) |
+	{[=~".{1,64}"]: _#defs."/$defs/Properties/definitions/ExperimentTemplateTarget"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExperimentTemplateTargetSelectionMode": strings.MaxRunes(64) |
@@ -178,14 +193,15 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(2048) & strings.MinRunes(20) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceArnList": [
-	..._#defs."/$defs/Properties/definitions/ResourceArn" | fn.#StringExpression
-] |
+_#defs: "/$defs/Properties/definitions/ResourceArnList": [..._#defs."/$defs/Properties/definitions/ResourceArn"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceType": strings.MaxRunes(64) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(1224) & strings.MinRunes(20) & =~"^[\\S]+$" |
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(1224) &
+strings.MinRunes(20) &
+=~"^[\\S]+$" |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/StopConditionSource": strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[\\S]+$" |

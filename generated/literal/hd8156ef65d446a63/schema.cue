@@ -74,9 +74,9 @@ _#defs: "/$defs/Properties/definitions/SemanticChunkingConfiguration": close({
 	MaxTokens!:                     >=1
 })
 
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close(
-	{KmsKeyId?: (string | string | string) & (strings.MaxRunes(4096) & strings.MinRunes(1))},
-)
+_#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close({
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(4096) & strings.MinRunes(1))
+})
 
 _#defs: "/$defs/Properties/definitions/SourceConfiguration": matchN(1, [close(
 	{AppIntegrations!: _#defs."/$defs/Properties/definitions/AppIntegrationsConfiguration"},

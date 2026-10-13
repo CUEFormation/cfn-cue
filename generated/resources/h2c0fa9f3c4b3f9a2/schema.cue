@@ -22,8 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ExpiresAt?:              time.Time | fn.#StringExpression
 	GroupSharingPreference?: _#defs."/$defs/Properties/definitions/GroupSharingPreference" | fn.#StringExpression
 	Name?:                   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:                   list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/BillInterval": close({

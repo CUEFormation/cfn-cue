@@ -15,13 +15,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::Route53GlobalResolver::GlobalResolver
 #Properties: close({
 	ClientToken?:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:         _#defs."/$defs/Properties/definitions/ResourceDescription" | fn.#StringExpression
-	IpAddressType?:       _#defs."/$defs/Properties/definitions/GlobalResolverIpAddressType" | fn.#StringExpression
-	Name!:                _#defs."/$defs/Properties/definitions/ResourceName" | fn.#StringExpression
-	ObservabilityRegion?: _#defs."/$defs/Properties/definitions/Region" | fn.#StringExpression
-	Regions!:             [..._#defs."/$defs/Properties/definitions/Region" | fn.#StringExpression] | fn.#ListExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Description?:         _#defs."/$defs/Properties/definitions/ResourceDescription"
+	IpAddressType?:       _#defs."/$defs/Properties/definitions/GlobalResolverIpAddressType"
+	Name!:                _#defs."/$defs/Properties/definitions/ResourceName"
+	ObservabilityRegion?: _#defs."/$defs/Properties/definitions/Region"
+	Regions!:             [..._#defs."/$defs/Properties/definitions/Region"] | fn.#ListExpression
+	Tags?:                list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CRResourceStatus": "CREATING" |

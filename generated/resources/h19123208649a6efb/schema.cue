@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ApplicationId!: string | fn.#StringExpression
 	ClientId!:      string | fn.#StringExpression
 	ClientSecret!:  string | fn.#StringExpression
-	Enabled?:       bool | fn.#BooleanExpression
+	Enabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Pinpoint::ADMChannel"

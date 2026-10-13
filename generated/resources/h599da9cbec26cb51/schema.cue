@@ -20,13 +20,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	] |
 		fn.#ListExpression
 	GuardrailPolicies?: [...string | fn.#StringExpression] | fn.#ListExpression
-	IamRoleArn!:        string | fn.#StringExpression
-	LoggingLevel?:      strings.MaxRunes(5) & strings.MinRunes(4) & =~"^(ERROR|INFO|NONE)$" | fn.#StringExpression
-	SlackChannelId!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9]+$" | fn.#StringExpression
-	SlackWorkspaceId!:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9A-Z]{1,255}$" | fn.#StringExpression
-	SnsTopicArns?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	UserRoleRequired?:  bool | fn.#BooleanExpression
+	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	LoggingLevel?:     strings.MaxRunes(5) & strings.MinRunes(4) & =~"^(ERROR|INFO|NONE)$" | fn.#StringExpression
+	SlackChannelId!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9]+$" | fn.#StringExpression
+	SlackWorkspaceId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9A-Z]{1,255}$" | fn.#StringExpression
+	SnsTopicArns?:     [...string | fn.#StringExpression] | fn.#ListExpression
+	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UserRoleRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

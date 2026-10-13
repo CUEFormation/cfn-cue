@@ -7,6 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,16 +18,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::OpenSearchServerless::SecurityConfig
 #Properties: close({
 	Description?:          strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	IamFederationOptions?: _#defs."/$defs/Properties/definitions/IamFederationConfigOptions" | fn.#ObjectExpression
+	IamFederationOptions?: _#defs."/$defs/Properties/definitions/IamFederationConfigOptions"
 	IamIdentityCenterOptions?: close({
-		GroupAttribute?: _#defs."/$defs/Properties/definitions/IamIdentityCenterGroupAttribute" | fn.#StringExpression
-		InstanceArn!:    _#defs."/$defs/Properties/definitions/IamIdentityCenterInstanceArn" | fn.#StringExpression
-		UserAttribute?:  _#defs."/$defs/Properties/definitions/IamIdentityCenterUserAttribute" | fn.#StringExpression
+		GroupAttribute?: _#defs."/$defs/Properties/definitions/IamIdentityCenterGroupAttribute"
+		InstanceArn!:    _#defs."/$defs/Properties/definitions/IamIdentityCenterInstanceArn"
+		UserAttribute?:  _#defs."/$defs/Properties/definitions/IamIdentityCenterUserAttribute"
 	}) |
 	fn.#ObjectExpression
 	Name?:        strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" | fn.#StringExpression
-	SamlOptions?: _#defs."/$defs/Properties/definitions/SamlConfigOptions" | fn.#ObjectExpression
-	Type?:        _#defs."/$defs/Properties/definitions/SecurityConfigType" | fn.#StringExpression
+	SamlOptions?: _#defs."/$defs/Properties/definitions/SamlConfigOptions"
+	Type?:        _#defs."/$defs/Properties/definitions/SecurityConfigType"
 })
 
 _#defs: "/$defs/Properties/definitions/IamFederationConfigOptions": close({
@@ -37,12 +41,12 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/IamIdentityCenterApplicationArn": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/IamIdentityCenterConfigOptions": close({
-	ApplicationArn?: _#defs."/$defs/Properties/definitions/IamIdentityCenterApplicationArn" | fn.#StringExpression
+	ApplicationArn?:         _#defs."/$defs/Properties/definitions/IamIdentityCenterApplicationArn"
 	ApplicationDescription?: string | fn.#StringExpression
 	ApplicationName?:        string | fn.#StringExpression
-	GroupAttribute?: _#defs."/$defs/Properties/definitions/IamIdentityCenterGroupAttribute" | fn.#StringExpression
-	InstanceArn!:    _#defs."/$defs/Properties/definitions/IamIdentityCenterInstanceArn" | fn.#StringExpression
-	UserAttribute?:  _#defs."/$defs/Properties/definitions/IamIdentityCenterUserAttribute" | fn.#StringExpression
+	GroupAttribute?:         _#defs."/$defs/Properties/definitions/IamIdentityCenterGroupAttribute"
+	InstanceArn!:            _#defs."/$defs/Properties/definitions/IamIdentityCenterInstanceArn"
+	UserAttribute?:          _#defs."/$defs/Properties/definitions/IamIdentityCenterUserAttribute"
 }) |
 fn.#ObjectExpression
 
@@ -63,8 +67,21 @@ _#defs: "/$defs/Properties/definitions/SamlConfigOptions": close({
 	fn.#StringExpression
 	OpenSearchServerlessEntityId?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^aws:opensearch:[0-9]{12}:*" |
 	fn.#StringExpression
-	SessionTimeout?: int | fn.#NumberExpression
-	UserAttribute?:  strings.MaxRunes(2048) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
+	SessionTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UserAttribute?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

@@ -11,7 +11,7 @@ package schema
 	InitialVersion?:   _#defs."/$defs/Properties/definitions/GroupVersion"
 	LatestVersionArn?: string
 	Name!:             string
-	RoleArn?:          string
+	RoleArn?:          =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	RoleAttachedAt?:   string
 	Tags?:             string | {...}
 })

@@ -64,7 +64,10 @@ import "strings"
 
 	// The ARN of a service role that allows the portal's users to access your AWS
 	// IoT SiteWise resources on your behalf.
-	RoleArn!: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1600) &
+	strings.MinRunes(1) &
+	=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$"
 
 	// A list of key-value pairs that contain metadata for the portal.
 	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]

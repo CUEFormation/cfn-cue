@@ -11,7 +11,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Schema for AWS::SNS::TopicInlinePolicy
 #Properties: close({
 	PolicyDocument!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	TopicArn!:       string | fn.#StringExpression
+	TopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SNS::TopicInlinePolicy"

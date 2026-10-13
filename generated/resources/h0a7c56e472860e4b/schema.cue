@@ -10,23 +10,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::PinpointEmail::ConfigurationSet
 #Properties: close({
-	DeliveryOptions?:   _#defs."/$defs/Properties/definitions/DeliveryOptions" | fn.#ObjectExpression
+	DeliveryOptions?:   _#defs."/$defs/Properties/definitions/DeliveryOptions"
 	Name!:              string | fn.#StringExpression
-	ReputationOptions?: _#defs."/$defs/Properties/definitions/ReputationOptions" | fn.#ObjectExpression
-	SendingOptions?:    _#defs."/$defs/Properties/definitions/SendingOptions" | fn.#ObjectExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression] | fn.#ListExpression
-	TrackingOptions?:   _#defs."/$defs/Properties/definitions/TrackingOptions" | fn.#ObjectExpression
+	ReputationOptions?: _#defs."/$defs/Properties/definitions/ReputationOptions"
+	SendingOptions?:    _#defs."/$defs/Properties/definitions/SendingOptions"
+	Tags?:              [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
+	TrackingOptions?:   _#defs."/$defs/Properties/definitions/TrackingOptions"
 })
 
 _#defs: "/$defs/Properties/definitions/DeliveryOptions": close({SendingPoolName?: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReputationOptions": close(
-	{ReputationMetricsEnabled?: bool | fn.#BooleanExpression},
+	{ReputationMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SendingOptions": close({SendingEnabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/SendingOptions": close(
+	{SendingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": close({

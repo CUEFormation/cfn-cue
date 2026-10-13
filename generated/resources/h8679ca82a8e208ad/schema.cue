@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ReplicationSubnetGroupDescription!: string | fn.#StringExpression
 	ReplicationSubnetGroupIdentifier?:  string | fn.#StringExpression
 	SubnetIds!:                         [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

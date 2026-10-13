@@ -27,7 +27,7 @@ import (
 	ConnectionState?: =~"^(ordering|requested|pending|available|down|deleting|deleted|rejected|unknown)$"
 
 	// The ID or ARN of the LAG to associate the connection with.
-	LagId?: (string | string) & =~"^(arn:aws[a-z-]*:directconnect:[a-z0-9-]+:[0-9]{12}:dxlag/)?dxlag-[a-zA-Z0-9]{8,21}$"
+	LagId?: string & =~"^(arn:aws[a-z-]*:directconnect:[a-z0-9-]+:[0-9]{12}:dxlag/)?dxlag-[a-zA-Z0-9]{8,21}$"
 
 	// The location of the connection.
 	Location!: =~"^[a-zA-Z0-9-]+$"

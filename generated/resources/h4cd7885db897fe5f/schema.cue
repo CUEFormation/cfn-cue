@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,22 +20,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // projects, and environments) to external resources/services (data, compute,
 // etc)
 #Properties: close({
-	AwsLocation?: _#defs."/$defs/Properties/definitions/AwsLocation" | fn.#ObjectExpression
-	Configurations?: [..._#defs."/$defs/Properties/definitions/ConnectionConfiguration" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Description?:                      strings.MaxRunes(128) & =~"^[\\S\\s]*$" | fn.#StringExpression
-	DomainIdentifier!:                 =~"^dzd[_-][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	EnableTrustedIdentityPropagation?: bool | fn.#BooleanExpression
-	EnvironmentIdentifier?:            =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	Name!:                             strings.MaxRunes(64) & =~"^[\\w][\\w\\.\\-\\_]*$" | fn.#StringExpression
-	ProjectIdentifier?:                string | fn.#StringExpression
-	Props?: _#defs."/$defs/Properties/definitions/ConnectionPropertiesInput" | fn.#ValueExpression
-	Scope?: "DOMAIN" | "PROJECT" | fn.#StringExpression
+	AwsLocation?:      _#defs."/$defs/Properties/definitions/AwsLocation"
+	Configurations?:   [..._#defs."/$defs/Properties/definitions/ConnectionConfiguration"] | fn.#ListExpression
+	Description?:      strings.MaxRunes(128) & =~"^[\\S\\s]*$" | fn.#StringExpression
+	DomainIdentifier!: =~"^dzd[_-][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+	EnableTrustedIdentityPropagation?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	EnvironmentIdentifier?: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+	Name!:                  strings.MaxRunes(64) & =~"^[\\w][\\w\\.\\-\\_]*$" | fn.#StringExpression
+	ProjectIdentifier?:     string | fn.#StringExpression
+	Props?:                 _#defs."/$defs/Properties/definitions/ConnectionPropertiesInput"
+	Scope?:                 "DOMAIN" | "PROJECT" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AmazonQPropertiesInput": close({
 	AuthMode?:  strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	IsEnabled?: bool | fn.#BooleanExpression
+	IsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ProfileArn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"arn:aws[a-z\\-]*:[a-z0-9\\-]+:[a-z0-9\\-]*:[0-9]*:.*" |
 	fn.#StringExpression
 }) |
@@ -43,13 +53,14 @@ _#defs: "/$defs/Properties/definitions/AthenaPropertiesInput": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AuthenticationConfigurationInput": close({
-	AuthenticationType?: _#defs."/$defs/Properties/definitions/AuthenticationType" | fn.#StringExpression
-	BasicAuthenticationCredentials?: _#defs."/$defs/Properties/definitions/BasicAuthenticationCredentials" |
-		fn.#ObjectExpression
-	CustomAuthenticationCredentials?: _#defs."/$defs/Properties/definitions/CredentialMap" | fn.#ObjectExpression
-	KmsKeyArn?:                       =~"^$|arn:aws[a-z0-9-]*:kms:.*$" | fn.#StringExpression
-	OAuth2Properties?:                _#defs."/$defs/Properties/definitions/OAuth2Properties" | fn.#ObjectExpression
-	SecretArn?:                       =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:secretsmanager:.*$" | fn.#StringExpression
+	AuthenticationType?:              _#defs."/$defs/Properties/definitions/AuthenticationType"
+	BasicAuthenticationCredentials?:  _#defs."/$defs/Properties/definitions/BasicAuthenticationCredentials"
+	CustomAuthenticationCredentials?: _#defs."/$defs/Properties/definitions/CredentialMap"
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^$|arn:aws[a-z0-9-]*:kms:.*$" |
+		fn.#StringExpression
+	OAuth2Properties?: _#defs."/$defs/Properties/definitions/OAuth2Properties"
+	SecretArn?:        =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:secretsmanager:.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -81,7 +92,7 @@ _#defs: "/$defs/Properties/definitions/ComputeEnvironments": string | fn.#String
 
 _#defs: "/$defs/Properties/definitions/ConnectionConfiguration": close({
 	Classification?: strings.MaxRunes(64) & =~"^[\\w][\\w\\.\\-\\_]*$" | fn.#StringExpression
-	Properties?:     _#defs."/$defs/Properties/definitions/PropertyMap" | fn.#ObjectExpression
+	Properties?:     _#defs."/$defs/Properties/definitions/PropertyMap"
 }) |
 fn.#ObjectExpression
 
@@ -91,32 +102,31 @@ _#defs: "/$defs/Properties/definitions/ConnectionProperties": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConnectionPropertiesInput": matchN(1, [close(
-	{AthenaProperties!: _#defs."/$defs/Properties/definitions/AthenaPropertiesInput" | fn.#ObjectExpression},
+	{AthenaProperties!: _#defs."/$defs/Properties/definitions/AthenaPropertiesInput"},
 ), close(
-	{GlueProperties!: _#defs."/$defs/Properties/definitions/GluePropertiesInput" | fn.#ObjectExpression},
+	{GlueProperties!: _#defs."/$defs/Properties/definitions/GluePropertiesInput"},
 ), close(
-	{HyperPodProperties!: _#defs."/$defs/Properties/definitions/HyperPodPropertiesInput" | fn.#ObjectExpression},
+	{HyperPodProperties!: _#defs."/$defs/Properties/definitions/HyperPodPropertiesInput"},
 ), close(
-	{IamProperties!: _#defs."/$defs/Properties/definitions/IamPropertiesInput" | fn.#ObjectExpression},
+	{IamProperties!: _#defs."/$defs/Properties/definitions/IamPropertiesInput"},
 ), close(
-	{RedshiftProperties!: _#defs."/$defs/Properties/definitions/RedshiftPropertiesInput" | fn.#ObjectExpression},
+	{RedshiftProperties!: _#defs."/$defs/Properties/definitions/RedshiftPropertiesInput"},
 ), close(
-	{SparkEmrProperties!: _#defs."/$defs/Properties/definitions/SparkEmrPropertiesInput" | fn.#ObjectExpression},
+	{SparkEmrProperties!: _#defs."/$defs/Properties/definitions/SparkEmrPropertiesInput"},
 ), close(
-	{AmazonQProperties!: _#defs."/$defs/Properties/definitions/AmazonQPropertiesInput" | fn.#ObjectExpression},
+	{AmazonQProperties!: _#defs."/$defs/Properties/definitions/AmazonQPropertiesInput"},
 ), close(
-	{SparkGlueProperties!: _#defs."/$defs/Properties/definitions/SparkGluePropertiesInput" | fn.#ObjectExpression},
+	{SparkGlueProperties!: _#defs."/$defs/Properties/definitions/SparkGluePropertiesInput"},
 ), close(
-	{S3Properties!: _#defs."/$defs/Properties/definitions/S3PropertiesInput" | fn.#ObjectExpression},
+	{S3Properties!: _#defs."/$defs/Properties/definitions/S3PropertiesInput"},
 ), close(
-	{MlflowProperties!: _#defs."/$defs/Properties/definitions/MlflowPropertiesInput" | fn.#ObjectExpression},
-), close({
-	WorkflowsMwaaProperties!: _#defs."/$defs/Properties/definitions/WorkflowsMwaaPropertiesInput" | fn.#ObjectExpression
-}), close({
-	WorkflowsServerlessProperties!: _#defs."/$defs/Properties/definitions/WorkflowsServerlessPropertiesInput" |
-		fn.#ObjectExpression
-}), close(
-	{LakehouseProperties!: _#defs."/$defs/Properties/definitions/LakehousePropertiesInput" | fn.#ObjectExpression},
+	{MlflowProperties!: _#defs."/$defs/Properties/definitions/MlflowPropertiesInput"},
+), close(
+	{WorkflowsMwaaProperties!: _#defs."/$defs/Properties/definitions/WorkflowsMwaaPropertiesInput"},
+), close(
+	{WorkflowsServerlessProperties!: _#defs."/$defs/Properties/definitions/WorkflowsServerlessPropertiesInput"},
+), close(
+	{LakehouseProperties!: _#defs."/$defs/Properties/definitions/LakehousePropertiesInput"},
 )]) |
 fn.#ValueExpression
 
@@ -138,23 +148,21 @@ _#defs: "/$defs/Properties/definitions/CredentialMap": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GlueConnectionInput": close({
-	AthenaProperties?: _#defs."/$defs/Properties/definitions/PropertyMap" | fn.#ObjectExpression
-	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/AuthenticationConfigurationInput" |
-		fn.#ObjectExpression
-	ConnectionProperties?: _#defs."/$defs/Properties/definitions/ConnectionProperties" | fn.#ObjectExpression
-	ConnectionType?:       _#defs."/$defs/Properties/definitions/GlueConnectionType" | fn.#StringExpression
+	AthenaProperties?:            _#defs."/$defs/Properties/definitions/PropertyMap"
+	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/AuthenticationConfigurationInput"
+	ConnectionProperties?:        _#defs."/$defs/Properties/definitions/ConnectionProperties"
+	ConnectionType?:              _#defs."/$defs/Properties/definitions/GlueConnectionType"
 	Description?: strings.MaxRunes(2048) & =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFF}\\r\\n\\t]*$" |
 	fn.#StringExpression
 	MatchCriteria?: strings.MaxRunes(10) & strings.MinRunes(0) | fn.#StringExpression
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFF}\\t]*$" |
 	fn.#StringExpression
-	PhysicalConnectionRequirements?: _#defs."/$defs/Properties/definitions/PhysicalConnectionRequirements" |
-		fn.#ObjectExpression
-	PythonProperties?:    _#defs."/$defs/Properties/definitions/PropertyMap" | fn.#ObjectExpression
-	SparkProperties?:     _#defs."/$defs/Properties/definitions/PropertyMap" | fn.#ObjectExpression
-	ValidateCredentials?: bool | fn.#BooleanExpression
+	PhysicalConnectionRequirements?: _#defs."/$defs/Properties/definitions/PhysicalConnectionRequirements"
+	PythonProperties?:               _#defs."/$defs/Properties/definitions/PropertyMap"
+	SparkProperties?:                _#defs."/$defs/Properties/definitions/PropertyMap"
+	ValidateCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ValidateForComputeEnvironments?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ComputeEnvironments" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/ComputeEnvironments"
 	] |
 		fn.#ListExpression
 }) |
@@ -172,7 +180,7 @@ _#defs: "/$defs/Properties/definitions/GlueOAuth2Credentials": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GluePropertiesInput": close(
-	{GlueConnectionInput?: _#defs."/$defs/Properties/definitions/GlueConnectionInput" | fn.#ObjectExpression},
+	{GlueConnectionInput?: _#defs."/$defs/Properties/definitions/GlueConnectionInput"},
 ) |
 	fn.#ObjectExpression
 
@@ -182,15 +190,16 @@ _#defs: "/$defs/Properties/definitions/HyperPodPropertiesInput": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IamPropertiesInput": close({
-	GlueLineageSyncEnabled?: bool | fn.#BooleanExpression
-	RoleArn?: strings.MaxRunes(2048) &
+	GlueLineageSyncEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	=~"^arn:aws[^:]*:iam::\\d{12}:role(\\/[a-zA-Z0-9+=,.@_-]+)*\\/[a-zA-Z0-9+=,.@_-]+$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LakehousePropertiesInput": close(
-	{GlueLineageSyncEnabled?: bool | fn.#BooleanExpression},
+	{GlueLineageSyncEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
@@ -217,21 +226,21 @@ _#defs: "/$defs/Properties/definitions/OAuth2GrantType": "AUTHORIZATION_CODE" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/OAuth2Properties": close({
-	AuthorizationCodeProperties?: _#defs."/$defs/Properties/definitions/AuthorizationCodeProperties" |
-		fn.#ObjectExpression
-	OAuth2ClientApplication?: _#defs."/$defs/Properties/definitions/OAuth2ClientApplication" | fn.#ObjectExpression
-	OAuth2Credentials?:       _#defs."/$defs/Properties/definitions/GlueOAuth2Credentials" | fn.#ObjectExpression
-	OAuth2GrantType?:         _#defs."/$defs/Properties/definitions/OAuth2GrantType" | fn.#StringExpression
+	AuthorizationCodeProperties?: _#defs."/$defs/Properties/definitions/AuthorizationCodeProperties"
+	OAuth2ClientApplication?:     _#defs."/$defs/Properties/definitions/OAuth2ClientApplication"
+	OAuth2Credentials?:           _#defs."/$defs/Properties/definitions/GlueOAuth2Credentials"
+	OAuth2GrantType?:             _#defs."/$defs/Properties/definitions/OAuth2GrantType"
 	TokenUrl?: strings.MaxRunes(256) & =~"^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$" |
 	fn.#StringExpression
-	TokenUrlParametersMap?: _#defs."/$defs/Properties/definitions/TokenUrlParametersMap" | fn.#ObjectExpression
+	TokenUrlParametersMap?: _#defs."/$defs/Properties/definitions/TokenUrlParametersMap"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PhysicalConnectionRequirements": close({
 	AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	SecurityGroupIdList?: list.MaxItems(50) & [...] & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SubnetId?: strings.MaxRunes(32) & =~"^subnet-[a-z0-9]+$" | fn.#StringExpression
@@ -255,23 +264,42 @@ _#defs: "/$defs/Properties/definitions/RedshiftCredentials": matchN(1, [close({
 	=~"^arn:aws[^:]*:secretsmanager:[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]:\\d{12}:secret:.*$" |
 	fn.#StringExpression
 }), close(
-	{UsernamePassword!: _#defs."/$defs/Properties/definitions/UsernamePassword" | fn.#ObjectExpression},
+	{UsernamePassword!: _#defs."/$defs/Properties/definitions/UsernamePassword"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftLineageSyncConfigurationInput": close({
-	Enabled?:  bool | fn.#BooleanExpression
-	Schedule?: _#defs."/$defs/Properties/definitions/LineageSyncSchedule" | fn.#ObjectExpression
+	Enabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Schedule?: _#defs."/$defs/Properties/definitions/LineageSyncSchedule"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftPropertiesInput": close({
-	Credentials?:  _#defs."/$defs/Properties/definitions/RedshiftCredentials" | fn.#ValueExpression
+	Credentials?:  _#defs."/$defs/Properties/definitions/RedshiftCredentials"
 	DatabaseName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z0-9_-]+$" | fn.#StringExpression
 	Host?:         strings.MaxRunes(256) & =~"^[\\S]*$" | fn.#StringExpression
-	LineageSync?:  _#defs."/$defs/Properties/definitions/RedshiftLineageSyncConfigurationInput" | fn.#ObjectExpression
-	Port?:         <=65535 & >=0 | fn.#NumberExpression
-	Storage?:      _#defs."/$defs/Properties/definitions/RedshiftStorageProperties" | fn.#ValueExpression
+	LineageSync?:  _#defs."/$defs/Properties/definitions/RedshiftLineageSyncConfigurationInput"
+	Port?: <=65535 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=65535 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Storage?: _#defs."/$defs/Properties/definitions/RedshiftStorageProperties"
 }) |
 fn.#ObjectExpression
 
@@ -283,7 +311,14 @@ _#defs: "/$defs/Properties/definitions/RedshiftStorageProperties": matchN(1, [cl
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/S3PropertiesInput": close({
-	RegisterS3AccessGrantLocation?: bool | fn.#BooleanExpression
+	RegisterS3AccessGrantLocation?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 	S3AccessGrantLocationId?: strings.MaxRunes(64) & strings.MinRunes(0) & =~"[a-zA-Z0-9\\-]+" | fn.#StringExpression
 	S3Uri!:                   strings.MaxRunes(2048) & strings.MinRunes(0) & =~"s3://.+" | fn.#StringExpression
 }) |
@@ -313,14 +348,52 @@ _#defs: "/$defs/Properties/definitions/SparkGlueArgs": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SparkGluePropertiesInput": close({
-	AdditionalArgs?:     _#defs."/$defs/Properties/definitions/SparkGlueArgs" | fn.#ObjectExpression
+	AdditionalArgs?:     _#defs."/$defs/Properties/definitions/SparkGlueArgs"
 	GlueConnectionName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S]*$" | fn.#StringExpression
 	GlueVersion?:        strings.MaxRunes(256) & =~"^\\w+\\.\\w+$" | fn.#StringExpression
-	IdleTimeout?:        <=3000 & >=1 | fn.#NumberExpression
-	JavaVirtualEnv?:     strings.MaxRunes(256) & =~"^[\\S]*$" | fn.#StringExpression
-	NumberOfWorkers?:    <=1000 & >=1 | fn.#NumberExpression
-	PythonVirtualEnv?:   strings.MaxRunes(256) & =~"^[\\S]*$" | fn.#StringExpression
-	WorkerType?:         strings.MaxRunes(256) & =~"^[G|Z].*$" | fn.#StringExpression
+	IdleTimeout?: <=3000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=3000 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	JavaVirtualEnv?: strings.MaxRunes(256) & =~"^[\\S]*$" | fn.#StringExpression
+	NumberOfWorkers?: <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1000 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PythonVirtualEnv?: strings.MaxRunes(256) & =~"^[\\S]*$" | fn.#StringExpression
+	WorkerType?:       strings.MaxRunes(256) & =~"^[G|Z].*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

@@ -93,7 +93,10 @@ _#defs: "/$defs/Properties/definitions/VpcEgressConfiguration": close({
 	// The IDs of the VPC security groups to attach to the ENIs. Specify 0 to 5
 	// security groups. All security groups must be in the same VPC as the subnets.
 	SecurityGroupIds!: list.MaxItems(5) & [...] & [
-		...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^sg-[0-9a-zA-Z]*$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(0) &
+		=~"^sg-[0-9a-zA-Z]*$"
 	]
 
 	// The IDs of the VPC subnets where Lambda provisions elastic network interfaces

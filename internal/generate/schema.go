@@ -124,6 +124,9 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 			for i, child := range x.([]any) {
 				a = append(a, c.normalize(child, fmt.Sprintf("%s/%d", p, i), k == "prefixItems", root, visiting))
 			}
+			if k == "anyOf" {
+				a = deduplicateAnyOf(a)
+			}
 			m[k] = a
 		case k == "dependencies":
 			n := map[string]any{}
@@ -174,11 +177,7 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 				m[k] = pat
 			}
 		case k == "format":
-			if x == "date-time" || x == "date" || x == "uri" || x == "uri-reference" || x == "regex" {
-				m[k] = x
-			} else {
-				c.warn(p, k, "format annotation not enforced: "+fmt.Sprint(x))
-			}
+			c.normalizeFormat(m, p, x)
 		case includes(standard, k):
 			m[k] = x
 		default:
@@ -191,6 +190,9 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 		m["allOf"] = append(asArray(m["allOf"]), a...)
 	}
 	if !lift || !c.template {
+		return m
+	}
+	if len(m) == 1 && localReferenceIsLifted(s, root) {
 		return m
 	}
 	if len(m) == 0 {
@@ -287,13 +289,20 @@ func (c *converter) extract(root map[string]any, template bool) (*ast.File, erro
 	}
 	if e == nil {
 		simplifyApplicators(f)
+		if template {
+			if n := addScalarCompatibility(f); n > 0 {
+				c.warn("#", "scalarCompatibility", fmt.Sprintf("quoted scalar coercion not applied to %d composed scalar constraints; exact constraints retained", n))
+			}
+		}
+		e = astutil.Sanitize(f)
 	}
 	return f, e
 }
 
 // anyOf and allOf are direct CUE operations. Keeping the extractor's matchN
 // wrappers for these makes recursive intrinsic arguments repeatedly evaluate
-// entire schemas. oneOf/not keep matchN so exclusivity is preserved.
+// entire schemas. Required-key presence predicates retain matchN so absent
+// fields do not survive as incomplete alternatives. oneOf/not also retain it.
 func simplifyApplicators(f *ast.File) {
 	astutil.Apply(f, nil, func(cur astutil.Cursor) bool {
 		call, ok := cur.Node().(*ast.CallExpr)
@@ -309,7 +318,7 @@ func simplifyApplicators(f *ast.File) {
 			return true
 		}
 		if bound, ok := call.Args[0].(*ast.UnaryExpr); ok && bound.Op == token.GEQ {
-			if n, ok := bound.X.(*ast.BasicLit); ok && n.Value == "1" {
+			if n, ok := bound.X.(*ast.BasicLit); ok && n.Value == "1" && !presenceOnlyAlternatives(args.Elts) {
 				cur.Replace(union(args.Elts...))
 			}
 		}

@@ -14,7 +14,7 @@ import (
 	// The ID of the Amazon Machine Image (AMI) that AWS PCS uses to launch
 	// instances. If not provided, AWS PCS uses the AMI ID specified in the custom
 	// launch template.
-	AmiId?: =~"^ami-[a-z0-9]+$"
+	AmiId?: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & =~"^ami-[a-z0-9]+$"
 
 	// The unique Amazon Resource Name (ARN) of the compute node group.
 	Arn?: string

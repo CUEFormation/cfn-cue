@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,8 +22,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-z-]*:acm:[a-z0-9-]+:[0-9]{12}:acme-endpoint/[a-zA-Z0-9-]+$" |
 	fn.#StringExpression
-	Expiration?: _#defs."/$defs/Properties/definitions/Expiration" | fn.#ObjectExpression
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$" |
+	Expiration?: _#defs."/$defs/Properties/definitions/Expiration"
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$" |
 	fn.#StringExpression
 	Tags?: list.MaxItems(50) & list.MinItems(1) & [...close({
 		Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
@@ -32,8 +39,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/Expiration": close({
-	Type!:  "DAYS" | "HOURS" | "MINUTES" | fn.#StringExpression
-	Value!: int | fn.#NumberExpression
+	Type!: "DAYS" | "HOURS" | "MINUTES" | fn.#StringExpression
+	Value!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

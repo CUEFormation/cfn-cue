@@ -3989,7 +3989,7 @@ _#defs: "/$defs/Properties/definitions/TopicConfiguration": close({
 })
 
 _#defs: "/$defs/Properties/definitions/TopicReference": close({
-	TopicArn!:         string
+	TopicArn!:         =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 	TopicPlaceholder!: strings.MaxRunes(2048) & strings.MinRunes(1)
 })
 

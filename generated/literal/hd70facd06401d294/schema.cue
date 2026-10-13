@@ -399,7 +399,10 @@ strings.MinRunes(0) &
 // sensitive data.
 _#defs: "/$defs/Properties/definitions/SecurityConfig": close({
 	// The AWS KMS Key ID (KMSKeyId) used for encryption of model package information.
-	KmsKeyId!: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9:/_-]*$"
+	KmsKeyId!: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~"^[a-zA-Z0-9:/_-]*$"
 })
 
 // Indicates if you want to skip model validation.
@@ -497,7 +500,10 @@ _#defs: "/$defs/Properties/definitions/TransformOutput": close({
 
 	// The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to
 	// encrypt the model artifacts at rest using Amazon S3 server-side encryption.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~".*"
 
 	// The Amazon S3 path where you want Amazon SageMaker to store the results of the transform job.
 	S3OutputPath!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$"

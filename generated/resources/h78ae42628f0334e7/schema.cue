@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -39,9 +43,24 @@ _#defs: "/$defs/Properties/definitions/IndexSettings": close({
 	}) |
 	fn.#ObjectExpression
 	Index?: close({
-		Knn?:                  bool | fn.#BooleanExpression
-		KnnAlgoParamEfSearch?: int | fn.#NumberExpression
-		RefreshInterval?:      string | fn.#StringExpression
+		Knn?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		KnnAlgoParamEfSearch?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		RefreshInterval?: string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 }) |
@@ -51,14 +70,60 @@ _#defs: "/$defs/Properties/definitions/PropertyMapping": close({
 	Analyzer?:         string | fn.#StringExpression
 	CompressionLevel?: "16x" | "32x" | "8x" | "4x" | "2x" | "1x" | fn.#StringExpression
 	DataType?:         "float" | "byte" | fn.#StringExpression
-	Dimension?:        int | fn.#NumberExpression
-	Index?:            bool | fn.#BooleanExpression
+	Dimension?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Index?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Method?: close({
 		Engine?: "nmslib" | "faiss" | "lucene" | fn.#StringExpression
 		Name!:   "hnsw" | "ivf" | fn.#StringExpression
 		Parameters?: close({
-			EfConstruction?: int & >=1 | fn.#NumberExpression
-			M?:              int & <=100 & >=2 | fn.#NumberExpression
+			EfConstruction?: int & >=1 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									>=1,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			M?: int & <=100 & >=2 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=100 &
+									>=2,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
 		}) |
 		fn.#ObjectExpression
 		SpaceType?: "l2" | "l1" | "linf" | "cosinesimil" | "innerproduct" | "hamming" | fn.#StringExpression

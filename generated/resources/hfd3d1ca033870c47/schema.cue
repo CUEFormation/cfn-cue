@@ -11,7 +11,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::EC2::TransitGatewayConnect type
 #Properties: close({
 	Options!: _#defs."/$defs/Properties/definitions/TransitGatewayConnectOptions" | fn.#ObjectExpression
-	Tags?:    [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:    [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TransportTransitGatewayAttachmentId!: string | fn.#StringExpression
 })
 

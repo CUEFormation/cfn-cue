@@ -164,7 +164,8 @@ _#defs: "/$defs/Properties/definitions/JwtKey": close({
 })
 
 // A VPC security group ID.
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-\\w{8,17}$"
+_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	=~"^sg-\\w{8,17}$"
 
 // Additional settings that directly map to Slurm settings.
 _#defs: "/$defs/Properties/definitions/SlurmCustomSetting": close({

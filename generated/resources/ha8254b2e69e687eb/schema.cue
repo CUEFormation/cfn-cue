@@ -27,8 +27,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	LogType?:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
 	Name!:        strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
 	ResourceArn?: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" |

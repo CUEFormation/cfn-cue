@@ -24,7 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *User Guide*.
 #Properties: close({
 	DisabledStandardsControls?: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/StandardsControl" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StandardsControl"
 	] |
 		fn.#ListExpression
 	StandardsArn!: =~"arn:aws\\S*:securityhub:\\S" | fn.#StringExpression

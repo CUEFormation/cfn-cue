@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,16 +23,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DeliverLogsPermissionArn?: string | fn.#StringExpression
 	DestinationOptions?: close({
 		FileFormat!:               "plain-text" | "parquet" | fn.#StringExpression
-		HiveCompatiblePartitions!: bool | fn.#BooleanExpression
-		PerHourPartition!:         bool | fn.#BooleanExpression
+		HiveCompatiblePartitions!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		PerHourPartition!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	}) |
 	fn.#ObjectExpression
-	LogDestination?:         string | fn.#StringExpression
-	LogDestinationType?:     "cloud-watch-logs" | "s3" | "kinesis-data-firehose" | fn.#StringExpression
-	LogFormat?:              string | fn.#StringExpression
-	LogGroupName?:           string | fn.#StringExpression
-	MaxAggregationInterval?: int | fn.#NumberExpression
-	ResourceId!:             string | fn.#StringExpression
+	LogDestination?:     string | fn.#StringExpression
+	LogDestinationType?: "cloud-watch-logs" | "s3" | "kinesis-data-firehose" | fn.#StringExpression
+	LogFormat?:          string | fn.#StringExpression
+	LogGroupName?:       string | fn.#StringExpression
+	MaxAggregationInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ResourceId!: string | fn.#StringExpression
 	ResourceType!: "NetworkInterface" |
 		"Subnet" |
 		"VPC" |
@@ -37,10 +54,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"RegionalNatGateway" |
 		fn.#StringExpression
 	TagFieldSpecifications?: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TagFieldSpecification" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/TagFieldSpecification"
 	] |
 		fn.#ListExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TrafficType?: "ACCEPT" | "ALL" | "REJECT" | fn.#StringExpression
 })
 

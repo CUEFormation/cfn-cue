@@ -86,10 +86,13 @@ _#defs: "/$defs/Properties/definitions/KinesisFirehoseDestination": close({
 
 	// The ARN of the IAM role under which Amazon SES publishes email sending events
 	// to the Amazon Kinesis Firehose stream.
-	IAMRoleARN!: string
+	IAMRoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 // An object that contains SNS topic ARN associated event destination.
-_#defs: "/$defs/Properties/definitions/SnsDestination": close(
-	{TopicARN!: strings.MaxRunes(1024) & strings.MinRunes(36) & =~"^arn:aws[a-z0-9-]*:sns:[a-z0-9-]+:\\d{12}:[^:]+$"},
-)
+_#defs: "/$defs/Properties/definitions/SnsDestination": close({
+	TopicARN!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(36) &
+	=~"^arn:aws[a-z0-9-]*:sns:[a-z0-9-]+:\\d{12}:[^:]+$"
+})

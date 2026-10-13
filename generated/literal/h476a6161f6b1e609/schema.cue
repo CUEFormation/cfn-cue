@@ -17,7 +17,7 @@ import "list"
 	CustomInstanceProfileArn?:    string
 	CustomJson?:                  string | {...}
 	CustomRecipes?:               _#defs."/$defs/Properties/definitions/Recipes"
-	CustomSecurityGroupIds?:      [...string]
+	CustomSecurityGroupIds?:      [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	EnableAutoHealing!:           bool
 	Id?:                          string
 	InstallUpdatesOnBoot?:        bool

@@ -22,7 +22,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...strings.MaxRunes(50) & strings.MinRunes(0) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	UserBackgroundSessionsEnabled?: bool | fn.#BooleanExpression
+	UserBackgroundSessionsEnabled?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Glue::IdentityCenterConfiguration"

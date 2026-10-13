@@ -16,40 +16,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:        strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Rules!: [..._#defs."/$defs/Properties/definitions/LicenseAssetRule" | fn.#ObjectExpression] | fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Rules!:       [..._#defs."/$defs/Properties/definitions/LicenseAssetRule"] | fn.#ListExpression
+	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AndRuleStatement": close({
-	MatchingRuleStatements?: [..._#defs."/$defs/Properties/definitions/MatchingRuleStatement" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/AndRuleStatement": close(
+	{MatchingRuleStatements?: [..._#defs."/$defs/Properties/definitions/MatchingRuleStatement"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InstanceRuleStatement": close({
-	AndRuleStatement?:      _#defs."/$defs/Properties/definitions/AndRuleStatement" | fn.#ObjectExpression
-	MatchingRuleStatement?: _#defs."/$defs/Properties/definitions/MatchingRuleStatement" | fn.#ObjectExpression
-	OrRuleStatement?:       _#defs."/$defs/Properties/definitions/OrRuleStatement" | fn.#ObjectExpression
+	AndRuleStatement?:      _#defs."/$defs/Properties/definitions/AndRuleStatement"
+	MatchingRuleStatement?: _#defs."/$defs/Properties/definitions/MatchingRuleStatement"
+	OrRuleStatement?:       _#defs."/$defs/Properties/definitions/OrRuleStatement"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LicenseAssetRule": close(
-	{RuleStatement!: _#defs."/$defs/Properties/definitions/RuleStatement" | fn.#ObjectExpression},
+	{RuleStatement!: _#defs."/$defs/Properties/definitions/RuleStatement"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LicenseConfigurationRuleStatement": close({
-	AndRuleStatement?:      _#defs."/$defs/Properties/definitions/AndRuleStatement" | fn.#ObjectExpression
-	MatchingRuleStatement?: _#defs."/$defs/Properties/definitions/MatchingRuleStatement" | fn.#ObjectExpression
-	OrRuleStatement?:       _#defs."/$defs/Properties/definitions/OrRuleStatement" | fn.#ObjectExpression
+	AndRuleStatement?:      _#defs."/$defs/Properties/definitions/AndRuleStatement"
+	MatchingRuleStatement?: _#defs."/$defs/Properties/definitions/MatchingRuleStatement"
+	OrRuleStatement?:       _#defs."/$defs/Properties/definitions/OrRuleStatement"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LicenseRuleStatement": close({
-	AndRuleStatement?:      _#defs."/$defs/Properties/definitions/AndRuleStatement" | fn.#ObjectExpression
-	MatchingRuleStatement?: _#defs."/$defs/Properties/definitions/MatchingRuleStatement" | fn.#ObjectExpression
-	OrRuleStatement?:       _#defs."/$defs/Properties/definitions/OrRuleStatement" | fn.#ObjectExpression
+	AndRuleStatement?:      _#defs."/$defs/Properties/definitions/AndRuleStatement"
+	MatchingRuleStatement?: _#defs."/$defs/Properties/definitions/MatchingRuleStatement"
+	OrRuleStatement?:       _#defs."/$defs/Properties/definitions/OrRuleStatement"
 }) |
 fn.#ObjectExpression
 
@@ -60,17 +58,15 @@ _#defs: "/$defs/Properties/definitions/MatchingRuleStatement": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OrRuleStatement": close({
-	MatchingRuleStatements?: [..._#defs."/$defs/Properties/definitions/MatchingRuleStatement" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/OrRuleStatement": close(
+	{MatchingRuleStatements?: [..._#defs."/$defs/Properties/definitions/MatchingRuleStatement"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RuleStatement": close({
-	InstanceRuleStatement?: _#defs."/$defs/Properties/definitions/InstanceRuleStatement" | fn.#ObjectExpression
-	LicenseConfigurationRuleStatement?: _#defs."/$defs/Properties/definitions/LicenseConfigurationRuleStatement" |
-		fn.#ObjectExpression
-	LicenseRuleStatement?: _#defs."/$defs/Properties/definitions/LicenseRuleStatement" | fn.#ObjectExpression
+	InstanceRuleStatement?:             _#defs."/$defs/Properties/definitions/InstanceRuleStatement"
+	LicenseConfigurationRuleStatement?: _#defs."/$defs/Properties/definitions/LicenseConfigurationRuleStatement"
+	LicenseRuleStatement?:              _#defs."/$defs/Properties/definitions/LicenseRuleStatement"
 }) |
 fn.#ObjectExpression
 

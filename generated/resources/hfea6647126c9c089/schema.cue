@@ -39,10 +39,16 @@ _#defs: "/$defs/Properties/definitions/TopicRuleDestinationStatus": "ENABLED" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/VpcDestinationProperties": close({
-	RoleArn?:        string | fn.#StringExpression
-	SecurityGroups?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SubnetIds?:      list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	VpcId?:          string | fn.#StringExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	SecurityGroups?: list.UniqueItems() & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	SubnetIds?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

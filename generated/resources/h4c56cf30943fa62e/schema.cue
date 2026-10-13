@@ -22,8 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	OriginConfiguration?: _#defs."/$defs/Properties/definitions/OriginConfiguration" & {[string]: fn.#Value} |
 		fn.#ObjectExpression
 	Pattern!: strings.MaxRunes(520) & strings.MinRunes(2) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:    list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/OriginConfiguration": close(

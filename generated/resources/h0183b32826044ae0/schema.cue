@@ -15,8 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::Scheduler::ScheduleGroup Resource Type
 #Properties: close({
 	Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ScheduleGroupState": "ACTIVE" | "DELETING" | fn.#StringExpression

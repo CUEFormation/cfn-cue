@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,16 +19,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::SageMaker::Space
 #Properties: close({
 	DomainId!:          strings.MaxRunes(63) & strings.MinRunes(1) & =~"^d-(-*[a-z0-9]){1,61}$" | fn.#StringExpression
-	OwnershipSettings?: _#defs."/$defs/Properties/definitions/OwnershipSettings" | fn.#ObjectExpression
+	OwnershipSettings?: _#defs."/$defs/Properties/definitions/OwnershipSettings"
 	SpaceDisplayName?:  strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 	SpaceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 	fn.#StringExpression
 	SpaceSettings?: _#defs."/$defs/Properties/definitions/SpaceSettings" &
 	(null | bool | number | string | list.MaxItems(50) & [...] | {...}) |
 	fn.#ObjectExpression
-	SpaceSharingSettings?: _#defs."/$defs/Properties/definitions/SpaceSharingSettings" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	SpaceSharingSettings?: _#defs."/$defs/Properties/definitions/SpaceSharingSettings"
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AppType": "JupyterServer" |
@@ -42,21 +45,35 @@ _#defs: "/$defs/Properties/definitions/CodeRepository": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomFileSystem": close({
-	EFSFileSystem?:       _#defs."/$defs/Properties/definitions/EFSFileSystem" | fn.#ObjectExpression
-	FSxLustreFileSystem?: _#defs."/$defs/Properties/definitions/FSxLustreFileSystem" | fn.#ObjectExpression
-	S3FileSystem?:        _#defs."/$defs/Properties/definitions/S3FileSystem" | fn.#ObjectExpression
+	EFSFileSystem?:       _#defs."/$defs/Properties/definitions/EFSFileSystem"
+	FSxLustreFileSystem?: _#defs."/$defs/Properties/definitions/FSxLustreFileSystem"
+	S3FileSystem?:        _#defs."/$defs/Properties/definitions/S3FileSystem"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomFileSystems": list.MaxItems(1) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/CustomFileSystem" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/CustomFileSystem"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/CustomImage": close({
 	AppImageConfigName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" | fn.#StringExpression
 	ImageName!:          strings.MaxRunes(63) & =~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
-	ImageVersionNumber?: int & >=0 | fn.#NumberExpression
+	ImageVersionNumber?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -76,22 +93,20 @@ _#defs: "/$defs/Properties/definitions/FSxLustreFileSystem": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/JupyterServerAppSettings": close({
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec" | fn.#ObjectExpression
+	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"
 	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
 	] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KernelGatewayAppSettings": close({
-	CustomImages?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomImage" | fn.#ObjectExpression
-	] |
+	CustomImages?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/CustomImage"] |
 		fn.#ListExpression
 	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec" | fn.#ObjectExpression
 	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
 	] |
 		fn.#ListExpression
 }) |
@@ -190,37 +205,65 @@ _#defs: "/$defs/Properties/definitions/S3FileSystem": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SpaceAppLifecycleManagement": close(
-	{IdleSettings?: _#defs."/$defs/Properties/definitions/SpaceIdleSettings" | fn.#ObjectExpression},
+	{IdleSettings?: _#defs."/$defs/Properties/definitions/SpaceIdleSettings"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SpaceCodeEditorAppSettings": close(
-	{DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec" | fn.#ObjectExpression},
+	{DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpaceEbsVolumeSizeInGb": int & <=16384 & >=5 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/SpaceEbsVolumeSizeInGb": int & <=16384 & >=5 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=16384 &
+						>=5,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/SpaceIdleSettings": close(
-	{IdleTimeoutInMinutes?: int & <=525600 & >=60 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/SpaceIdleSettings": close({
+	IdleTimeoutInMinutes?: int & <=525600 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=525600 &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SpaceJupyterLabAppSettings": close({
-	CodeRepositories?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CodeRepository" | fn.#ObjectExpression
-	] |
+	CodeRepositories?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/CodeRepository"] |
 		fn.#ListExpression
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec" | fn.#ObjectExpression
+	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SpaceManagedResources": "ENABLED" | "DISABLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SpaceSettings": close({
-	AppType?:                  _#defs."/$defs/Properties/definitions/AppType" | fn.#StringExpression
+	AppType?:                  _#defs."/$defs/Properties/definitions/AppType"
 	CodeEditorAppSettings?:    _#defs."/$defs/Properties/definitions/SpaceCodeEditorAppSettings" | fn.#ObjectExpression
-	CustomFileSystems?:        _#defs."/$defs/Properties/definitions/CustomFileSystems" | fn.#ListExpression
+	CustomFileSystems?:        _#defs."/$defs/Properties/definitions/CustomFileSystems"
 	JupyterLabAppSettings?:    _#defs."/$defs/Properties/definitions/SpaceJupyterLabAppSettings" | fn.#ObjectExpression
 	JupyterServerAppSettings?: _#defs."/$defs/Properties/definitions/JupyterServerAppSettings" | fn.#ObjectExpression
 	KernelGatewayAppSettings?: _#defs."/$defs/Properties/definitions/KernelGatewayAppSettings" | fn.#ObjectExpression
@@ -236,7 +279,7 @@ _#defs: "/$defs/Properties/definitions/SpaceSharingSettings": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SpaceStorageSettings": close(
-	{EbsStorageSettings?: _#defs."/$defs/Properties/definitions/EbsStorageSettings" | fn.#ObjectExpression},
+	{EbsStorageSettings?: _#defs."/$defs/Properties/definitions/EbsStorageSettings"},
 ) |
 	fn.#ObjectExpression
 

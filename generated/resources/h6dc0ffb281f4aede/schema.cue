@@ -19,9 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ValueExpression
 	Description?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\-\\:\\_]{1,64}" | fn.#StringExpression
 	Name!:        strings.MaxRunes(128) & strings.MinRunes(5) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
@@ -89,7 +87,7 @@ close({
 	[...] |
 	close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/ConfigurationObject" | fn.#ValueExpression}}) |
+		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/ConfigurationObject"}}) |
 	fn.#ValueExpression
 	SessionConfiguration?: null |
 	bool |
@@ -98,7 +96,7 @@ close({
 	[...] |
 	close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/ConfigurationObject" | fn.#ValueExpression}}) |
+		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/ConfigurationObject"}}) |
 	fn.#ValueExpression
 })) |
 fn.#ValueExpression

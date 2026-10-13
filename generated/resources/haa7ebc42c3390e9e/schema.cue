@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // This resource represents an individual schema version of a schema defined in
 // Glue Schema Registry.
 #Properties: close({
-	Schema!:           _#defs."/$defs/Properties/definitions/Schema" | fn.#ObjectExpression
+	Schema!:           _#defs."/$defs/Properties/definitions/Schema"
 	SchemaDefinition!: strings.MaxRunes(170000) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 })
 

@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -30,7 +34,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DeletionSettings?: _#defs."/$defs/Properties/definitions/DeletionSettings" | fn.#ObjectExpression
 	DistributionConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):distribution-configuration/[a-z0-9-_]+$" |
 		fn.#StringExpression
-	EnhancedImageMetadataEnabled?: bool | fn.#BooleanExpression
+	EnhancedImageMetadataEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ExecutionRole?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^(?:arn:aws(?:-[a-z]+)*:iam::[0-9]{12}:role/)?[a-zA-Z_0-9+=,.@\\-_/]+$" |
@@ -94,8 +98,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Workflows?: [..._#defs."/$defs/Properties/definitions/WorkflowConfiguration" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Workflows?: [..._#defs."/$defs/Properties/definitions/WorkflowConfiguration"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DeletionSettings": close({ExecutionRole!: string | fn.#StringExpression}) |
@@ -114,19 +117,34 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ImagePipelineExecutionSettings": close({
 	DeploymentId?: string | fn.#StringExpression
-	OnUpdate?:     bool | fn.#BooleanExpression
+	OnUpdate?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ImageScanningConfiguration": close({
 	EcrConfiguration?:     _#defs."/$defs/Properties/definitions/EcrConfiguration" | fn.#ObjectExpression
-	ImageScanningEnabled?: bool | fn.#BooleanExpression
+	ImageScanningEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ImageTestsConfiguration": close({
-	ImageTestsEnabled?: bool | fn.#BooleanExpression
-	TimeoutMinutes?:    int & <=1440 & >=60 | fn.#NumberExpression
+	ImageTestsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	TimeoutMinutes?: int & <=1440 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1440 &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -142,17 +160,15 @@ _#defs: "/$defs/Properties/definitions/WorkflowConfiguration": close({
 	OnFailure?: "CONTINUE" | "ABORT" | fn.#StringExpression
 	ParallelGroup?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9-_+#]{0,99}$" |
 	fn.#StringExpression
-	Parameters?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/WorkflowParameter" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Parameters?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/WorkflowParameter"] | fn.#ListExpression
 	WorkflowArn?: =~"^arn:aws(?:-[a-z]+)*:imagebuilder:[a-z]{2,}(?:-[a-z]+)+-[0-9]+:(?:[0-9]{12}|aws(?:-[a-z-]+)?):workflow/(build|test|distribution)/[a-z0-9-_]+/(?:(?:([0-9]+|x)\\.([0-9]+|x)\\.([0-9]+|x))|(?:[0-9]+\\.[0-9]+\\.[0-9]+/[0-9]+))$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WorkflowParameter": close({
-	Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[^\\x00]+$" | fn.#StringExpression
-	Value?: [..._#defs."/$defs/Properties/definitions/WorkflowParameterValue" | fn.#StringExpression] |
-		fn.#ListExpression
+	Name?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[^\\x00]+$" | fn.#StringExpression
+	Value?: [..._#defs."/$defs/Properties/definitions/WorkflowParameterValue"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

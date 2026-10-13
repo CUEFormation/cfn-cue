@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AgentRuntimeVersion?: _#defs."/$defs/Properties/definitions/AgentRuntimeVersion" | fn.#StringExpression
 	Description?:         _#defs."/$defs/Properties/definitions/AgentEndpointDescription" | fn.#StringExpression
 	Name!:                _#defs."/$defs/Properties/definitions/EndpointName" | fn.#StringExpression
-	Tags?:                _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
+	Tags?:                _#defs."/$defs/Properties/definitions/TagsMap"
 })
 
 _#defs: "/$defs/Properties/definitions/AgentEndpointDescription": strings.MaxRunes(256) & strings.MinRunes(1) |

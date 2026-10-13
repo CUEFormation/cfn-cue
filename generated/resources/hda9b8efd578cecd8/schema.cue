@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -47,19 +51,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Ipv6CidrBlock!:  _
 		...
 	}]) & {...},
-	{
+	matchN(>=1, [{
 		CidrBlock!: _
 		...
-	} | {
+	}, {
 		Ipv4IpamPoolId!: _
 		...
-	} | {
+	}, {
 		Ipv6IpamPoolId!: _
 		...
-	} | {
+	}, {
 		Ipv6CidrBlock!: _
 		...
-	}
+	}])
 ]) & close({
 	Ipv4IpamPoolId?: _
 	if Ipv4IpamPoolId != _|_ {
@@ -78,28 +82,82 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Ipv6IpamPoolId!: _
 	}
 	{}
-	AssignIpv6AddressOnCreation?: bool | fn.#BooleanExpression
+	AssignIpv6AddressOnCreation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AvailabilityZone?:            string | fn.#StringExpression
 	AvailabilityZoneId?:          string | fn.#StringExpression
 	CidrBlock?:                   string | fn.#StringExpression
-	EnableDns64?:                 bool | fn.#BooleanExpression
-	EnableLniAtDeviceIndex?:      int | fn.#NumberExpression
-	"Ipv4IpamPoolId"?:            string | fn.#StringExpression
-	"Ipv4NetmaskLength"?:         int | fn.#NumberExpression
-	Ipv6CidrBlock?:               string | fn.#StringExpression
-	"Ipv6IpamPoolId"?:            string | fn.#StringExpression
-	Ipv6Native?:                  bool | fn.#BooleanExpression
-	"Ipv6NetmaskLength"?:         int | fn.#NumberExpression
-	MapPublicIpOnLaunch?:         bool | fn.#BooleanExpression
-	OutpostArn?:                  string | fn.#StringExpression
+	EnableDns64?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableLniAtDeviceIndex?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	"Ipv4IpamPoolId"?: string | fn.#StringExpression
+	"Ipv4NetmaskLength"?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ipv6CidrBlock?:    string | fn.#StringExpression
+	"Ipv6IpamPoolId"?: string | fn.#StringExpression
+	Ipv6Native?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	"Ipv6NetmaskLength"?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MapPublicIpOnLaunch?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	OutpostArn?:          string | fn.#StringExpression
 	PrivateDnsNameOptionsOnLaunch?: close({
-		EnableResourceNameDnsAAAARecord?: bool | fn.#BooleanExpression
-		EnableResourceNameDnsARecord?:    bool | fn.#BooleanExpression
-		HostnameType?:                    string | fn.#StringExpression
+		EnableResourceNameDnsAAAARecord?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		EnableResourceNameDnsARecord?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		HostnameType?: string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?:  [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	VpcId!: string | fn.#StringExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

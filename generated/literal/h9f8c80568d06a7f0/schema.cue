@@ -34,7 +34,8 @@ import (
 	MigrationProjectIdentifier!: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// The property describes Amazon Resource Name (ARN) of the service access role.
-	ServiceAccessRoleArn!: strings.MaxRunes(300) & strings.MinRunes(1)
+	ServiceAccessRoleArn!:
+		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(300) & strings.MinRunes(1))
 
 	// The property describes the settings for the data migration.
 	SourceDataSettings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SourceDataSettings"]

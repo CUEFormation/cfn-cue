@@ -8,21 +8,22 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RolesAnywhere::TrustAnchor Resource Type.
 #Properties: close({
-	Enabled?: bool | fn.#BooleanExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!:    strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9-_]*$" | fn.#StringExpression
-	NotificationSettings?: list.MaxItems(50) & [...] & [
-		..._#defs."/$defs/Properties/definitions/NotificationSetting" | fn.#ObjectExpression
-	] |
+	NotificationSettings?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/NotificationSetting"] |
 		fn.#ListExpression
-	Source!: _#defs."/$defs/Properties/definitions/Source" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Source!: _#defs."/$defs/Properties/definitions/Source"
+	Tags?:   list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/NotificationChannel": "ALL" | fn.#StringExpression
@@ -32,16 +33,35 @@ _#defs: "/$defs/Properties/definitions/NotificationEvent": "CA_CERTIFICATE_EXPIR
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/NotificationSetting": close({
-	Channel?:   _#defs."/$defs/Properties/definitions/NotificationChannel" | fn.#StringExpression
-	Enabled!:   bool | fn.#BooleanExpression
-	Event!:     _#defs."/$defs/Properties/definitions/NotificationEvent" | fn.#StringExpression
-	Threshold?: <=360 & >=1 | fn.#NumberExpression
+	Channel?: _#defs."/$defs/Properties/definitions/NotificationChannel"
+	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Event!:   _#defs."/$defs/Properties/definitions/NotificationEvent"
+	Threshold?: <=360 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=360 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Source": close({
-	SourceData!: _#defs."/$defs/Properties/definitions/SourceData" | fn.#ValueExpression
-	SourceType!: _#defs."/$defs/Properties/definitions/TrustAnchorType" | fn.#StringExpression
+	SourceData!: _#defs."/$defs/Properties/definitions/SourceData"
+	SourceType!: _#defs."/$defs/Properties/definitions/TrustAnchorType"
 }) |
 fn.#ObjectExpression
 

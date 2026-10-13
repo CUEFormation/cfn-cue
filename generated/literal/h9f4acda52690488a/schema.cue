@@ -18,9 +18,9 @@ import (
 	CreatedAt?:              time.Time
 	ECSManagedResourceArns?: _#defs."/$defs/Properties/definitions/ECSManagedResourceArns"
 	Endpoint?:               string
-	ExecutionRoleArn?:       string
+	ExecutionRoleArn?:       =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	HealthCheckPath?:        string
-	InfrastructureRoleArn!:  string
+	InfrastructureRoleArn!:  =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Memory?:                 string
 	NetworkConfiguration?:   _#defs."/$defs/Properties/definitions/ExpressGatewayServiceNetworkConfiguration"
 	PrimaryContainer?:       _#defs."/$defs/Properties/definitions/ExpressGatewayContainer"
@@ -30,7 +30,7 @@ import (
 	Status?:                 _#defs."/$defs/Properties/definitions/ExpressGatewayServiceStatus"
 	Tags?:                   list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
 	TaskDefinitionArn?:      string
-	TaskRoleArn?:            string
+	TaskRoleArn?:            =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	UpdatedAt?:              time.Time
 })
 
@@ -76,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/ExpressGatewayServiceAwsLogsConfiguration
 _#defs: "/$defs/Properties/definitions/ExpressGatewayServiceConfiguration": close({
 	Cpu?:                  string
 	CreatedAt?:            time.Time
-	ExecutionRoleArn?:     string
+	ExecutionRoleArn?:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	HealthCheckPath?:      string
 	IngressPaths?:         [..._#defs."/$defs/Properties/definitions/IngressPathSummary"]
 	Memory?:               string
@@ -85,11 +85,11 @@ _#defs: "/$defs/Properties/definitions/ExpressGatewayServiceConfiguration": clos
 	ScalingTarget?:        _#defs."/$defs/Properties/definitions/ExpressGatewayScalingTarget"
 	ServiceRevisionArn?:   string
 	TaskDefinitionArn?:    string
-	TaskRoleArn?:          string
+	TaskRoleArn?:          =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/ExpressGatewayServiceNetworkConfiguration": close({
-	SecurityGroups?: [...string]
+	SecurityGroups?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	Subnets?:        [...string]
 })
 
@@ -104,7 +104,7 @@ _#defs: "/$defs/Properties/definitions/ExpressGatewayServiceStatus": close(
 _#defs: "/$defs/Properties/definitions/ExpressGatewayServiceStatusCode": "ACTIVE" | "DRAINING" | "INACTIVE"
 
 _#defs: "/$defs/Properties/definitions/IngressPathArns": close({
-	CertificateArn?:             string
+	CertificateArn?:             =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"
 	ListenerArn?:                string
 	ListenerRuleArn?:            string
 	LoadBalancerArn?:            string

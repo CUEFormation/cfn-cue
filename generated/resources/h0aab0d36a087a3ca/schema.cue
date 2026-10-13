@@ -29,7 +29,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	HomeRegion?: string | fn.#StringExpression
 	LicenseArn?: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
 	Principals?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/Arn"
 	] |
 		fn.#ListExpression
 	Status?: "ACTIVE" |
@@ -42,7 +42,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"REJECTED" |
 		"WORKFLOW_COMPLETED" |
 		fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression

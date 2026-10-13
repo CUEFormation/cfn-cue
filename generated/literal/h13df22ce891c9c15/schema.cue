@@ -77,7 +77,7 @@ _#defs: "/$defs/Properties/definitions/EbsBlockDevice": close({
 	DeleteOnTermination?:                bool
 	Encrypted?:                          bool
 	Iops?:                               int
-	KmsKeyId?:                           string | string | string
+	KmsKeyId?:                           =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 	MultiAvailabilityZoneConfiguration?: _#defs."/$defs/Properties/definitions/MultiAvailabilityZoneConfiguration"
 	SnapshotId?:                         string
 	VolumeSize?:                         int

@@ -13,8 +13,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Account!:           _#defs."/$defs/Properties/definitions/AwsAccount" | fn.#StringExpression
 	ClusterIdentifier!: string | fn.#StringExpression
-	Force?:             bool | fn.#BooleanExpression
-	VpcIds?:            [..._#defs."/$defs/Properties/definitions/VpcId" | fn.#StringExpression] | fn.#ListExpression
+	Force?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	VpcIds?:            [..._#defs."/$defs/Properties/definitions/VpcId"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AwsAccount": =~"^\\d{12}$" | fn.#StringExpression

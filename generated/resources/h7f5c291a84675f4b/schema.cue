@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,22 +20,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // (GameLift) game session queue.
 #Properties: close({
 	CustomEventData?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
-	Destinations?: [..._#defs."/$defs/Properties/definitions/GameSessionQueueDestination" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Destinations?:    [..._#defs."/$defs/Properties/definitions/GameSessionQueueDestination"] | fn.#ListExpression
 	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration" & {[string]: fn.#Value} |
 		fn.#ObjectExpression
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-]+" | fn.#StringExpression
 	NotificationTarget?: strings.MaxRunes(300) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]*(\\.fifo)?" |
 	fn.#StringExpression
-	PlayerLatencyPolicies?: [..._#defs."/$defs/Properties/definitions/PlayerLatencyPolicy" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	PlayerLatencyPolicies?: [..._#defs."/$defs/Properties/definitions/PlayerLatencyPolicy"] | fn.#ListExpression
 	PriorityConfiguration?: _#defs."/$defs/Properties/definitions/PriorityConfiguration" & {[string]: fn.#Value} |
 		fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
-	TimeoutInSeconds?: int & >=0 | fn.#NumberExpression
+	TimeoutInSeconds?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AllowedLocations": list.MaxItems(100) & list.MinItems(1) & [
@@ -40,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/AllowedLocations": list.MaxItems(100) & l
 fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/FilterConfiguration": close(
-	{AllowedLocations?: _#defs."/$defs/Properties/definitions/AllowedLocations" | fn.#ListExpression},
+	{AllowedLocations?: _#defs."/$defs/Properties/definitions/AllowedLocations"},
 ) |
 	fn.#ObjectExpression
 
@@ -55,14 +69,42 @@ _#defs: "/$defs/Properties/definitions/LocationOrder": list.MaxItems(100) & list
 fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/PlayerLatencyPolicy": close({
-	MaximumIndividualPlayerLatencyMilliseconds?: int & >=0 | fn.#NumberExpression
-	PolicyDurationSeconds?:                      int & >=0 | fn.#NumberExpression
+	MaximumIndividualPlayerLatencyMilliseconds?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PolicyDurationSeconds?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PriorityConfiguration": close({
-	LocationOrder?: _#defs."/$defs/Properties/definitions/LocationOrder" | fn.#ListExpression
-	PriorityOrder?: _#defs."/$defs/Properties/definitions/PriorityOrder" | fn.#ListExpression
+	LocationOrder?: _#defs."/$defs/Properties/definitions/LocationOrder"
+	PriorityOrder?: _#defs."/$defs/Properties/definitions/PriorityOrder"
 }) |
 fn.#ObjectExpression
 

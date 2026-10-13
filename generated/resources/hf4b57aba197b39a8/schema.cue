@@ -8,26 +8,27 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for an Amazon Chime SDK Media Insights Pipeline Configuration
 #Properties: close({
-	Elements!: [
-		..._#defs."/$defs/Properties/definitions/MediaInsightsPipelineConfigurationElement" | fn.#ObjectExpression
-	] |
+	Elements!: [..._#defs."/$defs/Properties/definitions/MediaInsightsPipelineConfigurationElement"] |
 		fn.#ListExpression
 	MediaInsightsPipelineConfigurationName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" |
 	fn.#StringExpression
-	RealTimeAlertConfiguration?: _#defs."/$defs/Properties/definitions/RealTimeAlertConfiguration" |
-		fn.#ObjectExpression
-	ResourceAccessRoleArn!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$" |
+	RealTimeAlertConfiguration?: _#defs."/$defs/Properties/definitions/RealTimeAlertConfiguration"
+	ResourceAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(1) &
+	=~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AmazonTranscribeCallAnalyticsProcessorConfiguration": close({
@@ -35,10 +36,17 @@ _#defs: "/$defs/Properties/definitions/AmazonTranscribeCallAnalyticsProcessorCon
 		...strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	ContentIdentificationType?:         "PII" | fn.#StringExpression
-	ContentRedactionType?:              "PII" | fn.#StringExpression
-	EnablePartialResultsStabilization?: bool | fn.#BooleanExpression
-	FilterPartialResults?:              bool | fn.#BooleanExpression
+	ContentIdentificationType?: "PII" | fn.#StringExpression
+	ContentRedactionType?:      "PII" | fn.#StringExpression
+	EnablePartialResultsStabilization?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	FilterPartialResults?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LanguageCode!: "en-US" |
 		"en-GB" |
 		"es-US" |
@@ -52,7 +60,7 @@ _#defs: "/$defs/Properties/definitions/AmazonTranscribeCallAnalyticsProcessorCon
 	LanguageModelName?:       strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
 	PartialResultsStability?: "high" | "medium" | "low" | fn.#StringExpression
 	PiiEntityTypes?:          strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[A-Z_, ]+$" | fn.#StringExpression
-	PostCallAnalyticsSettings?: _#defs."/$defs/Properties/definitions/PostCallAnalyticsSettings" | fn.#ObjectExpression
+	PostCallAnalyticsSettings?: _#defs."/$defs/Properties/definitions/PostCallAnalyticsSettings"
 	VocabularyFilterMethod?:    "remove" | "mask" | "tag" | fn.#StringExpression
 	VocabularyFilterName?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
 	VocabularyName?:       strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
@@ -60,12 +68,19 @@ _#defs: "/$defs/Properties/definitions/AmazonTranscribeCallAnalyticsProcessorCon
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AmazonTranscribeProcessorConfiguration": close({
-	ContentIdentificationType?:         "PII" | fn.#StringExpression
-	ContentRedactionType?:              "PII" | fn.#StringExpression
-	EnablePartialResultsStabilization?: bool | fn.#BooleanExpression
-	FilterPartialResults?:              bool | fn.#BooleanExpression
-	IdentifyLanguage?:                  bool | fn.#BooleanExpression
-	IdentifyMultipleLanguages?:         bool | fn.#BooleanExpression
+	ContentIdentificationType?: "PII" | fn.#StringExpression
+	ContentRedactionType?:      "PII" | fn.#StringExpression
+	EnablePartialResultsStabilization?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	FilterPartialResults?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IdentifyLanguage?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IdentifyMultipleLanguages?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LanguageCode?: "en-US" |
 		"en-GB" |
 		"es-US" |
@@ -90,7 +105,7 @@ _#defs: "/$defs/Properties/definitions/AmazonTranscribeProcessorConfiguration": 
 		"de-DE" |
 		"pt-BR" |
 		fn.#StringExpression
-	ShowSpeakerLabel?:       bool | fn.#BooleanExpression
+	ShowSpeakerLabel?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VocabularyFilterMethod?: "remove" | "mask" | "tag" | fn.#StringExpression
 	VocabularyFilterName?:   strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
 	VocabularyFilterNames?: strings.MaxRunes(3000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9,-._]+$" | fn.#StringExpression
@@ -109,7 +124,7 @@ _#defs: "/$defs/Properties/definitions/KeywordMatchConfiguration": close({
 		...strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[\\s0-9a-zA-Z'-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Negate?:   bool | fn.#BooleanExpression
+	Negate?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RuleName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -121,14 +136,12 @@ _#defs: "/$defs/Properties/definitions/KinesisDataStreamSinkConfiguration": clos
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MediaInsightsPipelineConfigurationElement": close({
-	AmazonTranscribeCallAnalyticsProcessorConfiguration?: _#defs."/$defs/Properties/definitions/AmazonTranscribeCallAnalyticsProcessorConfiguration" |
-		fn.#ObjectExpression
-	AmazonTranscribeProcessorConfiguration?: _#defs."/$defs/Properties/definitions/AmazonTranscribeProcessorConfiguration" |
-		fn.#ObjectExpression
-	KinesisDataStreamSinkConfiguration?: _#defs."/$defs/Properties/definitions/KinesisDataStreamSinkConfiguration" |
-		fn.#ObjectExpression
-	S3RecordingSinkConfiguration?: _#defs."/$defs/Properties/definitions/S3RecordingSinkConfiguration" |
-		fn.#ObjectExpression
+	AmazonTranscribeCallAnalyticsProcessorConfiguration?:
+		_#defs."/$defs/Properties/definitions/AmazonTranscribeCallAnalyticsProcessorConfiguration"
+	AmazonTranscribeProcessorConfiguration?:
+		_#defs."/$defs/Properties/definitions/AmazonTranscribeProcessorConfiguration"
+	KinesisDataStreamSinkConfiguration?: _#defs."/$defs/Properties/definitions/KinesisDataStreamSinkConfiguration"
+	S3RecordingSinkConfiguration?:       _#defs."/$defs/Properties/definitions/S3RecordingSinkConfiguration"
 	Type!: "AmazonTranscribeCallAnalyticsProcessor" |
 		"AmazonTranscribeProcessor" |
 		"KinesisDataStreamSink" |
@@ -138,28 +151,26 @@ _#defs: "/$defs/Properties/definitions/MediaInsightsPipelineConfigurationElement
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PostCallAnalyticsSettings": close({
-	ContentRedactionOutput?:   "redacted" | "redacted_and_unredacted" | fn.#StringExpression
-	DataAccessRoleArn!:        strings.MaxRunes(4096) | fn.#StringExpression
+	ContentRedactionOutput?: "redacted" | "redacted_and_unredacted" | fn.#StringExpression
+	DataAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MaxRunes(4096) |
+	fn.#StringExpression
 	OutputEncryptionKMSKeyId?: strings.MaxRunes(4096) | fn.#StringExpression
 	OutputLocation!:           strings.MaxRunes(4096) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RealTimeAlertConfiguration": close({
-	Disabled?: bool | fn.#BooleanExpression
-	Rules?: list.MaxItems(3) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RealTimeAlertRule" | fn.#ObjectExpression
-	] |
+	Disabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Rules?: list.MaxItems(3) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RealTimeAlertRule"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RealTimeAlertRule": close({
-	IssueDetectionConfiguration?: _#defs."/$defs/Properties/definitions/IssueDetectionConfiguration" |
-		fn.#ObjectExpression
-	KeywordMatchConfiguration?: _#defs."/$defs/Properties/definitions/KeywordMatchConfiguration" | fn.#ObjectExpression
-	SentimentConfiguration?:    _#defs."/$defs/Properties/definitions/SentimentConfiguration" | fn.#ObjectExpression
-	Type!:                      "KeywordMatch" | "Sentiment" | "IssueDetection" | fn.#StringExpression
+	IssueDetectionConfiguration?: _#defs."/$defs/Properties/definitions/IssueDetectionConfiguration"
+	KeywordMatchConfiguration?:   _#defs."/$defs/Properties/definitions/KeywordMatchConfiguration"
+	SentimentConfiguration?:      _#defs."/$defs/Properties/definitions/SentimentConfiguration"
+	Type!:                        "KeywordMatch" | "Sentiment" | "IssueDetection" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -173,7 +184,22 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/SentimentConfiguration": close({
 	RuleName!:      strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
 	SentimentType!: "NEGATIVE" | fn.#StringExpression
-	TimePeriod!:    int & <=1800 & >=60 | fn.#NumberExpression
+	TimePeriod!: int & <=1800 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1800 &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

@@ -29,14 +29,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/ContinuousDeploymentPolicyConfig": close({
-	Enabled!: bool | fn.#BooleanExpression
+	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SingleHeaderPolicyConfig?: close({
 		Header!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 		Value!:  strings.MaxRunes(1783) & strings.MinRunes(1) | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	SingleWeightPolicyConfig?: close({
-		SessionStickinessConfig?: _#defs."/$defs/Properties/definitions/SessionStickinessConfig" | fn.#ObjectExpression
+		SessionStickinessConfig?: _#defs."/$defs/Properties/definitions/SessionStickinessConfig"
 		Weight!:                  math.MultipleOf(0.01) & <=1 & >=0 | fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression

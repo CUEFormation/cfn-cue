@@ -15,8 +15,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Security Hub V2 service in your account. Only one hubv2 resource can created
 // in each region in which you enable Security Hub V2.
 #Properties: close({
-	NetworkScanning?: _#defs."/$defs/Properties/definitions/NetworkScanning" | fn.#ObjectExpression
-	Tags?:            _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	NetworkScanning?: _#defs."/$defs/Properties/definitions/NetworkScanning"
+	Tags?:            _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/ISO8601DateString": =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |

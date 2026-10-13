@@ -8,28 +8,73 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::RDS::DBProxyTargetGroup
 #Properties: close({
-	ConnectionPoolConfigurationInfo?: _#defs."/$defs/Properties/definitions/ConnectionPoolConfigurationInfoFormat" |
-		fn.#ObjectExpression
-	DBClusterIdentifiers?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	DBInstanceIdentifiers?: [...string | fn.#StringExpression] | fn.#ListExpression
-	DBProxyName!:           strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-z][0-z]*" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ConnectionPoolConfigurationInfo?: _#defs."/$defs/Properties/definitions/ConnectionPoolConfigurationInfoFormat"
+	DBClusterIdentifiers?:            [...string | fn.#StringExpression] | fn.#ListExpression
+	DBInstanceIdentifiers?:           [...string | fn.#StringExpression] | fn.#ListExpression
+	DBProxyName!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-z][0-z]*" | fn.#StringExpression
+	Tags?:            list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetGroupName!: "default" & (strings.MaxRunes(63) & strings.MinRunes(1)) | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ConnectionPoolConfigurationInfoFormat": close({
-	ConnectionBorrowTimeout?:   int | fn.#NumberExpression
-	InitQuery?:                 string | fn.#StringExpression
-	MaxConnectionsPercent?:     int & <=100 & >=0 | fn.#NumberExpression
-	MaxIdleConnectionsPercent?: int & <=100 & >=0 | fn.#NumberExpression
-	SessionPinningFilters?:     [...string | fn.#StringExpression] | fn.#ListExpression
+	ConnectionBorrowTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	InitQuery?: string | fn.#StringExpression
+	MaxConnectionsPercent?: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxIdleConnectionsPercent?: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SessionPinningFilters?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

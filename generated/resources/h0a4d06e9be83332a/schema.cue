@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"struct"
 )
@@ -18,19 +18,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // used to start a job run or to enforce certain values in a StartJobRun API
 // request.
 #Properties: close({
-	JobTemplateData!: _#defs."/$defs/Properties/definitions/JobTemplateData" | fn.#ObjectExpression
+	JobTemplateData!: _#defs."/$defs/Properties/definitions/JobTemplateData"
 	Name!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Configuration": close({
 	Classification!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	Configurations?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/Configuration" | fn.#ObjectExpression
-	] |
+	Configurations?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Configuration"] |
 		fn.#ListExpression
 	Properties?: struct.MaxFields(100) & close({
 
@@ -46,27 +41,26 @@ _#defs: "/$defs/Properties/definitions/JobDriver": matchN(1, [{
 	SparkSqlJobDriver!: _
 	...
 }]) & close({
-	SparkSqlJobDriver?:    _#defs."/$defs/Properties/definitions/SparkSqlJobDriver" | fn.#ObjectExpression
-	SparkSubmitJobDriver?: _#defs."/$defs/Properties/definitions/SparkSubmitJobDriver" | fn.#ObjectExpression
+	SparkSqlJobDriver?:    _#defs."/$defs/Properties/definitions/SparkSqlJobDriver"
+	SparkSubmitJobDriver?: _#defs."/$defs/Properties/definitions/SparkSubmitJobDriver"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/JobTemplateData": close({
-	ConfigurationOverrides?: _#defs."/$defs/Properties/definitions/ParametricConfigurationOverrides" |
-		fn.#ObjectExpression
-	ExecutionRoleArn!: strings.MaxRunes(2048) &
+	ConfigurationOverrides?: _#defs."/$defs/Properties/definitions/ParametricConfigurationOverrides"
+	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(4) &
 	=~"^(^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$)|([\\.\\-_\\#A-Za-z0-9\\$\\{\\}]+)$" |
 	fn.#StringExpression
-	JobDriver!: _#defs."/$defs/Properties/definitions/JobDriver" | fn.#ObjectExpression
+	JobDriver!: _#defs."/$defs/Properties/definitions/JobDriver"
 	JobTags?: struct.MaxFields(50) & close({
 
 		{[=~"^.+$"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 	fn.#ObjectExpression
 	ParameterConfiguration?: struct.MaxFields(100) & close({
 
-		{[=~"^[\\.\\-_#A-Za-z0-9]+$"]: _#defs."/$defs/Properties/definitions/TemplateParameterConfiguration" |
-			fn.#ObjectExpression}}) |
+		{[=~"^[\\.\\-_#A-Za-z0-9]+$"]: _#defs."/$defs/Properties/definitions/TemplateParameterConfiguration"}}) |
 	fn.#ObjectExpression
 	ReleaseLabel!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([\\.\\-_/A-Za-z0-9]+|\\$\\{[a-zA-Z]\\w*\\})$" |
 	fn.#StringExpression
@@ -81,22 +75,18 @@ _#defs: "/$defs/Properties/definitions/ParametricCloudWatchMonitoringConfigurati
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParametricConfigurationOverrides": close({
-	ApplicationConfiguration?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/Configuration" | fn.#ObjectExpression
-	] |
+	ApplicationConfiguration?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Configuration"] |
 		fn.#ListExpression
-	MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/ParametricMonitoringConfiguration" |
-		fn.#ObjectExpression
+	MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/ParametricMonitoringConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParametricMonitoringConfiguration": close({
-	CloudWatchMonitoringConfiguration?: _#defs."/$defs/Properties/definitions/ParametricCloudWatchMonitoringConfiguration" |
-		fn.#ObjectExpression
+	CloudWatchMonitoringConfiguration?:
+		_#defs."/$defs/Properties/definitions/ParametricCloudWatchMonitoringConfiguration"
 	PersistentAppUI?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9\\$\\{\\}]+$" |
 	fn.#StringExpression
-	S3MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/ParametricS3MonitoringConfiguration" |
-		fn.#ObjectExpression
+	S3MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/ParametricS3MonitoringConfiguration"
 }) |
 fn.#ObjectExpression
 

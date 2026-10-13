@@ -8,22 +8,44 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for a Device Farm Project
 #Properties: close({
-	DefaultJobTimeoutMinutes?: int & <=150 & >=5 | fn.#NumberExpression
+	DefaultJobTimeoutMinutes?: int & <=150 & >=5 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=150 &
+							>=5,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	EnvironmentVariables?: list.MaxItems(32) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/EnvironmentVariable" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/EnvironmentVariable"
 	] |
 		fn.#ListExpression
-	ExecutionRoleArn?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:[^:]*:iam::[0-9]{12}:role/.+" |
+	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:[^:]*:iam::[0-9]{12}:role/.+" |
 	fn.#StringExpression
 	Name!:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
+	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
 })
 
 _#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
@@ -40,14 +62,22 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^sg-[0-9a-fA-F]{8,}$" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(4096) &
+		strings.MinRunes(1) &
+		=~"^sg-[0-9a-fA-F]{8,}$" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SubnetIds!: list.MaxItems(8) & list.MinItems(1) & [
 		...strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^subnet-[0-9a-fA-F]{8,}$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	VpcId!: strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(4096) &
+	strings.MinRunes(1) &
+	=~".*\\S.*" |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

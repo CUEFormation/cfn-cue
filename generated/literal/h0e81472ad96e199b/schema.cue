@@ -58,7 +58,7 @@ package schema
 	// An AWS KMS key identifier that is used to encrypt the connection parameters
 	// for the endpoint.If you don't specify a value for the KmsKeyId parameter,
 	// AWS DMS uses your default encryption key.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// Settings in JSON format for the source and target Microsoft SQL Server endpoint
 	MicrosoftSqlServerSettings?: _#defs."/$defs/Properties/definitions/MicrosoftSqlServerSettings"
@@ -130,7 +130,7 @@ _#defs: "/$defs/Properties/definitions/DocDbSettings": close({
 	// in SecretsManagerSecret. The role must allow the iam:PassRole action.
 	// SecretsManagerSecret has the value of the AWS Secrets Manager secret that
 	// allows access to the DocumentDB endpoint.
-	SecretsManagerAccessRoleArn?: string
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The full Amazon Resource Name (ARN) of the IAM role that specifies AWS DMS as
 	// the trusted entity and grants the required permissions to access the value
@@ -145,7 +145,7 @@ _#defs: "/$defs/Properties/definitions/DocDbSettings": close({
 _#defs: "/$defs/Properties/definitions/DynamoDbSettings": close({
 	// The Amazon Resource Name (ARN) used by the service to access the IAM role.
 	// The role must allow the iam:PassRole action.
-	ServiceAccessRoleArn?: string
+	ServiceAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 // Provides information that defines an OpenSearch endpoint.
@@ -163,7 +163,7 @@ _#defs: "/$defs/Properties/definitions/ElasticsearchSettings": close({
 
 	// The Amazon Resource Name (ARN) used by the service to access the IAM role.
 	// The role must allow the iam:PassRole action.
-	ServiceAccessRoleArn?: string
+	ServiceAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 // Provides information that defines a GCP MySQL endpoint.
@@ -214,7 +214,7 @@ _#defs: "/$defs/Properties/definitions/GcpMySQLSettings": close({
 	// in SecretsManagerSecret. The role must allow the iam:PassRole action.
 	// SecretsManagerSecret has the value of the AWS Secrets Manager secret that
 	// allows access to the MySQL endpoint.
-	SecretsManagerAccessRoleArn?: string
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The full ARN, partial ARN, or display name of the SecretsManagerSecret that
 	// contains the MySQL endpoint connection details.
@@ -257,7 +257,7 @@ _#defs: "/$defs/Properties/definitions/IbmDb2Settings": close({
 	// in SecretsManagerSecret. The role must allow the iam:PassRole action.
 	// SecretsManagerSecret has the value ofthe AWS Secrets Manager secret that
 	// allows access to the Db2 LUW endpoint.
-	SecretsManagerAccessRoleArn?: string
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The full ARN, partial ARN, or display name of the SecretsManagerSecret that
 	// contains the IBMDB2 endpoint connection details.
@@ -389,7 +389,7 @@ _#defs: "/$defs/Properties/definitions/KinesisSettings": close({
 
 	// The Amazon Resource Name (ARN) for the IAM role that AWS DMS uses to write to
 	// the Kinesis data stream. The role must allow the iam:PassRole action.
-	ServiceAccessRoleArn?: string
+	ServiceAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The Amazon Resource Name (ARN) for the Amazon Kinesis Data Streams endpoint.
 	StreamArn?: string
@@ -435,7 +435,7 @@ _#defs: "/$defs/Properties/definitions/MicrosoftSqlServerSettings": close({
 	// The full Amazon Resource Name (ARN) of the IAM role that specifies AWS DMS as
 	// the trusted entity and grants the required permissions to access the value
 	// in SecretsManagerSecret
-	SecretsManagerAccessRoleArn?: string
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The full ARN, partial ARN, or display name of the SecretsManagerSecret that
 	// contains the MicrosoftSQLServer endpoint connection details.
@@ -500,7 +500,7 @@ _#defs: "/$defs/Properties/definitions/MongoDbSettings": close({
 	// The full Amazon Resource Name (ARN) of the IAM role that specifies AWS DMS as
 	// the trusted entity and grants the required permissions to access the value
 	// in SecretsManagerSecret
-	SecretsManagerAccessRoleArn?: string
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The full ARN, partial ARN, or display name of the SecretsManagerSecret that
 	// contains the MongoDB endpoint connection details.
@@ -540,7 +540,7 @@ _#defs: "/$defs/Properties/definitions/MySqlSettings": close({
 	// The full Amazon Resource Name (ARN) of the IAM role that specifies AWS DMS as
 	// the trusted entity and grants the required permissions to access the value
 	// in SecretsManagerSecret.
-	SecretsManagerAccessRoleArn?: string
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The full ARN, partial ARN, or display name of the SecretsManagerSecret that
 	// contains the MySQL endpoint connection details.
@@ -583,7 +583,7 @@ _#defs: "/$defs/Properties/definitions/NeptuneSettings": close({
 
 	// The Amazon Resource Name (ARN) of the service role that you created for the
 	// Neptune target endpoint. The role must allow the iam:PassRole action.
-	ServiceAccessRoleArn?: string
+	ServiceAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 // Provides information that defines an Oracle endpoint
@@ -674,10 +674,10 @@ _#defs: "/$defs/Properties/definitions/OracleSettings": close({
 	// The full Amazon Resource Name (ARN) of the IAM role that specifies AWS DMS as
 	// the trusted entity and grants the required permissions to access the value
 	// in SecretsManagerSecret.
-	SecretsManagerAccessRoleArn?: string
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Required only if your Oracle endpoint uses Advanced Storage Manager (ASM).
-	SecretsManagerOracleAsmAccessRoleArn?: string
+	SecretsManagerOracleAsmAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Required only if your Oracle endpoint uses Advanced Storage Manager (ASM).
 	SecretsManagerOracleAsmSecretId?: string
@@ -775,7 +775,7 @@ _#defs: "/$defs/Properties/definitions/PostgreSqlSettings": close({
 	// The full Amazon Resource Name (ARN) of the IAM role that specifies AWS DMS as
 	// the trusted entity and grants the required permissions to access the value
 	// in SecretsManagerSecret.
-	SecretsManagerAccessRoleArn?: string
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The full ARN, partial ARN, or display name of the SecretsManagerSecret that
 	// contains the PostgreSQL endpoint connection details.
@@ -894,7 +894,7 @@ _#defs: "/$defs/Properties/definitions/RedshiftSettings": close({
 	// The full Amazon Resource Name (ARN) of the IAM role that specifies AWS DMS as
 	// the trusted entity and grants the required permissions to access the value
 	// in SecretsManagerSecret.
-	SecretsManagerAccessRoleArn?: string
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The full ARN, partial ARN, or display name of the SecretsManagerSecret that
 	// contains the Amazon Redshift endpoint connection details.
@@ -905,7 +905,7 @@ _#defs: "/$defs/Properties/definitions/RedshiftSettings": close({
 
 	// The Amazon Resource Name (ARN) of the IAM role that has access to the Amazon
 	// Redshift service. The role must allow the iam:PassRole action.
-	ServiceAccessRoleArn?: string
+	ServiceAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The time format that you want to use. Valid values are auto (case-sensitive),
 	// 'timeformat_string', 'epochsecs', or 'epochmillisecs'.
@@ -1071,7 +1071,7 @@ _#defs: "/$defs/Properties/definitions/S3Settings": close({
 
 	// A required parameter that specifies the Amazon Resource Name (ARN) used by
 	// the service to access the IAM role.
-	ServiceAccessRoleArn?: string
+	ServiceAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// A value that when nonblank causes AWS DMS to add a column with timestamp
 	// information to the endpoint data for an Amazon S3 target.
@@ -1094,7 +1094,7 @@ _#defs: "/$defs/Properties/definitions/SybaseSettings": close({
 	// The full Amazon Resource Name (ARN) of the IAM role that specifies AWS DMS as
 	// the trusted entity and grants the required permissions to access the value
 	// in SecretsManagerSecret
-	SecretsManagerAccessRoleArn?: string
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The full ARN, partial ARN, or display name of the SecretsManagerSecret that
 	// contains the SAP SAE endpoint connection details.

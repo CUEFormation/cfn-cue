@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::PCAConnectorAD::TemplateGroupAccessControlEntry Resource Type
 #Properties: close({
-	AccessRights!:     _#defs."/$defs/Properties/definitions/AccessRights" | fn.#ObjectExpression
+	AccessRights!:     _#defs."/$defs/Properties/definitions/AccessRights"
 	GroupDisplayName!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\x20-\\x7E]+$" | fn.#StringExpression
 	GroupSecurityIdentifier!: strings.MaxRunes(256) & strings.MinRunes(7) & =~"^S-[0-9]-([0-9]+-){1,14}[0-9]+$" |
 	fn.#StringExpression
@@ -26,8 +26,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 _#defs: "/$defs/Properties/definitions/AccessRight": "ALLOW" | "DENY" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AccessRights": close({
-	AutoEnroll?: _#defs."/$defs/Properties/definitions/AccessRight" | fn.#StringExpression
-	Enroll?:     _#defs."/$defs/Properties/definitions/AccessRight" | fn.#StringExpression
+	AutoEnroll?: _#defs."/$defs/Properties/definitions/AccessRight"
+	Enroll?:     _#defs."/$defs/Properties/definitions/AccessRight"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

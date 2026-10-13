@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -37,35 +41,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 	EgressConfig?:  _#defs."/$defs/Properties/definitions/ConnectorEgressConfig" | fn.#ObjectExpression
 	EgressType?:    _#defs."/$defs/Properties/definitions/ConnectorEgressType" | fn.#StringExpression
-	IpAddressType?: _#defs."/$defs/Properties/definitions/IpAddressType" | fn.#StringExpression
+	IpAddressType?: _#defs."/$defs/Properties/definitions/IpAddressType"
 	LoggingRole?:   strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" | fn.#StringExpression
 	SecurityPolicyName?: strings.MaxRunes(50) &
 	strings.MinRunes(0) &
 	=~"TransferSFTPConnectorSecurityPolicy-[A-Za-z0-9-]+" |
 	fn.#StringExpression
 	SftpConfig?: close({
-		MaxConcurrentConnections?: int & <=5 & >=1 | fn.#NumberExpression
+		MaxConcurrentConnections?: int & <=5 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=5 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 		OrderedUserSecretVersionStages?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
 			...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 		] |
 		fn.#ListExpression
 		TrustedHostKeys?: list.MaxItems(10) & [...] & [
-			..._#defs."/$defs/Properties/definitions/SftpConnectorTrustedHostKey" | fn.#StringExpression
+			..._#defs."/$defs/Properties/definitions/SftpConnectorTrustedHostKey"
 		] |
 			fn.#ListExpression
 		UserSecretId?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	Url?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ConnectorAsyncMdnConfig": close({
 	ServerIds!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ServerId" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/ServerId"
 	] |
 		fn.#ListExpression
 	Url!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
@@ -73,7 +92,7 @@ _#defs: "/$defs/Properties/definitions/ConnectorAsyncMdnConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConnectorEgressConfig": close(
-	{VpcLattice!: _#defs."/$defs/Properties/definitions/ConnectorVpcLatticeEgressConfig" | fn.#ObjectExpression},
+	{VpcLattice!: _#defs."/$defs/Properties/definitions/ConnectorVpcLatticeEgressConfig"},
 ) |
 	fn.#ObjectExpression
 
@@ -82,7 +101,22 @@ _#defs: "/$defs/Properties/definitions/ConnectorEgressType": "SERVICE_MANAGED" |
 _#defs: "/$defs/Properties/definitions/ConnectorStatus": "ACTIVE" | "PENDING" | "ERRORED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ConnectorVpcLatticeEgressConfig": close({
-	PortNumber?: int & <=65535 & >=1 | fn.#NumberExpression
+	PortNumber?: int & <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ResourceConfigurationArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}$" |

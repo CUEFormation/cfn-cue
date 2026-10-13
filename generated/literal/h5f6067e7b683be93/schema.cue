@@ -24,11 +24,11 @@ _#defs: "/$defs/Properties/definitions/Authentication": ("SASL_IAM" | "SASL_SCRA
 
 _#defs: "/$defs/Properties/definitions/ClientSubnets": [...string]
 
-_#defs: "/$defs/Properties/definitions/SecurityGroups": [...string]
+_#defs: "/$defs/Properties/definitions/SecurityGroups": [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 // A key-value pair to associate with a resource.
 _#defs: "/$defs/Properties/definitions/Tags": close({
 
 	{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string}})
 
-_#defs: "/$defs/Properties/definitions/VpcId": string
+_#defs: "/$defs/Properties/definitions/VpcId": =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"

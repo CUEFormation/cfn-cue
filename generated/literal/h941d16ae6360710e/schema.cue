@@ -34,11 +34,11 @@ _#defs: "/$defs/Properties/definitions/ContainerProperties": close({
 	Command?:                      [...string]
 	Environment?:                  [..._#defs."/$defs/Properties/definitions/Environment"]
 	EphemeralStorage?:             _#defs."/$defs/Properties/definitions/EphemeralStorage"
-	ExecutionRoleArn?:             string
+	ExecutionRoleArn?:             =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	FargatePlatformConfiguration?: _#defs."/$defs/Properties/definitions/FargatePlatformConfiguration"
 	Image!:                        string
 	InstanceType?:                 string
-	JobRoleArn?:                   string
+	JobRoleArn?:                   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	LinuxParameters?:              _#defs."/$defs/Properties/definitions/LinuxParameters"
 	LogConfiguration?:             _#defs."/$defs/Properties/definitions/LogConfiguration"
 	Memory?:                       int
@@ -69,13 +69,13 @@ _#defs: "/$defs/Properties/definitions/EcsProperties": close(
 _#defs: "/$defs/Properties/definitions/EcsTaskProperties": close({
 	Containers?:           [..._#defs."/$defs/Properties/definitions/TaskContainerProperties"]
 	EphemeralStorage?:     _#defs."/$defs/Properties/definitions/EphemeralStorage"
-	ExecutionRoleArn?:     string
+	ExecutionRoleArn?:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	IpcMode?:              string
 	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
 	PidMode?:              string
 	PlatformVersion?:      string
 	RuntimePlatform?:      _#defs."/$defs/Properties/definitions/RuntimePlatform"
-	TaskRoleArn?:          string
+	TaskRoleArn?:          =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Volumes?:              [..._#defs."/$defs/Properties/definitions/Volumes"]
 })
 

@@ -47,10 +47,13 @@ _#defs: "/$defs/Properties/definitions/AmazonOpenSearchServerlessDestinationConf
 	IndexName!:                strings.MaxRunes(80) & strings.MinRunes(1)
 	ProcessingConfiguration?:  _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
 	RetryOptions?:             _#defs."/$defs/Properties/definitions/AmazonOpenSearchServerlessRetryOptions"
-	RoleARN!:                  strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*"
-	S3BackupMode?:             "FailedDocumentsOnly" | "AllDocuments"
-	S3Configuration!:          _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
-	VpcConfiguration?:         _#defs."/$defs/Properties/definitions/VpcConfiguration"
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"arn:.*"
+	S3BackupMode?:     "FailedDocumentsOnly" | "AllDocuments"
+	S3Configuration!:  _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
+	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/AmazonOpenSearchServerlessRetryOptions": close(
@@ -72,11 +75,14 @@ _#defs: "/$defs/Properties/definitions/AmazonopensearchserviceDestinationConfigu
 	IndexRotationPeriod?:      "NoRotation" | "OneHour" | "OneDay" | "OneWeek" | "OneMonth"
 	ProcessingConfiguration?:  _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
 	RetryOptions?:             _#defs."/$defs/Properties/definitions/AmazonopensearchserviceRetryOptions"
-	RoleARN!:                  strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*"
-	S3BackupMode?:             "FailedDocumentsOnly" | "AllDocuments"
-	S3Configuration!:          _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
-	TypeName?:                 strings.MaxRunes(100) & strings.MinRunes(0)
-	VpcConfiguration?:         _#defs."/$defs/Properties/definitions/VpcConfiguration"
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"arn:.*"
+	S3BackupMode?:     "FailedDocumentsOnly" | "AllDocuments"
+	S3Configuration!:  _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
+	TypeName?:         strings.MaxRunes(100) & strings.MinRunes(0)
+	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/AmazonopensearchserviceRetryOptions": close(
@@ -85,7 +91,10 @@ _#defs: "/$defs/Properties/definitions/AmazonopensearchserviceRetryOptions": clo
 
 _#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
 	Connectivity!: "PUBLIC" | "PRIVATE"
-	RoleARN!:      strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*"
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"arn:.*"
 })
 
 _#defs: "/$defs/Properties/definitions/BufferingHints": close({
@@ -212,16 +221,19 @@ _#defs: "/$defs/Properties/definitions/ElasticsearchDestinationConfiguration": c
 	CloudWatchLoggingOptions?: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOptions"
 	ClusterEndpoint?:          strings.MaxRunes(512) & strings.MinRunes(1) & =~"https:.*"
 	DocumentIdOptions?:        _#defs."/$defs/Properties/definitions/DocumentIdOptions"
-	DomainARN?:                (string | string) & strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*"
+	DomainARN?:                string & strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*"
 	IndexName!:                strings.MaxRunes(80) & strings.MinRunes(1)
 	IndexRotationPeriod?:      "NoRotation" | "OneHour" | "OneDay" | "OneWeek" | "OneMonth"
 	ProcessingConfiguration?:  _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
 	RetryOptions?:             _#defs."/$defs/Properties/definitions/ElasticsearchRetryOptions"
-	RoleARN!:                  strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*"
-	S3BackupMode?:             "FailedDocumentsOnly" | "AllDocuments"
-	S3Configuration!:          _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
-	TypeName?:                 strings.MaxRunes(100) & strings.MinRunes(0)
-	VpcConfiguration?:         _#defs."/$defs/Properties/definitions/VpcConfiguration"
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"arn:.*"
+	S3BackupMode?:     "FailedDocumentsOnly" | "AllDocuments"
+	S3Configuration!:  _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
+	TypeName?:         strings.MaxRunes(100) & strings.MinRunes(0)
+	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/ElasticsearchRetryOptions": close({DurationInSeconds?: int & <=7200 & >=0})
@@ -244,9 +256,12 @@ _#defs: "/$defs/Properties/definitions/ExtendedS3DestinationConfiguration": clos
 	FileExtension?:                     strings.MaxRunes(128) & strings.MinRunes(0) & =~"^$|\\.[0-9a-z!\\-_.*'()]+"
 	Prefix?:                            strings.MaxRunes(1024) & strings.MinRunes(0)
 	ProcessingConfiguration?:           _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
-	RoleARN!:                           strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*"
-	S3BackupConfiguration?:             _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
-	S3BackupMode?:                      "Disabled" | "Enabled"
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"arn:.*"
+	S3BackupConfiguration?: _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
+	S3BackupMode?:          "Disabled" | "Enabled"
 })
 
 _#defs: "/$defs/Properties/definitions/HiveJsonSerDe": close(
@@ -265,13 +280,16 @@ _#defs: "/$defs/Properties/definitions/HttpEndpointConfiguration": close({
 })
 
 _#defs: "/$defs/Properties/definitions/HttpEndpointDestinationConfiguration": close({
-	BufferingHints?:              _#defs."/$defs/Properties/definitions/BufferingHints"
-	CloudWatchLoggingOptions?:    _#defs."/$defs/Properties/definitions/CloudWatchLoggingOptions"
-	EndpointConfiguration!:       _#defs."/$defs/Properties/definitions/HttpEndpointConfiguration"
-	ProcessingConfiguration?:     _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
-	RequestConfiguration?:        _#defs."/$defs/Properties/definitions/HttpEndpointRequestConfiguration"
-	RetryOptions?:                _#defs."/$defs/Properties/definitions/RetryOptions"
-	RoleARN?:                     strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*"
+	BufferingHints?:           _#defs."/$defs/Properties/definitions/BufferingHints"
+	CloudWatchLoggingOptions?: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOptions"
+	EndpointConfiguration!:    _#defs."/$defs/Properties/definitions/HttpEndpointConfiguration"
+	ProcessingConfiguration?:  _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
+	RequestConfiguration?:     _#defs."/$defs/Properties/definitions/HttpEndpointRequestConfiguration"
+	RetryOptions?:             _#defs."/$defs/Properties/definitions/RetryOptions"
+	RoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"arn:.*"
 	S3BackupMode?:                "AllData" | "FailedDataOnly"
 	S3Configuration!:             _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
 	SecretsManagerConfiguration?: _#defs."/$defs/Properties/definitions/SecretsManagerConfiguration"
@@ -292,11 +310,14 @@ _#defs: "/$defs/Properties/definitions/IcebergDestinationConfiguration": close({
 	DestinationTableConfigurationList?: _#defs."/$defs/Properties/definitions/DestinationTableConfigurationList"
 	ProcessingConfiguration?:           _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
 	RetryOptions?:                      _#defs."/$defs/Properties/definitions/RetryOptions"
-	RoleARN!:                           strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*"
-	S3Configuration!:                   _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
-	SchemaEvolutionConfiguration?:      _#defs."/$defs/Properties/definitions/SchemaEvolutionConfiguration"
-	TableCreationConfiguration?:        _#defs."/$defs/Properties/definitions/TableCreationConfiguration"
-	s3BackupMode?:                      "AllData" | "FailedDataOnly"
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"arn:.*"
+	S3Configuration!:              _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
+	SchemaEvolutionConfiguration?: _#defs."/$defs/Properties/definitions/SchemaEvolutionConfiguration"
+	TableCreationConfiguration?:   _#defs."/$defs/Properties/definitions/TableCreationConfiguration"
+	s3BackupMode?:                 "AllData" | "FailedDataOnly"
 })
 
 _#defs: "/$defs/Properties/definitions/InputFormatConfiguration": close(
@@ -311,7 +332,10 @@ _#defs: "/$defs/Properties/definitions/KMSEncryptionConfig": close({
 
 _#defs: "/$defs/Properties/definitions/KinesisStreamSourceConfiguration": close({
 	KinesisStreamARN!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*"
-	RoleARN!:          strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*"
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"arn:.*"
 })
 
 _#defs: "/$defs/Properties/definitions/MSKSourceConfiguration": close({
@@ -386,17 +410,20 @@ _#defs: "/$defs/Properties/definitions/ProcessorParameter": close({
 		"NumberOfRetries" |
 		"RoleArn" |
 		"SubRecordType"
-	ParameterValue!: (string | string | string) & (strings.MaxRunes(5120) & strings.MinRunes(1))
+	ParameterValue!: string & (strings.MaxRunes(5120) & strings.MinRunes(1))
 })
 
 _#defs: "/$defs/Properties/definitions/RedshiftDestinationConfiguration": close({
-	CloudWatchLoggingOptions?:    _#defs."/$defs/Properties/definitions/CloudWatchLoggingOptions"
-	ClusterJDBCURL!:              strings.MaxRunes(512) & strings.MinRunes(1)
-	CopyCommand!:                 _#defs."/$defs/Properties/definitions/CopyCommand"
-	Password?:                    strings.MaxRunes(512) & strings.MinRunes(6)
-	ProcessingConfiguration?:     _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
-	RetryOptions?:                _#defs."/$defs/Properties/definitions/RedshiftRetryOptions"
-	RoleARN!:                     strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*"
+	CloudWatchLoggingOptions?: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOptions"
+	ClusterJDBCURL!:           strings.MaxRunes(512) & strings.MinRunes(1)
+	CopyCommand!:              _#defs."/$defs/Properties/definitions/CopyCommand"
+	Password?:                 strings.MaxRunes(512) & strings.MinRunes(6)
+	ProcessingConfiguration?:  _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
+	RetryOptions?:             _#defs."/$defs/Properties/definitions/RedshiftRetryOptions"
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"arn:.*"
 	S3BackupConfiguration?:       _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
 	S3BackupMode?:                "Disabled" | "Enabled"
 	S3Configuration!:             _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
@@ -416,23 +443,32 @@ _#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close({
 	EncryptionConfiguration?:  _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
 	ErrorOutputPrefix?:        strings.MaxRunes(1024) & strings.MinRunes(0)
 	Prefix?:                   strings.MaxRunes(1024) & strings.MinRunes(0)
-	RoleARN!:                  strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*"
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"arn:.*"
 })
 
 _#defs: "/$defs/Properties/definitions/SchemaConfiguration": close({
 	CatalogId?:    strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$"
 	DatabaseName?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$"
 	Region?:       strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$"
-	RoleARN?:      strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*"
-	TableName?:    strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$"
-	VersionId?:    strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$"
+	RoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"arn:.*"
+	TableName?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$"
+	VersionId?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$"
 })
 
 _#defs: "/$defs/Properties/definitions/SchemaEvolutionConfiguration": close({Enabled?: bool})
 
 _#defs: "/$defs/Properties/definitions/SecretsManagerConfiguration": close({
 	Enabled!: bool
-	RoleARN?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*:iam::\\d{12}:role/[a-zA-Z_0-9+=,.@\\-_/]+"
+	RoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"arn:.*:iam::\\d{12}:role/[a-zA-Z_0-9+=,.@\\-_/]+"
 	SecretARN?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"arn:.*:secretsmanager:[a-zA-Z0-9\\-]+:\\d{12}:secret:[a-zA-Z0-9\\-/_+=.@]+"
@@ -460,9 +496,12 @@ _#defs: "/$defs/Properties/definitions/SnowflakeDestinationConfiguration": close
 	PrivateKey?: strings.MaxRunes(4096) &
 	strings.MinRunes(256) &
 	=~"^(?:[A-Za-z0-9+\\/]{4})*(?:[A-Za-z0-9+\\/]{2}==|[A-Za-z0-9+\\/]{3}=)?$"
-	ProcessingConfiguration?:     _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
-	RetryOptions?:                _#defs."/$defs/Properties/definitions/SnowflakeRetryOptions"
-	RoleARN!:                     strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*"
+	ProcessingConfiguration?: _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
+	RetryOptions?:            _#defs."/$defs/Properties/definitions/SnowflakeRetryOptions"
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"arn:.*"
 	S3BackupMode?:                "FailedDataOnly" | "AllData"
 	S3Configuration!:             _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
 	Schema!:                      strings.MaxRunes(255) & strings.MinRunes(1)
@@ -517,9 +556,12 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 _#defs: "/$defs/Properties/definitions/UniqueKey": strings.MaxRunes(512) & strings.MinRunes(1) & =~"^\\S+$"
 
 _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
-	RoleARN!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*"
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"arn:.*"
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$"
 	]
 	SubnetIds!: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$"

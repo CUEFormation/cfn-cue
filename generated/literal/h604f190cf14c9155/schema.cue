@@ -33,7 +33,7 @@ import (
 	VpcId!:                        _#defs."/$defs/Properties/definitions/VpcId"
 })
 
-_#defs: "/$defs/Properties/definitions/AcmCertificateArn": string
+_#defs: "/$defs/Properties/definitions/AcmCertificateArn": =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"
 
 _#defs: "/$defs/Properties/definitions/ActiveLinksCount": int
 
@@ -46,7 +46,7 @@ _#defs: "/$defs/Properties/definitions/AutoScalingGroupNameList": list.UniqueIte
 _#defs: "/$defs/Properties/definitions/AutoScalingGroupsConfiguration": close({
 	AutoScalingGroupNameList!: _#defs."/$defs/Properties/definitions/AutoScalingGroupNameList"
 	HealthCheckConfig?:        _#defs."/$defs/Properties/definitions/HealthCheckConfig"
-	RoleArn!:                  string
+	RoleArn!:                  =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/Base64EncodedCertificateChain": strings.MaxRunes(2097152) & strings.MinRunes(1)
@@ -78,7 +78,7 @@ _#defs: "/$defs/Properties/definitions/EksEndpointsConfiguration": close({
 	ClusterName!:                =~"^[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]$"
 	EndpointsResourceName!:      =~"^[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]$"
 	EndpointsResourceNamespace!: =~"^[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]$"
-	RoleArn!:                    string
+	RoleArn!:                    =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/ExternalInboundEndpoint": _#defs."/$defs/Properties/definitions/DomainName"
@@ -126,7 +126,11 @@ _#defs: "/$defs/Properties/definitions/ResponderGatewayStatus": "PENDING_CREATIO
 
 // The ID of one or more security groups in order to create a gateway.
 _#defs: "/$defs/Properties/definitions/SecurityGroupIds": list.MinItems(1) & list.UniqueItems() & [
-	...(string | string) & strings.MaxRunes(43) & strings.MinRunes(11) & =~"^sg-[0-9a-f]{8,40}$"
+	...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	string &
+	strings.MaxRunes(43) &
+	strings.MinRunes(11) &
+	=~"^sg-[0-9a-f]{8,40}$"
 ]
 
 // The ID of one or more subnets in order to create a gateway.
@@ -162,4 +166,7 @@ _#defs: "/$defs/Properties/definitions/TrustStoreConfiguration": close(
 
 _#defs: "/$defs/Properties/definitions/UpdatedTimestamp": string
 
-_#defs: "/$defs/Properties/definitions/VpcId": strings.MaxRunes(50) & strings.MinRunes(5) & =~"^vpc-[a-f0-9]{8,17}$"
+_#defs: "/$defs/Properties/definitions/VpcId": =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+strings.MaxRunes(50) &
+strings.MinRunes(5) &
+=~"^vpc-[a-f0-9]{8,17}$"

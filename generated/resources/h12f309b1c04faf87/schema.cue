@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::VerifiedPermissions::IdentitySource Resource Type
 #Properties: close({
-	Configuration!:       _#defs."/$defs/Properties/definitions/IdentitySourceConfiguration" | fn.#ValueExpression
+	Configuration!:       _#defs."/$defs/Properties/definitions/IdentitySourceConfiguration"
 	PolicyStoreId!:       strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
 	PrincipalEntityType?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 })
@@ -32,7 +32,7 @@ _#defs: "/$defs/Properties/definitions/CognitoUserPoolConfiguration": close({
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	GroupConfiguration?: _#defs."/$defs/Properties/definitions/CognitoGroupConfiguration" | fn.#ObjectExpression
+	GroupConfiguration?: _#defs."/$defs/Properties/definitions/CognitoGroupConfiguration"
 	UserPoolArn!: strings.MaxRunes(255) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-zA-Z0-9-]+:cognito-idp:(([a-zA-Z0-9-]+:\\d{12}:userpool/[\\w-]+_[0-9a-zA-Z]+))$" |
@@ -40,13 +40,11 @@ _#defs: "/$defs/Properties/definitions/CognitoUserPoolConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdentitySourceConfiguration": matchN(1, [close({
-	CognitoUserPoolConfiguration!: _#defs."/$defs/Properties/definitions/CognitoUserPoolConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	OpenIdConnectConfiguration!: _#defs."/$defs/Properties/definitions/OpenIdConnectConfiguration" |
-		fn.#ObjectExpression
-})]) |
+_#defs: "/$defs/Properties/definitions/IdentitySourceConfiguration": matchN(1, [close(
+	{CognitoUserPoolConfiguration!: _#defs."/$defs/Properties/definitions/CognitoUserPoolConfiguration"},
+), close(
+	{OpenIdConnectConfiguration!: _#defs."/$defs/Properties/definitions/OpenIdConnectConfiguration"},
+)]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/IdentitySourceDetails": close({
@@ -55,7 +53,7 @@ _#defs: "/$defs/Properties/definitions/IdentitySourceDetails": close({
 	] |
 	fn.#ListExpression
 	DiscoveryUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" | fn.#StringExpression
-	OpenIdIssuer?: _#defs."/$defs/Properties/definitions/OpenIdIssuer" | fn.#StringExpression
+	OpenIdIssuer?: _#defs."/$defs/Properties/definitions/OpenIdIssuer"
 	UserPoolArn?: strings.MaxRunes(255) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-zA-Z0-9-]+:cognito-idp:(([a-zA-Z0-9-]+:\\d{12}:userpool/[\\w-]+_[0-9a-zA-Z]+))$" |
@@ -74,9 +72,9 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OpenIdConnectConfiguration": close({
 	EntityIdPrefix?:     strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	GroupConfiguration?: _#defs."/$defs/Properties/definitions/OpenIdConnectGroupConfiguration" | fn.#ObjectExpression
+	GroupConfiguration?: _#defs."/$defs/Properties/definitions/OpenIdConnectGroupConfiguration"
 	Issuer!:             strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" | fn.#StringExpression
-	TokenSelection!:     _#defs."/$defs/Properties/definitions/OpenIdConnectTokenSelection" | fn.#ValueExpression
+	TokenSelection!:     _#defs."/$defs/Properties/definitions/OpenIdConnectTokenSelection"
 }) |
 fn.#ObjectExpression
 
@@ -98,13 +96,11 @@ _#defs: "/$defs/Properties/definitions/OpenIdConnectIdentityTokenConfiguration":
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OpenIdConnectTokenSelection": matchN(1, [close({
-	AccessTokenOnly!: _#defs."/$defs/Properties/definitions/OpenIdConnectAccessTokenConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	IdentityTokenOnly!: _#defs."/$defs/Properties/definitions/OpenIdConnectIdentityTokenConfiguration" |
-		fn.#ObjectExpression
-})]) |
+_#defs: "/$defs/Properties/definitions/OpenIdConnectTokenSelection": matchN(1, [close(
+	{AccessTokenOnly!: _#defs."/$defs/Properties/definitions/OpenIdConnectAccessTokenConfiguration"},
+), close(
+	{IdentityTokenOnly!: _#defs."/$defs/Properties/definitions/OpenIdConnectIdentityTokenConfiguration"},
+)]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/OpenIdIssuer": "COGNITO" | fn.#StringExpression

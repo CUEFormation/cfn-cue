@@ -16,7 +16,8 @@ import (
 	strings.MinRunes(20) &
 	=~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:service/svc-[0-9a-z]{17}$"
 	AuthType?: "NONE" | "AWS_IAM"
-	CertificateArn?: strings.MaxRunes(2048) &
+	CertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	=~"^(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:certificate/[0-9a-z-]+)?$"
 	CreatedAt?:          string
 	CustomDomainName?:   strings.MaxRunes(255) & strings.MinRunes(3)

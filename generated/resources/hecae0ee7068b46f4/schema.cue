@@ -21,8 +21,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"CUSTOM_AUTH_X509" |
 		"DEFAULT" |
 		fn.#StringExpression
-	AuthorizerConfig?:          _#defs."/$defs/Properties/definitions/AuthorizerConfig" | fn.#ObjectExpression
-	ClientCertificateConfig?:   _#defs."/$defs/Properties/definitions/ClientCertificateConfig" | fn.#ObjectExpression
+	AuthorizerConfig?:          _#defs."/$defs/Properties/definitions/AuthorizerConfig"
+	ClientCertificateConfig?:   _#defs."/$defs/Properties/definitions/ClientCertificateConfig"
 	DomainConfigurationName?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w.-]+$" | fn.#StringExpression
 	DomainConfigurationStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
 	DomainName?:                strings.MaxRunes(253) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
@@ -33,11 +33,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	ServerCertificateConfig?: _#defs."/$defs/Properties/definitions/ServerCertificateConfig" | fn.#ObjectExpression
+	ServerCertificateConfig?: _#defs."/$defs/Properties/definitions/ServerCertificateConfig"
 	ServiceType?:             "DATA" | "CREDENTIAL_PROVIDER" | "JOBS" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TlsConfig?: _#defs."/$defs/Properties/definitions/TlsConfig" | fn.#ObjectExpression
+	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TlsConfig?:               _#defs."/$defs/Properties/definitions/TlsConfig"
 	ValidationCertificateArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" |
@@ -45,7 +44,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/AuthorizerConfig": close({
-	AllowAuthorizerOverride?: bool | fn.#BooleanExpression
+	AllowAuthorizerOverride?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DefaultAuthorizerName?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w=,@-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -56,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/ClientCertificateConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServerCertificateConfig": close({
-	EnableOCSPCheck?: bool | fn.#BooleanExpression
+	EnableOCSPCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	OcspAuthorizedResponderArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" |

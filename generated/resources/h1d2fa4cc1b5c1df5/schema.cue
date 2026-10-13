@@ -7,6 +7,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,86 +22,154 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
 		...
 	} | fn.#ObjectExpression
-	AdvancedSecurityOptions?: _#defs."/$defs/Properties/definitions/AdvancedSecurityOptionsInput" | fn.#ObjectExpression
-	CognitoOptions?:          _#defs."/$defs/Properties/definitions/CognitoOptions" | fn.#ObjectExpression
-	DomainEndpointOptions?:   _#defs."/$defs/Properties/definitions/DomainEndpointOptions" | fn.#ObjectExpression
-	DomainName?:              string | fn.#StringExpression
-	EBSOptions?:              _#defs."/$defs/Properties/definitions/EBSOptions" | fn.#ObjectExpression
-	ElasticsearchClusterConfig?: _#defs."/$defs/Properties/definitions/ElasticsearchClusterConfig" |
-		fn.#ObjectExpression
-	ElasticsearchVersion?:    string | fn.#StringExpression
-	EncryptionAtRestOptions?: _#defs."/$defs/Properties/definitions/EncryptionAtRestOptions" | fn.#ObjectExpression
+	AdvancedSecurityOptions?:    _#defs."/$defs/Properties/definitions/AdvancedSecurityOptionsInput"
+	CognitoOptions?:             _#defs."/$defs/Properties/definitions/CognitoOptions"
+	DomainEndpointOptions?:      _#defs."/$defs/Properties/definitions/DomainEndpointOptions"
+	DomainName?:                 string | fn.#StringExpression
+	EBSOptions?:                 _#defs."/$defs/Properties/definitions/EBSOptions"
+	ElasticsearchClusterConfig?: _#defs."/$defs/Properties/definitions/ElasticsearchClusterConfig"
+	ElasticsearchVersion?:       string | fn.#StringExpression
+	EncryptionAtRestOptions?:    _#defs."/$defs/Properties/definitions/EncryptionAtRestOptions"
 	LogPublishingOptions?: {
-		{[=~"[a-zA-Z0-9]+"]: _#defs."/$defs/Properties/definitions/LogPublishingOption" | fn.#ObjectExpression}
+		{[=~"[a-zA-Z0-9]+"]: _#defs."/$defs/Properties/definitions/LogPublishingOption"}
 		...
 	} | fn.#ObjectExpression
-	NodeToNodeEncryptionOptions?: _#defs."/$defs/Properties/definitions/NodeToNodeEncryptionOptions" |
-		fn.#ObjectExpression
-	SnapshotOptions?: _#defs."/$defs/Properties/definitions/SnapshotOptions" | fn.#ObjectExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	VPCOptions?:      _#defs."/$defs/Properties/definitions/VPCOptions" | fn.#ObjectExpression
+	NodeToNodeEncryptionOptions?: _#defs."/$defs/Properties/definitions/NodeToNodeEncryptionOptions"
+	SnapshotOptions?:             _#defs."/$defs/Properties/definitions/SnapshotOptions"
+	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VPCOptions?:                  _#defs."/$defs/Properties/definitions/VPCOptions"
 })
 
 _#defs: "/$defs/Properties/definitions/AdvancedSecurityOptionsInput": close({
-	AnonymousAuthEnabled?:        bool | fn.#BooleanExpression
-	Enabled?:                     bool | fn.#BooleanExpression
-	InternalUserDatabaseEnabled?: bool | fn.#BooleanExpression
-	MasterUserOptions?:           _#defs."/$defs/Properties/definitions/MasterUserOptions" | fn.#ObjectExpression
+	AnonymousAuthEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Enabled?:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InternalUserDatabaseEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MasterUserOptions?:           _#defs."/$defs/Properties/definitions/MasterUserOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CognitoOptions": close({
-	Enabled?:        bool | fn.#BooleanExpression
+	Enabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IdentityPoolId?: string | fn.#StringExpression
-	RoleArn?:        string | fn.#StringExpression
-	UserPoolId?:     string | fn.#StringExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	UserPoolId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ColdStorageOptions": close({Enabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/ColdStorageOptions": close(
+	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DomainEndpointOptions": close({
 	CustomEndpoint?:               string | fn.#StringExpression
 	CustomEndpointCertificateArn?: string | fn.#StringExpression
-	CustomEndpointEnabled?:        bool | fn.#BooleanExpression
-	EnforceHTTPS?:                 bool | fn.#BooleanExpression
+	CustomEndpointEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnforceHTTPS?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TLSSecurityPolicy?:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EBSOptions": close({
-	EBSEnabled?: bool | fn.#BooleanExpression
-	Iops?:       int | fn.#NumberExpression
-	VolumeSize?: int | fn.#NumberExpression
+	EBSEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Iops?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VolumeSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	VolumeType?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ElasticsearchClusterConfig": close({
-	ColdStorageOptions?:     _#defs."/$defs/Properties/definitions/ColdStorageOptions" | fn.#ObjectExpression
-	DedicatedMasterCount?:   int | fn.#NumberExpression
-	DedicatedMasterEnabled?: bool | fn.#BooleanExpression
+	ColdStorageOptions?: _#defs."/$defs/Properties/definitions/ColdStorageOptions"
+	DedicatedMasterCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DedicatedMasterEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DedicatedMasterType?:    string | fn.#StringExpression
-	InstanceCount?:          int | fn.#NumberExpression
-	InstanceType?:           string | fn.#StringExpression
-	WarmCount?:              int | fn.#NumberExpression
-	WarmEnabled?:            bool | fn.#BooleanExpression
-	WarmType?:               string | fn.#StringExpression
-	ZoneAwarenessConfig?:    _#defs."/$defs/Properties/definitions/ZoneAwarenessConfig" | fn.#ObjectExpression
-	ZoneAwarenessEnabled?:   bool | fn.#BooleanExpression
+	InstanceCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	InstanceType?: string | fn.#StringExpression
+	WarmCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	WarmEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	WarmType?:             string | fn.#StringExpression
+	ZoneAwarenessConfig?:  _#defs."/$defs/Properties/definitions/ZoneAwarenessConfig"
+	ZoneAwarenessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionAtRestOptions": close({
-	Enabled?:  bool | fn.#BooleanExpression
-	KmsKeyId?: string | string | string | fn.#StringExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LogPublishingOption": close({
 	CloudWatchLogsLogGroupArn?: string | fn.#StringExpression
-	Enabled?:                   bool | fn.#BooleanExpression
+	Enabled?:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -108,12 +180,27 @@ _#defs: "/$defs/Properties/definitions/MasterUserOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeToNodeEncryptionOptions": close({Enabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/NodeToNodeEncryptionOptions": close(
+	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnapshotOptions": close(
-	{AutomatedSnapshotStartHour?: int | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/SnapshotOptions": close({
+	AutomatedSnapshotStartHour?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
@@ -123,12 +210,31 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VPCOptions": close({
-	SecurityGroupIds?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SubnetIds?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds?: list.UniqueItems() & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	SubnetIds?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ZoneAwarenessConfig": close({AvailabilityZoneCount?: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/ZoneAwarenessConfig": close({
+	AvailabilityZoneCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Elasticsearch::Domain"

@@ -23,9 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // points](https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html).
 // This operation requires permissions for the ``elasticfilesystem:CreateAccessPoint`` action.
 #Properties: close({
-	AccessPointTags?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AccessPointTag" | fn.#ObjectExpression
-	] |
+	AccessPointTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AccessPointTag"] |
 		fn.#ListExpression
 	ClientToken?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 	FileSystemId!: strings.MaxRunes(128) &

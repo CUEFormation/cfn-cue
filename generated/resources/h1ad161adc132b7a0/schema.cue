@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -27,20 +31,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 	S3TablesDestinationConfiguration?: _#defs."/$defs/Properties/definitions/S3TablesDestinationConfiguration" |
 		fn.#ObjectExpression
-	ServiceExecutionRoleARN!: strings.MaxRunes(512) &
+	ServiceExecutionRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[-a-z0-9]*:iam::\\d{12}:role/[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
 	StreamConfigurationList!: list.MaxItems(10000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/StreamConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StreamConfiguration"
 	] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CloudWatchLogsConfiguration": close({
-	Enabled!:       bool | fn.#BooleanExpression
+	Enabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LogGroupName?:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
 	LogStreamName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]+$" | fn.#StringExpression
 }) |
@@ -73,9 +77,7 @@ _#defs: "/$defs/Properties/definitions/PartitionField": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PartitionSpec": close({
-	PartitionFields!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/PartitionField" | fn.#ObjectExpression
-	] |
+	PartitionFields!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/PartitionField"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -90,7 +92,20 @@ _#defs: "/$defs/Properties/definitions/RecordConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close({
-	DataFreshnessInSeconds?: int | fn.#NumberExpression
+	DataFreshnessInSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	DeadLetterQueueS3Configuration?: _#defs."/$defs/Properties/definitions/DeadLetterQueueS3Configuration" |
 		fn.#ObjectExpression
 	StorageConfiguration!: _#defs."/$defs/Properties/definitions/S3StorageConfiguration" | fn.#ObjectExpression
@@ -121,11 +136,24 @@ _#defs: "/$defs/Properties/definitions/S3TableConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3TablesDestinationConfiguration": close({
-	DataFreshnessInSeconds?: int | fn.#NumberExpression
+	DataFreshnessInSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	DeadLetterQueueS3Configuration!: _#defs."/$defs/Properties/definitions/DeadLetterQueueS3Configuration" |
 		fn.#ObjectExpression
 	S3TablesConfigurationList!: list.MaxItems(10000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/S3TableConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/S3TableConfiguration"
 	] |
 		fn.#ListExpression
 }) |

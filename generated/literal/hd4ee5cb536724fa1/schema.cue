@@ -10,7 +10,7 @@ package schema
 	ExternalSecretRotationMetadata?: [..._#defs."/$defs/Properties/definitions/ExternalSecretRotationMetadataItem"]
 
 	// The ARN of the IAM role that is used by Secrets Manager to rotate a managed external secret.
-	ExternalSecretRotationRoleArn?: string
+	ExternalSecretRotationRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Creates a new Lambda rotation function based on one of the Secrets Manager
 	// rotation function templates. To use a rotation function that already exists,
@@ -54,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/HostedRotationLambda": close({
 	// aws/secretsmanager. If aws/secretsmanager doesn't yet exist, then Secrets
 	// Manager creates it for you automatically the first time it encrypts the
 	// secret value.
-	KmsKeyArn?: string
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 
 	// The ARN of the secret that contains superuser credentials, if you use the
 	// alternating users rotation strategy. CloudFormation grants the execution

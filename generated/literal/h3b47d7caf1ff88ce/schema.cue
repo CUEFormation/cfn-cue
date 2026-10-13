@@ -17,7 +17,7 @@ package schema
 	Id?: string
 
 	// The IAM role your nodes will use.
-	InstanceRoleArn?: =~"^arn:.+:iam:.+:role/.+$"
+	InstanceRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:.+:iam:.+:role/.+$"
 
 	// The user-specified name of the Cluster to be created.
 	Name?:            string

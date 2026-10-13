@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Lightsail::Domain
 #Properties: close({
 	DomainEntries?: list.UniqueItems() & [...close({
-		IsAlias?: bool | fn.#BooleanExpression
+		IsAlias?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Name!:    string | fn.#StringExpression
 		Target!:  string | fn.#StringExpression
 		Type!:    "A" | "AAAA" | "CNAME" | "MX" | "NS" | "SOA" | "SRV" | "TXT" | fn.#StringExpression
@@ -22,13 +22,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression] |
 	fn.#ListExpression
 	DomainName!: string | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DomainEntry": close({
 	Id?:      string | fn.#StringExpression
-	IsAlias?: bool | fn.#BooleanExpression
+	IsAlias?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!:    string | fn.#StringExpression
 	Target!:  string | fn.#StringExpression
 	Type!:    "A" | "AAAA" | "CNAME" | "MX" | "NS" | "SOA" | "SRV" | "TXT" | fn.#StringExpression

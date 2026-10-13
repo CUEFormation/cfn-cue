@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	FlowDefinition!: fn.#Value
 	Name!:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Permissions?:    [..._#defs."/$defs/Properties/definitions/Permission" | fn.#ObjectExpression] | fn.#ListExpression
+	Permissions?:    [..._#defs."/$defs/Properties/definitions/Permission"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/FlowPublishState": "PUBLISHED" |

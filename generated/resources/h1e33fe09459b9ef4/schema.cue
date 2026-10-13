@@ -10,11 +10,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::PinpointEmail::Identity
 #Properties: close({
-	DkimSigningEnabled?:        bool | fn.#BooleanExpression
-	FeedbackForwardingEnabled?: bool | fn.#BooleanExpression
-	MailFromAttributes?:        _#defs."/$defs/Properties/definitions/MailFromAttributes" | fn.#ObjectExpression
+	DkimSigningEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	FeedbackForwardingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MailFromAttributes?:        _#defs."/$defs/Properties/definitions/MailFromAttributes"
 	Name!:                      string | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                      [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/MailFromAttributes": close({

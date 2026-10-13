@@ -20,13 +20,13 @@ import "strings"
 	=~"^([a-z,A-Z,0-9,. _\\-:/()#,@[\\]+=&;\\{\\}!$*])*$"
 
 	// The group ID of the specified security group.
-	GroupId?: string
+	GroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 
 	// The name of the security group.
 	GroupName?: string
 
 	// The group name or group ID depending on whether the SG is created in default or specific VPC
-	Id?: string | string
+	Id?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" | string
 
 	// [VPC only] The outbound rules associated with the security group. There is a
 	// short interruption during which you cannot connect to the security group.
@@ -40,7 +40,7 @@ import "strings"
 	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
 
 	// The ID of the VPC for the security group.
-	VpcId?: string
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/Egress": matchN(1, [{
@@ -60,7 +60,7 @@ _#defs: "/$defs/Properties/definitions/Egress": matchN(1, [{
 	CidrIpv6?:                   string
 	Description?:                string
 	DestinationPrefixListId?:    string
-	DestinationSecurityGroupId?: string
+	DestinationSecurityGroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 	FromPort?:                   int & >=-1
 	IpProtocol!:                 string
 	ToPort?:                     int & >=-1
@@ -88,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/Ingress": matchN(1, [{
 	FromPort?:                   int & >=-1
 	IpProtocol!:                 string
 	SourcePrefixListId?:         string
-	SourceSecurityGroupId?:      string
+	SourceSecurityGroupId?:      =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 	SourceSecurityGroupName?:    string
 	SourceSecurityGroupOwnerId?: string
 	ToPort?:                     int & >=-1

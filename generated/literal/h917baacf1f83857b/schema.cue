@@ -32,7 +32,7 @@ import (
 	// The cluster security group that was created by Amazon EKS for the cluster.
 	// Managed node groups use this security group for control plane to data plane
 	// communication.
-	ClusterSecurityGroupId?:    string
+	ClusterSecurityGroupId?:    =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 	ComputeConfig?:             _#defs."/$defs/Properties/definitions/ComputeConfig"
 	ControlPlaneScalingConfig?: _#defs."/$defs/Properties/definitions/ControlPlaneScalingConfig"
 
@@ -73,7 +73,7 @@ import (
 	// The Amazon Resource Name (ARN) of the IAM role that provides permissions for
 	// the Kubernetes control plane to make calls to AWS API operations on your
 	// behalf.
-	RoleArn!:        string
+	RoleArn!:        =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	RollbackConfig?: _#defs."/$defs/Properties/definitions/RollbackConfig"
 	StorageConfig?:  _#defs."/$defs/Properties/definitions/StorageConfig"
 
@@ -135,7 +135,7 @@ _#defs: "/$defs/Properties/definitions/ComputeConfig": close({
 	NodePools?: [...string]
 
 	// Todo: add description
-	NodeRoleArn?: string
+	NodeRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 // The placement configuration for all the control plane instances of your local
@@ -365,7 +365,7 @@ _#defs: "/$defs/Properties/definitions/ResourcesVpcConfig": close({
 	// interfaces that Amazon EKS creates to use to allow communication between
 	// your worker nodes and the Kubernetes control plane. If you don't specify a
 	// security group, the default security group for your VPC is used.
-	SecurityGroupIds?: [...string]
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// Specify subnets for your Amazon EKS nodes. Amazon EKS creates cross-account
 	// elastic network interfaces in these subnets to allow communication between

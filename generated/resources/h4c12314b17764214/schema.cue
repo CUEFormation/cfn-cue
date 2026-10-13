@@ -12,7 +12,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApplicationId!:        string | fn.#StringExpression
 	DestinationStreamArn!: string | fn.#StringExpression
-	RoleArn!:              string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Pinpoint::EventStream"

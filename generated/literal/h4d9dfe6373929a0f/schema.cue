@@ -49,7 +49,10 @@ import (
 
 	// SageMaker uses AWS KMS to encrypt the EFS volume attached to the domain with
 	// an AWS managed customer master key (CMK) by default.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~".*"
 
 	// The ID of the security group that authorizes traffic between the
 	// RSessionGateway apps and the RStudioServerPro app.
@@ -79,7 +82,10 @@ import (
 	Url?: strings.MaxRunes(1024)
 
 	// The ID of the Amazon Virtual Private Cloud (VPC) that Studio uses for communication.
-	VpcId?: strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+"
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"[-0-9a-zA-Z]+"
 })
 
 // The instance type that the image version runs on.
@@ -355,7 +361,12 @@ _#defs: "/$defs/Properties/definitions/DefaultSpaceSettings": close({
 
 	// The security groups for the Amazon Virtual Private Cloud (VPC) that Studio
 	// uses for communication.
-	SecurityGroups?: list.MaxItems(5) & [...] & [...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+"]
+	SecurityGroups?: list.MaxItems(5) & [...] & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+"
+	]
 
 	// The Jupyter lab's space storage settings.
 	SpaceStorageSettings?: _#defs."/$defs/Properties/definitions/DefaultSpaceStorageSettings"
@@ -387,7 +398,12 @@ _#defs: "/$defs/Properties/definitions/DomainSettings": close({
 
 	// The security groups for the Amazon Virtual Private Cloud that the Domain uses
 	// for communication between Domain-level apps and user apps.
-	SecurityGroupIds?: list.MaxItems(3) & [...] & [...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+"]
+	SecurityGroupIds?: list.MaxItems(3) & [...] & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+"
+	]
 	UnifiedStudioSettings?: _#defs."/$defs/Properties/definitions/UnifiedStudioSettings"
 })
 
@@ -526,7 +542,8 @@ _#defs: "/$defs/Properties/definitions/RStudioServerProDomainSettings": close({
 	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"
 
 	// The ARN of the execution role for the RStudioServerPro Domain-level app.
-	DomainExecutionRoleArn!: strings.MaxRunes(2048) &
+	DomainExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
@@ -684,7 +701,12 @@ _#defs: "/$defs/Properties/definitions/UserSettings": close({
 
 	// The security groups for the Amazon Virtual Private Cloud (VPC) that Studio
 	// uses for communication.
-	SecurityGroups?: list.MaxItems(5) & [...] & [...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+"]
+	SecurityGroups?: list.MaxItems(5) & [...] & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+"
+	]
 
 	// The sharing settings.
 	SharingSettings?:      _#defs."/$defs/Properties/definitions/SharingSettings"

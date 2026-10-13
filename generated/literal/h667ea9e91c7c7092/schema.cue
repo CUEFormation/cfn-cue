@@ -12,7 +12,8 @@ import (
 // Resource Type definition for AWS::AppSync::DomainName
 #Properties: close({
 	AppSyncDomainName?: string
-	CertificateArn!: strings.MaxRunes(2048) &
+	CertificateArn!: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(3) &
 	=~"^arn:[a-z-]*:acm:[a-z0-9-]*:\\d{12}:certificate/[0-9A-Za-z_/-]*$"
 	Description?: strings.MaxRunes(255) & strings.MinRunes(0)

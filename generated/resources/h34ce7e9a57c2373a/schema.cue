@@ -13,23 +13,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::Amplify::Branch resource creates a new branch within an app.
 #Properties: close({
-	AppId!:                    strings.MaxRunes(20) & strings.MinRunes(1) & =~"d[a-z0-9]+" | fn.#StringExpression
-	Backend?:                  _#defs."/$defs/Properties/definitions/Backend" | fn.#ObjectExpression
-	BasicAuthConfig?:          _#defs."/$defs/Properties/definitions/BasicAuthConfig" | fn.#ObjectExpression
-	BranchName!:               strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
-	BuildSpec?:                strings.MaxRunes(25000) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
-	ComputeRoleArn?:           strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
-	Description?:              strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
-	EnableAutoBuild?:          bool | fn.#BooleanExpression
-	EnablePerformanceMode?:    bool | fn.#BooleanExpression
-	EnablePullRequestPreview?: bool | fn.#BooleanExpression
-	EnableSkewProtection?:     bool | fn.#BooleanExpression
-	EnvironmentVariables?: [..._#defs."/$defs/Properties/definitions/EnvironmentVariable" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	AppId!:           strings.MaxRunes(20) & strings.MinRunes(1) & =~"d[a-z0-9]+" | fn.#StringExpression
+	Backend?:         _#defs."/$defs/Properties/definitions/Backend"
+	BasicAuthConfig?: _#defs."/$defs/Properties/definitions/BasicAuthConfig"
+	BranchName!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
+	BuildSpec?:       strings.MaxRunes(25000) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
+	ComputeRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(1000) &
+	strings.MinRunes(0) &
+	=~"(?s).*" |
+	fn.#StringExpression
+	Description?:                strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
+	EnableAutoBuild?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnablePerformanceMode?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnablePullRequestPreview?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableSkewProtection?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnvironmentVariables?:       [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"] | fn.#ListExpression
 	Framework?:                  strings.MaxRunes(255) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
 	PullRequestEnvironmentName?: strings.MaxRunes(20) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
 	Stage?: "EXPERIMENTAL" | "BETA" | "PULL_REQUEST" | "PRODUCTION" | "DEVELOPMENT" | fn.#StringExpression
-	Tags?:  [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Backend": close({
@@ -41,7 +44,7 @@ _#defs: "/$defs/Properties/definitions/Backend": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BasicAuthConfig": close({
-	EnableBasicAuth?: bool | fn.#BooleanExpression
+	EnableBasicAuth?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Password!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Username!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |

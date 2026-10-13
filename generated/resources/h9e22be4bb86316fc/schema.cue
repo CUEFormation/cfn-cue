@@ -4,25 +4,28 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AutoScalingPlans::ScalingPlan
 #Properties: close({
-	ApplicationSource!: _#defs."/$defs/Properties/definitions/ApplicationSource" | fn.#ObjectExpression
-	ScalingInstructions!: [..._#defs."/$defs/Properties/definitions/ScalingInstruction" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ApplicationSource!:   _#defs."/$defs/Properties/definitions/ApplicationSource"
+	ScalingInstructions!: [..._#defs."/$defs/Properties/definitions/ScalingInstruction"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ApplicationSource": close({
 	CloudFormationStackARN?: string | fn.#StringExpression
-	TagFilters?: [..._#defs."/$defs/Properties/definitions/TagFilter" | fn.#ObjectExpression] | fn.#ListExpression
+	TagFilters?:             [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomizedLoadMetricSpecification": close({
-	Dimensions?: [..._#defs."/$defs/Properties/definitions/MetricDimension" | fn.#ObjectExpression] | fn.#ListExpression
+	Dimensions?: [..._#defs."/$defs/Properties/definitions/MetricDimension"] | fn.#ListExpression
 	MetricName!: string | fn.#StringExpression
 	Namespace!:  string | fn.#StringExpression
 	Statistic!:  string | fn.#StringExpression
@@ -31,7 +34,7 @@ _#defs: "/$defs/Properties/definitions/CustomizedLoadMetricSpecification": close
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomizedScalingMetricSpecification": close({
-	Dimensions?: [..._#defs."/$defs/Properties/definitions/MetricDimension" | fn.#ObjectExpression] | fn.#ListExpression
+	Dimensions?: [..._#defs."/$defs/Properties/definitions/MetricDimension"] | fn.#ListExpression
 	MetricName!: string | fn.#StringExpression
 	Namespace!:  string | fn.#StringExpression
 	Statistic!:  string | fn.#StringExpression
@@ -58,24 +61,72 @@ _#defs: "/$defs/Properties/definitions/PredefinedScalingMetricSpecification": cl
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScalingInstruction": close({
-	CustomizedLoadMetricSpecification?: _#defs."/$defs/Properties/definitions/CustomizedLoadMetricSpecification" |
-		fn.#ObjectExpression
-	DisableDynamicScaling?: bool | fn.#BooleanExpression
-	MaxCapacity!:           int | fn.#NumberExpression
-	MinCapacity!:           int | fn.#NumberExpression
-	PredefinedLoadMetricSpecification?: _#defs."/$defs/Properties/definitions/PredefinedLoadMetricSpecification" |
-		fn.#ObjectExpression
+	CustomizedLoadMetricSpecification?: _#defs."/$defs/Properties/definitions/CustomizedLoadMetricSpecification"
+	DisableDynamicScaling?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MaxCapacity!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinCapacity!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PredefinedLoadMetricSpecification?:    _#defs."/$defs/Properties/definitions/PredefinedLoadMetricSpecification"
 	PredictiveScalingMaxCapacityBehavior?: string | fn.#StringExpression
-	PredictiveScalingMaxCapacityBuffer?:   int | fn.#NumberExpression
-	PredictiveScalingMode?:                string | fn.#StringExpression
-	ResourceId!:                           string | fn.#StringExpression
-	ScalableDimension!:                    string | fn.#StringExpression
-	ScalingPolicyUpdateBehavior?:          string | fn.#StringExpression
-	ScheduledActionBufferTime?:            int | fn.#NumberExpression
-	ServiceNamespace!:                     string | fn.#StringExpression
-	TargetTrackingConfigurations!: [
-		..._#defs."/$defs/Properties/definitions/TargetTrackingConfiguration" | fn.#ObjectExpression
-	] |
+	PredictiveScalingMaxCapacityBuffer?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PredictiveScalingMode?:       string | fn.#StringExpression
+	ResourceId!:                  string | fn.#StringExpression
+	ScalableDimension!:           string | fn.#StringExpression
+	ScalingPolicyUpdateBehavior?: string | fn.#StringExpression
+	ScheduledActionBufferTime?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ServiceNamespace!: string | fn.#StringExpression
+	TargetTrackingConfigurations!: [..._#defs."/$defs/Properties/definitions/TargetTrackingConfiguration"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -87,15 +138,70 @@ _#defs: "/$defs/Properties/definitions/TagFilter": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TargetTrackingConfiguration": close({
-	CustomizedScalingMetricSpecification?: _#defs."/$defs/Properties/definitions/CustomizedScalingMetricSpecification" |
-		fn.#ObjectExpression
-	DisableScaleIn?:          bool | fn.#BooleanExpression
-	EstimatedInstanceWarmup?: int | fn.#NumberExpression
-	PredefinedScalingMetricSpecification?: _#defs."/$defs/Properties/definitions/PredefinedScalingMetricSpecification" |
-		fn.#ObjectExpression
-	ScaleInCooldown?:  int | fn.#NumberExpression
-	ScaleOutCooldown?: int | fn.#NumberExpression
-	TargetValue!:      number | fn.#NumberExpression
+	CustomizedScalingMetricSpecification?: _#defs."/$defs/Properties/definitions/CustomizedScalingMetricSpecification"
+	DisableScaleIn?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EstimatedInstanceWarmup?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PredefinedScalingMetricSpecification?: _#defs."/$defs/Properties/definitions/PredefinedScalingMetricSpecification"
+	ScaleInCooldown?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ScaleOutCooldown?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TargetValue!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

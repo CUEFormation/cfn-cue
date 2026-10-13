@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,12 +14,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Represents a policy store that you can place schema, policies, and policy
 // templates in to validate authorization requests
 #Properties: close({
-	DeletionProtection?: _#defs."/$defs/Properties/definitions/DeletionProtection" | fn.#ObjectExpression
+	DeletionProtection?: _#defs."/$defs/Properties/definitions/DeletionProtection"
 	Description?:        strings.MaxRunes(150) & strings.MinRunes(0) | fn.#StringExpression
-	EncryptionSettings?: _#defs."/$defs/Properties/definitions/EncryptionSettings" | fn.#ObjectExpression
-	Schema?:             _#defs."/$defs/Properties/definitions/SchemaDefinition" | fn.#ObjectExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	ValidationSettings!: _#defs."/$defs/Properties/definitions/ValidationSettings" | fn.#ObjectExpression
+	EncryptionSettings?: _#defs."/$defs/Properties/definitions/EncryptionSettings"
+	Schema?:             _#defs."/$defs/Properties/definitions/SchemaDefinition"
+	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	ValidationSettings!: _#defs."/$defs/Properties/definitions/ValidationSettings"
 })
 
 _#defs: "/$defs/Properties/definitions/Default": close({}) | fn.#ObjectExpression
@@ -27,7 +27,7 @@ _#defs: "/$defs/Properties/definitions/Default": close({}) | fn.#ObjectExpressio
 _#defs: "/$defs/Properties/definitions/DeletionMode": "ENABLED" | "DISABLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DeletionProtection": close(
-	{Mode!: _#defs."/$defs/Properties/definitions/DeletionMode" | fn.#StringExpression},
+	{Mode!: _#defs."/$defs/Properties/definitions/DeletionMode"},
 ) |
 	fn.#ObjectExpression
 
@@ -37,28 +37,28 @@ _#defs: "/$defs/Properties/definitions/EncryptionContext": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionSettings": matchN(1, [close(
-	{KmsEncryptionSettings!: _#defs."/$defs/Properties/definitions/KmsEncryptionSettings" | fn.#ObjectExpression},
+	{KmsEncryptionSettings!: _#defs."/$defs/Properties/definitions/KmsEncryptionSettings"},
 ), close(
-	{Default!: _#defs."/$defs/Properties/definitions/Default" | fn.#ObjectExpression},
+	{Default!: _#defs."/$defs/Properties/definitions/Default"},
 )]) & {[string]: fn.#Value} |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KmsEncryptionSettings": close({
-	EncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContext" | fn.#ObjectExpression
-	Key!:               _#defs."/$defs/Properties/definitions/KmsKey" | fn.#StringExpression
+	EncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContext"
+	Key!:               _#defs."/$defs/Properties/definitions/KmsKey"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KmsEncryptionState": close({
-	EncryptionContext!: _#defs."/$defs/Properties/definitions/EncryptionContext" | fn.#ObjectExpression
-	Key!:               _#defs."/$defs/Properties/definitions/KmsKey" | fn.#StringExpression
+	EncryptionContext!: _#defs."/$defs/Properties/definitions/EncryptionContext"
+	Key!:               _#defs."/$defs/Properties/definitions/KmsKey"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KmsKey": =~"^[a-zA-Z0-9:/_-]+$" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SchemaDefinition": close(
-	{CedarJson?: _#defs."/$defs/Properties/definitions/SchemaJson" | fn.#StringExpression},
+	{CedarJson?: _#defs."/$defs/Properties/definitions/SchemaJson"},
 ) |
 	fn.#ObjectExpression
 
@@ -73,7 +73,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ValidationMode": "OFF" | "STRICT" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ValidationSettings": close(
-	{Mode!: _#defs."/$defs/Properties/definitions/ValidationMode" | fn.#StringExpression},
+	{Mode!: _#defs."/$defs/Properties/definitions/ValidationMode"},
 ) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -18,11 +18,12 @@ import (
 	EncryptionKeyArn?: _#defs."/$defs/Properties/definitions/Arn"
 
 	// Duration in days until memory events expire
-	EventExpiryDuration!:     int & <=365 & >=3
-	FailureReason?:           string
-	IndexedKeys?:             _#defs."/$defs/Properties/definitions/IndexedKeysList"
-	MemoryArn?:               _#defs."/$defs/Properties/definitions/MemoryArn"
-	MemoryExecutionRoleArn?:  _#defs."/$defs/Properties/definitions/Arn"
+	EventExpiryDuration!: int & <=365 & >=3
+	FailureReason?:       string
+	IndexedKeys?:         _#defs."/$defs/Properties/definitions/IndexedKeysList"
+	MemoryArn?:           _#defs."/$defs/Properties/definitions/MemoryArn"
+	MemoryExecutionRoleArn?: _#defs."/$defs/Properties/definitions/Arn" &
+		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	MemoryId?:                _#defs."/$defs/Properties/definitions/MemoryId"
 	MemoryStrategies?:        _#defs."/$defs/Properties/definitions/MemoryStrategies"
 	Name!:                    _#defs."/$defs/Properties/definitions/Name"
@@ -170,7 +171,7 @@ _#defs: "/$defs/Properties/definitions/IndexedKeysList": list.MaxItems(10) & lis
 
 _#defs: "/$defs/Properties/definitions/InvocationConfigurationInput": close({
 	PayloadDeliveryBucketName?: =~"^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$"
-	TopicArn?:                  _#defs."/$defs/Properties/definitions/Arn"
+	TopicArn?: _#defs."/$defs/Properties/definitions/Arn" & =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/KinesisResource": close({

@@ -31,7 +31,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
 		fn.#StringExpression
-		Primary?: bool | fn.#BooleanExpression
+		Primary?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Region?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
@@ -56,7 +56,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
 	fn.#StringExpression
 	Emails?: list.MaxItems(1) & list.MinItems(1) & [...close({
-		Primary?: bool | fn.#BooleanExpression
+		Primary?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Type?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
@@ -108,7 +108,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
 	fn.#StringExpression
 	PhoneNumbers?: list.MaxItems(1) & list.MinItems(1) & [...close({
-		Primary?: bool | fn.#BooleanExpression
+		Primary?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Type?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
@@ -125,7 +125,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
 		fn.#StringExpression
-		Primary?: bool | fn.#BooleanExpression
+		Primary?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Type?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
@@ -146,7 +146,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
 	fn.#StringExpression
 	Roles?: list.MaxItems(1) & list.MinItems(1) & [...close({
-		Primary?: bool | fn.#BooleanExpression
+		Primary?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Type?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |

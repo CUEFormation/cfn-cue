@@ -11,15 +11,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // AWS::PCS::Queue resource creates an AWS PCS queue.
 #Properties: close({
 	ClusterId!: string | fn.#StringExpression
-	ComputeNodeGroupConfigurations?: [
-		..._#defs."/$defs/Properties/definitions/ComputeNodeGroupConfiguration" | fn.#ObjectExpression
-	] |
+	ComputeNodeGroupConfigurations?: [..._#defs."/$defs/Properties/definitions/ComputeNodeGroupConfiguration"] |
 		fn.#ListExpression
 	Name?: string | fn.#StringExpression
-	SlurmConfiguration?: close({
-		SlurmCustomSettings?: [..._#defs."/$defs/Properties/definitions/SlurmCustomSetting" | fn.#ObjectExpression] |
-			fn.#ListExpression
-	}) |
+	SlurmConfiguration?: close(
+		{SlurmCustomSettings?: [..._#defs."/$defs/Properties/definitions/SlurmCustomSetting"] | fn.#ListExpression},
+	) |
 		fn.#ObjectExpression
 	Tags?: close({
 

@@ -19,9 +19,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DeviceArn!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	SpendingLimit!: strings.MinRunes(1) & =~"^\\d+(\\.\\d{1,2})?$" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TimePeriod?: _#defs."/$defs/Properties/definitions/TimePeriod" | fn.#ObjectExpression
+	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TimePeriod?:    _#defs."/$defs/Properties/definitions/TimePeriod"
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

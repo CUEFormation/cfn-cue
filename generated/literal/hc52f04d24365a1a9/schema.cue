@@ -34,7 +34,7 @@ import (
 	PersonalizationConfiguration?: _#defs."/$defs/Properties/definitions/PersonalizationConfiguration"
 	QAppsConfiguration?:           _#defs."/$defs/Properties/definitions/QAppsConfiguration"
 	QuickSightConfiguration?:      _#defs."/$defs/Properties/definitions/QuickSightConfiguration"
-	RoleArn?:                      strings.MaxRunes(1284) & strings.MinRunes(0)
+	RoleArn?:                      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
 	Status?:                       _#defs."/$defs/Properties/definitions/ApplicationStatus"
 	Tags?:                         list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
 	UpdatedAt?:                    time.Time
@@ -55,9 +55,9 @@ _#defs: "/$defs/Properties/definitions/AutoSubscriptionConfiguration": close({
 
 _#defs: "/$defs/Properties/definitions/AutoSubscriptionStatus": "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close(
-	{KmsKeyId?: (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))},
-)
+_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
+})
 
 _#defs: "/$defs/Properties/definitions/IdentityType": "AWS_IAM_IDP_SAML" |
 	"AWS_IAM_IDP_OIDC" |

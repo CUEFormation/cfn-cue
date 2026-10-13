@@ -261,8 +261,13 @@ _#defs: "/$defs/Properties/definitions/DataSourceToIndexFieldMappingList": list.
 ]
 
 _#defs: "/$defs/Properties/definitions/DataSourceVpcConfiguration": close({
-	SecurityGroupIds!: list.MaxItems(10) & [...strings.MaxRunes(200) & strings.MinRunes(1) & =~"[\\-0-9a-zA-Z]+"]
-	SubnetIds!:        list.MaxItems(6) & [...strings.MaxRunes(200) & strings.MinRunes(1) & =~"[\\-0-9a-zA-Z]+"]
+	SecurityGroupIds!: list.MaxItems(10) & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(200) &
+		strings.MinRunes(1) &
+		=~"[\\-0-9a-zA-Z]+"
+	]
+	SubnetIds!: list.MaxItems(6) & [...strings.MaxRunes(200) & strings.MinRunes(1) & =~"[\\-0-9a-zA-Z]+"]
 })
 
 _#defs: "/$defs/Properties/definitions/DatabaseConfiguration": close({
@@ -368,7 +373,8 @@ _#defs: "/$defs/Properties/definitions/InlineCustomDocumentEnrichmentConfigurati
 	Target?:                  _#defs."/$defs/Properties/definitions/DocumentAttributeTarget"
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaArn": strings.MaxRunes(2048) &
+_#defs: "/$defs/Properties/definitions/LambdaArn": =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^/arn:aws[a-zA-Z-]*:lambda:[a-z]+-[a-z]+-[0-9]:[0-9]{12}:function:[a-zA-Z0-9-_]+(\\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})?(:[a-zA-Z0-9-_]+)?/$"
 
@@ -420,7 +426,7 @@ _#defs: "/$defs/Properties/definitions/ProxyConfiguration": close({
 _#defs: "/$defs/Properties/definitions/QueryIdentifiersEnclosingOption": "DOUBLE_QUOTES" | "NONE"
 
 // Role ARN
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(1284) & strings.MinRunes(1)
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(1))
 
 _#defs: "/$defs/Properties/definitions/S3BucketName": strings.MaxRunes(63) &
 strings.MinRunes(3) &

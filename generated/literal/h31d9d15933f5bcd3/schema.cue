@@ -79,7 +79,7 @@ import (
 	// rules must allow TCP and UDP access. For inbound access, open port 53. For
 	// outbound access, open the port that you're using for DNS queries on your
 	// network.
-	SecurityGroupIds!: [...strings.MaxRunes(64) & strings.MinRunes(1)]
+	SecurityGroupIds!: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(64) & strings.MinRunes(1))]
 
 	// An array of key-value pairs to apply to this resource.
 	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]

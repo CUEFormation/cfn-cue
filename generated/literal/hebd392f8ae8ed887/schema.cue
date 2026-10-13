@@ -50,7 +50,9 @@ _#defs: "/$defs/Properties/definitions/DatasetImportJob": close({
 	JobName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*"
 
 	// The ARN of the IAM role that has permissions to read from the Amazon S3 data source.
-	RoleArn?: strings.MaxRunes(256) & =~"arn:([a-z\\d-]+):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+"
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(256) &
+	=~"arn:([a-z\\d-]+):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+"
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

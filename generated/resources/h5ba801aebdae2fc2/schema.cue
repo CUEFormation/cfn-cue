@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -14,14 +14,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Connect::IntegrationAssociation
 #Properties: close({
-	InstanceId!:            _#defs."/$defs/Properties/definitions/InstanceId" | fn.#StringExpression
-	IntegrationArn!:        _#defs."/$defs/Properties/definitions/IntegrationArn" | fn.#StringExpression
-	IntegrationType!:       _#defs."/$defs/Properties/definitions/IntegrationType" | fn.#StringExpression
-	SourceApplicationName?: _#defs."/$defs/Properties/definitions/SourceApplicationName" | fn.#StringExpression
-	SourceApplicationUrl?:  _#defs."/$defs/Properties/definitions/SourceApplicationUrl" | fn.#StringExpression
-	SourceType?:            _#defs."/$defs/Properties/definitions/SourceType" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	InstanceId!:            _#defs."/$defs/Properties/definitions/InstanceId"
+	IntegrationArn!:        _#defs."/$defs/Properties/definitions/IntegrationArn"
+	IntegrationType!:       _#defs."/$defs/Properties/definitions/IntegrationType"
+	SourceApplicationName?: _#defs."/$defs/Properties/definitions/SourceApplicationName"
+	SourceApplicationUrl?:  _#defs."/$defs/Properties/definitions/SourceApplicationUrl"
+	SourceType?:            _#defs."/$defs/Properties/definitions/SourceType"
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/InstanceId": strings.MaxRunes(100) &

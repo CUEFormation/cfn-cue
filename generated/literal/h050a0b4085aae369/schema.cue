@@ -79,7 +79,8 @@ _#defs: "/$defs/Properties/definitions/OrganizationCustomRuleMetadata": close({
 	InputParameters?: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// The lambda function ARN.
-	LambdaFunctionArn!: strings.MaxRunes(256) & strings.MinRunes(1)
+	LambdaFunctionArn!:
+		=~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & (strings.MaxRunes(256) & strings.MinRunes(1))
 
 	// The maximum frequency with which AWS Config runs evaluations for a
 	// rule.Allowed values: One_Hour | Three_Hours | Six_Hours | Twelve_Hours |

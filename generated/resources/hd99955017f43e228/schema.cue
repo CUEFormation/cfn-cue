@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::Detective::MemberInvitation
 #Properties: close({
-	DisableEmailNotification?: bool | fn.#BooleanExpression
+	DisableEmailNotification?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	GraphArn!: =~"arn:aws(-[\\w]+)*:detective:(([a-z]+-)+[0-9]+):[0-9]{12}:graph:[0-9a-f]{32}" | fn.#StringExpression
 	MemberEmailAddress!: =~".*@.*" | fn.#StringExpression
 	MemberId!:           =~"[0-9]{12}" | fn.#StringExpression

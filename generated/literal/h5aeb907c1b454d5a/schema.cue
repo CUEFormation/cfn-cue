@@ -21,7 +21,8 @@ import (
 	LogSources?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LogSource"]
 
 	// The ARN of the role used to access the S3 Table Integration
-	RoleArn!: strings.MaxRunes(1011) &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1011) &
 	strings.MinRunes(1) &
 	=~"^arn:aws([a-z0-9\\-]+)?:([a-zA-Z0-9\\-]+):([a-z0-9\\-]+)?:([0-9]{12})?:(.+)$"
 
@@ -32,7 +33,8 @@ import (
 // Encryption configuration for the S3 Table Integration
 _#defs: "/$defs/Properties/definitions/EncryptionConfig": close({
 	// The ARN of the KMS key used to encrypt the S3 Table Integration
-	KmsKeyArn?: strings.MaxRunes(1011) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(1011) &
 	strings.MinRunes(1) &
 	=~"^arn:aws([a-z0-9\\-]+)?:([a-zA-Z0-9\\-]+):([a-z0-9\\-]+)?:([0-9]{12})?:(.+)$"
 

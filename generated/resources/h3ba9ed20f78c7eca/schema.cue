@@ -19,9 +19,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DestinationName!:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]{1,512}$" | fn.#StringExpression
 	DestinationPolicy?: strings.MinRunes(1) | fn.#StringExpression
-	RoleArn!:           strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
+	fn.#StringExpression
+	Tags?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetArn!: strings.MinRunes(1) | fn.#StringExpression
 })
 

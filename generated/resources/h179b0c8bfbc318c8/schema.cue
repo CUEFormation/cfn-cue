@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,23 +21,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AwsAccountId!:  strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 	BaseThemeId!:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Configuration!: _#defs."/$defs/Properties/definitions/ThemeConfiguration" | fn.#ObjectExpression
+	Configuration!: _#defs."/$defs/Properties/definitions/ThemeConfiguration"
 	Name!:          strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Permissions?: list.MaxItems(64) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ResourcePermission" | fn.#ObjectExpression
-	] |
+	Permissions?: list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	ThemeId!:            strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	VersionDescription?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/BorderStyle": close({
 	Color?: string | fn.#StringExpression
-	Show?:  bool | fn.#BooleanExpression
+	Show?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Width?: strings.MaxRunes(50) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -52,11 +51,11 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FontConfiguration": close({
 	FontColor?:      =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	FontDecoration?: _#defs."/$defs/Properties/definitions/FontDecoration" | fn.#StringExpression
+	FontDecoration?: _#defs."/$defs/Properties/definitions/FontDecoration"
 	FontFamily?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	FontSize?:       _#defs."/$defs/Properties/definitions/FontSize" | fn.#ObjectExpression
-	FontStyle?:      _#defs."/$defs/Properties/definitions/FontStyle" | fn.#StringExpression
-	FontWeight?:     _#defs."/$defs/Properties/definitions/FontWeight" | fn.#ObjectExpression
+	FontSize?:       _#defs."/$defs/Properties/definitions/FontSize"
+	FontStyle?:      _#defs."/$defs/Properties/definitions/FontStyle"
+	FontWeight?:     _#defs."/$defs/Properties/definitions/FontWeight"
 }) |
 fn.#ObjectExpression
 
@@ -68,13 +67,16 @@ _#defs: "/$defs/Properties/definitions/FontSize": close({Absolute?: string | fn.
 _#defs: "/$defs/Properties/definitions/FontStyle": "NORMAL" | "ITALIC" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/FontWeight": close(
-	{Name?: _#defs."/$defs/Properties/definitions/FontWeightName" | fn.#StringExpression},
+	{Name?: _#defs."/$defs/Properties/definitions/FontWeightName"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FontWeightName": "NORMAL" | "BOLD" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GutterStyle": close({Show?: bool | fn.#BooleanExpression}) | fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/GutterStyle": close(
+	{Show?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
+	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HorizontalTextAlignment": "LEFT" |
 	"CENTER" |
@@ -82,7 +84,10 @@ _#defs: "/$defs/Properties/definitions/HorizontalTextAlignment": "LEFT" |
 	"AUTO" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MarginStyle": close({Show?: bool | fn.#BooleanExpression}) | fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/MarginStyle": close(
+	{Show?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
+	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResourcePermission": close({
 	Actions!:   list.MaxItems(30) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
@@ -107,9 +112,9 @@ _#defs: "/$defs/Properties/definitions/SheetBackgroundStyle": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SheetStyle": close({
-	Background?: _#defs."/$defs/Properties/definitions/SheetBackgroundStyle" | fn.#ObjectExpression
-	Tile?:       _#defs."/$defs/Properties/definitions/TileStyle" | fn.#ObjectExpression
-	TileLayout?: _#defs."/$defs/Properties/definitions/TileLayoutStyle" | fn.#ObjectExpression
+	Background?: _#defs."/$defs/Properties/definitions/SheetBackgroundStyle"
+	Tile?:       _#defs."/$defs/Properties/definitions/TileStyle"
+	TileLayout?: _#defs."/$defs/Properties/definitions/TileLayoutStyle"
 }) |
 fn.#ObjectExpression
 
@@ -122,16 +127,16 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/TextTransform": "CAPITALIZE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ThemeConfiguration": close({
-	DataColorPalette?: _#defs."/$defs/Properties/definitions/DataColorPalette" | fn.#ObjectExpression
-	Sheet?:            _#defs."/$defs/Properties/definitions/SheetStyle" | fn.#ObjectExpression
-	Typography?:       _#defs."/$defs/Properties/definitions/Typography" | fn.#ObjectExpression
-	UIColorPalette?:   _#defs."/$defs/Properties/definitions/UIColorPalette" | fn.#ObjectExpression
+	DataColorPalette?: _#defs."/$defs/Properties/definitions/DataColorPalette"
+	Sheet?:            _#defs."/$defs/Properties/definitions/SheetStyle"
+	Typography?:       _#defs."/$defs/Properties/definitions/Typography"
+	UIColorPalette?:   _#defs."/$defs/Properties/definitions/UIColorPalette"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ThemeError": close({
 	Message?: =~"\\S" | fn.#StringExpression
-	Type?:    _#defs."/$defs/Properties/definitions/ThemeErrorType" | fn.#StringExpression
+	Type?:    _#defs."/$defs/Properties/definitions/ThemeErrorType"
 }) |
 fn.#ObjectExpression
 
@@ -142,42 +147,56 @@ _#defs: "/$defs/Properties/definitions/ThemeType": "QUICKSIGHT" | "CUSTOM" | "AL
 _#defs: "/$defs/Properties/definitions/ThemeVersion": close({
 	Arn?:           string | fn.#StringExpression
 	BaseThemeId?:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Configuration?: _#defs."/$defs/Properties/definitions/ThemeConfiguration" | fn.#ObjectExpression
+	Configuration?: _#defs."/$defs/Properties/definitions/ThemeConfiguration"
 	CreatedTime?:   time.Time | fn.#StringExpression
 	Description?:   strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	Errors?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ThemeError" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Status?:        _#defs."/$defs/Properties/definitions/ResourceStatus" | fn.#StringExpression
-	VersionNumber?: >=1 | fn.#NumberExpression
+	Errors?:        list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ThemeError"] | fn.#ListExpression
+	Status?:        _#defs."/$defs/Properties/definitions/ResourceStatus"
+	VersionNumber?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TileLayoutStyle": close({
-	Gutter?: _#defs."/$defs/Properties/definitions/GutterStyle" | fn.#ObjectExpression
-	Margin?: _#defs."/$defs/Properties/definitions/MarginStyle" | fn.#ObjectExpression
+	Gutter?: _#defs."/$defs/Properties/definitions/GutterStyle"
+	Margin?: _#defs."/$defs/Properties/definitions/MarginStyle"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TileStyle": close({
 	BackgroundColor?: string | fn.#StringExpression
-	Border?:          _#defs."/$defs/Properties/definitions/BorderStyle" | fn.#ObjectExpression
+	Border?:          _#defs."/$defs/Properties/definitions/BorderStyle"
 	BorderRadius?:    strings.MaxRunes(50) & strings.MinRunes(0) | fn.#StringExpression
 	Padding?:         strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Typography": close({
-	AxisLabelFontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
-	AxisTitleFontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
-	DataLabelFontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
-	FontFamilies?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Font" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	LegendTitleFontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
-	LegendValueFontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
-	VisualSubtitleFontConfiguration?: _#defs."/$defs/Properties/definitions/VisualSubtitleFontConfiguration" |
-		fn.#ObjectExpression
-	VisualTitleFontConfiguration?: _#defs."/$defs/Properties/definitions/VisualTitleFontConfiguration" |
-		fn.#ObjectExpression
+	AxisLabelFontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration"
+	AxisTitleFontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration"
+	DataLabelFontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration"
+	FontFamilies?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Font"] | fn.#ListExpression
+	LegendTitleFontConfiguration?:    _#defs."/$defs/Properties/definitions/FontConfiguration"
+	LegendValueFontConfiguration?:    _#defs."/$defs/Properties/definitions/FontConfiguration"
+	VisualSubtitleFontConfiguration?: _#defs."/$defs/Properties/definitions/VisualSubtitleFontConfiguration"
+	VisualTitleFontConfiguration?:    _#defs."/$defs/Properties/definitions/VisualTitleFontConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -202,16 +221,16 @@ _#defs: "/$defs/Properties/definitions/UIColorPalette": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VisualSubtitleFontConfiguration": close({
-	FontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
-	TextAlignment?:     _#defs."/$defs/Properties/definitions/HorizontalTextAlignment" | fn.#StringExpression
-	TextTransform?:     _#defs."/$defs/Properties/definitions/TextTransform" | fn.#StringExpression
+	FontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration"
+	TextAlignment?:     _#defs."/$defs/Properties/definitions/HorizontalTextAlignment"
+	TextTransform?:     _#defs."/$defs/Properties/definitions/TextTransform"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VisualTitleFontConfiguration": close({
-	FontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
-	TextAlignment?:     _#defs."/$defs/Properties/definitions/HorizontalTextAlignment" | fn.#StringExpression
-	TextTransform?:     _#defs."/$defs/Properties/definitions/TextTransform" | fn.#StringExpression
+	FontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration"
+	TextAlignment?:     _#defs."/$defs/Properties/definitions/HorizontalTextAlignment"
+	TextTransform?:     _#defs."/$defs/Properties/definitions/TextTransform"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

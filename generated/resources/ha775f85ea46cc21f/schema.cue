@@ -15,8 +15,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	GroupDesc?: string | fn.#StringExpression
 	GroupName!: string | fn.#StringExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	UserRules?: [..._#defs."/$defs/Properties/definitions/IpRuleItem" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UserRules?: [..._#defs."/$defs/Properties/definitions/IpRuleItem"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/IpRuleItem": close({

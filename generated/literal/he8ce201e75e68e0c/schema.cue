@@ -11,20 +11,21 @@ import "list"
 	// The Amazon Resource Name (ARN) of the role to accept the Direct Connect
 	// Gateway association proposal. Needs
 	// directconnect:AcceptDirectConnectGatewayAssociationProposal permissions.
-	AcceptDirectConnectGatewayAssociationProposalRoleArn?: =~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$"
+	AcceptDirectConnectGatewayAssociationProposalRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$"
 
 	// The Amazon VPC prefixes to advertise to the Direct Connect gateway. This
 	// parameter is required when you create an association to a transit gateway.
 	AllowedPrefixesToDirectConnectGateway?: list.MinItems(1) & list.UniqueItems() & [...=~"^[0-9a-fA-F:.]+/[0-9]+$"]
 
 	// The ID or ARN of the virtual private gateway or transit gateway.
-	AssociatedGatewayId!: (string | string | string) &
+	AssociatedGatewayId!: string &
 		=~"^((arn:aws[a-z-]*:ec2:[a-z0-9-]+:[0-9]{12}:(vpn-gateway/vgw|transit-gateway/tgw))|(vgw|tgw))-[a-zA-Z0-9]{8,32}$"
 
 	// The ID of the Direct Connect gateway association.
 	AssociationId?: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 
 	// The ID or ARN of the Direct Connect gateway.
-	DirectConnectGatewayId!: (string | string) &
+	DirectConnectGatewayId!: string &
 		=~"^(arn:aws[a-z-]*:directconnect::[0-9]{12}:dx-gateway/)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 })

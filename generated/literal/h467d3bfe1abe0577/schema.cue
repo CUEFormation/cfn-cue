@@ -206,7 +206,7 @@ _#defs: "/$defs/Properties/definitions/IamRole": close({
 	AwsIntegration?: string
 
 	// The Amazon Resource Name (ARN) of the AWS Identity and Access Management (IAM) service role.
-	IamRoleArn?: string
+	IamRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The current status of the AWS Identity and Access Management (IAM) service role.
 	Status?: string

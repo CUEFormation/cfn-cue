@@ -10,7 +10,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::EC2::TransitGatewayRoute
 #Properties: close({
-	Blackhole?:                  bool | fn.#BooleanExpression
+	Blackhole?:                  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DestinationCidrBlock!:       string | fn.#StringExpression
 	TransitGatewayAttachmentId?: string | fn.#StringExpression
 	TransitGatewayRouteTableId!: string | fn.#StringExpression

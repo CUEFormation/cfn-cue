@@ -11,7 +11,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // AWS::EC2::TransitGatewayMeteringPolicy Resource Definition
 #Properties: close({
 	MiddleboxAttachmentIds?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TransitGatewayId!:       string | fn.#StringExpression
 })
 

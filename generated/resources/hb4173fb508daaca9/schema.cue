@@ -4,74 +4,211 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaLive::Channel
 #Properties: close({
-	AnywhereSettings?:      _#defs."/$defs/Properties/definitions/AnywhereSettings" | fn.#ObjectExpression
-	CdiInputSpecification?: _#defs."/$defs/Properties/definitions/CdiInputSpecification" | fn.#ObjectExpression
+	AnywhereSettings?:      _#defs."/$defs/Properties/definitions/AnywhereSettings"
+	CdiInputSpecification?: _#defs."/$defs/Properties/definitions/CdiInputSpecification"
 	ChannelClass?:          string | fn.#StringExpression
-	ChannelEngineVersion?:  _#defs."/$defs/Properties/definitions/ChannelEngineVersionRequest" | fn.#ObjectExpression
+	ChannelEngineVersion?:  _#defs."/$defs/Properties/definitions/ChannelEngineVersionRequest"
 	ChannelSecurityGroups?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Destinations?: [..._#defs."/$defs/Properties/definitions/OutputDestination" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	DryRun?:            bool | fn.#BooleanExpression
-	EncoderSettings?:   _#defs."/$defs/Properties/definitions/EncoderSettings" | fn.#ObjectExpression
-	InferenceSettings?: _#defs."/$defs/Properties/definitions/InferenceSettings" | fn.#ObjectExpression
-	InputAttachments?: [..._#defs."/$defs/Properties/definitions/InputAttachment" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	InputSpecification?:    _#defs."/$defs/Properties/definitions/InputSpecification" | fn.#ObjectExpression
-	LinkedChannelSettings?: _#defs."/$defs/Properties/definitions/LinkedChannelSettings" | fn.#ObjectExpression
+	Destinations?:          [..._#defs."/$defs/Properties/definitions/OutputDestination"] | fn.#ListExpression
+	DryRun?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EncoderSettings?:       _#defs."/$defs/Properties/definitions/EncoderSettings"
+	InferenceSettings?:     _#defs."/$defs/Properties/definitions/InferenceSettings"
+	InputAttachments?:      [..._#defs."/$defs/Properties/definitions/InputAttachment"] | fn.#ListExpression
+	InputSpecification?:    _#defs."/$defs/Properties/definitions/InputSpecification"
+	LinkedChannelSettings?: _#defs."/$defs/Properties/definitions/LinkedChannelSettings"
 	LogLevel?:              string | fn.#StringExpression
-	Maintenance?:           _#defs."/$defs/Properties/definitions/MaintenanceCreateSettings" | fn.#ObjectExpression
+	Maintenance?:           _#defs."/$defs/Properties/definitions/MaintenanceCreateSettings"
 	Name?:                  string | fn.#StringExpression
-	RoleArn?:               string | fn.#StringExpression
-	Tags?:                  string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	Vpc?:                   _#defs."/$defs/Properties/definitions/VpcOutputSettings" | fn.#ObjectExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Tags?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Vpc?:  _#defs."/$defs/Properties/definitions/VpcOutputSettings"
 })
 
 _#defs: "/$defs/Properties/definitions/AacSettings": close({
-	Bitrate?:         number | fn.#NumberExpression
+	Bitrate?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	CodingMode?:      string | fn.#StringExpression
 	InputType?:       string | fn.#StringExpression
 	Profile?:         string | fn.#StringExpression
 	RateControlMode?: string | fn.#StringExpression
 	RawFormat?:       string | fn.#StringExpression
-	SampleRate?:      number | fn.#NumberExpression
-	Spec?:            string | fn.#StringExpression
-	VbrQuality?:      string | fn.#StringExpression
+	SampleRate?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Spec?:       string | fn.#StringExpression
+	VbrQuality?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AbWatermarkingCustomProfile": close({
-	EmbeddingFrequency?: number | fn.#NumberExpression
-	SceneCut?:           number | fn.#NumberExpression
-	TargetPsnr?:         number | fn.#NumberExpression
+	EmbeddingFrequency?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SceneCut?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TargetPsnr?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Ac3Settings": close({
 	AttenuationControl?: string | fn.#StringExpression
-	Bitrate?:            number | fn.#NumberExpression
-	BitstreamMode?:      string | fn.#StringExpression
-	CodingMode?:         string | fn.#StringExpression
-	Dialnorm?:           int | fn.#NumberExpression
-	DrcProfile?:         string | fn.#StringExpression
-	LfeFilter?:          string | fn.#StringExpression
-	MetadataControl?:    string | fn.#StringExpression
+	Bitrate?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	BitstreamMode?: string | fn.#StringExpression
+	CodingMode?:    string | fn.#StringExpression
+	Dialnorm?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DrcProfile?:      string | fn.#StringExpression
+	LfeFilter?:       string | fn.#StringExpression
+	MetadataControl?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AdditionalDestinations": close(
-	{Destination?: _#defs."/$defs/Properties/definitions/OutputLocationRef" | fn.#ObjectExpression},
+	{Destination?: _#defs."/$defs/Properties/definitions/OutputLocationRef"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AncillarySourceSettings": close(
-	{SourceAncillaryChannelNumber?: int | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/AncillarySourceSettings": close({
+	SourceAncillaryChannelNumber?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AnywhereSettings": close({
@@ -81,13 +218,13 @@ _#defs: "/$defs/Properties/definitions/AnywhereSettings": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ArchiveCdnSettings": close(
-	{ArchiveS3Settings?: _#defs."/$defs/Properties/definitions/ArchiveFrameCaptureHlsS3Settings" | fn.#ObjectExpression},
+	{ArchiveS3Settings?: _#defs."/$defs/Properties/definitions/ArchiveFrameCaptureHlsS3Settings"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ArchiveContainerSettings": close({
-	M2tsSettings?: _#defs."/$defs/Properties/definitions/M2tsSettings" | fn.#ObjectExpression
-	RawSettings?:  _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" | fn.#ObjectExpression
+	M2tsSettings?: _#defs."/$defs/Properties/definitions/M2tsSettings"
+	RawSettings?:  _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
 }) |
 fn.#ObjectExpression
 
@@ -97,52 +234,76 @@ _#defs: "/$defs/Properties/definitions/ArchiveFrameCaptureHlsS3Settings": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ArchiveGroupSettings": close({
-	ArchiveCdnSettings?: _#defs."/$defs/Properties/definitions/ArchiveCdnSettings" | fn.#ObjectExpression
-	Destination?:        _#defs."/$defs/Properties/definitions/OutputLocationRef" | fn.#ObjectExpression
-	RolloverInterval?:   int | fn.#NumberExpression
+	ArchiveCdnSettings?: _#defs."/$defs/Properties/definitions/ArchiveCdnSettings"
+	Destination?:        _#defs."/$defs/Properties/definitions/OutputLocationRef"
+	RolloverInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ArchiveOutputSettings": close({
-	ContainerSettings?: _#defs."/$defs/Properties/definitions/ArchiveContainerSettings" | fn.#ObjectExpression
+	ContainerSettings?: _#defs."/$defs/Properties/definitions/ArchiveContainerSettings"
 	Extension?:         string | fn.#StringExpression
 	NameModifier?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AudioChannelMapping": close({
-	InputChannelLevels?: [..._#defs."/$defs/Properties/definitions/InputChannelLevel" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	OutputChannel?: int | fn.#NumberExpression
+	InputChannelLevels?: [..._#defs."/$defs/Properties/definitions/InputChannelLevel"] | fn.#ListExpression
+	OutputChannel?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AudioCodecSettings": close({
-	AacSettings?:         _#defs."/$defs/Properties/definitions/AacSettings" | fn.#ObjectExpression
-	Ac3Settings?:         _#defs."/$defs/Properties/definitions/Ac3Settings" | fn.#ObjectExpression
-	Eac3AtmosSettings?:   _#defs."/$defs/Properties/definitions/Eac3AtmosSettings" | fn.#ObjectExpression
-	Eac3Settings?:        _#defs."/$defs/Properties/definitions/Eac3Settings" | fn.#ObjectExpression
-	Mp2Settings?:         _#defs."/$defs/Properties/definitions/Mp2Settings" | fn.#ObjectExpression
-	PassThroughSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" | fn.#ObjectExpression
-	WavSettings?:         _#defs."/$defs/Properties/definitions/WavSettings" | fn.#ObjectExpression
+	AacSettings?:         _#defs."/$defs/Properties/definitions/AacSettings"
+	Ac3Settings?:         _#defs."/$defs/Properties/definitions/Ac3Settings"
+	Eac3AtmosSettings?:   _#defs."/$defs/Properties/definitions/Eac3AtmosSettings"
+	Eac3Settings?:        _#defs."/$defs/Properties/definitions/Eac3Settings"
+	Mp2Settings?:         _#defs."/$defs/Properties/definitions/Mp2Settings"
+	PassThroughSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	WavSettings?:         _#defs."/$defs/Properties/definitions/WavSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AudioDescription": close({
-	AudioDashRoles?: [...string | fn.#StringExpression] | fn.#ListExpression
-	AudioNormalizationSettings?: _#defs."/$defs/Properties/definitions/AudioNormalizationSettings" |
-		fn.#ObjectExpression
-	AudioSelectorName?:         string | fn.#StringExpression
-	AudioType?:                 string | fn.#StringExpression
-	AudioTypeControl?:          string | fn.#StringExpression
-	AudioWatermarkingSettings?: _#defs."/$defs/Properties/definitions/AudioWatermarkSettings" | fn.#ObjectExpression
-	CodecSettings?:             _#defs."/$defs/Properties/definitions/AudioCodecSettings" | fn.#ObjectExpression
-	DvbDashAccessibility?:      string | fn.#StringExpression
-	LanguageCode?:              string | fn.#StringExpression
-	LanguageCodeControl?:       string | fn.#StringExpression
-	Name?:                      string | fn.#StringExpression
-	RemixSettings?:             _#defs."/$defs/Properties/definitions/RemixSettings" | fn.#ObjectExpression
-	StreamName?:                string | fn.#StringExpression
+	AudioDashRoles?:             [...string | fn.#StringExpression] | fn.#ListExpression
+	AudioNormalizationSettings?: _#defs."/$defs/Properties/definitions/AudioNormalizationSettings"
+	AudioSelectorName?:          string | fn.#StringExpression
+	AudioType?:                  string | fn.#StringExpression
+	AudioTypeControl?:           string | fn.#StringExpression
+	AudioWatermarkingSettings?:  _#defs."/$defs/Properties/definitions/AudioWatermarkSettings"
+	CodecSettings?:              _#defs."/$defs/Properties/definitions/AudioCodecSettings"
+	DvbDashAccessibility?:       string | fn.#StringExpression
+	LanguageCode?:               string | fn.#StringExpression
+	LanguageCodeControl?:        string | fn.#StringExpression
+	Name?:                       string | fn.#StringExpression
+	RemixSettings?:              _#defs."/$defs/Properties/definitions/RemixSettings"
+	StreamName?:                 string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -168,147 +329,421 @@ _#defs: "/$defs/Properties/definitions/AudioLanguageSelection": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AudioNormalizationSettings": close({
-	Algorithm?:            string | fn.#StringExpression
-	AlgorithmControl?:     string | fn.#StringExpression
-	PeakCalculation?:      string | fn.#StringExpression
-	PeakLimiterThreshold?: number | fn.#NumberExpression
-	TargetLkfs?:           number | fn.#NumberExpression
+	Algorithm?:        string | fn.#StringExpression
+	AlgorithmControl?: string | fn.#StringExpression
+	PeakCalculation?:  string | fn.#StringExpression
+	PeakLimiterThreshold?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TargetLkfs?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AudioOnlyHlsSettings": close({
 	AudioGroupId?:   string | fn.#StringExpression
-	AudioOnlyImage?: _#defs."/$defs/Properties/definitions/InputLocation" | fn.#ObjectExpression
+	AudioOnlyImage?: _#defs."/$defs/Properties/definitions/InputLocation"
 	AudioTrackType?: string | fn.#StringExpression
 	SegmentType?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AudioPid": close({
-	DolbyEDecode?:   _#defs."/$defs/Properties/definitions/AudioDolbyEDecode" | fn.#ObjectExpression
-	Pid?:            int | fn.#NumberExpression
-	PremixSettings?: _#defs."/$defs/Properties/definitions/AudioPreMixerSettings" | fn.#ObjectExpression
+	DolbyEDecode?: _#defs."/$defs/Properties/definitions/AudioDolbyEDecode"
+	Pid?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PremixSettings?: _#defs."/$defs/Properties/definitions/AudioPreMixerSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AudioPidSelection": close({
-	Pid?:  int | fn.#NumberExpression
-	Pids?: [..._#defs."/$defs/Properties/definitions/AudioPid" | fn.#ObjectExpression] | fn.#ListExpression
+	Pid?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Pids?: [..._#defs."/$defs/Properties/definitions/AudioPid"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AudioPreMixerSettings": close({
-	AudioNormalizationSettings?: _#defs."/$defs/Properties/definitions/AudioNormalizationSettings" |
-		fn.#ObjectExpression
-	Channels?:      int | fn.#NumberExpression
-	GainDb?:        number | fn.#NumberExpression
-	RemixSettings?: _#defs."/$defs/Properties/definitions/RemixSettings" | fn.#ObjectExpression
+	AudioNormalizationSettings?: _#defs."/$defs/Properties/definitions/AudioNormalizationSettings"
+	Channels?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GainDb?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RemixSettings?: _#defs."/$defs/Properties/definitions/RemixSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AudioSelector": close({
 	Name?:             string | fn.#StringExpression
-	SelectorSettings?: _#defs."/$defs/Properties/definitions/AudioSelectorSettings" | fn.#ObjectExpression
+	SelectorSettings?: _#defs."/$defs/Properties/definitions/AudioSelectorSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AudioSelectorSettings": close({
-	AudioHlsRenditionSelection?: _#defs."/$defs/Properties/definitions/AudioHlsRenditionSelection" |
-		fn.#ObjectExpression
-	AudioLanguageSelection?: _#defs."/$defs/Properties/definitions/AudioLanguageSelection" | fn.#ObjectExpression
-	AudioPidSelection?:      _#defs."/$defs/Properties/definitions/AudioPidSelection" | fn.#ObjectExpression
-	AudioTrackSelection?:    _#defs."/$defs/Properties/definitions/AudioTrackSelection" | fn.#ObjectExpression
+	AudioHlsRenditionSelection?: _#defs."/$defs/Properties/definitions/AudioHlsRenditionSelection"
+	AudioLanguageSelection?:     _#defs."/$defs/Properties/definitions/AudioLanguageSelection"
+	AudioPidSelection?:          _#defs."/$defs/Properties/definitions/AudioPidSelection"
+	AudioTrackSelection?:        _#defs."/$defs/Properties/definitions/AudioTrackSelection"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AudioSilenceFailoverSettings": close({
-	AudioSelectorName?:         string | fn.#StringExpression
-	AudioSilenceThresholdMsec?: int | fn.#NumberExpression
+	AudioSelectorName?: string | fn.#StringExpression
+	AudioSilenceThresholdMsec?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AudioTrack": close({
-	PremixSettings?: _#defs."/$defs/Properties/definitions/AudioPreMixerSettings" | fn.#ObjectExpression
-	Track?:          int | fn.#NumberExpression
+	PremixSettings?: _#defs."/$defs/Properties/definitions/AudioPreMixerSettings"
+	Track?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AudioTrackSelection": close({
-	DolbyEDecode?: _#defs."/$defs/Properties/definitions/AudioDolbyEDecode" | fn.#ObjectExpression
-	Tracks?:       [..._#defs."/$defs/Properties/definitions/AudioTrack" | fn.#ObjectExpression] | fn.#ListExpression
+	DolbyEDecode?: _#defs."/$defs/Properties/definitions/AudioDolbyEDecode"
+	Tracks?:       [..._#defs."/$defs/Properties/definitions/AudioTrack"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AudioWatermarkSettings": close({
-	NielsenWatermarksSettings?: _#defs."/$defs/Properties/definitions/NielsenWatermarksSettings" | fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/AudioWatermarkSettings": close(
+	{NielsenWatermarksSettings?: _#defs."/$defs/Properties/definitions/NielsenWatermarksSettings"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AutomaticInputFailoverSettings": close({
-	ErrorClearTimeMsec?: int | fn.#NumberExpression
-	FailoverConditions?: [..._#defs."/$defs/Properties/definitions/FailoverCondition" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	InputPreference?:  string | fn.#StringExpression
-	SecondaryInputId?: string | fn.#StringExpression
+	ErrorClearTimeMsec?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FailoverConditions?: [..._#defs."/$defs/Properties/definitions/FailoverCondition"] | fn.#ListExpression
+	InputPreference?:    string | fn.#StringExpression
+	SecondaryInputId?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Av1ColorSpaceSettings": close({
-	ColorSpacePassthroughSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" |
-		fn.#ObjectExpression
-	Hdr10Settings?:   _#defs."/$defs/Properties/definitions/Hdr10Settings" | fn.#ObjectExpression
-	Hlg2020Settings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" | fn.#ObjectExpression
-	Rec601Settings?:  _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" | fn.#ObjectExpression
-	Rec709Settings?:  _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" | fn.#ObjectExpression
+	ColorSpacePassthroughSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	Hdr10Settings?:                 _#defs."/$defs/Properties/definitions/Hdr10Settings"
+	Hlg2020Settings?:               _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	Rec601Settings?:                _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	Rec709Settings?:                _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Av1Settings": close({
-	AfdSignaling?:           string | fn.#StringExpression
-	BitDepth?:               string | fn.#StringExpression
-	Bitrate?:                int | fn.#NumberExpression
-	BufSize?:                int | fn.#NumberExpression
-	ColorSpaceSettings?:     _#defs."/$defs/Properties/definitions/Av1ColorSpaceSettings" | fn.#ObjectExpression
-	FixedAfd?:               string | fn.#StringExpression
-	FramerateDenominator?:   int | fn.#NumberExpression
-	FramerateNumerator?:     int | fn.#NumberExpression
-	GopSize?:                number | fn.#NumberExpression
-	GopSizeUnits?:           string | fn.#StringExpression
-	Level?:                  string | fn.#StringExpression
-	LookAheadRateControl?:   string | fn.#StringExpression
-	MaxBitrate?:             int | fn.#NumberExpression
-	MinBitrate?:             int | fn.#NumberExpression
-	MinIInterval?:           int | fn.#NumberExpression
-	ParDenominator?:         int | fn.#NumberExpression
-	ParNumerator?:           int | fn.#NumberExpression
-	QvbrQualityLevel?:       int | fn.#NumberExpression
+	AfdSignaling?: string | fn.#StringExpression
+	BitDepth?:     string | fn.#StringExpression
+	Bitrate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	BufSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ColorSpaceSettings?: _#defs."/$defs/Properties/definitions/Av1ColorSpaceSettings"
+	FixedAfd?:           string | fn.#StringExpression
+	FramerateDenominator?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FramerateNumerator?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GopSize?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GopSizeUnits?:         string | fn.#StringExpression
+	Level?:                string | fn.#StringExpression
+	LookAheadRateControl?: string | fn.#StringExpression
+	MaxBitrate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinBitrate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinIInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ParDenominator?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ParNumerator?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	QvbrQualityLevel?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	RateControlMode?:        string | fn.#StringExpression
 	SceneChangeDetect?:      string | fn.#StringExpression
 	SpatialAq?:              string | fn.#StringExpression
 	TemporalAq?:             string | fn.#StringExpression
-	TimecodeBurninSettings?: _#defs."/$defs/Properties/definitions/TimecodeBurninSettings" | fn.#ObjectExpression
+	TimecodeBurninSettings?: _#defs."/$defs/Properties/definitions/TimecodeBurninSettings"
 	TimecodeInsertion?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AvailBlanking": close({
-	AvailBlankingImage?: _#defs."/$defs/Properties/definitions/InputLocation" | fn.#ObjectExpression
+	AvailBlankingImage?: _#defs."/$defs/Properties/definitions/InputLocation"
 	State?:              string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AvailConfiguration": close({
-	AvailSettings?:           _#defs."/$defs/Properties/definitions/AvailSettings" | fn.#ObjectExpression
+	AvailSettings?:           _#defs."/$defs/Properties/definitions/AvailSettings"
 	Scte35SegmentationScope?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AvailSettings": close({
-	Esam?: _#defs."/$defs/Properties/definitions/Esam" | fn.#ObjectExpression
-	Scte35SpliceInsert?: _#defs."/$defs/Properties/definitions/Scte35SpliceInsertTimeSignalAposSettings" |
-		fn.#ObjectExpression
-	Scte35TimeSignalApos?: _#defs."/$defs/Properties/definitions/Scte35SpliceInsertTimeSignalAposSettings" |
-		fn.#ObjectExpression
+	Esam?:                 _#defs."/$defs/Properties/definitions/Esam"
+	Scte35SpliceInsert?:   _#defs."/$defs/Properties/definitions/Scte35SpliceInsertTimeSignalAposSettings"
+	Scte35TimeSignalApos?: _#defs."/$defs/Properties/definitions/Scte35SpliceInsertTimeSignalAposSettings"
 }) |
 fn.#ObjectExpression
 
@@ -319,33 +754,150 @@ _#defs: "/$defs/Properties/definitions/BandwidthReductionFilterSettings": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BlackoutSlate": close({
-	BlackoutSlateImage?:      _#defs."/$defs/Properties/definitions/InputLocation" | fn.#ObjectExpression
+	BlackoutSlateImage?:      _#defs."/$defs/Properties/definitions/InputLocation"
 	NetworkEndBlackout?:      string | fn.#StringExpression
-	NetworkEndBlackoutImage?: _#defs."/$defs/Properties/definitions/InputLocation" | fn.#ObjectExpression
+	NetworkEndBlackoutImage?: _#defs."/$defs/Properties/definitions/InputLocation"
 	NetworkId?:               string | fn.#StringExpression
 	State?:                   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BurnInDvbSubDestinationSettings": close({
-	Alignment?:           string | fn.#StringExpression
-	BackgroundColor?:     string | fn.#StringExpression
-	BackgroundOpacity?:   int | fn.#NumberExpression
-	Font?:                _#defs."/$defs/Properties/definitions/InputLocation" | fn.#ObjectExpression
-	FontColor?:           string | fn.#StringExpression
-	FontOpacity?:         int | fn.#NumberExpression
-	FontResolution?:      int | fn.#NumberExpression
-	FontSize?:            string | fn.#StringExpression
-	OutlineColor?:        string | fn.#StringExpression
-	OutlineSize?:         int | fn.#NumberExpression
-	ShadowColor?:         string | fn.#StringExpression
-	ShadowOpacity?:       int | fn.#NumberExpression
-	ShadowXOffset?:       int | fn.#NumberExpression
-	ShadowYOffset?:       int | fn.#NumberExpression
+	Alignment?:       string | fn.#StringExpression
+	BackgroundColor?: string | fn.#StringExpression
+	BackgroundOpacity?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Font?:      _#defs."/$defs/Properties/definitions/InputLocation"
+	FontColor?: string | fn.#StringExpression
+	FontOpacity?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FontResolution?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FontSize?:     string | fn.#StringExpression
+	OutlineColor?: string | fn.#StringExpression
+	OutlineSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ShadowColor?: string | fn.#StringExpression
+	ShadowOpacity?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ShadowXOffset?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ShadowYOffset?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SubtitleRows?:        string | fn.#StringExpression
 	TeletextGridControl?: string | fn.#StringExpression
-	XPosition?:           int | fn.#NumberExpression
-	YPosition?:           int | fn.#NumberExpression
+	XPosition?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	YPosition?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -353,7 +905,7 @@ _#defs: "/$defs/Properties/definitions/CaptionDescription": close({
 	Accessibility?:        string | fn.#StringExpression
 	CaptionDashRoles?:     [...string | fn.#StringExpression] | fn.#ListExpression
 	CaptionSelectorName?:  string | fn.#StringExpression
-	DestinationSettings?:  _#defs."/$defs/Properties/definitions/CaptionDestinationSettings" | fn.#ObjectExpression
+	DestinationSettings?:  _#defs."/$defs/Properties/definitions/CaptionDestinationSettings"
 	DvbDashAccessibility?: string | fn.#StringExpression
 	LanguageCode?:         string | fn.#StringExpression
 	LanguageDescription?:  string | fn.#StringExpression
@@ -362,63 +914,138 @@ _#defs: "/$defs/Properties/definitions/CaptionDescription": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CaptionDestinationSettings": close({
-	AribDestinationSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" | fn.#ObjectExpression
-	BurnInDestinationSettings?: _#defs."/$defs/Properties/definitions/BurnInDvbSubDestinationSettings" |
-		fn.#ObjectExpression
-	DvbSubDestinationSettings?: _#defs."/$defs/Properties/definitions/BurnInDvbSubDestinationSettings" |
-		fn.#ObjectExpression
-	EbuTtDDestinationSettings?: _#defs."/$defs/Properties/definitions/EbuTtDDestinationSettings" | fn.#ObjectExpression
-	EmbeddedDestinationSettings?: _#defs."/$defs/Properties/definitions/EmbeddedDestinationSettings" |
-		fn.#ObjectExpression |
-		fn.#StringExpression
-	EmbeddedPlusScte20DestinationSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" |
-		fn.#ObjectExpression
-	RtmpCaptionInfoDestinationSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" |
-		fn.#ObjectExpression
-	Scte20PlusEmbeddedDestinationSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" |
-		fn.#ObjectExpression
-	Scte27DestinationSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" | fn.#ObjectExpression
-	SmpteTtDestinationSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" |
-		fn.#ObjectExpression
-	TeletextDestinationSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" |
-		fn.#ObjectExpression
-	TtmlDestinationSettings?:   _#defs."/$defs/Properties/definitions/TtmlDestinationSettings" | fn.#ObjectExpression
-	WebvttDestinationSettings?: _#defs."/$defs/Properties/definitions/WebvttDestinationSettings" | fn.#ObjectExpression
+	AribDestinationSettings?:               _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	BurnInDestinationSettings?:             _#defs."/$defs/Properties/definitions/BurnInDvbSubDestinationSettings"
+	DvbSubDestinationSettings?:             _#defs."/$defs/Properties/definitions/BurnInDvbSubDestinationSettings"
+	EbuTtDDestinationSettings?:             _#defs."/$defs/Properties/definitions/EbuTtDDestinationSettings"
+	EmbeddedDestinationSettings?:           _#defs."/$defs/Properties/definitions/EmbeddedDestinationSettings"
+	EmbeddedPlusScte20DestinationSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	RtmpCaptionInfoDestinationSettings?:    _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	Scte20PlusEmbeddedDestinationSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	Scte27DestinationSettings?:             _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	SmpteTtDestinationSettings?:            _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	TeletextDestinationSettings?:           _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	TtmlDestinationSettings?:               _#defs."/$defs/Properties/definitions/TtmlDestinationSettings"
+	WebvttDestinationSettings?:             _#defs."/$defs/Properties/definitions/WebvttDestinationSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CaptionLanguageMapping": close({
-	CaptionChannel?:      int | fn.#NumberExpression
+	CaptionChannel?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	LanguageCode?:        string | fn.#StringExpression
 	LanguageDescription?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CaptionRectangle": close({
-	Height?:     number | fn.#NumberExpression
-	LeftOffset?: number | fn.#NumberExpression
-	TopOffset?:  number | fn.#NumberExpression
-	Width?:      number | fn.#NumberExpression
+	Height?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LeftOffset?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TopOffset?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Width?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CaptionSelector": close({
 	LanguageCode?:     string | fn.#StringExpression
 	Name?:             string | fn.#StringExpression
-	SelectorSettings?: _#defs."/$defs/Properties/definitions/CaptionSelectorSettings" | fn.#ObjectExpression
+	SelectorSettings?: _#defs."/$defs/Properties/definitions/CaptionSelectorSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CaptionSelectorSettings": close({
-	AncillarySourceSettings?: _#defs."/$defs/Properties/definitions/AncillarySourceSettings" | fn.#ObjectExpression
-	AribSourceSettings?:      _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" | fn.#ObjectExpression
-	DvbSubSourceSettings?:    _#defs."/$defs/Properties/definitions/Scte27DvbSubSourceSettings" | fn.#ObjectExpression
-	EmbeddedSourceSettings?:  _#defs."/$defs/Properties/definitions/EmbeddedSourceSettings" | fn.#ObjectExpression
-	Scte20SourceSettings?:    _#defs."/$defs/Properties/definitions/Scte20SourceSettings" | fn.#ObjectExpression
-	Scte27SourceSettings?:    _#defs."/$defs/Properties/definitions/Scte27DvbSubSourceSettings" | fn.#ObjectExpression
-	SmartSubtitleSourceSettings?: _#defs."/$defs/Properties/definitions/SmartSubtitleSourceSettings" |
-		fn.#ObjectExpression
-	TeletextSourceSettings?: _#defs."/$defs/Properties/definitions/TeletextSourceSettings" | fn.#ObjectExpression
+	AncillarySourceSettings?:     _#defs."/$defs/Properties/definitions/AncillarySourceSettings"
+	AribSourceSettings?:          _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	DvbSubSourceSettings?:        _#defs."/$defs/Properties/definitions/Scte27DvbSubSourceSettings"
+	EmbeddedSourceSettings?:      _#defs."/$defs/Properties/definitions/EmbeddedSourceSettings"
+	Scte20SourceSettings?:        _#defs."/$defs/Properties/definitions/Scte20SourceSettings"
+	Scte27SourceSettings?:        _#defs."/$defs/Properties/definitions/Scte27DvbSubSourceSettings"
+	SmartSubtitleSourceSettings?: _#defs."/$defs/Properties/definitions/SmartSubtitleSourceSettings"
+	TeletextSourceSettings?:      _#defs."/$defs/Properties/definitions/TeletextSourceSettings"
 }) |
 fn.#ObjectExpression
 
@@ -429,8 +1056,21 @@ _#defs: "/$defs/Properties/definitions/ChannelEngineVersionRequest": close({Vers
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CmafIngestCaptionLanguageMapping": close({
-	CaptionChannel?: int | fn.#NumberExpression
-	LanguageCode?:   string | fn.#StringExpression
+	CaptionChannel?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LanguageCode?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -440,49 +1080,109 @@ _#defs: "/$defs/Properties/definitions/CmafIngestFrameCaptureOutputSettings": cl
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CmafIngestGroupSettings": close({
-	AdditionalDestinations?: [..._#defs."/$defs/Properties/definitions/AdditionalDestinations" | fn.#ObjectExpression] |
+	AdditionalDestinations?: [..._#defs."/$defs/Properties/definitions/AdditionalDestinations"] | fn.#ListExpression
+	CaptionLanguageMappings?: [..._#defs."/$defs/Properties/definitions/CmafIngestCaptionLanguageMapping"] |
 		fn.#ListExpression
-	CaptionLanguageMappings?: [
-		..._#defs."/$defs/Properties/definitions/CmafIngestCaptionLanguageMapping" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Destination?:              _#defs."/$defs/Properties/definitions/OutputLocationRef" | fn.#ObjectExpression
-	Id3Behavior?:              string | fn.#StringExpression
-	Id3NameModifier?:          string | fn.#StringExpression
-	KlvBehavior?:              string | fn.#StringExpression
-	KlvNameModifier?:          string | fn.#StringExpression
-	NielsenId3Behavior?:       string | fn.#StringExpression
-	NielsenId3NameModifier?:   string | fn.#StringExpression
-	Scte35NameModifier?:       string | fn.#StringExpression
-	Scte35Type?:               string | fn.#StringExpression
-	SegmentLength?:            int | fn.#NumberExpression
-	SegmentLengthUnits?:       string | fn.#StringExpression
-	SendDelayMs?:              int | fn.#NumberExpression
-	TimedMetadataId3Frame?:    string | fn.#StringExpression
-	TimedMetadataId3Period?:   int | fn.#NumberExpression
+	Destination?:            _#defs."/$defs/Properties/definitions/OutputLocationRef"
+	Id3Behavior?:            string | fn.#StringExpression
+	Id3NameModifier?:        string | fn.#StringExpression
+	KlvBehavior?:            string | fn.#StringExpression
+	KlvNameModifier?:        string | fn.#StringExpression
+	NielsenId3Behavior?:     string | fn.#StringExpression
+	NielsenId3NameModifier?: string | fn.#StringExpression
+	Scte35NameModifier?:     string | fn.#StringExpression
+	Scte35Type?:             string | fn.#StringExpression
+	SegmentLength?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SegmentLengthUnits?: string | fn.#StringExpression
+	SendDelayMs?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TimedMetadataId3Frame?: string | fn.#StringExpression
+	TimedMetadataId3Period?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	TimedMetadataPassthrough?: string | fn.#StringExpression
-	WatermarkingSettings?: _#defs."/$defs/Properties/definitions/CmafIngestWatermarkingSettings" | fn.#ObjectExpression
+	WatermarkingSettings?:     _#defs."/$defs/Properties/definitions/CmafIngestWatermarkingSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CmafIngestMediaPackageV2AbWatermarkerIrdetoSettings": close({
-	AdditionalDestinationsAlternateDestinations?: [
-		..._#defs."/$defs/Properties/definitions/OutputLocationRef" | fn.#ObjectExpression
-	] |
+	AdditionalDestinationsAlternateDestinations?: [..._#defs."/$defs/Properties/definitions/OutputLocationRef"] |
 		fn.#ListExpression
-	AlternateDestination?: _#defs."/$defs/Properties/definitions/OutputLocationRef" | fn.#ObjectExpression
-	CustomProfile?:        _#defs."/$defs/Properties/definitions/AbWatermarkingCustomProfile" | fn.#ObjectExpression
+	AlternateDestination?: _#defs."/$defs/Properties/definitions/OutputLocationRef"
+	CustomProfile?:        _#defs."/$defs/Properties/definitions/AbWatermarkingCustomProfile"
 	License?:              string | fn.#StringExpression
-	OperatorId?:           int | fn.#NumberExpression
-	PolyPeriod?:           int | fn.#NumberExpression
-	Profile?:              string | fn.#StringExpression
-	WatermarkIdLength?:    string | fn.#StringExpression
+	OperatorId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PolyPeriod?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Profile?:           string | fn.#StringExpression
+	WatermarkIdLength?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CmafIngestWatermarkingSettings": close({
-	CmafIngestAbWatermarkerIrdetoSettings?: _#defs."/$defs/Properties/definitions/CmafIngestMediaPackageV2AbWatermarkerIrdetoSettings" |
-		fn.#ObjectExpression
+	CmafIngestAbWatermarkerIrdetoSettings?:
+		_#defs."/$defs/Properties/definitions/CmafIngestMediaPackageV2AbWatermarkerIrdetoSettings"
 }) |
 	fn.#ObjectExpression
 
@@ -493,81 +1193,343 @@ _#defs: "/$defs/Properties/definitions/ColorCorrection": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ColorCorrectionSettings": close({
-	GlobalColorCorrections?: [..._#defs."/$defs/Properties/definitions/ColorCorrection" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/ColorCorrectionSettings": close(
+	{GlobalColorCorrections?: [..._#defs."/$defs/Properties/definitions/ColorCorrection"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DisabledLockingSettings": close({CustomEpoch?: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DvbNitSettings": close({
-	NetworkId?:   int | fn.#NumberExpression
+	NetworkId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	NetworkName?: string | fn.#StringExpression
-	RepInterval?: int | fn.#NumberExpression
+	RepInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DvbSdtSettings": close({
-	OutputSdt?:           string | fn.#StringExpression
-	RepInterval?:         int | fn.#NumberExpression
+	OutputSdt?: string | fn.#StringExpression
+	RepInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ServiceName?:         string | fn.#StringExpression
 	ServiceProviderName?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DvbTdtSettings": close({RepInterval?: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/DvbTdtSettings": close({
+	RepInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Eac3AtmosSettings": close({
-	Bitrate?:      number | fn.#NumberExpression
-	CodingMode?:   string | fn.#StringExpression
-	Dialnorm?:     int | fn.#NumberExpression
-	DrcLine?:      string | fn.#StringExpression
-	DrcRf?:        string | fn.#StringExpression
-	HeightTrim?:   number | fn.#NumberExpression
-	SurroundTrim?: number | fn.#NumberExpression
+	Bitrate?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CodingMode?: string | fn.#StringExpression
+	Dialnorm?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DrcLine?: string | fn.#StringExpression
+	DrcRf?:   string | fn.#StringExpression
+	HeightTrim?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SurroundTrim?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Eac3Settings": close({
-	AttenuationControl?:   string | fn.#StringExpression
-	Bitrate?:              number | fn.#NumberExpression
-	BitstreamMode?:        string | fn.#StringExpression
-	CodingMode?:           string | fn.#StringExpression
-	DcFilter?:             string | fn.#StringExpression
-	Dialnorm?:             int | fn.#NumberExpression
-	DrcLine?:              string | fn.#StringExpression
-	DrcRf?:                string | fn.#StringExpression
-	LfeControl?:           string | fn.#StringExpression
-	LfeFilter?:            string | fn.#StringExpression
-	LoRoCenterMixLevel?:   number | fn.#NumberExpression
-	LoRoSurroundMixLevel?: number | fn.#NumberExpression
-	LtRtCenterMixLevel?:   number | fn.#NumberExpression
-	LtRtSurroundMixLevel?: number | fn.#NumberExpression
-	MetadataControl?:      string | fn.#StringExpression
-	PassthroughControl?:   string | fn.#StringExpression
-	PhaseControl?:         string | fn.#StringExpression
-	StereoDownmix?:        string | fn.#StringExpression
-	SurroundExMode?:       string | fn.#StringExpression
-	SurroundMode?:         string | fn.#StringExpression
+	AttenuationControl?: string | fn.#StringExpression
+	Bitrate?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	BitstreamMode?: string | fn.#StringExpression
+	CodingMode?:    string | fn.#StringExpression
+	DcFilter?:      string | fn.#StringExpression
+	Dialnorm?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DrcLine?:    string | fn.#StringExpression
+	DrcRf?:      string | fn.#StringExpression
+	LfeControl?: string | fn.#StringExpression
+	LfeFilter?:  string | fn.#StringExpression
+	LoRoCenterMixLevel?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LoRoSurroundMixLevel?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LtRtCenterMixLevel?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LtRtSurroundMixLevel?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MetadataControl?:    string | fn.#StringExpression
+	PassthroughControl?: string | fn.#StringExpression
+	PhaseControl?:       string | fn.#StringExpression
+	StereoDownmix?:      string | fn.#StringExpression
+	SurroundExMode?:     string | fn.#StringExpression
+	SurroundMode?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EbuTtDDestinationSettings": close({
-	CopyrightHolder?:   string | fn.#StringExpression
-	DefaultFontSize?:   int | fn.#NumberExpression
-	DefaultLineHeight?: int | fn.#NumberExpression
-	FillLineGap?:       string | fn.#StringExpression
-	FontFamily?:        string | fn.#StringExpression
-	StyleControl?:      string | fn.#StringExpression
+	CopyrightHolder?: string | fn.#StringExpression
+	DefaultFontSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DefaultLineHeight?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FillLineGap?:  string | fn.#StringExpression
+	FontFamily?:   string | fn.#StringExpression
+	StyleControl?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EmbeddedCaptionPositionSettings": close(
-	{YPositionLine?: int | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/EmbeddedCaptionPositionSettings": close({
+	YPositionLine?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EmbeddedDestinationSettings": string |
@@ -576,34 +1538,56 @@ _#defs: "/$defs/Properties/definitions/EmbeddedDestinationSettings": string |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/EmbeddedSourceSettings": close({
-	Convert608To708?:        string | fn.#StringExpression
-	Scte20Detection?:        string | fn.#StringExpression
-	Source608ChannelNumber?: int | fn.#NumberExpression
-	Source608TrackNumber?:   int | fn.#NumberExpression
+	Convert608To708?: string | fn.#StringExpression
+	Scte20Detection?: string | fn.#StringExpression
+	Source608ChannelNumber?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Source608TrackNumber?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EmptyConfigurationSettings": close({}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EncoderSettings": close({
-	AudioDescriptions?: [..._#defs."/$defs/Properties/definitions/AudioDescription" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	AvailBlanking?:      _#defs."/$defs/Properties/definitions/AvailBlanking" | fn.#ObjectExpression
-	AvailConfiguration?: _#defs."/$defs/Properties/definitions/AvailConfiguration" | fn.#ObjectExpression
-	BlackoutSlate?:      _#defs."/$defs/Properties/definitions/BlackoutSlate" | fn.#ObjectExpression
-	CaptionDescriptions?: [..._#defs."/$defs/Properties/definitions/CaptionDescription" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ColorCorrectionSettings?: _#defs."/$defs/Properties/definitions/ColorCorrectionSettings" | fn.#ObjectExpression
-	FeatureActivations?:      _#defs."/$defs/Properties/definitions/FeatureActivations" | fn.#ObjectExpression
-	GlobalConfiguration?:     _#defs."/$defs/Properties/definitions/GlobalConfiguration" | fn.#ObjectExpression
-	MotionGraphicsConfiguration?: _#defs."/$defs/Properties/definitions/MotionGraphicsConfiguration" |
-		fn.#ObjectExpression
-	NielsenConfiguration?: _#defs."/$defs/Properties/definitions/NielsenConfiguration" | fn.#ObjectExpression
-	OutputGroups?: [..._#defs."/$defs/Properties/definitions/OutputGroup" | fn.#ObjectExpression] | fn.#ListExpression
-	ThumbnailConfiguration?: _#defs."/$defs/Properties/definitions/ThumbnailConfiguration" | fn.#ObjectExpression
-	TimecodeConfig?:         _#defs."/$defs/Properties/definitions/TimecodeConfig" | fn.#ObjectExpression
-	VideoDescriptions?: [..._#defs."/$defs/Properties/definitions/VideoDescription" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	AudioDescriptions?:           [..._#defs."/$defs/Properties/definitions/AudioDescription"] | fn.#ListExpression
+	AvailBlanking?:               _#defs."/$defs/Properties/definitions/AvailBlanking"
+	AvailConfiguration?:          _#defs."/$defs/Properties/definitions/AvailConfiguration"
+	BlackoutSlate?:               _#defs."/$defs/Properties/definitions/BlackoutSlate"
+	CaptionDescriptions?:         [..._#defs."/$defs/Properties/definitions/CaptionDescription"] | fn.#ListExpression
+	ColorCorrectionSettings?:     _#defs."/$defs/Properties/definitions/ColorCorrectionSettings"
+	FeatureActivations?:          _#defs."/$defs/Properties/definitions/FeatureActivations"
+	GlobalConfiguration?:         _#defs."/$defs/Properties/definitions/GlobalConfiguration"
+	MotionGraphicsConfiguration?: _#defs."/$defs/Properties/definitions/MotionGraphicsConfiguration"
+	NielsenConfiguration?:        _#defs."/$defs/Properties/definitions/NielsenConfiguration"
+	OutputGroups?:                [..._#defs."/$defs/Properties/definitions/OutputGroup"] | fn.#ListExpression
+	ThumbnailConfiguration?:      _#defs."/$defs/Properties/definitions/ThumbnailConfiguration"
+	TimecodeConfig?:              _#defs."/$defs/Properties/definitions/TimecodeConfig"
+	VideoDescriptions?:           [..._#defs."/$defs/Properties/definitions/VideoDescription"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -615,23 +1599,36 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Esam": close({
 	AcquisitionPointId?: string | fn.#StringExpression
-	AdAvailOffset?:      int | fn.#NumberExpression
-	PasswordParam?:      string | fn.#StringExpression
-	PoisEndpoint?:       string | fn.#StringExpression
-	Username?:           string | fn.#StringExpression
-	ZoneIdentity?:       string | fn.#StringExpression
+	AdAvailOffset?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PasswordParam?: string | fn.#StringExpression
+	PoisEndpoint?:  string | fn.#StringExpression
+	Username?:      string | fn.#StringExpression
+	ZoneIdentity?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FailoverCondition": close({
-	FailoverConditionSettings?: _#defs."/$defs/Properties/definitions/FailoverConditionSettings" | fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/FailoverCondition": close(
+	{FailoverConditionSettings?: _#defs."/$defs/Properties/definitions/FailoverConditionSettings"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FailoverConditionSettings": close({
-	AudioSilenceSettings?: _#defs."/$defs/Properties/definitions/AudioSilenceFailoverSettings" | fn.#ObjectExpression
-	InputLossSettings?:    _#defs."/$defs/Properties/definitions/InputLossFailoverSettings" | fn.#ObjectExpression
-	VideoBlackSettings?:   _#defs."/$defs/Properties/definitions/VideoBlackFailoverSettings" | fn.#ObjectExpression
+	AudioSilenceSettings?: _#defs."/$defs/Properties/definitions/AudioSilenceFailoverSettings"
+	InputLossSettings?:    _#defs."/$defs/Properties/definitions/InputLossFailoverSettings"
+	VideoBlackSettings?:   _#defs."/$defs/Properties/definitions/VideoBlackFailoverSettings"
 }) |
 fn.#ObjectExpression
 
@@ -642,9 +1639,35 @@ _#defs: "/$defs/Properties/definitions/FeatureActivations": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FecOutputSettings": close({
-	ColumnDepth?: int | fn.#NumberExpression
-	IncludeFec?:  string | fn.#StringExpression
-	RowLength?:   int | fn.#NumberExpression
+	ColumnDepth?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IncludeFec?: string | fn.#StringExpression
+	RowLength?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -661,107 +1684,368 @@ _#defs: "/$defs/Properties/definitions/FollowerChannelSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FrameCaptureCdnSettings": close({
-	FrameCaptureS3Settings?: _#defs."/$defs/Properties/definitions/ArchiveFrameCaptureHlsS3Settings" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/FrameCaptureCdnSettings": close(
+	{FrameCaptureS3Settings?: _#defs."/$defs/Properties/definitions/ArchiveFrameCaptureHlsS3Settings"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FrameCaptureGroupSettings": close({
-	Destination?:             _#defs."/$defs/Properties/definitions/OutputLocationRef" | fn.#ObjectExpression
-	FrameCaptureCdnSettings?: _#defs."/$defs/Properties/definitions/FrameCaptureCdnSettings" | fn.#ObjectExpression
+	Destination?:             _#defs."/$defs/Properties/definitions/OutputLocationRef"
+	FrameCaptureCdnSettings?: _#defs."/$defs/Properties/definitions/FrameCaptureCdnSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FrameCaptureSettings": close({
-	CaptureInterval?:        int | fn.#NumberExpression
+	CaptureInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	CaptureIntervalUnits?:   string | fn.#StringExpression
-	TimecodeBurninSettings?: _#defs."/$defs/Properties/definitions/TimecodeBurninSettings" | fn.#ObjectExpression
+	TimecodeBurninSettings?: _#defs."/$defs/Properties/definitions/TimecodeBurninSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GlobalConfiguration": close({
-	InitialAudioGain?:          int | fn.#NumberExpression
+	InitialAudioGain?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	InputEndAction?:            string | fn.#StringExpression
-	InputLossBehavior?:         _#defs."/$defs/Properties/definitions/InputLossBehavior" | fn.#ObjectExpression
+	InputLossBehavior?:         _#defs."/$defs/Properties/definitions/InputLossBehavior"
 	OutputLockingMode?:         string | fn.#StringExpression
-	OutputLockingSettings?:     _#defs."/$defs/Properties/definitions/OutputLockingSettings" | fn.#ObjectExpression
+	OutputLockingSettings?:     _#defs."/$defs/Properties/definitions/OutputLockingSettings"
 	OutputTimingSource?:        string | fn.#StringExpression
 	SupportLowFramerateInputs?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/H264ColorSpaceSettings": close({
-	ColorSpacePassthroughSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" |
-		fn.#ObjectExpression
-	Rec601Settings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" | fn.#ObjectExpression
-	Rec709Settings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" | fn.#ObjectExpression
+	ColorSpacePassthroughSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	Rec601Settings?:                _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	Rec709Settings?:                _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/H264H265FilterSettings": close({
-	BandwidthReductionFilterSettings?: _#defs."/$defs/Properties/definitions/BandwidthReductionFilterSettings" |
-		fn.#ObjectExpression
-	TemporalFilterSettings?: _#defs."/$defs/Properties/definitions/TemporalFilterSettings" | fn.#ObjectExpression
+	BandwidthReductionFilterSettings?: _#defs."/$defs/Properties/definitions/BandwidthReductionFilterSettings"
+	TemporalFilterSettings?:           _#defs."/$defs/Properties/definitions/TemporalFilterSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/H264Settings": close({
-	AdaptiveQuantization?:   string | fn.#StringExpression
-	AfdSignaling?:           string | fn.#StringExpression
-	Bitrate?:                int | fn.#NumberExpression
-	BufFillPct?:             int | fn.#NumberExpression
-	BufSize?:                int | fn.#NumberExpression
-	ColorMetadata?:          string | fn.#StringExpression
-	ColorSpaceSettings?:     _#defs."/$defs/Properties/definitions/H264ColorSpaceSettings" | fn.#ObjectExpression
-	EntropyEncoding?:        string | fn.#StringExpression
-	FilterSettings?:         _#defs."/$defs/Properties/definitions/H264H265FilterSettings" | fn.#ObjectExpression
-	FixedAfd?:               string | fn.#StringExpression
-	FlickerAq?:              string | fn.#StringExpression
-	ForceFieldPictures?:     string | fn.#StringExpression
-	FramerateControl?:       string | fn.#StringExpression
-	FramerateDenominator?:   int | fn.#NumberExpression
-	FramerateNumerator?:     int | fn.#NumberExpression
-	GopBReference?:          string | fn.#StringExpression
-	GopClosedCadence?:       int | fn.#NumberExpression
-	GopNumBFrames?:          int | fn.#NumberExpression
-	GopSize?:                number | fn.#NumberExpression
-	GopSizeUnits?:           string | fn.#StringExpression
-	Level?:                  string | fn.#StringExpression
-	LookAheadRateControl?:   string | fn.#StringExpression
-	MaxBitrate?:             int | fn.#NumberExpression
-	MinBitrate?:             int | fn.#NumberExpression
-	MinIInterval?:           int | fn.#NumberExpression
-	MinQp?:                  int | fn.#NumberExpression
-	NumRefFrames?:           int | fn.#NumberExpression
-	ParControl?:             string | fn.#StringExpression
-	ParDenominator?:         int | fn.#NumberExpression
-	ParNumerator?:           int | fn.#NumberExpression
-	Profile?:                string | fn.#StringExpression
-	QualityLevel?:           string | fn.#StringExpression
-	QvbrQualityLevel?:       int | fn.#NumberExpression
-	RateControlMode?:        string | fn.#StringExpression
-	ScanType?:               string | fn.#StringExpression
-	SceneChangeDetect?:      string | fn.#StringExpression
-	Slices?:                 int | fn.#NumberExpression
-	Softness?:               int | fn.#NumberExpression
+	AdaptiveQuantization?: string | fn.#StringExpression
+	AfdSignaling?:         string | fn.#StringExpression
+	Bitrate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	BufFillPct?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	BufSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ColorMetadata?:      string | fn.#StringExpression
+	ColorSpaceSettings?: _#defs."/$defs/Properties/definitions/H264ColorSpaceSettings"
+	EntropyEncoding?:    string | fn.#StringExpression
+	FilterSettings?:     _#defs."/$defs/Properties/definitions/H264H265FilterSettings"
+	FixedAfd?:           string | fn.#StringExpression
+	FlickerAq?:          string | fn.#StringExpression
+	ForceFieldPictures?: string | fn.#StringExpression
+	FramerateControl?:   string | fn.#StringExpression
+	FramerateDenominator?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FramerateNumerator?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GopBReference?: string | fn.#StringExpression
+	GopClosedCadence?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GopNumBFrames?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GopSize?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GopSizeUnits?:         string | fn.#StringExpression
+	Level?:                string | fn.#StringExpression
+	LookAheadRateControl?: string | fn.#StringExpression
+	MaxBitrate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinBitrate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinIInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinQp?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	NumRefFrames?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ParControl?: string | fn.#StringExpression
+	ParDenominator?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ParNumerator?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Profile?:      string | fn.#StringExpression
+	QualityLevel?: string | fn.#StringExpression
+	QvbrQualityLevel?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RateControlMode?:   string | fn.#StringExpression
+	ScanType?:          string | fn.#StringExpression
+	SceneChangeDetect?: string | fn.#StringExpression
+	Slices?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Softness?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SpatialAq?:              string | fn.#StringExpression
 	SubgopLength?:           string | fn.#StringExpression
 	Syntax?:                 string | fn.#StringExpression
 	TemporalAq?:             string | fn.#StringExpression
-	TimecodeBurninSettings?: _#defs."/$defs/Properties/definitions/TimecodeBurninSettings" | fn.#ObjectExpression
+	TimecodeBurninSettings?: _#defs."/$defs/Properties/definitions/TimecodeBurninSettings"
 	TimecodeInsertion?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/H265ColorSpaceSettings": close({
-	ColorSpacePassthroughSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" |
-		fn.#ObjectExpression
-	DolbyVision81Settings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" | fn.#ObjectExpression
-	Hdr10Settings?:         _#defs."/$defs/Properties/definitions/Hdr10Settings" | fn.#ObjectExpression
-	Hlg2020Settings?:       _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" | fn.#ObjectExpression
-	Rec601Settings?:        _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" | fn.#ObjectExpression
-	Rec709Settings?:        _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" | fn.#ObjectExpression
+	ColorSpacePassthroughSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	DolbyVision81Settings?:         _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	Hdr10Settings?:                 _#defs."/$defs/Properties/definitions/Hdr10Settings"
+	Hlg2020Settings?:               _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	Rec601Settings?:                _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	Rec709Settings?:                _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
 }) |
 fn.#ObjectExpression
 
@@ -769,194 +2053,833 @@ _#defs: "/$defs/Properties/definitions/H265Settings": close({
 	AdaptiveQuantization?:        string | fn.#StringExpression
 	AfdSignaling?:                string | fn.#StringExpression
 	AlternativeTransferFunction?: string | fn.#StringExpression
-	Bitrate?:                     int | fn.#NumberExpression
-	BufSize?:                     int | fn.#NumberExpression
-	ColorMetadata?:               string | fn.#StringExpression
-	ColorSpaceSettings?:          _#defs."/$defs/Properties/definitions/H265ColorSpaceSettings" | fn.#ObjectExpression
-	Deblocking?:                  string | fn.#StringExpression
-	FilterSettings?:              _#defs."/$defs/Properties/definitions/H264H265FilterSettings" | fn.#ObjectExpression
-	FixedAfd?:                    string | fn.#StringExpression
-	FlickerAq?:                   string | fn.#StringExpression
-	FramerateDenominator?:        int | fn.#NumberExpression
-	FramerateNumerator?:          int | fn.#NumberExpression
-	GopBReference?:               string | fn.#StringExpression
-	GopClosedCadence?:            int | fn.#NumberExpression
-	GopNumBFrames?:               int | fn.#NumberExpression
-	GopSize?:                     number | fn.#NumberExpression
-	GopSizeUnits?:                string | fn.#StringExpression
-	Level?:                       string | fn.#StringExpression
-	LookAheadRateControl?:        string | fn.#StringExpression
-	MaxBitrate?:                  int | fn.#NumberExpression
-	MinBitrate?:                  int | fn.#NumberExpression
-	MinIInterval?:                int | fn.#NumberExpression
-	MinQp?:                       int | fn.#NumberExpression
-	MvOverPictureBoundaries?:     string | fn.#StringExpression
-	MvTemporalPredictor?:         string | fn.#StringExpression
-	ParDenominator?:              int | fn.#NumberExpression
-	ParNumerator?:                int | fn.#NumberExpression
-	Profile?:                     string | fn.#StringExpression
-	QvbrQualityLevel?:            int | fn.#NumberExpression
-	RateControlMode?:             string | fn.#StringExpression
-	ScanType?:                    string | fn.#StringExpression
-	SceneChangeDetect?:           string | fn.#StringExpression
-	Slices?:                      int | fn.#NumberExpression
-	SubgopLength?:                string | fn.#StringExpression
-	Tier?:                        string | fn.#StringExpression
-	TileHeight?:                  int | fn.#NumberExpression
-	TilePadding?:                 string | fn.#StringExpression
-	TileWidth?:                   int | fn.#NumberExpression
-	TimecodeBurninSettings?:      _#defs."/$defs/Properties/definitions/TimecodeBurninSettings" | fn.#ObjectExpression
-	TimecodeInsertion?:           string | fn.#StringExpression
-	TreeblockSize?:               string | fn.#StringExpression
+	Bitrate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	BufSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ColorMetadata?:      string | fn.#StringExpression
+	ColorSpaceSettings?: _#defs."/$defs/Properties/definitions/H265ColorSpaceSettings"
+	Deblocking?:         string | fn.#StringExpression
+	FilterSettings?:     _#defs."/$defs/Properties/definitions/H264H265FilterSettings"
+	FixedAfd?:           string | fn.#StringExpression
+	FlickerAq?:          string | fn.#StringExpression
+	FramerateDenominator?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FramerateNumerator?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GopBReference?: string | fn.#StringExpression
+	GopClosedCadence?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GopNumBFrames?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GopSize?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GopSizeUnits?:         string | fn.#StringExpression
+	Level?:                string | fn.#StringExpression
+	LookAheadRateControl?: string | fn.#StringExpression
+	MaxBitrate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinBitrate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinIInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinQp?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MvOverPictureBoundaries?: string | fn.#StringExpression
+	MvTemporalPredictor?:     string | fn.#StringExpression
+	ParDenominator?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ParNumerator?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Profile?: string | fn.#StringExpression
+	QvbrQualityLevel?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RateControlMode?:   string | fn.#StringExpression
+	ScanType?:          string | fn.#StringExpression
+	SceneChangeDetect?: string | fn.#StringExpression
+	Slices?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SubgopLength?: string | fn.#StringExpression
+	Tier?:         string | fn.#StringExpression
+	TileHeight?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TilePadding?: string | fn.#StringExpression
+	TileWidth?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TimecodeBurninSettings?: _#defs."/$defs/Properties/definitions/TimecodeBurninSettings"
+	TimecodeInsertion?:      string | fn.#StringExpression
+	TreeblockSize?:          string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Hdr10Settings": close({
-	MaxCll?:  int | fn.#NumberExpression
-	MaxFall?: int | fn.#NumberExpression
+	MaxCll?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxFall?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HlsAkamaiSettings": close({
-	ConnectionRetryInterval?: int | fn.#NumberExpression
-	FilecacheDuration?:       int | fn.#NumberExpression
-	HttpTransferMode?:        string | fn.#StringExpression
-	NumRetries?:              int | fn.#NumberExpression
-	RestartDelay?:            int | fn.#NumberExpression
-	Salt?:                    string | fn.#StringExpression
-	Token?:                   string | fn.#StringExpression
+	ConnectionRetryInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FilecacheDuration?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	HttpTransferMode?: string | fn.#StringExpression
+	NumRetries?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RestartDelay?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Salt?:  string | fn.#StringExpression
+	Token?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HlsBasicPutSettings": close({
-	ConnectionRetryInterval?: int | fn.#NumberExpression
-	FilecacheDuration?:       int | fn.#NumberExpression
-	NumRetries?:              int | fn.#NumberExpression
-	RestartDelay?:            int | fn.#NumberExpression
+	ConnectionRetryInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FilecacheDuration?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	NumRetries?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RestartDelay?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HlsCdnSettings": close({
-	HlsAkamaiSettings?:     _#defs."/$defs/Properties/definitions/HlsAkamaiSettings" | fn.#ObjectExpression
-	HlsBasicPutSettings?:   _#defs."/$defs/Properties/definitions/HlsBasicPutSettings" | fn.#ObjectExpression
-	HlsMediaStoreSettings?: _#defs."/$defs/Properties/definitions/HlsMediaStoreSettings" | fn.#ObjectExpression
-	HlsS3Settings?:     _#defs."/$defs/Properties/definitions/ArchiveFrameCaptureHlsS3Settings" | fn.#ObjectExpression
-	HlsWebdavSettings?: _#defs."/$defs/Properties/definitions/HlsWebdavSettings" | fn.#ObjectExpression
+	HlsAkamaiSettings?:     _#defs."/$defs/Properties/definitions/HlsAkamaiSettings"
+	HlsBasicPutSettings?:   _#defs."/$defs/Properties/definitions/HlsBasicPutSettings"
+	HlsMediaStoreSettings?: _#defs."/$defs/Properties/definitions/HlsMediaStoreSettings"
+	HlsS3Settings?:         _#defs."/$defs/Properties/definitions/ArchiveFrameCaptureHlsS3Settings"
+	HlsWebdavSettings?:     _#defs."/$defs/Properties/definitions/HlsWebdavSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HlsGroupSettings": close({
-	AdMarkers?:        [...string | fn.#StringExpression] | fn.#ListExpression
-	BaseUrlContent?:   string | fn.#StringExpression
-	BaseUrlContent1?:  string | fn.#StringExpression
-	BaseUrlManifest?:  string | fn.#StringExpression
-	BaseUrlManifest1?: string | fn.#StringExpression
-	CaptionLanguageMappings?: [..._#defs."/$defs/Properties/definitions/CaptionLanguageMapping" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	CaptionLanguageSetting?:     string | fn.#StringExpression
-	ClientCache?:                string | fn.#StringExpression
-	CodecSpecification?:         string | fn.#StringExpression
-	ConstantIv?:                 string | fn.#StringExpression
-	Destination?:                _#defs."/$defs/Properties/definitions/OutputLocationRef" | fn.#ObjectExpression
-	DirectoryStructure?:         string | fn.#StringExpression
-	DiscontinuityTags?:          string | fn.#StringExpression
-	EncryptionType?:             string | fn.#StringExpression
-	HlsCdnSettings?:             _#defs."/$defs/Properties/definitions/HlsCdnSettings" | fn.#ObjectExpression
-	HlsId3SegmentTagging?:       string | fn.#StringExpression
-	IFrameOnlyPlaylists?:        string | fn.#StringExpression
-	IncompleteSegmentBehavior?:  string | fn.#StringExpression
-	IndexNSegments?:             int | fn.#NumberExpression
-	InputLossAction?:            string | fn.#StringExpression
-	IvInManifest?:               string | fn.#StringExpression
-	IvSource?:                   string | fn.#StringExpression
-	KeepSegments?:               int | fn.#NumberExpression
-	KeyFormat?:                  string | fn.#StringExpression
-	KeyFormatVersions?:          string | fn.#StringExpression
-	KeyProviderSettings?:        _#defs."/$defs/Properties/definitions/KeyProviderSettings" | fn.#ObjectExpression
-	ManifestCompression?:        string | fn.#StringExpression
-	ManifestDurationFormat?:     string | fn.#StringExpression
-	MinSegmentLength?:           int | fn.#NumberExpression
-	Mode?:                       string | fn.#StringExpression
-	OutputSelection?:            string | fn.#StringExpression
-	ProgramDateTime?:            string | fn.#StringExpression
-	ProgramDateTimeClock?:       string | fn.#StringExpression
-	ProgramDateTimePeriod?:      int | fn.#NumberExpression
-	RedundantManifest?:          string | fn.#StringExpression
-	SegmentLength?:              int | fn.#NumberExpression
-	SegmentationMode?:           string | fn.#StringExpression
-	SegmentsPerSubdirectory?:    int | fn.#NumberExpression
-	StreamInfResolution?:        string | fn.#StringExpression
-	TimedMetadataId3Frame?:      string | fn.#StringExpression
-	TimedMetadataId3Period?:     int | fn.#NumberExpression
-	TimestampDeltaMilliseconds?: int | fn.#NumberExpression
-	TsFileMode?:                 string | fn.#StringExpression
+	AdMarkers?:                 [...string | fn.#StringExpression] | fn.#ListExpression
+	BaseUrlContent?:            string | fn.#StringExpression
+	BaseUrlContent1?:           string | fn.#StringExpression
+	BaseUrlManifest?:           string | fn.#StringExpression
+	BaseUrlManifest1?:          string | fn.#StringExpression
+	CaptionLanguageMappings?:   [..._#defs."/$defs/Properties/definitions/CaptionLanguageMapping"] | fn.#ListExpression
+	CaptionLanguageSetting?:    string | fn.#StringExpression
+	ClientCache?:               string | fn.#StringExpression
+	CodecSpecification?:        string | fn.#StringExpression
+	ConstantIv?:                string | fn.#StringExpression
+	Destination?:               _#defs."/$defs/Properties/definitions/OutputLocationRef"
+	DirectoryStructure?:        string | fn.#StringExpression
+	DiscontinuityTags?:         string | fn.#StringExpression
+	EncryptionType?:            string | fn.#StringExpression
+	HlsCdnSettings?:            _#defs."/$defs/Properties/definitions/HlsCdnSettings"
+	HlsId3SegmentTagging?:      string | fn.#StringExpression
+	IFrameOnlyPlaylists?:       string | fn.#StringExpression
+	IncompleteSegmentBehavior?: string | fn.#StringExpression
+	IndexNSegments?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	InputLossAction?: string | fn.#StringExpression
+	IvInManifest?:    string | fn.#StringExpression
+	IvSource?:        string | fn.#StringExpression
+	KeepSegments?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	KeyFormat?:              string | fn.#StringExpression
+	KeyFormatVersions?:      string | fn.#StringExpression
+	KeyProviderSettings?:    _#defs."/$defs/Properties/definitions/KeyProviderSettings"
+	ManifestCompression?:    string | fn.#StringExpression
+	ManifestDurationFormat?: string | fn.#StringExpression
+	MinSegmentLength?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Mode?:                 string | fn.#StringExpression
+	OutputSelection?:      string | fn.#StringExpression
+	ProgramDateTime?:      string | fn.#StringExpression
+	ProgramDateTimeClock?: string | fn.#StringExpression
+	ProgramDateTimePeriod?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RedundantManifest?: string | fn.#StringExpression
+	SegmentLength?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SegmentationMode?: string | fn.#StringExpression
+	SegmentsPerSubdirectory?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StreamInfResolution?:   string | fn.#StringExpression
+	TimedMetadataId3Frame?: string | fn.#StringExpression
+	TimedMetadataId3Period?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TimestampDeltaMilliseconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TsFileMode?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HlsInputSettings": close({
-	Bandwidth?:      int | fn.#NumberExpression
-	BufferSegments?: int | fn.#NumberExpression
-	Retries?:        int | fn.#NumberExpression
-	RetryInterval?:  int | fn.#NumberExpression
-	Scte35Source?:   string | fn.#StringExpression
+	Bandwidth?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	BufferSegments?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Retries?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RetryInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Scte35Source?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HlsMediaStoreSettings": close({
-	ConnectionRetryInterval?: int | fn.#NumberExpression
-	FilecacheDuration?:       int | fn.#NumberExpression
-	MediaStoreStorageClass?:  string | fn.#StringExpression
-	NumRetries?:              int | fn.#NumberExpression
-	RestartDelay?:            int | fn.#NumberExpression
+	ConnectionRetryInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FilecacheDuration?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MediaStoreStorageClass?: string | fn.#StringExpression
+	NumRetries?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RestartDelay?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HlsOutputSettings": close({
 	H265PackagingType?: string | fn.#StringExpression
-	HlsSettings?:       _#defs."/$defs/Properties/definitions/HlsSettings" | fn.#ObjectExpression
+	HlsSettings?:       _#defs."/$defs/Properties/definitions/HlsSettings"
 	NameModifier?:      string | fn.#StringExpression
 	SegmentModifier?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HlsSettings": close({
-	AudioOnlyHlsSettings?:    _#defs."/$defs/Properties/definitions/AudioOnlyHlsSettings" | fn.#ObjectExpression
-	Fmp4HlsSettings?:         _#defs."/$defs/Properties/definitions/Fmp4HlsSettings" | fn.#ObjectExpression
-	FrameCaptureHlsSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" | fn.#ObjectExpression
-	StandardHlsSettings?:     _#defs."/$defs/Properties/definitions/StandardHlsSettings" | fn.#ObjectExpression
+	AudioOnlyHlsSettings?:    _#defs."/$defs/Properties/definitions/AudioOnlyHlsSettings"
+	Fmp4HlsSettings?:         _#defs."/$defs/Properties/definitions/Fmp4HlsSettings"
+	FrameCaptureHlsSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	StandardHlsSettings?:     _#defs."/$defs/Properties/definitions/StandardHlsSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HlsWebdavSettings": close({
-	ConnectionRetryInterval?: int | fn.#NumberExpression
-	FilecacheDuration?:       int | fn.#NumberExpression
-	HttpTransferMode?:        string | fn.#StringExpression
-	NumRetries?:              int | fn.#NumberExpression
-	RestartDelay?:            int | fn.#NumberExpression
+	ConnectionRetryInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FilecacheDuration?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	HttpTransferMode?: string | fn.#StringExpression
+	NumRetries?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RestartDelay?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceSettings": close({
-	AudioFeedInputs?: [..._#defs."/$defs/Properties/definitions/AudioFeedInput" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	AudioFeedInputs?:   [..._#defs."/$defs/Properties/definitions/AudioFeedInput"] | fn.#ListExpression
 	EnrichmentMethods?: [...string | fn.#StringExpression] | fn.#ListExpression
 	FeedArn?:           string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InputAttachment": close({
-	AutomaticInputFailoverSettings?: _#defs."/$defs/Properties/definitions/AutomaticInputFailoverSettings" |
-		fn.#ObjectExpression
-	InputAttachmentName?:   string | fn.#StringExpression
-	InputId?:               string | fn.#StringExpression
-	InputSettings?:         _#defs."/$defs/Properties/definitions/InputSettings" | fn.#ObjectExpression
-	LogicalInterfaceNames?: [...string | fn.#StringExpression] | fn.#ListExpression
+	AutomaticInputFailoverSettings?: _#defs."/$defs/Properties/definitions/AutomaticInputFailoverSettings"
+	InputAttachmentName?:            string | fn.#StringExpression
+	InputId?:                        string | fn.#StringExpression
+	InputSettings?:                  _#defs."/$defs/Properties/definitions/InputSettings"
+	LogicalInterfaceNames?:          [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InputChannelLevel": close({
-	Gain?:         int | fn.#NumberExpression
-	InputChannel?: int | fn.#NumberExpression
+	Gain?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	InputChannel?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -968,33 +2891,96 @@ _#defs: "/$defs/Properties/definitions/InputLocation": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InputLossBehavior": close({
-	BlackFrameMsec?:      int | fn.#NumberExpression
+	BlackFrameMsec?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	InputLossImageColor?: string | fn.#StringExpression
-	InputLossImageSlate?: _#defs."/$defs/Properties/definitions/InputLocation" | fn.#ObjectExpression
+	InputLossImageSlate?: _#defs."/$defs/Properties/definitions/InputLocation"
 	InputLossImageType?:  string | fn.#StringExpression
-	RepeatFrameMsec?:     int | fn.#NumberExpression
+	RepeatFrameMsec?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputLossFailoverSettings": close(
-	{InputLossThresholdMsec?: int | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/InputLossFailoverSettings": close({
+	InputLossThresholdMsec?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InputSettings": close({
-	AudioSelectors?: [..._#defs."/$defs/Properties/definitions/AudioSelector" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	CaptionSelectors?: [..._#defs."/$defs/Properties/definitions/CaptionSelector" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	DeblockFilter?:           string | fn.#StringExpression
-	DenoiseFilter?:           string | fn.#StringExpression
-	FilterStrength?:          int | fn.#NumberExpression
-	InputFilter?:             string | fn.#StringExpression
-	NetworkInputSettings?:    _#defs."/$defs/Properties/definitions/NetworkInputSettings" | fn.#ObjectExpression
-	Scte35Pid?:               int | fn.#NumberExpression
+	AudioSelectors?:   [..._#defs."/$defs/Properties/definitions/AudioSelector"] | fn.#ListExpression
+	CaptionSelectors?: [..._#defs."/$defs/Properties/definitions/CaptionSelector"] | fn.#ListExpression
+	DeblockFilter?:    string | fn.#StringExpression
+	DenoiseFilter?:    string | fn.#StringExpression
+	FilterStrength?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	InputFilter?:          string | fn.#StringExpression
+	NetworkInputSettings?: _#defs."/$defs/Properties/definitions/NetworkInputSettings"
+	Scte35Pid?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Smpte2038DataPreference?: string | fn.#StringExpression
 	SourceEndBehavior?:       string | fn.#StringExpression
-	VideoSelector?:           _#defs."/$defs/Properties/definitions/VideoSelector" | fn.#ObjectExpression
+	VideoSelector?:           _#defs."/$defs/Properties/definitions/VideoSelector"
 }) |
 fn.#ObjectExpression
 
@@ -1006,88 +2992,342 @@ _#defs: "/$defs/Properties/definitions/InputSpecification": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KeyProviderSettings": close(
-	{StaticKeySettings?: _#defs."/$defs/Properties/definitions/StaticKeySettings" | fn.#ObjectExpression},
+	{StaticKeySettings?: _#defs."/$defs/Properties/definitions/StaticKeySettings"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LinkedChannelSettings": close({
-	FollowerChannelSettings?: _#defs."/$defs/Properties/definitions/FollowerChannelSettings" | fn.#ObjectExpression
-	PrimaryChannelSettings?:  _#defs."/$defs/Properties/definitions/PrimaryChannelSettings" | fn.#ObjectExpression
+	FollowerChannelSettings?: _#defs."/$defs/Properties/definitions/FollowerChannelSettings"
+	PrimaryChannelSettings?:  _#defs."/$defs/Properties/definitions/PrimaryChannelSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/M2tsSettings": close({
-	AbsentInputAudioBehavior?:        string | fn.#StringExpression
-	Arib?:                            string | fn.#StringExpression
-	AribCaptionsPid?:                 string | fn.#StringExpression
-	AribCaptionsPidControl?:          string | fn.#StringExpression
-	AudioBufferModel?:                string | fn.#StringExpression
-	AudioFramesPerPes?:               int | fn.#NumberExpression
-	AudioPids?:                       string | fn.#StringExpression
-	AudioStreamType?:                 string | fn.#StringExpression
-	Bitrate?:                         int | fn.#NumberExpression
-	BufferModel?:                     string | fn.#StringExpression
-	CcDescriptor?:                    string | fn.#StringExpression
-	DvbNitSettings?:                  _#defs."/$defs/Properties/definitions/DvbNitSettings" | fn.#ObjectExpression
-	DvbSdtSettings?:                  _#defs."/$defs/Properties/definitions/DvbSdtSettings" | fn.#ObjectExpression
-	DvbSubPids?:                      string | fn.#StringExpression
-	DvbTdtSettings?:                  _#defs."/$defs/Properties/definitions/DvbTdtSettings" | fn.#ObjectExpression
-	DvbTeletextPid?:                  string | fn.#StringExpression
-	Ebif?:                            string | fn.#StringExpression
-	EbpAudioInterval?:                string | fn.#StringExpression
-	EbpLookaheadMs?:                  int | fn.#NumberExpression
-	EbpPlacement?:                    string | fn.#StringExpression
-	EcmPid?:                          string | fn.#StringExpression
-	EsRateInPes?:                     string | fn.#StringExpression
-	EtvPlatformPid?:                  string | fn.#StringExpression
-	EtvSignalPid?:                    string | fn.#StringExpression
-	FragmentTime?:                    number | fn.#NumberExpression
-	Klv?:                             string | fn.#StringExpression
-	KlvDataPids?:                     string | fn.#StringExpression
-	NielsenId3Behavior?:              string | fn.#StringExpression
-	NullPacketBitrate?:               number | fn.#NumberExpression
-	PatInterval?:                     int | fn.#NumberExpression
-	PcrControl?:                      string | fn.#StringExpression
-	PcrPeriod?:                       int | fn.#NumberExpression
-	PcrPid?:                          string | fn.#StringExpression
-	PmtInterval?:                     int | fn.#NumberExpression
-	PmtPid?:                          string | fn.#StringExpression
-	ProgramNum?:                      int | fn.#NumberExpression
-	RateMode?:                        string | fn.#StringExpression
-	Scte27Pids?:                      string | fn.#StringExpression
-	Scte35Control?:                   string | fn.#StringExpression
-	Scte35Pid?:                       string | fn.#StringExpression
-	Scte35PrerollPullupMilliseconds?: number | fn.#NumberExpression
-	SegmentationMarkers?:             string | fn.#StringExpression
-	SegmentationStyle?:               string | fn.#StringExpression
-	SegmentationTime?:                number | fn.#NumberExpression
-	TimedMetadataBehavior?:           string | fn.#StringExpression
-	TimedMetadataPid?:                string | fn.#StringExpression
-	TransportStreamId?:               int | fn.#NumberExpression
-	VideoPid?:                        string | fn.#StringExpression
+	AbsentInputAudioBehavior?: string | fn.#StringExpression
+	Arib?:                     string | fn.#StringExpression
+	AribCaptionsPid?:          string | fn.#StringExpression
+	AribCaptionsPidControl?:   string | fn.#StringExpression
+	AudioBufferModel?:         string | fn.#StringExpression
+	AudioFramesPerPes?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	AudioPids?:       string | fn.#StringExpression
+	AudioStreamType?: string | fn.#StringExpression
+	Bitrate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	BufferModel?:      string | fn.#StringExpression
+	CcDescriptor?:     string | fn.#StringExpression
+	DvbNitSettings?:   _#defs."/$defs/Properties/definitions/DvbNitSettings"
+	DvbSdtSettings?:   _#defs."/$defs/Properties/definitions/DvbSdtSettings"
+	DvbSubPids?:       string | fn.#StringExpression
+	DvbTdtSettings?:   _#defs."/$defs/Properties/definitions/DvbTdtSettings"
+	DvbTeletextPid?:   string | fn.#StringExpression
+	Ebif?:             string | fn.#StringExpression
+	EbpAudioInterval?: string | fn.#StringExpression
+	EbpLookaheadMs?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	EbpPlacement?:   string | fn.#StringExpression
+	EcmPid?:         string | fn.#StringExpression
+	EsRateInPes?:    string | fn.#StringExpression
+	EtvPlatformPid?: string | fn.#StringExpression
+	EtvSignalPid?:   string | fn.#StringExpression
+	FragmentTime?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Klv?:                string | fn.#StringExpression
+	KlvDataPids?:        string | fn.#StringExpression
+	NielsenId3Behavior?: string | fn.#StringExpression
+	NullPacketBitrate?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PatInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PcrControl?: string | fn.#StringExpression
+	PcrPeriod?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PcrPid?: string | fn.#StringExpression
+	PmtInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PmtPid?: string | fn.#StringExpression
+	ProgramNum?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RateMode?:      string | fn.#StringExpression
+	Scte27Pids?:    string | fn.#StringExpression
+	Scte35Control?: string | fn.#StringExpression
+	Scte35Pid?:     string | fn.#StringExpression
+	Scte35PrerollPullupMilliseconds?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SegmentationMarkers?: string | fn.#StringExpression
+	SegmentationStyle?:   string | fn.#StringExpression
+	SegmentationTime?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TimedMetadataBehavior?: string | fn.#StringExpression
+	TimedMetadataPid?:      string | fn.#StringExpression
+	TransportStreamId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VideoPid?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/M3u8Settings": close({
-	AudioFramesPerPes?:     int | fn.#NumberExpression
-	AudioPids?:             string | fn.#StringExpression
-	EcmPid?:                string | fn.#StringExpression
-	KlvBehavior?:           string | fn.#StringExpression
-	KlvDataPids?:           string | fn.#StringExpression
-	NielsenId3Behavior?:    string | fn.#StringExpression
-	PatInterval?:           int | fn.#NumberExpression
-	PcrControl?:            string | fn.#StringExpression
-	PcrPeriod?:             int | fn.#NumberExpression
-	PcrPid?:                string | fn.#StringExpression
-	PmtInterval?:           int | fn.#NumberExpression
-	PmtPid?:                string | fn.#StringExpression
-	ProgramNum?:            int | fn.#NumberExpression
+	AudioFramesPerPes?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	AudioPids?:          string | fn.#StringExpression
+	EcmPid?:             string | fn.#StringExpression
+	KlvBehavior?:        string | fn.#StringExpression
+	KlvDataPids?:        string | fn.#StringExpression
+	NielsenId3Behavior?: string | fn.#StringExpression
+	PatInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PcrControl?: string | fn.#StringExpression
+	PcrPeriod?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PcrPid?: string | fn.#StringExpression
+	PmtInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PmtPid?: string | fn.#StringExpression
+	ProgramNum?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Scte35Behavior?:        string | fn.#StringExpression
 	Scte35Pid?:             string | fn.#StringExpression
 	TimedMetadataBehavior?: string | fn.#StringExpression
 	TimedMetadataPid?:      string | fn.#StringExpression
-	TransportStreamId?:     int | fn.#NumberExpression
-	VideoPid?:              string | fn.#StringExpression
+	TransportStreamId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VideoPid?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1115,18 +3355,15 @@ _#defs: "/$defs/Properties/definitions/MediaConnectRouterOutputDestinationSettin
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MediaConnectRouterOutputSettings": close({
-	ConnectedRouterInputs?: _#defs."/$defs/Properties/definitions/MediaConnectRouterOutputConnectionMap" |
-		fn.#ObjectExpression
-	ContainerSettings?: _#defs."/$defs/Properties/definitions/UdpMediaConnectRouterContainerSettings" |
-		fn.#ObjectExpression
-	Destination?: _#defs."/$defs/Properties/definitions/OutputLocationRef" | fn.#ObjectExpression
+	ConnectedRouterInputs?: _#defs."/$defs/Properties/definitions/MediaConnectRouterOutputConnectionMap"
+	ContainerSettings?:     _#defs."/$defs/Properties/definitions/UdpMediaConnectRouterContainerSettings"
+	Destination?:           _#defs."/$defs/Properties/definitions/OutputLocationRef"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MediaPackageGroupSettings": close({
-	Destination?: _#defs."/$defs/Properties/definitions/OutputLocationRef" | fn.#ObjectExpression
-	MediapackageV2GroupSettings?: _#defs."/$defs/Properties/definitions/MediaPackageV2GroupSettings" |
-		fn.#ObjectExpression
+	Destination?:                 _#defs."/$defs/Properties/definitions/OutputLocationRef"
+	MediapackageV2GroupSettings?: _#defs."/$defs/Properties/definitions/MediaPackageV2GroupSettings"
 }) |
 fn.#ObjectExpression
 
@@ -1154,71 +3391,199 @@ _#defs: "/$defs/Properties/definitions/MediaPackageV2DestinationSettings": close
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MediaPackageV2GroupSettings": close({
-	AdditionalDestinations?: [..._#defs."/$defs/Properties/definitions/AdditionalDestinations" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	CaptionLanguageMappings?: [..._#defs."/$defs/Properties/definitions/CaptionLanguageMapping" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Id3Behavior?:              string | fn.#StringExpression
-	KlvBehavior?:              string | fn.#StringExpression
-	NielsenId3Behavior?:       string | fn.#StringExpression
-	Scte35Type?:               string | fn.#StringExpression
-	SegmentLength?:            int | fn.#NumberExpression
-	SegmentLengthUnits?:       string | fn.#StringExpression
-	TimedMetadataId3Frame?:    string | fn.#StringExpression
-	TimedMetadataId3Period?:   int | fn.#NumberExpression
+	AdditionalDestinations?:  [..._#defs."/$defs/Properties/definitions/AdditionalDestinations"] | fn.#ListExpression
+	CaptionLanguageMappings?: [..._#defs."/$defs/Properties/definitions/CaptionLanguageMapping"] | fn.#ListExpression
+	Id3Behavior?:             string | fn.#StringExpression
+	KlvBehavior?:             string | fn.#StringExpression
+	NielsenId3Behavior?:      string | fn.#StringExpression
+	Scte35Type?:              string | fn.#StringExpression
+	SegmentLength?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SegmentLengthUnits?:    string | fn.#StringExpression
+	TimedMetadataId3Frame?: string | fn.#StringExpression
+	TimedMetadataId3Period?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	TimedMetadataPassthrough?: string | fn.#StringExpression
-	WatermarkingSettings?: _#defs."/$defs/Properties/definitions/MediaPackageV2WatermarkingSettings" |
-		fn.#ObjectExpression
+	WatermarkingSettings?:     _#defs."/$defs/Properties/definitions/MediaPackageV2WatermarkingSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MediaPackageV2WatermarkingSettings": close({
-	MediaPackageV2AbWatermarkerIrdetoSettings?: _#defs."/$defs/Properties/definitions/CmafIngestMediaPackageV2AbWatermarkerIrdetoSettings" |
-		fn.#ObjectExpression
+	MediaPackageV2AbWatermarkerIrdetoSettings?:
+		_#defs."/$defs/Properties/definitions/CmafIngestMediaPackageV2AbWatermarkerIrdetoSettings"
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MotionGraphicsConfiguration": close({
 	MotionGraphicsInsertion?: string | fn.#StringExpression
-	MotionGraphicsSettings?:  _#defs."/$defs/Properties/definitions/MotionGraphicsSettings" | fn.#ObjectExpression
+	MotionGraphicsSettings?:  _#defs."/$defs/Properties/definitions/MotionGraphicsSettings"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MotionGraphicsSettings": close({
-	HtmlMotionGraphicsSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/MotionGraphicsSettings": close(
+	{HtmlMotionGraphicsSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Mp2Settings": close({
-	Bitrate?:    number | fn.#NumberExpression
+	Bitrate?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	CodingMode?: string | fn.#StringExpression
-	SampleRate?: number | fn.#NumberExpression
+	SampleRate?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Mpeg2FilterSettings": close(
-	{TemporalFilterSettings?: _#defs."/$defs/Properties/definitions/TemporalFilterSettings" | fn.#ObjectExpression},
+	{TemporalFilterSettings?: _#defs."/$defs/Properties/definitions/TemporalFilterSettings"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Mpeg2Settings": close({
-	AdaptiveQuantization?:   string | fn.#StringExpression
-	AfdSignaling?:           string | fn.#StringExpression
-	ColorMetadata?:          string | fn.#StringExpression
-	ColorSpace?:             string | fn.#StringExpression
-	DisplayAspectRatio?:     string | fn.#StringExpression
-	FilterSettings?:         _#defs."/$defs/Properties/definitions/Mpeg2FilterSettings" | fn.#ObjectExpression
-	FixedAfd?:               string | fn.#StringExpression
-	FramerateDenominator?:   int | fn.#NumberExpression
-	FramerateNumerator?:     int | fn.#NumberExpression
-	GopClosedCadence?:       int | fn.#NumberExpression
-	GopNumBFrames?:          int | fn.#NumberExpression
-	GopSize?:                number | fn.#NumberExpression
+	AdaptiveQuantization?: string | fn.#StringExpression
+	AfdSignaling?:         string | fn.#StringExpression
+	ColorMetadata?:        string | fn.#StringExpression
+	ColorSpace?:           string | fn.#StringExpression
+	DisplayAspectRatio?:   string | fn.#StringExpression
+	FilterSettings?:       _#defs."/$defs/Properties/definitions/Mpeg2FilterSettings"
+	FixedAfd?:             string | fn.#StringExpression
+	FramerateDenominator?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FramerateNumerator?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GopClosedCadence?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GopNumBFrames?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GopSize?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	GopSizeUnits?:           string | fn.#StringExpression
 	ScanType?:               string | fn.#StringExpression
 	SubgopLength?:           string | fn.#StringExpression
-	TimecodeBurninSettings?: _#defs."/$defs/Properties/definitions/TimecodeBurninSettings" | fn.#ObjectExpression
+	TimecodeBurninSettings?: _#defs."/$defs/Properties/definitions/TimecodeBurninSettings"
 	TimecodeInsertion?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -1227,22 +3592,100 @@ _#defs: "/$defs/Properties/definitions/MsSmoothGroupSettings": close({
 	AcquisitionPointId?:       string | fn.#StringExpression
 	AudioOnlyTimecodeControl?: string | fn.#StringExpression
 	CertificateMode?:          string | fn.#StringExpression
-	ConnectionRetryInterval?:  int | fn.#NumberExpression
-	Destination?:              _#defs."/$defs/Properties/definitions/OutputLocationRef" | fn.#ObjectExpression
-	EventId?:                  string | fn.#StringExpression
-	EventIdMode?:              string | fn.#StringExpression
-	EventStopBehavior?:        string | fn.#StringExpression
-	FilecacheDuration?:        int | fn.#NumberExpression
-	FragmentLength?:           int | fn.#NumberExpression
-	InputLossAction?:          string | fn.#StringExpression
-	NumRetries?:               int | fn.#NumberExpression
-	RestartDelay?:             int | fn.#NumberExpression
-	SegmentationMode?:         string | fn.#StringExpression
-	SendDelayMs?:              int | fn.#NumberExpression
-	SparseTrackType?:          string | fn.#StringExpression
-	StreamManifestBehavior?:   string | fn.#StringExpression
-	TimestampOffset?:          string | fn.#StringExpression
-	TimestampOffsetMode?:      string | fn.#StringExpression
+	ConnectionRetryInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Destination?:       _#defs."/$defs/Properties/definitions/OutputLocationRef"
+	EventId?:           string | fn.#StringExpression
+	EventIdMode?:       string | fn.#StringExpression
+	EventStopBehavior?: string | fn.#StringExpression
+	FilecacheDuration?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FragmentLength?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	InputLossAction?: string | fn.#StringExpression
+	NumRetries?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RestartDelay?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SegmentationMode?: string | fn.#StringExpression
+	SendDelayMs?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SparseTrackType?:        string | fn.#StringExpression
+	StreamManifestBehavior?: string | fn.#StringExpression
+	TimestampOffset?:        string | fn.#StringExpression
+	TimestampOffsetMode?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1256,31 +3699,75 @@ _#defs: "/$defs/Properties/definitions/MulticastInputSettings": close({SourceIpA
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MultiplexContainerSettings": close(
-	{MultiplexM2tsSettings?: _#defs."/$defs/Properties/definitions/MultiplexM2tsSettings" | fn.#ObjectExpression},
+	{MultiplexM2tsSettings?: _#defs."/$defs/Properties/definitions/MultiplexM2tsSettings"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MultiplexM2tsSettings": close({
-	AbsentInputAudioBehavior?:        string | fn.#StringExpression
-	Arib?:                            string | fn.#StringExpression
-	AudioBufferModel?:                string | fn.#StringExpression
-	AudioFramesPerPes?:               int | fn.#NumberExpression
-	AudioStreamType?:                 string | fn.#StringExpression
-	CcDescriptor?:                    string | fn.#StringExpression
-	Ebif?:                            string | fn.#StringExpression
-	EsRateInPes?:                     string | fn.#StringExpression
-	Klv?:                             string | fn.#StringExpression
-	NielsenId3Behavior?:              string | fn.#StringExpression
-	PcrControl?:                      string | fn.#StringExpression
-	PcrPeriod?:                       int | fn.#NumberExpression
-	Scte35Control?:                   string | fn.#StringExpression
-	Scte35PrerollPullupMilliseconds?: number | fn.#NumberExpression
+	AbsentInputAudioBehavior?: string | fn.#StringExpression
+	Arib?:                     string | fn.#StringExpression
+	AudioBufferModel?:         string | fn.#StringExpression
+	AudioFramesPerPes?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	AudioStreamType?:    string | fn.#StringExpression
+	CcDescriptor?:       string | fn.#StringExpression
+	Ebif?:               string | fn.#StringExpression
+	EsRateInPes?:        string | fn.#StringExpression
+	Klv?:                string | fn.#StringExpression
+	NielsenId3Behavior?: string | fn.#StringExpression
+	PcrControl?:         string | fn.#StringExpression
+	PcrPeriod?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Scte35Control?: string | fn.#StringExpression
+	Scte35PrerollPullupMilliseconds?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MultiplexOutputSettings": close({
-	ContainerSettings?: _#defs."/$defs/Properties/definitions/MultiplexContainerSettings" | fn.#ObjectExpression
-	Destination?:       _#defs."/$defs/Properties/definitions/OutputLocationRef" | fn.#ObjectExpression
+	ContainerSettings?: _#defs."/$defs/Properties/definitions/MultiplexContainerSettings"
+	Destination?:       _#defs."/$defs/Properties/definitions/OutputLocationRef"
 }) |
 fn.#ObjectExpression
 
@@ -1291,8 +3778,8 @@ _#defs: "/$defs/Properties/definitions/MultiplexProgramChannelDestinationSetting
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkInputSettings": close({
-	HlsInputSettings?:       _#defs."/$defs/Properties/definitions/HlsInputSettings" | fn.#ObjectExpression
-	MulticastInputSettings?: _#defs."/$defs/Properties/definitions/MulticastInputSettings" | fn.#ObjectExpression
+	HlsInputSettings?:       _#defs."/$defs/Properties/definitions/HlsInputSettings"
+	MulticastInputSettings?: _#defs."/$defs/Properties/definitions/MulticastInputSettings"
 	ServerValidation?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -1312,16 +3799,34 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NielsenNaesIiNwOnlySettings": close({
 	CheckDigitString?: string | fn.#StringExpression
-	Sid?:              number | fn.#NumberExpression
-	Timezone?:         string | fn.#StringExpression
+	Sid?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Timezone?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NielsenWatermarksSettings": close({
-	NielsenCbetSettings?:     _#defs."/$defs/Properties/definitions/NielsenCBET" | fn.#ObjectExpression
+	NielsenCbetSettings?:     _#defs."/$defs/Properties/definitions/NielsenCBET"
 	NielsenDistributionType?: string | fn.#StringExpression
-	NielsenNaesIiNwSettings?: _#defs."/$defs/Properties/definitions/NielsenNaesIiNwOnlySettings" | fn.#ObjectExpression
-	NielsenNwOnlySettings?:   _#defs."/$defs/Properties/definitions/NielsenNaesIiNwOnlySettings" | fn.#ObjectExpression
+	NielsenNaesIiNwSettings?: _#defs."/$defs/Properties/definitions/NielsenNaesIiNwOnlySettings"
+	NielsenNwOnlySettings?:   _#defs."/$defs/Properties/definitions/NielsenNaesIiNwOnlySettings"
 }) |
 fn.#ObjectExpression
 
@@ -1329,7 +3834,7 @@ _#defs: "/$defs/Properties/definitions/Output": close({
 	AudioDescriptionNames?:   [...string | fn.#StringExpression] | fn.#ListExpression
 	CaptionDescriptionNames?: [...string | fn.#StringExpression] | fn.#ListExpression
 	OutputName?:              string | fn.#StringExpression
-	OutputSettings?:          _#defs."/$defs/Properties/definitions/OutputSettings" | fn.#ObjectExpression
+	OutputSettings?:          _#defs."/$defs/Properties/definitions/OutputSettings"
 	VideoDescriptionName?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -1337,20 +3842,13 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/OutputDestination": close({
 	Id?:                    string | fn.#StringExpression
 	LogicalInterfaceNames?: [...string | fn.#StringExpression] | fn.#ListExpression
-	MediaConnectRouterSettings?: [
-		..._#defs."/$defs/Properties/definitions/MediaConnectRouterOutputDestinationSettings" | fn.#ObjectExpression
-	] |
+	MediaConnectRouterSettings?: [..._#defs."/$defs/Properties/definitions/MediaConnectRouterOutputDestinationSettings"] |
 		fn.#ListExpression
-	MediaPackageSettings?: [
-		..._#defs."/$defs/Properties/definitions/MediaPackageOutputDestinationSettings" | fn.#ObjectExpression
-	] |
+	MediaPackageSettings?: [..._#defs."/$defs/Properties/definitions/MediaPackageOutputDestinationSettings"] |
 		fn.#ListExpression
-	MultiplexSettings?: _#defs."/$defs/Properties/definitions/MultiplexProgramChannelDestinationSettings" |
-		fn.#ObjectExpression
-	Settings?: [..._#defs."/$defs/Properties/definitions/OutputDestinationSettings" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	SrtSettings?: [..._#defs."/$defs/Properties/definitions/SrtOutputDestinationSettings" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	MultiplexSettings?: _#defs."/$defs/Properties/definitions/MultiplexProgramChannelDestinationSettings"
+	Settings?:          [..._#defs."/$defs/Properties/definitions/OutputDestinationSettings"] | fn.#ListExpression
+	SrtSettings?:       [..._#defs."/$defs/Properties/definitions/SrtOutputDestinationSettings"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -1365,24 +3863,23 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OutputGroup": close({
 	Name?:                string | fn.#StringExpression
-	OutputGroupSettings?: _#defs."/$defs/Properties/definitions/OutputGroupSettings" | fn.#ObjectExpression
-	Outputs?:             [..._#defs."/$defs/Properties/definitions/Output" | fn.#ObjectExpression] | fn.#ListExpression
+	OutputGroupSettings?: _#defs."/$defs/Properties/definitions/OutputGroupSettings"
+	Outputs?:             [..._#defs."/$defs/Properties/definitions/Output"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OutputGroupSettings": close({
-	ArchiveGroupSettings?:      _#defs."/$defs/Properties/definitions/ArchiveGroupSettings" | fn.#ObjectExpression
-	CmafIngestGroupSettings?:   _#defs."/$defs/Properties/definitions/CmafIngestGroupSettings" | fn.#ObjectExpression
-	FrameCaptureGroupSettings?: _#defs."/$defs/Properties/definitions/FrameCaptureGroupSettings" | fn.#ObjectExpression
-	HlsGroupSettings?:          _#defs."/$defs/Properties/definitions/HlsGroupSettings" | fn.#ObjectExpression
-	MediaConnectRouterGroupSettings?: _#defs."/$defs/Properties/definitions/MediaConnectRouterGroupSettings" |
-		fn.#ObjectExpression
-	MediaPackageGroupSettings?: _#defs."/$defs/Properties/definitions/MediaPackageGroupSettings" | fn.#ObjectExpression
-	MsSmoothGroupSettings?:     _#defs."/$defs/Properties/definitions/MsSmoothGroupSettings" | fn.#ObjectExpression
-	MultiplexGroupSettings?:    _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings" | fn.#ObjectExpression
-	RtmpGroupSettings?:         _#defs."/$defs/Properties/definitions/RtmpGroupSettings" | fn.#ObjectExpression
-	SrtGroupSettings?:          _#defs."/$defs/Properties/definitions/SrtGroupSettings" | fn.#ObjectExpression
-	UdpGroupSettings?:          _#defs."/$defs/Properties/definitions/UdpGroupSettings" | fn.#ObjectExpression
+	ArchiveGroupSettings?:            _#defs."/$defs/Properties/definitions/ArchiveGroupSettings"
+	CmafIngestGroupSettings?:         _#defs."/$defs/Properties/definitions/CmafIngestGroupSettings"
+	FrameCaptureGroupSettings?:       _#defs."/$defs/Properties/definitions/FrameCaptureGroupSettings"
+	HlsGroupSettings?:                _#defs."/$defs/Properties/definitions/HlsGroupSettings"
+	MediaConnectRouterGroupSettings?: _#defs."/$defs/Properties/definitions/MediaConnectRouterGroupSettings"
+	MediaPackageGroupSettings?:       _#defs."/$defs/Properties/definitions/MediaPackageGroupSettings"
+	MsSmoothGroupSettings?:           _#defs."/$defs/Properties/definitions/MsSmoothGroupSettings"
+	MultiplexGroupSettings?:          _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+	RtmpGroupSettings?:               _#defs."/$defs/Properties/definitions/RtmpGroupSettings"
+	SrtGroupSettings?:                _#defs."/$defs/Properties/definitions/SrtGroupSettings"
+	UdpGroupSettings?:                _#defs."/$defs/Properties/definitions/UdpGroupSettings"
 }) |
 fn.#ObjectExpression
 
@@ -1390,31 +3887,24 @@ _#defs: "/$defs/Properties/definitions/OutputLocationRef": close({DestinationRef
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OutputLockingSettings": close({
-	DisabledLockingSettings?: _#defs."/$defs/Properties/definitions/DisabledLockingSettings" | fn.#ObjectExpression
-	EpochLockingSettings?:    _#defs."/$defs/Properties/definitions/EpochLockingSettings" | fn.#ObjectExpression
-	PipelineLockingSettings?: _#defs."/$defs/Properties/definitions/PipelineLockingSettings" |
-		fn.#ObjectExpression |
-		fn.#StringExpression
+	DisabledLockingSettings?: _#defs."/$defs/Properties/definitions/DisabledLockingSettings"
+	EpochLockingSettings?:    _#defs."/$defs/Properties/definitions/EpochLockingSettings"
+	PipelineLockingSettings?: _#defs."/$defs/Properties/definitions/PipelineLockingSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OutputSettings": close({
-	ArchiveOutputSettings?: _#defs."/$defs/Properties/definitions/ArchiveOutputSettings" | fn.#ObjectExpression
-	CmafIngestOutputSettings?: _#defs."/$defs/Properties/definitions/CmafIngestFrameCaptureOutputSettings" |
-		fn.#ObjectExpression
-	FrameCaptureOutputSettings?: _#defs."/$defs/Properties/definitions/CmafIngestFrameCaptureOutputSettings" |
-		fn.#ObjectExpression
-	HlsOutputSettings?: _#defs."/$defs/Properties/definitions/HlsOutputSettings" | fn.#ObjectExpression
-	MediaConnectRouterOutputSettings?: _#defs."/$defs/Properties/definitions/MediaConnectRouterOutputSettings" |
-		fn.#ObjectExpression
-	MediaPackageOutputSettings?: _#defs."/$defs/Properties/definitions/MediaPackageOutputSettings" |
-		fn.#ObjectExpression |
-		fn.#StringExpression
-	MsSmoothOutputSettings?:  _#defs."/$defs/Properties/definitions/MsSmoothOutputSettings" | fn.#ObjectExpression
-	MultiplexOutputSettings?: _#defs."/$defs/Properties/definitions/MultiplexOutputSettings" | fn.#ObjectExpression
-	RtmpOutputSettings?:      _#defs."/$defs/Properties/definitions/RtmpOutputSettings" | fn.#ObjectExpression
-	SrtOutputSettings?:       _#defs."/$defs/Properties/definitions/SrtOutputSettings" | fn.#ObjectExpression
-	UdpOutputSettings?:       _#defs."/$defs/Properties/definitions/UdpOutputSettings" | fn.#ObjectExpression
+	ArchiveOutputSettings?:            _#defs."/$defs/Properties/definitions/ArchiveOutputSettings"
+	CmafIngestOutputSettings?:         _#defs."/$defs/Properties/definitions/CmafIngestFrameCaptureOutputSettings"
+	FrameCaptureOutputSettings?:       _#defs."/$defs/Properties/definitions/CmafIngestFrameCaptureOutputSettings"
+	HlsOutputSettings?:                _#defs."/$defs/Properties/definitions/HlsOutputSettings"
+	MediaConnectRouterOutputSettings?: _#defs."/$defs/Properties/definitions/MediaConnectRouterOutputSettings"
+	MediaPackageOutputSettings?:       _#defs."/$defs/Properties/definitions/MediaPackageOutputSettings"
+	MsSmoothOutputSettings?:           _#defs."/$defs/Properties/definitions/MsSmoothOutputSettings"
+	MultiplexOutputSettings?:          _#defs."/$defs/Properties/definitions/MultiplexOutputSettings"
+	RtmpOutputSettings?:               _#defs."/$defs/Properties/definitions/RtmpOutputSettings"
+	SrtOutputSettings?:                _#defs."/$defs/Properties/definitions/SrtOutputSettings"
+	UdpOutputSettings?:                _#defs."/$defs/Properties/definitions/UdpOutputSettings"
 }) |
 fn.#ObjectExpression
 
@@ -1429,47 +3919,163 @@ _#defs: "/$defs/Properties/definitions/PrimaryChannelSettings": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RemixSettings": close({
-	ChannelMappings?: [..._#defs."/$defs/Properties/definitions/AudioChannelMapping" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ChannelsIn?:  int | fn.#NumberExpression
-	ChannelsOut?: int | fn.#NumberExpression
+	ChannelMappings?: [..._#defs."/$defs/Properties/definitions/AudioChannelMapping"] | fn.#ListExpression
+	ChannelsIn?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ChannelsOut?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RtmpGroupSettings": close({
-	AdMarkers?:             [...string | fn.#StringExpression] | fn.#ListExpression
-	AuthenticationScheme?:  string | fn.#StringExpression
-	CacheFullBehavior?:     string | fn.#StringExpression
-	CacheLength?:           int | fn.#NumberExpression
+	AdMarkers?:            [...string | fn.#StringExpression] | fn.#ListExpression
+	AuthenticationScheme?: string | fn.#StringExpression
+	CacheFullBehavior?:    string | fn.#StringExpression
+	CacheLength?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	CaptionData?:           string | fn.#StringExpression
 	IncludeFillerNalUnits?: string | fn.#StringExpression
 	InputLossAction?:       string | fn.#StringExpression
-	RestartDelay?:          int | fn.#NumberExpression
+	RestartDelay?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RtmpOutputSettings": close({
-	CertificateMode?:         string | fn.#StringExpression
-	ConnectionRetryInterval?: int | fn.#NumberExpression
-	Destination?:             _#defs."/$defs/Properties/definitions/OutputLocationRef" | fn.#ObjectExpression
-	NumRetries?:              int | fn.#NumberExpression
+	CertificateMode?: string | fn.#StringExpression
+	ConnectionRetryInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Destination?: _#defs."/$defs/Properties/definitions/OutputLocationRef"
+	NumRetries?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Scte20SourceSettings": close({
-	Convert608To708?:        string | fn.#StringExpression
-	Source608ChannelNumber?: int | fn.#NumberExpression
+	Convert608To708?: string | fn.#StringExpression
+	Source608ChannelNumber?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Scte27DvbSubSourceSettings": close({
 	OcrLanguage?: string | fn.#StringExpression
-	Pid?:         int | fn.#NumberExpression
+	Pid?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Scte35SpliceInsertTimeSignalAposSettings": close({
-	AdAvailOffset?:          int | fn.#NumberExpression
+	AdAvailOffset?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	NoRegionalBlackoutFlag?: string | fn.#StringExpression
 	WebDeliveryAllowedFlag?: string | fn.#StringExpression
 }) |
@@ -1487,36 +4093,74 @@ _#defs: "/$defs/Properties/definitions/SrtGroupSettings": close({InputLossAction
 _#defs: "/$defs/Properties/definitions/SrtOutputDestinationSettings": close({
 	ConnectionMode?:                string | fn.#StringExpression
 	EncryptionPassphraseSecretArn?: string | fn.#StringExpression
-	ListenerPort?:                  int | fn.#NumberExpression
-	StreamId?:                      string | fn.#StringExpression
-	Url?:                           string | fn.#StringExpression
+	ListenerPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StreamId?: string | fn.#StringExpression
+	Url?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SrtOutputSettings": close({
-	BufferMsec?: int | fn.#NumberExpression
-	ContainerSettings?: _#defs."/$defs/Properties/definitions/UdpMediaConnectRouterContainerSettings" |
-		fn.#ObjectExpression
-	Destination?:    _#defs."/$defs/Properties/definitions/OutputLocationRef" | fn.#ObjectExpression
-	EncryptionType?: string | fn.#StringExpression
-	Latency?:        int | fn.#NumberExpression
+	BufferMsec?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ContainerSettings?: _#defs."/$defs/Properties/definitions/UdpMediaConnectRouterContainerSettings"
+	Destination?:       _#defs."/$defs/Properties/definitions/OutputLocationRef"
+	EncryptionType?:    string | fn.#StringExpression
+	Latency?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StandardHlsSettings": close({
 	AudioRenditionSets?: string | fn.#StringExpression
-	M3u8Settings?:       _#defs."/$defs/Properties/definitions/M3u8Settings" | fn.#ObjectExpression
+	M3u8Settings?:       _#defs."/$defs/Properties/definitions/M3u8Settings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StaticKeySettings": close({
-	KeyProviderServer?: _#defs."/$defs/Properties/definitions/InputLocation" | fn.#ObjectExpression
+	KeyProviderServer?: _#defs."/$defs/Properties/definitions/InputLocation"
 	StaticKeyValue?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TeletextSourceSettings": close({
-	OutputRectangle?: _#defs."/$defs/Properties/definitions/CaptionRectangle" | fn.#ObjectExpression
+	OutputRectangle?: _#defs."/$defs/Properties/definitions/CaptionRectangle"
 	PageNumber?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -1527,9 +4171,22 @@ _#defs: "/$defs/Properties/definitions/TemporalFilterSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TextCaptionPositionSettings": close(
-	{YPositionPercentage?: int | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/TextCaptionPositionSettings": close({
+	YPositionPercentage?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ThumbnailConfiguration": close({State?: string | fn.#StringExpression}) |
@@ -1543,116 +4200,359 @@ _#defs: "/$defs/Properties/definitions/TimecodeBurninSettings": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TimecodeConfig": close({
-	Source?:        string | fn.#StringExpression
-	SyncThreshold?: int | fn.#NumberExpression
+	Source?: string | fn.#StringExpression
+	SyncThreshold?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TtmlDestinationSettings": close({
-	Position?:     _#defs."/$defs/Properties/definitions/TextCaptionPositionSettings" | fn.#ObjectExpression
+	Position?:     _#defs."/$defs/Properties/definitions/TextCaptionPositionSettings"
 	StyleControl?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UdpGroupSettings": close({
-	InputLossAction?:        string | fn.#StringExpression
-	TimedMetadataId3Frame?:  string | fn.#StringExpression
-	TimedMetadataId3Period?: int | fn.#NumberExpression
+	InputLossAction?:       string | fn.#StringExpression
+	TimedMetadataId3Frame?: string | fn.#StringExpression
+	TimedMetadataId3Period?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UdpMediaConnectRouterContainerSettings": close(
-	{M2tsSettings?: _#defs."/$defs/Properties/definitions/M2tsSettings" | fn.#ObjectExpression},
+	{M2tsSettings?: _#defs."/$defs/Properties/definitions/M2tsSettings"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UdpOutputSettings": close({
-	BufferMsec?: int | fn.#NumberExpression
-	ContainerSettings?: _#defs."/$defs/Properties/definitions/UdpMediaConnectRouterContainerSettings" |
-		fn.#ObjectExpression
-	Destination?:       _#defs."/$defs/Properties/definitions/OutputLocationRef" | fn.#ObjectExpression
-	FecOutputSettings?: _#defs."/$defs/Properties/definitions/FecOutputSettings" | fn.#ObjectExpression
+	BufferMsec?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ContainerSettings?: _#defs."/$defs/Properties/definitions/UdpMediaConnectRouterContainerSettings"
+	Destination?:       _#defs."/$defs/Properties/definitions/OutputLocationRef"
+	FecOutputSettings?: _#defs."/$defs/Properties/definitions/FecOutputSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VideoBlackFailoverSettings": close({
-	BlackDetectThreshold?:    number | fn.#NumberExpression
-	VideoBlackThresholdMsec?: int | fn.#NumberExpression
+	BlackDetectThreshold?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VideoBlackThresholdMsec?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VideoCodecSettings": close({
-	Av1Settings?:          _#defs."/$defs/Properties/definitions/Av1Settings" | fn.#ObjectExpression
-	FrameCaptureSettings?: _#defs."/$defs/Properties/definitions/FrameCaptureSettings" | fn.#ObjectExpression
-	H264Settings?:         _#defs."/$defs/Properties/definitions/H264Settings" | fn.#ObjectExpression
-	H265Settings?:         _#defs."/$defs/Properties/definitions/H265Settings" | fn.#ObjectExpression
-	Mpeg2Settings?:        _#defs."/$defs/Properties/definitions/Mpeg2Settings" | fn.#ObjectExpression
+	Av1Settings?:          _#defs."/$defs/Properties/definitions/Av1Settings"
+	FrameCaptureSettings?: _#defs."/$defs/Properties/definitions/FrameCaptureSettings"
+	H264Settings?:         _#defs."/$defs/Properties/definitions/H264Settings"
+	H265Settings?:         _#defs."/$defs/Properties/definitions/H265Settings"
+	Mpeg2Settings?:        _#defs."/$defs/Properties/definitions/Mpeg2Settings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VideoDescription": close({
-	Border?:                  int | fn.#NumberExpression
-	CodecSettings?:           _#defs."/$defs/Properties/definitions/VideoCodecSettings" | fn.#ObjectExpression
-	CropRectangle?:           _#defs."/$defs/Properties/definitions/VideoPositionRectangle" | fn.#ObjectExpression
-	Height?:                  int | fn.#NumberExpression
+	Border?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CodecSettings?: _#defs."/$defs/Properties/definitions/VideoCodecSettings"
+	CropRectangle?: _#defs."/$defs/Properties/definitions/VideoPositionRectangle"
+	Height?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Name?:                    string | fn.#StringExpression
-	OutputPositionRectangle?: _#defs."/$defs/Properties/definitions/VideoPositionRectangle" | fn.#ObjectExpression
+	OutputPositionRectangle?: _#defs."/$defs/Properties/definitions/VideoPositionRectangle"
 	RespondToAfd?:            string | fn.#StringExpression
 	ScalingBehavior?:         string | fn.#StringExpression
-	Sharpness?:               int | fn.#NumberExpression
-	Width?:                   int | fn.#NumberExpression
+	Sharpness?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Width?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VideoPositionRectangle": close({
-	Height?: int | fn.#NumberExpression
-	Width?:  int | fn.#NumberExpression
-	X?:      int | fn.#NumberExpression
-	Y?:      int | fn.#NumberExpression
+	Height?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Width?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	X?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Y?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VideoSelector": close({
 	ColorSpace?:         string | fn.#StringExpression
-	ColorSpaceSettings?: _#defs."/$defs/Properties/definitions/VideoSelectorColorSpaceSettings" | fn.#ObjectExpression
+	ColorSpaceSettings?: _#defs."/$defs/Properties/definitions/VideoSelectorColorSpaceSettings"
 	ColorSpaceUsage?:    string | fn.#StringExpression
-	SelectorSettings?:   _#defs."/$defs/Properties/definitions/VideoSelectorSettings" | fn.#ObjectExpression
+	SelectorSettings?:   _#defs."/$defs/Properties/definitions/VideoSelectorSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VideoSelectorColorSpaceSettings": close(
-	{Hdr10Settings?: _#defs."/$defs/Properties/definitions/Hdr10Settings" | fn.#ObjectExpression},
+	{Hdr10Settings?: _#defs."/$defs/Properties/definitions/Hdr10Settings"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VideoSelectorPid": close({Pid?: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/VideoSelectorPid": close({
+	Pid?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VideoSelectorProgramId": close({ProgramId?: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/VideoSelectorProgramId": close({
+	ProgramId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VideoSelectorSettings": close({
-	VideoSelectorPid?:       _#defs."/$defs/Properties/definitions/VideoSelectorPid" | fn.#ObjectExpression
-	VideoSelectorProgramId?: _#defs."/$defs/Properties/definitions/VideoSelectorProgramId" | fn.#ObjectExpression
+	VideoSelectorPid?:       _#defs."/$defs/Properties/definitions/VideoSelectorPid"
+	VideoSelectorProgramId?: _#defs."/$defs/Properties/definitions/VideoSelectorProgramId"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcOutputSettings": close({
 	PublicAddressAllocationIds?: [...string | fn.#StringExpression] | fn.#ListExpression
-	SecurityGroupIds?:           [...string | fn.#StringExpression] | fn.#ListExpression
-	SubnetIds?:                  [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	SubnetIds?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WavSettings": close({
-	BitDepth?:   number | fn.#NumberExpression
+	BitDepth?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	CodingMode?: string | fn.#StringExpression
-	SampleRate?: number | fn.#NumberExpression
+	SampleRate?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WebvttDestinationSettings": close({
-	Position?:     _#defs."/$defs/Properties/definitions/TextCaptionPositionSettings" | fn.#ObjectExpression
+	Position?:     _#defs."/$defs/Properties/definitions/TextCaptionPositionSettings"
 	StyleControl?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

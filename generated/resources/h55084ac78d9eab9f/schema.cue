@@ -9,6 +9,10 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,34 +20,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::IoT::TopicRule
 #Properties: close({
 	RuleName?:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	TopicRulePayload!: _#defs."/$defs/Properties/definitions/TopicRulePayload" | fn.#ObjectExpression
+	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TopicRulePayload!: _#defs."/$defs/Properties/definitions/TopicRulePayload"
 })
 
 _#defs: "/$defs/Properties/definitions/Action": close({
-	CloudwatchAlarm?:  _#defs."/$defs/Properties/definitions/CloudwatchAlarmAction" | fn.#ObjectExpression
-	CloudwatchLogs?:   _#defs."/$defs/Properties/definitions/CloudwatchLogsAction" | fn.#ObjectExpression
-	CloudwatchMetric?: _#defs."/$defs/Properties/definitions/CloudwatchMetricAction" | fn.#ObjectExpression
-	DynamoDB?:         _#defs."/$defs/Properties/definitions/DynamoDBAction" | fn.#ObjectExpression
-	DynamoDBv2?:       _#defs."/$defs/Properties/definitions/DynamoDBv2Action" | fn.#ObjectExpression
-	Elasticsearch?:    _#defs."/$defs/Properties/definitions/ElasticsearchAction" | fn.#ObjectExpression
-	Firehose?:         _#defs."/$defs/Properties/definitions/FirehoseAction" | fn.#ObjectExpression
-	Http?:             _#defs."/$defs/Properties/definitions/HttpAction" | fn.#ObjectExpression
-	InfluxDB?:         _#defs."/$defs/Properties/definitions/InfluxDBAction" | fn.#ObjectExpression
-	IotAnalytics?:     _#defs."/$defs/Properties/definitions/IotAnalyticsAction" | fn.#ObjectExpression
-	IotEvents?:        _#defs."/$defs/Properties/definitions/IotEventsAction" | fn.#ObjectExpression
-	IotSiteWise?:      _#defs."/$defs/Properties/definitions/IotSiteWiseAction" | fn.#ObjectExpression
-	Kafka?:            _#defs."/$defs/Properties/definitions/KafkaAction" | fn.#ObjectExpression
-	Kinesis?:          _#defs."/$defs/Properties/definitions/KinesisAction" | fn.#ObjectExpression
-	Lambda?:           _#defs."/$defs/Properties/definitions/LambdaAction" | fn.#ObjectExpression
-	Location?:         _#defs."/$defs/Properties/definitions/LocationAction" | fn.#ObjectExpression
-	OpenSearch?:       _#defs."/$defs/Properties/definitions/OpenSearchAction" | fn.#ObjectExpression
-	Republish?:        _#defs."/$defs/Properties/definitions/RepublishAction" | fn.#ObjectExpression
-	S3?:               _#defs."/$defs/Properties/definitions/S3Action" | fn.#ObjectExpression
-	Sns?:              _#defs."/$defs/Properties/definitions/SnsAction" | fn.#ObjectExpression
-	Sqs?:              _#defs."/$defs/Properties/definitions/SqsAction" | fn.#ObjectExpression
-	StepFunctions?:    _#defs."/$defs/Properties/definitions/StepFunctionsAction" | fn.#ObjectExpression
-	Timestream?:       _#defs."/$defs/Properties/definitions/TimestreamAction" | fn.#ObjectExpression
+	CloudwatchAlarm?:  _#defs."/$defs/Properties/definitions/CloudwatchAlarmAction"
+	CloudwatchLogs?:   _#defs."/$defs/Properties/definitions/CloudwatchLogsAction"
+	CloudwatchMetric?: _#defs."/$defs/Properties/definitions/CloudwatchMetricAction"
+	DynamoDB?:         _#defs."/$defs/Properties/definitions/DynamoDBAction"
+	DynamoDBv2?:       _#defs."/$defs/Properties/definitions/DynamoDBv2Action"
+	Elasticsearch?:    _#defs."/$defs/Properties/definitions/ElasticsearchAction"
+	Firehose?:         _#defs."/$defs/Properties/definitions/FirehoseAction"
+	Http?:             _#defs."/$defs/Properties/definitions/HttpAction"
+	InfluxDB?:         _#defs."/$defs/Properties/definitions/InfluxDBAction"
+	IotAnalytics?:     _#defs."/$defs/Properties/definitions/IotAnalyticsAction"
+	IotEvents?:        _#defs."/$defs/Properties/definitions/IotEventsAction"
+	IotSiteWise?:      _#defs."/$defs/Properties/definitions/IotSiteWiseAction"
+	Kafka?:            _#defs."/$defs/Properties/definitions/KafkaAction"
+	Kinesis?:          _#defs."/$defs/Properties/definitions/KinesisAction"
+	Lambda?:           _#defs."/$defs/Properties/definitions/LambdaAction"
+	Location?:         _#defs."/$defs/Properties/definitions/LocationAction"
+	OpenSearch?:       _#defs."/$defs/Properties/definitions/OpenSearchAction"
+	Republish?:        _#defs."/$defs/Properties/definitions/RepublishAction"
+	S3?:               _#defs."/$defs/Properties/definitions/S3Action"
+	Sns?:              _#defs."/$defs/Properties/definitions/SnsAction"
+	Sqs?:              _#defs."/$defs/Properties/definitions/SqsAction"
+	StepFunctions?:    _#defs."/$defs/Properties/definitions/StepFunctionsAction"
+	Timestream?:       _#defs."/$defs/Properties/definitions/TimestreamAction"
 }) |
 fn.#ObjectExpression
 
@@ -55,8 +59,8 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AssetPropertyValue": close({
 	Quality?:   string | fn.#StringExpression
-	Timestamp!: _#defs."/$defs/Properties/definitions/AssetPropertyTimestamp" | fn.#ObjectExpression
-	Value!:     _#defs."/$defs/Properties/definitions/AssetPropertyVariant" | fn.#ObjectExpression
+	Timestamp!: _#defs."/$defs/Properties/definitions/AssetPropertyTimestamp"
+	Value!:     _#defs."/$defs/Properties/definitions/AssetPropertyVariant"
 }) |
 fn.#ObjectExpression
 
@@ -69,10 +73,55 @@ _#defs: "/$defs/Properties/definitions/AssetPropertyVariant": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BatchConfig": close({
-	BatchAcrossTopics?: bool | fn.#BooleanExpression
-	MaxBatchOpenMs?:    int & <=200 & >=5 | fn.#NumberExpression
-	MaxBatchSize?:      int & <=10 & >=2 | fn.#NumberExpression
-	MaxBatchSizeBytes?: int & <=131072 & >=100 | fn.#NumberExpression
+	BatchAcrossTopics?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MaxBatchOpenMs?: int & <=200 & >=5 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=200 &
+							>=5,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxBatchSize?: int & <=10 & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10 &
+							>=2,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxBatchSizeBytes?: int & <=131072 & >=100 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=131072 &
+							>=100,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -87,17 +136,19 @@ _#defs: "/$defs/Properties/definitions/CannedAccessControlList": "private" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CloudwatchAlarmAction": close({
-	AlarmName!:   string | fn.#StringExpression
-	RoleArn!:     string | fn.#StringExpression
+	AlarmName!: string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	StateReason!: string | fn.#StringExpression
 	StateValue!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CloudwatchLogsAction": close({
-	BatchMode?:    bool | fn.#BooleanExpression
+	BatchMode?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LogGroupName!: string | fn.#StringExpression
-	RoleArn!:      string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -107,7 +158,8 @@ _#defs: "/$defs/Properties/definitions/CloudwatchMetricAction": close({
 	MetricTimestamp?: string | fn.#StringExpression
 	MetricUnit!:      string | fn.#StringExpression
 	MetricValue!:     string | fn.#StringExpression
-	RoleArn!:         string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -119,14 +171,16 @@ _#defs: "/$defs/Properties/definitions/DynamoDBAction": close({
 	RangeKeyField?: string | fn.#StringExpression
 	RangeKeyType?:  "NUMBER" | "STRING" | fn.#StringExpression
 	RangeKeyValue?: string | fn.#StringExpression
-	RoleArn!:       string | fn.#StringExpression
-	TableName!:     string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	TableName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DynamoDBv2Action": close({
-	PutItem?: _#defs."/$defs/Properties/definitions/PutItemInput" | fn.#ObjectExpression
-	RoleArn?: string | fn.#StringExpression
+	PutItem?: _#defs."/$defs/Properties/definitions/PutItemInput"
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -134,26 +188,28 @@ _#defs: "/$defs/Properties/definitions/ElasticsearchAction": close({
 	Endpoint!: =~"^https?://" | fn.#StringExpression
 	Id!:       string | fn.#StringExpression
 	Index!:    string | fn.#StringExpression
-	RoleArn!:  string | fn.#StringExpression
-	Type!:     string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FirehoseAction": close({
-	BatchMode?:          bool | fn.#BooleanExpression
+	BatchMode?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DeliveryStreamName!: string | fn.#StringExpression
-	RoleArn!:            string | fn.#StringExpression
-	Separator?:          =~"^([\\n\\t])|(\\r\\n)|(,)$" | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Separator?: =~"^([\\n\\t])|(\\r\\n)|(,)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HttpAction": close({
-	Auth?:            _#defs."/$defs/Properties/definitions/HttpAuthorization" | fn.#ObjectExpression
-	BatchConfig?:     _#defs."/$defs/Properties/definitions/BatchConfig" | fn.#ObjectExpression
+	Auth?:            _#defs."/$defs/Properties/definitions/HttpAuthorization"
+	BatchConfig?:     _#defs."/$defs/Properties/definitions/BatchConfig"
 	ConfirmationUrl?: strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
-	EnableBatching?:  bool | fn.#BooleanExpression
+	EnableBatching?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Headers?: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/HttpActionHeader" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/HttpActionHeader"
 	] |
 		fn.#ListExpression
 	Url!: strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
@@ -167,17 +223,18 @@ _#defs: "/$defs/Properties/definitions/HttpActionHeader": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HttpAuthorization": close(
-	{Sigv4?: _#defs."/$defs/Properties/definitions/SigV4Authorization" | fn.#ObjectExpression},
+	{Sigv4?: _#defs."/$defs/Properties/definitions/SigV4Authorization"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InfluxDBAction": close({
-	BatchConfig?:    _#defs."/$defs/Properties/definitions/InfluxDBBatchConfig" | fn.#ObjectExpression
+	BatchConfig?:    _#defs."/$defs/Properties/definitions/InfluxDBBatchConfig"
 	DatabaseName!:   strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[^_\\\"][^\\\"]+$" | fn.#StringExpression
 	DestinationArn!: string | fn.#StringExpression
 	Organization?:   strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	RoleArn!:        string | fn.#StringExpression
-	TableName!:      strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[^_].*$" | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	TableName!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[^_].*$" | fn.#StringExpression
 	Tags?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
@@ -187,34 +244,82 @@ _#defs: "/$defs/Properties/definitions/InfluxDBAction": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InfluxDBBatchConfig": close({
-	BatchAcrossTopics?: bool | fn.#BooleanExpression
-	MaxBatchOpenMs?:    int & <=1000 & >=5 | fn.#NumberExpression
-	MaxBatchSize?:      int & <=500 & >=1 | fn.#NumberExpression
-	MaxBatchSizeBytes?: int & <=131072 & >=100 | fn.#NumberExpression
+	BatchAcrossTopics?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MaxBatchOpenMs?: int & <=1000 & >=5 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=5,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxBatchSize?: int & <=500 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=500 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxBatchSizeBytes?: int & <=131072 & >=100 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=131072 &
+							>=100,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IotAnalyticsAction": close({
-	BatchMode?:   bool | fn.#BooleanExpression
+	BatchMode?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ChannelName!: string | fn.#StringExpression
-	RoleArn!:     string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IotEventsAction": close({
-	BatchMode?: bool | fn.#BooleanExpression
+	BatchMode?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InputName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	MessageId?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	RoleArn!:   string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IotSiteWiseAction": close({
 	PutAssetPropertyValueEntries!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PutAssetPropertyValueEntry" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/PutAssetPropertyValueEntry"
 	] |
 		fn.#ListExpression
-	RoleArn!: string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -225,7 +330,7 @@ _#defs: "/$defs/Properties/definitions/KafkaAction": close({
 	fn.#ObjectExpression
 	DestinationArn!: string | fn.#StringExpression
 	Headers?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/KafkaActionHeader" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/KafkaActionHeader"
 	] |
 		fn.#ListExpression
 	Key?:       string | fn.#StringExpression
@@ -242,20 +347,25 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KinesisAction": close({
 	PartitionKey?: string | fn.#StringExpression
-	RoleArn!:      string | fn.#StringExpression
-	StreamName!:   string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	StreamName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaAction": close({FunctionArn?: string | fn.#StringExpression}) |
+_#defs: "/$defs/Properties/definitions/LambdaAction": close({
+	FunctionArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LocationAction": close({
-	DeviceId!:    string | fn.#StringExpression
-	Latitude!:    string | fn.#StringExpression
-	Longitude!:   string | fn.#StringExpression
-	RoleArn!:     string | fn.#StringExpression
-	Timestamp?:   _#defs."/$defs/Properties/definitions/Timestamp" | fn.#ObjectExpression
+	DeviceId!:  string | fn.#StringExpression
+	Latitude!:  string | fn.#StringExpression
+	Longitude!: string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Timestamp?:   _#defs."/$defs/Properties/definitions/Timestamp"
 	TrackerName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -264,8 +374,9 @@ _#defs: "/$defs/Properties/definitions/OpenSearchAction": close({
 	Endpoint!: =~"^https?://" | fn.#StringExpression
 	Id!:       string | fn.#StringExpression
 	Index!:    string | fn.#StringExpression
-	RoleArn!:  string | fn.#StringExpression
-	Type!:     string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -275,7 +386,7 @@ _#defs: "/$defs/Properties/definitions/PutAssetPropertyValueEntry": close({
 	PropertyAlias?: strings.MinRunes(1) | fn.#StringExpression
 	PropertyId?:    string | fn.#StringExpression
 	PropertyValues!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AssetPropertyValue" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/AssetPropertyValue"
 	] |
 		fn.#ListExpression
 }) |
@@ -285,10 +396,26 @@ _#defs: "/$defs/Properties/definitions/PutItemInput": close({TableName!: string 
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RepublishAction": close({
-	Headers?: _#defs."/$defs/Properties/definitions/RepublishActionHeaders" | fn.#ObjectExpression
-	Qos?:     int & <=1 & >=0 | fn.#NumberExpression
-	RoleArn!: string | fn.#StringExpression
-	Topic!:   string | fn.#StringExpression
+	Headers?: _#defs."/$defs/Properties/definitions/RepublishActionHeaders"
+	Qos?: int & <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Topic!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -298,7 +425,7 @@ _#defs: "/$defs/Properties/definitions/RepublishActionHeaders": close({
 	MessageExpiry?:          strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	PayloadFormatIndicator?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	ResponseTopic?:          strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	UserProperties?:         _#defs."/$defs/Properties/definitions/UserProperties" | fn.#ListExpression
+	UserProperties?:         _#defs."/$defs/Properties/definitions/UserProperties"
 }) |
 fn.#ObjectExpression
 
@@ -306,14 +433,16 @@ _#defs: "/$defs/Properties/definitions/RoleArn": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/S3Action": close({
 	BucketName!: string | fn.#StringExpression
-	CannedAcl?:  _#defs."/$defs/Properties/definitions/CannedAccessControlList" | fn.#StringExpression
+	CannedAcl?:  _#defs."/$defs/Properties/definitions/CannedAccessControlList"
 	Key!:        string | fn.#StringExpression
-	RoleArn!:    string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SigV4Authorization": close({
-	RoleArn!:       string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	ServiceName!:   string | fn.#StringExpression
 	SigningRegion!: string | fn.#StringExpression
 }) |
@@ -321,22 +450,25 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SnsAction": close({
 	MessageFormat?: "JSON" | "RAW" | fn.#StringExpression
-	RoleArn!:       string | fn.#StringExpression
-	TargetArn!:     string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	TargetArn!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SqsAction": close({
-	QueueUrl!:  string | fn.#StringExpression
-	RoleArn!:   string | fn.#StringExpression
-	UseBase64?: bool | fn.#BooleanExpression
+	QueueUrl!: string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	UseBase64?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StepFunctionsAction": close({
 	ExecutionNamePrefix?: string | fn.#StringExpression
-	RoleArn!:             string | fn.#StringExpression
-	StateMachineName!:    string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	StateMachineName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -354,10 +486,11 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TimestreamAction": close({
 	DatabaseName!: string | fn.#StringExpression
-	Dimensions!:   _#defs."/$defs/Properties/definitions/TimestreamDimensionsList" | fn.#ListExpression
-	RoleArn!:      string | fn.#StringExpression
-	TableName!:    string | fn.#StringExpression
-	Timestamp?:    _#defs."/$defs/Properties/definitions/TimestreamTimestamp" | fn.#ObjectExpression
+	Dimensions!:   _#defs."/$defs/Properties/definitions/TimestreamDimensionsList"
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	TableName!: string | fn.#StringExpression
+	Timestamp?: _#defs."/$defs/Properties/definitions/TimestreamTimestamp"
 }) |
 fn.#ObjectExpression
 
@@ -368,7 +501,7 @@ _#defs: "/$defs/Properties/definitions/TimestreamDimension": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TimestreamDimensionsList": list.MaxItems(128) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/TimestreamDimension" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/TimestreamDimension"
 ] |
 	fn.#ListExpression
 
@@ -379,18 +512,17 @@ _#defs: "/$defs/Properties/definitions/TimestreamTimestamp": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopicRulePayload": close({
-	Actions!: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Actions!: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
 	AwsIotSqlVersion?: string | fn.#StringExpression
 	Description?:      string | fn.#StringExpression
-	ErrorAction?:      _#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression
-	RuleDisabled?:     bool | fn.#BooleanExpression
+	ErrorAction?:      _#defs."/$defs/Properties/definitions/Action"
+	RuleDisabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Sql!:              string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UserProperties": list.MaxItems(100) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/UserProperty" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/UserProperty"
 ] |
 	fn.#ListExpression
 

@@ -415,19 +415,16 @@ _#defs: "/$defs/Properties/definitions/NoteUpdate": close({
 })
 
 // A number filter for querying findings.
-_#defs: "/$defs/Properties/definitions/NumberFilter": matchN(1, [
-	{
-		Eq!: _
-		...
-	},
-	{
-		Gte!: _
-		...
-	} | {
-		Lte!: _
-		...
-	}
-]) & close({
+_#defs: "/$defs/Properties/definitions/NumberFilter": matchN(1, [{
+	Eq!: _
+	...
+}, matchN(>=1, [{
+	Gte!: _
+	...
+}, {
+	Lte!: _
+	...
+}])]) & close({
 	// The equal-to condition to be applied to a single field when querying for findings.
 	Eq?: number
 

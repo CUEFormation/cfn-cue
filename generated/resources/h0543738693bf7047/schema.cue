@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,35 +18,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Grafana::Workspace Resource Type
 #Properties: close({
-	AccountAccessType!: _#defs."/$defs/Properties/definitions/AccountAccessType" | fn.#StringExpression
+	AccountAccessType!: _#defs."/$defs/Properties/definitions/AccountAccessType"
 	AuthenticationProviders!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AuthenticationProviderTypes" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/AuthenticationProviderTypes"
 	] |
 		fn.#ListExpression
-	ClientToken?: =~"^[!-~]{1,64}$" | fn.#StringExpression
-	DataSources?: [..._#defs."/$defs/Properties/definitions/DataSourceType" | fn.#StringExpression] | fn.#ListExpression
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+	ClientToken?:          =~"^[!-~]{1,64}$" | fn.#StringExpression
+	DataSources?:          [..._#defs."/$defs/Properties/definitions/DataSourceType"] | fn.#ListExpression
+	Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	GrafanaVersion?:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Name?:                 =~"^[a-zA-Z0-9-._~]{1,255}$" | fn.#StringExpression
-	NetworkAccessControl?: _#defs."/$defs/Properties/definitions/NetworkAccessControl" | fn.#ObjectExpression
-	NotificationDestinations?: [
-		..._#defs."/$defs/Properties/definitions/NotificationDestinationType" | fn.#StringExpression
-	] |
+	NetworkAccessControl?: _#defs."/$defs/Properties/definitions/NetworkAccessControl"
+	NotificationDestinations?: [..._#defs."/$defs/Properties/definitions/NotificationDestinationType"] |
 		fn.#ListExpression
 	OrganizationRoleName?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	OrganizationalUnits?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	PermissionType!:       _#defs."/$defs/Properties/definitions/PermissionType" | fn.#StringExpression
-	PluginAdminEnabled?:   bool | fn.#BooleanExpression
-	RoleArn?:              strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	SamlConfiguration?:    _#defs."/$defs/Properties/definitions/SamlConfiguration" | fn.#ObjectExpression
-	StackSetName?:         string | fn.#StringExpression
+	PermissionType!:       _#defs."/$defs/Properties/definitions/PermissionType"
+	PluginAdminEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	fn.#StringExpression
+	SamlConfiguration?: _#defs."/$defs/Properties/definitions/SamlConfiguration"
+	StackSetName?:      string | fn.#StringExpression
 	Tags?: [...close({
 		Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 		Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration" | fn.#ObjectExpression
+	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/AccountAccessType": "CURRENT_ACCOUNT" | "ORGANIZATION" | fn.#StringExpression
@@ -98,11 +101,29 @@ _#defs: "/$defs/Properties/definitions/RoleValues": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SamlConfiguration": close({
-	AllowedOrganizations?:  [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	AssertionAttributes?:   _#defs."/$defs/Properties/definitions/AssertionAttributes" | fn.#ObjectExpression
-	IdpMetadata!:           _#defs."/$defs/Properties/definitions/IdpMetadata" | fn.#ObjectExpression
-	LoginValidityDuration?: number | fn.#NumberExpression
-	RoleValues?:            _#defs."/$defs/Properties/definitions/RoleValues" | fn.#ObjectExpression
+	AllowedOrganizations?: [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+	AssertionAttributes?:  _#defs."/$defs/Properties/definitions/AssertionAttributes"
+	IdpMetadata!:          _#defs."/$defs/Properties/definitions/IdpMetadata"
+	LoginValidityDuration?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RoleValues?: _#defs."/$defs/Properties/definitions/RoleValues"
 }) |
 fn.#ObjectExpression
 
@@ -110,7 +131,8 @@ _#defs: "/$defs/Properties/definitions/SamlConfigurationStatus": "CONFIGURED" | 
 
 _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SubnetIds!: list.MaxItems(6) & list.MinItems(2) & list.UniqueItems() & [

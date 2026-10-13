@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,11 +19,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // This schema provides construct and validation rules for AWS-XRay SamplingRule
 // resource parameters.
 #Properties: close({
-	RuleName?:           _#defs."/$defs/Properties/definitions/RuleName" | fn.#StringExpression
-	SamplingRule?:       _#defs."/$defs/Properties/definitions/SamplingRule" | fn.#ObjectExpression
-	SamplingRuleRecord?: _#defs."/$defs/Properties/definitions/SamplingRuleRecord" | fn.#ObjectExpression
-	SamplingRuleUpdate?: _#defs."/$defs/Properties/definitions/SamplingRuleUpdate" | fn.#ObjectExpression
-	Tags?:               _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	RuleName?:           _#defs."/$defs/Properties/definitions/RuleName"
+	SamplingRule?:       _#defs."/$defs/Properties/definitions/SamplingRule"
+	SamplingRuleRecord?: _#defs."/$defs/Properties/definitions/SamplingRuleRecord"
+	SamplingRuleUpdate?: _#defs."/$defs/Properties/definitions/SamplingRuleUpdate"
+	Tags?:               _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/RuleARN": string | fn.#StringExpression
@@ -27,8 +31,41 @@ _#defs: "/$defs/Properties/definitions/RuleARN": string | fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/RuleName": strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SamplingRateBoost": close({
-	CooldownWindowMinutes!: int & >=1 | fn.#NumberExpression
-	MaxRate!:               <=1 & >=0 | fn.#NumberExpression
+	CooldownWindowMinutes!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxRate!: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -37,26 +74,88 @@ _#defs: "/$defs/Properties/definitions/SamplingRule": close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	FixedRate!:         <=1 & >=0 | fn.#NumberExpression
-	HTTPMethod!:        strings.MaxRunes(10) & strings.MinRunes(0) | fn.#StringExpression
-	Host!:              strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	Priority!:          int & <=9999 & >=1 | fn.#NumberExpression
-	ReservoirSize!:     int & >=0 | fn.#NumberExpression
+	FixedRate!: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	HTTPMethod!: strings.MaxRunes(10) & strings.MinRunes(0) | fn.#StringExpression
+	Host!:       strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+	Priority!: int & <=9999 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=9999 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ReservoirSize!: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ResourceARN!:       strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	RuleARN?:           _#defs."/$defs/Properties/definitions/RuleARN" | fn.#StringExpression
-	RuleName?:          _#defs."/$defs/Properties/definitions/RuleName" | fn.#StringExpression
-	SamplingRateBoost?: _#defs."/$defs/Properties/definitions/SamplingRateBoost" | fn.#ObjectExpression
+	RuleARN?:           _#defs."/$defs/Properties/definitions/RuleARN"
+	RuleName?:          _#defs."/$defs/Properties/definitions/RuleName"
+	SamplingRateBoost?: _#defs."/$defs/Properties/definitions/SamplingRateBoost"
 	ServiceName!:       strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 	ServiceType!:       strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 	URLPath!:           strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Version?:           int & >=1 | fn.#NumberExpression
+	Version?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SamplingRuleRecord": close({
 	CreatedAt?:    string | fn.#StringExpression
 	ModifiedAt?:   string | fn.#StringExpression
-	SamplingRule?: _#defs."/$defs/Properties/definitions/SamplingRule" | fn.#ObjectExpression
+	SamplingRule?: _#defs."/$defs/Properties/definitions/SamplingRule"
 }) |
 fn.#ObjectExpression
 
@@ -65,15 +164,63 @@ _#defs: "/$defs/Properties/definitions/SamplingRuleUpdate": close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	FixedRate?:         <=1 & >=0 | fn.#NumberExpression
-	HTTPMethod?:        strings.MaxRunes(10) | fn.#StringExpression
-	Host?:              strings.MaxRunes(64) | fn.#StringExpression
-	Priority?:          int & <=9999 & >=1 | fn.#NumberExpression
-	ReservoirSize?:     int & >=0 | fn.#NumberExpression
+	FixedRate?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	HTTPMethod?: strings.MaxRunes(10) | fn.#StringExpression
+	Host?:       strings.MaxRunes(64) | fn.#StringExpression
+	Priority?: int & <=9999 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=9999 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ReservoirSize?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ResourceARN?:       strings.MaxRunes(500) | fn.#StringExpression
-	RuleARN?:           _#defs."/$defs/Properties/definitions/RuleARN" | fn.#StringExpression
-	RuleName?:          _#defs."/$defs/Properties/definitions/RuleName" | fn.#StringExpression
-	SamplingRateBoost?: _#defs."/$defs/Properties/definitions/SamplingRateBoost" | fn.#ObjectExpression
+	RuleARN?:           _#defs."/$defs/Properties/definitions/RuleARN"
+	RuleName?:          _#defs."/$defs/Properties/definitions/RuleName"
+	SamplingRateBoost?: _#defs."/$defs/Properties/definitions/SamplingRateBoost"
 	ServiceName?:       strings.MaxRunes(64) | fn.#StringExpression
 	ServiceType?:       strings.MaxRunes(64) | fn.#StringExpression
 	URLPath?:           strings.MaxRunes(128) | fn.#StringExpression
@@ -87,7 +234,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {

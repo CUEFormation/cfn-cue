@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SSM::PatchBaseline
 #Properties: close({
-	ApprovalRules?: _#defs."/$defs/Properties/definitions/RuleGroup" | fn.#ObjectExpression
+	ApprovalRules?: _#defs."/$defs/Properties/definitions/RuleGroup"
 	ApprovedPatches?: list.MaxItems(50) & [...] & [
 		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -26,12 +30,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"INFORMATIONAL" |
 		"UNSPECIFIED" |
 		fn.#StringExpression
-	ApprovedPatchesEnableNonSecurity?:         bool | fn.#BooleanExpression
+	ApprovedPatchesEnableNonSecurity?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 	AvailableSecurityUpdatesComplianceStatus?: "NON_COMPLIANT" | "COMPLIANT" | fn.#StringExpression
-	DefaultBaseline?:                          bool | fn.#BooleanExpression
-	Description?:                              strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	GlobalFilters?: _#defs."/$defs/Properties/definitions/PatchFilterGroup" | fn.#ObjectExpression
-	Name!:          strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
+	DefaultBaseline?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Description?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	GlobalFilters?:   _#defs."/$defs/Properties/definitions/PatchFilterGroup" | fn.#ObjectExpression
+	Name!:            strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
 	OperatingSystem?: "WINDOWS" |
 		"AMAZON_LINUX" |
 		"AMAZON_LINUX_2" |
@@ -54,10 +65,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	] |
 	fn.#ListExpression
 	RejectedPatchesAction?: "ALLOW_AS_DEPENDENCY" | "BLOCK" | fn.#StringExpression
-	Sources?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/PatchSource" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(1000) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Sources?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/PatchSource"] | fn.#ListExpression
+	Tags?:    list.MaxItems(1000) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/PatchFilter": close({
@@ -87,9 +96,7 @@ _#defs: "/$defs/Properties/definitions/PatchFilter": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PatchFilterGroup": close({
-	PatchFilters?: list.MaxItems(5) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PatchFilter" | fn.#ObjectExpression
-	] |
+	PatchFilters?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/PatchFilter"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -103,18 +110,32 @@ _#defs: "/$defs/Properties/definitions/PatchSource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Rule": close({
-	ApproveAfterDays?:  int & <=360 & >=0 | fn.#NumberExpression
+	ApproveAfterDays?: int & <=360 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=360 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ApproveUntilDate?:  strings.MaxRunes(10) & strings.MinRunes(0) | fn.#StringExpression
 	ComplianceLevel?:   "CRITICAL" | "HIGH" | "INFORMATIONAL" | "LOW" | "MEDIUM" | "UNSPECIFIED" | fn.#StringExpression
-	EnableNonSecurity?: bool | fn.#BooleanExpression
-	PatchFilterGroup?:  _#defs."/$defs/Properties/definitions/PatchFilterGroup" | fn.#ObjectExpression
+	EnableNonSecurity?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PatchFilterGroup?:  _#defs."/$defs/Properties/definitions/PatchFilterGroup"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleGroup": close({
-	PatchRules?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Rule" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/RuleGroup": close(
+	{PatchRules?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

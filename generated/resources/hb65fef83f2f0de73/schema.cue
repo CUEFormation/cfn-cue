@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,12 +18,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Connect::InstanceStorageConfig
 #Properties: close({
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	KinesisFirehoseConfig?:    _#defs."/$defs/Properties/definitions/KinesisFirehoseConfig" | fn.#ObjectExpression
-	KinesisStreamConfig?:      _#defs."/$defs/Properties/definitions/KinesisStreamConfig" | fn.#ObjectExpression
-	KinesisVideoStreamConfig?: _#defs."/$defs/Properties/definitions/KinesisVideoStreamConfig" | fn.#ObjectExpression
-	ResourceType!:             _#defs."/$defs/Properties/definitions/InstanceStorageResourceType" | fn.#StringExpression
-	S3Config?:                 _#defs."/$defs/Properties/definitions/S3Config" | fn.#ObjectExpression
-	StorageType!:              _#defs."/$defs/Properties/definitions/StorageType" | fn.#StringExpression
+	KinesisFirehoseConfig?:    _#defs."/$defs/Properties/definitions/KinesisFirehoseConfig"
+	KinesisStreamConfig?:      _#defs."/$defs/Properties/definitions/KinesisStreamConfig"
+	KinesisVideoStreamConfig?: _#defs."/$defs/Properties/definitions/KinesisVideoStreamConfig"
+	ResourceType!:             _#defs."/$defs/Properties/definitions/InstanceStorageResourceType"
+	S3Config?:                 _#defs."/$defs/Properties/definitions/S3Config"
+	StorageType!:              _#defs."/$defs/Properties/definitions/StorageType"
 })
 
 _#defs: "/$defs/Properties/definitions/AssociationId": strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-z0-9]*$" |
@@ -28,8 +32,8 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/BucketName": strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfig": close({
-	EncryptionType!: _#defs."/$defs/Properties/definitions/EncryptionType" | fn.#StringExpression
-	KeyId!:          _#defs."/$defs/Properties/definitions/KeyId" | fn.#StringExpression
+	EncryptionType!: _#defs."/$defs/Properties/definitions/EncryptionType"
+	KeyId!:          _#defs."/$defs/Properties/definitions/KeyId"
 }) |
 fn.#ObjectExpression
 
@@ -38,7 +42,25 @@ _#defs: "/$defs/Properties/definitions/EncryptionType": "KMS" | fn.#StringExpres
 _#defs: "/$defs/Properties/definitions/FirehoseDeliveryStreamArn": =~"^arn:aws[-a-z0-9]*:firehose:[-a-z0-9]*:[0-9]{12}:deliverystream/[-a-zA-Z0-9_.]*$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Hours": number | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Hours": number |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						number,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/InstanceStorageResourceType": "CHAT_TRANSCRIPTS" |
 	"CALL_RECORDINGS" |
@@ -58,7 +80,7 @@ _#defs: "/$defs/Properties/definitions/InstanceStorageResourceType": "CHAT_TRANS
 _#defs: "/$defs/Properties/definitions/KeyId": strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/KinesisFirehoseConfig": close(
-	{FirehoseArn!: _#defs."/$defs/Properties/definitions/FirehoseDeliveryStreamArn" | fn.#StringExpression},
+	{FirehoseArn!: _#defs."/$defs/Properties/definitions/FirehoseDeliveryStreamArn"},
 ) |
 	fn.#ObjectExpression
 
@@ -66,23 +88,23 @@ _#defs: "/$defs/Properties/definitions/KinesisStreamArn": =~"^arn:aws[-a-z0-9]*:
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/KinesisStreamConfig": close(
-	{StreamArn!: _#defs."/$defs/Properties/definitions/KinesisStreamArn" | fn.#StringExpression},
+	{StreamArn!: _#defs."/$defs/Properties/definitions/KinesisStreamArn"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KinesisVideoStreamConfig": close({
-	EncryptionConfig!:     _#defs."/$defs/Properties/definitions/EncryptionConfig" | fn.#ObjectExpression
-	Prefix!:               _#defs."/$defs/Properties/definitions/Prefix" | fn.#StringExpression
-	RetentionPeriodHours!: _#defs."/$defs/Properties/definitions/Hours" | fn.#NumberExpression
+	EncryptionConfig!:     _#defs."/$defs/Properties/definitions/EncryptionConfig"
+	Prefix!:               _#defs."/$defs/Properties/definitions/Prefix"
+	RetentionPeriodHours!: _#defs."/$defs/Properties/definitions/Hours"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Prefix": strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/S3Config": close({
-	BucketName!:       _#defs."/$defs/Properties/definitions/BucketName" | fn.#StringExpression
-	BucketPrefix!:     _#defs."/$defs/Properties/definitions/Prefix" | fn.#StringExpression
-	EncryptionConfig?: _#defs."/$defs/Properties/definitions/EncryptionConfig" | fn.#ObjectExpression
+	BucketName!:       _#defs."/$defs/Properties/definitions/BucketName"
+	BucketPrefix!:     _#defs."/$defs/Properties/definitions/Prefix"
+	EncryptionConfig?: _#defs."/$defs/Properties/definitions/EncryptionConfig"
 }) |
 fn.#ObjectExpression
 

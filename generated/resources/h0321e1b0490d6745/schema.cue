@@ -9,6 +9,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -36,34 +40,90 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		{[=~"^[A-Za-z0-9_]{1,64}$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Type?: "HTTP" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DnsConfig": close({
-	DnsRecords!:    [..._#defs."/$defs/Properties/definitions/DnsRecord" | fn.#ObjectExpression] | fn.#ListExpression
+	DnsRecords!:    [..._#defs."/$defs/Properties/definitions/DnsRecord"] | fn.#ListExpression
 	NamespaceId?:   strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 	RoutingPolicy?: "MULTIVALUE" | "WEIGHTED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DnsRecord": close({
-	TTL!:  <=2147483647 & >=0 | fn.#NumberExpression
+	TTL!: <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=2147483647 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Type!: "A" | "AAAA" | "CNAME" | "SRV" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
-	FailureThreshold?: <=10 & >=1 | fn.#NumberExpression
-	ResourcePath?:     strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	Type!:             "HTTP" | "HTTPS" | "TCP" | fn.#StringExpression
+	FailureThreshold?: <=10 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=10 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ResourcePath?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Type!:         "HTTP" | "HTTPS" | "TCP" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheckCustomConfig": close(
-	{FailureThreshold?: <=10 & >=1 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/HealthCheckCustomConfig": close({
+	FailureThreshold?: <=10 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=10 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

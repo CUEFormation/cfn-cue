@@ -8,6 +8,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -22,15 +26,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	] |
 	fn.#ListExpression
 	AuthenticationType!: "SIMPLE" | "KERBEROS" | fn.#StringExpression
-	BlockSize?:          int & <=1073741824 & >=1048576 | fn.#NumberExpression
+	BlockSize?: int & <=1073741824 & >=1048576 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1073741824 &
+							>=1048576,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	CmkSecretConfig?: close({
-		KmsKeyArn?: strings.MaxRunes(2048) &
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
 		strings.MinRunes(0) &
 		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
 		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	CustomSecretConfig?: _#defs."/$defs/Properties/definitions/CustomSecretConfig" | fn.#ObjectExpression
+	CustomSecretConfig?: _#defs."/$defs/Properties/definitions/CustomSecretConfig"
 	KerberosKeytab?:     strings.MaxRunes(87384) | fn.#StringExpression
 	KerberosKrb5Conf?:   strings.MaxRunes(174764) | fn.#StringExpression
 	KerberosPrincipal?:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
@@ -38,21 +58,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^kms:\\/\\/http[s]?@(([a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9\\-]*[A-Za-z0-9])(;(([a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9\\-]*[A-Za-z0-9]))*:[0-9]{1,5}\\/kms$" |
 	fn.#StringExpression
-	NameNodes!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/NameNode" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	QopConfiguration?:  _#defs."/$defs/Properties/definitions/QopConfiguration" | fn.#ObjectExpression
-	ReplicationFactor?: int & <=512 & >=1 | fn.#NumberExpression
+	NameNodes!:        list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/NameNode"] | fn.#ListExpression
+	QopConfiguration?: _#defs."/$defs/Properties/definitions/QopConfiguration"
+	ReplicationFactor?: int & <=512 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=512 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SimpleUser?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[_.A-Za-z0-9][-_.A-Za-z0-9]*$" | fn.#StringExpression
 	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
 	fn.#StringExpression
@@ -64,7 +97,8 @@ _#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
-	SecretAccessRoleArn!: strings.MaxRunes(2048) &
+	SecretAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*|)$" |
 	fn.#StringExpression
@@ -87,7 +121,22 @@ _#defs: "/$defs/Properties/definitions/NameNode": close({
 	strings.MinRunes(1) &
 	=~"^(([a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9\\-]*[A-Za-z0-9])$" |
 	fn.#StringExpression
-	Port!: int & <=65536 & >=1 | fn.#NumberExpression
+	Port!: int & <=65536 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65536 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

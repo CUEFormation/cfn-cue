@@ -16,35 +16,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApplicationId?: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
 	fn.#StringExpression
-	AuthConfiguration!:         _#defs."/$defs/Properties/definitions/PluginAuthConfiguration" | fn.#ValueExpression
-	CustomPluginConfiguration?: _#defs."/$defs/Properties/definitions/CustomPluginConfiguration" | fn.#ObjectExpression
+	AuthConfiguration!:         _#defs."/$defs/Properties/definitions/PluginAuthConfiguration"
+	CustomPluginConfiguration?: _#defs."/$defs/Properties/definitions/CustomPluginConfiguration"
 	DisplayName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
 	ServerUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$" |
 	fn.#StringExpression
-	State?: _#defs."/$defs/Properties/definitions/PluginState" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Type!: _#defs."/$defs/Properties/definitions/PluginType" | fn.#StringExpression
+	State?: _#defs."/$defs/Properties/definitions/PluginState"
+	Tags?:  list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Type!:  _#defs."/$defs/Properties/definitions/PluginType"
 })
 
-_#defs: "/$defs/Properties/definitions/APISchema": matchN(1, [close(
-	{Payload!: string | fn.#StringExpression},
-), close(
-	{S3!: _#defs."/$defs/Properties/definitions/S3" | fn.#ObjectExpression},
-)]) |
+_#defs: "/$defs/Properties/definitions/APISchema": matchN(1, [
+	close({Payload!: string | fn.#StringExpression}), close({S3!: _#defs."/$defs/Properties/definitions/S3"}),
+]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/APISchemaType": "OPEN_API_V3" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/BasicAuthConfiguration": close({
-	RoleArn!:   strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+	fn.#StringExpression
 	SecretArn!: strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomPluginConfiguration": close({
-	ApiSchema!:     _#defs."/$defs/Properties/definitions/APISchema" | fn.#ValueExpression
-	ApiSchemaType!: _#defs."/$defs/Properties/definitions/APISchemaType" | fn.#StringExpression
+	ApiSchema!:     _#defs."/$defs/Properties/definitions/APISchema"
+	ApiSchemaType!: _#defs."/$defs/Properties/definitions/APISchemaType"
 	Description!:   strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -57,22 +55,20 @@ _#defs: "/$defs/Properties/definitions/NoAuthConfiguration": string |
 _#defs: "/$defs/Properties/definitions/OAuth2ClientCredentialConfiguration": close({
 	AuthorizationUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$" |
 	fn.#StringExpression
-	RoleArn!:   strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+	fn.#StringExpression
 	SecretArn!: strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
 	TokenUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PluginAuthConfiguration": matchN(1, [close(
-	{BasicAuthConfiguration!: _#defs."/$defs/Properties/definitions/BasicAuthConfiguration" | fn.#ObjectExpression},
-), close({
-	OAuth2ClientCredentialConfiguration!: _#defs."/$defs/Properties/definitions/OAuth2ClientCredentialConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	NoAuthConfiguration!: _#defs."/$defs/Properties/definitions/NoAuthConfiguration" |
-		fn.#ObjectExpression |
-		fn.#StringExpression
-})]) |
+	{BasicAuthConfiguration!: _#defs."/$defs/Properties/definitions/BasicAuthConfiguration"},
+), close(
+	{OAuth2ClientCredentialConfiguration!: _#defs."/$defs/Properties/definitions/OAuth2ClientCredentialConfiguration"},
+), close(
+	{NoAuthConfiguration!: _#defs."/$defs/Properties/definitions/NoAuthConfiguration"},
+)]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/PluginBuildStatus": "READY" |

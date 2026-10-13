@@ -9,6 +9,10 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,16 +23,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
 	fn.#StringExpression
-	Definition?:              _#defs."/$defs/Properties/definitions/FlowDefinition" | fn.#ObjectExpression
-	DefinitionS3Location?:    _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
+	Definition?:              _#defs."/$defs/Properties/definitions/FlowDefinition"
+	DefinitionS3Location?:    _#defs."/$defs/Properties/definitions/S3Location"
 	DefinitionString?:        strings.MaxRunes(512000) | fn.#StringExpression
-	DefinitionSubstitutions?: _#defs."/$defs/Properties/definitions/DefinitionSubstitutions" | fn.#ObjectExpression
+	DefinitionSubstitutions?: _#defs."/$defs/Properties/definitions/DefinitionSubstitutions"
 	Description?:             strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	ExecutionRoleArn!: strings.MaxRunes(2048) & =~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/(service-role/)?.+$" |
+	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/(service-role/)?.+$" |
 	fn.#StringExpression
 	Name!:          =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	Tags?:          _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
-	TestAliasTags?: _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
+	Tags?:          _#defs."/$defs/Properties/definitions/TagsMap"
+	TestAliasTags?: _#defs."/$defs/Properties/definitions/TagsMap"
 })
 
 _#defs: "/$defs/Properties/definitions/AdditionalModelRequestFields": {[string]: fn.#Value} | fn.#ObjectExpression
@@ -48,9 +54,7 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/CollectorFlowNodeConfiguration": close({}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConditionFlowNodeConfiguration": close({
-	Conditions!: list.MaxItems(5) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FlowCondition" | fn.#ObjectExpression
-	] |
+	Conditions!: list.MaxItems(5) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/FlowCondition"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -66,7 +70,7 @@ _#defs: "/$defs/Properties/definitions/FieldForReranking": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldsForReranking": list.MaxItems(100) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/FieldForReranking" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/FieldForReranking"
 ] |
 	fn.#ListExpression
 
@@ -82,18 +86,18 @@ _#defs: "/$defs/Properties/definitions/FlowConditionalConnectionConfiguration": 
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FlowConnection": close({
-	Configuration?: _#defs."/$defs/Properties/definitions/FlowConnectionConfiguration" | fn.#ValueExpression
+	Configuration?: _#defs."/$defs/Properties/definitions/FlowConnectionConfiguration"
 	Name!:          =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,100}$" | fn.#StringExpression
 	Source!:        =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" | fn.#StringExpression
 	Target!:        =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" | fn.#StringExpression
-	Type!:          _#defs."/$defs/Properties/definitions/FlowConnectionType" | fn.#StringExpression
+	Type!:          _#defs."/$defs/Properties/definitions/FlowConnectionType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FlowConnectionConfiguration": matchN(1, [close(
-	{Data!: _#defs."/$defs/Properties/definitions/FlowDataConnectionConfiguration" | fn.#ObjectExpression},
+	{Data!: _#defs."/$defs/Properties/definitions/FlowDataConnectionConfiguration"},
 ), close(
-	{Conditional!: _#defs."/$defs/Properties/definitions/FlowConditionalConnectionConfiguration" | fn.#ObjectExpression},
+	{Conditional!: _#defs."/$defs/Properties/definitions/FlowConditionalConnectionConfiguration"},
 )]) |
 fn.#ValueExpression
 
@@ -106,56 +110,52 @@ _#defs: "/$defs/Properties/definitions/FlowDataConnectionConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FlowDefinition": close({
-	Connections?: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/FlowConnection" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Nodes?: list.MaxItems(40) & [..._#defs."/$defs/Properties/definitions/FlowNode" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Connections?: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/FlowConnection"] | fn.#ListExpression
+	Nodes?:       list.MaxItems(40) & [..._#defs."/$defs/Properties/definitions/FlowNode"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FlowNode": close({
-	Configuration?: _#defs."/$defs/Properties/definitions/FlowNodeConfiguration" | fn.#ValueExpression
-	Inputs?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/FlowNodeInput" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Name!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" | fn.#StringExpression
-	Outputs?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/FlowNodeOutput" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Type!: _#defs."/$defs/Properties/definitions/FlowNodeType" | fn.#StringExpression
+	Configuration?: _#defs."/$defs/Properties/definitions/FlowNodeConfiguration"
+	Inputs?:        list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/FlowNodeInput"] | fn.#ListExpression
+	Name!:          =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" | fn.#StringExpression
+	Outputs?:       list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/FlowNodeOutput"] | fn.#ListExpression
+	Type!:          _#defs."/$defs/Properties/definitions/FlowNodeType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FlowNodeConfiguration": matchN(1, [close(
-	{Input!: _#defs."/$defs/Properties/definitions/InputFlowNodeConfiguration" | fn.#ObjectExpression},
+	{Input!: _#defs."/$defs/Properties/definitions/InputFlowNodeConfiguration"},
 ), close(
-	{Output!: _#defs."/$defs/Properties/definitions/OutputFlowNodeConfiguration" | fn.#ObjectExpression},
+	{Output!: _#defs."/$defs/Properties/definitions/OutputFlowNodeConfiguration"},
 ), close(
-	{KnowledgeBase!: _#defs."/$defs/Properties/definitions/KnowledgeBaseFlowNodeConfiguration" | fn.#ObjectExpression},
+	{KnowledgeBase!: _#defs."/$defs/Properties/definitions/KnowledgeBaseFlowNodeConfiguration"},
 ), close(
-	{Condition!: _#defs."/$defs/Properties/definitions/ConditionFlowNodeConfiguration" | fn.#ObjectExpression},
+	{Condition!: _#defs."/$defs/Properties/definitions/ConditionFlowNodeConfiguration"},
 ), close(
-	{Lex!: _#defs."/$defs/Properties/definitions/LexFlowNodeConfiguration" | fn.#ObjectExpression},
+	{Lex!: _#defs."/$defs/Properties/definitions/LexFlowNodeConfiguration"},
 ), close(
-	{Prompt!: _#defs."/$defs/Properties/definitions/PromptFlowNodeConfiguration" | fn.#ObjectExpression},
+	{Prompt!: _#defs."/$defs/Properties/definitions/PromptFlowNodeConfiguration"},
 ), close(
-	{LambdaFunction!: _#defs."/$defs/Properties/definitions/LambdaFunctionFlowNodeConfiguration" | fn.#ObjectExpression},
+	{LambdaFunction!: _#defs."/$defs/Properties/definitions/LambdaFunctionFlowNodeConfiguration"},
 ), close(
-	{Agent!: _#defs."/$defs/Properties/definitions/AgentFlowNodeConfiguration" | fn.#ObjectExpression},
+	{Agent!: _#defs."/$defs/Properties/definitions/AgentFlowNodeConfiguration"},
 ), close(
-	{Storage!: _#defs."/$defs/Properties/definitions/StorageFlowNodeConfiguration" | fn.#ObjectExpression},
+	{Storage!: _#defs."/$defs/Properties/definitions/StorageFlowNodeConfiguration"},
 ), close(
-	{Iterator!: _#defs."/$defs/Properties/definitions/IteratorFlowNodeConfiguration" | fn.#ObjectExpression},
+	{Iterator!: _#defs."/$defs/Properties/definitions/IteratorFlowNodeConfiguration"},
 ), close(
-	{Collector!: _#defs."/$defs/Properties/definitions/CollectorFlowNodeConfiguration" | fn.#ObjectExpression},
+	{Collector!: _#defs."/$defs/Properties/definitions/CollectorFlowNodeConfiguration"},
 ), close(
-	{Retrieval!: _#defs."/$defs/Properties/definitions/RetrievalFlowNodeConfiguration" | fn.#ObjectExpression},
+	{Retrieval!: _#defs."/$defs/Properties/definitions/RetrievalFlowNodeConfiguration"},
 ), close(
-	{InlineCode!: _#defs."/$defs/Properties/definitions/InlineCodeFlowNodeConfiguration" | fn.#ObjectExpression},
+	{InlineCode!: _#defs."/$defs/Properties/definitions/InlineCodeFlowNodeConfiguration"},
 ), close(
-	{Loop!: _#defs."/$defs/Properties/definitions/LoopFlowNodeConfiguration" | fn.#ObjectExpression},
+	{Loop!: _#defs."/$defs/Properties/definitions/LoopFlowNodeConfiguration"},
 ), close(
-	{LoopInput!: _#defs."/$defs/Properties/definitions/LoopInputFlowNodeConfiguration" | fn.#ObjectExpression},
+	{LoopInput!: _#defs."/$defs/Properties/definitions/LoopInputFlowNodeConfiguration"},
 ), close(
-	{LoopController!: _#defs."/$defs/Properties/definitions/LoopControllerFlowNodeConfiguration" | fn.#ObjectExpression},
+	{LoopController!: _#defs."/$defs/Properties/definitions/LoopControllerFlowNodeConfiguration"},
 )]) |
 fn.#ValueExpression
 
@@ -167,10 +167,10 @@ _#defs: "/$defs/Properties/definitions/FlowNodeIODataType": "String" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/FlowNodeInput": close({
-	Category?:   _#defs."/$defs/Properties/definitions/FlowNodeInputCategory" | fn.#StringExpression
+	Category?:   _#defs."/$defs/Properties/definitions/FlowNodeInputCategory"
 	Expression!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:       =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" | fn.#StringExpression
-	Type!:       _#defs."/$defs/Properties/definitions/FlowNodeIODataType" | fn.#StringExpression
+	Type!:       _#defs."/$defs/Properties/definitions/FlowNodeIODataType"
 }) |
 fn.#ObjectExpression
 
@@ -181,7 +181,7 @@ _#defs: "/$defs/Properties/definitions/FlowNodeInputCategory": "LoopCondition" |
 
 _#defs: "/$defs/Properties/definitions/FlowNodeOutput": close({
 	Name!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" | fn.#StringExpression
-	Type!: _#defs."/$defs/Properties/definitions/FlowNodeIODataType" | fn.#StringExpression
+	Type!: _#defs."/$defs/Properties/definitions/FlowNodeIODataType"
 }) |
 fn.#ObjectExpression
 
@@ -212,9 +212,7 @@ _#defs: "/$defs/Properties/definitions/FlowStatus": "Failed" |
 _#defs: "/$defs/Properties/definitions/FlowValidation": close({Message!: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FlowValidations": [
-	..._#defs."/$defs/Properties/definitions/FlowValidation" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/FlowValidations": [..._#defs."/$defs/Properties/definitions/FlowValidation"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/GuardrailConfiguration": close({
@@ -227,7 +225,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InlineCodeFlowNodeConfiguration": close({
 	Code!:     strings.MaxRunes(5000000) | fn.#StringExpression
-	Language!: _#defs."/$defs/Properties/definitions/SupportedLanguages" | fn.#StringExpression
+	Language!: _#defs."/$defs/Properties/definitions/SupportedLanguages"
 }) |
 fn.#ObjectExpression
 
@@ -236,28 +234,44 @@ _#defs: "/$defs/Properties/definitions/InputFlowNodeConfiguration": close({}) | 
 _#defs: "/$defs/Properties/definitions/IteratorFlowNodeConfiguration": close({}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KnowledgeBaseFlowNodeConfiguration": close({
-	GuardrailConfiguration?: _#defs."/$defs/Properties/definitions/GuardrailConfiguration" | fn.#ObjectExpression
-	InferenceConfiguration?: _#defs."/$defs/Properties/definitions/PromptInferenceConfiguration" | fn.#ValueExpression
+	GuardrailConfiguration?: _#defs."/$defs/Properties/definitions/GuardrailConfiguration"
+	InferenceConfiguration?: _#defs."/$defs/Properties/definitions/PromptInferenceConfiguration"
 	KnowledgeBaseId!:        strings.MaxRunes(10) & =~"^[0-9a-zA-Z]+$" | fn.#StringExpression
 	ModelId?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^(arn:aws(-[^:]{1,12})?:(bedrock|sagemaker):[a-z0-9-]{1,20}:([0-9]{12})?:([a-z-]+/)?)?([a-zA-Z0-9.-]{1,63}){0,2}(([:][a-z0-9-]{1,63}){0,2})?(/[a-z0-9]{1,12})?$" |
 	fn.#StringExpression
-	NumberOfResults?: <=100 & >=1 | fn.#NumberExpression
-	OrchestrationConfiguration?: _#defs."/$defs/Properties/definitions/KnowledgeBaseOrchestrationConfiguration" |
-		fn.#ObjectExpression
-	PromptTemplate?: _#defs."/$defs/Properties/definitions/KnowledgeBasePromptTemplate" | fn.#ValueExpression
-	RerankingConfiguration?: _#defs."/$defs/Properties/definitions/VectorSearchRerankingConfiguration" |
-		fn.#ObjectExpression
+	NumberOfResults?: <=100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	OrchestrationConfiguration?: _#defs."/$defs/Properties/definitions/KnowledgeBaseOrchestrationConfiguration"
+	PromptTemplate?:             _#defs."/$defs/Properties/definitions/KnowledgeBasePromptTemplate"
+	RerankingConfiguration?:     _#defs."/$defs/Properties/definitions/VectorSearchRerankingConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KnowledgeBaseOrchestrationConfiguration": close({
-	AdditionalModelRequestFields?: _#defs."/$defs/Properties/definitions/AdditionalModelRequestFields" |
-		fn.#ObjectExpression
-	InferenceConfig?:   _#defs."/$defs/Properties/definitions/PromptInferenceConfiguration" | fn.#ValueExpression
-	PerformanceConfig?: _#defs."/$defs/Properties/definitions/PerformanceConfiguration" | fn.#ObjectExpression
-	PromptTemplate?:    _#defs."/$defs/Properties/definitions/KnowledgeBasePromptTemplate" | fn.#ValueExpression
+	AdditionalModelRequestFields?: _#defs."/$defs/Properties/definitions/AdditionalModelRequestFields"
+	InferenceConfig?:              _#defs."/$defs/Properties/definitions/PromptInferenceConfiguration"
+	PerformanceConfig?:            _#defs."/$defs/Properties/definitions/PerformanceConfiguration"
+	PromptTemplate?:               _#defs."/$defs/Properties/definitions/KnowledgeBasePromptTemplate"
 }) |
 fn.#ObjectExpression
 
@@ -267,7 +281,8 @@ _#defs: "/$defs/Properties/definitions/KnowledgeBasePromptTemplate": close(
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/LambdaFunctionFlowNodeConfiguration": close({
-	LambdaArn!: strings.MaxRunes(2048) &
+	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9-_\\.]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
 	fn.#StringExpression
 }) |
@@ -282,48 +297,66 @@ _#defs: "/$defs/Properties/definitions/LexFlowNodeConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoopControllerFlowNodeConfiguration": close({
-	ContinueCondition!: _#defs."/$defs/Properties/definitions/FlowCondition" | fn.#ObjectExpression
-	MaxIterations?:     <=1000 & >=1 | fn.#NumberExpression
+	ContinueCondition!: _#defs."/$defs/Properties/definitions/FlowCondition"
+	MaxIterations?: <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1000 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoopFlowNodeConfiguration": close(
-	{Definition!: _#defs."/$defs/Properties/definitions/FlowDefinition" | fn.#ObjectExpression},
+	{Definition!: _#defs."/$defs/Properties/definitions/FlowDefinition"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoopInputFlowNodeConfiguration": close({}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetadataConfigurationForReranking": close({
-	SelectionMode!: _#defs."/$defs/Properties/definitions/RerankingMetadataSelectionMode" | fn.#StringExpression
-	SelectiveModeConfiguration?: _#defs."/$defs/Properties/definitions/RerankingMetadataSelectiveModeConfiguration" |
-		fn.#ValueExpression
+	SelectionMode!:              _#defs."/$defs/Properties/definitions/RerankingMetadataSelectionMode"
+	SelectiveModeConfiguration?: _#defs."/$defs/Properties/definitions/RerankingMetadataSelectiveModeConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OutputFlowNodeConfiguration": close({}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PerformanceConfiguration": close(
-	{Latency?: _#defs."/$defs/Properties/definitions/PerformanceConfigurationLatency" | fn.#StringExpression},
+	{Latency?: _#defs."/$defs/Properties/definitions/PerformanceConfigurationLatency"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PerformanceConfigurationLatency": "standard" | "optimized" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PromptFlowNodeConfiguration": close({
-	GuardrailConfiguration?: _#defs."/$defs/Properties/definitions/GuardrailConfiguration" | fn.#ObjectExpression
-	SourceConfiguration!: _#defs."/$defs/Properties/definitions/PromptFlowNodeSourceConfiguration" | fn.#ValueExpression
+	GuardrailConfiguration?: _#defs."/$defs/Properties/definitions/GuardrailConfiguration"
+	SourceConfiguration!:    _#defs."/$defs/Properties/definitions/PromptFlowNodeSourceConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PromptFlowNodeInlineConfiguration": close({
-	InferenceConfiguration?: _#defs."/$defs/Properties/definitions/PromptInferenceConfiguration" | fn.#ValueExpression
+	InferenceConfiguration?: _#defs."/$defs/Properties/definitions/PromptInferenceConfiguration"
 	ModelId!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^(arn:aws(-[^:]{1,12})?:(bedrock|sagemaker):[a-z0-9-]{1,20}:([0-9]{12})?:([a-z-]+/)?)?([a-zA-Z0-9.-]{1,63}){0,2}(([:][a-z0-9-]{1,63}){0,2})?(/[a-z0-9]{1,12})?$" |
 	fn.#StringExpression
-	TemplateConfiguration!: _#defs."/$defs/Properties/definitions/PromptTemplateConfiguration" | fn.#ValueExpression
-	TemplateType!:          _#defs."/$defs/Properties/definitions/PromptTemplateType" | fn.#StringExpression
+	TemplateConfiguration!: _#defs."/$defs/Properties/definitions/PromptTemplateConfiguration"
+	TemplateType!:          _#defs."/$defs/Properties/definitions/PromptTemplateType"
 }) |
 fn.#ObjectExpression
 
@@ -334,14 +367,14 @@ _#defs: "/$defs/Properties/definitions/PromptFlowNodeResourceConfiguration": clo
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PromptFlowNodeSourceConfiguration": matchN(1, [close(
-	{Resource!: _#defs."/$defs/Properties/definitions/PromptFlowNodeResourceConfiguration" | fn.#ObjectExpression},
+	{Resource!: _#defs."/$defs/Properties/definitions/PromptFlowNodeResourceConfiguration"},
 ), close(
-	{Inline!: _#defs."/$defs/Properties/definitions/PromptFlowNodeInlineConfiguration" | fn.#ObjectExpression},
+	{Inline!: _#defs."/$defs/Properties/definitions/PromptFlowNodeInlineConfiguration"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/PromptInferenceConfiguration": close(
-	{Text!: _#defs."/$defs/Properties/definitions/PromptModelInferenceConfiguration" | fn.#ObjectExpression},
+	{Text!: _#defs."/$defs/Properties/definitions/PromptModelInferenceConfiguration"},
 ) |
 	fn.#ValueExpression
 
@@ -351,15 +384,72 @@ _#defs: "/$defs/Properties/definitions/PromptInputVariable": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PromptModelInferenceConfiguration": close({
-	MaxTokens?:     <=4096 & >=0 | fn.#NumberExpression
+	MaxTokens?: <=4096 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=4096 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	StopSequences?: list.MaxItems(4) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	Temperature?:   <=1 & >=0 | fn.#NumberExpression
-	TopP?:          <=1 & >=0 | fn.#NumberExpression
+	Temperature?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TopP?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PromptTemplateConfiguration": close(
-	{Text!: _#defs."/$defs/Properties/definitions/TextPromptTemplateConfiguration" | fn.#ObjectExpression},
+	{Text!: _#defs."/$defs/Properties/definitions/TextPromptTemplateConfiguration"},
 ) |
 	fn.#ValueExpression
 
@@ -368,16 +458,15 @@ _#defs: "/$defs/Properties/definitions/PromptTemplateType": "TEXT" | fn.#StringE
 _#defs: "/$defs/Properties/definitions/RerankingMetadataSelectionMode": "SELECTIVE" | "ALL" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RerankingMetadataSelectiveModeConfiguration": matchN(1, [close(
-	{FieldsToInclude!: _#defs."/$defs/Properties/definitions/FieldsForReranking" | fn.#ListExpression},
+	{FieldsToInclude!: _#defs."/$defs/Properties/definitions/FieldsForReranking"},
 ), close(
-	{FieldsToExclude!: _#defs."/$defs/Properties/definitions/FieldsForReranking" | fn.#ListExpression},
+	{FieldsToExclude!: _#defs."/$defs/Properties/definitions/FieldsForReranking"},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/RetrievalFlowNodeConfiguration": close({
-	ServiceConfiguration!: _#defs."/$defs/Properties/definitions/RetrievalFlowNodeServiceConfiguration" |
-		fn.#ValueExpression
-}) |
+_#defs: "/$defs/Properties/definitions/RetrievalFlowNodeConfiguration": close(
+	{ServiceConfiguration!: _#defs."/$defs/Properties/definitions/RetrievalFlowNodeServiceConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RetrievalFlowNodeS3Configuration": close(
@@ -386,7 +475,7 @@ _#defs: "/$defs/Properties/definitions/RetrievalFlowNodeS3Configuration": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RetrievalFlowNodeServiceConfiguration": close(
-	{S3?: _#defs."/$defs/Properties/definitions/RetrievalFlowNodeS3Configuration" | fn.#ObjectExpression},
+	{S3?: _#defs."/$defs/Properties/definitions/RetrievalFlowNodeS3Configuration"},
 ) |
 	fn.#ValueExpression
 
@@ -398,10 +487,9 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageFlowNodeConfiguration": close({
-	ServiceConfiguration!: _#defs."/$defs/Properties/definitions/StorageFlowNodeServiceConfiguration" |
-		fn.#ValueExpression
-}) |
+_#defs: "/$defs/Properties/definitions/StorageFlowNodeConfiguration": close(
+	{ServiceConfiguration!: _#defs."/$defs/Properties/definitions/StorageFlowNodeServiceConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StorageFlowNodeS3Configuration": close(
@@ -410,7 +498,7 @@ _#defs: "/$defs/Properties/definitions/StorageFlowNodeS3Configuration": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StorageFlowNodeServiceConfiguration": close(
-	{S3?: _#defs."/$defs/Properties/definitions/StorageFlowNodeS3Configuration" | fn.#ObjectExpression},
+	{S3?: _#defs."/$defs/Properties/definitions/StorageFlowNodeS3Configuration"},
 ) |
 	fn.#ValueExpression
 
@@ -423,34 +511,47 @@ _#defs: "/$defs/Properties/definitions/TagsMap": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TextPromptTemplateConfiguration": close({
-	InputVariables?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PromptInputVariable" | fn.#ObjectExpression
-	] |
+	InputVariables?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/PromptInputVariable"] |
 		fn.#ListExpression
 	Text!: strings.MaxRunes(200000) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VectorSearchBedrockRerankingConfiguration": close({
-	MetadataConfiguration?: _#defs."/$defs/Properties/definitions/MetadataConfigurationForReranking" |
-		fn.#ObjectExpression
-	ModelConfiguration!: _#defs."/$defs/Properties/definitions/VectorSearchBedrockRerankingModelConfiguration" |
-		fn.#ObjectExpression
-	NumberOfRerankedResults?: <=100 & >=1 | fn.#NumberExpression
+	MetadataConfiguration?: _#defs."/$defs/Properties/definitions/MetadataConfigurationForReranking"
+	ModelConfiguration!:    _#defs."/$defs/Properties/definitions/VectorSearchBedrockRerankingModelConfiguration"
+	NumberOfRerankedResults?: <=100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VectorSearchBedrockRerankingModelConfiguration": close({
-	AdditionalModelRequestFields?: _#defs."/$defs/Properties/definitions/AdditionalModelRequestFields" |
-		fn.#ObjectExpression
-	ModelArn!: _#defs."/$defs/Properties/definitions/BedrockRerankingModelArn" | fn.#StringExpression
+	AdditionalModelRequestFields?: _#defs."/$defs/Properties/definitions/AdditionalModelRequestFields"
+	ModelArn!:                     _#defs."/$defs/Properties/definitions/BedrockRerankingModelArn"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VectorSearchRerankingConfiguration": close({
-	BedrockRerankingConfiguration?: _#defs."/$defs/Properties/definitions/VectorSearchBedrockRerankingConfiguration" |
-		fn.#ObjectExpression
-	Type!: _#defs."/$defs/Properties/definitions/VectorSearchRerankingConfigurationType" | fn.#StringExpression
+	BedrockRerankingConfiguration?: _#defs."/$defs/Properties/definitions/VectorSearchBedrockRerankingConfiguration"
+	Type!:                          _#defs."/$defs/Properties/definitions/VectorSearchRerankingConfigurationType"
 }) |
 fn.#ObjectExpression
 

@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,33 +18,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::S3Express::DirectoryBucket.
 #Properties: close({
-	BucketEncryption?: _#defs."/$defs/Properties/definitions/BucketEncryption" | fn.#ObjectExpression
+	BucketEncryption?: _#defs."/$defs/Properties/definitions/BucketEncryption"
 	BucketName?:       strings.MaxRunes(63) & =~"^[a-z0-9][a-z0-9//.//-]*[a-z0-9]$" | fn.#StringExpression
 	DataRedundancy!:   "SingleAvailabilityZone" | "SingleLocalZone" | fn.#StringExpression
-	InventoryConfigurations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/InventoryConfiguration" | fn.#ObjectExpression
-	] |
+	InventoryConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InventoryConfiguration"] |
 		fn.#ListExpression
 	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration" | fn.#ObjectExpression
 	LocationName!:           string | fn.#StringExpression
-	MetricsConfigurations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricsConfiguration" | fn.#ObjectExpression
-	] |
+	MetricsConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricsConfiguration"] |
 		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close(
-	{DaysAfterInitiation!: int & >=0 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close({
+	DaysAfterInitiation!: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/BucketEncryption": close({
 	ServerSideEncryptionConfiguration!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ServerSideEncryptionRule" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ServerSideEncryptionRule"
 	] |
 		fn.#ListExpression
 }) |
@@ -55,8 +68,8 @@ _#defs: "/$defs/Properties/definitions/Destination": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InventoryConfiguration": close({
-	Destination!:            _#defs."/$defs/Properties/definitions/Destination" | fn.#ObjectExpression
-	Enabled!:                bool | fn.#BooleanExpression
+	Destination!:            _#defs."/$defs/Properties/definitions/Destination"
+	Enabled!:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Id!:                     string | fn.#StringExpression
 	IncludedObjectVersions!: "All" | "Current" | fn.#StringExpression
 	OptionalFields?: list.UniqueItems() & [
@@ -77,10 +90,9 @@ _#defs: "/$defs/Properties/definitions/InventoryConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
-	Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Rule" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close(
+	{Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetricsConfiguration": close({
@@ -91,9 +103,21 @@ _#defs: "/$defs/Properties/definitions/MetricsConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Rule": close({
-	AbortIncompleteMultipartUpload?: _#defs."/$defs/Properties/definitions/AbortIncompleteMultipartUpload" |
-		fn.#ObjectExpression
-	ExpirationInDays?:      int | fn.#NumberExpression
+	AbortIncompleteMultipartUpload?: _#defs."/$defs/Properties/definitions/AbortIncompleteMultipartUpload"
+	ExpirationInDays?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Id?:                    strings.MaxRunes(255) | fn.#StringExpression
 	ObjectSizeGreaterThan?: strings.MaxRunes(20) & =~"[0-9]+" | fn.#StringExpression
 	ObjectSizeLessThan?:    strings.MaxRunes(20) & =~"[0-9]+" | fn.#StringExpression
@@ -103,15 +127,16 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServerSideEncryptionByDefault": close({
-	KMSMasterKeyID?: string | string | string | fn.#StringExpression
-	SSEAlgorithm!:   "aws:kms" | "AES256" | fn.#StringExpression
+	KMSMasterKeyID?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	SSEAlgorithm!: "aws:kms" | "AES256" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServerSideEncryptionRule": close({
-	BucketKeyEnabled?: bool | fn.#BooleanExpression
-	ServerSideEncryptionByDefault?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionByDefault" |
-		fn.#ObjectExpression
+	BucketKeyEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ServerSideEncryptionByDefault?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionByDefault"
 }) |
 fn.#ObjectExpression
 

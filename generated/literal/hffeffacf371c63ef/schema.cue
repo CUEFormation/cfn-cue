@@ -214,7 +214,7 @@ _#defs: "/$defs/Properties/definitions/MssPackage": close({
 
 // An Amazon Resource Name (ARN) of an IAM role that AWS Elemental MediaPackage
 // will assume when accessing the key provider service.
-_#defs: "/$defs/Properties/definitions/RoleArn": string
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 // Duration (in seconds) of each fragment. Actual fragments will be rounded to
 // the nearest multiple of the source fragment duration.

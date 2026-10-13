@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PeerAccountId!:        string | fn.#StringExpression
 	PeerRegion!:           string | fn.#StringExpression
 	PeerTransitGatewayId!: string | fn.#StringExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TransitGatewayId!:     string | fn.#StringExpression
 })
 

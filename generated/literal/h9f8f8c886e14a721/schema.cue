@@ -28,7 +28,7 @@ import (
 	// scheduler, including the S3 location for the output.
 	DataOutputConfiguration!: close({
 		// The ID number for the AWS KMS key used to encrypt the inference output.
-		KmsKeyId?:              (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
 		S3OutputConfiguration!: _#defs."/$defs/Properties/definitions/S3OutputConfiguration"
 	})
 
@@ -48,7 +48,10 @@ import (
 
 	// The Amazon Resource Name (ARN) of a role with permission to access the data
 	// source being used for the inference.
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+"
 
 	// Provides the identifier of the AWS KMS customer master key (CMK) used to
 	// encrypt inference scheduler data by Amazon Lookout for Equipment.

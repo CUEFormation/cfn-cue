@@ -190,7 +190,8 @@ _#defs: "/$defs/Properties/definitions/MinSize": >=0
 
 // The Amazon Resource Name (ARN) for an IAM role that allows Amazon GameLift to
 // access your EC2 Auto Scaling groups.
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(256) &
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:.*:role\\/[\\w+=,.@-]+"
 

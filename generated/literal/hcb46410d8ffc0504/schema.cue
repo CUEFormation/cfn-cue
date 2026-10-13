@@ -6,7 +6,7 @@ package schema
 
 // Resource Type definition for AWS::ApiGateway::DomainNameV2.
 #Properties: close({
-	CertificateArn?: string
+	CertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"
 	DomainName?:     string
 
 	// The amazon resource name (ARN) of the domain name resource.

@@ -189,14 +189,17 @@ _#defs: "/$defs/Properties/definitions/ManagedResourceDetails": close({
 _#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
 	EndpointIpAddressType!: _#defs."/$defs/Properties/definitions/EndpointIpAddressType"
 	RoutingDomain?:         strings.MaxRunes(255) & strings.MinRunes(3)
-	SecurityGroupIds?:      list.MaxItems(5) & [...] & [...=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$"]
-	SubnetIds!:             [...=~"^subnet-[0-9a-zA-Z]{8,17}$"]
-	Tags?:                  _#defs."/$defs/Properties/definitions/TagsMap"
-	VpcIdentifier!:         =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$"
+	SecurityGroupIds?: list.MaxItems(5) & [...] & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$"
+	]
+	SubnetIds!:     [...=~"^subnet-[0-9a-zA-Z]{8,17}$"]
+	Tags?:          _#defs."/$defs/Properties/definitions/TagsMap"
+	VpcIdentifier!: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$"
 })
 
 _#defs: "/$defs/Properties/definitions/McpLambdaTargetConfiguration": close({
-	LambdaArn!: strings.MaxRunes(170) &
+	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+	strings.MaxRunes(170) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:([a-z]{2}(-gov)?-[a-z]+-\\d{1}):(\\d{12}):function:([a-zA-Z0-9-_.]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$"
 	ToolSchema!: _#defs."/$defs/Properties/definitions/ToolSchema"

@@ -14,13 +14,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::EC2::InstanceConnectEndpoint
 #Properties: close({
 	ClientToken?:      string | fn.#StringExpression
-	PreserveClientIp?: bool | fn.#BooleanExpression
+	PreserveClientIp?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SecurityGroupIds?: list.MaxItems(16) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/SecurityGroupId" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/SecurityGroupId"
 	] |
 		fn.#ListExpression
 	SubnetId!: string | fn.#StringExpression
-	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/InstanceConnectEndpointDnsNames": close({
@@ -39,7 +39,8 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkInterfaceId": string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": string | fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   string | fn.#StringExpression

@@ -8,54 +8,100 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DLM::LifecyclePolicy
 #Properties: close({
-	CopyTags?:               bool | fn.#BooleanExpression
-	CreateInterval?:         int & >=1 | fn.#NumberExpression
-	CrossRegionCopyTargets?: _#defs."/$defs/Properties/definitions/CrossRegionCopyTargets" | fn.#ListExpression
+	CopyTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CreateInterval?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CrossRegionCopyTargets?: _#defs."/$defs/Properties/definitions/CrossRegionCopyTargets"
 	DefaultPolicy?:          "INSTANCE" | "VOLUME" | fn.#StringExpression
 	Description?:            strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" | fn.#StringExpression
-	Exclusions?:             _#defs."/$defs/Properties/definitions/Exclusions" | fn.#ObjectExpression
-	ExecutionRoleArn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:aws(-[a-z]{1,3}){0,2}:iam::\\d+:role/" |
+	Exclusions?:             _#defs."/$defs/Properties/definitions/Exclusions"
+	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~"^arn:aws(-[a-z]{1,3}){0,2}:iam::\\d+:role/" |
 	fn.#StringExpression
-	ExtendDeletion?: bool | fn.#BooleanExpression
-	PolicyDetails?:  _#defs."/$defs/Properties/definitions/PolicyDetails" | fn.#ObjectExpression
-	RetainInterval?: int & >=1 | fn.#NumberExpression
-	State?:          string | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	ExtendDeletion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PolicyDetails?:  _#defs."/$defs/Properties/definitions/PolicyDetails"
+	RetainInterval?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	State?: string | fn.#StringExpression
+	Tags?:  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Action": close({
-	CrossRegionCopy!: list.MaxItems(3) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CrossRegionCopyAction" | fn.#ObjectExpression
-	] |
+	CrossRegionCopy!: list.MaxItems(3) & [...] & [..._#defs."/$defs/Properties/definitions/CrossRegionCopyAction"] |
 		fn.#ListExpression
 	Name!: strings.MaxRunes(120) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ArchiveRetainRule": close(
-	{RetentionArchiveTier!: _#defs."/$defs/Properties/definitions/RetentionArchiveTier" | fn.#ObjectExpression},
+	{RetentionArchiveTier!: _#defs."/$defs/Properties/definitions/RetentionArchiveTier"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ArchiveRule": close(
-	{RetainRule!: _#defs."/$defs/Properties/definitions/ArchiveRetainRule" | fn.#ObjectExpression},
+	{RetainRule!: _#defs."/$defs/Properties/definitions/ArchiveRetainRule"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CreateRule": close({
 	CronExpression?: strings.MaxRunes(106) & strings.MinRunes(17) & =~"^cron\\([^\\n]{11,100}\\)$" |
 	fn.#StringExpression
-	Interval?:     int & >=1 | fn.#NumberExpression
+	Interval?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	IntervalUnit?: "HOURS" | fn.#StringExpression
 	Location?:     "CLOUD" | "LOCAL_ZONE" | "OUTPOST_LOCAL" | fn.#StringExpression
-	Scripts?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/Script" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Scripts?:      list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/Script"] | fn.#ListExpression
 	Times?: list.MaxItems(1) & [...] & [
 		...strings.MaxRunes(5) & strings.MinRunes(5) & =~"^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" | fn.#StringExpression
 	] |
@@ -64,20 +110,48 @@ _#defs: "/$defs/Properties/definitions/CreateRule": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CrossRegionCopyAction": close({
-	EncryptionConfiguration!: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
-	RetainRule?:              _#defs."/$defs/Properties/definitions/CrossRegionCopyRetainRule" | fn.#ObjectExpression
+	EncryptionConfiguration!: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	RetainRule?:              _#defs."/$defs/Properties/definitions/CrossRegionCopyRetainRule"
 	Target!: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[\\w:\\-\\/\\*]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CrossRegionCopyDeprecateRule": close({
-	Interval!:     int & >=1 | fn.#NumberExpression
+	Interval!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	IntervalUnit!: "DAYS" | "MONTHS" | "WEEKS" | "YEARS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CrossRegionCopyRetainRule": close({
-	Interval!:     int & >=1 | fn.#NumberExpression
+	Interval!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	IntervalUnit!: "DAYS" | "MONTHS" | "WEEKS" | "YEARS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -87,10 +161,10 @@ _#defs: "/$defs/Properties/definitions/CrossRegionCopyRule": close({
 	strings.MinRunes(0) &
 	=~"^arn:aws(-[a-z]{1,3}){0,2}:kms:([a-z]+-){2,3}\\d:\\d+:key/" |
 	fn.#StringExpression
-	CopyTags?:      bool | fn.#BooleanExpression
-	DeprecateRule?: _#defs."/$defs/Properties/definitions/CrossRegionCopyDeprecateRule" | fn.#ObjectExpression
-	Encrypted!:     bool | fn.#BooleanExpression
-	RetainRule?:    _#defs."/$defs/Properties/definitions/CrossRegionCopyRetainRule" | fn.#ObjectExpression
+	CopyTags?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DeprecateRule?: _#defs."/$defs/Properties/definitions/CrossRegionCopyDeprecateRule"
+	Encrypted!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RetainRule?:    _#defs."/$defs/Properties/definitions/CrossRegionCopyRetainRule"
 	Target?:        strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[\\w:\\-\\/\\*]+$" | fn.#StringExpression
 	TargetRegion?:  strings.MaxRunes(16) & strings.MinRunes(0) & =~"^([a-z]+-){2,3}\\d$" | fn.#StringExpression
 }) |
@@ -102,13 +176,42 @@ _#defs: "/$defs/Properties/definitions/CrossRegionCopyTarget": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CrossRegionCopyTargets": list.MaxItems(3) & [...] & [
-	..._#defs."/$defs/Properties/definitions/CrossRegionCopyTarget" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/CrossRegionCopyTarget"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/DeprecateRule": close({
-	Count?:        int & <=1000 & >=1 | fn.#NumberExpression
-	Interval?:     int & >=1 | fn.#NumberExpression
+	Count?: int & <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Interval?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	IntervalUnit?: "DAYS" | "MONTHS" | "WEEKS" | "YEARS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -118,7 +221,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 	strings.MinRunes(0) &
 	=~"^arn:aws(-[a-z]{1,3}){0,2}:kms:([a-z]+-){2,3}\\d:\\d+:key/" |
 	fn.#StringExpression
-	Encrypted!: bool | fn.#BooleanExpression
+	Encrypted!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -133,7 +236,7 @@ _#defs: "/$defs/Properties/definitions/EventParameters": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EventSource": close({
-	Parameters?: _#defs."/$defs/Properties/definitions/EventParameters" | fn.#ObjectExpression
+	Parameters?: _#defs."/$defs/Properties/definitions/EventParameters"
 	Type!:       "MANAGED_CWE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -144,10 +247,9 @@ _#defs: "/$defs/Properties/definitions/ExcludeVolumeTypesList": list.MaxItems(6)
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/Exclusions": close({
-	ExcludeBootVolumes?: bool | fn.#BooleanExpression
-	ExcludeTags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ExcludeVolumeTypes?: _#defs."/$defs/Properties/definitions/ExcludeVolumeTypesList" | fn.#ListExpression
+	ExcludeBootVolumes?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExcludeTags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	ExcludeVolumeTypes?: _#defs."/$defs/Properties/definitions/ExcludeVolumeTypesList"
 }) |
 fn.#ObjectExpression
 
@@ -160,34 +262,73 @@ _#defs: "/$defs/Properties/definitions/FastRestoreRule": close({
 		...strings.MaxRunes(16) & strings.MinRunes(0) & =~"^([a-z]+-){2,3}\\d[a-z]$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Count?:        int & <=1000 & >=1 | fn.#NumberExpression
-	Interval?:     int & >=1 | fn.#NumberExpression
+	Count?: int & <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Interval?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	IntervalUnit?: "DAYS" | "MONTHS" | "WEEKS" | "YEARS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Parameters": close({
-	ExcludeBootVolume?: bool | fn.#BooleanExpression
-	ExcludeDataVolumeTags?: list.MaxItems(50) & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	ExcludeBootVolume?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExcludeDataVolumeTags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
-	NoReboot?: bool | fn.#BooleanExpression
+	NoReboot?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PolicyDetails": close({
-	Actions?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Action"] |
 		fn.#ListExpression
-	CopyTags?:               bool | fn.#BooleanExpression
-	CreateInterval?:         int & >=1 | fn.#NumberExpression
-	CrossRegionCopyTargets?: _#defs."/$defs/Properties/definitions/CrossRegionCopyTargets" | fn.#ListExpression
-	EventSource?:            _#defs."/$defs/Properties/definitions/EventSource" | fn.#ObjectExpression
-	Exclusions?:             _#defs."/$defs/Properties/definitions/Exclusions" | fn.#ObjectExpression
-	ExtendDeletion?:         bool | fn.#BooleanExpression
-	Parameters?:             _#defs."/$defs/Properties/definitions/Parameters" | fn.#ObjectExpression
+	CopyTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CreateInterval?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CrossRegionCopyTargets?: _#defs."/$defs/Properties/definitions/CrossRegionCopyTargets"
+	EventSource?:            _#defs."/$defs/Properties/definitions/EventSource"
+	Exclusions?:             _#defs."/$defs/Properties/definitions/Exclusions"
+	ExtendDeletion?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Parameters?:             _#defs."/$defs/Properties/definitions/Parameters"
 	PolicyLanguage?:         "SIMPLIFIED" | "STANDARD" | fn.#StringExpression
 	PolicyType?: "EBS_SNAPSHOT_MANAGEMENT" | "EVENT_BASED_POLICY" | "IMAGE_MANAGEMENT" | fn.#StringExpression
 	ResourceLocations?: list.MaxItems(1) & list.MinItems(1) & [
@@ -197,62 +338,162 @@ _#defs: "/$defs/Properties/definitions/PolicyDetails": close({
 	ResourceType?: "INSTANCE" | "VOLUME" | fn.#StringExpression
 	ResourceTypes?: list.MaxItems(1) & list.MinItems(1) & [..."INSTANCE" | "VOLUME" | fn.#StringExpression] |
 		fn.#ListExpression
-	RetainInterval?: int & >=1 | fn.#NumberExpression
-	Schedules?: list.MaxItems(4) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Schedule" | fn.#ObjectExpression
-	] |
+	RetainInterval?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Schedules?: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Schedule"] |
 		fn.#ListExpression
-	TargetTags?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	TargetTags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RetainRule": close({
-	Count?:        int & <=1000 & >=0 | fn.#NumberExpression
-	Interval?:     int & >=0 | fn.#NumberExpression
+	Count?: int & <=1000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Interval?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	IntervalUnit?: "DAYS" | "MONTHS" | "WEEKS" | "YEARS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RetentionArchiveTier": close({
-	Count?:        int & <=1000 & >=1 | fn.#NumberExpression
-	Interval?:     int & >=1 | fn.#NumberExpression
+	Count?: int & <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Interval?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	IntervalUnit?: "DAYS" | "MONTHS" | "WEEKS" | "YEARS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Schedule": close({
-	ArchiveRule?: _#defs."/$defs/Properties/definitions/ArchiveRule" | fn.#ObjectExpression
-	CopyTags?:    bool | fn.#BooleanExpression
-	CreateRule?:  _#defs."/$defs/Properties/definitions/CreateRule" | fn.#ObjectExpression
-	CrossRegionCopyRules?: list.MaxItems(3) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CrossRegionCopyRule" | fn.#ObjectExpression
-	] |
+	ArchiveRule?: _#defs."/$defs/Properties/definitions/ArchiveRule"
+	CopyTags?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CreateRule?:  _#defs."/$defs/Properties/definitions/CreateRule"
+	CrossRegionCopyRules?: list.MaxItems(3) & [...] & [..._#defs."/$defs/Properties/definitions/CrossRegionCopyRule"] |
 		fn.#ListExpression
-	DeprecateRule?:   _#defs."/$defs/Properties/definitions/DeprecateRule" | fn.#ObjectExpression
-	FastRestoreRule?: _#defs."/$defs/Properties/definitions/FastRestoreRule" | fn.#ObjectExpression
+	DeprecateRule?:   _#defs."/$defs/Properties/definitions/DeprecateRule"
+	FastRestoreRule?: _#defs."/$defs/Properties/definitions/FastRestoreRule"
 	Name?:            strings.MaxRunes(120) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" | fn.#StringExpression
-	RetainRule?:      _#defs."/$defs/Properties/definitions/RetainRule" | fn.#ObjectExpression
-	ShareRules?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/ShareRule" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TagsToAdd?: list.MaxItems(45) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	VariableTags?: list.MaxItems(45) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	RetainRule?:      _#defs."/$defs/Properties/definitions/RetainRule"
+	ShareRules?:   list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/ShareRule"] | fn.#ListExpression
+	TagsToAdd?:    list.MaxItems(45) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VariableTags?: list.MaxItems(45) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Script": close({
-	ExecuteOperationOnScriptFailure?: bool | fn.#BooleanExpression
+	ExecuteOperationOnScriptFailure?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 	ExecutionHandler?: strings.MaxRunes(200) &
 	strings.MinRunes(0) &
 	=~"^([a-zA-Z0-9_\\-.]{3,128}|[a-zA-Z0-9_\\-.:/]{3,200}|[A-Z0-9_]+)$" |
 	fn.#StringExpression
 	ExecutionHandlerService?: "AWS_SYSTEMS_MANAGER" | fn.#StringExpression
-	ExecutionTimeout?:        int & <=120 & >=10 | fn.#NumberExpression
-	MaximumRetryCount?:       int & <=3 & >=0 | fn.#NumberExpression
+	ExecutionTimeout?: int & <=120 & >=10 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=120 &
+							>=10,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaximumRetryCount?: int & <=3 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=3 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Stages?: list.MaxItems(2) & list.MinItems(1) & [..."POST" | "PRE" | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -262,7 +503,21 @@ _#defs: "/$defs/Properties/definitions/ShareRule": close({
 		...strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	UnshareInterval?:     int & >=1 | fn.#NumberExpression
+	UnshareInterval?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	UnshareIntervalUnit?: "DAYS" | "MONTHS" | "WEEKS" | "YEARS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

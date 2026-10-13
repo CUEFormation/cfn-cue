@@ -6,13 +6,13 @@ package schema
 
 // A security control in Security Hub describes a security best practice related
 // to a specific resource.
-#Properties: ({
+#Properties: matchN(>=1, [{
 	SecurityControlId!: _
 	...
-} | {
+}, {
 	SecurityControlArn!: _
 	...
-}) & close({
+}]) & close({
 	// The most recent reason for updating the customizable properties of a security
 	// control. This differs from the UpdateReason field of the
 	// BatchUpdateStandardsControlAssociations API, which tracks the reason for

@@ -9,5 +9,5 @@ package schema
 	PolicyDocument!: string | {...}
 
 	// The Amazon Resource Name (ARN) of the topic to which you want to add the policy.
-	TopicArn!: string
+	TopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 })

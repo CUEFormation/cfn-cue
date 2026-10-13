@@ -10,13 +10,13 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Outposts::Outpost Resource Type
-#Properties: ({
+#Properties: matchN(>=1, [{
 	AvailabilityZone!: _
 	...
-} | {
+}, {
 	AvailabilityZoneId!: _
 	...
-}) & close({
+}]) & close({
 	AvailabilityZone?: strings.MaxRunes(1000) &
 	strings.MinRunes(1) &
 	=~"^([a-zA-Z]+-){1,3}([a-zA-Z]+)?(\\d+[a-zA-Z]?)?$"

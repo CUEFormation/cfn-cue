@@ -14,13 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::AppRunner::VpcConnector resource specifies an App Runner VpcConnector.
 #Properties: close({
-	SecurityGroups?: list.UniqueItems() & [...strings.MaxRunes(51200) & strings.MinRunes(0) | fn.#StringExpression] |
+	SecurityGroups?: list.UniqueItems() & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(51200) & strings.MinRunes(0)) |
+		fn.#StringExpression
+	] |
 	fn.#ListExpression
 	Subnets!: list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(51200) & strings.MinRunes(0) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VpcConnectorName?: strings.MaxRunes(40) & strings.MinRunes(4) & =~"^[A-Za-z0-9][A-Za-z0-9-\\\\_]{3,39}$" |
 	fn.#StringExpression
 })

@@ -90,7 +90,7 @@ import (
 	IpDiscovery?: =~"(?i)^(?:ipv4|ipv6)$"
 
 	// The ID of the KMS key used to encrypt the disk on the cluster.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// Specifies the destination, format and type of the logs.
 	LogDeliveryConfigurations?: [..._#defs."/$defs/Properties/definitions/LogDeliveryConfigurationRequest"]
@@ -182,7 +182,7 @@ import (
 	ReplicationGroupId?: string
 
 	// One or more Amazon VPC security groups associated with this replication group.
-	SecurityGroupIds?: list.UniqueItems() & [...string]
+	SecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// A list of Amazon Resource Names (ARN) that uniquely identify the Redis RDB
 	// snapshot files stored in Amazon S3.

@@ -9,6 +9,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,9 +21,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:        strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
 	EndDate?:            time.Time | fn.#StringExpression
-	FlexibleTimeWindow!: _#defs."/$defs/Properties/definitions/FlexibleTimeWindow" | fn.#ObjectExpression
+	FlexibleTimeWindow!: _#defs."/$defs/Properties/definitions/FlexibleTimeWindow"
 	GroupName?:          strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.]+$" | fn.#StringExpression
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-z-]*:kms:[a-z0-9\\-]+:\\d{12}:(key|alias)\\/[0-9a-zA-Z-_]*$" |
 	fn.#StringExpression
@@ -27,16 +32,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ScheduleExpression!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ScheduleExpressionTimezone?: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 	StartDate?:                  time.Time | fn.#StringExpression
-	State?:                      _#defs."/$defs/Properties/definitions/ScheduleState" | fn.#StringExpression
-	Target!:                     _#defs."/$defs/Properties/definitions/Target" | fn.#ObjectExpression
+	State?:                      _#defs."/$defs/Properties/definitions/ScheduleState"
+	Target!:                     _#defs."/$defs/Properties/definitions/Target"
 })
 
 _#defs: "/$defs/Properties/definitions/AssignPublicIp": "ENABLED" | "DISABLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
-	AssignPublicIp?: _#defs."/$defs/Properties/definitions/AssignPublicIp" | fn.#StringExpression
+	AssignPublicIp?: _#defs."/$defs/Properties/definitions/AssignPublicIp"
 	SecurityGroups?: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1000) & strings.MinRunes(1)) |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	Subnets!: list.MaxItems(16) & list.MinItems(1) & [
@@ -47,9 +53,47 @@ _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
-	Base?:             <=100000 & >=0 | fn.#NumberExpression
+	Base?: <=100000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100000 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	CapacityProvider!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Weight?:           <=1000 & >=0 | fn.#NumberExpression
+	Weight?: <=1000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1000 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -61,28 +105,42 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EcsParameters": close({
 	CapacityProviderStrategy?: list.MaxItems(6) & [
-		..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"
 	] |
 		fn.#ListExpression
-	EnableECSManagedTags?: bool | fn.#BooleanExpression
-	EnableExecuteCommand?: bool | fn.#BooleanExpression
+	EnableECSManagedTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Group?:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	LaunchType?:           _#defs."/$defs/Properties/definitions/LaunchType" | fn.#StringExpression
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration" | fn.#ObjectExpression
-	PlacementConstraints?: list.MaxItems(10) & [
-		..._#defs."/$defs/Properties/definitions/PlacementConstraint" | fn.#ObjectExpression
-	] |
+	LaunchType?:           _#defs."/$defs/Properties/definitions/LaunchType"
+	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
+	PlacementConstraints?: list.MaxItems(10) & [..._#defs."/$defs/Properties/definitions/PlacementConstraint"] |
 		fn.#ListExpression
-	PlacementStrategy?: list.MaxItems(5) & [
-		..._#defs."/$defs/Properties/definitions/PlacementStrategy" | fn.#ObjectExpression
-	] |
+	PlacementStrategy?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/PlacementStrategy"] |
 		fn.#ListExpression
 	PlatformVersion?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	PropagateTags?:   _#defs."/$defs/Properties/definitions/PropagateTags" | fn.#StringExpression
+	PropagateTags?:   _#defs."/$defs/Properties/definitions/PropagateTags"
 	ReferenceId?:     strings.MaxRunes(1024) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TaskCount?:         <=10 & >=1 | fn.#NumberExpression
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/TagMap"] | fn.#ListExpression
+	TaskCount?: <=10 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=10 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	TaskDefinitionArn!: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -94,8 +152,27 @@ _#defs: "/$defs/Properties/definitions/EventBridgeParameters": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FlexibleTimeWindow": close({
-	MaximumWindowInMinutes?: <=1440 & >=1 | fn.#NumberExpression
-	Mode!:                   _#defs."/$defs/Properties/definitions/FlexibleTimeWindowMode" | fn.#StringExpression
+	MaximumWindowInMinutes?: <=1440 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1440 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Mode!: _#defs."/$defs/Properties/definitions/FlexibleTimeWindowMode"
 }) |
 fn.#ObjectExpression
 
@@ -109,13 +186,13 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/LaunchType": "EC2" | "FARGATE" | "EXTERNAL" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkConfiguration": close(
-	{AwsvpcConfiguration?: _#defs."/$defs/Properties/definitions/AwsVpcConfiguration" | fn.#ObjectExpression},
+	{AwsvpcConfiguration?: _#defs."/$defs/Properties/definitions/AwsVpcConfiguration"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PlacementConstraint": close({
 	Expression?: strings.MaxRunes(2000) | fn.#StringExpression
-	Type?:       _#defs."/$defs/Properties/definitions/PlacementConstraintType" | fn.#StringExpression
+	Type?:       _#defs."/$defs/Properties/definitions/PlacementConstraintType"
 }) |
 fn.#ObjectExpression
 
@@ -123,7 +200,7 @@ _#defs: "/$defs/Properties/definitions/PlacementConstraintType": "distinctInstan
 
 _#defs: "/$defs/Properties/definitions/PlacementStrategy": close({
 	Field?: strings.MaxRunes(255) | fn.#StringExpression
-	Type?:  _#defs."/$defs/Properties/definitions/PlacementStrategyType" | fn.#StringExpression
+	Type?:  _#defs."/$defs/Properties/definitions/PlacementStrategyType"
 }) |
 fn.#ObjectExpression
 
@@ -132,8 +209,46 @@ _#defs: "/$defs/Properties/definitions/PlacementStrategyType": "random" | "sprea
 _#defs: "/$defs/Properties/definitions/PropagateTags": "TASK_DEFINITION" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RetryPolicy": close({
-	MaximumEventAgeInSeconds?: <=86400 & >=60 | fn.#NumberExpression
-	MaximumRetryAttempts?:     <=185 & >=0 | fn.#NumberExpression
+	MaximumEventAgeInSeconds?: <=86400 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=86400 &
+							>=60,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaximumRetryAttempts?: <=185 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=185 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -145,7 +260,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SageMakerPipelineParameters": close({
 	PipelineParameterList?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SageMakerPipelineParameter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/SageMakerPipelineParameter"
 	] |
 		fn.#ListExpression
 }) |
@@ -165,17 +280,19 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Target": close({
 	Arn!:                   strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-	DeadLetterConfig?:      _#defs."/$defs/Properties/definitions/DeadLetterConfig" | fn.#ObjectExpression
-	EcsParameters?:         _#defs."/$defs/Properties/definitions/EcsParameters" | fn.#ObjectExpression
-	EventBridgeParameters?: _#defs."/$defs/Properties/definitions/EventBridgeParameters" | fn.#ObjectExpression
+	DeadLetterConfig?:      _#defs."/$defs/Properties/definitions/DeadLetterConfig"
+	EcsParameters?:         _#defs."/$defs/Properties/definitions/EcsParameters"
+	EventBridgeParameters?: _#defs."/$defs/Properties/definitions/EventBridgeParameters"
 	Input?:                 strings.MinRunes(1) | fn.#StringExpression
-	KinesisParameters?:     _#defs."/$defs/Properties/definitions/KinesisParameters" | fn.#ObjectExpression
-	RetryPolicy?:           _#defs."/$defs/Properties/definitions/RetryPolicy" | fn.#ObjectExpression
-	RoleArn!: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws[a-z-]*:iam::\\d{12}:role\\/[\\w+=,.@\\/-]+$" |
+	KinesisParameters?:     _#defs."/$defs/Properties/definitions/KinesisParameters"
+	RetryPolicy?:           _#defs."/$defs/Properties/definitions/RetryPolicy"
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(1600) &
+	strings.MinRunes(1) &
+	=~"^arn:aws[a-z-]*:iam::\\d{12}:role\\/[\\w+=,.@\\/-]+$" |
 	fn.#StringExpression
-	SageMakerPipelineParameters?: _#defs."/$defs/Properties/definitions/SageMakerPipelineParameters" |
-		fn.#ObjectExpression
-	SqsParameters?: _#defs."/$defs/Properties/definitions/SqsParameters" | fn.#ObjectExpression
+	SageMakerPipelineParameters?: _#defs."/$defs/Properties/definitions/SageMakerPipelineParameters"
+	SqsParameters?:               _#defs."/$defs/Properties/definitions/SqsParameters"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

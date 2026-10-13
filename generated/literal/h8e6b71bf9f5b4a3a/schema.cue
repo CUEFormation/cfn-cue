@@ -41,7 +41,8 @@ import (
 
 _#defs: "/$defs/Properties/definitions/SipMediaApplicationEndpoint": close({
 	// Valid Amazon Resource Name (ARN) of the Lambda function.
-	LambdaArn!: strings.MaxRunes(10000) &
+	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+	strings.MaxRunes(10000) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z]{2}((-gov)|(-iso(b?)))?-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9-_]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$"
 })

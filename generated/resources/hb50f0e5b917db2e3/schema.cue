@@ -13,23 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::MediaTailor::SourceLocation Resource Type
 #Properties: close({
-	AccessConfiguration?: _#defs."/$defs/Properties/definitions/AccessConfiguration" | fn.#ObjectExpression
-	DefaultSegmentDeliveryConfiguration?: _#defs."/$defs/Properties/definitions/DefaultSegmentDeliveryConfiguration" |
-		fn.#ObjectExpression
-	HttpConfiguration!: _#defs."/$defs/Properties/definitions/HttpConfiguration" | fn.#ObjectExpression
-	SegmentDeliveryConfigurations?: [
-		..._#defs."/$defs/Properties/definitions/SegmentDeliveryConfiguration" | fn.#ObjectExpression
-	] |
+	AccessConfiguration?:                 _#defs."/$defs/Properties/definitions/AccessConfiguration"
+	DefaultSegmentDeliveryConfiguration?: _#defs."/$defs/Properties/definitions/DefaultSegmentDeliveryConfiguration"
+	HttpConfiguration!:                   _#defs."/$defs/Properties/definitions/HttpConfiguration"
+	SegmentDeliveryConfigurations?: [..._#defs."/$defs/Properties/definitions/SegmentDeliveryConfiguration"] |
 		fn.#ListExpression
 	SourceLocationName!: string | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccessConfiguration": close({
-	AccessType?: _#defs."/$defs/Properties/definitions/AccessType" | fn.#StringExpression
-	SecretsManagerAccessTokenConfiguration?: _#defs."/$defs/Properties/definitions/SecretsManagerAccessTokenConfiguration" |
-		fn.#ObjectExpression
+	AccessType?: _#defs."/$defs/Properties/definitions/AccessType"
+	SecretsManagerAccessTokenConfiguration?:
+		_#defs."/$defs/Properties/definitions/SecretsManagerAccessTokenConfiguration"
 }) |
 fn.#ObjectExpression
 

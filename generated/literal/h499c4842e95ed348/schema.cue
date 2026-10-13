@@ -23,9 +23,9 @@ import (
 
 _#defs: "/$defs/Properties/definitions/AssistantType": "AGENT"
 
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close(
-	{KmsKeyId?: (string | string | string) & (strings.MaxRunes(4096) & strings.MinRunes(1))},
-)
+_#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close({
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(4096) & strings.MinRunes(1))
+})
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)

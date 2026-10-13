@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -15,18 +19,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates an Amazon S3 Tables table bucket in the same AWS Region where you
 // create the AWS CloudFormation stack.
 #Properties: close({
-	EncryptionConfiguration?:   _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
-	MetricsConfiguration?:      _#defs."/$defs/Properties/definitions/MetricsConfiguration" | fn.#ObjectExpression
-	ReplicationConfiguration?:  _#defs."/$defs/Properties/definitions/ReplicationConfiguration" | fn.#ObjectExpression
-	StorageClassConfiguration?: _#defs."/$defs/Properties/definitions/StorageClassConfiguration" | fn.#ObjectExpression
-	TableBucketName!:           _#defs."/$defs/Properties/definitions/TableBucketName" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	UnreferencedFileRemoval?: _#defs."/$defs/Properties/definitions/UnreferencedFileRemoval" | fn.#ObjectExpression
+	EncryptionConfiguration?:   _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	MetricsConfiguration?:      _#defs."/$defs/Properties/definitions/MetricsConfiguration"
+	ReplicationConfiguration?:  _#defs."/$defs/Properties/definitions/ReplicationConfiguration"
+	StorageClassConfiguration?: _#defs."/$defs/Properties/definitions/StorageClassConfiguration"
+	TableBucketName!:           _#defs."/$defs/Properties/definitions/TableBucketName"
+	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UnreferencedFileRemoval?: _#defs."/$defs/Properties/definitions/UnreferencedFileRemoval"
 })
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	KMSKeyArn?:    string | fn.#StringExpression
+	KMSKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	SSEAlgorithm?: "AES256" | "aws:kms" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -38,9 +42,7 @@ _#defs: "/$defs/Properties/definitions/MetricsConfiguration": close(
 
 _#defs: "/$defs/Properties/definitions/ReplicationConfiguration": close({
 	Role!: string | fn.#StringExpression
-	Rules!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ReplicationRule" | fn.#ObjectExpression
-	] |
+	Rules!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ReplicationRule"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -52,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/ReplicationDestination": close(
 
 _#defs: "/$defs/Properties/definitions/ReplicationRule": close({
 	Destinations!: list.MaxItems(5) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ReplicationDestination" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ReplicationDestination"
 	] |
 		fn.#ListExpression
 }) |
@@ -76,9 +78,37 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UnreferencedFileRemoval": close({
-	NoncurrentDays?:   int & >=1 | fn.#NumberExpression
-	Status?:           "Enabled" | "Disabled" | fn.#StringExpression
-	UnreferencedDays?: int & >=1 | fn.#NumberExpression
+	NoncurrentDays?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Status?: "Enabled" | "Disabled" | fn.#StringExpression
+	UnreferencedDays?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

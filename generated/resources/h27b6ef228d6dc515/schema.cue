@@ -14,8 +14,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for a resource policy with specified policy
 // statements that attaches to a Lex bot or bot alias.
 #Properties: close({
-	Policy!:      _#defs."/$defs/Properties/definitions/Policy" | fn.#ObjectExpression | fn.#StringExpression
-	ResourceArn!: _#defs."/$defs/Properties/definitions/ResourceArn" | fn.#StringExpression
+	Policy!:      _#defs."/$defs/Properties/definitions/Policy"
+	ResourceArn!: _#defs."/$defs/Properties/definitions/ResourceArn"
 })
 
 _#defs: "/$defs/Properties/definitions/PhysicalId": string | fn.#StringExpression

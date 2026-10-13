@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,16 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::WorkSpacesWeb::SessionLogger Resource Type
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap" | fn.#ObjectExpression
+	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap"
 	CustomerManagedKey?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
 	fn.#StringExpression
 	DisplayName?:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" | fn.#StringExpression
-	EventFilter!:      _#defs."/$defs/Properties/definitions/EventFilter" | fn.#ValueExpression
-	LogConfiguration!: _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	EventFilter!:      _#defs."/$defs/Properties/definitions/EventFilter"
+	LogConfiguration!: _#defs."/$defs/Properties/definitions/LogConfiguration"
+	Tags?:             list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({
@@ -51,10 +50,10 @@ _#defs: "/$defs/Properties/definitions/Event": "WebsiteInteract" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/EventFilter": matchN(1, [close(
-	{All!: _#defs."/$defs/Properties/definitions/Unit" | fn.#ObjectExpression},
+	{All!: _#defs."/$defs/Properties/definitions/Unit"},
 ), close({
 	Include!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Event" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/Event"
 	] |
 		fn.#ListExpression
 })]) |
@@ -63,7 +62,7 @@ fn.#ValueExpression
 _#defs: "/$defs/Properties/definitions/FolderStructure": "Flat" | "NestedByDate" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LogConfiguration": close(
-	{S3?: _#defs."/$defs/Properties/definitions/S3LogConfiguration" | fn.#ObjectExpression},
+	{S3?: _#defs."/$defs/Properties/definitions/S3LogConfiguration"},
 ) |
 	fn.#ObjectExpression
 
@@ -73,9 +72,9 @@ _#defs: "/$defs/Properties/definitions/S3LogConfiguration": close({
 	Bucket!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
 	fn.#StringExpression
 	BucketOwner?:     =~"^[0-9]{12}$" | fn.#StringExpression
-	FolderStructure!: _#defs."/$defs/Properties/definitions/FolderStructure" | fn.#StringExpression
+	FolderStructure!: _#defs."/$defs/Properties/definitions/FolderStructure"
 	KeyPrefix?:       strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\d\\w\\-_/!().*']+$" | fn.#StringExpression
-	LogFileFormat!:   _#defs."/$defs/Properties/definitions/LogFileFormat" | fn.#StringExpression
+	LogFileFormat!:   _#defs."/$defs/Properties/definitions/LogFileFormat"
 }) |
 fn.#ObjectExpression
 

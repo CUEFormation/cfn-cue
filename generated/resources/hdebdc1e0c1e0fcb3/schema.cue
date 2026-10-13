@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -16,23 +16,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: {
 	ResourceIdentifier!: _
 	...
-} &
-({
+} & matchN(>=1, [{
 	ZonalAutoshiftStatus!: _
 	...
-} | {
+}, {
 	PracticeRunConfiguration!: _
 	...
-}) &
-close({
-	PracticeRunConfiguration?: _#defs."/$defs/Properties/definitions/PracticeRunConfiguration" | fn.#ObjectExpression
+}]) & close({
+	PracticeRunConfiguration?: _#defs."/$defs/Properties/definitions/PracticeRunConfiguration"
 	ResourceIdentifier?:       strings.MaxRunes(1024) & strings.MinRunes(8) | fn.#StringExpression
-	ZonalAutoshiftStatus?:     _#defs."/$defs/Properties/definitions/ZonalAutoshiftStatus" | fn.#StringExpression
+	ZonalAutoshiftStatus?:     _#defs."/$defs/Properties/definitions/ZonalAutoshiftStatus"
 })
 
 _#defs: "/$defs/Properties/definitions/ControlCondition": close({
 	AlarmIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(8) & =~"^.*$" | fn.#StringExpression
-	Type!:            _#defs."/$defs/Properties/definitions/ControlConditionType" | fn.#StringExpression
+	Type!:            _#defs."/$defs/Properties/definitions/ControlConditionType"
 }) |
 fn.#ObjectExpression
 
@@ -53,13 +51,9 @@ _#defs: "/$defs/Properties/definitions/PracticeRunConfiguration": close({
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	BlockingAlarms?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ControlCondition" | fn.#ObjectExpression
-	] |
+	BlockingAlarms?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ControlCondition"] |
 		fn.#ListExpression
-	OutcomeAlarms!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ControlCondition" | fn.#ObjectExpression
-	] |
+	OutcomeAlarms!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ControlCondition"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression

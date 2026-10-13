@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,21 +20,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Alias!:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z0-9_\\-\\.]*$" | fn.#StringExpression
 	DisplayName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-\\s]*$" | fn.#StringExpression
-	Plan?:        [..._#defs."/$defs/Properties/definitions/Stage" | fn.#ObjectExpression] | fn.#ListExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Type!: "PERSONAL" | "ESCALATION" | "ONCALL_SCHEDULE" | fn.#StringExpression
+	Plan?:        [..._#defs."/$defs/Properties/definitions/Stage"] | fn.#ListExpression
+	Tags?:        list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Type!:        "PERSONAL" | "ESCALATION" | "ONCALL_SCHEDULE" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ChannelTargetInfo": close({
-	ChannelId!:              string | fn.#StringExpression
-	RetryIntervalInMinutes!: int | fn.#NumberExpression
+	ChannelId!: string | fn.#StringExpression
+	RetryIntervalInMinutes!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ContactTargetInfo": close({
 	ContactId!:   string | fn.#StringExpression
-	IsEssential!: bool | fn.#BooleanExpression
+	IsEssential!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -41,9 +57,22 @@ _#defs: "/$defs/Properties/definitions/Stage": matchN(1, [{
 	RotationIds!: _
 	...
 }]) & close({
-	DurationInMinutes?: int | fn.#NumberExpression
-	RotationIds?:       [...string | fn.#StringExpression] | fn.#ListExpression
-	Targets?:           [..._#defs."/$defs/Properties/definitions/Targets" | fn.#ObjectExpression] | fn.#ListExpression
+	DurationInMinutes?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RotationIds?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Targets?:     [..._#defs."/$defs/Properties/definitions/Targets"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -60,8 +89,8 @@ _#defs: "/$defs/Properties/definitions/Targets": matchN(1, [{
 	ContactTargetInfo!: _
 	...
 }]) & close({
-	ChannelTargetInfo?: _#defs."/$defs/Properties/definitions/ChannelTargetInfo" | fn.#ObjectExpression
-	ContactTargetInfo?: _#defs."/$defs/Properties/definitions/ContactTargetInfo" | fn.#ObjectExpression
+	ChannelTargetInfo?: _#defs."/$defs/Properties/definitions/ChannelTargetInfo"
+	ContactTargetInfo?: _#defs."/$defs/Properties/definitions/ContactTargetInfo"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

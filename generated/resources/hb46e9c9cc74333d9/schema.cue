@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,34 +20,153 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Action?:          "ARCHIVE" | "NOOP" | fn.#StringExpression
 	Description?:     strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
 	DetectorId!:      strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-	FindingCriteria!: _#defs."/$defs/Properties/definitions/FindingCriteria" | fn.#ObjectExpression
+	FindingCriteria!: _#defs."/$defs/Properties/definitions/FindingCriteria"
 	Name!:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Rank?:            int & <=100 & >=1 | fn.#NumberExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/TagItem" | fn.#ObjectExpression] | fn.#ListExpression
+	Rank?: int & <=100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/TagItem"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Condition": close({
-	Eq?:                 [...string | fn.#StringExpression] | fn.#ListExpression
-	Equals?:             [...string | fn.#StringExpression] | fn.#ListExpression
-	GreaterThan?:        int | fn.#NumberExpression
-	GreaterThanOrEqual?: int | fn.#NumberExpression
-	Gt?:                 int | fn.#NumberExpression
-	Gte?:                int | fn.#NumberExpression
-	LessThan?:           int | fn.#NumberExpression
-	LessThanOrEqual?:    int | fn.#NumberExpression
-	Lt?:                 int | fn.#NumberExpression
-	Lte?:                int | fn.#NumberExpression
-	Matches?:            [...string | fn.#StringExpression] | fn.#ListExpression
-	Neq?:                [...string | fn.#StringExpression] | fn.#ListExpression
-	NotEquals?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	NotMatches?:         [...string | fn.#StringExpression] | fn.#ListExpression
+	Eq?:     [...string | fn.#StringExpression] | fn.#ListExpression
+	Equals?: [...string | fn.#StringExpression] | fn.#ListExpression
+	GreaterThan?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GreaterThanOrEqual?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Gt?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Gte?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LessThan?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LessThanOrEqual?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Lt?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Lte?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Matches?:    [...string | fn.#StringExpression] | fn.#ListExpression
+	Neq?:        [...string | fn.#StringExpression] | fn.#ListExpression
+	NotEquals?:  [...string | fn.#StringExpression] | fn.#ListExpression
+	NotMatches?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FindingCriteria": close({
 	Criterion?: close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/Condition" | fn.#ObjectExpression}}) |
+		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/Condition"}}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression

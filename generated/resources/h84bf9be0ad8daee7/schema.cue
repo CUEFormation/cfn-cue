@@ -13,16 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::ElasticBeanstalk::Environment
 #Properties: close({
-	ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	CNAMEPrefix?:     strings.MaxRunes(63) & strings.MinRunes(4) | fn.#StringExpression
-	Description?:     strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-	EnvironmentName?: strings.MaxRunes(40) & strings.MinRunes(4) | fn.#StringExpression
-	OperationsRole?:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	OptionSettings?: [..._#defs."/$defs/Properties/definitions/OptionSetting" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ApplicationName!:   strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	CNAMEPrefix?:       strings.MaxRunes(63) & strings.MinRunes(4) | fn.#StringExpression
+	Description?:       strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+	EnvironmentName?:   strings.MaxRunes(40) & strings.MinRunes(4) | fn.#StringExpression
+	OperationsRole?:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	OptionSettings?:    [..._#defs."/$defs/Properties/definitions/OptionSetting"] | fn.#ListExpression
 	PlatformArn?:       string | fn.#StringExpression
 	SolutionStackName?: string | fn.#StringExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TemplateName?:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	Tier?:              _#defs."/$defs/Properties/definitions/Tier" | fn.#ObjectExpression
 	VersionLabel?:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression

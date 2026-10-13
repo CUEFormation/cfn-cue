@@ -17,26 +17,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // structured and information rich format.
 #Properties: close({
 	LogGroupIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"[\\w#+=/:,.@-]*" | fn.#StringExpression
-	TransformerConfig!: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Processor" | fn.#ObjectExpression
-	] |
+	TransformerConfig!: list.MaxItems(20) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Processor"] |
 		fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AddKeyEntry": close({
-	Key!:               _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString" | fn.#StringExpression
-	OverwriteIfExists?: bool | fn.#BooleanExpression
+	Key!:               _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString"
+	OverwriteIfExists?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Value!:             strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Column": _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString" |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/Column": _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString"
 
 _#defs: "/$defs/Properties/definitions/CopyValueEntry": close({
-	OverwriteIfExists?: bool | fn.#BooleanExpression
-	Source!:            _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
-	Target!:            _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString" | fn.#StringExpression
+	OverwriteIfExists?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Source!:            _#defs."/$defs/Properties/definitions/NonEmptyString"
+	Target!:            _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString"
 }) |
 fn.#ObjectExpression
 
@@ -52,16 +49,15 @@ strings.MinRunes(1) &
 =~"^v\\d+\\.\\d+(\\.\\d+)?$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MatchPattern": _#defs."/$defs/Properties/definitions/NonEmptyString" |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/MatchPattern": _#defs."/$defs/Properties/definitions/NonEmptyString"
 
 _#defs: "/$defs/Properties/definitions/MaxLengthString": strings.MaxRunes(128) & strings.MinRunes(1) |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/MoveKeyEntry": close({
-	OverwriteIfExists?: bool | fn.#BooleanExpression
-	Source!:            _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
-	Target!:            _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
+	OverwriteIfExists?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Source!:            _#defs."/$defs/Properties/definitions/NonEmptyString"
+	Target!:            _#defs."/$defs/Properties/definitions/NonEmptyString"
 }) |
 fn.#ObjectExpression
 
@@ -78,57 +74,53 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/OcsfVersion": "V1.1" | "V1.5" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ParseCloudfront": close(
-	{Source?: _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression},
+	{Source?: _#defs."/$defs/Properties/definitions/NonEmptyString"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParsePostgres": close(
-	{Source?: _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression},
+	{Source?: _#defs."/$defs/Properties/definitions/NonEmptyString"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParseRoute53": close(
-	{Source?: _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression},
+	{Source?: _#defs."/$defs/Properties/definitions/NonEmptyString"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParseToOCSF": close({
-	EventSource!:    _#defs."/$defs/Properties/definitions/EventSource" | fn.#StringExpression
-	MappingVersion?: _#defs."/$defs/Properties/definitions/MappingVersion" | fn.#StringExpression
-	OcsfVersion!:    _#defs."/$defs/Properties/definitions/OcsfVersion" | fn.#StringExpression
-	Source?:         _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
+	EventSource!:    _#defs."/$defs/Properties/definitions/EventSource"
+	MappingVersion?: _#defs."/$defs/Properties/definitions/MappingVersion"
+	OcsfVersion!:    _#defs."/$defs/Properties/definitions/OcsfVersion"
+	Source?:         _#defs."/$defs/Properties/definitions/NonEmptyString"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParseVPC": close(
-	{Source?: _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression},
+	{Source?: _#defs."/$defs/Properties/definitions/NonEmptyString"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParseWAF": close(
-	{Source?: _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression},
+	{Source?: _#defs."/$defs/Properties/definitions/NonEmptyString"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Processor": struct.MaxFields(1) & struct.MinFields(1) & close({
 	AddKeys?: close({
 		Entries!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-			..._#defs."/$defs/Properties/definitions/AddKeyEntry" | fn.#ObjectExpression
+			..._#defs."/$defs/Properties/definitions/AddKeyEntry"
 		] |
 			fn.#ListExpression
 	}) |
 		fn.#ObjectExpression
 	CopyValue?: close({
-		Entries!: list.MaxItems(5) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/CopyValueEntry" | fn.#ObjectExpression
-		] |
+		Entries!: list.MaxItems(5) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CopyValueEntry"] |
 			fn.#ListExpression
 	}) |
 		fn.#ObjectExpression
 	Csv?: close({
-		Columns?: list.MaxItems(100) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/Column" | fn.#StringExpression
-		] |
+		Columns?: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Column"] |
 			fn.#ListExpression
 		Delimiter?:      strings.MaxRunes(2) & strings.MinRunes(1) | fn.#StringExpression
 		QuoteCharacter?: strings.MaxRunes(1) & strings.MinRunes(1) | fn.#StringExpression
@@ -138,110 +130,102 @@ _#defs: "/$defs/Properties/definitions/Processor": struct.MaxFields(1) & struct.
 	DateTimeConverter?: close({
 		Locale?: strings.MinRunes(1) | fn.#StringExpression
 		MatchPatterns!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-			..._#defs."/$defs/Properties/definitions/MatchPattern" | fn.#StringExpression
+			..._#defs."/$defs/Properties/definitions/MatchPattern"
 		] |
 			fn.#ListExpression
-		Source!:         _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
+		Source!:         _#defs."/$defs/Properties/definitions/NonEmptyString"
 		SourceTimezone?: strings.MinRunes(1) | fn.#StringExpression
-		Target!:         _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString" | fn.#StringExpression
+		Target!:         _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString"
 		TargetFormat?:   strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 		TargetTimezone?: strings.MinRunes(1) | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	DeleteKeys?: close({
 		WithKeys!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-			..._#defs."/$defs/Properties/definitions/WithKey" | fn.#StringExpression
+			..._#defs."/$defs/Properties/definitions/WithKey"
 		] |
 			fn.#ListExpression
 	}) |
 		fn.#ObjectExpression
 	Grok?: close({
 		Match!:  strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-		Source?: _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
+		Source?: _#defs."/$defs/Properties/definitions/NonEmptyString"
 	}) |
 	fn.#ObjectExpression
 	ListToMap?: close({
-		Flatten?:          bool | fn.#BooleanExpression
+		Flatten?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		FlattenedElement?: "first" | "last" | fn.#StringExpression
-		Key!:              _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
-		Source!:           _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
-		Target?:           _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString" | fn.#StringExpression
-		ValueKey?:         _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
+		Key!:              _#defs."/$defs/Properties/definitions/NonEmptyString"
+		Source!:           _#defs."/$defs/Properties/definitions/NonEmptyString"
+		Target?:           _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString"
+		ValueKey?:         _#defs."/$defs/Properties/definitions/NonEmptyString"
 	}) |
 	fn.#ObjectExpression
 	LowerCaseString?: close({
 		WithKeys!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-			..._#defs."/$defs/Properties/definitions/WithKey" | fn.#StringExpression
+			..._#defs."/$defs/Properties/definitions/WithKey"
 		] |
 			fn.#ListExpression
 	}) |
 		fn.#ObjectExpression
 	MoveKeys?: close({
-		Entries!: list.MaxItems(5) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/MoveKeyEntry" | fn.#ObjectExpression
-		] |
+		Entries!: list.MaxItems(5) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/MoveKeyEntry"] |
 			fn.#ListExpression
 	}) |
 		fn.#ObjectExpression
-	ParseCloudfront?: _#defs."/$defs/Properties/definitions/ParseCloudfront" | fn.#ObjectExpression
+	ParseCloudfront?: _#defs."/$defs/Properties/definitions/ParseCloudfront"
 	ParseJSON?: close({
-		Destination?: _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString" | fn.#StringExpression
+		Destination?: _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString"
 		Source?:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	ParseKeyValue?: close({
-		Destination?:       _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
+		Destination?:       _#defs."/$defs/Properties/definitions/NonEmptyString"
 		FieldDelimiter?:    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		KeyPrefix?:         _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
+		KeyPrefix?:         _#defs."/$defs/Properties/definitions/NonEmptyString"
 		KeyValueDelimiter?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		NonMatchValue?:     _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
-		OverwriteIfExists?: bool | fn.#BooleanExpression
-		Source?:            _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
+		NonMatchValue?:     _#defs."/$defs/Properties/definitions/NonEmptyString"
+		OverwriteIfExists?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Source?:            _#defs."/$defs/Properties/definitions/NonEmptyString"
 	}) |
 	fn.#ObjectExpression
-	ParsePostgres?: _#defs."/$defs/Properties/definitions/ParsePostgres" | fn.#ObjectExpression
-	ParseRoute53?:  _#defs."/$defs/Properties/definitions/ParseRoute53" | fn.#ObjectExpression
-	ParseToOCSF?:   _#defs."/$defs/Properties/definitions/ParseToOCSF" | fn.#ObjectExpression
-	ParseVPC?:      _#defs."/$defs/Properties/definitions/ParseVPC" | fn.#ObjectExpression
-	ParseWAF?:      _#defs."/$defs/Properties/definitions/ParseWAF" | fn.#ObjectExpression
+	ParsePostgres?: _#defs."/$defs/Properties/definitions/ParsePostgres"
+	ParseRoute53?:  _#defs."/$defs/Properties/definitions/ParseRoute53"
+	ParseToOCSF?:   _#defs."/$defs/Properties/definitions/ParseToOCSF"
+	ParseVPC?:      _#defs."/$defs/Properties/definitions/ParseVPC"
+	ParseWAF?:      _#defs."/$defs/Properties/definitions/ParseWAF"
 	RenameKeys?: close({
-		Entries!: list.MaxItems(5) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/RenameKeyEntry" | fn.#ObjectExpression
-		] |
+		Entries!: list.MaxItems(5) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RenameKeyEntry"] |
 			fn.#ListExpression
 	}) |
 		fn.#ObjectExpression
 	SplitString?: close({
-		Entries!: list.MaxItems(10) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/SplitStringEntry" | fn.#ObjectExpression
-		] |
+		Entries!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SplitStringEntry"] |
 			fn.#ListExpression
 	}) |
 		fn.#ObjectExpression
 	SubstituteString?: close({
 		Entries!: list.MaxItems(10) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/SubstituteStringEntry" | fn.#ObjectExpression
+			..._#defs."/$defs/Properties/definitions/SubstituteStringEntry"
 		] |
 			fn.#ListExpression
 	}) |
 		fn.#ObjectExpression
 	TrimString?: close({
 		WithKeys!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-			..._#defs."/$defs/Properties/definitions/WithKey" | fn.#StringExpression
+			..._#defs."/$defs/Properties/definitions/WithKey"
 		] |
 			fn.#ListExpression
 	}) |
 		fn.#ObjectExpression
 	TypeConverter?: close({
-		Entries!: list.MaxItems(5) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/TypeConverterEntry" | fn.#ObjectExpression
-		] |
+		Entries!: list.MaxItems(5) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TypeConverterEntry"] |
 			fn.#ListExpression
 	}) |
 		fn.#ObjectExpression
 	UpperCaseString?: close({
 		WithKeys!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-			..._#defs."/$defs/Properties/definitions/WithKey" | fn.#StringExpression
+			..._#defs."/$defs/Properties/definitions/WithKey"
 		] |
 			fn.#ListExpression
 	}) |
@@ -250,27 +234,27 @@ _#defs: "/$defs/Properties/definitions/Processor": struct.MaxFields(1) & struct.
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RenameKeyEntry": close({
-	Key!:               _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
-	OverwriteIfExists?: bool | fn.#BooleanExpression
-	RenameTo!:          _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
+	Key!:               _#defs."/$defs/Properties/definitions/NonEmptyString"
+	OverwriteIfExists?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RenameTo!:          _#defs."/$defs/Properties/definitions/NonEmptyString"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SplitStringEntry": close({
 	Delimiter!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Source!:    _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
+	Source!:    _#defs."/$defs/Properties/definitions/NonEmptyString"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SubstituteStringEntry": close({
-	From!:   _#defs."/$defs/Properties/definitions/MaxLengthString" | fn.#StringExpression
-	Source!: _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
-	To!:     _#defs."/$defs/Properties/definitions/MaxLengthString" | fn.#StringExpression
+	From!:   _#defs."/$defs/Properties/definitions/MaxLengthString"
+	Source!: _#defs."/$defs/Properties/definitions/NonEmptyString"
+	To!:     _#defs."/$defs/Properties/definitions/MaxLengthString"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TypeConverterEntry": close({
-	Key!:  _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
+	Key!:  _#defs."/$defs/Properties/definitions/NonEmptyString"
 	Type!: "boolean" | "integer" | "double" | "string" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -28,7 +28,10 @@ import (
 
 	// The ID of the AWS Key Management Service encryption key used to encrypt and
 	// decrypt the repository.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/_-]+$"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(100) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9:/_-]+$"
 
 	// The repository's name.
 	Name?: string

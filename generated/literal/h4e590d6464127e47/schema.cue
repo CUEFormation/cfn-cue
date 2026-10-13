@@ -26,7 +26,7 @@ import (
 		EncryptionType?: string
 
 		// The Amazon Resource Name (ARN) of the KMS key that encrypts data in the cluster.
-		KmsKeyArn?: string
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 	})
 
 	// The DSQL cluster endpoint.

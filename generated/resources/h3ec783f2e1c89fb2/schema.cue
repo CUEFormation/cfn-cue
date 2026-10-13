@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,19 +13,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::RefactorSpaces::Application Resource Type
 #Properties: close({
-	ApiGatewayProxy?: _#defs."/$defs/Properties/definitions/ApiGatewayProxyInput" | fn.#ObjectExpression
+	ApiGatewayProxy?: _#defs."/$defs/Properties/definitions/ApiGatewayProxyInput"
 	EnvironmentIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" |
 	fn.#StringExpression
 	Name!:      strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	ProxyType!: _#defs."/$defs/Properties/definitions/ProxyType" | fn.#StringExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	VpcId!: strings.MaxRunes(21) & strings.MinRunes(12) & =~"^vpc-[-a-f0-9]{8}([-a-f0-9]{9})?$" | fn.#StringExpression
+	ProxyType!: _#defs."/$defs/Properties/definitions/ProxyType"
+	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(21) &
+	strings.MinRunes(12) &
+	=~"^vpc-[-a-f0-9]{8}([-a-f0-9]{9})?$" |
+	fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ApiGatewayEndpointType": "REGIONAL" | "PRIVATE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ApiGatewayProxyInput": close({
-	EndpointType?: _#defs."/$defs/Properties/definitions/ApiGatewayEndpointType" | fn.#StringExpression
+	EndpointType?: _#defs."/$defs/Properties/definitions/ApiGatewayEndpointType"
 	StageName?:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9_]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

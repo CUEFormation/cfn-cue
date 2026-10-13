@@ -4,48 +4,121 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DocDB::DBCluster
 #Properties: close({
-	AvailabilityZones?:           [...string | fn.#StringExpression] | fn.#ListExpression
-	BackupRetentionPeriod?:       int & <=35 & >=1 | fn.#NumberExpression
-	CopyTagsToSnapshot?:          bool | fn.#BooleanExpression
+	AvailabilityZones?: [...string | fn.#StringExpression] | fn.#ListExpression
+	BackupRetentionPeriod?: int & <=35 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=35 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CopyTagsToSnapshot?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DBClusterIdentifier?:         string | fn.#StringExpression
 	DBClusterParameterGroupName?: string | fn.#StringExpression
 	DBSubnetGroupName?:           string | fn.#StringExpression
-	DeletionProtection?:          bool | fn.#BooleanExpression
+	DeletionProtection?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableCloudwatchLogsExports?: [...string | fn.#StringExpression] | fn.#ListExpression
-	EngineVersion?:            "3.6.0" | "4.0" | "4.0.0" | "5.0.0" | "5.0.1" | "8.0.0" | "8.0.1" | fn.#StringExpression
-	GlobalClusterIdentifier?:  string | fn.#StringExpression
-	KmsKeyId?:                 string | string | string | fn.#StringExpression
-	ManageMasterUserPassword?: bool | fn.#BooleanExpression
+	EngineVersion?:           "3.6.0" | "4.0" | "4.0.0" | "5.0.0" | "5.0.1" | "8.0.0" | "8.0.1" | fn.#StringExpression
+	GlobalClusterIdentifier?: string | fn.#StringExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	ManageMasterUserPassword?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MasterUserPassword?:       string | fn.#StringExpression
 	MasterUserSecretKmsKeyId?: string | fn.#StringExpression
 	MasterUsername?:           string | fn.#StringExpression
 	NetworkType?:              string | fn.#StringExpression
-	Port?:                     int | fn.#NumberExpression
-	PreferredBackupWindow?:    string | fn.#StringExpression
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PreferredBackupWindow?:      string | fn.#StringExpression
 	PreferredMaintenanceWindow?: string | fn.#StringExpression
 	RestoreToTime?:              string | fn.#StringExpression
 	RestoreType?:                string | fn.#StringExpression
-	RotateMasterUserPassword?:   bool | fn.#BooleanExpression
-	ServerlessV2ScalingConfiguration?: _#defs."/$defs/Properties/definitions/ServerlessV2ScalingConfiguration" |
-		fn.#ObjectExpression
-	SnapshotIdentifier?:        string | fn.#StringExpression
-	SourceDBClusterIdentifier?: string | fn.#StringExpression
-	StorageEncrypted?:          bool | fn.#BooleanExpression
-	StorageType?:               string | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	UseLatestRestorableTime?: bool | fn.#BooleanExpression
-	VpcSecurityGroupIds?:     [...string | fn.#StringExpression] | fn.#ListExpression
+	RotateMasterUserPassword?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ServerlessV2ScalingConfiguration?: _#defs."/$defs/Properties/definitions/ServerlessV2ScalingConfiguration"
+	SnapshotIdentifier?:               string | fn.#StringExpression
+	SourceDBClusterIdentifier?:        string | fn.#StringExpression
+	StorageEncrypted?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	StorageType?:             string | fn.#StringExpression
+	Tags?:                    [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UseLatestRestorableTime?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	VpcSecurityGroupIds?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ServerlessV2ScalingConfiguration": close({
-	MaxCapacity!: number | fn.#NumberExpression
-	MinCapacity!: number | fn.#NumberExpression
+	MaxCapacity!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinCapacity!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

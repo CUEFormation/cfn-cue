@@ -4,36 +4,54 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A security control in Security Hub describes a security best practice related
 // to a specific resource.
-#Properties: ({
+#Properties: matchN(>=1, [{
 	SecurityControlId!: _
 	...
-} | {
+}, {
 	SecurityControlArn!: _
 	...
-}) & close({
+}]) & close({
 	LastUpdateReason?:   =~"^([^\u0000-\u007f]|[-_ a-zA-Z0-9])+$" | fn.#StringExpression
 	Parameters!:         _#defs."/$defs/Properties/definitions/Parameters" | fn.#ObjectExpression
 	SecurityControlArn?: _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
 	SecurityControlId?:  _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/IntegerList": [...int | fn.#NumberExpression] | fn.#ListExpression
-
-_#defs: "/$defs/Properties/definitions/NonEmptyString": =~".*\\S.*" | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/NonEmptyStringList": [
-	..._#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/IntegerList": [
+	...int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 ] |
 	fn.#ListExpression
 
+_#defs: "/$defs/Properties/definitions/NonEmptyString": =~".*\\S.*" | fn.#StringExpression
+
+_#defs: "/$defs/Properties/definitions/NonEmptyStringList": [..._#defs."/$defs/Properties/definitions/NonEmptyString"] |
+	fn.#ListExpression
+
 _#defs: "/$defs/Properties/definitions/ParameterConfiguration": close({
-	Value?:     _#defs."/$defs/Properties/definitions/ParameterValue" | fn.#ObjectExpression
+	Value?:     _#defs."/$defs/Properties/definitions/ParameterValue"
 	ValueType!: "DEFAULT" | "CUSTOM" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -63,11 +81,42 @@ _#defs: "/$defs/Properties/definitions/ParameterValue": matchN(1, [{
 	StringList!: _
 	...
 }]) & close({
-	Boolean?:     bool | fn.#BooleanExpression
-	Double?:      number | fn.#NumberExpression
-	Enum?:        _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
-	EnumList?:    _#defs."/$defs/Properties/definitions/NonEmptyStringList" | fn.#ListExpression
-	Integer?:     int | fn.#NumberExpression
+	Boolean?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Double?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Enum?:     _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
+	EnumList?: _#defs."/$defs/Properties/definitions/NonEmptyStringList" | fn.#ListExpression
+	Integer?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	IntegerList?: _#defs."/$defs/Properties/definitions/IntegerList" | fn.#ListExpression
 	String?:      _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
 	StringList?:  _#defs."/$defs/Properties/definitions/NonEmptyStringList" | fn.#ListExpression
@@ -76,7 +125,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Parameters": close({
 
-	{[=~".*\\S.*"]: _#defs."/$defs/Properties/definitions/ParameterConfiguration" | fn.#ObjectExpression}}) |
+	{[=~".*\\S.*"]: _#defs."/$defs/Properties/definitions/ParameterConfiguration"}}) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SecurityHub::SecurityControl"

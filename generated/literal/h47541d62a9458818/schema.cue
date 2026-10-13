@@ -14,7 +14,7 @@ package schema
 	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
 
 	// The ID of the VPC for the network ACL.
-	VpcId!: string
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 // Specifies a tag. For more information, see [Resource

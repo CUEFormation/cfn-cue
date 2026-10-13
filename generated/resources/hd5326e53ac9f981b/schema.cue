@@ -7,6 +7,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,13 +21,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 	IngressGatewayBridge?: _#defs."/$defs/Properties/definitions/IngressGatewayBridge" & {[string]: fn.#Value} |
 		fn.#ObjectExpression
-	Name!: string | fn.#StringExpression
-	Outputs?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/BridgeOutput" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Name!:    string | fn.#StringExpression
+	Outputs?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/BridgeOutput"] | fn.#ListExpression
 	PlacementArn!:         string | fn.#StringExpression
-	SourceFailoverConfig?: _#defs."/$defs/Properties/definitions/FailoverConfig" | fn.#ObjectExpression
-	Sources!: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/BridgeSource" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	SourceFailoverConfig?: _#defs."/$defs/Properties/definitions/FailoverConfig"
+	Sources!: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/BridgeSource"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/BridgeFlowSource": close({
@@ -37,9 +39,35 @@ _#defs: "/$defs/Properties/definitions/BridgeNetworkOutput": close({
 	IpAddress!:   string | fn.#StringExpression
 	Name!:        string | fn.#StringExpression
 	NetworkName!: string | fn.#StringExpression
-	Port!:        int | fn.#NumberExpression
-	Protocol!:    _#defs."/$defs/Properties/definitions/ProtocolEnum" | fn.#StringExpression
-	Ttl!:         int | fn.#NumberExpression
+	Port!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Protocol!: _#defs."/$defs/Properties/definitions/ProtocolEnum" | fn.#StringExpression
+	Ttl!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -48,19 +76,32 @@ _#defs: "/$defs/Properties/definitions/BridgeNetworkSource": close({
 	MulticastSourceSettings?: _#defs."/$defs/Properties/definitions/MulticastSourceSettings" | fn.#ObjectExpression
 	Name!:                    string | fn.#StringExpression
 	NetworkName!:             string | fn.#StringExpression
-	Port!:                    int | fn.#NumberExpression
-	Protocol!:                _#defs."/$defs/Properties/definitions/ProtocolEnum" | fn.#StringExpression
+	Port!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Protocol!: _#defs."/$defs/Properties/definitions/ProtocolEnum" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BridgeOutput": close(
-	{NetworkOutput?: _#defs."/$defs/Properties/definitions/BridgeNetworkOutput" | fn.#ObjectExpression},
+	{NetworkOutput?: _#defs."/$defs/Properties/definitions/BridgeNetworkOutput"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BridgeSource": close({
-	FlowSource?:    _#defs."/$defs/Properties/definitions/BridgeFlowSource" | fn.#ObjectExpression
-	NetworkSource?: _#defs."/$defs/Properties/definitions/BridgeNetworkSource" | fn.#ObjectExpression
+	FlowSource?:    _#defs."/$defs/Properties/definitions/BridgeFlowSource"
+	NetworkSource?: _#defs."/$defs/Properties/definitions/BridgeNetworkSource"
 }) |
 fn.#ObjectExpression
 
@@ -77,13 +118,28 @@ _#defs: "/$defs/Properties/definitions/BridgeStateEnum": "CREATING" |
 	"UPDATING" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EgressGatewayBridge": close({MaxBitrate!: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/EgressGatewayBridge": close({
+	MaxBitrate!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FailoverConfig": close({
 	FailoverMode!:   _#defs."/$defs/Properties/definitions/FailoverModeEnum" | fn.#StringExpression
 	SourcePriority?: _#defs."/$defs/Properties/definitions/SourcePriority" | fn.#ObjectExpression
-	State?:          _#defs."/$defs/Properties/definitions/FailoverConfigStateEnum" | fn.#StringExpression
+	State?:          _#defs."/$defs/Properties/definitions/FailoverConfigStateEnum"
 }) |
 fn.#ObjectExpression
 
@@ -92,8 +148,34 @@ _#defs: "/$defs/Properties/definitions/FailoverConfigStateEnum": "ENABLED" | "DI
 _#defs: "/$defs/Properties/definitions/FailoverModeEnum": "FAILOVER" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/IngressGatewayBridge": close({
-	MaxBitrate!: int | fn.#NumberExpression
-	MaxOutputs!: int | fn.#NumberExpression
+	MaxBitrate!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxOutputs!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

@@ -33,7 +33,10 @@ import (
 
 	// The Amazon Resource Name (ARN) of the IAM role used to run the operations
 	// specified by the lifecycle policy.
-	ExecutionRoleArn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:aws(-[a-z]{1,3}){0,2}:iam::\\d+:role/"
+	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~"^arn:aws(-[a-z]{1,3}){0,2}:iam::\\d+:role/"
 
 	// **[Default policies only]** Defines the snapshot or AMI retention behavior
 	// for the policy if the source volume or instance is deleted, or if the policy

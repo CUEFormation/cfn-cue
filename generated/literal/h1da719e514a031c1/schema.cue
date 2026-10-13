@@ -38,7 +38,10 @@ import (
 	// The ARN of the AWS Key Management Service (AWS KMS) key that's used to
 	// encrypt your function's environment variables. If it's not provided, AWS
 	// Lambda uses a default service key.
-	KMSArn?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:aws:kms:.*:[0-9]+:.*"
+	KMSArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"arn:aws:kms:.*:[0-9]+:.*"
 })
 
 _#defs: "/$defs/Properties/definitions/AccessKeyId": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
@@ -206,7 +209,8 @@ _#defs: "/$defs/Properties/definitions/CustomConnectorProfileProperties": close(
 	ProfileProperties?: _#defs."/$defs/Properties/definitions/ProfileProperties"
 })
 
-_#defs: "/$defs/Properties/definitions/DataApiRoleArn": strings.MaxRunes(512) &
+_#defs: "/$defs/Properties/definitions/DataApiRoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+strings.MaxRunes(512) &
 strings.MinRunes(0) &
 =~"arn:aws:iam:.*:[0-9]+:.*"
 
@@ -426,7 +430,8 @@ _#defs: "/$defs/Properties/definitions/RefreshToken": strings.MaxRunes(4096) & s
 
 _#defs: "/$defs/Properties/definitions/Region": strings.MaxRunes(64) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(512) &
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+strings.MaxRunes(512) &
 strings.MinRunes(0) &
 =~"arn:aws:iam:.*:[0-9]+:.*"
 

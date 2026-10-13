@@ -36,7 +36,7 @@ _#defs: "/$defs/Properties/definitions/APISchema": matchN(1, [
 _#defs: "/$defs/Properties/definitions/APISchemaType": "OPEN_API_V3"
 
 _#defs: "/$defs/Properties/definitions/BasicAuthConfiguration": close({
-	RoleArn!:   strings.MaxRunes(1284) & strings.MinRunes(0)
+	RoleArn!:   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
 	SecretArn!: strings.MaxRunes(1284) & strings.MinRunes(0)
 })
 
@@ -50,7 +50,7 @@ _#defs: "/$defs/Properties/definitions/NoAuthConfiguration": string | {...}
 
 _#defs: "/$defs/Properties/definitions/OAuth2ClientCredentialConfiguration": close({
 	AuthorizationUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$"
-	RoleArn!:          strings.MaxRunes(1284) & strings.MinRunes(0)
+	RoleArn!:          =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
 	SecretArn!:        strings.MaxRunes(1284) & strings.MinRunes(0)
 	TokenUrl?:         strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$"
 })

@@ -15,9 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::AppStream::Entitlement
 #Properties: close({
 	AppVisibility!: "ALL" | "ASSOCIATED" | fn.#StringExpression
-	Attributes!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Attribute" | fn.#ObjectExpression
-	] |
+	Attributes!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Attribute"] |
 		fn.#ListExpression
 	Description?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:        =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression

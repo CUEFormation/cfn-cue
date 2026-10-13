@@ -45,5 +45,5 @@ import "strings"
 	// The ARN of the IAM role that allows the Auto Scaling group to publish to the
 	// specified notification target, for example, an Amazon SNS topic or an Amazon
 	// SQS queue.
-	RoleARN?: strings.MaxRunes(255) & strings.MinRunes(1)
+	RoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1))
 })

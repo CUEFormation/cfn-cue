@@ -14,27 +14,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SMSVOICE::PhoneNumber
 #Properties: close({
-	DeletionProtectionEnabled?: bool | fn.#BooleanExpression
+	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IsoCountryCode!:            =~"^[A-Z]{2}$" | fn.#StringExpression
 	MandatoryKeywords!: close({
-		HELP!: _#defs."/$defs/Properties/definitions/MandatoryKeyword" | fn.#ObjectExpression
-		STOP!: _#defs."/$defs/Properties/definitions/MandatoryKeyword" | fn.#ObjectExpression
+		HELP!: _#defs."/$defs/Properties/definitions/MandatoryKeyword"
+		STOP!: _#defs."/$defs/Properties/definitions/MandatoryKeyword"
 	}) |
 	fn.#ObjectExpression
 	NumberCapabilities!: list.UniqueItems() & [..."SMS" | "VOICE" | "MMS" | fn.#StringExpression] | fn.#ListExpression
 	NumberType!:         "LONG_CODE" | "TOLL_FREE" | "TEN_DLC" | "SIMULATOR" | fn.#StringExpression
 	OptOutListName?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" | fn.#StringExpression
-	OptionalKeywords?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/OptionalKeyword" | fn.#ObjectExpression
-	] |
+	OptionalKeywords?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/OptionalKeyword"] |
 		fn.#ListExpression
-	SelfManagedOptOutsEnabled?: bool | fn.#BooleanExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	SelfManagedOptOutsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TwoWay?: close({
 		ChannelArn?:  =~"^arn:\\S+$" | fn.#StringExpression
 		ChannelRole?: =~"^arn:\\S+$" | fn.#StringExpression
-		Enabled!:     bool | fn.#BooleanExpression
+		Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	}) |
 	fn.#ObjectExpression
 })

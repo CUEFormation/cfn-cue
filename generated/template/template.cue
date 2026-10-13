@@ -6,6 +6,10 @@ import fn "github.com/cueformation/cfn-cue/fn:fn"
 
 import structs "struct"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 #LogicalID: =~"^[A-Za-z][A-Za-z0-9]{0,254}$"
 #ResourceAttributes: {
 	Type!:                string
@@ -30,11 +34,67 @@ import structs "struct"
 	Description?:           string
 	Default?:               string | number
 	AllowedValues?:         [...string | number]
-	NoEcho?:                bool | "true" | "false"
-	MaxLength?:             int & >=0
-	MinLength?:             int & >=0
-	MaxValue?:              number
-	MinValue?:              number
+	NoEcho?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE"
+	MaxLength?: int & >=0 | {
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	}
+	MinLength?: int & >=0 | {
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	}
+	MaxValue?: number | {
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						number,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	}
+	MinValue?: number | {
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						number,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	}
 }
 #Output: {
 	Value!:       fn.#Value

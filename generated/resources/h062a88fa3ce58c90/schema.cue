@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"struct"
 )
 
@@ -14,13 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents an application that runs on an AWS Mainframe Modernization Environment
 #Properties: close({
-	Definition?:  _#defs."/$defs/Properties/definitions/Definition" | fn.#ValueExpression
+	Definition?:  _#defs."/$defs/Properties/definitions/Definition"
 	Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	EngineType!:  _#defs."/$defs/Properties/definitions/EngineType" | fn.#StringExpression
-	KmsKeyId?:    (string | string | string) & strings.MaxRunes(2048) | fn.#StringExpression
-	Name!:        =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-	RoleArn?:     string | fn.#StringExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
+	EngineType!:  _#defs."/$defs/Properties/definitions/EngineType"
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & strings.MaxRunes(2048) |
+	fn.#StringExpression
+	Name!: =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Tags?: _#defs."/$defs/Properties/definitions/TagMap"
 })
 
 _#defs: "/$defs/Properties/definitions/Definition": matchN(1, [close(

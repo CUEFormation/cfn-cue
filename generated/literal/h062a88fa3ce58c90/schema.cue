@@ -19,9 +19,9 @@ import (
 
 	// The ID or the Amazon Resource Name (ARN) of the customer managed KMS Key used
 	// for encrypting application-related resources.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048)
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & strings.MaxRunes(2048)
 	Name!:     =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$"
-	RoleArn?:  string
+	RoleArn?:  =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Tags?:     _#defs."/$defs/Properties/definitions/TagMap"
 })
 

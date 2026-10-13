@@ -14,24 +14,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::CodeBuild::ReportGroup
 #Properties: close({
-	DeleteReports?: bool | fn.#BooleanExpression
-	ExportConfig!:  _#defs."/$defs/Properties/definitions/ReportExportConfig" | fn.#ObjectExpression
+	DeleteReports?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExportConfig!:  _#defs."/$defs/Properties/definitions/ReportExportConfig"
 	Name?:          strings.MaxRunes(128) & strings.MinRunes(2) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Type!: "TEST" | "CODE_COVERAGE" | fn.#StringExpression
+	Tags?:          list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Type!:          "TEST" | "CODE_COVERAGE" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ReportExportConfig": close({
 	ExportConfigType!: "S3" | "NO_EXPORT" | fn.#StringExpression
-	S3Destination?:    _#defs."/$defs/Properties/definitions/S3ReportExportConfig" | fn.#ObjectExpression
+	S3Destination?:    _#defs."/$defs/Properties/definitions/S3ReportExportConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3ReportExportConfig": close({
 	Bucket!:             strings.MinRunes(1) | fn.#StringExpression
 	BucketOwner?:        string | fn.#StringExpression
-	EncryptionDisabled?: bool | fn.#BooleanExpression
+	EncryptionDisabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EncryptionKey?:      strings.MinRunes(1) | fn.#StringExpression
 	Packaging?:          "NONE" | "ZIP" | fn.#StringExpression
 	Path?:               string | fn.#StringExpression

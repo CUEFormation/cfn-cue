@@ -15,9 +15,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::SMSVOICE::ProtectConfiguration
 #Properties: close({
 	CountryRuleSet?:            _#defs."/$defs/Properties/definitions/CountryRuleSet" | fn.#ObjectExpression
-	DeletionProtectionEnabled?: bool | fn.#BooleanExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CountryRule": close({
@@ -26,22 +25,19 @@ _#defs: "/$defs/Properties/definitions/CountryRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CountryRuleSet": ({
+_#defs: "/$defs/Properties/definitions/CountryRuleSet": matchN(>=1, [{
 	SMS!: _
 	...
-} | {
+}, {
 	VOICE!: _
 	...
-} | {
+}, {
 	MMS!: _
 	...
-}) & close({
-	MMS?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	SMS?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	VOICE?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule" | fn.#ObjectExpression] |
-		fn.#ListExpression
+}]) & close({
+	MMS?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"] | fn.#ListExpression
+	SMS?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"] | fn.#ListExpression
+	VOICE?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

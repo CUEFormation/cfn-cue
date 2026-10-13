@@ -19,14 +19,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Notification](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Events.html)
 // in the *Amazon RDS User Guide*.
 #Properties: close({
-	Enabled?:          bool | fn.#BooleanExpression
-	EventCategories?:  list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SnsTopicArn!:      string | fn.#StringExpression
+	Enabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EventCategories?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	SnsTopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	SourceIds?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	SourceType?:       string | fn.#StringExpression
 	SubscriptionName?: strings.MaxRunes(255) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:             list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

@@ -14,14 +14,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::IoTSiteWise::Project
 #Properties: close({
-	AssetIds?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AssetId" | fn.#StringExpression] |
-		fn.#ListExpression
+	AssetIds?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AssetId"] | fn.#ListExpression
 	PortalId!: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression
 	ProjectDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression
 	ProjectName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AssetId": string | fn.#StringExpression

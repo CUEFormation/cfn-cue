@@ -11,7 +11,7 @@ package schema
 	FileSystemType!:        string
 	FileSystemTypeVersion?: string
 	Id?:                    string
-	KmsKeyId?:              string | string | string
+	KmsKeyId?:              =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 	LustreConfiguration?:   _#defs."/$defs/Properties/definitions/LustreConfiguration"
 	LustreMountName?:       string
 	NetworkType?:           string
@@ -19,7 +19,7 @@ package schema
 	OpenZFSConfiguration?:  _#defs."/$defs/Properties/definitions/OpenZFSConfiguration"
 	ResourceARN?:           string
 	RootVolumeId?:          string
-	SecurityGroupIds?:      [...string]
+	SecurityGroupIds?:      [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	StorageCapacity?:       int
 	StorageType?:           string
 	SubnetIds!:             [...string]

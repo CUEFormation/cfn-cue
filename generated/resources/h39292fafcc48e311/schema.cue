@@ -9,6 +9,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,46 +24,118 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	ChannelName!:      strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	ContainerType!:    _#defs."/$defs/Properties/definitions/ContainerType" | fn.#StringExpression
-	DashManifests?: [..._#defs."/$defs/Properties/definitions/DashManifestConfiguration" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ForceEndpointErrorConfiguration?: _#defs."/$defs/Properties/definitions/ForceEndpointErrorConfiguration" |
-		fn.#ObjectExpression
+	ContainerType!:    _#defs."/$defs/Properties/definitions/ContainerType"
+	DashManifests?:    [..._#defs."/$defs/Properties/definitions/DashManifestConfiguration"] | fn.#ListExpression
+	Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	ForceEndpointErrorConfiguration?: _#defs."/$defs/Properties/definitions/ForceEndpointErrorConfiguration"
 	HlsManifests?: [...close({
 		ChildManifestName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration" | fn.#ObjectExpression
+		FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
 		ManifestName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		ManifestWindowSeconds?:          int | fn.#NumberExpression
-		ProgramDateTimeIntervalSeconds?: int | fn.#NumberExpression
-		ScteHls?:                        _#defs."/$defs/Properties/definitions/ScteHls" | fn.#ObjectExpression
-		StartTag?:                       _#defs."/$defs/Properties/definitions/StartTag" | fn.#ObjectExpression
-		UriPathType?:                    _#defs."/$defs/Properties/definitions/UriPathType" | fn.#StringExpression
-		UrlEncodeChildManifest?:         bool | fn.#BooleanExpression
+		ManifestWindowSeconds?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ProgramDateTimeIntervalSeconds?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ScteHls?:                _#defs."/$defs/Properties/definitions/ScteHls"
+		StartTag?:               _#defs."/$defs/Properties/definitions/StartTag"
+		UriPathType?:            _#defs."/$defs/Properties/definitions/UriPathType"
+		UrlEncodeChildManifest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
 	LowLatencyHlsManifests?: [...close({
 		ChildManifestName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration" | fn.#ObjectExpression
+		FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
 		ManifestName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		ManifestWindowSeconds?:          int | fn.#NumberExpression
-		ProgramDateTimeIntervalSeconds?: int | fn.#NumberExpression
-		ScteHls?:                        _#defs."/$defs/Properties/definitions/ScteHls" | fn.#ObjectExpression
-		StartTag?:                       _#defs."/$defs/Properties/definitions/StartTag" | fn.#ObjectExpression
-		UriPathType?:                    _#defs."/$defs/Properties/definitions/UriPathType" | fn.#StringExpression
-		UrlEncodeChildManifest?:         bool | fn.#BooleanExpression
+		ManifestWindowSeconds?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ProgramDateTimeIntervalSeconds?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ScteHls?:                _#defs."/$defs/Properties/definitions/ScteHls"
+		StartTag?:               _#defs."/$defs/Properties/definitions/StartTag"
+		UriPathType?:            _#defs."/$defs/Properties/definitions/UriPathType"
+		UrlEncodeChildManifest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	MssManifests?: [..._#defs."/$defs/Properties/definitions/MssManifestConfiguration" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	OriginEndpointName!:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Segment?:                _#defs."/$defs/Properties/definitions/Segment" | fn.#ObjectExpression
-	StartoverWindowSeconds?: int & <=1209600 & >=0 | fn.#NumberExpression
-	StreamNameOutputMode?:   _#defs."/$defs/Properties/definitions/StreamNameOutputMode" | fn.#StringExpression
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	UriSeparator?:           _#defs."/$defs/Properties/definitions/UriSeparator" | fn.#StringExpression
+	MssManifests?:       [..._#defs."/$defs/Properties/definitions/MssManifestConfiguration"] | fn.#ListExpression
+	OriginEndpointName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	Segment?:            _#defs."/$defs/Properties/definitions/Segment"
+	StartoverWindowSeconds?: int & <=1209600 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1209600 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StreamNameOutputMode?: _#defs."/$defs/Properties/definitions/StreamNameOutputMode"
+	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UriSeparator?:         _#defs."/$defs/Properties/definitions/UriSeparator"
 })
 
 _#defs: "/$defs/Properties/definitions/AdMarkerDash": "BINARY" | "XML" | fn.#StringExpression
@@ -85,8 +161,38 @@ _#defs: "/$defs/Properties/definitions/DashAvailabilityStartTimeConfiguration": 
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/DashBaseUrl": close({
-	DvbPriority?:     int & <=15000 & >=1 | fn.#NumberExpression
-	DvbWeight?:       int & <=15000 & >=1 | fn.#NumberExpression
+	DvbPriority?: int & <=15000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=15000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DvbWeight?: int & <=15000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=15000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ServiceLocation?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	Url!:             strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
@@ -105,49 +211,107 @@ _#defs: "/$defs/Properties/definitions/DashDvbFontDownload": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DashDvbMetricsReporting": close({
-	Probability?:  int & <=1000 & >=1 | fn.#NumberExpression
+	Probability?: int & <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ReportingUrl!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DashDvbSettings": close({
-	ErrorMetrics?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DashDvbMetricsReporting" | fn.#ObjectExpression
-	] |
+	ErrorMetrics?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/DashDvbMetricsReporting"] |
 		fn.#ListExpression
-	FontDownload?: _#defs."/$defs/Properties/definitions/DashDvbFontDownload" | fn.#ObjectExpression
+	FontDownload?: _#defs."/$defs/Properties/definitions/DashDvbFontDownload"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DashManifestConfiguration": close({
-	AudioTimelinePattern?: _#defs."/$defs/Properties/definitions/DashAudioTimelinePattern" | fn.#StringExpression
-	AvailabilityStartTimeConfiguration?: _#defs."/$defs/Properties/definitions/DashAvailabilityStartTimeConfiguration" |
-		fn.#ValueExpression
-	BaseUrls?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DashBaseUrl" | fn.#ObjectExpression
-	] |
+	AudioTimelinePattern?:               _#defs."/$defs/Properties/definitions/DashAudioTimelinePattern"
+	AvailabilityStartTimeConfiguration?: _#defs."/$defs/Properties/definitions/DashAvailabilityStartTimeConfiguration"
+	BaseUrls?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/DashBaseUrl"] | fn.#ListExpression
+	Compactness?:         _#defs."/$defs/Properties/definitions/DashCompactness"
+	DrmSignaling?:        _#defs."/$defs/Properties/definitions/DashDrmSignaling"
+	DvbSettings?:         _#defs."/$defs/Properties/definitions/DashDvbSettings"
+	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
+	ManifestName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	ManifestWindowSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinBufferTimeSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinUpdatePeriodSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PeriodTriggers?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/DashPeriodTrigger"] |
 		fn.#ListExpression
-	Compactness?:            _#defs."/$defs/Properties/definitions/DashCompactness" | fn.#StringExpression
-	DrmSignaling?:           _#defs."/$defs/Properties/definitions/DashDrmSignaling" | fn.#StringExpression
-	DvbSettings?:            _#defs."/$defs/Properties/definitions/DashDvbSettings" | fn.#ObjectExpression
-	FilterConfiguration?:    _#defs."/$defs/Properties/definitions/FilterConfiguration" | fn.#ObjectExpression
-	ManifestName!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	ManifestWindowSeconds?:  int | fn.#NumberExpression
-	MinBufferTimeSeconds?:   int | fn.#NumberExpression
-	MinUpdatePeriodSeconds?: int | fn.#NumberExpression
-	PeriodTriggers?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DashPeriodTrigger" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Profiles?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/DashProfile" | fn.#StringExpression] |
-		fn.#ListExpression
-	ProgramInformation?:    _#defs."/$defs/Properties/definitions/DashProgramInformation" | fn.#ObjectExpression
-	ScteDash?:              _#defs."/$defs/Properties/definitions/ScteDash" | fn.#ObjectExpression
-	SegmentTemplateFormat?: _#defs."/$defs/Properties/definitions/DashSegmentTemplateFormat" | fn.#StringExpression
-	SubtitleConfiguration?: _#defs."/$defs/Properties/definitions/DashSubtitleConfiguration" | fn.#ObjectExpression
-	SuggestedPresentationDelaySeconds?: int | fn.#NumberExpression
-	UriPathType?:                       _#defs."/$defs/Properties/definitions/UriPathType" | fn.#StringExpression
-	UtcTiming?:                         _#defs."/$defs/Properties/definitions/DashUtcTiming" | fn.#ObjectExpression
+	Profiles?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/DashProfile"] | fn.#ListExpression
+	ProgramInformation?:    _#defs."/$defs/Properties/definitions/DashProgramInformation"
+	ScteDash?:              _#defs."/$defs/Properties/definitions/ScteDash"
+	SegmentTemplateFormat?: _#defs."/$defs/Properties/definitions/DashSegmentTemplateFormat"
+	SubtitleConfiguration?: _#defs."/$defs/Properties/definitions/DashSubtitleConfiguration"
+	SuggestedPresentationDelaySeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UriPathType?: _#defs."/$defs/Properties/definitions/UriPathType"
+	UtcTiming?:   _#defs."/$defs/Properties/definitions/DashUtcTiming"
 }) |
 fn.#ObjectExpression
 
@@ -173,19 +337,19 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/DashSegmentTemplateFormat": "NUMBER_WITH_TIMELINE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DashSubtitleConfiguration": close(
-	{TtmlConfiguration?: _#defs."/$defs/Properties/definitions/DashTtmlConfiguration" | fn.#ObjectExpression},
+	{TtmlConfiguration?: _#defs."/$defs/Properties/definitions/DashTtmlConfiguration"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DashTtmlConfiguration": close(
-	{TtmlProfile!: _#defs."/$defs/Properties/definitions/DashTtmlProfile" | fn.#StringExpression},
+	{TtmlProfile!: _#defs."/$defs/Properties/definitions/DashTtmlProfile"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DashTtmlProfile": "IMSC_1" | "EBU_TT_D_101" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DashUtcTiming": close({
-	TimingMode?:   _#defs."/$defs/Properties/definitions/DashUtcTimingMode" | fn.#StringExpression
+	TimingMode?:   _#defs."/$defs/Properties/definitions/DashUtcTimingMode"
 	TimingSource?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -204,25 +368,47 @@ _#defs: "/$defs/Properties/definitions/DrmSystem": "CLEAR_KEY_AES_128" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Encryption": close({
-	CmafExcludeSegmentDrmMetadata?: bool | fn.#BooleanExpression
+	CmafExcludeSegmentDrmMetadata?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 	ConstantInitializationVector?: strings.MaxRunes(32) & strings.MinRunes(32) & =~"^[0-9a-fA-F]+$" |
 	fn.#StringExpression
-	EncryptionMethod!:           _#defs."/$defs/Properties/definitions/EncryptionMethod" | fn.#ObjectExpression
-	KeyRotationIntervalSeconds?: int & <=31536000 & >=300 | fn.#NumberExpression
-	SpekeKeyProvider!:           _#defs."/$defs/Properties/definitions/SpekeKeyProvider" | fn.#ObjectExpression
+	EncryptionMethod!: _#defs."/$defs/Properties/definitions/EncryptionMethod"
+	KeyRotationIntervalSeconds?: int & <=31536000 & >=300 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=31536000 &
+							>=300,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionContractConfiguration": close({
-	PresetSpeke20Audio!: _#defs."/$defs/Properties/definitions/PresetSpeke20Audio" | fn.#StringExpression
-	PresetSpeke20Video!: _#defs."/$defs/Properties/definitions/PresetSpeke20Video" | fn.#StringExpression
+	PresetSpeke20Audio!: _#defs."/$defs/Properties/definitions/PresetSpeke20Audio"
+	PresetSpeke20Video!: _#defs."/$defs/Properties/definitions/PresetSpeke20Video"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionMethod": close({
-	CmafEncryptionMethod?: _#defs."/$defs/Properties/definitions/CmafEncryptionMethod" | fn.#StringExpression
-	IsmEncryptionMethod?:  _#defs."/$defs/Properties/definitions/IsmEncryptionMethod" | fn.#StringExpression
-	TsEncryptionMethod?:   _#defs."/$defs/Properties/definitions/TsEncryptionMethod" | fn.#StringExpression
+	CmafEncryptionMethod?: _#defs."/$defs/Properties/definitions/CmafEncryptionMethod"
+	IsmEncryptionMethod?:  _#defs."/$defs/Properties/definitions/IsmEncryptionMethod"
+	TsEncryptionMethod?:   _#defs."/$defs/Properties/definitions/TsEncryptionMethod"
 }) |
 fn.#ObjectExpression
 
@@ -233,56 +419,135 @@ _#defs: "/$defs/Properties/definitions/EndpointErrorCondition": "STALE_MANIFEST"
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/FilterConfiguration": close({
-	ClipStartTime?:    time.Time | fn.#StringExpression
-	DrmSettings?:      strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	End?:              time.Time | fn.#StringExpression
-	ManifestFilter?:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Start?:            time.Time | fn.#StringExpression
-	TimeDelaySeconds?: int & <=1209600 & >=0 | fn.#NumberExpression
+	ClipStartTime?:  time.Time | fn.#StringExpression
+	DrmSettings?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	End?:            time.Time | fn.#StringExpression
+	ManifestFilter?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Start?:          time.Time | fn.#StringExpression
+	TimeDelaySeconds?: int & <=1209600 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1209600 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ForceEndpointErrorConfiguration": close({
-	EndpointErrorConditions?: [..._#defs."/$defs/Properties/definitions/EndpointErrorCondition" | fn.#StringExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/ForceEndpointErrorConfiguration": close(
+	{EndpointErrorConditions?: [..._#defs."/$defs/Properties/definitions/EndpointErrorCondition"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HlsManifestConfiguration": close({
-	ChildManifestName?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	FilterConfiguration?:   _#defs."/$defs/Properties/definitions/FilterConfiguration" | fn.#ObjectExpression
-	ManifestName!:          strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	ManifestWindowSeconds?: int | fn.#NumberExpression
-	ProgramDateTimeIntervalSeconds?: int | fn.#NumberExpression
-	ScteHls?:                        _#defs."/$defs/Properties/definitions/ScteHls" | fn.#ObjectExpression
-	StartTag?:                       _#defs."/$defs/Properties/definitions/StartTag" | fn.#ObjectExpression
-	UriPathType?:                    _#defs."/$defs/Properties/definitions/UriPathType" | fn.#StringExpression
-	Url?:                            string | fn.#StringExpression
-	UrlEncodeChildManifest?:         bool | fn.#BooleanExpression
+	ChildManifestName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
+	ManifestName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	ManifestWindowSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ProgramDateTimeIntervalSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ScteHls?:                _#defs."/$defs/Properties/definitions/ScteHls"
+	StartTag?:               _#defs."/$defs/Properties/definitions/StartTag"
+	UriPathType?:            _#defs."/$defs/Properties/definitions/UriPathType"
+	Url?:                    string | fn.#StringExpression
+	UrlEncodeChildManifest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IsmEncryptionMethod": "CENC" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LowLatencyHlsManifestConfiguration": close({
-	ChildManifestName?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	FilterConfiguration?:   _#defs."/$defs/Properties/definitions/FilterConfiguration" | fn.#ObjectExpression
-	ManifestName!:          strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	ManifestWindowSeconds?: int | fn.#NumberExpression
-	ProgramDateTimeIntervalSeconds?: int | fn.#NumberExpression
-	ScteHls?:                        _#defs."/$defs/Properties/definitions/ScteHls" | fn.#ObjectExpression
-	StartTag?:                       _#defs."/$defs/Properties/definitions/StartTag" | fn.#ObjectExpression
-	UriPathType?:                    _#defs."/$defs/Properties/definitions/UriPathType" | fn.#StringExpression
-	Url?:                            string | fn.#StringExpression
-	UrlEncodeChildManifest?:         bool | fn.#BooleanExpression
+	ChildManifestName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
+	ManifestName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	ManifestWindowSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ProgramDateTimeIntervalSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ScteHls?:                _#defs."/$defs/Properties/definitions/ScteHls"
+	StartTag?:               _#defs."/$defs/Properties/definitions/StartTag"
+	UriPathType?:            _#defs."/$defs/Properties/definitions/UriPathType"
+	Url?:                    string | fn.#StringExpression
+	UrlEncodeChildManifest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MssManifestConfiguration": close({
-	FilterConfiguration?:   _#defs."/$defs/Properties/definitions/FilterConfiguration" | fn.#ObjectExpression
-	ManifestLayout?:        _#defs."/$defs/Properties/definitions/MssManifestLayout" | fn.#StringExpression
-	ManifestName!:          strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	ManifestWindowSeconds?: int | fn.#NumberExpression
+	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
+	ManifestLayout?:      _#defs."/$defs/Properties/definitions/MssManifestLayout"
+	ManifestName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+	ManifestWindowSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -312,21 +577,17 @@ _#defs: "/$defs/Properties/definitions/PresetSpeke20Video": "PRESET_VIDEO_1" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Scte": close({
-	CustomAdTypes?: list.MaxItems(25) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomAdType" | fn.#StringExpression
-	] |
+	CustomAdTypes?: list.MaxItems(25) & [...] & [..._#defs."/$defs/Properties/definitions/CustomAdType"] |
 		fn.#ListExpression
-	ScteFilter?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ScteFilter" | fn.#StringExpression
-	] |
+	ScteFilter?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/ScteFilter"] |
 		fn.#ListExpression
-	ScteInSegments?: _#defs."/$defs/Properties/definitions/ScteInSegments" | fn.#StringExpression
+	ScteInSegments?: _#defs."/$defs/Properties/definitions/ScteInSegments"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScteDash": close({
-	AdMarkerDash?:    _#defs."/$defs/Properties/definitions/AdMarkerDash" | fn.#StringExpression
-	ScteInManifests?: _#defs."/$defs/Properties/definitions/ScteInManifests" | fn.#StringExpression
+	AdMarkerDash?:    _#defs."/$defs/Properties/definitions/AdMarkerDash"
+	ScteInManifests?: _#defs."/$defs/Properties/definitions/ScteInManifests"
 }) |
 fn.#ObjectExpression
 
@@ -352,8 +613,8 @@ _#defs: "/$defs/Properties/definitions/ScteFilter": "SPLICE_INSERT" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ScteHls": close({
-	AdMarkerHls?:     _#defs."/$defs/Properties/definitions/AdMarkerHls" | fn.#StringExpression
-	ScteInManifests?: _#defs."/$defs/Properties/definitions/ScteInManifests" | fn.#StringExpression
+	AdMarkerHls?:     _#defs."/$defs/Properties/definitions/AdMarkerHls"
+	ScteInManifests?: _#defs."/$defs/Properties/definitions/ScteInManifests"
 }) |
 fn.#ObjectExpression
 
@@ -362,14 +623,29 @@ _#defs: "/$defs/Properties/definitions/ScteInManifests": "ALL" | "MATCHES_FILTER
 _#defs: "/$defs/Properties/definitions/ScteInSegments": "NONE" | "ALL" | "MATCHES_FILTER" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Segment": close({
-	Encryption?:               _#defs."/$defs/Properties/definitions/Encryption" | fn.#ObjectExpression
-	IncludeIframeOnlyStreams?: bool | fn.#BooleanExpression
-	OutputTimestampMode?:      _#defs."/$defs/Properties/definitions/OutputTimestampMode" | fn.#StringExpression
-	Scte?:                     _#defs."/$defs/Properties/definitions/Scte" | fn.#ObjectExpression
-	SegmentDurationSeconds?:   int & <=30 & >=1 | fn.#NumberExpression
+	Encryption?:               _#defs."/$defs/Properties/definitions/Encryption"
+	IncludeIframeOnlyStreams?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	OutputTimestampMode?:      _#defs."/$defs/Properties/definitions/OutputTimestampMode"
+	Scte?:                     _#defs."/$defs/Properties/definitions/Scte"
+	SegmentDurationSeconds?: int & <=30 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=30 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SegmentName?:              strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	TsIncludeDvbSubtitles?:    bool | fn.#BooleanExpression
-	TsUseAudioRenditionGroup?: bool | fn.#BooleanExpression
+	TsIncludeDvbSubtitles?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	TsUseAudioRenditionGroup?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -378,21 +654,37 @@ _#defs: "/$defs/Properties/definitions/SpekeKeyProvider": close({
 	strings.MinRunes(20) &
 	=~"^arn:([^:\\n]+):acm:([^:\\n]+):([0-9]+):certificate/[a-zA-Z0-9-_]+$" |
 	fn.#StringExpression
-	DrmSystems!: list.MaxItems(4) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DrmSystem" | fn.#StringExpression
-	] |
+	DrmSystems!: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DrmSystem"] |
 		fn.#ListExpression
-	EncryptionContractConfiguration!: _#defs."/$defs/Properties/definitions/EncryptionContractConfiguration" |
-		fn.#ObjectExpression
+	EncryptionContractConfiguration!: _#defs."/$defs/Properties/definitions/EncryptionContractConfiguration"
 	ResourceId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_-]+$" | fn.#StringExpression
-	RoleArn!:    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Url!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	fn.#StringExpression
+	Url!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StartTag": close({
-	Precise?:    bool | fn.#BooleanExpression
-	TimeOffset!: number | fn.#NumberExpression
+	Precise?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	TimeOffset!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

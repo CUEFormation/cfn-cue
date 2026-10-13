@@ -27,7 +27,8 @@ import (
 })
 
 _#defs: "/$defs/Properties/definitions/Certificate": close({
-	CertificateArn?:                   =~"\"^arn:aws:acm:[a-z0-9-]+:\\d{12}:certificate\\/.+$\""
+	CertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
+		=~"\"^arn:aws:acm:[a-z0-9-]+:\\d{12}:certificate\\/.+$\""
 	CertificateType?:                  "AMPLIFY_MANAGED" | "CUSTOM"
 	CertificateVerificationDNSRecord?: strings.MaxRunes(1000)
 })

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -14,14 +14,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource type definition for AWS::NetworkFirewall::VpcEndpointAssociation
 #Properties: close({
-	Description?:   _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	FirewallArn!:   _#defs."/$defs/Properties/definitions/ResourceArn" | fn.#StringExpression
-	SubnetMapping!: _#defs."/$defs/Properties/definitions/SubnetMapping" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Description?:   _#defs."/$defs/Properties/definitions/Description"
+	FirewallArn!:   _#defs."/$defs/Properties/definitions/ResourceArn"
+	SubnetMapping!: _#defs."/$defs/Properties/definitions/SubnetMapping"
+	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
-	VpcId!: _#defs."/$defs/Properties/definitions/VpcId" | fn.#StringExpression
+	VpcId!: _#defs."/$defs/Properties/definitions/VpcId"
 })
 
 _#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$" |
@@ -49,7 +47,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcId": strings.MaxRunes(128) & strings.MinRunes(1) & =~"^vpc-[0-9a-f]+$" |
+_#defs: "/$defs/Properties/definitions/VpcId": =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(128) &
+strings.MinRunes(1) &
+=~"^vpc-[0-9a-f]+$" |
 fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::NetworkFirewall::VpcEndpointAssociation"

@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::NovaAct::WorkflowDefinition Resource Type
 #Properties: close({
 	Description?:  strings.MaxRunes(4000) & strings.MinRunes(1) | fn.#StringExpression
-	ExportConfig?: _#defs."/$defs/Properties/definitions/WorkflowExportConfig" | fn.#ObjectExpression
+	ExportConfig?: _#defs."/$defs/Properties/definitions/WorkflowExportConfig"
 	Name!:         strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,40}$" | fn.#StringExpression
 })
 

@@ -9,7 +9,7 @@ import "list"
 // Resource Type definition for AWS::OpsWorks::Instance
 #Properties: close({
 	AgentVersion?:         string
-	AmiId?:                string
+	AmiId?:                =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$"
 	Architecture?:         string
 	AutoScalingType?:      string
 	AvailabilityZone?:     string

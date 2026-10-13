@@ -22,7 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 	ReportPlanDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*\\S.*" | fn.#StringExpression
 	ReportPlanName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][_a-zA-Z0-9]*" | fn.#StringExpression
-	ReportPlanTags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	ReportPlanTags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	ReportSetting!: close({
 		Accounts?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 		FrameworkArns?:     list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression

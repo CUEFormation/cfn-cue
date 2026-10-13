@@ -18,9 +18,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PackagingGroupId!: string | fn.#StringExpression
 	ResourceId?:       string | fn.#StringExpression
 	SourceArn!:        string | fn.#StringExpression
-	SourceRoleArn!:    string | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	SourceRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EgressEndpoint": close({

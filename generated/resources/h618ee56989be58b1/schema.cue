@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,23 +22,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(0) &
 	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
 	fn.#StringExpression
-	DialerConfig!:       _#defs."/$defs/Properties/definitions/DialerConfig" | fn.#ObjectExpression
+	DialerConfig!:       _#defs."/$defs/Properties/definitions/DialerConfig"
 	Name!:               strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	OutboundCallConfig!: _#defs."/$defs/Properties/definitions/OutboundCallConfig" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	OutboundCallConfig!: _#defs."/$defs/Properties/definitions/OutboundCallConfig"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AgentlessDialerConfig": close(
-	{DialingCapacity?: <=1 & >=0.01 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/AgentlessDialerConfig": close({
+	DialingCapacity?: <=1 & >=0.01 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0.01,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AnswerMachineDetectionConfig": close({
-	AwaitAnswerMachinePrompt?:     bool | fn.#BooleanExpression
-	EnableAnswerMachineDetection!: bool | fn.#BooleanExpression
+	AwaitAnswerMachinePrompt?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableAnswerMachineDetection!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -48,15 +68,14 @@ _#defs: "/$defs/Properties/definitions/DialerConfig": matchN(1, [{
 	AgentlessDialerConfig!: _
 	...
 }]) & close({
-	AgentlessDialerConfig?:   _#defs."/$defs/Properties/definitions/AgentlessDialerConfig" | fn.#ObjectExpression
-	PredictiveDialerConfig?:  _#defs."/$defs/Properties/definitions/PredictiveDialerConfig" | fn.#ObjectExpression
-	ProgressiveDialerConfig?: _#defs."/$defs/Properties/definitions/ProgressiveDialerConfig" | fn.#ObjectExpression
+	AgentlessDialerConfig?:   _#defs."/$defs/Properties/definitions/AgentlessDialerConfig"
+	PredictiveDialerConfig?:  _#defs."/$defs/Properties/definitions/PredictiveDialerConfig"
+	ProgressiveDialerConfig?: _#defs."/$defs/Properties/definitions/ProgressiveDialerConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OutboundCallConfig": close({
-	AnswerMachineDetectionConfig?: _#defs."/$defs/Properties/definitions/AnswerMachineDetectionConfig" |
-		fn.#ObjectExpression
+	AnswerMachineDetectionConfig?: _#defs."/$defs/Properties/definitions/AnswerMachineDetectionConfig"
 	ConnectContactFlowArn!: strings.MaxRunes(500) &
 	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*$" |
 	fn.#StringExpression
@@ -68,14 +87,90 @@ _#defs: "/$defs/Properties/definitions/OutboundCallConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PredictiveDialerConfig": close({
-	BandwidthAllocation!: <=1 & >=0 | fn.#NumberExpression
-	DialingCapacity?:     <=1 & >=0.01 | fn.#NumberExpression
+	BandwidthAllocation!: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DialingCapacity?: <=1 & >=0.01 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0.01,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ProgressiveDialerConfig": close({
-	BandwidthAllocation!: <=1 & >=0 | fn.#NumberExpression
-	DialingCapacity?:     <=1 & >=0.01 | fn.#NumberExpression
+	BandwidthAllocation!: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DialingCapacity?: <=1 & >=0.01 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0.01,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

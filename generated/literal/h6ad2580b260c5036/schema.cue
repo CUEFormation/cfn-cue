@@ -14,8 +14,10 @@ import "strings"
 		ErrorCode?:           string
 		ErrorMessage?:        string
 	})
-	EncryptionType!:   "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KMS_KEY"
-	KmsAccessRoleArn?: strings.MaxRunes(2048) & strings.MinRunes(20)
-	KmsKeyArn?:        strings.MaxRunes(2048) & strings.MinRunes(20)
+	EncryptionType!: "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KMS_KEY"
+	KmsAccessRoleArn?:
+		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
+	KmsKeyArn?:
+		=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 	LastModifiedDate?: string
 })

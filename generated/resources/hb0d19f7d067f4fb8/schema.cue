@@ -18,22 +18,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
 	fn.#StringExpression
 	Name!: strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[-a-z]*:iam::[0-9]{12}:role/.+$" |
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:aws[-a-z]*:iam::[0-9]{12}:role/.+$" |
 	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TrainingData!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Dataset" | fn.#ObjectExpression
-	] |
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TrainingData!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Dataset"] |
 		fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ColumnSchema": close({
 	ColumnName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" |
 	fn.#StringExpression
-	ColumnTypes!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ColumnType" | fn.#StringExpression
-	] |
+	ColumnTypes!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnType"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -46,21 +44,19 @@ _#defs: "/$defs/Properties/definitions/ColumnType": "USER_ID" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DataSource": close(
-	{GlueDataSource!: _#defs."/$defs/Properties/definitions/GlueDataSource" | fn.#ObjectExpression},
+	{GlueDataSource!: _#defs."/$defs/Properties/definitions/GlueDataSource"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Dataset": close({
-	InputConfig!: _#defs."/$defs/Properties/definitions/DatasetInputConfig" | fn.#ObjectExpression
-	Type!:        _#defs."/$defs/Properties/definitions/DatasetType" | fn.#StringExpression
+	InputConfig!: _#defs."/$defs/Properties/definitions/DatasetInputConfig"
+	Type!:        _#defs."/$defs/Properties/definitions/DatasetType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DatasetInputConfig": close({
-	DataSource!: _#defs."/$defs/Properties/definitions/DataSource" | fn.#ObjectExpression
-	Schema!: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ColumnSchema" | fn.#ObjectExpression
-	] |
+	DataSource!: _#defs."/$defs/Properties/definitions/DataSource"
+	Schema!: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnSchema"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression

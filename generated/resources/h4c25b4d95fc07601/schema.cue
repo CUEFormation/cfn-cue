@@ -13,8 +13,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::Neptune::DBInstance resource creates an Amazon Neptune DB instance.
 #Properties: close({
-	AllowMajorVersionUpgrade?:   bool | fn.#BooleanExpression
-	AutoMinorVersionUpgrade?:    bool | fn.#BooleanExpression
+	AllowMajorVersionUpgrade?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AutoMinorVersionUpgrade?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AvailabilityZone?:           string | fn.#StringExpression
 	DBClusterIdentifier?:        string | fn.#StringExpression
 	DBInstanceClass!:            string | fn.#StringExpression
@@ -23,9 +23,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DBSnapshotIdentifier?:       string | fn.#StringExpression
 	DBSubnetGroupName?:          string | fn.#StringExpression
 	PreferredMaintenanceWindow?: string | fn.#StringExpression
-	PubliclyAccessible?:         bool | fn.#BooleanExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	PubliclyAccessible?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

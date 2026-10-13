@@ -15,25 +15,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // This resource schema represents the Profiling Group resource in the Amazon
 // CodeGuru Profiler service.
 #Properties: close({
-	AgentPermissions?: close(
-		{Principals!: [..._#defs."/$defs/Properties/definitions/IamArn" | fn.#StringExpression] | fn.#ListExpression},
-	) |
+	AgentPermissions?: close({Principals!: [..._#defs."/$defs/Properties/definitions/IamArn"] | fn.#ListExpression}) |
 		fn.#ObjectExpression
-	AnomalyDetectionNotificationConfiguration?: [
-		..._#defs."/$defs/Properties/definitions/Channel" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	ComputePlatform?:    "Default" | "AWSLambda" | fn.#StringExpression
+	AnomalyDetectionNotificationConfiguration?: [..._#defs."/$defs/Properties/definitions/Channel"] | fn.#ListExpression
+	ComputePlatform?:                           "Default" | "AWSLambda" | fn.#StringExpression
 	ProfilingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\w-]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Channel": {
-	channelId?:  _#defs."/$defs/Properties/definitions/ChannelId" | fn.#StringExpression
-	channelUri!: _#defs."/$defs/Properties/definitions/ChannelUri" | fn.#StringExpression
+	channelId?:  _#defs."/$defs/Properties/definitions/ChannelId"
+	channelUri!: _#defs."/$defs/Properties/definitions/ChannelUri"
 	...
 } | fn.#ObjectExpression
 

@@ -17,11 +17,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:  strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:         =~"^([a-z]){1}([a-z0-9_]){2,254}" | fn.#StringExpression
-	Reference?:    _#defs."/$defs/Properties/definitions/ReferenceItem" | fn.#ObjectExpression
-	SseConfig?:    _#defs."/$defs/Properties/definitions/SseConfig" | fn.#ObjectExpression
-	StoreFormat!:  _#defs."/$defs/Properties/definitions/StoreFormat" | fn.#StringExpression
-	StoreOptions?: _#defs."/$defs/Properties/definitions/StoreOptions" | fn.#ValueExpression
-	Tags?:         _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
+	Reference?:    _#defs."/$defs/Properties/definitions/ReferenceItem"
+	SseConfig?:    _#defs."/$defs/Properties/definitions/SseConfig"
+	StoreFormat!:  _#defs."/$defs/Properties/definitions/StoreFormat"
+	StoreOptions?: _#defs."/$defs/Properties/definitions/StoreOptions"
+	Tags?:         _#defs."/$defs/Properties/definitions/TagMap"
 })
 
 _#defs: "/$defs/Properties/definitions/AnnotationType": "GENERIC" |
@@ -55,7 +55,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SchemaItem": struct.MaxFields(1) & struct.MinFields(1) & close({
 
-	{[=~"^[a-z0-9_]{1,255}$"]: _#defs."/$defs/Properties/definitions/SchemaValueType" | fn.#StringExpression}}) |
+	{[=~"^[a-z0-9_]{1,255}$"]: _#defs."/$defs/Properties/definitions/SchemaValueType"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SchemaValueType": "LONG" |
@@ -77,14 +77,14 @@ _#defs: "/$defs/Properties/definitions/SseConfig": close({
 		]*)
 		""" |
 	fn.#StringExpression
-	Type!: _#defs."/$defs/Properties/definitions/EncryptionType" | fn.#StringExpression
+	Type!: _#defs."/$defs/Properties/definitions/EncryptionType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StoreFormat": "GFF" | "TSV" | "VCF" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/StoreOptions": close(
-	{TsvStoreOptions!: _#defs."/$defs/Properties/definitions/TsvStoreOptions" | fn.#ObjectExpression},
+	{TsvStoreOptions!: _#defs."/$defs/Properties/definitions/TsvStoreOptions"},
 ) |
 	fn.#ValueExpression
 
@@ -101,11 +101,9 @@ _#defs: "/$defs/Properties/definitions/TagMap": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TsvStoreOptions": close({
-	AnnotationType?: _#defs."/$defs/Properties/definitions/AnnotationType" | fn.#StringExpression
-	FormatToHeader?: _#defs."/$defs/Properties/definitions/FormatToHeader" | fn.#ObjectExpression
-	Schema?: list.MaxItems(5000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/SchemaItem" | fn.#ObjectExpression
-	] |
+	AnnotationType?: _#defs."/$defs/Properties/definitions/AnnotationType"
+	FormatToHeader?: _#defs."/$defs/Properties/definitions/FormatToHeader"
+	Schema?: list.MaxItems(5000) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SchemaItem"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression

@@ -4,19 +4,36 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::CapacityReservation
 #Properties: close({
-	AvailabilityZone?:      string | fn.#StringExpression
-	AvailabilityZoneId?:    string | fn.#StringExpression
-	EbsOptimized?:          bool | fn.#BooleanExpression
-	EndDate?:               string | fn.#StringExpression
-	EndDateType?:           "limited" | "unlimited" | fn.#StringExpression
-	EphemeralStorage?:      bool | fn.#BooleanExpression
-	InstanceCount!:         int | fn.#NumberExpression
+	AvailabilityZone?:   string | fn.#StringExpression
+	AvailabilityZoneId?: string | fn.#StringExpression
+	EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EndDate?:            string | fn.#StringExpression
+	EndDateType?:        "limited" | "unlimited" | fn.#StringExpression
+	EphemeralStorage?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InstanceCount!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	InstanceMatchCriteria?: "open" | "targeted" | fn.#StringExpression
 	InstancePlatform!: "Linux with SQL Server Enterprise" |
 		"Linux with SQL Server Standard" |
@@ -40,15 +57,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	InstanceType!: string | fn.#StringExpression
 	OutPostArn?:   =~"^arn:aws([a-z-]+)?:outposts:[a-z\\d-]+:\\d{12}:outpost/op-[a-f0-9]{17}$" | fn.#StringExpression
 	PlacementGroupArn?: =~"^arn:aws([a-z-]+)?:ec2:[a-z\\d-]+:\\d{12}:placement-group/^.{1,255}$" | fn.#StringExpression
-	TagSpecifications?: [..._#defs."/$defs/Properties/definitions/TagSpecification" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tenancy?:                         "dedicated" | "default" | fn.#StringExpression
+	TagSpecifications?: [..._#defs."/$defs/Properties/definitions/TagSpecification"] | fn.#ListExpression
+	Tenancy?:           "dedicated" | "default" | fn.#StringExpression
 	UnusedReservationBillingOwnerId?: string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CapacityAllocation": close({
 	AllocationType?: string | fn.#StringExpression
-	Count?:          int | fn.#NumberExpression
+	Count?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -172,7 +201,7 @@ _#defs: "/$defs/Properties/definitions/TagSpecification": close({
 		"vpn-connection-device-type" |
 		"vpn-gateway" |
 		fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

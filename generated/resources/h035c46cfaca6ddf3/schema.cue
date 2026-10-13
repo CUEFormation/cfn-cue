@@ -19,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]+" |
 	fn.#StringExpression
-	Type!: _#defs."/$defs/Properties/definitions/LifecyclePolicyType" | fn.#StringExpression
+	Type!: _#defs."/$defs/Properties/definitions/LifecyclePolicyType"
 })
 
 _#defs: "/$defs/Properties/definitions/LifecyclePolicyType": "retention" | fn.#StringExpression

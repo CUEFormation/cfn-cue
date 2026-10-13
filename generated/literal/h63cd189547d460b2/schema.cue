@@ -44,7 +44,10 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 	// AWS Key Management Service (KMS) customer managed key ID to use for the
 	// encryption configuration. This parameter is allowed if and only if sseType
 	// is set to aws:kms
-	KmsKeyArn?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(arn:aws[-a-z0-9]*:kms:[-a-z0-9]*:[0-9]{12}:key/.+)$"
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^(arn:aws[-a-z0-9]*:kms:[-a-z0-9]*:[0-9]{12}:key/.+)$"
 
 	// Defines the server-side encryption type for index encryption configuration.
 	// Defaults to the parent vector bucket's encryption settings when unspecified.

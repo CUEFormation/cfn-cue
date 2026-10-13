@@ -3,9 +3,13 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -13,31 +17,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Glue::SecurityConfiguration
 #Properties: close({
-	EncryptionConfiguration!: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
+	EncryptionConfiguration!: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
 	Name!:                    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CloudWatchEncryption": close({
 	CloudWatchEncryptionMode?: "DISABLED" | "SSE-KMS" | fn.#StringExpression
-	KmsKeyArn?:                =~"^$|arn:aws[a-z0-9-]*:kms:" | fn.#StringExpression
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^$|arn:aws[a-z0-9-]*:kms:" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	CloudWatchEncryption?:   _#defs."/$defs/Properties/definitions/CloudWatchEncryption" | fn.#ObjectExpression
-	JobBookmarksEncryption?: _#defs."/$defs/Properties/definitions/JobBookmarksEncryption" | fn.#ObjectExpression
-	S3Encryptions?: [..._#defs."/$defs/Properties/definitions/S3Encryption" | fn.#ObjectExpression] | fn.#ListExpression
+	CloudWatchEncryption?:   _#defs."/$defs/Properties/definitions/CloudWatchEncryption"
+	JobBookmarksEncryption?: _#defs."/$defs/Properties/definitions/JobBookmarksEncryption"
+	S3Encryptions?:          [..._#defs."/$defs/Properties/definitions/S3Encryption"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/JobBookmarksEncryption": close({
 	JobBookmarksEncryptionMode?: "CSE-KMS" | "DISABLED" | fn.#StringExpression
-	KmsKeyArn?:                  =~"^$|arn:aws[a-z0-9-]*:kms:" | fn.#StringExpression
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^$|arn:aws[a-z0-9-]*:kms:" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3Encryption": close({
-	KmsKeyArn?:        string | fn.#StringExpression
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	S3EncryptionMode?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -52,7 +61,36 @@ number |
 string |
 [...] |
 {
-	KmsKeyArn?: fn.#Value
+	KmsKeyArn?: null |
+	bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	number |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						number,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+	[...] |
+	{...} |
+	fn.#ValueExpression
 	...
 } |
 fn.#ValueExpression] |

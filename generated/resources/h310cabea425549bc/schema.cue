@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AssociationType!: "AMAZON_CONNECT_GUIDE" | fn.#StringExpression
 	ContentId!:       =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
 	KnowledgeBaseId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AmazonConnectGuideAssociationData": close({
@@ -28,10 +28,9 @@ _#defs: "/$defs/Properties/definitions/AmazonConnectGuideAssociationData": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContentAssociationContents": close({
-	AmazonConnectGuideAssociation!: _#defs."/$defs/Properties/definitions/AmazonConnectGuideAssociationData" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/ContentAssociationContents": close(
+	{AmazonConnectGuideAssociation!: _#defs."/$defs/Properties/definitions/AmazonConnectGuideAssociationData"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

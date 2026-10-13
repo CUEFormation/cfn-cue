@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,21 +16,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	BackupId?:             string | fn.#StringExpression
 	Name!:                 string | fn.#StringExpression
-	OntapConfiguration?:   _#defs."/$defs/Properties/definitions/OntapConfiguration" | fn.#ObjectExpression
-	OpenZFSConfiguration?: _#defs."/$defs/Properties/definitions/OpenZFSConfiguration" | fn.#ObjectExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	OntapConfiguration?:   _#defs."/$defs/Properties/definitions/OntapConfiguration"
+	OpenZFSConfiguration?: _#defs."/$defs/Properties/definitions/OpenZFSConfiguration"
+	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VolumeType?:           string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AggregateConfiguration": close({
-	Aggregates?:               [...string | fn.#StringExpression] | fn.#ListExpression
-	ConstituentsPerAggregate?: int | fn.#NumberExpression
+	Aggregates?: [...string | fn.#StringExpression] | fn.#ListExpression
+	ConstituentsPerAggregate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AutocommitPeriod": close({
-	Type!:  string | fn.#StringExpression
-	Value?: int | fn.#NumberExpression
+	Type!: string | fn.#StringExpression
+	Value?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -36,42 +66,79 @@ _#defs: "/$defs/Properties/definitions/ClientConfigurations": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NfsExports": close({
-	ClientConfigurations!: [..._#defs."/$defs/Properties/definitions/ClientConfigurations" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/NfsExports": close(
+	{ClientConfigurations!: [..._#defs."/$defs/Properties/definitions/ClientConfigurations"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OntapConfiguration": close({
-	AggregateConfiguration?:   _#defs."/$defs/Properties/definitions/AggregateConfiguration" | fn.#ObjectExpression
+	AggregateConfiguration?:   _#defs."/$defs/Properties/definitions/AggregateConfiguration"
 	CopyTagsToBackups?:        string | fn.#StringExpression
 	JunctionPath?:             string | fn.#StringExpression
 	OntapVolumeType?:          string | fn.#StringExpression
 	SecurityStyle?:            string | fn.#StringExpression
 	SizeInBytes?:              string | fn.#StringExpression
 	SizeInMegabytes?:          string | fn.#StringExpression
-	SnaplockConfiguration?:    _#defs."/$defs/Properties/definitions/SnaplockConfiguration" | fn.#ObjectExpression
+	SnaplockConfiguration?:    _#defs."/$defs/Properties/definitions/SnaplockConfiguration"
 	SnapshotPolicy?:           string | fn.#StringExpression
 	StorageEfficiencyEnabled?: string | fn.#StringExpression
 	StorageVirtualMachineId!:  string | fn.#StringExpression
-	TieringPolicy?:            _#defs."/$defs/Properties/definitions/TieringPolicy" | fn.#ObjectExpression
+	TieringPolicy?:            _#defs."/$defs/Properties/definitions/TieringPolicy"
 	VolumeStyle?:              string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OpenZFSConfiguration": close({
-	CopyTagsToSnapshots?: bool | fn.#BooleanExpression
+	CopyTagsToSnapshots?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DataCompressionType?: string | fn.#StringExpression
-	NfsExports?:     [..._#defs."/$defs/Properties/definitions/NfsExports" | fn.#ObjectExpression] | fn.#ListExpression
-	Options?:        [...string | fn.#StringExpression] | fn.#ListExpression
-	OriginSnapshot?: _#defs."/$defs/Properties/definitions/OriginSnapshot" | fn.#ObjectExpression
-	ParentVolumeId!: string | fn.#StringExpression
-	ReadOnly?:       bool | fn.#BooleanExpression
-	RecordSizeKiB?:  int | fn.#NumberExpression
-	StorageCapacityQuotaGiB?:       int | fn.#NumberExpression
-	StorageCapacityReservationGiB?: int | fn.#NumberExpression
-	UserAndGroupQuotas?: [..._#defs."/$defs/Properties/definitions/UserAndGroupQuotas" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	NfsExports?:          [..._#defs."/$defs/Properties/definitions/NfsExports"] | fn.#ListExpression
+	Options?:             [...string | fn.#StringExpression] | fn.#ListExpression
+	OriginSnapshot?:      _#defs."/$defs/Properties/definitions/OriginSnapshot"
+	ParentVolumeId!:      string | fn.#StringExpression
+	ReadOnly?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RecordSizeKiB?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StorageCapacityQuotaGiB?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StorageCapacityReservationGiB?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UserAndGroupQuotas?: [..._#defs."/$defs/Properties/definitions/UserAndGroupQuotas"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -82,25 +149,38 @@ _#defs: "/$defs/Properties/definitions/OriginSnapshot": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
-	Type!:  string | fn.#StringExpression
-	Value?: int | fn.#NumberExpression
+	Type!: string | fn.#StringExpression
+	Value?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SnaplockConfiguration": close({
 	AuditLogVolume?:          string | fn.#StringExpression
-	AutocommitPeriod?:        _#defs."/$defs/Properties/definitions/AutocommitPeriod" | fn.#ObjectExpression
+	AutocommitPeriod?:        _#defs."/$defs/Properties/definitions/AutocommitPeriod"
 	PrivilegedDelete?:        string | fn.#StringExpression
-	RetentionPeriod?:         _#defs."/$defs/Properties/definitions/SnaplockRetentionPeriod" | fn.#ObjectExpression
+	RetentionPeriod?:         _#defs."/$defs/Properties/definitions/SnaplockRetentionPeriod"
 	SnaplockType!:            string | fn.#StringExpression
 	VolumeAppendModeEnabled?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SnaplockRetentionPeriod": close({
-	DefaultRetention!: _#defs."/$defs/Properties/definitions/RetentionPeriod" | fn.#ObjectExpression
-	MaximumRetention!: _#defs."/$defs/Properties/definitions/RetentionPeriod" | fn.#ObjectExpression
-	MinimumRetention!: _#defs."/$defs/Properties/definitions/RetentionPeriod" | fn.#ObjectExpression
+	DefaultRetention!: _#defs."/$defs/Properties/definitions/RetentionPeriod"
+	MaximumRetention!: _#defs."/$defs/Properties/definitions/RetentionPeriod"
+	MinimumRetention!: _#defs."/$defs/Properties/definitions/RetentionPeriod"
 }) |
 fn.#ObjectExpression
 
@@ -111,15 +191,54 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TieringPolicy": close({
-	CoolingPeriod?: int | fn.#NumberExpression
-	Name?:          string | fn.#StringExpression
+	CoolingPeriod?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UserAndGroupQuotas": close({
-	Id!:                      int | fn.#NumberExpression
-	StorageCapacityQuotaGiB!: int | fn.#NumberExpression
-	Type!:                    string | fn.#StringExpression
+	Id!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StorageCapacityQuotaGiB!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -539,7 +539,12 @@ _#defs: "/$defs/Properties/definitions/UserSettings": close({
 
 	// The security groups for the Amazon Virtual Private Cloud (VPC) that Studio
 	// uses for communication.
-	SecurityGroups?: list.MaxItems(5) & [...] & [...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+"]
+	SecurityGroups?: list.MaxItems(5) & [...] & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+"
+	]
 
 	// The sharing settings.
 	SharingSettings?:      _#defs."/$defs/Properties/definitions/SharingSettings"

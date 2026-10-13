@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,27 +19,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of the AWS::QuickSight::DataSource Resource Type.
 #Properties: close({
 	AlternateDataSourceParameters?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataSourceParameters" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/DataSourceParameters"
 	] |
 		fn.#ListExpression
 	AwsAccountId?:         strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	Credentials?:          _#defs."/$defs/Properties/definitions/DataSourceCredentials" | fn.#ObjectExpression
+	Credentials?:          _#defs."/$defs/Properties/definitions/DataSourceCredentials"
 	DataSourceId?:         string | fn.#StringExpression
-	DataSourceParameters?: _#defs."/$defs/Properties/definitions/DataSourceParameters" | fn.#ObjectExpression
-	ErrorInfo?:            _#defs."/$defs/Properties/definitions/DataSourceErrorInfo" | fn.#ObjectExpression
+	DataSourceParameters?: _#defs."/$defs/Properties/definitions/DataSourceParameters"
+	ErrorInfo?:            _#defs."/$defs/Properties/definitions/DataSourceErrorInfo"
 	FolderArns?:           list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 	Name!:                 strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Permissions?: list.MaxItems(64) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ResourcePermission" | fn.#ObjectExpression
-	] |
+	Permissions?: list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"] |
 		fn.#ListExpression
-	SslProperties?: _#defs."/$defs/Properties/definitions/SslProperties" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Type!:                    _#defs."/$defs/Properties/definitions/DataSourceType" | fn.#StringExpression
-	VpcConnectionProperties?: _#defs."/$defs/Properties/definitions/VpcConnectionProperties" | fn.#ObjectExpression
+	SslProperties?: _#defs."/$defs/Properties/definitions/SslProperties"
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Type!: _#defs."/$defs/Properties/definitions/DataSourceType"
+	VpcConnectionProperties?: _#defs."/$defs/Properties/definitions/VpcConnectionProperties"
 })
 
 _#defs: "/$defs/Properties/definitions/AmazonElasticsearchParameters": close(
@@ -49,10 +48,11 @@ _#defs: "/$defs/Properties/definitions/AmazonOpenSearchParameters": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AthenaParameters": close({
-	ConsumerAccountRoleArn?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	IdentityCenterConfiguration?: _#defs."/$defs/Properties/definitions/IdentityCenterConfiguration" |
-		fn.#ObjectExpression
-	RoleArn?:   strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	ConsumerAccountRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
+	IdentityCenterConfiguration?: _#defs."/$defs/Properties/definitions/IdentityCenterConfiguration"
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 	WorkGroup?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -60,14 +60,52 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/AuroraParameters": close({
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Port!:     <=65535 & >=1 | fn.#NumberExpression
+	Port!: <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=65535 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AuroraPostgreSqlParameters": close({
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Port!:     <=65535 & >=1 | fn.#NumberExpression
+	Port!: <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=65535 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -84,7 +122,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CredentialPair": close({
 	AlternateDataSourceParameters?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataSourceParameters" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/DataSourceParameters"
 	] |
 		fn.#ListExpression
 	Password!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
@@ -94,8 +132,8 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSourceCredentials": close({
 	CopySourceArn?:      =~"^arn:[-a-z0-9]*:quicksight:[-a-z0-9]*:[0-9]{12}:datasource/.+$" | fn.#StringExpression
-	CredentialPair?:     _#defs."/$defs/Properties/definitions/CredentialPair" | fn.#ObjectExpression
-	KeyPairCredentials?: _#defs."/$defs/Properties/definitions/KeyPairCredentials" | fn.#ObjectExpression
+	CredentialPair?:     _#defs."/$defs/Properties/definitions/CredentialPair"
+	KeyPairCredentials?: _#defs."/$defs/Properties/definitions/KeyPairCredentials"
 	SecretArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:[-a-z0-9]*:secretsmanager:[-a-z0-9]*:[0-9]{12}:secret:.+$" |
@@ -105,7 +143,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSourceErrorInfo": close({
 	Message?: string | fn.#StringExpression
-	Type?:    _#defs."/$defs/Properties/definitions/DataSourceErrorInfoType" | fn.#StringExpression
+	Type?:    _#defs."/$defs/Properties/definitions/DataSourceErrorInfoType"
 }) |
 fn.#ObjectExpression
 
@@ -120,30 +158,27 @@ _#defs: "/$defs/Properties/definitions/DataSourceErrorInfoType": "ACCESS_DENIED"
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DataSourceParameters": close({
-	AmazonElasticsearchParameters?: _#defs."/$defs/Properties/definitions/AmazonElasticsearchParameters" |
-		fn.#ObjectExpression
-	AmazonOpenSearchParameters?: _#defs."/$defs/Properties/definitions/AmazonOpenSearchParameters" |
-		fn.#ObjectExpression
-	AthenaParameters?: _#defs."/$defs/Properties/definitions/AthenaParameters" | fn.#ObjectExpression
-	AuroraParameters?: _#defs."/$defs/Properties/definitions/AuroraParameters" | fn.#ObjectExpression
-	AuroraPostgreSqlParameters?: _#defs."/$defs/Properties/definitions/AuroraPostgreSqlParameters" |
-		fn.#ObjectExpression
-	DatabricksParameters?: _#defs."/$defs/Properties/definitions/DatabricksParameters" | fn.#ObjectExpression
-	MariaDbParameters?:    _#defs."/$defs/Properties/definitions/MariaDbParameters" | fn.#ObjectExpression
-	MySqlParameters?:      _#defs."/$defs/Properties/definitions/MySqlParameters" | fn.#ObjectExpression
-	OracleParameters?:     _#defs."/$defs/Properties/definitions/OracleParameters" | fn.#ObjectExpression
-	PostgreSqlParameters?: _#defs."/$defs/Properties/definitions/PostgreSqlParameters" | fn.#ObjectExpression
-	PrestoParameters?:     _#defs."/$defs/Properties/definitions/PrestoParameters" | fn.#ObjectExpression
-	RdsParameters?:        _#defs."/$defs/Properties/definitions/RdsParameters" | fn.#ObjectExpression
-	RedshiftParameters?:   _#defs."/$defs/Properties/definitions/RedshiftParameters" | fn.#ObjectExpression
-	S3Parameters?:         _#defs."/$defs/Properties/definitions/S3Parameters" | fn.#ObjectExpression
-	S3TablesParameters?:   _#defs."/$defs/Properties/definitions/S3TablesParameters" | fn.#ObjectExpression
-	SnowflakeParameters?:  _#defs."/$defs/Properties/definitions/SnowflakeParameters" | fn.#ObjectExpression
-	SparkParameters?:      _#defs."/$defs/Properties/definitions/SparkParameters" | fn.#ObjectExpression
-	SqlServerParameters?:  _#defs."/$defs/Properties/definitions/SqlServerParameters" | fn.#ObjectExpression
-	StarburstParameters?:  _#defs."/$defs/Properties/definitions/StarburstParameters" | fn.#ObjectExpression
-	TeradataParameters?:   _#defs."/$defs/Properties/definitions/TeradataParameters" | fn.#ObjectExpression
-	TrinoParameters?:      _#defs."/$defs/Properties/definitions/TrinoParameters" | fn.#ObjectExpression
+	AmazonElasticsearchParameters?: _#defs."/$defs/Properties/definitions/AmazonElasticsearchParameters"
+	AmazonOpenSearchParameters?:    _#defs."/$defs/Properties/definitions/AmazonOpenSearchParameters"
+	AthenaParameters?:              _#defs."/$defs/Properties/definitions/AthenaParameters"
+	AuroraParameters?:              _#defs."/$defs/Properties/definitions/AuroraParameters"
+	AuroraPostgreSqlParameters?:    _#defs."/$defs/Properties/definitions/AuroraPostgreSqlParameters"
+	DatabricksParameters?:          _#defs."/$defs/Properties/definitions/DatabricksParameters"
+	MariaDbParameters?:             _#defs."/$defs/Properties/definitions/MariaDbParameters"
+	MySqlParameters?:               _#defs."/$defs/Properties/definitions/MySqlParameters"
+	OracleParameters?:              _#defs."/$defs/Properties/definitions/OracleParameters"
+	PostgreSqlParameters?:          _#defs."/$defs/Properties/definitions/PostgreSqlParameters"
+	PrestoParameters?:              _#defs."/$defs/Properties/definitions/PrestoParameters"
+	RdsParameters?:                 _#defs."/$defs/Properties/definitions/RdsParameters"
+	RedshiftParameters?:            _#defs."/$defs/Properties/definitions/RedshiftParameters"
+	S3Parameters?:                  _#defs."/$defs/Properties/definitions/S3Parameters"
+	S3TablesParameters?:            _#defs."/$defs/Properties/definitions/S3TablesParameters"
+	SnowflakeParameters?:           _#defs."/$defs/Properties/definitions/SnowflakeParameters"
+	SparkParameters?:               _#defs."/$defs/Properties/definitions/SparkParameters"
+	SqlServerParameters?:           _#defs."/$defs/Properties/definitions/SqlServerParameters"
+	StarburstParameters?:           _#defs."/$defs/Properties/definitions/StarburstParameters"
+	TeradataParameters?:            _#defs."/$defs/Properties/definitions/TeradataParameters"
+	TrinoParameters?:               _#defs."/$defs/Properties/definitions/TrinoParameters"
 }) |
 fn.#ObjectExpression
 
@@ -207,20 +242,58 @@ _#defs: "/$defs/Properties/definitions/DataSourceType": "ADOBE_ANALYTICS" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DatabricksParameters": close({
-	Host!:            strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Port!:            <=65535 & >=1 | fn.#NumberExpression
+	Host!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Port!: <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=65535 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SqlEndpointPath!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IdentityCenterConfiguration": close(
-	{EnableIdentityPropagation?: bool | fn.#BooleanExpression},
+	{EnableIdentityPropagation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ImpalaParameters": close({
-	Host!:            strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Port!:            <=65535 & >=1 | fn.#NumberExpression
+	Host!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Port!: <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=65535 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SqlEndpointPath!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -244,45 +317,139 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/MariaDbParameters": close({
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Port!:     <=65535 & >=1 | fn.#NumberExpression
+	Port!: <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=65535 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MySqlParameters": close({
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Port!:     <=65535 & >=1 | fn.#NumberExpression
+	Port!: <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=65535 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OAuthParameters": close({
-	IdentityProviderResourceUri?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	IdentityProviderVpcConnectionProperties?: _#defs."/$defs/Properties/definitions/VpcConnectionProperties" |
-		fn.#ObjectExpression
-	OAuthScope?:       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	TokenProviderUrl!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	IdentityProviderResourceUri?:             strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	IdentityProviderVpcConnectionProperties?: _#defs."/$defs/Properties/definitions/VpcConnectionProperties"
+	OAuthScope?:                              strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	TokenProviderUrl!:                        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OracleParameters": close({
-	Database!:       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Host!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Port!:           <=65535 & >=1 | fn.#NumberExpression
-	UseServiceName?: bool | fn.#BooleanExpression
+	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Port!: <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=65535 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UseServiceName?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PostgreSqlParameters": close({
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Port!:     <=65535 & >=1 | fn.#NumberExpression
+	Port!: <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=65535 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrestoParameters": close({
 	Catalog!: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Host!:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Port!:    <=65535 & >=1 | fn.#NumberExpression
+	Port!: <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=65535 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -293,24 +460,43 @@ _#defs: "/$defs/Properties/definitions/RdsParameters": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftIAMParameters": close({
-	AutoCreateDatabaseUser?: bool | fn.#BooleanExpression
+	AutoCreateDatabaseUser?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DatabaseGroups?: list.MaxItems(50) & list.MinItems(1) & [
 		...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
 	DatabaseUser?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	RoleArn!:      strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftParameters": close({
-	ClusterId?:     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Database!:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Host?:          strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	IAMParameters?: _#defs."/$defs/Properties/definitions/RedshiftIAMParameters" | fn.#ObjectExpression
-	IdentityCenterConfiguration?: _#defs."/$defs/Properties/definitions/IdentityCenterConfiguration" |
-		fn.#ObjectExpression
-	Port?: <=65535 & >=0 | fn.#NumberExpression
+	ClusterId?:                   strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Database!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Host?:                        strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	IAMParameters?:               _#defs."/$defs/Properties/definitions/RedshiftIAMParameters"
+	IdentityCenterConfiguration?: _#defs."/$defs/Properties/definitions/IdentityCenterConfiguration"
+	Port?: <=65535 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=65535 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -332,8 +518,9 @@ _#defs: "/$defs/Properties/definitions/ResourceStatus": "CREATION_IN_PROGRESS" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/S3Parameters": close({
-	ManifestFileLocation!: _#defs."/$defs/Properties/definitions/ManifestFileLocation" | fn.#ObjectExpression
-	RoleArn?:              strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	ManifestFileLocation!: _#defs."/$defs/Properties/definitions/ManifestFileLocation"
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -344,39 +531,98 @@ _#defs: "/$defs/Properties/definitions/S3TablesParameters": close({
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SnowflakeParameters": close({
-	AuthenticationType?:        _#defs."/$defs/Properties/definitions/AuthenticationType" | fn.#StringExpression
+	AuthenticationType?:        _#defs."/$defs/Properties/definitions/AuthenticationType"
 	Database!:                  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	DatabaseAccessControlRole?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Host!:                      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	OAuthParameters?:           _#defs."/$defs/Properties/definitions/OAuthParameters" | fn.#ObjectExpression
+	OAuthParameters?:           _#defs."/$defs/Properties/definitions/OAuthParameters"
 	Warehouse!:                 strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SparkParameters": close({
 	Host!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Port!: <=65535 & >=1 | fn.#NumberExpression
+	Port!: <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=65535 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SqlServerParameters": close({
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Port!:     <=65535 & >=1 | fn.#NumberExpression
+	Port!: <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=65535 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SslProperties": close({DisableSsl?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/SslProperties": close(
+	{DisableSsl?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StarburstParameters": close({
-	AuthenticationType?:        _#defs."/$defs/Properties/definitions/AuthenticationType" | fn.#StringExpression
+	AuthenticationType?:        _#defs."/$defs/Properties/definitions/AuthenticationType"
 	Catalog!:                   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	DatabaseAccessControlRole?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Host!:                      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	OAuthParameters?:           _#defs."/$defs/Properties/definitions/OAuthParameters" | fn.#ObjectExpression
-	Port!:                      <=65535 & >=1 | fn.#NumberExpression
-	ProductType?:               _#defs."/$defs/Properties/definitions/StarburstProductType" | fn.#StringExpression
+	OAuthParameters?:           _#defs."/$defs/Properties/definitions/OAuthParameters"
+	Port!: <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=65535 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ProductType?: _#defs."/$defs/Properties/definitions/StarburstProductType"
 }) |
 fn.#ObjectExpression
 
@@ -391,14 +637,52 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/TeradataParameters": close({
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Port!:     <=65535 & >=1 | fn.#NumberExpression
+	Port!: <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=65535 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TrinoParameters": close({
 	Catalog!: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Host!:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Port!:    <=65535 & >=1 | fn.#NumberExpression
+	Port!: <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=65535 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

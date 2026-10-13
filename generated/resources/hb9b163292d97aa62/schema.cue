@@ -16,13 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:        strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	TraceContent?: close({
-		LogLevel?:                _#defs."/$defs/Properties/definitions/LogLevel" | fn.#StringExpression
-		WirelessDeviceFrameInfo?: _#defs."/$defs/Properties/definitions/WirelessDeviceFrameInfo" | fn.#StringExpression
+		LogLevel?:                _#defs."/$defs/Properties/definitions/LogLevel"
+		WirelessDeviceFrameInfo?: _#defs."/$defs/Properties/definitions/WirelessDeviceFrameInfo"
 	}) |
 	fn.#ObjectExpression
 	WirelessDevices?: list.MaxItems(250) & [...] & [

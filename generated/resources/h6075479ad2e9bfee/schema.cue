@@ -13,18 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a studio that contains other Nimble Studio resources
 #Properties: close({
-	AdminRoleArn!: string | fn.#StringExpression
-	DisplayName!:  strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	StudioEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/StudioEncryptionConfiguration" |
-		fn.#ObjectExpression
-	StudioName!:  strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9]*$" | fn.#StringExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
-	UserRoleArn!: string | fn.#StringExpression
+	AdminRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	DisplayName!:                   strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+	StudioEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/StudioEncryptionConfiguration"
+	StudioName!:                    strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9]*$" | fn.#StringExpression
+	Tags?:                          _#defs."/$defs/Properties/definitions/Tags"
+	UserRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/StudioEncryptionConfiguration": close({
 	KeyArn?:  strings.MinRunes(4) & =~"^arn:.*" | fn.#StringExpression
-	KeyType!: _#defs."/$defs/Properties/definitions/StudioEncryptionConfigurationKeyType" | fn.#StringExpression
+	KeyType!: _#defs."/$defs/Properties/definitions/StudioEncryptionConfigurationKeyType"
 }) |
 fn.#ObjectExpression
 

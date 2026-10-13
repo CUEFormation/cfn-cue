@@ -19,7 +19,7 @@ _#defs: "/$defs/Properties/definitions/BackupSelectionResourceType": close({
 		StringNotEquals?: [..._#defs."/$defs/Properties/definitions/ConditionParameter"]
 		StringNotLike?:   [..._#defs."/$defs/Properties/definitions/ConditionParameter"]
 	})
-	IamRoleArn!:    string
+	IamRoleArn!:    =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	ListOfTags?:    [..._#defs."/$defs/Properties/definitions/ConditionResourceType"]
 	NotResources?:  [...string]
 	Resources?:     [...string]

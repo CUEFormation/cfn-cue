@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,7 +24,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	VirtualGatewayId!: _
 	...
 }]) & close({
-	AllocatePrivateVirtualInterfaceRoleArn?: =~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
+	AllocatePrivateVirtualInterfaceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$" |
+		fn.#StringExpression
 	BgpPeers!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...close({
 		AddressFamily!:   =~"^(ipv4)|(ipv6)$" | fn.#StringExpression
 		AmazonAddress?:   =~"^[0-9a-fA-F:.]+/[0-9]+$" | fn.#StringExpression
@@ -30,23 +36,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	ConnectionId!: (string | string | string | string) &
+	ConnectionId!: string &
 		=~"^((arn:aws[a-z-]*:directconnect:[a-z0-9-]+:[0-9]{12}:(dxcon/dxcon|dxlag/dxlag))|dx(con|lag))-[a-z0-9A-Z]{8,21}$" |
 		fn.#StringExpression
-	DirectConnectGatewayId?: (string | string) &
+	DirectConnectGatewayId?: string &
 		=~"^(arn:aws[a-z-]*:directconnect::[0-9]{12}:dx-gateway/)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
 		fn.#StringExpression
-	EnableSiteLink?: bool | fn.#BooleanExpression
-	Mtu?:            int | fn.#NumberExpression
-	RateLimit?:      =~"^[0-9]+\\.?[0-9]*(Mbps|Gbps|Tbps)$" | fn.#StringExpression
-	Tags?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	EnableSiteLink?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Mtu?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RateLimit?: =~"^[0-9]+\\.?[0-9]*(Mbps|Gbps|Tbps)$" | fn.#StringExpression
+	Tags?: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VirtualGatewayId?: =~"^(arn:aws[a-z-]*:ec2:[a-z0-9-]+:[0-9]{12}:vpn-gateway/)?vgw-[a-zA-Z0-9]{8,32}$" |
 		fn.#StringExpression
 	VirtualInterfaceName!: =~"^[\\w \\-_,\\/]{1,100}$" | fn.#StringExpression
-	Vlan!:                 int & <=4095 & >=0 | fn.#NumberExpression
+	Vlan!: int & <=4095 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=4095 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 
 _#defs: "/$defs/Properties/definitions/BgpPeer": close({

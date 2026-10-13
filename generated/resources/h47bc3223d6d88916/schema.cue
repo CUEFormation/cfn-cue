@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,10 +20,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // the states of other Alarms (Metric or Composite Alarms) as defined by the
 // AlarmRule expression
 #Properties: close({
-	ActionsEnabled?:                   bool | fn.#BooleanExpression
-	ActionsSuppressor?:                strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-	ActionsSuppressorExtensionPeriod?: int & >=0 | fn.#NumberExpression
-	ActionsSuppressorWaitPeriod?:      int & >=0 | fn.#NumberExpression
+	ActionsEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ActionsSuppressor?: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+	ActionsSuppressorExtensionPeriod?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ActionsSuppressorWaitPeriod?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	AlarmActions?: list.MaxItems(5) & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
 	AlarmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
@@ -31,10 +63,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	OKActions?: list.MaxItems(5) & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AlarmActionARN": strings.MaxRunes(1024) & strings.MinRunes(1) |

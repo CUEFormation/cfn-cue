@@ -10,14 +10,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::CloudFront::StreamingDistribution
 #Properties: close({
-	StreamingDistributionConfig!: _#defs."/$defs/Properties/definitions/StreamingDistributionConfig" |
-		fn.#ObjectExpression
-	Tags!: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	StreamingDistributionConfig!: _#defs."/$defs/Properties/definitions/StreamingDistributionConfig"
+	Tags!:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Logging": close({
 	Bucket!:  string | fn.#StringExpression
-	Enabled!: bool | fn.#BooleanExpression
+	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Prefix!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -31,11 +30,11 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/StreamingDistributionConfig": close({
 	Aliases?:        [...string | fn.#StringExpression] | fn.#ListExpression
 	Comment!:        string | fn.#StringExpression
-	Enabled!:        bool | fn.#BooleanExpression
-	Logging?:        _#defs."/$defs/Properties/definitions/Logging" | fn.#ObjectExpression
+	Enabled!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Logging?:        _#defs."/$defs/Properties/definitions/Logging"
 	PriceClass?:     string | fn.#StringExpression
-	S3Origin!:       _#defs."/$defs/Properties/definitions/S3Origin" | fn.#ObjectExpression
-	TrustedSigners!: _#defs."/$defs/Properties/definitions/TrustedSigners" | fn.#ObjectExpression
+	S3Origin!:       _#defs."/$defs/Properties/definitions/S3Origin"
+	TrustedSigners!: _#defs."/$defs/Properties/definitions/TrustedSigners"
 }) |
 fn.#ObjectExpression
 
@@ -47,7 +46,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TrustedSigners": close({
 	AwsAccountNumbers?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Enabled!:           bool | fn.#BooleanExpression
+	Enabled!:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

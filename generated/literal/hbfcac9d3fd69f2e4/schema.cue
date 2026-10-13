@@ -75,7 +75,7 @@ _#defs: "/$defs/Properties/definitions/StreamEncryption": close({
 	// Name (ARN) to either an alias or a key, or an alias name prefixed by
 	// "alias/".You can also use a master key owned by Kinesis Data Streams by
 	// specifying the alias aws/kinesis.
-	KeyId!: (string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
+	KeyId!: string & (strings.MaxRunes(2048) & strings.MinRunes(1))
 })
 
 // When specified, enables or updates the mode of stream. Default is PROVISIONED.

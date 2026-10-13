@@ -12,7 +12,8 @@ import "strings"
 // Nitro Enclaves application inside an enclave.
 #Properties: close({
 	// The Amazon Resource Name (ARN) of the ACM certificate with which to associate the IAM role.
-	CertificateArn!: strings.MaxRunes(1283) &
+	CertificateArn!: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
+	strings.MaxRunes(1283) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[A-Za-z0-9-]{0,64}:acm:[A-Za-z0-9-]{1,64}:([0-9]{12})?:certificate/.+$"
 
@@ -28,5 +29,8 @@ import "strings"
 
 	// The Amazon Resource Name (ARN) of the IAM role to associate with the ACM
 	// certificate. You can associate up to 16 IAM roles with an ACM certificate.
-	RoleArn!: strings.MaxRunes(1283) & strings.MinRunes(1) & =~"^arn:aws[A-Za-z0-9-]{0,64}:iam:.*:([0-9]{12})?:role/.+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1283) &
+	strings.MinRunes(1) &
+	=~"^arn:aws[A-Za-z0-9-]{0,64}:iam:.*:([0-9]{12})?:role/.+$"
 })

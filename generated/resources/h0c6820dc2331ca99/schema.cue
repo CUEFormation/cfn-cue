@@ -10,9 +10,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::DataZone::ProjectMembership Resource Type
 #Properties: close({
-	Designation!:       _#defs."/$defs/Properties/definitions/UserDesignation" | fn.#StringExpression
+	Designation!:       _#defs."/$defs/Properties/definitions/UserDesignation"
 	DomainIdentifier!:  =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	Member!:            _#defs."/$defs/Properties/definitions/Member" | fn.#ValueExpression
+	Member!:            _#defs."/$defs/Properties/definitions/Member"
 	ProjectIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 })
 

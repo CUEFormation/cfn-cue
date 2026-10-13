@@ -7,6 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,11 +18,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for a Device Pool for a given Device Farm Project
 #Properties: close({
 	Description?: strings.MaxRunes(16384) & strings.MinRunes(1) | fn.#StringExpression
-	MaxDevices?:  int | fn.#NumberExpression
-	Name!:        strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ProjectArn!:  strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+" | fn.#StringExpression
-	Rules!:       [..._#defs."/$defs/Properties/definitions/Rule" | fn.#ObjectExpression] | fn.#ListExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	MaxDevices?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name!:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	ProjectArn!: strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+" | fn.#StringExpression
+	Rules!:      [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression
+	Tags?:       [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Rule": close({

@@ -19,8 +19,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^arn:[\\w-]+:acm-pca:[\\w-]+:[0-9]+:certificate-authority\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
 	fn.#StringExpression
 	DirectoryId!:    =~"^d-[0-9a-f]{10}$" | fn.#StringExpression
-	Tags?:           _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
-	VpcInformation!: _#defs."/$defs/Properties/definitions/VpcInformation" | fn.#ObjectExpression
+	Tags?:           _#defs."/$defs/Properties/definitions/Tags"
+	VpcInformation!: _#defs."/$defs/Properties/definitions/VpcInformation"
 })
 
 _#defs: "/$defs/Properties/definitions/Tags": close({
@@ -33,7 +33,11 @@ _#defs: "/$defs/Properties/definitions/Unit": close({}) | fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/VpcInformation": close({
 	IpAddressType?: "IPV4" | "DUALSTACK" | fn.#StringExpression
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(20) & strings.MinRunes(11) & =~"^(?:sg-[0-9a-f]{8}|sg-[0-9a-f]{17})$" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(20) &
+		strings.MinRunes(11) &
+		=~"^(?:sg-[0-9a-f]{8}|sg-[0-9a-f]{17})$" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 }) |

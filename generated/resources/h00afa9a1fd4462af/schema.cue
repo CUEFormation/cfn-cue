@@ -9,6 +9,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -85,101 +89,207 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // contact AWS Support or your Technical Account Manager.
 #Properties: close({
 	AvailabilityZoneRebalancing?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	CapacityProviderStrategy?: [
-		..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem" | fn.#ObjectExpression
-	] |
+	CapacityProviderStrategy?: [..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"] |
 		fn.#ListExpression
 	Cluster?:                 string | fn.#StringExpression
 	DeploymentConfiguration?: _#defs."/$defs/Properties/definitions/DeploymentConfiguration" | fn.#ObjectExpression
 	DeploymentController?:    _#defs."/$defs/Properties/definitions/DeploymentController" | fn.#ObjectExpression
-	DesiredCount?:            int | fn.#NumberExpression
-	EnableECSManagedTags?:    bool | fn.#BooleanExpression
-	EnableExecuteCommand?:    bool | fn.#BooleanExpression
-	ForceNewDeployment?:      _#defs."/$defs/Properties/definitions/ForceNewDeployment" | fn.#ObjectExpression
-	HealthCheckGracePeriodSeconds?: int | fn.#NumberExpression
-	LaunchType?:                    "EC2" | "FARGATE" | "EXTERNAL" | fn.#StringExpression
-	LoadBalancers?: [..._#defs."/$defs/Properties/definitions/LoadBalancer" | fn.#ObjectExpression] | fn.#ListExpression
-	Monitoring?:    _#defs."/$defs/Properties/definitions/MonitoringConfiguration" | fn.#ObjectExpression
+	DesiredCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	EnableECSManagedTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ForceNewDeployment?:   _#defs."/$defs/Properties/definitions/ForceNewDeployment" | fn.#ObjectExpression
+	HealthCheckGracePeriodSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LaunchType?:           "EC2" | "FARGATE" | "EXTERNAL" | fn.#StringExpression
+	LoadBalancers?:        [..._#defs."/$defs/Properties/definitions/LoadBalancer"] | fn.#ListExpression
+	Monitoring?:           _#defs."/$defs/Properties/definitions/MonitoringConfiguration" | fn.#ObjectExpression
 	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration" | fn.#ObjectExpression
-	PlacementConstraints?: [..._#defs."/$defs/Properties/definitions/PlacementConstraint" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	PlacementStrategies?: [..._#defs."/$defs/Properties/definitions/PlacementStrategy" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	PlatformVersion?:    string | fn.#StringExpression
-	PropagateTags?:      "SERVICE" | "TASK_DEFINITION" | fn.#StringExpression
-	Role?:               string | fn.#StringExpression
-	SchedulingStrategy?: "DAEMON" | "REPLICA" | fn.#StringExpression
+	PlacementConstraints?: [..._#defs."/$defs/Properties/definitions/PlacementConstraint"] | fn.#ListExpression
+	PlacementStrategies?:  [..._#defs."/$defs/Properties/definitions/PlacementStrategy"] | fn.#ListExpression
+	PlatformVersion?:      string | fn.#StringExpression
+	PropagateTags?:        "SERVICE" | "TASK_DEFINITION" | fn.#StringExpression
+	Role?:                 string | fn.#StringExpression
+	SchedulingStrategy?:   "DAEMON" | "REPLICA" | fn.#StringExpression
 	ServiceConnectConfiguration?: _#defs."/$defs/Properties/definitions/ServiceConnectConfiguration" |
 		fn.#ObjectExpression
-	ServiceName?: string | fn.#StringExpression
-	ServiceRegistries?: [..._#defs."/$defs/Properties/definitions/ServiceRegistry" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TaskDefinition?: string | fn.#StringExpression
-	VolumeConfigurations?: [..._#defs."/$defs/Properties/definitions/ServiceVolumeConfiguration" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	VpcLatticeConfigurations?: [
-		..._#defs."/$defs/Properties/definitions/VpcLatticeConfiguration" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	ServiceName?:       string | fn.#StringExpression
+	ServiceRegistries?: [..._#defs."/$defs/Properties/definitions/ServiceRegistry"] | fn.#ListExpression
+	Tags?:              list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TaskDefinition?:    string | fn.#StringExpression
+	VolumeConfigurations?: [..._#defs."/$defs/Properties/definitions/ServiceVolumeConfiguration"] | fn.#ListExpression
+	VpcLatticeConfigurations?: [..._#defs."/$defs/Properties/definitions/VpcLatticeConfiguration"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AdvancedConfiguration": close({
 	AlternateTargetGroupArn!: string | fn.#StringExpression
 	ProductionListenerRule?:  string | fn.#StringExpression
-	RoleArn?:                 string | fn.#StringExpression
-	TestListenerRule?:        string | fn.#StringExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	TestListenerRule?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
 	AssignPublicIp?: "DISABLED" | "ENABLED" | fn.#StringExpression
-	SecurityGroups?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Subnets?:        [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroups?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	Subnets?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CanaryConfiguration": close({
-	CanaryBakeTimeInMinutes?: int & <=1440 & >=0 | fn.#NumberExpression
-	CanaryPercent?:           math.MultipleOf(0.1) & <=100 & >=0.1 | fn.#NumberExpression
+	CanaryBakeTimeInMinutes?: int & <=1440 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1440 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CanaryPercent?: math.MultipleOf(0.1) & <=100 & >=0.1 | fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
-	Base?:             int & <=100000 & >=0 | fn.#NumberExpression
+	Base?: int & <=100000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	CapacityProvider?: string | fn.#StringExpression
-	Weight?:           int & <=1000 & >=0 | fn.#NumberExpression
+	Weight?: int & <=1000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DeploymentAlarms": close({
 	AlarmNames!: [...string | fn.#StringExpression] | fn.#ListExpression
-	Enable!:     bool | fn.#BooleanExpression
-	Rollback!:   bool | fn.#BooleanExpression
+	Enable!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Rollback!:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DeploymentCircuitBreaker": close({
-	Enable!:                 bool | fn.#BooleanExpression
-	ResetOnHealthyTask?:     bool | fn.#BooleanExpression
-	Rollback!:               bool | fn.#BooleanExpression
+	Enable!:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ResetOnHealthyTask?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Rollback!:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ThresholdConfiguration?: _#defs."/$defs/Properties/definitions/ThresholdConfiguration" | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DeploymentConfiguration": close({
-	Alarms?:                   _#defs."/$defs/Properties/definitions/DeploymentAlarms" | fn.#ObjectExpression
-	BakeTimeInMinutes?:        int & <=1440 & >=0 | fn.#NumberExpression
+	Alarms?: _#defs."/$defs/Properties/definitions/DeploymentAlarms" | fn.#ObjectExpression
+	BakeTimeInMinutes?: int & <=1440 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1440 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	CanaryConfiguration?:      _#defs."/$defs/Properties/definitions/CanaryConfiguration" | fn.#ObjectExpression
 	DeploymentCircuitBreaker?: _#defs."/$defs/Properties/definitions/DeploymentCircuitBreaker" | fn.#ObjectExpression
 	EarlySuccessCriteria?: _#defs."/$defs/Properties/definitions/DeploymentEarlySuccessCriteria" | fn.#ObjectExpression
-	LifecycleHooks?: [..._#defs."/$defs/Properties/definitions/DeploymentLifecycleHook" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	LinearConfiguration?:   _#defs."/$defs/Properties/definitions/LinearConfiguration" | fn.#ObjectExpression
-	MaximumPercent?:        int | fn.#NumberExpression
-	MinimumHealthyPercent?: int | fn.#NumberExpression
-	Strategy?:              "ROLLING" | "BLUE_GREEN" | "LINEAR" | "CANARY" | fn.#StringExpression
+	LifecycleHooks?:       [..._#defs."/$defs/Properties/definitions/DeploymentLifecycleHook"] | fn.#ListExpression
+	LinearConfiguration?:  _#defs."/$defs/Properties/definitions/LinearConfiguration" | fn.#ObjectExpression
+	MaximumPercent?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinimumHealthyPercent?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Strategy?: "ROLLING" | "BLUE_GREEN" | "LINEAR" | "CANARY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -189,8 +299,23 @@ _#defs: "/$defs/Properties/definitions/DeploymentController": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DeploymentEarlySuccessCriteria": close({
-	Enable?:                       bool | fn.#BooleanExpression
-	HealthyPercent?:               int & <=100 & >=0 | fn.#NumberExpression
+	Enable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	HealthyPercent?: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SourceServiceRevisionCleanup?: "BLOCKING" | "DEFERRED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -210,7 +335,8 @@ _#defs: "/$defs/Properties/definitions/DeploymentLifecycleHook": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	RoleArn?:              string | fn.#StringExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	TargetType?:           "AWS_LAMBDA" | "PAUSE" | fn.#StringExpression
 	TimeoutConfiguration?: _#defs."/$defs/Properties/definitions/HookTimeoutConfig" | fn.#ObjectExpression
 }) |
@@ -219,35 +345,77 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/EBSTagSpecification": close({
 	PropagateTags?: "SERVICE" | "TASK_DEFINITION" | fn.#StringExpression
 	ResourceType!:  "volume" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:          list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ForceNewDeployment": close({
-	EnableForceNewDeployment!: bool | fn.#BooleanExpression
+	EnableForceNewDeployment!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ForceNewDeploymentNonce?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HookTimeoutConfig": close({
-	Action?:           "ROLLBACK" | "CONTINUE" | fn.#StringExpression
-	TimeoutInMinutes?: int & <=20160 & >=1 | fn.#NumberExpression
+	Action?: "ROLLBACK" | "CONTINUE" | fn.#StringExpression
+	TimeoutInMinutes?: int & <=20160 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=20160 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LinearConfiguration": close({
-	StepBakeTimeInMinutes?: int & <=1440 & >=0 | fn.#NumberExpression
-	StepPercent?:           math.MultipleOf(0.1) & <=100 & >=3 | fn.#NumberExpression
+	StepBakeTimeInMinutes?: int & <=1440 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1440 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StepPercent?: math.MultipleOf(0.1) & <=100 & >=3 | fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoadBalancer": close({
 	AdvancedConfiguration?: _#defs."/$defs/Properties/definitions/AdvancedConfiguration" | fn.#ObjectExpression
 	ContainerName?:         string | fn.#StringExpression
-	ContainerPort?:         int | fn.#NumberExpression
-	LoadBalancerName?:      string | fn.#StringExpression
-	TargetGroupArn?:        string | fn.#StringExpression
+	ContainerPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LoadBalancerName?: string | fn.#StringExpression
+	TargetGroupArn?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -257,7 +425,7 @@ _#defs: "/$defs/Properties/definitions/LogConfiguration": close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	SecretOptions?: [..._#defs."/$defs/Properties/definitions/Secret" | fn.#ObjectExpression] | fn.#ListExpression
+	SecretOptions?: [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -273,7 +441,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MonitoringConfiguration": close({
 	MetricConfigurations!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MetricConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MetricConfiguration"
 	] |
 		fn.#ListExpression
 }) |
@@ -309,8 +477,23 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectAccessLogConfiguration": cl
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceConnectClientAlias": close({
-	DnsName?:          string | fn.#StringExpression
-	Port!:             int & <=65535 & >=0 | fn.#NumberExpression
+	DnsName?: string | fn.#StringExpression
+	Port!: int & <=65535 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	TestTrafficRules?: _#defs."/$defs/Properties/definitions/ServiceConnectTestTrafficRules" | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -318,22 +501,35 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ServiceConnectConfiguration": close({
 	AccessLogConfiguration?: _#defs."/$defs/Properties/definitions/ServiceConnectAccessLogConfiguration" |
 		fn.#ObjectExpression
-	Enabled!:          bool | fn.#BooleanExpression
+	Enabled!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LogConfiguration?: _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
 	Namespace?:        string | fn.#StringExpression
-	Services?: [..._#defs."/$defs/Properties/definitions/ServiceConnectService" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Services?:         [..._#defs."/$defs/Properties/definitions/ServiceConnectService"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceConnectService": close({
-	ClientAliases?: [..._#defs."/$defs/Properties/definitions/ServiceConnectClientAlias" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	DiscoveryName?:       string | fn.#StringExpression
-	IngressPortOverride?: int & <=65535 & >=0 | fn.#NumberExpression
-	PortName!:            string | fn.#StringExpression
-	Timeout?:             _#defs."/$defs/Properties/definitions/TimeoutConfiguration" | fn.#ObjectExpression
-	Tls?:                 _#defs."/$defs/Properties/definitions/ServiceConnectTlsConfiguration" | fn.#ObjectExpression
+	ClientAliases?: [..._#defs."/$defs/Properties/definitions/ServiceConnectClientAlias"] | fn.#ListExpression
+	DiscoveryName?: string | fn.#StringExpression
+	IngressPortOverride?: int & <=65535 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PortName!: string | fn.#StringExpression
+	Timeout?:  _#defs."/$defs/Properties/definitions/TimeoutConfiguration" | fn.#ObjectExpression
+	Tls?:      _#defs."/$defs/Properties/definitions/ServiceConnectTlsConfiguration" | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
@@ -361,32 +557,113 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectTlsCertificateAuthority": c
 _#defs: "/$defs/Properties/definitions/ServiceConnectTlsConfiguration": close({
 	IssuerCertificateAuthority!: _#defs."/$defs/Properties/definitions/ServiceConnectTlsCertificateAuthority" |
 		fn.#ObjectExpression
-	KmsKey?:  string | fn.#StringExpression
-	RoleArn?: string | fn.#StringExpression
+	KmsKey?: string | fn.#StringExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceManagedEBSVolumeConfiguration": close({
-	Encrypted?:      bool | fn.#BooleanExpression
+	Encrypted?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FilesystemType?: "ext3" | "ext4" | "ntfs" | "xfs" | fn.#StringExpression
-	Iops?:           int | fn.#NumberExpression
-	KmsKeyId?:       string | string | string | fn.#StringExpression
-	RoleArn!:        string | fn.#StringExpression
-	SizeInGiB?:      int | fn.#NumberExpression
-	SnapshotId?:     string | fn.#StringExpression
-	TagSpecifications?: [..._#defs."/$defs/Properties/definitions/EBSTagSpecification" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Throughput?:               int | fn.#NumberExpression
-	VolumeInitializationRate?: int | fn.#NumberExpression
-	VolumeType?:               string | fn.#StringExpression
+	Iops?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	SizeInGiB?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SnapshotId?:        string | fn.#StringExpression
+	TagSpecifications?: [..._#defs."/$defs/Properties/definitions/EBSTagSpecification"] | fn.#ListExpression
+	Throughput?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VolumeInitializationRate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VolumeType?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceRegistry": close({
 	ContainerName?: string | fn.#StringExpression
-	ContainerPort?: int | fn.#NumberExpression
-	Port?:          int | fn.#NumberExpression
-	RegistryArn?:   string | fn.#StringExpression
+	ContainerPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RegistryArn?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -404,14 +681,57 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ThresholdConfiguration": close({
-	Type!:  "COUNT" | "BOUNDED_PERCENT" | "UNBOUNDED_PERCENT" | fn.#StringExpression
-	Value!: int | fn.#NumberExpression
+	Type!: "COUNT" | "BOUNDED_PERCENT" | "UNBOUNDED_PERCENT" | fn.#StringExpression
+	Value!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TimeoutConfiguration": close({
-	IdleTimeoutSeconds?:       int & <=2147483647 & >=0 | fn.#NumberExpression
-	PerRequestTimeoutSeconds?: int & <=2147483647 & >=0 | fn.#NumberExpression
+	IdleTimeoutSeconds?: int & <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PerRequestTimeoutSeconds?: int & <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -425,8 +745,9 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/VpcLatticeConfiguration": close({
 	AdvancedConfiguration?: _#defs."/$defs/Properties/definitions/VpcLatticeAdvancedConfiguration" |
 		fn.#ObjectExpression
-	PortName!:       string | fn.#StringExpression
-	RoleArn!:        string | fn.#StringExpression
+	PortName!: string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	TargetGroupArn!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

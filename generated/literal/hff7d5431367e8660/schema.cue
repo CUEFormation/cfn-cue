@@ -28,7 +28,8 @@ import (
 	LastModifiedTime?:     time.Time
 	LogConfiguration?:     _#defs."/$defs/Properties/definitions/PipeLogConfiguration"
 	Name?:                 strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$"
-	RoleArn!: strings.MaxRunes(1600) &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z0-9+=,.@\\-_/]+$"
 	Source!: strings.MaxRunes(1600) &
@@ -158,12 +159,14 @@ _#defs: "/$defs/Properties/definitions/EcsTaskOverride": close({
 	ContainerOverrides?: [..._#defs."/$defs/Properties/definitions/EcsContainerOverride"]
 	Cpu?:                string
 	EphemeralStorage?:   _#defs."/$defs/Properties/definitions/EcsEphemeralStorage"
-	ExecutionRoleArn?: strings.MaxRunes(1600) &
+	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$"
 	InferenceAcceleratorOverrides?: [..._#defs."/$defs/Properties/definitions/EcsInferenceAcceleratorOverride"]
 	Memory?:                        string
-	TaskRoleArn?: strings.MaxRunes(1600) &
+	TaskRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$"
 })

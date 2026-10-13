@@ -79,7 +79,9 @@ _#defs: "/$defs/Properties/definitions/LambdaFunctionRecipeSource": close({
 	ComponentName?:             strings.MaxRunes(128) & strings.MinRunes(1)
 	ComponentPlatforms?:        [..._#defs."/$defs/Properties/definitions/ComponentPlatform"]
 	ComponentVersion?:          strings.MaxRunes(64) & strings.MinRunes(1)
-	LambdaArn?:                 strings.MinRunes(1) & =~"^arn:[^:]*:lambda:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
+	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+	strings.MinRunes(1) &
+	=~"^arn:[^:]*:lambda:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
 })
 
 _#defs: "/$defs/Properties/definitions/LambdaLinuxProcessParams": close({

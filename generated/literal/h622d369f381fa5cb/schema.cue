@@ -39,7 +39,7 @@ import (
 	FileCacheTypeVersion!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[0-9](\\.[0-9]*)*$"
 
 	// The KMS key ID for encrypting data
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 	// The lifecycle status of the cache
 	Lifecycle?: "AVAILABLE" | "CREATING" | "DELETING" | "UPDATING" | "FAILED"
@@ -58,7 +58,10 @@ import (
 
 	// A list of security group IDs for the cache
 	SecurityGroupIds?: list.MaxItems(50) & [...] & [
-		...strings.MaxRunes(20) & strings.MinRunes(11) & =~"^(sg-[0-9a-f]{8,})$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(20) &
+		strings.MinRunes(11) &
+		=~"^(sg-[0-9a-f]{8,})$"
 	]
 
 	// The storage capacity of the cache in gibibytes (GiB)
@@ -73,7 +76,7 @@ import (
 	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
 
 	// The VPC ID of the cache
-	VpcId?: string
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/DataRepositoryAssociation": close({

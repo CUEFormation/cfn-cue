@@ -22,7 +22,8 @@ import (
 	// set. Specify an IAM role only if you are using customized administrator
 	// roles to control which users or groups can manage specific stack sets within
 	// the same administrator account.
-	AdministrationRoleARN?: strings.MaxRunes(2048) & strings.MinRunes(20)
+	AdministrationRoleARN?:
+		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 	// Describes whether StackSets automatically deploys to AWS Organizations
 	// accounts that are added to the target organization or organizational unit

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -14,12 +14,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::ManagedBlockchain::com.amazonaws.taiga.webservice.api#Accessor Resource Type
 #Properties: close({
-	AccessorType!: _#defs."/$defs/Properties/definitions/AccessorType" | fn.#StringExpression
-	NetworkType?:  _#defs."/$defs/Properties/definitions/NetworkAccessorType" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	AccessorType!: _#defs."/$defs/Properties/definitions/AccessorType"
+	NetworkType?:  _#defs."/$defs/Properties/definitions/NetworkAccessorType"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccessorStatus": "AVAILABLE" |

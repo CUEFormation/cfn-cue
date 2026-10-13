@@ -47,7 +47,7 @@ import (
 	OnStackFailure?: "DO_NOTHING" | "ROLLBACK" | "DELETE"
 
 	// The ARN of an IAM role that CloudFormation assumes when executing the change set.
-	RoleARN?: strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 	// The unique ID of the stack.
 	StackId?: string

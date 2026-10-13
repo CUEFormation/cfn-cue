@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"math"
 )
@@ -15,14 +15,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::OpenSearchServerless::CollectionGroup
 #Properties: close({
-	CapacityLimits?:  _#defs."/$defs/Properties/definitions/CapacityLimits" | fn.#ObjectExpression
+	CapacityLimits?:  _#defs."/$defs/Properties/definitions/CapacityLimits"
 	Description?:     strings.MaxRunes(1000) | fn.#StringExpression
 	Generation?:      "CLASSIC" | "NEXTGEN" | fn.#StringExpression
 	Name!:            strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" | fn.#StringExpression
 	StandbyReplicas!: "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

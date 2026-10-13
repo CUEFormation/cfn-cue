@@ -17,12 +17,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AllowedCountries?: list.UniqueItems() & [...strings.MaxRunes(2) & strings.MinRunes(2) | fn.#StringExpression] |
 	fn.#ListExpression
 	AllowedOrigins?: [...strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
-	EnableStrictOriginEnforcement?: bool | fn.#BooleanExpression
+	EnableStrictOriginEnforcement?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 	Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

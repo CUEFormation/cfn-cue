@@ -34,13 +34,13 @@ import (
 	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
 })
 
-_#defs: "/$defs/Properties/definitions/RoutingStrategy": ({
+_#defs: "/$defs/Properties/definitions/RoutingStrategy": matchN(>=1, [{
 	FleetId!: _
 	...
-} | {
+}, {
 	Message!: _
 	...
-}) & close({
+}]) & close({
 	// A unique identifier for a fleet that the alias points to. If you specify
 	// SIMPLE for the Type property, you must specify this property.
 	FleetId?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-z]*fleet-[a-zA-Z0-9\\-]+"

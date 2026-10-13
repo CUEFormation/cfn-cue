@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,31 +20,82 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // and the details about how to track and manage content delivery.
 #Properties: close({
 	DistributionConfig!: _#defs."/$defs/Properties/definitions/DistributionConfig" | fn.#ObjectExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CacheBehavior": close({
-	AllowedMethods?:         [...string | fn.#StringExpression] | fn.#ListExpression
-	CachePolicyId?:          string | fn.#StringExpression
-	CachedMethods?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	Compress?:               bool | fn.#BooleanExpression
-	DefaultTTL?:             number | fn.#NumberExpression
+	AllowedMethods?: [...string | fn.#StringExpression] | fn.#ListExpression
+	CachePolicyId?:  string | fn.#StringExpression
+	CachedMethods?:  [...string | fn.#StringExpression] | fn.#ListExpression
+	Compress?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DefaultTTL?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	FieldLevelEncryptionId?: string | fn.#StringExpression
 	ForwardedValues?:        _#defs."/$defs/Properties/definitions/ForwardedValues" | fn.#ObjectExpression
-	FunctionAssociations?: [..._#defs."/$defs/Properties/definitions/FunctionAssociation" | fn.#ObjectExpression] |
+	FunctionAssociations?:   [..._#defs."/$defs/Properties/definitions/FunctionAssociation"] | fn.#ListExpression
+	GrpcConfig?:             _#defs."/$defs/Properties/definitions/GrpcConfig" | fn.#ObjectExpression
+	LambdaFunctionAssociations?: [..._#defs."/$defs/Properties/definitions/LambdaFunctionAssociation"] |
 		fn.#ListExpression
-	GrpcConfig?: _#defs."/$defs/Properties/definitions/GrpcConfig" | fn.#ObjectExpression
-	LambdaFunctionAssociations?: [
-		..._#defs."/$defs/Properties/definitions/LambdaFunctionAssociation" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	MaxTTL?:                  number | fn.#NumberExpression
-	MinTTL?:                  number | fn.#NumberExpression
+	MaxTTL?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinTTL?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	OriginRequestPolicyId?:   string | fn.#StringExpression
 	PathPattern!:             string | fn.#StringExpression
 	RealtimeLogConfigArn?:    string | fn.#StringExpression
 	ResponseHeadersPolicyId?: string | fn.#StringExpression
-	SmoothStreaming?:         bool | fn.#BooleanExpression
+	SmoothStreaming?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TargetOriginId!:          string | fn.#StringExpression
 	TrustedKeyGroups?:        [...string | fn.#StringExpression] | fn.#ListExpression
 	TrustedSigners?:          [...string | fn.#StringExpression] | fn.#ListExpression
@@ -70,7 +125,25 @@ _#defs: "/$defs/Properties/definitions/CustomErrorResponse": close({
 		ResponsePagePath!: _
 	}
 	{}
-	ErrorCachingMinTTL?: number | fn.#NumberExpression
+	ErrorCachingMinTTL?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ErrorCode!: (==400 | ==403 | ==404 | ==405 | ==414 | ==416 | ==500 | ==501 | ==502 | ==503 | ==504) & int |
 		fn.#NumberExpression
 	"ResponseCode"?: (==200 | ==400 | ==403 | ==404 | ==405 | ==414 | ==416 | ==500 | ==501 | ==502 | ==503 | ==504) &
@@ -81,38 +154,141 @@ _#defs: "/$defs/Properties/definitions/CustomErrorResponse": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomOriginConfig": close({
-	HTTPPort?:               int | fn.#NumberExpression
-	HTTPSPort?:              int | fn.#NumberExpression
-	IpAddressType?:          "ipv4" | "ipv6" | "dualstack" | fn.#StringExpression
-	OriginKeepaliveTimeout?: int | fn.#NumberExpression
-	OriginMtlsConfig?:       _#defs."/$defs/Properties/definitions/OriginMtlsConfig" | fn.#ObjectExpression
-	OriginProtocolPolicy!:   string | fn.#StringExpression
-	OriginReadTimeout?:      int | fn.#NumberExpression
-	OriginSSLProtocols?:     [...string | fn.#StringExpression] | fn.#ListExpression
+	HTTPPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	HTTPSPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IpAddressType?: "ipv4" | "ipv6" | "dualstack" | fn.#StringExpression
+	OriginKeepaliveTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	OriginMtlsConfig?:     _#defs."/$defs/Properties/definitions/OriginMtlsConfig" | fn.#ObjectExpression
+	OriginProtocolPolicy!: string | fn.#StringExpression
+	OriginReadTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	OriginSSLProtocols?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultCacheBehavior": close({
-	AllowedMethods?:         [...string | fn.#StringExpression] | fn.#ListExpression
-	CachePolicyId?:          string | fn.#StringExpression
-	CachedMethods?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	Compress?:               bool | fn.#BooleanExpression
-	DefaultTTL?:             number | fn.#NumberExpression
+	AllowedMethods?: [...string | fn.#StringExpression] | fn.#ListExpression
+	CachePolicyId?:  string | fn.#StringExpression
+	CachedMethods?:  [...string | fn.#StringExpression] | fn.#ListExpression
+	Compress?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DefaultTTL?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	FieldLevelEncryptionId?: string | fn.#StringExpression
 	ForwardedValues?:        _#defs."/$defs/Properties/definitions/ForwardedValues" | fn.#ObjectExpression
-	FunctionAssociations?: [..._#defs."/$defs/Properties/definitions/FunctionAssociation" | fn.#ObjectExpression] |
+	FunctionAssociations?:   [..._#defs."/$defs/Properties/definitions/FunctionAssociation"] | fn.#ListExpression
+	GrpcConfig?:             _#defs."/$defs/Properties/definitions/GrpcConfig" | fn.#ObjectExpression
+	LambdaFunctionAssociations?: [..._#defs."/$defs/Properties/definitions/LambdaFunctionAssociation"] |
 		fn.#ListExpression
-	GrpcConfig?: _#defs."/$defs/Properties/definitions/GrpcConfig" | fn.#ObjectExpression
-	LambdaFunctionAssociations?: [
-		..._#defs."/$defs/Properties/definitions/LambdaFunctionAssociation" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	MaxTTL?:                  number | fn.#NumberExpression
-	MinTTL?:                  number | fn.#NumberExpression
+	MaxTTL?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinTTL?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	OriginRequestPolicyId?:   string | fn.#StringExpression
 	RealtimeLogConfigArn?:    string | fn.#StringExpression
 	ResponseHeadersPolicyId?: string | fn.#StringExpression
-	SmoothStreaming?:         bool | fn.#BooleanExpression
+	SmoothStreaming?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TargetOriginId!:          string | fn.#StringExpression
 	TrustedKeyGroups?:        [...string | fn.#StringExpression] | fn.#ListExpression
 	TrustedSigners?:          [...string | fn.#StringExpression] | fn.#ListExpression
@@ -124,33 +300,30 @@ _#defs: "/$defs/Properties/definitions/DistributionConfig": close({
 	Aliases?:         [...string | fn.#StringExpression] | fn.#ListExpression
 	AnycastIpListId?: string | fn.#StringExpression
 	CNAMEs?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	CacheBehaviors?: [..._#defs."/$defs/Properties/definitions/CacheBehavior" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	CacheTagConfig?: _#defs."/$defs/Properties/definitions/CacheTagConfig" | fn.#ObjectExpression
-	Comment?:        string | fn.#StringExpression
+	CacheBehaviors?:  [..._#defs."/$defs/Properties/definitions/CacheBehavior"] | fn.#ListExpression
+	CacheTagConfig?:  _#defs."/$defs/Properties/definitions/CacheTagConfig" | fn.#ObjectExpression
+	Comment?:         string | fn.#StringExpression
 	ConnectionFunctionAssociation?: _#defs."/$defs/Properties/definitions/ConnectionFunctionAssociation" |
 		fn.#ObjectExpression
 	ConnectionMode?:               _#defs."/$defs/Properties/definitions/ConnectionMode" | fn.#StringExpression
 	ContinuousDeploymentPolicyId?: string | fn.#StringExpression
-	CustomErrorResponses?: [..._#defs."/$defs/Properties/definitions/CustomErrorResponse" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	CustomOrigin?:         _#defs."/$defs/Properties/definitions/LegacyCustomOrigin" | fn.#ObjectExpression
-	DefaultCacheBehavior!: _#defs."/$defs/Properties/definitions/DefaultCacheBehavior" | fn.#ObjectExpression
-	DefaultRootObject?:    string | fn.#StringExpression
-	Enabled!:              bool | fn.#BooleanExpression
-	HttpVersion?:          "http1.1" | "http2" | "http2and3" | "http3" | fn.#StringExpression
-	IPV6Enabled?:          bool | fn.#BooleanExpression
-	Logging?:              _#defs."/$defs/Properties/definitions/Logging" | fn.#ObjectExpression
-	OriginGroups?:         _#defs."/$defs/Properties/definitions/OriginGroups" | fn.#ObjectExpression
-	Origins?:      [..._#defs."/$defs/Properties/definitions/Origin" | fn.#ObjectExpression] | fn.#ListExpression
+	CustomErrorResponses?:         [..._#defs."/$defs/Properties/definitions/CustomErrorResponse"] | fn.#ListExpression
+	CustomOrigin?:                 _#defs."/$defs/Properties/definitions/LegacyCustomOrigin" | fn.#ObjectExpression
+	DefaultCacheBehavior!:         _#defs."/$defs/Properties/definitions/DefaultCacheBehavior" | fn.#ObjectExpression
+	DefaultRootObject?:            string | fn.#StringExpression
+	Enabled!:                      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	HttpVersion?:                  "http1.1" | "http2" | "http2and3" | "http3" | fn.#StringExpression
+	IPV6Enabled?:                  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Logging?:                      _#defs."/$defs/Properties/definitions/Logging" | fn.#ObjectExpression
+	OriginGroups?:                 _#defs."/$defs/Properties/definitions/OriginGroups" | fn.#ObjectExpression
+	Origins?:                      [..._#defs."/$defs/Properties/definitions/Origin"] | fn.#ListExpression
 	PriceClass?:   "None" | "PriceClass_100" | "PriceClass_200" | "PriceClass_All" | fn.#StringExpression
 	Restrictions?: _#defs."/$defs/Properties/definitions/Restrictions" | fn.#ObjectExpression
 	S3Origin?:     _#defs."/$defs/Properties/definitions/LegacyS3Origin" | fn.#ObjectExpression
-	Staging?:      bool | fn.#BooleanExpression
-	TenantConfig?: close({
-		ParameterDefinitions?: [..._#defs."/$defs/Properties/definitions/ParameterDefinition" | fn.#ObjectExpression] |
-			fn.#ListExpression
-	}) |
+	Staging?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	TenantConfig?: close(
+		{ParameterDefinitions?: [..._#defs."/$defs/Properties/definitions/ParameterDefinition"] | fn.#ListExpression},
+	) |
 		fn.#ObjectExpression
 	ViewerCertificate?: _#defs."/$defs/Properties/definitions/ViewerCertificate" | fn.#ObjectExpression
 	ViewerMtlsConfig?:  _#defs."/$defs/Properties/definitions/ViewerMtlsConfig" | fn.#ObjectExpression
@@ -161,7 +334,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ForwardedValues": close({
 	Cookies?:              _#defs."/$defs/Properties/definitions/Cookies" | fn.#ObjectExpression
 	Headers?:              [...string | fn.#StringExpression] | fn.#ListExpression
-	QueryString!:          bool | fn.#BooleanExpression
+	QueryString!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	QueryStringCacheKeys?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -430,20 +603,48 @@ _#defs: "/$defs/Properties/definitions/GeoRestriction": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrpcConfig": close({Enabled!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/GrpcConfig": close(
+	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LambdaFunctionAssociation": close({
 	EventType?:         string | fn.#StringExpression
-	IncludeBody?:       bool | fn.#BooleanExpression
+	IncludeBody?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LambdaFunctionARN?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LegacyCustomOrigin": close({
-	DNSName!:              string | fn.#StringExpression
-	HTTPPort?:             int | fn.#NumberExpression
-	HTTPSPort?:            int | fn.#NumberExpression
+	DNSName!: string | fn.#StringExpression
+	HTTPPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	HTTPSPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	OriginProtocolPolicy!: string | fn.#StringExpression
 	OriginSSLProtocols!:   [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
@@ -457,7 +658,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Logging": close({
 	Bucket?:         string | fn.#StringExpression
-	IncludeCookies?: bool | fn.#BooleanExpression
+	IncludeCookies?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Prefix?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -474,19 +675,57 @@ _#defs: "/$defs/Properties/definitions/Origin": matchN(2, [
 		...
 	}]) & {...}
 ]) & close({
-	ConnectionAttempts?:    int | fn.#NumberExpression
-	ConnectionTimeout?:     int | fn.#NumberExpression
+	ConnectionAttempts?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ConnectionTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	CustomOriginConfig?:    _#defs."/$defs/Properties/definitions/CustomOriginConfig" | fn.#ObjectExpression
 	DomainName!:            string | fn.#StringExpression
 	Id!:                    string | fn.#StringExpression
 	OriginAccessControlId?: string | fn.#StringExpression
-	OriginCustomHeaders?: [..._#defs."/$defs/Properties/definitions/OriginCustomHeader" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	OriginPath?:                string | fn.#StringExpression
-	OriginShield?:              _#defs."/$defs/Properties/definitions/OriginShield" | fn.#ObjectExpression
-	ResponseCompletionTimeout?: int | fn.#NumberExpression
-	S3OriginConfig?:            _#defs."/$defs/Properties/definitions/S3OriginConfig" | fn.#ObjectExpression
-	VpcOriginConfig?:           _#defs."/$defs/Properties/definitions/VpcOriginConfig" | fn.#ObjectExpression
+	OriginCustomHeaders?:   [..._#defs."/$defs/Properties/definitions/OriginCustomHeader"] | fn.#ListExpression
+	OriginPath?:            string | fn.#StringExpression
+	OriginShield?:          _#defs."/$defs/Properties/definitions/OriginShield" | fn.#ObjectExpression
+	ResponseCompletionTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	S3OriginConfig?:  _#defs."/$defs/Properties/definitions/S3OriginConfig" | fn.#ObjectExpression
+	VpcOriginConfig?: _#defs."/$defs/Properties/definitions/VpcOriginConfig" | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
@@ -513,11 +752,22 @@ _#defs: "/$defs/Properties/definitions/OriginGroupMember": close({OriginId!: str
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OriginGroupMembers": close({
-	Items!: list.MaxItems(2) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/OriginGroupMember" | fn.#ObjectExpression
-	] |
+	Items!: list.MaxItems(2) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/OriginGroupMember"] |
 		fn.#ListExpression
-	Quantity!: int | fn.#NumberExpression
+	Quantity!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -526,8 +776,21 @@ _#defs: "/$defs/Properties/definitions/OriginGroupSelectionCriteria": "default" 
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/OriginGroups": close({
-	Items?:    [..._#defs."/$defs/Properties/definitions/OriginGroup" | fn.#ObjectExpression] | fn.#ListExpression
-	Quantity!: int | fn.#NumberExpression
+	Items?: [..._#defs."/$defs/Properties/definitions/OriginGroup"] | fn.#ListExpression
+	Quantity!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -535,7 +798,7 @@ _#defs: "/$defs/Properties/definitions/OriginMtlsConfig": close({ClientCertifica
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OriginShield": close({
-	Enabled?:            bool | fn.#BooleanExpression
+	Enabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	OriginShieldRegion?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -545,7 +808,7 @@ _#defs: "/$defs/Properties/definitions/ParameterDefinition": close({
 		StringSchema?: close({
 			Comment?:      string | fn.#StringExpression
 			DefaultValue?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-			Required!:     bool | fn.#BooleanExpression
+			Required!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		}) |
 		fn.#ObjectExpression
 	}) |
@@ -561,13 +824,57 @@ _#defs: "/$defs/Properties/definitions/Restrictions": close(
 
 _#defs: "/$defs/Properties/definitions/S3OriginConfig": close({
 	OriginAccessIdentity?: string | fn.#StringExpression
-	OriginReadTimeout?:    int | fn.#NumberExpression
+	OriginReadTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StatusCodes": close({
-	Items!:    list.MinItems(1) & [...int | fn.#NumberExpression] | fn.#ListExpression
-	Quantity!: int | fn.#NumberExpression
+	Items!: list.MinItems(1) & [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	Quantity!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -578,8 +885,8 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TrustStoreConfig": close({
-	AdvertiseTrustStoreCaNames?: bool | fn.#BooleanExpression
-	IgnoreCertificateExpiry?:    bool | fn.#BooleanExpression
+	AdvertiseTrustStoreCaNames?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IgnoreCertificateExpiry?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TrustStoreId!:               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -603,8 +910,9 @@ _#defs: "/$defs/Properties/definitions/ViewerCertificate": matchN(1, [{
 		SslSupportMethod!: _
 	}
 	{}
-	"AcmCertificateArn"?:          string | fn.#StringExpression
-	CloudFrontDefaultCertificate?: bool | fn.#BooleanExpression
+	"AcmCertificateArn"?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	CloudFrontDefaultCertificate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	"IamCertificateId"?:           strings.MaxRunes(32) | fn.#StringExpression
 	MinimumProtocolVersion?: "SSLv3" |
 		"TLSv1" |
@@ -629,10 +937,36 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ViewerMtlsMode": "required" | "optional" | "passthrough" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/VpcOriginConfig": close({
-	OriginKeepaliveTimeout?: int | fn.#NumberExpression
-	OriginReadTimeout?:      int | fn.#NumberExpression
-	OwnerAccountId?:         string | fn.#StringExpression
-	VpcOriginId!:            string | fn.#StringExpression
+	OriginKeepaliveTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	OriginReadTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	OwnerAccountId?: string | fn.#StringExpression
+	VpcOriginId!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

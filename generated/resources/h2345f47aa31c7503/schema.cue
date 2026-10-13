@@ -12,16 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Vectors::VectorBucketPolicy
-#Properties: ({
+#Properties: matchN(>=1, [{
 	VectorBucketName!: _
 	...
-} | {
+}, {
 	VectorBucketArn!: _
 	...
-}) & close({
-	Policy!:           _#defs."/$defs/Properties/definitions/Policy" | fn.#ObjectExpression | fn.#StringExpression
-	VectorBucketArn?:  _#defs."/$defs/Properties/definitions/VectorBucketArn" | fn.#StringExpression
-	VectorBucketName?: _#defs."/$defs/Properties/definitions/VectorBucketName" | fn.#StringExpression
+}]) & close({
+	Policy!:           _#defs."/$defs/Properties/definitions/Policy"
+	VectorBucketArn?:  _#defs."/$defs/Properties/definitions/VectorBucketArn"
+	VectorBucketName?: _#defs."/$defs/Properties/definitions/VectorBucketName"
 })
 
 _#defs: "/$defs/Properties/definitions/Policy": string |

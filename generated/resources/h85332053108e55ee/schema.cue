@@ -22,8 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Grantee!:                _#defs."/$defs/Properties/definitions/Grantee" | fn.#ObjectExpression
 	Permission!:             "READ" | "WRITE" | "READWRITE" | fn.#StringExpression
 	S3PrefixType?:           "Object" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccessGrantArn": string | fn.#StringExpression

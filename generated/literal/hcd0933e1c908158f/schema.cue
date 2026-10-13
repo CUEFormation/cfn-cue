@@ -53,7 +53,7 @@ import "strings"
 	VpcEncryptionControlId?: string
 
 	// The VPC on which this VPC encryption control is applied.
-	VpcId?: string
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 
 	// Used to enable or disable Vpc Lattice exclusion
 	VpcLatticeExclusionInput?: "enable" | "disable"

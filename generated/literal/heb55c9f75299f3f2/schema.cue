@@ -140,7 +140,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticateCognitoConfig": close({
 	UserPoolArn!: string
 
 	// The ID of the Amazon Cognito user pool client.
-	UserPoolClientId!: string | string
+	UserPoolClientId!: string & string
 
 	// The domain prefix or fully-qualified domain name of the Amazon Cognito user pool.
 	UserPoolDomain!: string
@@ -148,13 +148,13 @@ _#defs: "/$defs/Properties/definitions/AuthenticateCognitoConfig": close({
 
 // Specifies information required using an identity provide (IdP) that is
 // compliant with OpenID Connect (OIDC) to authenticate users.
-_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": ({
+_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": matchN(>=1, [{
 	ClientSecret!: _
 	...
-} | {
+}, {
 	UseExistingClientSecret!: _
 	...
-}) & close({
+}]) & close({
 	// The query parameters (up to 10) to include in the redirect request to the authorization endpoint.
 	AuthenticationRequestExtraParams?: {
 		{[=~"[a-zA-Z0-9]+"]: string}
@@ -213,7 +213,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": ({
 // Specifies an SSL server certificate to use as the default certificate for a secure listener.
 _#defs: "/$defs/Properties/definitions/Certificate": close({
 	// The Amazon Resource Name (ARN) of the certificate.
-	CertificateArn?: string | string
+	CertificateArn?: string & string
 })
 
 // Specifies information required when returning a custom HTTP response.

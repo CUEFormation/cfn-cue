@@ -15,10 +15,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::SecurityHub::ConnectorV2
 #Properties: close({
 	Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*\\S.*" | fn.#StringExpression
-	KmsKeyArn?:   strings.MaxRunes(2048) & strings.MinRunes(20) & =~".*\\S.*" | fn.#StringExpression
-	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	Provider!:    _#defs."/$defs/Properties/definitions/Provider" | fn.#ObjectExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~".*\\S.*" |
+	fn.#StringExpression
+	Name!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+	Provider!: _#defs."/$defs/Properties/definitions/Provider"
+	Tags?:     _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/AuthStatus": "ACTIVE" | "FAILED" | fn.#StringExpression
@@ -27,7 +31,7 @@ _#defs: "/$defs/Properties/definitions/AzureProviderConfiguration": close({
 	AWSConfigConnectorArn!: string | fn.#StringExpression
 	AzureRegions!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
 		fn.#ListExpression
-	ScopeConfiguration!: _#defs."/$defs/Properties/definitions/AzureScopeConfiguration" | fn.#ObjectExpression
+	ScopeConfiguration!: _#defs."/$defs/Properties/definitions/AzureScopeConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -53,11 +57,11 @@ _#defs: "/$defs/Properties/definitions/JiraCloudProviderConfiguration": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Provider": matchN(1, [close(
-	{JiraCloud!: _#defs."/$defs/Properties/definitions/JiraCloudProviderConfiguration" | fn.#ObjectExpression},
+	{JiraCloud!: _#defs."/$defs/Properties/definitions/JiraCloudProviderConfiguration"},
 ), close(
-	{ServiceNow!: _#defs."/$defs/Properties/definitions/ServiceNowProviderConfiguration" | fn.#ObjectExpression},
+	{ServiceNow!: _#defs."/$defs/Properties/definitions/ServiceNowProviderConfiguration"},
 ), close(
-	{Azure!: _#defs."/$defs/Properties/definitions/AzureProviderConfiguration" | fn.#ObjectExpression},
+	{Azure!: _#defs."/$defs/Properties/definitions/AzureProviderConfiguration"},
 )]) & {[string]: fn.#Value} |
 fn.#ObjectExpression
 

@@ -7,28 +7,102 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::CloudWatchAlarmTemplate Resource Type
 #Properties: close({
-	ComparisonOperator!: _#defs."/$defs/Properties/definitions/CloudWatchAlarmTemplateComparisonOperator" |
-		fn.#StringExpression
-	DatapointsToAlarm?: >=1 | fn.#NumberExpression
-	Description?:       strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	EvaluationPeriods!: >=1 | fn.#NumberExpression
-	GroupIdentifier?:   =~"^[^\\s]+$" | fn.#StringExpression
-	MetricName!:        strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:              strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-	Period!:            <=86400 & >=10 | fn.#NumberExpression
-	Statistic!:         _#defs."/$defs/Properties/definitions/CloudWatchAlarmTemplateStatistic" | fn.#StringExpression
-	Tags?:              _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
-	TargetResourceType!: _#defs."/$defs/Properties/definitions/CloudWatchAlarmTemplateTargetResourceType" |
-		fn.#StringExpression
-	Threshold!: number | fn.#NumberExpression
-	TreatMissingData!: _#defs."/$defs/Properties/definitions/CloudWatchAlarmTemplateTreatMissingData" |
-		fn.#StringExpression
+	ComparisonOperator!: _#defs."/$defs/Properties/definitions/CloudWatchAlarmTemplateComparisonOperator"
+	DatapointsToAlarm?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	EvaluationPeriods!: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GroupIdentifier?: =~"^[^\\s]+$" | fn.#StringExpression
+	MetricName!:      strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+	Name!:            strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
+	Period!: <=86400 & >=10 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=86400 &
+							>=10,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Statistic!:          _#defs."/$defs/Properties/definitions/CloudWatchAlarmTemplateStatistic"
+	Tags?:               _#defs."/$defs/Properties/definitions/TagMap"
+	TargetResourceType!: _#defs."/$defs/Properties/definitions/CloudWatchAlarmTemplateTargetResourceType"
+	Threshold!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TreatMissingData!: _#defs."/$defs/Properties/definitions/CloudWatchAlarmTemplateTreatMissingData"
 })
 
 _#defs: "/$defs/Properties/definitions/CloudWatchAlarmTemplateComparisonOperator": "GreaterThanOrEqualToThreshold" |

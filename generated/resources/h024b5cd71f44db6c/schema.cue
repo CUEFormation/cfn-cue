@@ -8,18 +8,42 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Logs::LogAnomalyDetector resource specifies a CloudWatch Logs LogAnomalyDetector.
 #Properties: close({
-	AccountId?:             string | fn.#StringExpression
-	AnomalyVisibilityTime?: <=90 & >=7 | fn.#NumberExpression
-	DetectorName?:          strings.MinRunes(1) | fn.#StringExpression
-	EvaluationFrequency?:   "FIVE_MIN" | "TEN_MIN" | "FIFTEEN_MIN" | "THIRTY_MIN" | "ONE_HOUR" | fn.#StringExpression
-	FilterPattern?:         strings.MaxRunes(1024) & strings.MinRunes(0) & =~"" | fn.#StringExpression
-	KmsKeyId?: (string | string | string) &
+	AccountId?: string | fn.#StringExpression
+	AnomalyVisibilityTime?: <=90 & >=7 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=90 &
+							>=7,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DetectorName?:        strings.MinRunes(1) | fn.#StringExpression
+	EvaluationFrequency?: "FIVE_MIN" | "TEN_MIN" | "FIFTEEN_MIN" | "THIRTY_MIN" | "ONE_HOUR" | fn.#StringExpression
+	FilterPattern?:       strings.MaxRunes(1024) & strings.MinRunes(0) & =~"" | fn.#StringExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) &
 	strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^arn:aws[a-z\\-]*:kms:[-a-z0-9]*:[0-9]*:key/[-a-z0-9]*$" |

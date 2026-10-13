@@ -1,13 +1,23 @@
 {
   "00611feb1a1433ed:us-east-1": {
-    "cue": "invalid",
+    "cue": "valid",
     "lint": "valid",
-    "note": "Known gap: CUE reports an incomplete object-valued Fn::If in Applications; the three IAM resources pass in isolation."
+    "note": "Regression: object-valued Fn::If stays complete through a locally referenced schema."
   },
   "00611feb1a1433ed:us-west-2": {
-    "cue": "invalid",
+    "cue": "valid",
     "lint": "valid",
-    "note": "Known gap: CUE reports an incomplete object-valued Fn::If in Applications; the three IAM resources pass in isolation."
+    "note": "Regression: object-valued Fn::If stays complete through a locally referenced schema."
+  },
+  "0830d3c308162dd1:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Regression: quoted parameter length limits and resource ports remain accepted without rewriting the input."
+  },
+  "0830d3c308162dd1:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Regression: quoted parameter length limits and resource ports remain accepted without rewriting the input."
   },
   "08e7cc25fecbc2b8:us-east-1": {
     "cue": "valid",
@@ -30,14 +40,14 @@
     "note": "Pinned upstream example."
   },
   "15c2cb3e41e6d416:us-east-1": {
-    "cue": "invalid",
+    "cue": "valid",
     "lint": "valid",
-    "note": "Known gap: CloudFormation accepts the quoted boolean 'true'; CUE currently requires bool."
+    "note": "Regression: quoted CloudFormation boolean is accepted without changing the original input."
   },
   "15c2cb3e41e6d416:us-west-2": {
-    "cue": "invalid",
+    "cue": "valid",
     "lint": "valid",
-    "note": "Known gap: CloudFormation accepts the quoted boolean 'true'; CUE currently requires bool."
+    "note": "Regression: quoted CloudFormation boolean is accepted without changing the original input."
   },
   "1c1367bd614e3f6f:us-east-1": {
     "cue": "valid",
@@ -99,6 +109,36 @@
     "lint": "valid",
     "note": "Pinned upstream example."
   },
+  "mutation-ami-id-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: ami-id-invalid"
+  },
+  "mutation-ami-id-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: ami-id-invalid"
+  },
+  "mutation-ami-id-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-ami-id-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-dynamic-vpc-id:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-dynamic-vpc-id:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
   "mutation-enum:us-east-1": {
     "cue": "invalid",
     "lint": "invalid",
@@ -129,6 +169,96 @@
     "lint": "valid",
     "note": "Project-authored valid template."
   },
+  "mutation-quoted-boolean-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: quoted-boolean-invalid"
+  },
+  "mutation-quoted-boolean-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: quoted-boolean-invalid"
+  },
+  "mutation-quoted-boolean-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-quoted-boolean-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-quoted-parameter-length-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: quoted-parameter-length-invalid"
+  },
+  "mutation-quoted-parameter-length-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: quoted-parameter-length-invalid"
+  },
+  "mutation-quoted-parameter-limits-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-quoted-parameter-limits-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-quoted-parameter-value-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: quoted-parameter-value-invalid"
+  },
+  "mutation-quoted-parameter-value-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: quoted-parameter-value-invalid"
+  },
+  "mutation-quoted-port-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: quoted-port-invalid"
+  },
+  "mutation-quoted-port-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: quoted-port-invalid"
+  },
+  "mutation-quoted-port-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-quoted-port-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-quoted-retention-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: quoted-retention-invalid"
+  },
+  "mutation-quoted-retention-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: quoted-retention-invalid"
+  },
+  "mutation-quoted-retention-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-quoted-retention-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
   "mutation-read-only-property:us-east-1": {
     "cue": "invalid",
     "lint": "valid",
@@ -138,6 +268,46 @@
     "cue": "invalid",
     "lint": "valid",
     "note": "Intentional mutation: read-only-property. Known lint gap: the read-only property is accepted by cfn-lint."
+  },
+  "mutation-role-arn-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: role-arn-invalid"
+  },
+  "mutation-role-arn-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: role-arn-invalid"
+  },
+  "mutation-role-arn-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-role-arn-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-security-group-id-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: security-group-id-invalid"
+  },
+  "mutation-security-group-id-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: security-group-id-invalid"
+  },
+  "mutation-security-group-id-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-security-group-id-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
   },
   "mutation-two-function-keys:us-east-1": {
     "cue": "invalid",
@@ -168,6 +338,26 @@
     "cue": "unsupported",
     "lint": "invalid",
     "note": "Intentional mutation: unknown-resource"
+  },
+  "mutation-vpc-id-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: vpc-id-invalid"
+  },
+  "mutation-vpc-id-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: vpc-id-invalid"
+  },
+  "mutation-vpc-id-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-vpc-id-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
   },
   "mutation-wrong-function-arity:us-east-1": {
     "cue": "invalid",

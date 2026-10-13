@@ -11,10 +11,11 @@ import (
 
 // Resource Type definition for AWS::SSM::ResourceDataSync
 #Properties: close({
-	BucketName?:    strings.MaxRunes(2048) & strings.MinRunes(1)
-	BucketPrefix?:  strings.MaxRunes(64) & strings.MinRunes(0)
-	BucketRegion?:  strings.MaxRunes(64) & strings.MinRunes(1)
-	KMSKeyArn?:     strings.MaxRunes(512) & strings.MinRunes(0)
+	BucketName?:   strings.MaxRunes(2048) & strings.MinRunes(1)
+	BucketPrefix?: strings.MaxRunes(64) & strings.MinRunes(0)
+	BucketRegion?: strings.MaxRunes(64) & strings.MinRunes(1)
+	KMSKeyArn?:
+		=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & (strings.MaxRunes(512) & strings.MinRunes(0))
 	S3Destination?: _#defs."/$defs/Properties/definitions/S3Destination"
 	SyncFormat?:    strings.MaxRunes(1024) & strings.MinRunes(0)
 	SyncName!:      strings.MaxRunes(64) & strings.MinRunes(1)
@@ -31,8 +32,9 @@ _#defs: "/$defs/Properties/definitions/S3Destination": close({
 	BucketName!:   strings.MaxRunes(2048) & strings.MinRunes(1)
 	BucketPrefix?: strings.MaxRunes(256) & strings.MinRunes(1)
 	BucketRegion!: strings.MaxRunes(64) & strings.MinRunes(1)
-	KMSKeyArn?:    strings.MaxRunes(512) & strings.MinRunes(1)
-	SyncFormat!:   "JsonSerDe" & (strings.MaxRunes(1024) & strings.MinRunes(1))
+	KMSKeyArn?:
+		=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & (strings.MaxRunes(512) & strings.MinRunes(1))
+	SyncFormat!: "JsonSerDe" & (strings.MaxRunes(1024) & strings.MinRunes(1))
 })
 
 _#defs: "/$defs/Properties/definitions/SyncSource": close({

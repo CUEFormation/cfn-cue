@@ -9,45 +9,46 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::IoTFleetWise::Vehicle Resource Type
 #Properties: close({
-	AssociationBehavior?: _#defs."/$defs/Properties/definitions/VehicleAssociationBehavior" | fn.#StringExpression
-	Attributes?:          _#defs."/$defs/Properties/definitions/attributesMap" | fn.#ObjectExpression
+	AssociationBehavior?: _#defs."/$defs/Properties/definitions/VehicleAssociationBehavior"
+	Attributes?:          _#defs."/$defs/Properties/definitions/attributesMap"
 	DecoderManifestArn!:  string | fn.#StringExpression
 	ModelManifestArn!:    string | fn.#StringExpression
 	Name!:                strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
 	StateTemplates?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/StateTemplateAssociation" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StateTemplateAssociation"
 	] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/OnChangeStateTemplateUpdateStrategy": close({}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PeriodicStateTemplateUpdateStrategy": close(
-	{StateTemplateUpdateRate!: _#defs."/$defs/Properties/definitions/TimePeriod" | fn.#ObjectExpression},
+	{StateTemplateUpdateRate!: _#defs."/$defs/Properties/definitions/TimePeriod"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StateTemplateAssociation": struct.MinFields(0) & close({
 	Identifier!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
-	StateTemplateUpdateStrategy!: _#defs."/$defs/Properties/definitions/StateTemplateUpdateStrategy" |
-		fn.#ValueExpression
+	StateTemplateUpdateStrategy!: _#defs."/$defs/Properties/definitions/StateTemplateUpdateStrategy"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StateTemplateUpdateStrategy": matchN(1, [close(
-	{Periodic!: _#defs."/$defs/Properties/definitions/PeriodicStateTemplateUpdateStrategy" | fn.#ObjectExpression},
+	{Periodic!: _#defs."/$defs/Properties/definitions/PeriodicStateTemplateUpdateStrategy"},
 ), close(
-	{OnChange!: _#defs."/$defs/Properties/definitions/OnChangeStateTemplateUpdateStrategy" | fn.#ObjectExpression},
+	{OnChange!: _#defs."/$defs/Properties/definitions/OnChangeStateTemplateUpdateStrategy"},
 )]) |
 fn.#ValueExpression
 
@@ -58,8 +59,26 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TimePeriod": close({
-	Unit!:  _#defs."/$defs/Properties/definitions/TimeUnit" | fn.#StringExpression
-	Value!: >=1 | fn.#NumberExpression
+	Unit!: _#defs."/$defs/Properties/definitions/TimeUnit"
+	Value!: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

@@ -15,7 +15,7 @@ import "strings"
 	DefaultKmsKeyId?:  strings.MaxRunes(2048) & strings.MinRunes(0)
 	Domain?:           string
 	IdCConfiguration?: _#defs."/$defs/Properties/definitions/IdCConfiguration"
-	RoleArn?:          string
+	RoleArn?:          =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Tags for the application
 	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]

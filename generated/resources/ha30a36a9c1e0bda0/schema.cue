@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,29 +14,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a collaboration between AWS accounts that allows for secure data collaboration
 #Properties: close({
-	AllowedResultRegions?:        _#defs."/$defs/Properties/definitions/AllowedResultRegions" | fn.#ListExpression
-	AnalyticsEngine?:             _#defs."/$defs/Properties/definitions/AnalyticsEngine" | fn.#StringExpression
-	AutoApprovedChangeTypes?:     _#defs."/$defs/Properties/definitions/AutoApprovedChangeTypeList" | fn.#ListExpression
-	CreatorDisplayName!:          _#defs."/$defs/Properties/definitions/Name" | fn.#StringExpression
-	CreatorMLMemberAbilities?:    _#defs."/$defs/Properties/definitions/MLMemberAbilities" | fn.#ObjectExpression
-	CreatorMemberAbilities?:      _#defs."/$defs/Properties/definitions/MemberAbilities" | fn.#ListExpression
-	CreatorPaymentConfiguration?: _#defs."/$defs/Properties/definitions/PaymentConfiguration" | fn.#ObjectExpression
-	DataEncryptionMetadata?:      _#defs."/$defs/Properties/definitions/DataEncryptionMetadata" | fn.#ObjectExpression
+	AllowedResultRegions?:        _#defs."/$defs/Properties/definitions/AllowedResultRegions"
+	AnalyticsEngine?:             _#defs."/$defs/Properties/definitions/AnalyticsEngine"
+	AutoApprovedChangeTypes?:     _#defs."/$defs/Properties/definitions/AutoApprovedChangeTypeList"
+	CreatorDisplayName!:          _#defs."/$defs/Properties/definitions/Name"
+	CreatorMLMemberAbilities?:    _#defs."/$defs/Properties/definitions/MLMemberAbilities"
+	CreatorMemberAbilities?:      _#defs."/$defs/Properties/definitions/MemberAbilities"
+	CreatorPaymentConfiguration?: _#defs."/$defs/Properties/definitions/PaymentConfiguration"
+	DataEncryptionMetadata?:      _#defs."/$defs/Properties/definitions/DataEncryptionMetadata"
 	Description!:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	IsMetricsEnabled?:            bool | fn.#BooleanExpression
-	JobLogStatus?: _#defs."/$defs/Properties/definitions/CollaborationJobLogStatus" | fn.#StringExpression
-	Members?: list.MaxItems(9) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MemberSpecification" | fn.#ObjectExpression
-	] |
+	IsMetricsEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	JobLogStatus?:                _#defs."/$defs/Properties/definitions/CollaborationJobLogStatus"
+	Members?: list.MaxItems(9) & [...] & [..._#defs."/$defs/Properties/definitions/MemberSpecification"] |
 		fn.#ListExpression
 	Name!:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	QueryLogStatus!: _#defs."/$defs/Properties/definitions/CollaborationQueryLogStatus" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	QueryLogStatus!: _#defs."/$defs/Properties/definitions/CollaborationQueryLogStatus"
+	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AllowedResultRegions": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/SupportedS3Region" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/SupportedS3Region"
 ] |
 	fn.#ListExpression
 
@@ -48,7 +45,7 @@ _#defs: "/$defs/Properties/definitions/AutoApprovedChangeType": "ADD_MEMBER" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AutoApprovedChangeTypeList": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/AutoApprovedChangeType" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/AutoApprovedChangeType"
 ] |
 	fn.#ListExpression
 
@@ -57,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/CollaborationJobLogStatus": "ENABLED" | "
 _#defs: "/$defs/Properties/definitions/CollaborationQueryLogStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CustomMLMemberAbilities": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/CustomMLMemberAbility" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/CustomMLMemberAbility"
 ] |
 	fn.#ListExpression
 
@@ -66,31 +63,39 @@ _#defs: "/$defs/Properties/definitions/CustomMLMemberAbility": "CAN_RECEIVE_MODE
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DataEncryptionMetadata": close({
-	AllowCleartext!:                        bool | fn.#BooleanExpression
-	AllowDuplicates!:                       bool | fn.#BooleanExpression
-	AllowJoinsOnColumnsWithDifferentNames!: bool | fn.#BooleanExpression
-	PreserveNulls!:                         bool | fn.#BooleanExpression
+	AllowCleartext!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AllowDuplicates!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AllowJoinsOnColumnsWithDifferentNames!: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	PreserveNulls!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobComputePaymentConfig": close({IsResponsible!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/JobComputePaymentConfig": close(
+	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MLMemberAbilities": close(
-	{CustomMLMemberAbilities!: _#defs."/$defs/Properties/definitions/CustomMLMemberAbilities" | fn.#ListExpression},
+	{CustomMLMemberAbilities!: _#defs."/$defs/Properties/definitions/CustomMLMemberAbilities"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MLPaymentConfig": close({
-	ModelInference?: _#defs."/$defs/Properties/definitions/ModelInferencePaymentConfig" | fn.#ObjectExpression
-	ModelTraining?:  _#defs."/$defs/Properties/definitions/ModelTrainingPaymentConfig" | fn.#ObjectExpression
-	SyntheticDataGeneration?: _#defs."/$defs/Properties/definitions/SyntheticDataGenerationPaymentConfig" |
-		fn.#ObjectExpression
+	ModelInference?:          _#defs."/$defs/Properties/definitions/ModelInferencePaymentConfig"
+	ModelTraining?:           _#defs."/$defs/Properties/definitions/ModelTrainingPaymentConfig"
+	SyntheticDataGeneration?: _#defs."/$defs/Properties/definitions/SyntheticDataGenerationPaymentConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MemberAbilities": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/MemberAbility" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/MemberAbility"
 ] |
 	fn.#ListExpression
 
@@ -101,35 +106,37 @@ _#defs: "/$defs/Properties/definitions/MemberAbility": "CAN_QUERY" |
 
 _#defs: "/$defs/Properties/definitions/MemberSpecification": close({
 	AccountId!:            strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d+$" | fn.#StringExpression
-	DisplayName!:          _#defs."/$defs/Properties/definitions/Name" | fn.#StringExpression
-	MLMemberAbilities?:    _#defs."/$defs/Properties/definitions/MLMemberAbilities" | fn.#ObjectExpression
-	MemberAbilities?:      _#defs."/$defs/Properties/definitions/MemberAbilities" | fn.#ListExpression
-	PaymentConfiguration?: _#defs."/$defs/Properties/definitions/PaymentConfiguration" | fn.#ObjectExpression
+	DisplayName!:          _#defs."/$defs/Properties/definitions/Name"
+	MLMemberAbilities?:    _#defs."/$defs/Properties/definitions/MLMemberAbilities"
+	MemberAbilities?:      _#defs."/$defs/Properties/definitions/MemberAbilities"
+	PaymentConfiguration?: _#defs."/$defs/Properties/definitions/PaymentConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MemberStatus": "INVITED" | "ACTIVE" | "LEFT" | "REMOVED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ModelInferencePaymentConfig": close(
-	{IsResponsible!: bool | fn.#BooleanExpression},
+	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ModelTrainingPaymentConfig": close(
-	{IsResponsible!: bool | fn.#BooleanExpression},
+	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PaymentConfiguration": close({
-	JobCompute?:      _#defs."/$defs/Properties/definitions/JobComputePaymentConfig" | fn.#ObjectExpression
-	MachineLearning?: _#defs."/$defs/Properties/definitions/MLPaymentConfig" | fn.#ObjectExpression
-	QueryCompute!:    _#defs."/$defs/Properties/definitions/QueryComputePaymentConfig" | fn.#ObjectExpression
+	JobCompute?:      _#defs."/$defs/Properties/definitions/JobComputePaymentConfig"
+	MachineLearning?: _#defs."/$defs/Properties/definitions/MLPaymentConfig"
+	QueryCompute!:    _#defs."/$defs/Properties/definitions/QueryComputePaymentConfig"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryComputePaymentConfig": close({IsResponsible!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/QueryComputePaymentConfig": close(
+	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SupportedS3Region": "us-west-1" |
@@ -168,7 +175,7 @@ _#defs: "/$defs/Properties/definitions/SupportedS3Region": "us-west-1" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SyntheticDataGenerationPaymentConfig": close(
-	{IsResponsible!: bool | fn.#BooleanExpression},
+	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 

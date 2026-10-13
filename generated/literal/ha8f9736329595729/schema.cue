@@ -52,7 +52,10 @@ import (
 	// don't specify a security group, then Amazon EFS uses the default security
 	// group for the subnet's VPC.
 	SecurityGroups!: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		...strings.MaxRunes(43) & strings.MinRunes(11) & =~"^sg-[0-9a-f]{8,40}$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(43) &
+		strings.MinRunes(11) &
+		=~"^sg-[0-9a-f]{8,40}$"
 	]
 
 	// The ID of the subnet to add the mount target in. For One Zone file systems,

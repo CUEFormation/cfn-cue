@@ -14,11 +14,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::RolesAnywhere::CRL Resource Type
 #Properties: close({
-	CrlData!: string | fn.#StringExpression
-	Enabled?: bool | fn.#BooleanExpression
-	Name!:    string | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	CrlData!:        string | fn.#StringExpression
+	Enabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Name!:           string | fn.#StringExpression
+	Tags?:           list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TrustAnchorArn?: =~"^arn:aws(-[^:]+)?:rolesanywhere(:.*){2}(:trust-anchor.*)$" | fn.#StringExpression
 })
 

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,16 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::WorkSpacesWeb::IdentityProvider Resource Type
 #Properties: close({
-	IdentityProviderDetails!: _#defs."/$defs/Properties/definitions/IdentityProviderDetails" | fn.#ObjectExpression
+	IdentityProviderDetails!: _#defs."/$defs/Properties/definitions/IdentityProviderDetails"
 	IdentityProviderName!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[^_][\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}][^_]+$" |
 	fn.#StringExpression
-	IdentityProviderType!: _#defs."/$defs/Properties/definitions/IdentityProviderType" | fn.#StringExpression
+	IdentityProviderType!: _#defs."/$defs/Properties/definitions/IdentityProviderType"
 	PortalArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/IdentityProviderDetails": close({

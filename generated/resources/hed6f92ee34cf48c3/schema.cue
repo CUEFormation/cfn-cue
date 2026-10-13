@@ -13,45 +13,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::AmplifyUIBuilder::Component Resource Type
 #Properties: close({
-	AppId?:             string | fn.#StringExpression
-	BindingProperties?: _#defs."/$defs/Properties/definitions/ComponentBindingProperties" | fn.#ObjectExpression
-	Children?: [..._#defs."/$defs/Properties/definitions/ComponentChild" | fn.#ObjectExpression] | fn.#ListExpression
-	CollectionProperties?: _#defs."/$defs/Properties/definitions/ComponentCollectionProperties" | fn.#ObjectExpression
+	AppId?:                string | fn.#StringExpression
+	BindingProperties?:    _#defs."/$defs/Properties/definitions/ComponentBindingProperties"
+	Children?:             [..._#defs."/$defs/Properties/definitions/ComponentChild"] | fn.#ListExpression
+	CollectionProperties?: _#defs."/$defs/Properties/definitions/ComponentCollectionProperties"
 	ComponentType?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	EnvironmentName?:      string | fn.#StringExpression
-	Events?:               _#defs."/$defs/Properties/definitions/ComponentEvents" | fn.#ObjectExpression
+	Events?:               _#defs."/$defs/Properties/definitions/ComponentEvents"
 	Name?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Overrides?:            _#defs."/$defs/Properties/definitions/ComponentOverrides" | fn.#ObjectExpression
-	Properties?:           _#defs."/$defs/Properties/definitions/ComponentProperties" | fn.#ObjectExpression
+	Overrides?:            _#defs."/$defs/Properties/definitions/ComponentOverrides"
+	Properties?:           _#defs."/$defs/Properties/definitions/ComponentProperties"
 	SchemaVersion?:        string | fn.#StringExpression
 	SourceId?:             string | fn.#StringExpression
-	Tags?:                 _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
-	Variants?: [..._#defs."/$defs/Properties/definitions/ComponentVariant" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                 _#defs."/$defs/Properties/definitions/Tags"
+	Variants?:             [..._#defs."/$defs/Properties/definitions/ComponentVariant"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ActionParameters": close({
-	Anchor?: _#defs."/$defs/Properties/definitions/ComponentProperty" | fn.#ObjectExpression
-	Fields?: _#defs."/$defs/Properties/definitions/ComponentProperties" | fn.#ObjectExpression
-	Global?: _#defs."/$defs/Properties/definitions/ComponentProperty" | fn.#ObjectExpression
-	Id?:     _#defs."/$defs/Properties/definitions/ComponentProperty" | fn.#ObjectExpression
+	Anchor?: _#defs."/$defs/Properties/definitions/ComponentProperty"
+	Fields?: _#defs."/$defs/Properties/definitions/ComponentProperties"
+	Global?: _#defs."/$defs/Properties/definitions/ComponentProperty"
+	Id?:     _#defs."/$defs/Properties/definitions/ComponentProperty"
 	Model?:  string | fn.#StringExpression
-	State?:  _#defs."/$defs/Properties/definitions/MutationActionSetStateParameter" | fn.#ObjectExpression
-	Target?: _#defs."/$defs/Properties/definitions/ComponentProperty" | fn.#ObjectExpression
-	Type?:   _#defs."/$defs/Properties/definitions/ComponentProperty" | fn.#ObjectExpression
-	Url?:    _#defs."/$defs/Properties/definitions/ComponentProperty" | fn.#ObjectExpression
+	State?:  _#defs."/$defs/Properties/definitions/MutationActionSetStateParameter"
+	Target?: _#defs."/$defs/Properties/definitions/ComponentProperty"
+	Type?:   _#defs."/$defs/Properties/definitions/ComponentProperty"
+	Url?:    _#defs."/$defs/Properties/definitions/ComponentProperty"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComponentBindingProperties": close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentBindingPropertiesValue" | fn.#ObjectExpression}}) |
+	{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentBindingPropertiesValue"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComponentBindingPropertiesValue": close({
-	BindingProperties?: _#defs."/$defs/Properties/definitions/ComponentBindingPropertiesValueProperties" |
-		fn.#ObjectExpression
-	DefaultValue?: string | fn.#StringExpression
-	Type?:         string | fn.#StringExpression
+	BindingProperties?: _#defs."/$defs/Properties/definitions/ComponentBindingPropertiesValueProperties"
+	DefaultValue?:      string | fn.#StringExpression
+	Type?:              string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -61,61 +60,61 @@ _#defs: "/$defs/Properties/definitions/ComponentBindingPropertiesValueProperties
 	Field?:         string | fn.#StringExpression
 	Key?:           string | fn.#StringExpression
 	Model?:         string | fn.#StringExpression
-	Predicates?:    [..._#defs."/$defs/Properties/definitions/Predicate" | fn.#ObjectExpression] | fn.#ListExpression
+	Predicates?:    [..._#defs."/$defs/Properties/definitions/Predicate"] | fn.#ListExpression
 	SlotName?:      string | fn.#StringExpression
 	UserAttribute?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComponentChild": close({
-	Children?: [..._#defs."/$defs/Properties/definitions/ComponentChild" | fn.#ObjectExpression] | fn.#ListExpression
+	Children?:      [..._#defs."/$defs/Properties/definitions/ComponentChild"] | fn.#ListExpression
 	ComponentType!: string | fn.#StringExpression
-	Events?:        _#defs."/$defs/Properties/definitions/ComponentEvents" | fn.#ObjectExpression
+	Events?:        _#defs."/$defs/Properties/definitions/ComponentEvents"
 	Name!:          string | fn.#StringExpression
-	Properties!:    _#defs."/$defs/Properties/definitions/ComponentProperties" | fn.#ObjectExpression
+	Properties!:    _#defs."/$defs/Properties/definitions/ComponentProperties"
 	SourceId?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComponentCollectionProperties": close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentDataConfiguration" | fn.#ObjectExpression}}) |
+	{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentDataConfiguration"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComponentConditionProperty": close({
-	Else?:        _#defs."/$defs/Properties/definitions/ComponentProperty" | fn.#ObjectExpression
+	Else?:        _#defs."/$defs/Properties/definitions/ComponentProperty"
 	Field?:       string | fn.#StringExpression
 	Operand?:     string | fn.#StringExpression
 	OperandType?: string | fn.#StringExpression
 	Operator?:    string | fn.#StringExpression
 	Property?:    string | fn.#StringExpression
-	Then?:        _#defs."/$defs/Properties/definitions/ComponentProperty" | fn.#ObjectExpression
+	Then?:        _#defs."/$defs/Properties/definitions/ComponentProperty"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComponentDataConfiguration": close({
 	Identifiers?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Model!:       string | fn.#StringExpression
-	Predicate?:   _#defs."/$defs/Properties/definitions/Predicate" | fn.#ObjectExpression
-	Sort?:        [..._#defs."/$defs/Properties/definitions/SortProperty" | fn.#ObjectExpression] | fn.#ListExpression
+	Predicate?:   _#defs."/$defs/Properties/definitions/Predicate"
+	Sort?:        [..._#defs."/$defs/Properties/definitions/SortProperty"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComponentEvent": close({
 	Action?:       string | fn.#StringExpression
 	BindingEvent?: string | fn.#StringExpression
-	Parameters?:   _#defs."/$defs/Properties/definitions/ActionParameters" | fn.#ObjectExpression
+	Parameters?:   _#defs."/$defs/Properties/definitions/ActionParameters"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComponentEvents": close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentEvent" | fn.#ObjectExpression}}) |
+	{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentEvent"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComponentOverrides": close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentOverridesValue" | fn.#ObjectExpression}}) |
+	{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentOverridesValue"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComponentOverridesValue": close({
@@ -125,26 +124,25 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComponentProperties": close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentProperty" | fn.#ObjectExpression}}) |
+	{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentProperty"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComponentProperty": close({
-	BindingProperties?: _#defs."/$defs/Properties/definitions/ComponentPropertyBindingProperties" | fn.#ObjectExpression
-	Bindings?:          _#defs."/$defs/Properties/definitions/FormBindings" | fn.#ObjectExpression
-	CollectionBindingProperties?: _#defs."/$defs/Properties/definitions/ComponentPropertyBindingProperties" |
-		fn.#ObjectExpression
-	ComponentName?: string | fn.#StringExpression
-	Concat?: [..._#defs."/$defs/Properties/definitions/ComponentProperty" | fn.#ObjectExpression] | fn.#ListExpression
-	Condition?:     _#defs."/$defs/Properties/definitions/ComponentConditionProperty" | fn.#ObjectExpression
-	Configured?:    bool | fn.#BooleanExpression
-	DefaultValue?:  string | fn.#StringExpression
-	Event?:         string | fn.#StringExpression
-	ImportedValue?: string | fn.#StringExpression
-	Model?:         string | fn.#StringExpression
-	Property?:      string | fn.#StringExpression
-	Type?:          string | fn.#StringExpression
-	UserAttribute?: string | fn.#StringExpression
-	Value?:         string | fn.#StringExpression
+	BindingProperties?:           _#defs."/$defs/Properties/definitions/ComponentPropertyBindingProperties"
+	Bindings?:                    _#defs."/$defs/Properties/definitions/FormBindings"
+	CollectionBindingProperties?: _#defs."/$defs/Properties/definitions/ComponentPropertyBindingProperties"
+	ComponentName?:               string | fn.#StringExpression
+	Concat?:                      [..._#defs."/$defs/Properties/definitions/ComponentProperty"] | fn.#ListExpression
+	Condition?:                   _#defs."/$defs/Properties/definitions/ComponentConditionProperty"
+	Configured?:                  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DefaultValue?:                string | fn.#StringExpression
+	Event?:                       string | fn.#StringExpression
+	ImportedValue?:               string | fn.#StringExpression
+	Model?:                       string | fn.#StringExpression
+	Property?:                    string | fn.#StringExpression
+	Type?:                        string | fn.#StringExpression
+	UserAttribute?:               string | fn.#StringExpression
+	Value?:                       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -155,8 +153,8 @@ _#defs: "/$defs/Properties/definitions/ComponentPropertyBindingProperties": clos
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComponentVariant": close({
-	Overrides?:     _#defs."/$defs/Properties/definitions/ComponentOverrides" | fn.#ObjectExpression
-	VariantValues?: _#defs."/$defs/Properties/definitions/ComponentVariantValues" | fn.#ObjectExpression
+	Overrides?:     _#defs."/$defs/Properties/definitions/ComponentOverrides"
+	VariantValues?: _#defs."/$defs/Properties/definitions/ComponentVariantValues"
 }) |
 fn.#ObjectExpression
 
@@ -173,30 +171,30 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FormBindings": close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/FormBindingElement" | fn.#ObjectExpression}}) |
+	{[=~".+"]: _#defs."/$defs/Properties/definitions/FormBindingElement"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MutationActionSetStateParameter": close({
 	ComponentName!: string | fn.#StringExpression
 	Property!:      string | fn.#StringExpression
-	Set!:           _#defs."/$defs/Properties/definitions/ComponentProperty" | fn.#ObjectExpression
+	Set!:           _#defs."/$defs/Properties/definitions/ComponentProperty"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Predicate": close({
-	And?:         [..._#defs."/$defs/Properties/definitions/Predicate" | fn.#ObjectExpression] | fn.#ListExpression
+	And?:         [..._#defs."/$defs/Properties/definitions/Predicate"] | fn.#ListExpression
 	Field?:       string | fn.#StringExpression
 	Operand?:     string | fn.#StringExpression
 	OperandType?: =~"^boolean|string|number$" | fn.#StringExpression
 	Operator?:    string | fn.#StringExpression
-	Or?:          [..._#defs."/$defs/Properties/definitions/Predicate" | fn.#ObjectExpression] | fn.#ListExpression
+	Or?:          [..._#defs."/$defs/Properties/definitions/Predicate"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SortDirection": "ASC" | "DESC" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SortProperty": close({
-	Direction!: _#defs."/$defs/Properties/definitions/SortDirection" | fn.#StringExpression
+	Direction!: _#defs."/$defs/Properties/definitions/SortDirection"
 	Field!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

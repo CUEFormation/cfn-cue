@@ -10,11 +10,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for ManagedNotificationAccountContactAssociation
 #Properties: close({
-	ContactIdentifier!: _#defs."/$defs/Properties/definitions/ContactIdentifier" | fn.#StringExpression
-	IsSensitiveEventsSubscribed?: _#defs."/$defs/Properties/definitions/IsSensitiveEventsSubscribed" |
-		fn.#BooleanExpression
-	ManagedNotificationConfigurationArn!: _#defs."/$defs/Properties/definitions/ManagedNotificationConfigurationArn" |
-		fn.#StringExpression
+	ContactIdentifier!:                   _#defs."/$defs/Properties/definitions/ContactIdentifier"
+	IsSensitiveEventsSubscribed?:         _#defs."/$defs/Properties/definitions/IsSensitiveEventsSubscribed"
+	ManagedNotificationConfigurationArn!: _#defs."/$defs/Properties/definitions/ManagedNotificationConfigurationArn"
 })
 
 _#defs: "/$defs/Properties/definitions/ContactIdentifier": "ACCOUNT_PRIMARY" |
@@ -23,7 +21,14 @@ _#defs: "/$defs/Properties/definitions/ContactIdentifier": "ACCOUNT_PRIMARY" |
 	"ACCOUNT_ALTERNATE_BILLING" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IsSensitiveEventsSubscribed": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/IsSensitiveEventsSubscribed": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/ManagedNotificationConfigurationArn": =~"^arn:[a-z-]{3,10}:notifications::([0-9]{12}|):managed-notification-configuration/category/[a-zA-Z0-9\\-]{3,64}/sub-category/[a-zA-Z0-9\\-]{3,64}$" |
 	fn.#StringExpression

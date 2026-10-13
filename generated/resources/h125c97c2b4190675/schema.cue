@@ -16,12 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 	MemberDefinitions!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MemberDefinition" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MemberDefinition"
 	] |
 		fn.#ListExpression
 	NotificationConfiguration?: _#defs."/$defs/Properties/definitions/NotificationConfiguration" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	WorkforceName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9\\-]){0,62}$" |
 	fn.#StringExpression
 	WorkteamName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |

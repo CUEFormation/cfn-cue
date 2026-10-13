@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CapabilityName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	ClusterName!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	Configuration?: close({
-		Ack?: _#defs."/$defs/Properties/definitions/Ack" | fn.#ObjectExpression
+		Ack?: _#defs."/$defs/Properties/definitions/Ack"
 		ArgoCd?: close({
 			AwsIdc!: close({
 				IdcInstanceArn!: string | fn.#StringExpression
@@ -26,18 +26,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#ObjectExpression
 			EndpointPrefix?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
 			fn.#StringExpression
-			Namespace?:     string | fn.#StringExpression
-			NetworkAccess?: _#defs."/$defs/Properties/definitions/NetworkAccess" | fn.#ObjectExpression
-			RbacRoleMappings?: [..._#defs."/$defs/Properties/definitions/ArgoCdRoleMapping" | fn.#ObjectExpression] |
-				fn.#ListExpression
+			Namespace?:        string | fn.#StringExpression
+			NetworkAccess?:    _#defs."/$defs/Properties/definitions/NetworkAccess"
+			RbacRoleMappings?: [..._#defs."/$defs/Properties/definitions/ArgoCdRoleMapping"] | fn.#ListExpression
 		}) |
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
 	DeletePropagationPolicy!: "RETAIN" | fn.#StringExpression
-	RoleArn!:                 =~"^arn:aws[a-z-]*:iam::[0-9]+:role/[a-zA-Z0-9+=,.@_-]+$" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:aws[a-z-]*:iam::[0-9]+:role/[a-zA-Z0-9+=,.@_-]+$" |
+		fn.#StringExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Type!: "ARGOCD" | "ACK" | "KRO" | fn.#StringExpression
 })
 
@@ -46,24 +46,23 @@ _#defs: "/$defs/Properties/definitions/Ack": close({
 		...strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	EnableCrossNamespace?: bool | fn.#BooleanExpression
+	EnableCrossNamespace?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ArgoCd": close({
-	AwsIdc!: _#defs."/$defs/Properties/definitions/AwsIdc" | fn.#ObjectExpression
+	AwsIdc!: _#defs."/$defs/Properties/definitions/AwsIdc"
 	EndpointPrefix?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
 	fn.#StringExpression
-	Namespace?:     string | fn.#StringExpression
-	NetworkAccess?: _#defs."/$defs/Properties/definitions/NetworkAccess" | fn.#ObjectExpression
-	RbacRoleMappings?: [..._#defs."/$defs/Properties/definitions/ArgoCdRoleMapping" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ServerUrl?: string | fn.#StringExpression
+	Namespace?:        string | fn.#StringExpression
+	NetworkAccess?:    _#defs."/$defs/Properties/definitions/NetworkAccess"
+	RbacRoleMappings?: [..._#defs."/$defs/Properties/definitions/ArgoCdRoleMapping"] | fn.#ListExpression
+	ServerUrl?:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ArgoCdRoleMapping": close({
-	Identities!: [..._#defs."/$defs/Properties/definitions/SsoIdentity" | fn.#ObjectExpression] | fn.#ListExpression
+	Identities!: [..._#defs."/$defs/Properties/definitions/SsoIdentity"] | fn.#ListExpression
 	Role!:       "ADMIN" | "EDITOR" | "VIEWER" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -76,8 +75,8 @@ _#defs: "/$defs/Properties/definitions/AwsIdc": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CapabilityConfiguration": close({
-	Ack?:    _#defs."/$defs/Properties/definitions/Ack" | fn.#ObjectExpression
-	ArgoCd?: _#defs."/$defs/Properties/definitions/ArgoCd" | fn.#ObjectExpression
+	Ack?:    _#defs."/$defs/Properties/definitions/Ack"
+	ArgoCd?: _#defs."/$defs/Properties/definitions/ArgoCd"
 }) |
 fn.#ObjectExpression
 

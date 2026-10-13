@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,19 +19,77 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Kinesis::Stream
 #Properties: close({
 	DesiredShardLevelMetrics?: list.MaxItems(7) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/EnhancedMetric" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/EnhancedMetric"
 	] |
 		fn.#ListExpression
-	MaxRecordSizeInKiB?: int & <=10240 & >=1024 | fn.#NumberExpression
-	Name?:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+	MaxRecordSizeInKiB?: int & <=10240 & >=1024 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10240 &
+							>=1024,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
 	RecordDistributionStrategy?: "AUTO" | "USER_PARTITION_KEY" | fn.#StringExpression
-	RetentionPeriodHours?:       int & <=8760 & >=1 | fn.#NumberExpression
-	ShardCount?:                 int & <=100000 & >=1 | fn.#NumberExpression
-	StreamEncryption?:           _#defs."/$defs/Properties/definitions/StreamEncryption" | fn.#ObjectExpression
-	StreamModeDetails?:          _#defs."/$defs/Properties/definitions/StreamModeDetails" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	WarmThroughputMiBps?: int & >=0 | fn.#NumberExpression
+	RetentionPeriodHours?: int & <=8760 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=8760 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ShardCount?: int & <=100000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StreamEncryption?:  _#defs."/$defs/Properties/definitions/StreamEncryption" | fn.#ObjectExpression
+	StreamModeDetails?: _#defs."/$defs/Properties/definitions/StreamModeDetails" | fn.#ObjectExpression
+	Tags?:              list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	WarmThroughputMiBps?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EnhancedMetric": "IncomingBytes" |
@@ -42,7 +104,7 @@ _#defs: "/$defs/Properties/definitions/EnhancedMetric": "IncomingBytes" |
 
 _#defs: "/$defs/Properties/definitions/StreamEncryption": close({
 	EncryptionType!: "KMS" | fn.#StringExpression
-	KeyId!:          (string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) | fn.#StringExpression
+	KeyId!:          string & (strings.MaxRunes(2048) & strings.MinRunes(1)) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -58,8 +120,34 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WarmThroughputObject": close({
-	CurrentMiBps?: int | fn.#NumberExpression
-	TargetMiBps?:  int | fn.#NumberExpression
+	CurrentMiBps?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TargetMiBps?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

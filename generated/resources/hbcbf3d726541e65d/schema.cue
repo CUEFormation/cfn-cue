@@ -8,19 +8,53 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS Ground Station DataflowEndpointGroup schema for CloudFormation
 #Properties: close({
-	ContactPostPassDurationSeconds?: int & <=480 & >=30 | fn.#NumberExpression
-	ContactPrePassDurationSeconds?:  int & <=480 & >=30 | fn.#NumberExpression
+	ContactPostPassDurationSeconds?: int & <=480 & >=30 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=480 &
+							>=30,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ContactPrePassDurationSeconds?: int & <=480 & >=30 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=480 &
+							>=30,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	EndpointDetails!: list.MaxItems(500) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EndpointDetails" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/EndpointDetails"
 	] |
 		fn.#ListExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AgentStatus": "SUCCESS" | "FAILED" | "ACTIVE" | "INACTIVE" | fn.#StringExpression
@@ -28,24 +62,50 @@ _#defs: "/$defs/Properties/definitions/AgentStatus": "SUCCESS" | "FAILED" | "ACT
 _#defs: "/$defs/Properties/definitions/AuditResults": "HEALTHY" | "UNHEALTHY" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AwsGroundStationAgentEndpoint": close({
-	AgentStatus?:    _#defs."/$defs/Properties/definitions/AgentStatus" | fn.#StringExpression
-	AuditResults?:   _#defs."/$defs/Properties/definitions/AuditResults" | fn.#StringExpression
-	EgressAddress?:  _#defs."/$defs/Properties/definitions/ConnectionDetails" | fn.#ObjectExpression
-	IngressAddress?: _#defs."/$defs/Properties/definitions/RangedConnectionDetails" | fn.#ObjectExpression
+	AgentStatus?:    _#defs."/$defs/Properties/definitions/AgentStatus"
+	AuditResults?:   _#defs."/$defs/Properties/definitions/AuditResults"
+	EgressAddress?:  _#defs."/$defs/Properties/definitions/ConnectionDetails"
+	IngressAddress?: _#defs."/$defs/Properties/definitions/RangedConnectionDetails"
 	Name?:           =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConnectionDetails": close({
-	Mtu?:           int | fn.#NumberExpression
-	SocketAddress?: _#defs."/$defs/Properties/definitions/SocketAddress" | fn.#ObjectExpression
+	Mtu?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SocketAddress?: _#defs."/$defs/Properties/definitions/SocketAddress"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataflowEndpoint": close({
-	Address?: _#defs."/$defs/Properties/definitions/SocketAddress" | fn.#ObjectExpression
-	Mtu?:     int | fn.#NumberExpression
-	Name?:    =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
+	Address?: _#defs."/$defs/Properties/definitions/SocketAddress"
+	Mtu?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name?: =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -57,22 +117,60 @@ _#defs: "/$defs/Properties/definitions/EndpointDetails": matchN(1, [{
 	AwsGroundStationAgentEndpoint!: _
 	...
 }]) & close({
-	AwsGroundStationAgentEndpoint?: _#defs."/$defs/Properties/definitions/AwsGroundStationAgentEndpoint" |
-		fn.#ObjectExpression
-	Endpoint?:        _#defs."/$defs/Properties/definitions/DataflowEndpoint" | fn.#ObjectExpression
-	SecurityDetails?: _#defs."/$defs/Properties/definitions/SecurityDetails" | fn.#ObjectExpression
+	AwsGroundStationAgentEndpoint?: _#defs."/$defs/Properties/definitions/AwsGroundStationAgentEndpoint"
+	Endpoint?:                      _#defs."/$defs/Properties/definitions/DataflowEndpoint"
+	SecurityDetails?:               _#defs."/$defs/Properties/definitions/SecurityDetails"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IntegerRange": close({
-	Maximum?: int | fn.#NumberExpression
-	Minimum?: int | fn.#NumberExpression
+	Maximum?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Minimum?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RangedConnectionDetails": close({
-	Mtu?:           int | fn.#NumberExpression
-	SocketAddress?: _#defs."/$defs/Properties/definitions/RangedSocketAddress" | fn.#ObjectExpression
+	Mtu?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SocketAddress?: _#defs."/$defs/Properties/definitions/RangedSocketAddress"
 }) |
 fn.#ObjectExpression
 
@@ -84,16 +182,36 @@ _#defs: "/$defs/Properties/definitions/RangedSocketAddress": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SecurityDetails": close({
-	RoleArn?: strings.MaxRunes(165) & strings.MinRunes(30) & =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(165) &
+	strings.MinRunes(30) &
+	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
 	fn.#StringExpression
-	SecurityGroupIds?: [...string | fn.#StringExpression] | fn.#ListExpression
-	SubnetIds?:        [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	SubnetIds?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SocketAddress": close({
 	Name?: string | fn.#StringExpression
-	Port?: int | fn.#NumberExpression
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

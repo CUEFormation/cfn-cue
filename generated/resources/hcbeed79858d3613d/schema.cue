@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,12 +19,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	BundleId!:                    string | fn.#StringExpression
 	DirectoryId!:                 string | fn.#StringExpression
-	RootVolumeEncryptionEnabled?: bool | fn.#BooleanExpression
-	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	UserName!: string | fn.#StringExpression
-	UserVolumeEncryptionEnabled?: bool | fn.#BooleanExpression
+	RootVolumeEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UserName!:                    string | fn.#StringExpression
+	UserVolumeEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VolumeEncryptionKey?:         string | fn.#StringExpression
-	WorkspaceProperties?:         _#defs."/$defs/Properties/definitions/WorkspaceProperties" | fn.#ObjectExpression
+	WorkspaceProperties?:         _#defs."/$defs/Properties/definitions/WorkspaceProperties"
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
@@ -30,11 +34,50 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WorkspaceProperties": close({
-	ComputeTypeName?:                     string | fn.#StringExpression
-	RootVolumeSizeGib?:                   int | fn.#NumberExpression
-	RunningMode?:                         string | fn.#StringExpression
-	RunningModeAutoStopTimeoutInMinutes?: int | fn.#NumberExpression
-	UserVolumeSizeGib?:                   int | fn.#NumberExpression
+	ComputeTypeName?: string | fn.#StringExpression
+	RootVolumeSizeGib?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RunningMode?: string | fn.#StringExpression
+	RunningModeAutoStopTimeoutInMinutes?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UserVolumeSizeGib?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

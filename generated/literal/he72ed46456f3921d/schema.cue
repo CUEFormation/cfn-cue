@@ -76,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/EventConfig": close({
 
 // The log config for the AppSync API.
 _#defs: "/$defs/Properties/definitions/EventLogConfig": close({
-	CloudWatchLogsRoleArn!: string
+	CloudWatchLogsRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	LogLevel!:              _#defs."/$defs/Properties/definitions/EventLogLevel"
 })
 

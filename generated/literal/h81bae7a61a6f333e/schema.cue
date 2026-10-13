@@ -301,7 +301,8 @@ _#defs: "/$defs/Properties/definitions/InvokeConfiguration": ({
 
 	// The ARN of the IAM role the service assumes to invoke the target. The role
 	// must belong to the same account as the subscriber.
-	RoleArn!: strings.MaxRunes(1600) &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[a-z0-9]+)*:iam::\\d{12}:role\\/[\\w+=,.@/-]+$"
 

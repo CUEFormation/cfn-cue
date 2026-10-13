@@ -43,7 +43,8 @@ import (
 
 	// The Amazon Resource Name (ARN) of the IAM role used by the connector to
 	// access Amazon S3 objects and other external resources.
-	ServiceExecutionRoleArn!: =~"arn:(aws|aws-us-gov|aws-cn):iam:.*"
+	ServiceExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"arn:(aws|aws-us-gov|aws-cn):iam:.*"
 
 	// A collection of tags associated with a resource
 	Tags?:                list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
@@ -187,7 +188,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 _#defs: "/$defs/Properties/definitions/Vpc": close({
 	// The AWS security groups to associate with the elastic network interfaces in
 	// order to specify what the connector has access to.
-	SecurityGroups!: list.UniqueItems() & [...string]
+	SecurityGroups!: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// The list of subnets to connect to in the virtual private cloud (VPC). AWS
 	// creates elastic network interfaces inside these subnets.

@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,19 +21,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Glacier Deep Archive.
 #Properties: close({
 	GatewayARN!:   strings.MaxRunes(500) & strings.MinRunes(50) | fn.#StringExpression
-	KMSEncrypted?: bool | fn.#BooleanExpression
+	KMSEncrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KMSKey?: strings.MaxRunes(2048) &
 	strings.MinRunes(7) &
 	=~"^(^arn:(aws(|-cn|-us-gov|-iso[A-Za-z0-9_-]*|-eusc)):kms:([a-zA-Z0-9-]+):([0-9]+):(key|alias)/(\\S+)$)|(^alias/(\\S+)$)$" |
 	fn.#StringExpression
 	PoolId?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	TapeBarcode?:     strings.MaxRunes(16) & strings.MinRunes(5) & =~"^[A-Z0-9]*$" | fn.#StringExpression
-	TapeSizeInBytes!: >=1 | fn.#NumberExpression
-	Worm?:            bool | fn.#BooleanExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TapeBarcode?: strings.MaxRunes(16) & strings.MinRunes(5) & =~"^[A-Z0-9]*$" | fn.#StringExpression
+	TapeSizeInBytes!: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Worm?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

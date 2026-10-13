@@ -8,50 +8,90 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::KafkaConnect::Connector
 #Properties: close({
-	Capacity!: _#defs."/$defs/Properties/definitions/Capacity" | fn.#ObjectExpression
+	Capacity!: _#defs."/$defs/Properties/definitions/Capacity"
 	ConnectorConfiguration!: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	ConnectorDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ConnectorName!:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	KafkaCluster!:         _#defs."/$defs/Properties/definitions/KafkaCluster" | fn.#ObjectExpression
-	KafkaClusterClientAuthentication!: _#defs."/$defs/Properties/definitions/KafkaClusterClientAuthentication" |
-		fn.#ObjectExpression
-	KafkaClusterEncryptionInTransit!: _#defs."/$defs/Properties/definitions/KafkaClusterEncryptionInTransit" |
-		fn.#ObjectExpression
-	KafkaConnectVersion!: string | fn.#StringExpression
-	LogDelivery?:         _#defs."/$defs/Properties/definitions/LogDelivery" | fn.#ObjectExpression
-	NetworkType?:         "IPV4" | "DUAL" | fn.#StringExpression
-	Plugins!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Plugin" | fn.#ObjectExpression
-	] |
+	ConnectorDescription?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	ConnectorName!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	KafkaCluster!:                     _#defs."/$defs/Properties/definitions/KafkaCluster"
+	KafkaClusterClientAuthentication!: _#defs."/$defs/Properties/definitions/KafkaClusterClientAuthentication"
+	KafkaClusterEncryptionInTransit!:  _#defs."/$defs/Properties/definitions/KafkaClusterEncryptionInTransit"
+	KafkaConnectVersion!:              string | fn.#StringExpression
+	LogDelivery?:                      _#defs."/$defs/Properties/definitions/LogDelivery"
+	NetworkType?:                      "IPV4" | "DUAL" | fn.#StringExpression
+	Plugins!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Plugin"] |
 		fn.#ListExpression
-	ServiceExecutionRoleArn!: =~"arn:(aws|aws-us-gov|aws-cn):iam:.*" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	WorkerConfiguration?: _#defs."/$defs/Properties/definitions/WorkerConfiguration" | fn.#ObjectExpression
+	ServiceExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"arn:(aws|aws-us-gov|aws-cn):iam:.*" |
+		fn.#StringExpression
+	Tags?:                list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	WorkerConfiguration?: _#defs."/$defs/Properties/definitions/WorkerConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/ApacheKafkaCluster": close({
 	BootstrapServers!: string | fn.#StringExpression
-	Vpc!:              _#defs."/$defs/Properties/definitions/Vpc" | fn.#ObjectExpression
+	Vpc!:              _#defs."/$defs/Properties/definitions/Vpc"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AutoScaling": close({
-	MaxAutoscalingTaskCount?: int | fn.#NumberExpression
-	MaxWorkerCount!:          int | fn.#NumberExpression
-	McuCount!:                (==1 | ==2 | ==4 | ==8) & int & <=8 & >=1 | fn.#NumberExpression
-	MinWorkerCount!:          int | fn.#NumberExpression
-	ScaleInPolicy!:           _#defs."/$defs/Properties/definitions/ScaleInPolicy" | fn.#ObjectExpression
-	ScaleOutPolicy!:          _#defs."/$defs/Properties/definitions/ScaleOutPolicy" | fn.#ObjectExpression
+	MaxAutoscalingTaskCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxWorkerCount!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	McuCount!: (==1 | ==2 | ==4 | ==8) & int & <=8 & >=1 | fn.#NumberExpression
+	MinWorkerCount!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ScaleInPolicy!:  _#defs."/$defs/Properties/definitions/ScaleInPolicy"
+	ScaleOutPolicy!: _#defs."/$defs/Properties/definitions/ScaleOutPolicy"
 }) |
 fn.#ObjectExpression
 
@@ -62,80 +102,137 @@ _#defs: "/$defs/Properties/definitions/Capacity": matchN(1, [{
 	ProvisionedCapacity!: _
 	...
 }]) & close({
-	AutoScaling?:         _#defs."/$defs/Properties/definitions/AutoScaling" | fn.#ObjectExpression
-	ProvisionedCapacity?: _#defs."/$defs/Properties/definitions/ProvisionedCapacity" | fn.#ObjectExpression
+	AutoScaling?:         _#defs."/$defs/Properties/definitions/AutoScaling"
+	ProvisionedCapacity?: _#defs."/$defs/Properties/definitions/ProvisionedCapacity"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CloudWatchLogsLogDelivery": close({
-	Enabled!:  bool | fn.#BooleanExpression
+	Enabled!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LogGroup?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomPlugin": close({
 	CustomPluginArn!: =~"arn:(aws|aws-us-gov|aws-cn):kafkaconnect:.*" | fn.#StringExpression
-	Revision!:        int & <=9223372036854776000 & >=1 | fn.#NumberExpression
+	Revision!: int & <=9223372036854776000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=9223372036854776000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FirehoseLogDelivery": close({
 	DeliveryStream?: string | fn.#StringExpression
-	Enabled!:        bool | fn.#BooleanExpression
+	Enabled!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KafkaCluster": close(
-	{ApacheKafkaCluster!: _#defs."/$defs/Properties/definitions/ApacheKafkaCluster" | fn.#ObjectExpression},
+	{ApacheKafkaCluster!: _#defs."/$defs/Properties/definitions/ApacheKafkaCluster"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KafkaClusterClientAuthentication": close({
-	AuthenticationType!: _#defs."/$defs/Properties/definitions/KafkaClusterClientAuthenticationType" |
-		fn.#StringExpression
-}) |
+_#defs: "/$defs/Properties/definitions/KafkaClusterClientAuthentication": close(
+	{AuthenticationType!: _#defs."/$defs/Properties/definitions/KafkaClusterClientAuthenticationType"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KafkaClusterClientAuthenticationType": "NONE" | "IAM" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/KafkaClusterEncryptionInTransit": close(
-	{EncryptionType!: _#defs."/$defs/Properties/definitions/KafkaClusterEncryptionInTransitType" | fn.#StringExpression},
+	{EncryptionType!: _#defs."/$defs/Properties/definitions/KafkaClusterEncryptionInTransitType"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KafkaClusterEncryptionInTransitType": "PLAINTEXT" | "TLS" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LogDelivery": close(
-	{WorkerLogDelivery!: _#defs."/$defs/Properties/definitions/WorkerLogDelivery" | fn.#ObjectExpression},
+	{WorkerLogDelivery!: _#defs."/$defs/Properties/definitions/WorkerLogDelivery"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Plugin": close(
-	{CustomPlugin!: _#defs."/$defs/Properties/definitions/CustomPlugin" | fn.#ObjectExpression},
+	{CustomPlugin!: _#defs."/$defs/Properties/definitions/CustomPlugin"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ProvisionedCapacity": close({
-	McuCount!:    (==1 | ==2 | ==4 | ==8) & int & <=8 & >=1 | fn.#NumberExpression
-	WorkerCount!: int | fn.#NumberExpression
+	McuCount!: (==1 | ==2 | ==4 | ==8) & int & <=8 & >=1 | fn.#NumberExpression
+	WorkerCount!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3LogDelivery": close({
 	Bucket?:  string | fn.#StringExpression
-	Enabled!: bool | fn.#BooleanExpression
+	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Prefix?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScaleInPolicy": close(
-	{CpuUtilizationPercentage!: int & <=100 & >=1 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/ScaleInPolicy": close({
+	CpuUtilizationPercentage!: int & <=100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScaleOutPolicy": close(
-	{CpuUtilizationPercentage!: int & <=100 & >=1 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/ScaleOutPolicy": close({
+	CpuUtilizationPercentage!: int & <=100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
@@ -145,21 +242,40 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Vpc": close({
-	SecurityGroups!: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Subnets!:        list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroups!: list.UniqueItems() & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	Subnets!: list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WorkerConfiguration": close({
-	Revision!:               int & <=9223372036854776000 & >=1 | fn.#NumberExpression
+	Revision!: int & <=9223372036854776000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=9223372036854776000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	WorkerConfigurationArn!: =~"arn:(aws|aws-us-gov|aws-cn):kafkaconnect:.*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WorkerLogDelivery": close({
-	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogsLogDelivery" | fn.#ObjectExpression
-	Firehose?:       _#defs."/$defs/Properties/definitions/FirehoseLogDelivery" | fn.#ObjectExpression
-	S3?:             _#defs."/$defs/Properties/definitions/S3LogDelivery" | fn.#ObjectExpression
+	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogsLogDelivery"
+	Firehose?:       _#defs."/$defs/Properties/definitions/FirehoseLogDelivery"
+	S3?:             _#defs."/$defs/Properties/definitions/S3LogDelivery"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

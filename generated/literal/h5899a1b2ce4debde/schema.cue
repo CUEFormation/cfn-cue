@@ -25,5 +25,5 @@ _#defs: "/$defs/Properties/definitions/BackupVaultNamePattern": =~"^[a-zA-Z0-9\\
 
 _#defs: "/$defs/Properties/definitions/NotificationObjectType": close({
 	BackupVaultEvents!: [...string]
-	SNSTopicArn!:       string
+	SNSTopicArn!:       =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 })

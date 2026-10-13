@@ -160,7 +160,8 @@ _#defs: "/$defs/Properties/definitions/IncludedOauth2ProviderConfigInput": close
 // Contains the KMS key configuration for a JWT client assertion
 _#defs: "/$defs/Properties/definitions/KmsKeySourceType": close({
 	// The Amazon Resource Name (ARN) of the KMS key used to sign the JWT client assertion
-	KmsKeyArn!: strings.MaxRunes(2048) &
+	KmsKeyArn!: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$"
 })
@@ -185,7 +186,9 @@ _#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
 	RoutingDomain?: strings.MaxRunes(255) & strings.MinRunes(3)
 
 	// The security group IDs to associate with the VPC Lattice resource gateway
-	SecurityGroupIds?: list.MaxItems(5) & [...=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$"]
+	SecurityGroupIds?: list.MaxItems(5) & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$"
+	]
 
 	// The subnet IDs within the VPC where the VPC Lattice resource gateway is placed
 	SubnetIds!: [...=~"^subnet-[0-9a-zA-Z]{8,17}$"]

@@ -14,17 +14,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Neptune::GlobalCluster
 #Properties: close({
-	DeletionProtection?: bool | fn.#BooleanExpression
+	DeletionProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Engine?:             "neptune" | fn.#StringExpression
 	EngineVersion?:      string | fn.#StringExpression
 	GlobalClusterIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-:._]*$" |
 	fn.#StringExpression
 	SourceDBClusterIdentifier?: string | fn.#StringExpression
-	StorageEncrypted?:          bool | fn.#BooleanExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	StorageEncrypted?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

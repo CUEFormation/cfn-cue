@@ -8,30 +8,61 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RedshiftServerless::Snapshot Resource Type.
 #Properties: close({
-	NamespaceName?:   strings.MaxRunes(64) & strings.MinRunes(3) | fn.#StringExpression
-	RetentionPeriod?: int | fn.#NumberExpression
-	SnapshotName!:    strings.MaxRunes(64) & strings.MinRunes(3) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) | fn.#StringExpression
+	RetentionPeriod?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SnapshotName!: strings.MaxRunes(64) & strings.MinRunes(3) | fn.#StringExpression
+	Tags?:         list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Snapshot": close({
-	AdminUsername?:      string | fn.#StringExpression
-	KmsKeyId?:           string | string | string | fn.#StringExpression
-	NamespaceArn?:       string | fn.#StringExpression
-	NamespaceName?:      strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" | fn.#StringExpression
-	OwnerAccount?:       string | fn.#StringExpression
-	RetentionPeriod?:    int | fn.#NumberExpression
+	AdminUsername?: string | fn.#StringExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	NamespaceArn?:  string | fn.#StringExpression
+	NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" | fn.#StringExpression
+	OwnerAccount?:  string | fn.#StringExpression
+	RetentionPeriod?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SnapshotArn?:        string | fn.#StringExpression
 	SnapshotCreateTime?: string | fn.#StringExpression
 	SnapshotName?:       strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" | fn.#StringExpression
-	Status?:             _#defs."/$defs/Properties/definitions/SnapshotStatus" | fn.#StringExpression
+	Status?:             _#defs."/$defs/Properties/definitions/SnapshotStatus"
 }) |
 fn.#ObjectExpression
 

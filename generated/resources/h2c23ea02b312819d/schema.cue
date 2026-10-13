@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,24 +14,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of the AWS::QuickSight::VPCConnection Resource Type.
 #Properties: close({
-	AvailabilityStatus?: _#defs."/$defs/Properties/definitions/VPCConnectionAvailabilityStatus" | fn.#StringExpression
+	AvailabilityStatus?: _#defs."/$defs/Properties/definitions/VPCConnectionAvailabilityStatus"
 	AwsAccountId?:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 	DnsResolvers?: list.MaxItems(15) & [...] & [...strings.MaxRunes(15) & strings.MinRunes(7) | fn.#StringExpression] |
 	fn.#ListExpression
-	Name?:    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	RoleArn?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	Name?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 	SecurityGroupIds?: list.MaxItems(16) & list.MinItems(1) & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^sg-[0-9a-z]*$" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^sg-[0-9a-z]*$" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SubnetIds?: list.MaxItems(15) & list.MinItems(2) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^subnet-[0-9a-z]*$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VPCConnectionId?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[\\w\\-]+" | fn.#StringExpression
 })
 
@@ -39,7 +41,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 	AvailabilityZone?:   string | fn.#StringExpression
 	ErrorMessage?:       string | fn.#StringExpression
 	NetworkInterfaceId?: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^eni-[0-9a-z]*$" | fn.#StringExpression
-	Status?:             _#defs."/$defs/Properties/definitions/NetworkInterfaceStatus" | fn.#StringExpression
+	Status?:             _#defs."/$defs/Properties/definitions/NetworkInterfaceStatus"
 	SubnetId?:           strings.MaxRunes(255) & strings.MinRunes(1) & =~"^subnet-[0-9a-z]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

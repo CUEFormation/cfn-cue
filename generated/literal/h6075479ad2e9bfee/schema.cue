@@ -9,7 +9,7 @@ import "strings"
 // Represents a studio that contains other Nimble Studio resources
 #Properties: close({
 	// <p>The IAM role that Studio Admins will assume when logging in to the Nimble Studio portal.</p>
-	AdminRoleArn!: string
+	AdminRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// <p>A friendly name for the studio.</p>
 	DisplayName!: strings.MaxRunes(64) & strings.MinRunes(0)
@@ -33,7 +33,7 @@ import "strings"
 	Tags?:      _#defs."/$defs/Properties/definitions/Tags"
 
 	// <p>The IAM role that Studio Users will assume when logging in to the Nimble Studio portal.</p>
-	UserRoleArn!: string
+	UserRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 // <p>Configuration of the encryption method that is used for the studio.</p>

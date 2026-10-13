@@ -27,7 +27,8 @@ import (
 	Description?: strings.MaxRunes(200) & strings.MinRunes(1)
 
 	// The Amazon Resource Name (ARN) of the IAM role that grants permissions for evaluation.
-	EvaluationExecutionRoleArn!: strings.MaxRunes(2048) &
+	EvaluationExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$"
 

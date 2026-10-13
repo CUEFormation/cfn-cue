@@ -12,7 +12,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // associate one permission with each resource type in a resource share.
 #Properties: close({
 	PermissionArn!:    string | fn.#StringExpression
-	Replace?:          bool | fn.#BooleanExpression
+	Replace?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ResourceShareArn!: string | fn.#StringExpression
 })
 

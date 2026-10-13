@@ -20,7 +20,10 @@ import (
 	EventBuses!:        _#defs."/$defs/Properties/definitions/EventBuses"
 	Name?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$"
 	ReplicationConfig?: _#defs."/$defs/Properties/definitions/ReplicationConfig"
-	RoleArn?:       strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws[a-z-]*:iam::\\d{12}:role\\/[\\w+=,.@/-]+$"
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"^arn:aws[a-z-]*:iam::\\d{12}:role\\/[\\w+=,.@/-]+$"
 	RoutingConfig!: _#defs."/$defs/Properties/definitions/RoutingConfig"
 	State?:         "ACTIVE" | "CREATING" | "UPDATING" | "DELETING" | "CREATE_FAILED" | "UPDATE_FAILED"
 	StateReason?:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$"

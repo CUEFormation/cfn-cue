@@ -10,9 +10,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::RDS::DBSecurityGroupIngress
 #Properties: close({
-	CIDRIP?:                  string | fn.#StringExpression
-	DBSecurityGroupName!:     string | fn.#StringExpression
-	EC2SecurityGroupId?:      string | fn.#StringExpression
+	CIDRIP?:              string | fn.#StringExpression
+	DBSecurityGroupName!: string | fn.#StringExpression
+	EC2SecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	EC2SecurityGroupName?:    string | fn.#StringExpression
 	EC2SecurityGroupOwnerId?: string | fn.#StringExpression
 })

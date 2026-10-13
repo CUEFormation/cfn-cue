@@ -16,10 +16,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:            strings.MaxRunes(1001) & strings.MinRunes(1) & =~"^[\\S ]+$" | fn.#StringExpression
 	Name!:                   strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\S ]+$" | fn.#StringExpression
 	Notes?:                  strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^[\\S \\n]+$" | fn.#StringExpression
-	OperatingAddress?:       _#defs."/$defs/Properties/definitions/Address" | fn.#ObjectExpression
-	RackPhysicalProperties?: _#defs."/$defs/Properties/definitions/RackPhysicalProperties" | fn.#ObjectExpression
-	ShippingAddress?:        _#defs."/$defs/Properties/definitions/Address" | fn.#ObjectExpression
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	OperatingAddress?:       _#defs."/$defs/Properties/definitions/Address"
+	RackPhysicalProperties?: _#defs."/$defs/Properties/definitions/RackPhysicalProperties"
+	ShippingAddress?:        _#defs."/$defs/Properties/definitions/Address"
+	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Address": close({

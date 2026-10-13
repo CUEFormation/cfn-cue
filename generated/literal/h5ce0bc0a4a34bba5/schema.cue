@@ -85,7 +85,8 @@ _#defs: "/$defs/Properties/definitions/ManifestConfig": close({
 _#defs: "/$defs/Properties/definitions/ManifestConfigSourceS3": close({
 	// Specifies the AWS Identity and Access Management (IAM) role that allows
 	// DataSync to access your manifest.
-	BucketAccessRoleArn?: strings.MaxRunes(2048) &
+	BucketAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*$"
 
@@ -251,7 +252,8 @@ _#defs: "/$defs/Properties/definitions/TaskReportConfig": close({
 _#defs: "/$defs/Properties/definitions/TaskReportConfigDestinationS3": close({
 	// Specifies the Amazon Resource Name (ARN) of the IAM policy that allows
 	// Datasync to upload a task report to your S3 bucket.
-	BucketAccessRoleArn?: strings.MaxRunes(2048) &
+	BucketAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*$"
 

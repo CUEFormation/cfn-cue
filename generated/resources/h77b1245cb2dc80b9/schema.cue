@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Capabilities!: [...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression] |
 	fn.#ListExpression
-	CapabilityOptions?: _#defs."/$defs/Properties/definitions/CapabilityOptions" | fn.#ObjectExpression
+	CapabilityOptions?: _#defs."/$defs/Properties/definitions/CapabilityOptions"
 	Email!: strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$" | fn.#StringExpression
 	Name!:  strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
 	Phone?: strings.MaxRunes(22) &
@@ -24,25 +28,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$" |
 	fn.#StringExpression
 	ProfileId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:      list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CapabilityOptions": close({
-	InboundEdi?:  _#defs."/$defs/Properties/definitions/InboundEdiOptions" | fn.#ObjectExpression
-	OutboundEdi?: _#defs."/$defs/Properties/definitions/OutboundEdiOptions" | fn.#ValueExpression
+	InboundEdi?:  _#defs."/$defs/Properties/definitions/InboundEdiOptions"
+	OutboundEdi?: _#defs."/$defs/Properties/definitions/OutboundEdiOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InboundEdiOptions": close(
-	{X12?: _#defs."/$defs/Properties/definitions/X12InboundEdiOptions" | fn.#ObjectExpression},
+	{X12?: _#defs."/$defs/Properties/definitions/X12InboundEdiOptions"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LineTerminator": "CRLF" | "LF" | "CR" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/OutboundEdiOptions": close(
-	{X12!: _#defs."/$defs/Properties/definitions/X12Envelope" | fn.#ObjectExpression},
+	{X12!: _#defs."/$defs/Properties/definitions/X12Envelope"},
 ) |
 	fn.#ValueExpression
 
@@ -55,22 +58,97 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/WrapFormat": "SEGMENT" | "ONE_LINE" | "LINE_LENGTH" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/WrapOptions": close({
-	LineLength?:     >=1 | fn.#NumberExpression
-	LineTerminator?: _#defs."/$defs/Properties/definitions/LineTerminator" | fn.#StringExpression
-	WrapBy?:         _#defs."/$defs/Properties/definitions/WrapFormat" | fn.#StringExpression
+	LineLength?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LineTerminator?: _#defs."/$defs/Properties/definitions/LineTerminator"
+	WrapBy?:         _#defs."/$defs/Properties/definitions/WrapFormat"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/X12AcknowledgmentOptions": close({
-	FunctionalAcknowledgment!: _#defs."/$defs/Properties/definitions/X12FunctionalAcknowledgment" | fn.#StringExpression
-	TechnicalAcknowledgment!:  _#defs."/$defs/Properties/definitions/X12TechnicalAcknowledgment" | fn.#StringExpression
+	FunctionalAcknowledgment!: _#defs."/$defs/Properties/definitions/X12FunctionalAcknowledgment"
+	TechnicalAcknowledgment!:  _#defs."/$defs/Properties/definitions/X12TechnicalAcknowledgment"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/X12ControlNumbers": close({
-	StartingFunctionalGroupControlNumber?: <=999999999 & >=1 | fn.#NumberExpression
-	StartingInterchangeControlNumber?:     <=999999999 & >=1 | fn.#NumberExpression
-	StartingTransactionSetControlNumber?:  <=999999999 & >=1 | fn.#NumberExpression
+	StartingFunctionalGroupControlNumber?: <=999999999 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=999999999 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StartingInterchangeControlNumber?: <=999999999 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=999999999 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StartingTransactionSetControlNumber?: <=999999999 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=999999999 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -85,8 +163,8 @@ _#defs: "/$defs/Properties/definitions/X12Delimiters": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/X12Envelope": close({
-	Common?:      _#defs."/$defs/Properties/definitions/X12OutboundEdiHeaders" | fn.#ObjectExpression
-	WrapOptions?: _#defs."/$defs/Properties/definitions/WrapOptions" | fn.#ObjectExpression
+	Common?:      _#defs."/$defs/Properties/definitions/X12OutboundEdiHeaders"
+	WrapOptions?: _#defs."/$defs/Properties/definitions/WrapOptions"
 }) |
 fn.#ObjectExpression
 
@@ -105,7 +183,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/X12GS05TimeFormat": "HHMM" | "HHMMSS" | "HHMMSSDD" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/X12InboundEdiOptions": close(
-	{AcknowledgmentOptions?: _#defs."/$defs/Properties/definitions/X12AcknowledgmentOptions" | fn.#ObjectExpression},
+	{AcknowledgmentOptions?: _#defs."/$defs/Properties/definitions/X12AcknowledgmentOptions"},
 ) |
 	fn.#ObjectExpression
 
@@ -121,13 +199,12 @@ _#defs: "/$defs/Properties/definitions/X12InterchangeControlHeaders": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/X12OutboundEdiHeaders": close({
-	ControlNumbers?:         _#defs."/$defs/Properties/definitions/X12ControlNumbers" | fn.#ObjectExpression
-	Delimiters?:             _#defs."/$defs/Properties/definitions/X12Delimiters" | fn.#ObjectExpression
-	FunctionalGroupHeaders?: _#defs."/$defs/Properties/definitions/X12FunctionalGroupHeaders" | fn.#ObjectExpression
-	Gs05TimeFormat?:         _#defs."/$defs/Properties/definitions/X12GS05TimeFormat" | fn.#StringExpression
-	InterchangeControlHeaders?: _#defs."/$defs/Properties/definitions/X12InterchangeControlHeaders" |
-		fn.#ObjectExpression
-	ValidateEdi?: bool | fn.#BooleanExpression
+	ControlNumbers?:            _#defs."/$defs/Properties/definitions/X12ControlNumbers"
+	Delimiters?:                _#defs."/$defs/Properties/definitions/X12Delimiters"
+	FunctionalGroupHeaders?:    _#defs."/$defs/Properties/definitions/X12FunctionalGroupHeaders"
+	Gs05TimeFormat?:            _#defs."/$defs/Properties/definitions/X12GS05TimeFormat"
+	InterchangeControlHeaders?: _#defs."/$defs/Properties/definitions/X12InterchangeControlHeaders"
+	ValidateEdi?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 

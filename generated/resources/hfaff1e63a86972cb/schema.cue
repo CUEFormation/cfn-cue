@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,48 +19,75 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::AIOps::InvestigationGroup Resource Type
 #Properties: close({
 	ChatbotNotificationChannels?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ChatbotNotificationChannel" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ChatbotNotificationChannel"
 	] |
 		fn.#ListExpression
 	CrossAccountConfigurations?: list.MaxItems(25) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/CrossAccountConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/CrossAccountConfiguration"
 	] |
 		fn.#ListExpression
-	EncryptionConfig?:                _#defs."/$defs/Properties/definitions/EncryptionConfigMap" | fn.#ObjectExpression
-	InvestigationGroupPolicy?:        string | fn.#StringExpression
-	IsCloudTrailEventHistoryEnabled?: bool | fn.#BooleanExpression
-	Name!:            _#defs."/$defs/Properties/definitions/StringWithPatternAndLengthLimits" | fn.#StringExpression
-	RetentionInDays?: int & <=90 & >=7 | fn.#NumberExpression
-	RoleArn?:         _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
+	EncryptionConfig?:         _#defs."/$defs/Properties/definitions/EncryptionConfigMap"
+	InvestigationGroupPolicy?: string | fn.#StringExpression
+	IsCloudTrailEventHistoryEnabled?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	Name!: _#defs."/$defs/Properties/definitions/StringWithPatternAndLengthLimits"
+	RetentionInDays?: int & <=90 & >=7 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=90 &
+							>=7,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RoleArn?: _#defs."/$defs/Properties/definitions/RoleArn"
 	TagKeyBoundaries?: list.UniqueItems() & [
 		...strings.MaxRunes(200) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ChatbotNotificationChannel": close({
 	ChatConfigurationArns?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SNSTopicArn?:           strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	SNSTopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CrossAccountConfiguration": close(
-	{SourceRoleArn?: _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression},
+	{SourceRoleArn?: _#defs."/$defs/Properties/definitions/RoleArn"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfigMap": close({
 	EncryptionConfigurationType?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(256) & strings.MinRunes(1)) | fn.#StringExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & (strings.MaxRunes(256) & strings.MinRunes(1)) |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InvestigationGroupArn": strings.MaxRunes(2048) & strings.MinRunes(20) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*$" |
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(2048) &
+strings.MinRunes(20) &
+=~"^arn:.*$" |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/StringWithPatternAndLengthLimits": strings.MaxRunes(512) &

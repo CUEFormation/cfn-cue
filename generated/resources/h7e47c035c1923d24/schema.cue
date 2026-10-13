@@ -14,21 +14,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // An object representing an Amazon EKS AccessEntry.
 #Properties: close({
-	AccessPolicies?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AccessPolicy" | fn.#ObjectExpression
-	] |
+	AccessPolicies?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AccessPolicy"] |
 		fn.#ListExpression
 	ClusterName!:      strings.MinRunes(1) | fn.#StringExpression
 	KubernetesGroups?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	PrincipalArn!:     strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Type?:     string | fn.#StringExpression
-	Username?: string | fn.#StringExpression
+	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Type?:             string | fn.#StringExpression
+	Username?:         string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccessPolicy": close({
-	AccessScope!: _#defs."/$defs/Properties/definitions/AccessScope" | fn.#ObjectExpression
+	AccessScope!: _#defs."/$defs/Properties/definitions/AccessScope"
 	PolicyArn!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

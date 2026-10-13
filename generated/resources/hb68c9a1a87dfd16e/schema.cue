@@ -11,7 +11,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::MSK::BatchScramSecret
 #Properties: close({
 	ClusterArn!:    string | fn.#StringExpression
-	SecretArnList?: _#defs."/$defs/Properties/definitions/SecretArnList" | fn.#ListExpression
+	SecretArnList?: _#defs."/$defs/Properties/definitions/SecretArnList"
 })
 
 _#defs: "/$defs/Properties/definitions/SecretArnList": [...string | fn.#StringExpression] | fn.#ListExpression

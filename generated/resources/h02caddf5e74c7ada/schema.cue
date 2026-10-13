@@ -8,14 +8,33 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Timestream::InfluxDBInstance resource creates an InfluxDB instance.
 #Properties: close({
-	AllocatedStorage?: int & <=16384 & >=20 | fn.#NumberExpression
-	Bucket?:           strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[^_][^\"]*$" | fn.#StringExpression
+	AllocatedStorage?: int & <=16384 & >=20 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=16384 &
+							>=20,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Bucket?: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[^_][^\"]*$" | fn.#StringExpression
 	DbInstanceType?: "db.influx.medium" |
 		"db.influx.large" |
 		"db.influx.xlarge" |
@@ -33,7 +52,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		S3Configuration!: close({
 			BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[0-9a-z]+[0-9a-z\\.\\-]*[0-9a-z]+$" |
 			fn.#StringExpression
-			Enabled!: bool | fn.#BooleanExpression
+			Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		}) |
 		fn.#ObjectExpression
 	}) |
@@ -41,18 +60,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	MaintenanceSchedule?: _#defs."/$defs/Properties/definitions/MaintenanceSchedule" | fn.#ObjectExpression
 	Name?: strings.MaxRunes(40) & strings.MinRunes(3) & =~"^[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" |
 	fn.#StringExpression
-	NetworkType?:        "IPV4" | "DUAL" | fn.#StringExpression
-	Organization?:       strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Password?:           strings.MaxRunes(64) & strings.MinRunes(8) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	Port?:               int & <=65535 & >=1024 | fn.#NumberExpression
-	PubliclyAccessible?: bool | fn.#BooleanExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	NetworkType?:  "IPV4" | "DUAL" | fn.#StringExpression
+	Organization?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Password?:     strings.MaxRunes(64) & strings.MinRunes(8) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	Port?: int & <=65535 & >=1024 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1024,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PubliclyAccessible?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
+		fn.#ListExpression
+	Username?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	VpcSecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	Username?:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	VpcSecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	VpcSubnetIds?:        list.MaxItems(3) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+	VpcSubnetIds?: list.MaxItems(3) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/MaintenanceSchedule": close({

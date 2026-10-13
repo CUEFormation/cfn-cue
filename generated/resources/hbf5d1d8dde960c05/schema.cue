@@ -20,8 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DatasetName!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@.]+$" | fn.#StringExpression
 	DatasetSource?: _#defs."/$defs/Properties/definitions/DatasetSource" | fn.#ObjectExpression
 	DatasetType?:   "SESSION" | "CURATED" | "EXTERNAL" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	WorkspaceName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 })
 
@@ -40,7 +39,10 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/KendraSourceDetail": close({
 	KnowledgeBaseArn!: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$" |
 	fn.#StringExpression
-	RoleArn!: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$" |
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(1600) &
+	strings.MinRunes(1) &
+	=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

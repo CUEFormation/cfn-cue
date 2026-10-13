@@ -9,6 +9,10 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,42 +20,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::BedrockAgentCore::GatewayTarget Resource Type
 #Properties: close({
 	CredentialProviderConfigurations?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/CredentialProviderConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/CredentialProviderConfiguration"
 	] |
 		fn.#ListExpression
 	Description?:           strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 	GatewayIdentifier?:     =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
-	MetadataConfiguration?: _#defs."/$defs/Properties/definitions/MetadataConfiguration" | fn.#ObjectExpression
+	MetadataConfiguration?: _#defs."/$defs/Properties/definitions/MetadataConfiguration"
 	Name?:                  =~"^([0-9a-zA-Z][-]?){1,100}$" | fn.#StringExpression
-	PrivateEndpoint?:       _#defs."/$defs/Properties/definitions/PrivateEndpoint" | fn.#ValueExpression
-	TargetConfiguration!:   _#defs."/$defs/Properties/definitions/TargetConfiguration" | fn.#ValueExpression
+	PrivateEndpoint?:       _#defs."/$defs/Properties/definitions/PrivateEndpoint"
+	TargetConfiguration!:   _#defs."/$defs/Properties/definitions/TargetConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/ApiGatewayTargetConfiguration": close({
-	ApiGatewayToolConfiguration!: _#defs."/$defs/Properties/definitions/ApiGatewayToolConfiguration" |
-		fn.#ObjectExpression
-	RestApiId!: string | fn.#StringExpression
-	Stage!:     string | fn.#StringExpression
+	ApiGatewayToolConfiguration!: _#defs."/$defs/Properties/definitions/ApiGatewayToolConfiguration"
+	RestApiId!:                   string | fn.#StringExpression
+	Stage!:                       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ApiGatewayToolConfiguration": close({
-	ToolFilters!: [..._#defs."/$defs/Properties/definitions/ApiGatewayToolFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ToolOverrides?: [..._#defs."/$defs/Properties/definitions/ApiGatewayToolOverride" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ToolFilters!:   [..._#defs."/$defs/Properties/definitions/ApiGatewayToolFilter"] | fn.#ListExpression
+	ToolOverrides?: [..._#defs."/$defs/Properties/definitions/ApiGatewayToolOverride"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ApiGatewayToolFilter": close({
 	FilterPath!: string | fn.#StringExpression
-	Methods!:    [..._#defs."/$defs/Properties/definitions/RestApiMethod" | fn.#StringExpression] | fn.#ListExpression
+	Methods!:    [..._#defs."/$defs/Properties/definitions/RestApiMethod"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ApiGatewayToolOverride": close({
 	Description?: string | fn.#StringExpression
-	Method!:      _#defs."/$defs/Properties/definitions/RestApiMethod" | fn.#StringExpression
+	Method!:      _#defs."/$defs/Properties/definitions/RestApiMethod"
 	Name!:        string | fn.#StringExpression
 	Path!:        string | fn.#StringExpression
 }) |
@@ -60,7 +61,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ApiKeyCredentialLocation": "HEADER" | "QUERY_PARAMETER" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ApiKeyCredentialProvider": close({
-	CredentialLocation?:      _#defs."/$defs/Properties/definitions/ApiKeyCredentialLocation" | fn.#StringExpression
+	CredentialLocation?:      _#defs."/$defs/Properties/definitions/ApiKeyCredentialLocation"
 	CredentialParameterName?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	CredentialPrefix?:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	ProviderArn!:             =~"^arn:([^:]*):([^:]*):([^:]*):([0-9]{12})?:(.+)$" | fn.#StringExpression
@@ -68,30 +69,29 @@ _#defs: "/$defs/Properties/definitions/ApiKeyCredentialProvider": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ApiSchemaConfiguration": matchN(1, [close(
-	{S3!: _#defs."/$defs/Properties/definitions/S3Configuration" | fn.#ObjectExpression},
+	{S3!: _#defs."/$defs/Properties/definitions/S3Configuration"},
 ), close(
 	{InlinePayload!: string | fn.#StringExpression},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/AuthorizationData": close(
-	{Oauth2!: _#defs."/$defs/Properties/definitions/OAuth2AuthorizationData" | fn.#ObjectExpression},
+	{Oauth2!: _#defs."/$defs/Properties/definitions/OAuth2AuthorizationData"},
 ) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/ConnectorConfiguration": close({
-	Description?: strings.MaxRunes(2000) | fn.#StringExpression
-	Name!:        strings.MaxRunes(64) & =~"^[a-zA-Z][a-zA-Z0-9_-]*$" | fn.#StringExpression
-	ParameterOverrides?: [..._#defs."/$defs/Properties/definitions/ConnectorParameterOverride" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ParameterValues?: fn.#Value
+	Description?:        strings.MaxRunes(2000) | fn.#StringExpression
+	Name!:               strings.MaxRunes(64) & =~"^[a-zA-Z][a-zA-Z0-9_-]*$" | fn.#StringExpression
+	ParameterOverrides?: [..._#defs."/$defs/Properties/definitions/ConnectorParameterOverride"] | fn.#ListExpression
+	ParameterValues?:    fn.#Value
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConnectorParameterOverride": close({
 	Description?: string | fn.#StringExpression
 	Path!:        string | fn.#StringExpression
-	Visible?:     bool | fn.#BooleanExpression
+	Visible?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -101,25 +101,24 @@ _#defs: "/$defs/Properties/definitions/ConnectorSource": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConnectorTargetConfiguration": close({
-	Configurations?: [..._#defs."/$defs/Properties/definitions/ConnectorConfiguration" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Enabled?: list.MaxItems(50) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	Source!:  _#defs."/$defs/Properties/definitions/ConnectorSource" | fn.#ObjectExpression
+	Configurations?: [..._#defs."/$defs/Properties/definitions/ConnectorConfiguration"] | fn.#ListExpression
+	Enabled?:        list.MaxItems(50) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+	Source!:         _#defs."/$defs/Properties/definitions/ConnectorSource"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CredentialProvider": matchN(1, [close(
-	{OauthCredentialProvider!: _#defs."/$defs/Properties/definitions/OAuthCredentialProvider" | fn.#ObjectExpression},
+	{OauthCredentialProvider!: _#defs."/$defs/Properties/definitions/OAuthCredentialProvider"},
 ), close(
-	{ApiKeyCredentialProvider!: _#defs."/$defs/Properties/definitions/ApiKeyCredentialProvider" | fn.#ObjectExpression},
+	{ApiKeyCredentialProvider!: _#defs."/$defs/Properties/definitions/ApiKeyCredentialProvider"},
 ), close(
-	{IamCredentialProvider!: _#defs."/$defs/Properties/definitions/IamCredentialProvider" | fn.#ObjectExpression},
+	{IamCredentialProvider!: _#defs."/$defs/Properties/definitions/IamCredentialProvider"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/CredentialProviderConfiguration": close({
-	CredentialProvider?:     _#defs."/$defs/Properties/definitions/CredentialProvider" | fn.#ValueExpression
-	CredentialProviderType!: _#defs."/$defs/Properties/definitions/CredentialProviderType" | fn.#StringExpression
+	CredentialProvider?:     _#defs."/$defs/Properties/definitions/CredentialProvider"
+	CredentialProviderType!: _#defs."/$defs/Properties/definitions/CredentialProviderType"
 }) |
 fn.#ObjectExpression
 
@@ -133,7 +132,7 @@ _#defs: "/$defs/Properties/definitions/CredentialProviderType": "GATEWAY_IAM_ROL
 _#defs: "/$defs/Properties/definitions/EndpointIpAddressType": "IPV4" | "IPV6" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/HttpApiSchemaConfiguration": close(
-	{Source!: _#defs."/$defs/Properties/definitions/ApiSchemaConfiguration" | fn.#ValueExpression},
+	{Source!: _#defs."/$defs/Properties/definitions/ApiSchemaConfiguration"},
 ) |
 	fn.#ObjectExpression
 
@@ -148,17 +147,17 @@ _#defs: "/$defs/Properties/definitions/HttpConnectorSource": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HttpConnectorTargetConfiguration": close({
-	Parameters?: _#defs."/$defs/Properties/definitions/HttpConnectorParameters" | fn.#ObjectExpression
-	Source!:     _#defs."/$defs/Properties/definitions/HttpConnectorSource" | fn.#ObjectExpression
+	Parameters?: _#defs."/$defs/Properties/definitions/HttpConnectorParameters"
+	Source!:     _#defs."/$defs/Properties/definitions/HttpConnectorSource"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HttpTargetConfiguration": matchN(1, [close(
-	{AgentcoreRuntime!: _#defs."/$defs/Properties/definitions/RuntimeTargetConfiguration" | fn.#ObjectExpression},
+	{AgentcoreRuntime!: _#defs."/$defs/Properties/definitions/RuntimeTargetConfiguration"},
 ), close(
-	{Passthrough!: _#defs."/$defs/Properties/definitions/PassthroughTargetConfiguration" | fn.#ObjectExpression},
+	{Passthrough!: _#defs."/$defs/Properties/definitions/PassthroughTargetConfiguration"},
 ), close(
-	{Connector!: _#defs."/$defs/Properties/definitions/HttpConnectorTargetConfiguration" | fn.#ObjectExpression},
+	{Connector!: _#defs."/$defs/Properties/definitions/HttpConnectorTargetConfiguration"},
 )]) |
 fn.#ValueExpression
 
@@ -174,14 +173,12 @@ _#defs: "/$defs/Properties/definitions/InferenceConnectorSource": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceConnectorTargetConfiguration": close(
-	{Source!: _#defs."/$defs/Properties/definitions/InferenceConnectorSource" | fn.#ObjectExpression},
+	{Source!: _#defs."/$defs/Properties/definitions/InferenceConnectorSource"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceOperationConfiguration": close({
-	Models?: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ModelEntry" | fn.#ObjectExpression
-	] |
+	Models?: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ModelEntry"] |
 		fn.#ListExpression
 	Path!:         strings.MaxRunes(256) & strings.MinRunes(1) & =~"^/[a-zA-Z0-9\\-\\._/]+$" | fn.#StringExpression
 	ProviderPath?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^/[a-zA-Z0-9\\-\\._/]+$" | fn.#StringExpression
@@ -191,18 +188,18 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/InferenceProviderTargetConfiguration": close({
 	Endpoint!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[a-zA-Z0-9\\-\\.]+(:[0-9]{1,5})?(/.*)?$" |
 	fn.#StringExpression
-	ModelMapping?: _#defs."/$defs/Properties/definitions/ModelMapping" | fn.#ObjectExpression
+	ModelMapping?: _#defs."/$defs/Properties/definitions/ModelMapping"
 	Operations?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/InferenceOperationConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/InferenceOperationConfiguration"
 	] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceTargetConfiguration": matchN(1, [close(
-	{Connector!: _#defs."/$defs/Properties/definitions/InferenceConnectorTargetConfiguration" | fn.#ObjectExpression},
+	{Connector!: _#defs."/$defs/Properties/definitions/InferenceConnectorTargetConfiguration"},
 ), close(
-	{Provider!: _#defs."/$defs/Properties/definitions/InferenceProviderTargetConfiguration" | fn.#ObjectExpression},
+	{Provider!: _#defs."/$defs/Properties/definitions/InferenceProviderTargetConfiguration"},
 )]) |
 fn.#ValueExpression
 
@@ -218,50 +215,74 @@ _#defs: "/$defs/Properties/definitions/ManagedResourceDetails": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
-	EndpointIpAddressType!: _#defs."/$defs/Properties/definitions/EndpointIpAddressType" | fn.#StringExpression
+	EndpointIpAddressType!: _#defs."/$defs/Properties/definitions/EndpointIpAddressType"
 	RoutingDomain?:         strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-	SecurityGroupIds?: list.MaxItems(5) & [...] & [...=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" | fn.#StringExpression] |
+	SecurityGroupIds?: list.MaxItems(5) & [...] & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+			fn.#StringExpression
+	] |
 		fn.#ListExpression
 	SubnetIds!:     [...=~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression] | fn.#ListExpression
-	Tags?:          _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
+	Tags?:          _#defs."/$defs/Properties/definitions/TagsMap"
 	VpcIdentifier!: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/McpLambdaTargetConfiguration": close({
-	LambdaArn!: strings.MaxRunes(170) &
+	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(170) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:([a-z]{2}(-gov)?-[a-z]+-\\d{1}):(\\d{12}):function:([a-zA-Z0-9-_.]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
 	fn.#StringExpression
-	ToolSchema!: _#defs."/$defs/Properties/definitions/ToolSchema" | fn.#ValueExpression
+	ToolSchema!: _#defs."/$defs/Properties/definitions/ToolSchema"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/McpServerTargetConfiguration": close({
-	Endpoint!:         =~"^https://.*" | fn.#StringExpression
-	ListingMode?:      _#defs."/$defs/Properties/definitions/ListingMode" | fn.#StringExpression
-	McpToolSchema?:    _#defs."/$defs/Properties/definitions/McpToolSchemaConfiguration" | fn.#ValueExpression
-	ResourcePriority?: <=1000 & >=0 | fn.#NumberExpression
+	Endpoint!:      =~"^https://.*" | fn.#StringExpression
+	ListingMode?:   _#defs."/$defs/Properties/definitions/ListingMode"
+	McpToolSchema?: _#defs."/$defs/Properties/definitions/McpToolSchemaConfiguration"
+	ResourcePriority?: <=1000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1000 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/McpTargetConfiguration": matchN(1, [close(
-	{OpenApiSchema!: _#defs."/$defs/Properties/definitions/ApiSchemaConfiguration" | fn.#ValueExpression},
+	{OpenApiSchema!: _#defs."/$defs/Properties/definitions/ApiSchemaConfiguration"},
 ), close(
-	{SmithyModel!: _#defs."/$defs/Properties/definitions/ApiSchemaConfiguration" | fn.#ValueExpression},
+	{SmithyModel!: _#defs."/$defs/Properties/definitions/ApiSchemaConfiguration"},
 ), close(
-	{Lambda!: _#defs."/$defs/Properties/definitions/McpLambdaTargetConfiguration" | fn.#ObjectExpression},
+	{Lambda!: _#defs."/$defs/Properties/definitions/McpLambdaTargetConfiguration"},
 ), close(
-	{McpServer!: _#defs."/$defs/Properties/definitions/McpServerTargetConfiguration" | fn.#ObjectExpression},
+	{McpServer!: _#defs."/$defs/Properties/definitions/McpServerTargetConfiguration"},
 ), close(
-	{ApiGateway!: _#defs."/$defs/Properties/definitions/ApiGatewayTargetConfiguration" | fn.#ObjectExpression},
+	{ApiGateway!: _#defs."/$defs/Properties/definitions/ApiGatewayTargetConfiguration"},
 ), close(
-	{Connector!: _#defs."/$defs/Properties/definitions/ConnectorTargetConfiguration" | fn.#ObjectExpression},
+	{Connector!: _#defs."/$defs/Properties/definitions/ConnectorTargetConfiguration"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/McpToolSchemaConfiguration": matchN(1, [close(
-	{S3!: _#defs."/$defs/Properties/definitions/S3Configuration" | fn.#ObjectExpression},
+	{S3!: _#defs."/$defs/Properties/definitions/S3Configuration"},
 ), close(
 	{InlinePayload!: string | fn.#StringExpression},
 )]) |
@@ -290,7 +311,7 @@ _#defs: "/$defs/Properties/definitions/ModelEntry": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ModelMapping": close(
-	{ProviderPrefix?: _#defs."/$defs/Properties/definitions/ProviderPrefix" | fn.#ObjectExpression},
+	{ProviderPrefix?: _#defs."/$defs/Properties/definitions/ProviderPrefix"},
 ) |
 	fn.#ObjectExpression
 
@@ -301,7 +322,7 @@ _#defs: "/$defs/Properties/definitions/OAuth2AuthorizationData": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OAuthCredentialProvider": close({
-	CustomParameters?: _#defs."/$defs/Properties/definitions/OAuthCustomParameters" | fn.#ObjectExpression
+	CustomParameters?: _#defs."/$defs/Properties/definitions/OAuthCustomParameters"
 	DefaultReturnUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^\\w+:(\\/?\\/?)[^\\s]+$" |
 	fn.#StringExpression
 	GrantType?:   _#defs."/$defs/Properties/definitions/OAuthGrantType" | fn.#ValueExpression
@@ -330,22 +351,22 @@ _#defs: "/$defs/Properties/definitions/PassthroughProtocolType": "MCP" |
 _#defs: "/$defs/Properties/definitions/PassthroughTargetConfiguration": close({
 	Endpoint!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[a-zA-Z0-9\\-\\.]+(:[0-9]{1,5})?(/.*)?$" |
 	fn.#StringExpression
-	ProtocolType!:            _#defs."/$defs/Properties/definitions/PassthroughProtocolType" | fn.#StringExpression
-	Schema?:                  _#defs."/$defs/Properties/definitions/HttpApiSchemaConfiguration" | fn.#ObjectExpression
-	StickinessConfiguration?: _#defs."/$defs/Properties/definitions/StickinessConfiguration" | fn.#ObjectExpression
+	ProtocolType!:            _#defs."/$defs/Properties/definitions/PassthroughProtocolType"
+	Schema?:                  _#defs."/$defs/Properties/definitions/HttpApiSchemaConfiguration"
+	StickinessConfiguration?: _#defs."/$defs/Properties/definitions/StickinessConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateEndpoint": matchN(1, [close({
-	SelfManagedLatticeResource!: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource" | fn.#ValueExpression
-}), close(
-	{ManagedVpcResource!: _#defs."/$defs/Properties/definitions/ManagedVpcResource" | fn.#ObjectExpression},
+_#defs: "/$defs/Properties/definitions/PrivateEndpoint": matchN(1, [close(
+	{SelfManagedLatticeResource!: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource"},
+), close(
+	{ManagedVpcResource!: _#defs."/$defs/Properties/definitions/ManagedVpcResource"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/ProviderPrefix": close({
 	Separator?: strings.MaxRunes(1) & strings.MinRunes(1) | fn.#StringExpression
-	Strip?:     bool | fn.#BooleanExpression
+	Strip?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -362,7 +383,7 @@ _#defs: "/$defs/Properties/definitions/RuntimeTargetConfiguration": close({
 	Arn!: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$" |
 		fn.#StringExpression
 	Qualifier?: =~"([1-9][0-9]{0,4})|([a-zA-Z][a-zA-Z0-9_]{0,47})" | fn.#StringExpression
-	Schema?:    _#defs."/$defs/Properties/definitions/HttpApiSchemaConfiguration" | fn.#ObjectExpression
+	Schema?:    _#defs."/$defs/Properties/definitions/HttpApiSchemaConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -374,16 +395,16 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SchemaDefinition": close({
 	Description?: string | fn.#StringExpression
-	Items?:       _#defs."/$defs/Properties/definitions/SchemaDefinition" | fn.#ObjectExpression
-	Properties?:  _#defs."/$defs/Properties/definitions/SchemaProperties" | fn.#ObjectExpression
+	Items?:       _#defs."/$defs/Properties/definitions/SchemaDefinition"
+	Properties?:  _#defs."/$defs/Properties/definitions/SchemaProperties"
 	Required?:    [...string | fn.#StringExpression] | fn.#ListExpression
-	Type!:        _#defs."/$defs/Properties/definitions/SchemaType" | fn.#StringExpression
+	Type!:        _#defs."/$defs/Properties/definitions/SchemaType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SchemaProperties": close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/SchemaDefinition" | fn.#ObjectExpression}}) |
+	{[=~".+"]: _#defs."/$defs/Properties/definitions/SchemaDefinition"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SchemaType": "string" |
@@ -404,7 +425,26 @@ fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/StickinessConfiguration": close({
 	Identifier!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Timeout?:    <=86400 & >=1 | fn.#NumberExpression
+	Timeout?: <=86400 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=86400 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -415,11 +455,11 @@ _#defs: "/$defs/Properties/definitions/TagsMap": struct.MaxFields(50) & close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TargetConfiguration": matchN(1, [close(
-	{Mcp!: _#defs."/$defs/Properties/definitions/McpTargetConfiguration" | fn.#ValueExpression},
+	{Mcp!: _#defs."/$defs/Properties/definitions/McpTargetConfiguration"},
 ), close(
-	{Http!: _#defs."/$defs/Properties/definitions/HttpTargetConfiguration" | fn.#ValueExpression},
+	{Http!: _#defs."/$defs/Properties/definitions/HttpTargetConfiguration"},
 ), close(
-	{Inference!: _#defs."/$defs/Properties/definitions/InferenceTargetConfiguration" | fn.#ValueExpression},
+	{Inference!: _#defs."/$defs/Properties/definitions/InferenceTargetConfiguration"},
 )]) |
 fn.#ValueExpression
 
@@ -440,18 +480,17 @@ _#defs: "/$defs/Properties/definitions/TargetStatus": "CREATING" |
 
 _#defs: "/$defs/Properties/definitions/ToolDefinition": close({
 	Description!:  string | fn.#StringExpression
-	InputSchema!:  _#defs."/$defs/Properties/definitions/SchemaDefinition" | fn.#ObjectExpression
+	InputSchema!:  _#defs."/$defs/Properties/definitions/SchemaDefinition"
 	Name!:         string | fn.#StringExpression
-	OutputSchema?: _#defs."/$defs/Properties/definitions/SchemaDefinition" | fn.#ObjectExpression
+	OutputSchema?: _#defs."/$defs/Properties/definitions/SchemaDefinition"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ToolSchema": matchN(1, [close(
-	{S3!: _#defs."/$defs/Properties/definitions/S3Configuration" | fn.#ObjectExpression},
-), close({
-	InlinePayload!: [..._#defs."/$defs/Properties/definitions/ToolDefinition" | fn.#ObjectExpression] |
-		fn.#ListExpression
-})]) |
+	{S3!: _#defs."/$defs/Properties/definitions/S3Configuration"},
+), close(
+	{InlinePayload!: [..._#defs."/$defs/Properties/definitions/ToolDefinition"] | fn.#ListExpression},
+)]) |
 fn.#ValueExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::BedrockAgentCore::GatewayTarget"

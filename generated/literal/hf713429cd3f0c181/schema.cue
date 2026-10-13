@@ -19,7 +19,8 @@ import (
 	EnableNetworkIsolation?: bool
 
 	// The Amazon Resource Name (ARN) of the IAM role that you specified for the model.
-	ExecutionRoleArn?: strings.MaxRunes(2048) &
+	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 	InferenceExecutionConfig?: _#defs."/$defs/Properties/definitions/InferenceExecutionConfig"
@@ -194,7 +195,10 @@ _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	// The VPC security group IDs, in the form `sg-xxxxxxxx`. Specify the security
 	// groups for the VPC that is specified in the `Subnets` field.
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[-0-9a-zA-Z]+$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"^[-0-9a-zA-Z]+$"
 	]
 
 	// The ID of the subnets in the VPC to which you want to connect your training

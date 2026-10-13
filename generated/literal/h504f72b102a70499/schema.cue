@@ -4109,11 +4109,11 @@ _#defs: "/$defs/Properties/definitions/TopBottomSortOrder": "PERCENT_DIFFERENCE"
 
 _#defs: "/$defs/Properties/definitions/TopicIdentifierDeclaration": close({
 	Identifier!: strings.MaxRunes(2048) & strings.MinRunes(1)
-	TopicArn!:   string
+	TopicArn!:   =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/TopicReference": close({
-	TopicArn!:         string
+	TopicArn!:         =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 	TopicPlaceholder!: strings.MaxRunes(2048) & strings.MinRunes(1)
 })
 

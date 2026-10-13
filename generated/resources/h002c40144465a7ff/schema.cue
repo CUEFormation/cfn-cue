@@ -17,7 +17,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // intact. SES stores the sender lower-cased, and this provider matches senders
 // case-insensitively and preserves the casing from the template.
 #Properties: close({
-	CertificateArn!: strings.MaxRunes(2048) &
+	CertificateArn!: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z0-9-]*:acm:[a-z0-9-]+:\\d{12}:certificate/[^\\s]+$" |
 	fn.#StringExpression

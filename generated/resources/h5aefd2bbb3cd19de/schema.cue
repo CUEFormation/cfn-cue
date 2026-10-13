@@ -19,7 +19,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Name?:           string | fn.#StringExpression
 	ResolverRuleId!: string | fn.#StringExpression
-	VPCId!:          string | fn.#StringExpression
+	VPCId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Route53Resolver::ResolverRuleAssociation"

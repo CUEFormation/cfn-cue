@@ -313,7 +313,10 @@ _#defs: "/$defs/Properties/definitions/SchedulerConfiguration": close({
 })
 
 // Identifier of a security group
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[-0-9a-zA-Z]+"
+_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+strings.MaxRunes(32) &
+strings.MinRunes(1) &
+=~"^[-0-9a-zA-Z]+"
 
 _#defs: "/$defs/Properties/definitions/SensitivePropertiesKeyValuePair": strings.MaxRunes(1024) &
 strings.MinRunes(1) &

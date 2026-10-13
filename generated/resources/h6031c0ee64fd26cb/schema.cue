@@ -4,19 +4,23 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaStore::Container
 #Properties: close({
-	AccessLoggingEnabled?: bool | fn.#BooleanExpression
+	AccessLoggingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ContainerName!:        string | fn.#StringExpression
-	CorsPolicy?:      [..._#defs."/$defs/Properties/definitions/CorsRule" | fn.#ObjectExpression] | fn.#ListExpression
-	LifecyclePolicy?: string | fn.#StringExpression
-	MetricPolicy?:    _#defs."/$defs/Properties/definitions/MetricPolicy" | fn.#ObjectExpression
-	Policy?:          string | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	CorsPolicy?:           [..._#defs."/$defs/Properties/definitions/CorsRule"] | fn.#ListExpression
+	LifecyclePolicy?:      string | fn.#StringExpression
+	MetricPolicy?:         _#defs."/$defs/Properties/definitions/MetricPolicy"
+	Policy?:               string | fn.#StringExpression
+	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CorsRule": close({
@@ -24,14 +28,26 @@ _#defs: "/$defs/Properties/definitions/CorsRule": close({
 	AllowedMethods?: [...string | fn.#StringExpression] | fn.#ListExpression
 	AllowedOrigins?: [...string | fn.#StringExpression] | fn.#ListExpression
 	ExposeHeaders?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	MaxAgeSeconds?:  int | fn.#NumberExpression
+	MaxAgeSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetricPolicy": close({
 	ContainerLevelMetrics!: string | fn.#StringExpression
-	MetricPolicyRules?: [..._#defs."/$defs/Properties/definitions/MetricPolicyRule" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	MetricPolicyRules?:     [..._#defs."/$defs/Properties/definitions/MetricPolicyRule"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

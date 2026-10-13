@@ -71,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/BounceAction": close({
 	// The Amazon Resource Name (ARN) of the Amazon SNS topic to notify when the
 	// bounce action is taken. You can find the ARN of a topic by using the
 	// ListTopics operation in Amazon SNS.
-	TopicArn?: string
+	TopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 })
 
 // When included in a receipt rule, this action parses the received message and
@@ -81,7 +81,8 @@ _#defs: "/$defs/Properties/definitions/ConnectAction": close({
 	// Email Service while starting email contacts to the Amazon Connect instance.
 	// This role should have permission to invoke connect:StartEmailContact for the
 	// given Amazon Connect instance.
-	IAMRoleARN!: strings.MaxRunes(2048) &
+	IAMRoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w-]+:iam::[0-9]+:role(\\x{002F})([\\x{0021}-\\x{007E}]+\\x{002F})?([\\w+=,.@-]+)$"
 
@@ -99,7 +100,7 @@ _#defs: "/$defs/Properties/definitions/LambdaAction": close({
 	// AWS Lambda function ARN is
 	// arn:aws:lambda:us-west-2:account-id:function:MyFunction. For more
 	// information about AWS Lambda, see the AWS Lambda Developer Guide.
-	FunctionArn!: string
+	FunctionArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
 
 	// The invocation type of the AWS Lambda function. An invocation type of
 	// RequestResponse means that the execution of the function immediately results
@@ -114,7 +115,7 @@ _#defs: "/$defs/Properties/definitions/LambdaAction": close({
 	// The Amazon Resource Name (ARN) of the Amazon SNS topic to notify when the
 	// Lambda action is executed. You can find the ARN of a topic by using the
 	// ListTopics operation in Amazon SNS.
-	TopicArn?: string
+	TopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 })
 
 // A data structure that contains the specified rule's name, actions,
@@ -157,7 +158,8 @@ _#defs: "/$defs/Properties/definitions/S3Action": close({
 	BucketName!: string
 
 	// The ARN of the IAM role to be used by Amazon SES while writing to the Amazon S3 bucket.
-	IamRoleArn?: strings.MaxRunes(2048) &
+	IamRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w-]+:iam::[0-9]+:role(\\x{002F})([\\x{0021}-\\x{007E}]+\\x{002F})?([\\w+=,.@-]+)$"
 
@@ -185,7 +187,7 @@ _#defs: "/$defs/Properties/definitions/S3Action": close({
 	// the AWS SDK for Java and AWS SDK for Ruby only. For more information about
 	// client-side encryption using AWS KMS managed keys, see the Amazon S3
 	// Developer Guide.
-	KmsKeyArn?: string
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 
 	// The key prefix of the Amazon S3 bucket. The key prefix is similar to a
 	// directory name that enables you to store similar data under the same
@@ -195,7 +197,7 @@ _#defs: "/$defs/Properties/definitions/S3Action": close({
 	// The ARN of the Amazon SNS topic to notify when the message is saved to the
 	// Amazon S3 bucket. You can find the ARN of a topic by using the ListTopics
 	// operation in Amazon SNS.
-	TopicArn?: string
+	TopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 })
 
 // The action to publish the email content to an Amazon SNS topic. When
@@ -210,7 +212,7 @@ _#defs: "/$defs/Properties/definitions/SNSAction": close({
 
 	// The Amazon Resource Name (ARN) of the Amazon SNS Topic to which notification
 	// for the email received will be published.
-	TopicArn?: string
+	TopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 })
 
 // When included in a receipt rule, this action terminates the evaluation of the
@@ -223,7 +225,7 @@ _#defs: "/$defs/Properties/definitions/StopAction": close({
 	// The Amazon Resource Name (ARN) of the Amazon SNS topic to notify when the
 	// stop action is taken. You can find the ARN of a topic by using the
 	// ListTopics Amazon SNS operation.
-	TopicArn?: string
+	TopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 })
 
 // When included in a receipt rule, this action calls Amazon WorkMail and,
@@ -242,5 +244,5 @@ _#defs: "/$defs/Properties/definitions/WorkmailAction": close({
 	// The Amazon Resource Name (ARN) of the Amazon SNS topic to notify when the
 	// WorkMail action is called. You can find the ARN of a topic by using the
 	// ListTopics operation in Amazon SNS.
-	TopicArn?: string
+	TopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 })

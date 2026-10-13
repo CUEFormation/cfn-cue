@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,25 +23,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 	Description?: strings.MaxRunes(1024) | fn.#StringExpression
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	Items!: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormBaseItem" | fn.#ObjectExpression
-	] |
+	Items!: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EvaluationFormBaseItem"] |
 		fn.#ListExpression
 	LanguageConfiguration?: _#defs."/$defs/Properties/definitions/EvaluationFormLanguageConfiguration" |
 		fn.#ObjectExpression
 	ReviewConfiguration?: _#defs."/$defs/Properties/definitions/EvaluationReviewConfiguration" | fn.#ObjectExpression
 	ScoringStrategy?:     _#defs."/$defs/Properties/definitions/ScoringStrategy" | fn.#ObjectExpression
 	Status!:              "DRAFT" | "ACTIVE" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetConfiguration?: _#defs."/$defs/Properties/definitions/EvaluationFormTargetConfiguration" |
 		fn.#ObjectExpression
 	Title!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AutoEvaluationConfiguration": close({Enabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/AutoEvaluationConfiguration": close(
+	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AutomaticFailConfiguration": close(
@@ -58,7 +59,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EvaluationFormItemEnablementCondition": close({
 	Operands!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormItemEnablementConditionOperand" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/EvaluationFormItemEnablementConditionOperand"
 	] |
 		fn.#ListExpression
 	Operator?: "OR" | "AND" | fn.#StringExpression
@@ -80,9 +81,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/EvaluationFormItemEnablementExpression": close({
 	Comparator!: "IN" | "NOT_IN" | "ALL_IN" | "EXACT" | fn.#StringExpression
 	Source!:     _#defs."/$defs/Properties/definitions/EvaluationFormItemEnablementSource" | fn.#ObjectExpression
-	Values!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormItemEnablementSourceValue" | fn.#ObjectExpression
-	] |
+	Values!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EvaluationFormItemEnablementSourceValue"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -125,8 +124,7 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionAutomati
 		fn.#ObjectExpression
 	DefaultOptionRefIds?: _#defs."/$defs/Properties/definitions/ReferenceIdList" | fn.#ListExpression
 	Options?: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionAutomationOption" |
-			fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionAutomationOption"
 	] |
 		fn.#ListExpression
 }) |
@@ -139,7 +137,7 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionAutomati
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionOption": close({
-	AutomaticFail?: bool | fn.#BooleanExpression
+	AutomaticFail?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AutomaticFailConfiguration?: _#defs."/$defs/Properties/definitions/AutomaticFailConfiguration" |
 		fn.#ObjectExpression
 	PointsConfiguration?: _#defs."/$defs/Properties/definitions/QuestionOptionPointsConfiguration" |
@@ -155,7 +153,7 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionProperti
 		fn.#ObjectExpression
 	DisplayAs?: "DROPDOWN" | "CHECKBOX" | fn.#StringExpression
 	Options!: list.MaxItems(256) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionOption" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionOption"
 	] |
 		fn.#ListExpression
 }) |
@@ -169,11 +167,37 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormNumericQuestionAutomation":
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EvaluationFormNumericQuestionOption": close({
-	AutomaticFail?: bool | fn.#BooleanExpression
+	AutomaticFail?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AutomaticFailConfiguration?: _#defs."/$defs/Properties/definitions/AutomaticFailConfiguration" |
 		fn.#ObjectExpression
-	MaxValue!: int | fn.#NumberExpression
-	MinValue!: int | fn.#NumberExpression
+	MaxValue!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinValue!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	PointsConfiguration?: _#defs."/$defs/Properties/definitions/QuestionOptionPointsConfiguration" |
 		fn.#ObjectExpression
 	Score?: _#defs."/$defs/Properties/definitions/Score" | fn.#NumberExpression
@@ -182,10 +206,36 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EvaluationFormNumericQuestionProperties": close({
 	Automation?: _#defs."/$defs/Properties/definitions/EvaluationFormNumericQuestionAutomation" | fn.#ObjectExpression
-	MaxValue!:   int | fn.#NumberExpression
-	MinValue!:   int | fn.#NumberExpression
+	MaxValue!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinValue!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Options?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormNumericQuestionOption" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/EvaluationFormNumericQuestionOption"
 	] |
 		fn.#ListExpression
 }) |
@@ -196,7 +246,7 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormQuestion": close({
 	Instructions?: strings.MaxRunes(1024) | fn.#StringExpression
 	MetricConfiguration?: _#defs."/$defs/Properties/definitions/EvaluationFormMetricConfiguration" |
 		fn.#ObjectExpression
-	NotApplicableEnabled?: bool | fn.#BooleanExpression
+	NotApplicableEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	QuestionType!:         "NUMERIC" | "SINGLESELECT" | "TEXT" | "MULTISELECT" | "DATETIME" | fn.#StringExpression
 	QuestionTypeProperties?: _#defs."/$defs/Properties/definitions/EvaluationFormQuestionTypeProperties" |
 		fn.#ObjectExpression
@@ -214,10 +264,9 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormQuestionAutomationAnswerSou
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EvaluationFormQuestionScoringConfiguration": close({
-	IsExcludedFromScoring?: bool | fn.#BooleanExpression
+	IsExcludedFromScoring?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PointsConfiguration?:   _#defs."/$defs/Properties/definitions/QuestionPointsConfiguration" | fn.#ObjectExpression
-	ScoreThresholds?: [..._#defs."/$defs/Properties/definitions/EvaluationFormScoreThreshold" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ScoreThresholds?: [..._#defs."/$defs/Properties/definitions/EvaluationFormScoreThreshold"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -232,24 +281,59 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormQuestionTypeProperties": cl
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EvaluationFormScoreThreshold": close({
-	MaxScorePercentage?:  <=100 & >=0 | fn.#NumberExpression
-	MinScorePercentage?:  <=100 & >=0 | fn.#NumberExpression
+	MaxScorePercentage?: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinScorePercentage?: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	PerformanceCategory!: "NEEDS_IMPROVEMENT" | "EXCEEDS_EXPECTATIONS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EvaluationFormSection": close({
 	Instructions?:          strings.MaxRunes(1024) | fn.#StringExpression
-	IsExcludedFromScoring?: bool | fn.#BooleanExpression
-	Items?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormItem" | fn.#ObjectExpression
-	] |
+	IsExcludedFromScoring?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Items?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EvaluationFormItem"] |
 		fn.#ListExpression
-	RefId!: _#defs."/$defs/Properties/definitions/RefId" | fn.#StringExpression
-	ScoreThresholds?: [..._#defs."/$defs/Properties/definitions/EvaluationFormScoreThreshold" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Title!:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Weight?: _#defs."/$defs/Properties/definitions/Weight" | fn.#NumberExpression
+	RefId!:           _#defs."/$defs/Properties/definitions/RefId" | fn.#StringExpression
+	ScoreThresholds?: [..._#defs."/$defs/Properties/definitions/EvaluationFormScoreThreshold"] | fn.#ListExpression
+	Title!:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Weight?:          _#defs."/$defs/Properties/definitions/Weight" | fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -258,8 +342,7 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionAutomat
 		fn.#ObjectExpression
 	DefaultOptionRefId?: _#defs."/$defs/Properties/definitions/RefId" | fn.#StringExpression
 	Options?: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionAutomationOption" |
-			fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionAutomationOption"
 	] |
 		fn.#ListExpression
 }) |
@@ -272,7 +355,7 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionAutomat
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionOption": close({
-	AutomaticFail?: bool | fn.#BooleanExpression
+	AutomaticFail?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AutomaticFailConfiguration?: _#defs."/$defs/Properties/definitions/AutomaticFailConfiguration" |
 		fn.#ObjectExpression
 	PointsConfiguration?: _#defs."/$defs/Properties/definitions/QuestionOptionPointsConfiguration" |
@@ -288,7 +371,7 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionPropert
 		fn.#ObjectExpression
 	DisplayAs?: "DROPDOWN" | "RADIO" | fn.#StringExpression
 	Options!: list.MaxItems(256) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionOption" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionOption"
 	] |
 		fn.#ListExpression
 }) |
@@ -311,9 +394,24 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormTextQuestionProperties": cl
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EvaluationReviewConfiguration": close({
-	EligibilityDays?: int & <=90 & >=1 | fn.#NumberExpression
+	EligibilityDays?: int & <=90 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=90 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ReviewNotificationRecipients!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationReviewNotificationRecipient" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/EvaluationReviewNotificationRecipient"
 	] |
 		fn.#ListExpression
 }) |
@@ -355,16 +453,31 @@ _#defs: "/$defs/Properties/definitions/NumericQuestionPropertyValueAutomation": 
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PointValue": int & <=100 & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/PointValue": int & <=100 & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=100 &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/QuestionOptionPointsConfiguration": close({
-	IsBonus?:    bool | fn.#BooleanExpression
+	IsBonus?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PointValue!: _#defs."/$defs/Properties/definitions/PointValue" | fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/QuestionPointsConfiguration": close({
-	IsBonus?:       bool | fn.#BooleanExpression
+	IsBonus?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxPointValue?: _#defs."/$defs/Properties/definitions/PointValue" | fn.#NumberExpression
 	MinPointValue?: _#defs."/$defs/Properties/definitions/PointValue" | fn.#NumberExpression
 }) |
@@ -372,18 +485,30 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RefId": =~"^[a-zA-Z0-9._-]{1,40}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ReferenceIdList": [
-	..._#defs."/$defs/Properties/definitions/RefId" | fn.#StringExpression
-] |
+_#defs: "/$defs/Properties/definitions/ReferenceIdList": [..._#defs."/$defs/Properties/definitions/RefId"] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Score": int & <=10 & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Score": int & <=10 & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=10 &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/ScoringStrategy": close({
-	Mode!: "QUESTION_ONLY" | "SECTION_ONLY" | "POINTS_BASED" | fn.#StringExpression
-	ScoreThresholds?: [..._#defs."/$defs/Properties/definitions/EvaluationFormScoreThreshold" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Status!: "ENABLED" | "DISABLED" | fn.#StringExpression
+	Mode!:            "QUESTION_ONLY" | "SECTION_ONLY" | "POINTS_BASED" | fn.#StringExpression
+	ScoreThresholds?: [..._#defs."/$defs/Properties/definitions/EvaluationFormScoreThreshold"] | fn.#ListExpression
+	Status!:          "ENABLED" | "DISABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -400,7 +525,26 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Weight": <=100 & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Weight": <=100 & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						<=100 &
+						>=0,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Connect::EvaluationForm"
 	Properties!: #Properties

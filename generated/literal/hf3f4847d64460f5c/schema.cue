@@ -203,7 +203,7 @@ _#defs: "/$defs/Properties/definitions/QueryLoggingConfig": close({
 _#defs: "/$defs/Properties/definitions/VPC": close({
 	// *Private hosted zones only:* The ID of an Amazon VPC.
 	// For public hosted zones, omit ``VPCs``, ``VPCId``, and ``VPCRegion``.
-	VPCId!: string
+	VPCId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 
 	// *Private hosted zones only:* The region that an Amazon VPC was created in.
 	// For public hosted zones, omit ``VPCs``, ``VPCId``, and ``VPCRegion``.

@@ -15,24 +15,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Connect::PredefinedAttribute
 #Properties: close({
 	AttributeConfiguration?: close({
-		EnableValueValidationOnAssociation?: bool | fn.#BooleanExpression
-		IsReadOnly?:                         bool | fn.#BooleanExpression
+		EnableValueValidationOnAssociation?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		IsReadOnly?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	}) |
 	fn.#ObjectExpression
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 	Name!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Purposes?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Purpose" | fn.#StringExpression
-	] |
+	Purposes?: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Purpose"] |
 		fn.#ListExpression
-	Values?: close({StringList?: _#defs."/$defs/Properties/definitions/StringList" | fn.#ListExpression}) |
-		fn.#ObjectExpression
+	Values?: close({StringList?: _#defs."/$defs/Properties/definitions/StringList"}) | fn.#ObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Purpose": strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/StringList": list.MaxItems(500) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/Value" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/Value"
 ] |
 	fn.#ListExpression
 

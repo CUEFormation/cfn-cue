@@ -8,28 +8,48 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::RDS::DBProxy
 #Properties: close({
-	Auth?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AuthFormat" | fn.#ObjectExpression
-	] |
+	Auth?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AuthFormat"] |
 		fn.#ListExpression
 	DBProxyName!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-z]*" | fn.#StringExpression
-	DebugLogging?:        bool | fn.#BooleanExpression
+	DebugLogging?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DefaultAuthScheme?:   "IAM_AUTH" | "NONE" | fn.#StringExpression
 	EndpointNetworkType?: "IPV4" | "IPV6" | "DUAL" | fn.#StringExpression
 	EngineFamily!:        "MYSQL" | "POSTGRESQL" | "SQLSERVER" | fn.#StringExpression
-	IdleClientTimeout?:   int | fn.#NumberExpression
-	RequireTLS?:          bool | fn.#BooleanExpression
-	RoleArn!:             strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/TagFormat" | fn.#ObjectExpression] | fn.#ListExpression
+	IdleClientTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RequireTLS?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
+	Tags?:                        [..._#defs."/$defs/Properties/definitions/TagFormat"] | fn.#ListExpression
 	TargetConnectionNetworkType?: "IPV4" | "IPV6" | fn.#StringExpression
-	VpcSecurityGroupIds?:         list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	VpcSubnetIds!:                list.MinItems(2) & [...string | fn.#StringExpression] | fn.#ListExpression
+	VpcSecurityGroupIds?: list.MinItems(1) & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	VpcSubnetIds!: list.MinItems(2) & [...string | fn.#StringExpression] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AuthFormat": close({

@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource type definition for AWS::AmazonMQ::Broker
 #Properties: close({
 	AuthenticationStrategy?:  =~"(?i)^(?:config_managed|ldap|simple)$" | fn.#StringExpression
-	AutoMinorVersionUpgrade?: bool | fn.#BooleanExpression
+	AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	BrokerName!:              =~"^[0-9A-Za-z_-]{1,50}$" | fn.#StringExpression
 	Configuration?:           _#defs."/$defs/Properties/definitions/ConfigurationId" | fn.#ObjectExpression
 	DataReplicationMode?: =~"(?i)^(?:crdr|none)$" & ("NONE" | "CRDR" | =~"^[Nn][Oo][Nn][Ee]$" | =~"^[Cc][Rr][Dd][Rr]$") |
@@ -29,34 +33,66 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			=~"^[Aa][Cc][Tt][Ii][Vv][Ee]_[Ss][Tt][Aa][Nn][Dd][Bb][Yy][__][Mm][Uu][Ll][Tt][Ii]_[Aa][Zz]$" |
 			=~"^[Cc][Ll][Uu][Ss][Tt][Ee][Rr]_[Mm][Uu][Ll][Tt][Ii][__][Aa][Zz]$") |
 		fn.#StringExpression
-	EncryptionOptions?: _#defs."/$defs/Properties/definitions/EncryptionOptions" | fn.#ObjectExpression
+	EncryptionOptions?: _#defs."/$defs/Properties/definitions/EncryptionOptions"
 	EngineType!: =~"(?i)^(?:activemq|rabbitmq)$" &
 		("ACTIVEMQ" | "RABBITMQ" | =~"^[Aa][Cc][Tt][Ii][Vv][Ee][Mm][Qq]$" | =~"^[Rr][Aa][Bb][Bb][Ii][Tt][Mm][Qq]$") |
 		fn.#StringExpression
 	EngineVersion?:              string | fn.#StringExpression
 	HostInstanceType!:           string | fn.#StringExpression
-	LdapServerMetadata?:         _#defs."/$defs/Properties/definitions/LdapServerMetadata" | fn.#ObjectExpression
-	Logs?:                       _#defs."/$defs/Properties/definitions/LogList" | fn.#ObjectExpression
-	MaintenanceWindowStartTime?: _#defs."/$defs/Properties/definitions/MaintenanceWindow" | fn.#ObjectExpression
-	PubliclyAccessible!:         bool | fn.#BooleanExpression
+	LdapServerMetadata?:         _#defs."/$defs/Properties/definitions/LdapServerMetadata"
+	Logs?:                       _#defs."/$defs/Properties/definitions/LogList"
+	MaintenanceWindowStartTime?: _#defs."/$defs/Properties/definitions/MaintenanceWindow"
+	PubliclyAccessible!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ResourceShareArns?:          list.UniqueItems() & [...=~"^arn:.*" | fn.#StringExpression] | fn.#ListExpression
-	SecurityGroups?: list.MaxItems(5) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	StorageSize?:    int | fn.#NumberExpression
-	StorageType?:    =~"(?i)^(?:EBS|EFS)$" & ("EBS" | "EFS" | =~"^[Ee]([Bb]|[Ff])[Ss]$") | fn.#StringExpression
-	SubnetIds?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/TagsEntry" | fn.#ObjectExpression] | fn.#ListExpression
-	Users?:          [..._#defs."/$defs/Properties/definitions/User" | fn.#ObjectExpression] | fn.#ListExpression
+	SecurityGroups?: list.MaxItems(5) & list.MinItems(1) & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	StorageSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StorageType?: =~"(?i)^(?:EBS|EFS)$" & ("EBS" | "EFS" | =~"^[Ee]([Bb]|[Ff])[Ss]$") | fn.#StringExpression
+	SubnetIds?:   [...string | fn.#StringExpression] | fn.#ListExpression
+	Tags?:        [..._#defs."/$defs/Properties/definitions/TagsEntry"] | fn.#ListExpression
+	Users?:       [..._#defs."/$defs/Properties/definitions/User"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ConfigurationId": close({
-	Id!:       string | fn.#StringExpression
-	Revision!: int | fn.#NumberExpression
+	Id!: string | fn.#StringExpression
+	Revision!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionOptions": close({
-	KmsKeyId?:       string | string | string | fn.#StringExpression
-	UseAwsOwnedKey!: bool | fn.#BooleanExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	UseAwsOwnedKey!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -65,19 +101,19 @@ _#defs: "/$defs/Properties/definitions/LdapServerMetadata": close({
 	RoleBase!:               string | fn.#StringExpression
 	RoleName?:               string | fn.#StringExpression
 	RoleSearchMatching!:     string | fn.#StringExpression
-	RoleSearchSubtree?:      bool | fn.#BooleanExpression
+	RoleSearchSubtree?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ServiceAccountPassword?: string | fn.#StringExpression
 	ServiceAccountUsername!: string | fn.#StringExpression
 	UserBase!:               string | fn.#StringExpression
 	UserRoleName?:           string | fn.#StringExpression
 	UserSearchMatching!:     string | fn.#StringExpression
-	UserSearchSubtree?:      bool | fn.#BooleanExpression
+	UserSearchSubtree?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LogList": close({
-	Audit?:   bool | fn.#BooleanExpression
-	General?: bool | fn.#BooleanExpression
+	Audit?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	General?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -110,10 +146,10 @@ _#defs: "/$defs/Properties/definitions/TagsEntry": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/User": close({
-	ConsoleAccess?:   bool | fn.#BooleanExpression
+	ConsoleAccess?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Groups?:          list.MaxItems(20) & [...=~"^[A-Za-z0-9._~-]{2,100}$" | fn.#StringExpression] | fn.#ListExpression
 	Password!:        strings.MinRunes(12) & =~"^[^,:=]+$" | fn.#StringExpression
-	ReplicationUser?: bool | fn.#BooleanExpression
+	ReplicationUser?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Username!:        =~"^[A-Za-z0-9_.~-]{2,100}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

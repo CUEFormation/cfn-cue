@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,19 +18,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::IVS::RecordingConfiguration
 #Properties: close({
-	DestinationConfiguration!: _#defs."/$defs/Properties/definitions/DestinationConfiguration" | fn.#ObjectExpression
+	DestinationConfiguration!: _#defs."/$defs/Properties/definitions/DestinationConfiguration"
 	Name?:                     strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
-	RecordingReconnectWindowSeconds?: int & <=300 & >=0 | fn.#NumberExpression
-	RenditionConfiguration?: _#defs."/$defs/Properties/definitions/RenditionConfiguration" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	ThumbnailConfiguration?: _#defs."/$defs/Properties/definitions/ThumbnailConfiguration" | fn.#ObjectExpression
+	RecordingReconnectWindowSeconds?: int & <=300 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=300 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RenditionConfiguration?: _#defs."/$defs/Properties/definitions/RenditionConfiguration"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	ThumbnailConfiguration?: _#defs."/$defs/Properties/definitions/ThumbnailConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/DestinationConfiguration": close(
-	{S3?: _#defs."/$defs/Properties/definitions/S3DestinationConfiguration" | fn.#ObjectExpression},
+	{S3?: _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"},
 ) |
 	fn.#ObjectExpression
 
@@ -55,7 +71,22 @@ _#defs: "/$defs/Properties/definitions/ThumbnailConfiguration": close({
 	Resolution?:    "FULL_HD" | "HD" | "SD" | "LOWEST_RESOLUTION" | fn.#StringExpression
 	Storage?: list.MaxItems(2) & list.UniqueItems() & [...] & [..."SEQUENTIAL" | "LATEST" | fn.#StringExpression] |
 		fn.#ListExpression
-	TargetIntervalSeconds?: int & <=60 & >=1 | fn.#NumberExpression
+	TargetIntervalSeconds?: int & <=60 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=60 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

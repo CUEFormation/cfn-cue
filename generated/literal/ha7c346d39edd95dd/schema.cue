@@ -58,7 +58,7 @@ strings.MinRunes(36) &
 // The code for a language.
 _#defs: "/$defs/Properties/definitions/LanguageCode": strings.MaxRunes(10) & strings.MinRunes(2) & =~"[a-zA-Z-]*"
 
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(1284) & strings.MinRunes(1)
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(1))
 
 _#defs: "/$defs/Properties/definitions/S3BucketName": strings.MaxRunes(63) &
 strings.MinRunes(3) &

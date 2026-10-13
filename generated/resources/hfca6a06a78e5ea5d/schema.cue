@@ -15,18 +15,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates a custom framework in AWS Audit Manager.
 #Properties: close({
 	ComplianceType?: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
-	ControlSets!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ControlSet" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Description?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
-	Name!:        strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[^\\\\]*$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ControlSets!:    list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ControlSet"] | fn.#ListExpression
+	Description?:    strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
+	Name!:           strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[^\\\\]*$" | fn.#StringExpression
+	Tags?:           list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ControlSet": close({
-	Controls!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ControlSetControl" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Name!: strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[^\\\\_]*$" | fn.#StringExpression
+	Controls!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ControlSetControl"] | fn.#ListExpression
+	Name!:     strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[^\\\\_]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

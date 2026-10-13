@@ -7,6 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,17 +21,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	BlueGreenDeploymentName!: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z](?:-?[a-zA-Z0-9]+)*$" |
 	fn.#StringExpression
 	Source!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$" | fn.#StringExpression
-	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	TargetAllocatedStorage?:            int | fn.#NumberExpression
+	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TargetAllocatedStorage?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	TargetDBClusterParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	TargetDBInstanceClass?: strings.MaxRunes(20) & strings.MinRunes(5) & =~"^db\\.[0-9a-z]{2,6}\\.[0-9a-z]{4,9}$" |
 	fn.#StringExpression
 	TargetDBParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TargetEngineVersion?:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z-_.]+$" | fn.#StringExpression
-	TargetIops?:              int | fn.#NumberExpression
-	TargetStorageThroughput?: int | fn.#NumberExpression
-	TargetStorageType?:       string | fn.#StringExpression
-	UpgradeTargetStorageConfig?: bool | fn.#BooleanExpression
+	TargetEngineVersion?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z-_.]+$" | fn.#StringExpression
+	TargetIops?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TargetStorageThroughput?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TargetStorageType?:          string | fn.#StringExpression
+	UpgradeTargetStorageConfig?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DeploymentTask": close({

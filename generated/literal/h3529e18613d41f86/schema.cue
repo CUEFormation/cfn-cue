@@ -31,7 +31,8 @@ import (
 
 	// The Amazon Resource Name (ARN) of an IAM role that Amazon SageMaker AI can
 	// assume to perform actions on your behalf.
-	ExecutionRoleArn?: strings.MaxRunes(2048) &
+	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
@@ -41,7 +42,10 @@ import (
 	// The Amazon Resource Name (ARN) of an AWS Key Management Service key that
 	// Amazon SageMaker uses to encrypt data on the storage volume attached to the
 	// ML compute instance that hosts the endpoint.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9:/_-]*$"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~"^[a-zA-Z0-9:/_-]*$"
 
 	// Specifies the metrics that the endpoint publishes to Amazon CloudWatch, the
 	// frequency of publication, and whether to enable enhanced or detailed
@@ -114,7 +118,10 @@ _#defs: "/$defs/Properties/definitions/AsyncInferenceNotificationConfig": close(
 _#defs: "/$defs/Properties/definitions/AsyncInferenceOutputConfig": close({
 	// The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to
 	// encrypt the asynchronous inference output in Amazon S3.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9:/_-]*$"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~"^[a-zA-Z0-9:/_-]*$"
 
 	// Specifies the configuration for notifications of inference results for asynchronous inference.
 	NotificationConfig?: _#defs."/$defs/Properties/definitions/AsyncInferenceNotificationConfig"
@@ -298,7 +305,10 @@ _#defs: "/$defs/Properties/definitions/CoreDumpConfig": close({
 	// the core dump data at rest using Amazon S3 server-side encryption. If you
 	// use a KMS key ID or an alias of your KMS key, the SageMaker execution role
 	// must include permissions to call kms:Encrypt.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9:/_-]*$"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~"^[a-zA-Z0-9:/_-]*$"
 })
 
 // Specifies how to capture endpoint data for model monitor. The data capture
@@ -322,7 +332,10 @@ _#defs: "/$defs/Properties/definitions/DataCaptureConfig": close({
 
 	// The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to
 	// encrypt the captured data at rest using Amazon S3 server-side encryption.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9:/_-]*$"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~"^[a-zA-Z0-9:/_-]*$"
 })
 
 // A parameter to activate explainers.
@@ -1099,7 +1112,10 @@ _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	// The VPC security group IDs, in the form sg-xxxxxxxx. Specify the security
 	// groups for the VPC that is specified in the Subnets field.
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[-0-9a-zA-Z]+$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"^[-0-9a-zA-Z]+$"
 	]
 
 	// The ID of the subnets in the VPC to which you want to connect your training job or model.

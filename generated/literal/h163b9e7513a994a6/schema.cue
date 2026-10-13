@@ -23,7 +23,7 @@ import (
 		EnclaveOptions?:                   _#defs."/$defs/Properties/definitions/EnclaveOptionsRequest"
 		HibernationOptions?:               _#defs."/$defs/Properties/definitions/HibernationOptionsRequest"
 		IamInstanceProfile?:               _#defs."/$defs/Properties/definitions/IamInstanceProfileSpecification"
-		ImageId!:                          =~"^ami-[0-9a-zA-Z]{1,63}$"
+		ImageId!:                          =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & =~"^ami-[0-9a-zA-Z]{1,63}$"
 		InstanceType!:                     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([a-z0-9-]+)\\.([a-z0-9]+)$"
 		Ipv6AddressCount?:                 int & >=0
 		KeyName?:                          strings.MaxRunes(64) & strings.MinRunes(0)
@@ -86,9 +86,9 @@ _#defs: "/$defs/Properties/definitions/CreditSpecificationRequest": close({CpuCr
 _#defs: "/$defs/Properties/definitions/EC2ManagedInstance": close({InstanceId?: string})
 
 _#defs: "/$defs/Properties/definitions/EbsBlockDevice": close({
-	Encrypted?:  bool
-	Iops?:       int & >=0
-	KmsKeyId?:   (string | string | string) & (strings.MaxRunes(128) & strings.MinRunes(0))
+	Encrypted?: bool
+	Iops?:      int & >=0
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(128) & strings.MinRunes(0))
 	Throughput?: int & >=0
 	VolumeSize?: int & >=0
 	VolumeType?: "standard" | "io1" | "io2" | "gp2" | "sc1" | "st1" | "gp3"

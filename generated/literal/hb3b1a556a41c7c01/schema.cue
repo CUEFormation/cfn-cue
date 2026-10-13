@@ -21,9 +21,10 @@ import (
 	HostConfiguration?: _#defs."/$defs/Properties/definitions/HostConfiguration"
 	MaxWorkerCount!:    int & <=2147483647 & >=0
 	MinWorkerCount?:    int & <=2147483647 & >=0
-	RoleArn!:           =~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$"
-	Status?:            _#defs."/$defs/Properties/definitions/FleetStatus"
-	StatusMessage?:     string
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$"
+	Status?:        _#defs."/$defs/Properties/definitions/FleetStatus"
+	StatusMessage?: string
 
 	// An array of key-value pairs to apply to this resource.
 	Tags?:        list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]

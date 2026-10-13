@@ -22,14 +22,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DeliveryDestinationArn!: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
 	DeliverySourceName!:     strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
 	FieldDelimiter?:         strings.MaxRunes(5) & strings.MinRunes(1) | fn.#StringExpression
-	RecordFields?: list.MaxItems(128) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldHeader" | fn.#StringExpression
-	] |
+	RecordFields?: list.MaxItems(128) & [...] & [..._#defs."/$defs/Properties/definitions/FieldHeader"] |
 		fn.#ListExpression
-	S3EnableHiveCompatiblePath?: bool | fn.#BooleanExpression
+	S3EnableHiveCompatiblePath?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	S3SuffixPath?:               strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" |

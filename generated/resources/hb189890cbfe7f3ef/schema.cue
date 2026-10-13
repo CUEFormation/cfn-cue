@@ -9,6 +9,10 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,20 +23,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^[0-9A-Za-z!#$%&()*\\+\\-;<=>?@^_`{|}~\\/: ]+$" |
 	fn.#StringExpression
-	AuthenticationMaterialType?: _#defs."/$defs/Properties/definitions/AuthMaterialType" | fn.#StringExpression
+	AuthenticationMaterialType?: _#defs."/$defs/Properties/definitions/AuthMaterialType"
 	Brand?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-	CapabilityReport?:   _#defs."/$defs/Properties/definitions/CapabilityReport" | fn.#ObjectExpression
+	CapabilityReport?:   _#defs."/$defs/Properties/definitions/CapabilityReport"
 	Classification?:     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	CredentialLockerId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" | fn.#StringExpression
-	MetaData?:           _#defs."/$defs/Properties/definitions/MetaData" | fn.#ObjectExpression
+	MetaData?:           _#defs."/$defs/Properties/definitions/MetaData"
 	Model?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
 	Name?:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z]+$" | fn.#StringExpression
 	Owner?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.,@-]+$" | fn.#StringExpression
-	Role!:               _#defs."/$defs/Properties/definitions/Role" | fn.#StringExpression
+	Role!:               _#defs."/$defs/Properties/definitions/Role"
 	SerialNumber?:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-	Tags?:               _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
-	WiFiSimpleSetupConfiguration?: _#defs."/$defs/Properties/definitions/WiFiSimpleSetupConfiguration" |
-		fn.#ObjectExpression
+	Tags?:               _#defs."/$defs/Properties/definitions/TagsMap"
+	WiFiSimpleSetupConfiguration?: _#defs."/$defs/Properties/definitions/WiFiSimpleSetupConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/AuthMaterialType": "WIFI_SETUP_QR_BAR_CODE" |
@@ -41,9 +44,7 @@ _#defs: "/$defs/Properties/definitions/AuthMaterialType": "WIFI_SETUP_QR_BAR_COD
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CapabilityReport": close({
-	Endpoints!: list.MaxItems(50) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CapabilityReportEndpoint" | fn.#ObjectExpression
-	] |
+	Endpoints!: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/CapabilityReportEndpoint"] |
 		fn.#ListExpression
 	NodeId?:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9=_.,@\\+\\-/]+$" | fn.#StringExpression
 	Version!: strings.MaxRunes(10) & strings.MinRunes(1) & =~"^1\\.0\\.0$" | fn.#StringExpression
@@ -71,9 +72,7 @@ _#defs: "/$defs/Properties/definitions/CapabilityReportCapability": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CapabilityReportEndpoint": close({
-	Capabilities!: list.MaxItems(50) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CapabilityReportCapability" | fn.#ObjectExpression
-	] |
+	Capabilities!: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/CapabilityReportCapability"] |
 		fn.#ListExpression
 	DeviceTypes!: list.MaxItems(50) & [...] & [
 		...strings.MaxRunes(256) & =~"^[a-zA-Z0-9=_. ,@\\+\\-/]+$" | fn.#StringExpression
@@ -110,9 +109,24 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/Unit": close({}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WiFiSimpleSetupConfiguration": close({
-	EnableAsProvisionee?: bool | fn.#BooleanExpression
-	EnableAsProvisioner?: bool | fn.#BooleanExpression
-	TimeoutInMinutes?:    int & <=15 & >=5 | fn.#NumberExpression
+	EnableAsProvisionee?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableAsProvisioner?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	TimeoutInMinutes?: int & <=15 & >=5 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=15 &
+							>=5,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

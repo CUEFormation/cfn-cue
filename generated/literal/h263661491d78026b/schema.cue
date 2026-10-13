@@ -77,7 +77,7 @@ import (
 	// for Amazon
 	// ECS](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security-ecs-iam-role-overview.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
-	ExecutionRoleArn?: string
+	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The name of a family that this task definition is registered to. Up to 255
 	// letters (uppercase and lowercase), numbers, hyphens, and underscores are
@@ -248,7 +248,7 @@ import (
 	// in the *Amazon Elastic Container Service Developer Guide*.
 	// String validation is done on the ECS side. If an invalid string value is
 	// given for ``TaskRoleArn``, it may cause the Cloudformation job to hang.
-	TaskRoleArn?: string
+	TaskRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The list of data volume definitions for the task. For more information, see
 	// [Using data volumes in

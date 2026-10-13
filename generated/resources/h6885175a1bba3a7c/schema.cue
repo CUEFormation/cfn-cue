@@ -17,7 +17,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ChangeDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Data?:              strings.MaxRunes(16000) & strings.MinRunes(1) & =~"^[^\\x00]+$" | fn.#StringExpression
 	Description?:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(1024) & strings.MinRunes(1)) | fn.#StringExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	fn.#StringExpression
 	Name!:     =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
 	Platform!: "Windows" | "Linux" | "macOS" | fn.#StringExpression
 	SupportedOsVersions?: list.MaxItems(25) & list.MinItems(1) & [...strings.MinRunes(1) | fn.#StringExpression] |

@@ -13,3 +13,8 @@ under MIT-0. Their upstream licenses are reproduced in `corpus/smoke/licenses/`.
 Normalized copies retain those licenses. Exact commit IDs, paths, URLs, and
 content hashes are recorded in `corpus/smoke/index.json` and
 `corpus/sources.lock.json`. Project-authored mutation cases are Apache-2.0.
+
+The eight AWS identifier-format patterns in `internal/generate/formats.go`
+are derived from cfn-lint's MIT-0 format rules at the commit pinned by the corpus
+source lock. They retain AWS's attribution in that source file. The upstream
+license is reproduced in `corpus/smoke/licenses/cfn-lint-good/LICENSE`.

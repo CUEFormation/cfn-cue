@@ -78,7 +78,7 @@ _#defs: "/$defs/Properties/definitions/FleetLaunchTemplateSpecification": close(
 	Version!:            string
 })
 
-_#defs: "/$defs/Properties/definitions/GroupIdentifier": close({GroupId!: string})
+_#defs: "/$defs/Properties/definitions/GroupIdentifier": {...} & close({GroupId!: string})
 
 _#defs: "/$defs/Properties/definitions/IamInstanceProfileSpecification": close({Arn?: string})
 
@@ -204,7 +204,7 @@ _#defs: "/$defs/Properties/definitions/SpotFleetLaunchSpecification": close({
 	BlockDeviceMappings?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"]
 	EbsOptimized?:         bool
 	IamInstanceProfile?:   _#defs."/$defs/Properties/definitions/IamInstanceProfileSpecification"
-	ImageId!:              string
+	ImageId!:              =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$"
 	InstanceRequirements?: _#defs."/$defs/Properties/definitions/InstanceRequirementsRequest"
 	InstanceType?:         string
 	KernelId?:             string

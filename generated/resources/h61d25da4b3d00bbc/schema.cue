@@ -4,20 +4,22 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::Node Resource Type
 #Properties: close({
-	ClusterId!: string | fn.#StringExpression
-	Name?:      string | fn.#StringExpression
-	NodeInterfaceMappings?: [..._#defs."/$defs/Properties/definitions/NodeInterfaceMapping" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Role?: _#defs."/$defs/Properties/definitions/NodeRole" | fn.#StringExpression
-	SdiSourceMappings?: [..._#defs."/$defs/Properties/definitions/SdiSourceMapping" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	ClusterId!:             string | fn.#StringExpression
+	Name?:                  string | fn.#StringExpression
+	NodeInterfaceMappings?: [..._#defs."/$defs/Properties/definitions/NodeInterfaceMapping"] | fn.#ListExpression
+	Role?:                  _#defs."/$defs/Properties/definitions/NodeRole"
+	SdiSourceMappings?:     [..._#defs."/$defs/Properties/definitions/SdiSourceMapping"] | fn.#ListExpression
+	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/NodeConnectionState": "CONNECTED" | "DISCONNECTED" | fn.#StringExpression
@@ -53,9 +55,35 @@ _#defs: "/$defs/Properties/definitions/NodeState": "CREATED" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SdiSourceMapping": close({
-	CardNumber?:    int | fn.#NumberExpression
-	ChannelNumber?: int | fn.#NumberExpression
-	SdiSource?:     string | fn.#StringExpression
+	CardNumber?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ChannelNumber?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SdiSource?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

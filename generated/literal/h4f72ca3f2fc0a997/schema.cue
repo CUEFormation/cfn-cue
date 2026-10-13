@@ -18,7 +18,7 @@ package schema
 	// The Amazon Resource Name (ARN) of the Amazon SNS topic created for event
 	// notification. The ARN is created by Amazon SNS when you create a topic and
 	// subscribe to it.
-	SnsTopicArn!: string
+	SnsTopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 
 	// A list of identifiers for which AWS DMS provides notification events.
 	//

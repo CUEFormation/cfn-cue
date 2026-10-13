@@ -17,7 +17,10 @@ import "strings"
 
 	// The Amazon Resource Name (ARN) of an IAM role that grants the AWS Support App
 	// access to perform operations for AWS services.
-	ChannelRoleArn!: strings.MaxRunes(2048) & strings.MinRunes(31) & =~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role\\/(.+)$"
+	ChannelRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(31) &
+	=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role\\/(.+)$"
 
 	// Whether to notify when a correspondence is added to a case.
 	NotifyOnAddCorrespondenceToCase?: bool

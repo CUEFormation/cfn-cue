@@ -20,7 +20,8 @@ import (
 	Destination!: _#defs."/$defs/Properties/definitions/Destination"
 
 	// IAM role ARN for the scraper.
-	RoleArn?: strings.MaxRunes(2048) &
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws-us-gov|aws-cn):iam::[0-9]{12}:role/[a-zA-Z0-9-]+$"
 	RoleConfiguration?:   _#defs."/$defs/Properties/definitions/RoleConfiguration"
@@ -73,10 +74,10 @@ _#defs: "/$defs/Properties/definitions/Destination": matchN(1, [{
 // Role configuration
 _#defs: "/$defs/Properties/definitions/RoleConfiguration": close({
 	// IAM Role in source account
-	SourceRoleArn?: string
+	SourceRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// IAM Role in the target account
-	TargetRoleArn?: string
+	TargetRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 // Scraper configuration
@@ -110,7 +111,8 @@ _#defs: "/$defs/Properties/definitions/ScraperLoggingDestination": close(
 )
 
 // ID of a security group
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-[0-9a-z]+$"
+_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	=~"^sg-[0-9a-z]+$"
 
 // Scraper metrics source
 _#defs: "/$defs/Properties/definitions/Source": matchN(1, [{

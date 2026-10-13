@@ -20,60 +20,57 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9-]+$" | fn.#StringExpression
 	Sources!: list.MaxItems(40) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataIntegrationFlowSource" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/DataIntegrationFlowSource"
 	] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
-	Target!:         _#defs."/$defs/Properties/definitions/DataIntegrationFlowTarget" | fn.#ObjectExpression
-	Transformation!: _#defs."/$defs/Properties/definitions/DataIntegrationFlowTransformation" | fn.#ObjectExpression
+	Target!:         _#defs."/$defs/Properties/definitions/DataIntegrationFlowTarget"
+	Transformation!: _#defs."/$defs/Properties/definitions/DataIntegrationFlowTransformation"
 })
 
 _#defs: "/$defs/Properties/definitions/DataIntegrationFlowSource": close({
-	DatasetSource?: _#defs."/$defs/Properties/definitions/DatasetSourceConfiguration" | fn.#ObjectExpression
-	S3Source?:      _#defs."/$defs/Properties/definitions/S3SourceConfiguration" | fn.#ObjectExpression
+	DatasetSource?: _#defs."/$defs/Properties/definitions/DatasetSourceConfiguration"
+	S3Source?:      _#defs."/$defs/Properties/definitions/S3SourceConfiguration"
 	SourceName!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_]+$" | fn.#StringExpression
 	SourceType!:    "S3" | "DATASET" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataIntegrationFlowTarget": close({
-	DatasetTarget?: _#defs."/$defs/Properties/definitions/DatasetTargetConfiguration" | fn.#ObjectExpression
+	DatasetTarget?: _#defs."/$defs/Properties/definitions/DatasetTargetConfiguration"
 	TargetType!:    "DATASET" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataIntegrationFlowTransformation": close({
-	SqlTransformation?:  _#defs."/$defs/Properties/definitions/SqlTransformationConfiguration" | fn.#ObjectExpression
+	SqlTransformation?:  _#defs."/$defs/Properties/definitions/SqlTransformationConfiguration"
 	TransformationType!: "SQL" | "NONE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DatasetOptions": close({
-	DedupeRecords?:  bool | fn.#BooleanExpression
-	DedupeStrategy?: _#defs."/$defs/Properties/definitions/DedupeStrategy" | fn.#ObjectExpression
+	DedupeRecords?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DedupeStrategy?: _#defs."/$defs/Properties/definitions/DedupeStrategy"
 	LoadType?:       "INCREMENTAL" | "REPLACE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DatasetSourceConfiguration": close({
 	DatasetIdentifier!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[-_/A-Za-z0-9:]+$" | fn.#StringExpression
-	Options?:           _#defs."/$defs/Properties/definitions/DatasetOptions" | fn.#ObjectExpression
+	Options?:           _#defs."/$defs/Properties/definitions/DatasetOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DatasetTargetConfiguration": close({
 	DatasetIdentifier!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[-_/A-Za-z0-9:]+$" | fn.#StringExpression
-	Options?:           _#defs."/$defs/Properties/definitions/DatasetOptions" | fn.#ObjectExpression
+	Options?:           _#defs."/$defs/Properties/definitions/DatasetOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DedupeStrategy": close({
-	FieldPriority?: _#defs."/$defs/Properties/definitions/FieldPriorityDedupeStrategyConfiguration" |
-		fn.#ObjectExpression
-	Type!: "FIELD_PRIORITY" | fn.#StringExpression
+	FieldPriority?: _#defs."/$defs/Properties/definitions/FieldPriorityDedupeStrategyConfiguration"
+	Type!:          "FIELD_PRIORITY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -84,9 +81,7 @@ _#defs: "/$defs/Properties/definitions/FieldPriorityDedupeField": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldPriorityDedupeStrategyConfiguration": close({
-	Fields!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FieldPriorityDedupeField" | fn.#ObjectExpression
-	] |
+	Fields!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/FieldPriorityDedupeField"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -96,7 +91,7 @@ _#defs: "/$defs/Properties/definitions/S3Options": close({FileType?: "CSV" | "PA
 
 _#defs: "/$defs/Properties/definitions/S3SourceConfiguration": close({
 	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$" | fn.#StringExpression
-	Options?:    _#defs."/$defs/Properties/definitions/S3Options" | fn.#ObjectExpression
+	Options?:    _#defs."/$defs/Properties/definitions/S3Options"
 	Prefix!:     strings.MaxRunes(700) & strings.MinRunes(0) & =~"^[/A-Za-z0-9._-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

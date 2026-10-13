@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AccessLogLocation?: =~"^$|^s3://([a-z0-9][a-z0-9-.]{1,61}[a-z0-9])/?((.{1,800})/)?$" | fn.#StringExpression
 	Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
 	fn.#StringExpression
-	ETagAlgorithmFamily?: _#defs."/$defs/Properties/definitions/ETagAlgorithmFamily" | fn.#StringExpression
+	ETagAlgorithmFamily?: _#defs."/$defs/Properties/definitions/ETagAlgorithmFamily"
 	FallbackLocation?:    strings.MinRunes(0) | fn.#StringExpression
 	Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
 	fn.#StringExpression
@@ -26,8 +26,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	] |
 	fn.#ListExpression
 	S3AccessPolicy?: {[string]: fn.#Value} | fn.#ObjectExpression
-	SseConfig?:      _#defs."/$defs/Properties/definitions/SseConfig" | fn.#ObjectExpression
-	Tags?:           _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
+	SseConfig?:      _#defs."/$defs/Properties/definitions/SseConfig"
+	Tags?:           _#defs."/$defs/Properties/definitions/TagMap"
 })
 
 _#defs: "/$defs/Properties/definitions/ETagAlgorithmFamily": "MD5up" | "SHA256up" | "SHA512up" | fn.#StringExpression
@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/SseConfig": close({
 		]*)
 		""" |
 	fn.#StringExpression
-	Type!: _#defs."/$defs/Properties/definitions/EncryptionType" | fn.#StringExpression
+	Type!: _#defs."/$defs/Properties/definitions/EncryptionType"
 }) |
 fn.#ObjectExpression
 

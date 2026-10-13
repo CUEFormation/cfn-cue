@@ -10,10 +10,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::MediaLive::SdiSource Resource Type
 #Properties: close({
-	Mode?: _#defs."/$defs/Properties/definitions/SdiSourceMode" | fn.#StringExpression
+	Mode?: _#defs."/$defs/Properties/definitions/SdiSourceMode"
 	Name!: string | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression] | fn.#ListExpression
-	Type!: _#defs."/$defs/Properties/definitions/SdiSourceType" | fn.#StringExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
+	Type!: _#defs."/$defs/Properties/definitions/SdiSourceType"
 })
 
 _#defs: "/$defs/Properties/definitions/SdiSourceMode": "QUADRANT" | "INTERLEAVE" | fn.#StringExpression

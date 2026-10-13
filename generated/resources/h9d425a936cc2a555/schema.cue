@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -35,7 +39,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!: "OPENZFS" | "ONTAP" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/FileSystemGID": close({Gid!: <=4294967295 & >=0 | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/FileSystemGID": close({
+	Gid!: <=4294967295 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=4294967295 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OntapFileSystemIdentity": matchN(1, [{
@@ -70,12 +95,48 @@ _#defs: "/$defs/Properties/definitions/OpenZFSFileSystemIdentity": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OpenZFSPosixFileSystemUser": close({
-	Gid!: <=4294967295 & >=0 | fn.#NumberExpression
-	SecondaryGids?: list.MaxItems(15) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FileSystemGID" | fn.#ObjectExpression
-	] |
+	Gid!: <=4294967295 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=4294967295 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SecondaryGids?: list.MaxItems(15) & [...] & [..._#defs."/$defs/Properties/definitions/FileSystemGID"] |
 		fn.#ListExpression
-	Uid!: <=4294967295 & >=0 | fn.#NumberExpression
+	Uid!: <=4294967295 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=4294967295 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -102,9 +163,13 @@ _#defs: "/$defs/Properties/definitions/S3AccessPointOpenZFSConfiguration": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3AccessPointVpcConfiguration": close(
-	{VpcId!: strings.MaxRunes(21) & strings.MinRunes(12) & =~"^(vpc-[0-9a-f]{8,})$" | fn.#StringExpression},
-) |
+_#defs: "/$defs/Properties/definitions/S3AccessPointVpcConfiguration": close({
+	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(21) &
+	strings.MinRunes(12) &
+	=~"^(vpc-[0-9a-f]{8,})$" |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::FSx::S3AccessPointAttachment"

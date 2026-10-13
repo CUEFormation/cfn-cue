@@ -16,21 +16,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ExclusiveEndTime?:     string | fn.#StringExpression
 	InclusiveStartTime!:   string | fn.#StringExpression
-	KinesisConfiguration!: _#defs."/$defs/Properties/definitions/KinesisConfiguration" | fn.#ObjectExpression
+	KinesisConfiguration!: _#defs."/$defs/Properties/definitions/KinesisConfiguration"
 	LedgerName!:           string | fn.#StringExpression
-	RoleArn!:              _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	StreamName!:           string | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	RoleArn!: _#defs."/$defs/Properties/definitions/Arn" &
+	(null |
+	bool |
+	number |
+	=~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+	[...] |
+	{...}) |
+	fn.#StringExpression
+	StreamName!: string | fn.#StringExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/KinesisConfiguration": close({
-	AggregationEnabled?: bool | fn.#BooleanExpression
+	AggregationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	StreamArn?:          _#defs."/$defs/Properties/definitions/Arn" & {[string]: fn.#Value} | fn.#StringExpression
 }) |
 fn.#ObjectExpression

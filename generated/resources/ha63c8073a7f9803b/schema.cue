@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,16 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::SES::MailManagerIngressPoint Resource Type
 #Properties: close({
-	IngressPointConfiguration?: _#defs."/$defs/Properties/definitions/IngressPointConfiguration" | fn.#ValueExpression
+	IngressPointConfiguration?: _#defs."/$defs/Properties/definitions/IngressPointConfiguration"
 	IngressPointName?:     strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[A-Za-z0-9_\\-]+$" | fn.#StringExpression
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration" | fn.#ValueExpression
+	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
 	RuleSetId!:            strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	StatusToUpdate?:       _#defs."/$defs/Properties/definitions/IngressPointStatusToUpdate" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TlsPolicy?:       _#defs."/$defs/Properties/definitions/TlsPolicy" | fn.#StringExpression
+	StatusToUpdate?:       _#defs."/$defs/Properties/definitions/IngressPointStatusToUpdate"
+	Tags?:            list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TlsPolicy?:       _#defs."/$defs/Properties/definitions/TlsPolicy"
 	TrafficPolicyId!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Type!:            _#defs."/$defs/Properties/definitions/IngressPointType" | fn.#StringExpression
+	Type!:            _#defs."/$defs/Properties/definitions/IngressPointType"
 })
 
 _#defs: "/$defs/Properties/definitions/IngressPointConfiguration": matchN(1, [close({
@@ -33,7 +32,7 @@ _#defs: "/$defs/Properties/definitions/IngressPointConfiguration": matchN(1, [cl
 	SecretArn!: =~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc):secretsmanager:[a-z0-9-]+:\\d{12}:secret:[a-zA-Z0-9/_+=,.@-]+$" |
 		fn.#StringExpression
 }), close(
-	{TlsAuthConfiguration!: _#defs."/$defs/Properties/definitions/TlsAuthConfiguration" | fn.#ObjectExpression},
+	{TlsAuthConfiguration!: _#defs."/$defs/Properties/definitions/TlsAuthConfiguration"},
 )]) |
 fn.#ValueExpression
 
@@ -51,13 +50,11 @@ _#defs: "/$defs/Properties/definitions/IngressPointType": "OPEN" | "AUTH" | "MTL
 
 _#defs: "/$defs/Properties/definitions/IpType": "IPV4" | "DUAL_STACK" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": matchN(1, [close({
-	PublicNetworkConfiguration!: _#defs."/$defs/Properties/definitions/PublicNetworkConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	PrivateNetworkConfiguration!: _#defs."/$defs/Properties/definitions/PrivateNetworkConfiguration" |
-		fn.#ObjectExpression
-})]) |
+_#defs: "/$defs/Properties/definitions/NetworkConfiguration": matchN(1, [close(
+	{PublicNetworkConfiguration!: _#defs."/$defs/Properties/definitions/PublicNetworkConfiguration"},
+), close(
+	{PrivateNetworkConfiguration!: _#defs."/$defs/Properties/definitions/PrivateNetworkConfiguration"},
+)]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateNetworkConfiguration": close(
@@ -77,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TlsAuthConfiguration": close(
-	{TrustStore!: _#defs."/$defs/Properties/definitions/TrustStore" | fn.#ObjectExpression},
+	{TrustStore!: _#defs."/$defs/Properties/definitions/TrustStore"},
 ) |
 	fn.#ObjectExpression
 
@@ -86,7 +83,8 @@ _#defs: "/$defs/Properties/definitions/TlsPolicy": "REQUIRED" | "OPTIONAL" | "FI
 _#defs: "/$defs/Properties/definitions/TrustStore": close({
 	CAContent!:  strings.MaxRunes(500000) & strings.MinRunes(1) & =~"^[\\P{C}\\s]*$" | fn.#StringExpression
 	CrlContent?: strings.MaxRunes(500000) & strings.MinRunes(1) & =~"^[\\P{C}\\s]*$" | fn.#StringExpression
-	KmsKeyArn?: =~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc):kms:[a-z0-9-]+:\\d{12}:(key|alias)/[a-zA-Z0-9/_-]+$" |
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc):kms:[a-z0-9-]+:\\d{12}:(key|alias)/[a-zA-Z0-9/_-]+$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -15,11 +15,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Synthetics::Group
 #Properties: close({
 	Name!: =~"^[0-9a-z_\\-]{1,64}$" | fn.#StringExpression
-	ResourceArns?: list.MaxItems(10) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ResourceArn" | fn.#StringExpression
-	] |
+	ResourceArns?: list.MaxItems(10) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ResourceArn"] |
 		fn.#ListExpression
-	Tags?: [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?: [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ResourceArn": =~"arn:(aws[a-zA-Z-]*)?:synthetics:[a-z]{2}((-gov)|(-iso(b|e|f?)))?-[a-z]+-\\d{1}:\\d{12}:canary:[0-9a-z_\\-]" |

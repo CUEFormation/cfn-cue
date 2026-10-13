@@ -10,8 +10,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::ResourceExplorer2::Index Resource Type
 #Properties: close({
-	Tags?: _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
-	Type!: _#defs."/$defs/Properties/definitions/IndexType" | fn.#StringExpression
+	Tags?: _#defs."/$defs/Properties/definitions/TagMap"
+	Type!: _#defs."/$defs/Properties/definitions/IndexType"
 })
 
 _#defs: "/$defs/Properties/definitions/IndexState": "ACTIVE" |

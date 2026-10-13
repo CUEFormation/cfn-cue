@@ -7,6 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,16 +21,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	BuildConfiguration?: _#defs."/$defs/Properties/definitions/BuildConfiguration" | fn.#ObjectExpression
 	Description?:        strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
 	ImageConfiguration?: _#defs."/$defs/Properties/definitions/ImageConfiguration" | fn.#ObjectExpression
-	Process?:            bool | fn.#BooleanExpression
+	Process?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SourceBundle?:       _#defs."/$defs/Properties/definitions/SourceBundle" | fn.#ObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/BuildConfiguration": close({
 	ArtifactName?:         string | fn.#StringExpression
 	CodeBuildServiceRole!: =~"\\S" | fn.#StringExpression
-	ComputeType?:      "BUILD_GENERAL1_SMALL" | "BUILD_GENERAL1_MEDIUM" | "BUILD_GENERAL1_LARGE" | fn.#StringExpression
-	Image!:            =~"\\S" | fn.#StringExpression
-	TimeoutInMinutes?: int | fn.#NumberExpression
+	ComputeType?: "BUILD_GENERAL1_SMALL" | "BUILD_GENERAL1_MEDIUM" | "BUILD_GENERAL1_LARGE" | fn.#StringExpression
+	Image!:       =~"\\S" | fn.#StringExpression
+	TimeoutInMinutes?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -36,8 +53,21 @@ _#defs: "/$defs/Properties/definitions/ImageBuildConfiguration": close({
 	CodeBuildServiceRole!: =~"\\S" | fn.#StringExpression
 	ComputeType?: "BUILD_GENERAL1_SMALL" | "BUILD_GENERAL1_MEDIUM" | "BUILD_GENERAL1_LARGE" | fn.#StringExpression
 	DockerfileLocation?: string | fn.#StringExpression
-	TimeoutInMinutes?:   int | fn.#NumberExpression
-	Type!:               "docker" | "buildpack" | fn.#StringExpression
+	TimeoutInMinutes?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type!: "docker" | "buildpack" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,33 +18,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Batch::JobDefinition
 #Properties: close({
-	ConsumableResourceProperties?: _#defs."/$defs/Properties/definitions/ConsumableResourceProperties" |
-		fn.#ObjectExpression
-	ContainerProperties?: _#defs."/$defs/Properties/definitions/ContainerProperties" | fn.#ObjectExpression
-	EcsProperties?:       _#defs."/$defs/Properties/definitions/EcsProperties" | fn.#ObjectExpression
-	EksProperties?:       _#defs."/$defs/Properties/definitions/EksProperties" | fn.#ObjectExpression
-	JobDefinitionName?:   strings.MaxRunes(128) | fn.#StringExpression
-	NodeProperties?:      _#defs."/$defs/Properties/definitions/NodeProperties" | fn.#ObjectExpression
+	ConsumableResourceProperties?: _#defs."/$defs/Properties/definitions/ConsumableResourceProperties"
+	ContainerProperties?:          _#defs."/$defs/Properties/definitions/ContainerProperties"
+	EcsProperties?:                _#defs."/$defs/Properties/definitions/EcsProperties"
+	EksProperties?:                _#defs."/$defs/Properties/definitions/EksProperties"
+	JobDefinitionName?:            strings.MaxRunes(128) | fn.#StringExpression
+	NodeProperties?:               _#defs."/$defs/Properties/definitions/NodeProperties"
 	Parameters?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
 	PlatformCapabilities?: [...=~"(?i)^(?:ec2|fargate|managed_instances)$" | fn.#StringExpression] | fn.#ListExpression
-	PropagateTags?:        bool | fn.#BooleanExpression
-	ResourceRetentionPolicy?: _#defs."/$defs/Properties/definitions/ResourceRetentionPolicy" | fn.#ObjectExpression
-	RetryStrategy?:           _#defs."/$defs/Properties/definitions/RetryStrategy" | fn.#ObjectExpression
-	SchedulingPriority?:      int | fn.#NumberExpression
+	PropagateTags?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ResourceRetentionPolicy?: _#defs."/$defs/Properties/definitions/ResourceRetentionPolicy"
+	RetryStrategy?:           _#defs."/$defs/Properties/definitions/RetryStrategy"
+	SchedulingPriority?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Tags?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Timeout?: _#defs."/$defs/Properties/definitions/JobTimeout" | fn.#ObjectExpression
+	Timeout?: _#defs."/$defs/Properties/definitions/JobTimeout"
 	Type!:    =~"(?i)^(?:container|multinode)$" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ConsumableResourceProperties": close({
 	ConsumableResourceList!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ConsumableResourceRequirement" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ConsumableResourceRequirement"
 	] |
 		fn.#ListExpression
 }) |
@@ -48,35 +64,75 @@ _#defs: "/$defs/Properties/definitions/ConsumableResourceProperties": close({
 
 _#defs: "/$defs/Properties/definitions/ConsumableResourceRequirement": close({
 	ConsumableResource!: string | fn.#StringExpression
-	Quantity!:           int | fn.#NumberExpression
+	Quantity!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ContainerProperties": close({
 	Command?:              [...string | fn.#StringExpression] | fn.#ListExpression
-	EnableExecuteCommand?: bool | fn.#BooleanExpression
-	Environment?: [..._#defs."/$defs/Properties/definitions/Environment" | fn.#ObjectExpression] | fn.#ListExpression
-	EphemeralStorage?:             _#defs."/$defs/Properties/definitions/EphemeralStorage" | fn.#ObjectExpression
-	ExecutionRoleArn?:             string | fn.#StringExpression
+	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Environment?:          [..._#defs."/$defs/Properties/definitions/Environment"] | fn.#ListExpression
+	EphemeralStorage?:     _#defs."/$defs/Properties/definitions/EphemeralStorage"
+	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	FargatePlatformConfiguration?: close({PlatformVersion?: string | fn.#StringExpression}) | fn.#ObjectExpression
 	Image!:                        string | fn.#StringExpression
-	JobRoleArn?:                   string | fn.#StringExpression
-	LinuxParameters?:              _#defs."/$defs/Properties/definitions/LinuxParameters" | fn.#ObjectExpression
-	LogConfiguration?:             _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
-	Memory?:                       int | fn.#NumberExpression
-	MountPoints?: [..._#defs."/$defs/Properties/definitions/MountPoint" | fn.#ObjectExpression] | fn.#ListExpression
-	NetworkConfiguration?:   _#defs."/$defs/Properties/definitions/NetworkConfiguration" | fn.#ObjectExpression
-	Privileged?:             bool | fn.#BooleanExpression
-	ReadonlyRootFilesystem?: bool | fn.#BooleanExpression
-	RepositoryCredentials?:  _#defs."/$defs/Properties/definitions/RepositoryCredentials" | fn.#ObjectExpression
-	ResourceRequirements?: [..._#defs."/$defs/Properties/definitions/ResourceRequirement" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	RuntimePlatform?: _#defs."/$defs/Properties/definitions/RuntimePlatform" | fn.#ObjectExpression
-	Secrets?:         [..._#defs."/$defs/Properties/definitions/Secret" | fn.#ObjectExpression] | fn.#ListExpression
-	Ulimits?:         [..._#defs."/$defs/Properties/definitions/Ulimit" | fn.#ObjectExpression] | fn.#ListExpression
-	User?:            string | fn.#StringExpression
-	Vcpus?:           int | fn.#NumberExpression
-	Volumes?:         [..._#defs."/$defs/Properties/definitions/Volume" | fn.#ObjectExpression] | fn.#ListExpression
+	JobRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	LinuxParameters?:  _#defs."/$defs/Properties/definitions/LinuxParameters"
+	LogConfiguration?: _#defs."/$defs/Properties/definitions/LogConfiguration"
+	Memory?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MountPoints?:            [..._#defs."/$defs/Properties/definitions/MountPoint"] | fn.#ListExpression
+	NetworkConfiguration?:   _#defs."/$defs/Properties/definitions/NetworkConfiguration"
+	Privileged?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ReadonlyRootFilesystem?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RepositoryCredentials?:  _#defs."/$defs/Properties/definitions/RepositoryCredentials"
+	ResourceRequirements?:   [..._#defs."/$defs/Properties/definitions/ResourceRequirement"] | fn.#ListExpression
+	RuntimePlatform?:        _#defs."/$defs/Properties/definitions/RuntimePlatform"
+	Secrets?:                [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
+	Ulimits?:                [..._#defs."/$defs/Properties/definitions/Ulimit"] | fn.#ListExpression
+	User?:                   string | fn.#StringExpression
+	Vcpus?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Volumes?: [..._#defs."/$defs/Properties/definitions/Volume"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -94,49 +150,60 @@ _#defs: "/$defs/Properties/definitions/EFSAuthorizationConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EFSVolumeConfiguration": close({
-	AuthorizationConfig?:   _#defs."/$defs/Properties/definitions/EFSAuthorizationConfig" | fn.#ObjectExpression
-	FileSystemId!:          string | fn.#StringExpression
-	RootDirectory?:         string | fn.#StringExpression
-	TransitEncryption?:     =~"(?i)^(?:disabled|enabled)$" | fn.#StringExpression
-	TransitEncryptionPort?: int | fn.#NumberExpression
+	AuthorizationConfig?: _#defs."/$defs/Properties/definitions/EFSAuthorizationConfig"
+	FileSystemId!:        string | fn.#StringExpression
+	RootDirectory?:       string | fn.#StringExpression
+	TransitEncryption?:   =~"(?i)^(?:disabled|enabled)$" | fn.#StringExpression
+	TransitEncryptionPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EcsProperties": close({
-	TaskProperties!: [..._#defs."/$defs/Properties/definitions/EcsTaskProperties" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/EcsProperties": close(
+	{TaskProperties!: [..._#defs."/$defs/Properties/definitions/EcsTaskProperties"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EcsTaskProperties": close({
-	Containers?: [..._#defs."/$defs/Properties/definitions/TaskContainerProperties" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	EnableExecuteCommand?: bool | fn.#BooleanExpression
-	EphemeralStorage?:     _#defs."/$defs/Properties/definitions/EphemeralStorage" | fn.#ObjectExpression
-	ExecutionRoleArn?:     string | fn.#StringExpression
+	Containers?:           [..._#defs."/$defs/Properties/definitions/TaskContainerProperties"] | fn.#ListExpression
+	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EphemeralStorage?:     _#defs."/$defs/Properties/definitions/EphemeralStorage"
+	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	IpcMode?:              string | fn.#StringExpression
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration" | fn.#ObjectExpression
+	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
 	NetworkMode?:          string | fn.#StringExpression
 	PidMode?:              string | fn.#StringExpression
 	PlatformVersion?:      string | fn.#StringExpression
-	RuntimePlatform?:      _#defs."/$defs/Properties/definitions/RuntimePlatform" | fn.#ObjectExpression
-	TaskRoleArn?:          string | fn.#StringExpression
-	Volumes?: [..._#defs."/$defs/Properties/definitions/Volume" | fn.#ObjectExpression] | fn.#ListExpression
+	RuntimePlatform?:      _#defs."/$defs/Properties/definitions/RuntimePlatform"
+	TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Volumes?: [..._#defs."/$defs/Properties/definitions/Volume"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EksContainer": close({
-	Args?:    [...string | fn.#StringExpression] | fn.#ListExpression
-	Command?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Env?: [..._#defs."/$defs/Properties/definitions/EksContainerEnvironmentVariable" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Args?:            [...string | fn.#StringExpression] | fn.#ListExpression
+	Command?:         [...string | fn.#StringExpression] | fn.#ListExpression
+	Env?:             [..._#defs."/$defs/Properties/definitions/EksContainerEnvironmentVariable"] | fn.#ListExpression
 	Image!:           string | fn.#StringExpression
 	ImagePullPolicy?: string | fn.#StringExpression
 	Name?:            string | fn.#StringExpression
-	Resources?:       _#defs."/$defs/Properties/definitions/EksContainerResourceRequirements" | fn.#ObjectExpression
-	SecurityContext?: _#defs."/$defs/Properties/definitions/EksContainerSecurityContext" | fn.#ObjectExpression
-	VolumeMounts?: [..._#defs."/$defs/Properties/definitions/EksContainerVolumeMount" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Resources?:       _#defs."/$defs/Properties/definitions/EksContainerResourceRequirements"
+	SecurityContext?: _#defs."/$defs/Properties/definitions/EksContainerSecurityContext"
+	VolumeMounts?:    [..._#defs."/$defs/Properties/definitions/EksContainerVolumeMount"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -159,19 +226,45 @@ _#defs: "/$defs/Properties/definitions/EksContainerResourceRequirements": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EksContainerSecurityContext": close({
-	AllowPrivilegeEscalation?: bool | fn.#BooleanExpression
-	Privileged?:               bool | fn.#BooleanExpression
-	ReadOnlyRootFilesystem?:   bool | fn.#BooleanExpression
-	RunAsGroup?:               int | fn.#NumberExpression
-	RunAsNonRoot?:             bool | fn.#BooleanExpression
-	RunAsUser?:                int | fn.#NumberExpression
+	AllowPrivilegeEscalation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Privileged?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ReadOnlyRootFilesystem?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RunAsGroup?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RunAsNonRoot?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RunAsUser?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EksContainerVolumeMount": close({
 	MountPath?: string | fn.#StringExpression
 	Name?:      string | fn.#StringExpression
-	ReadOnly?:  bool | fn.#BooleanExpression
+	ReadOnly?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SubPath?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -200,42 +293,40 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EksPersistentVolumeClaim": close({
 	ClaimName!: string | fn.#StringExpression
-	ReadOnly?:  bool | fn.#BooleanExpression
+	ReadOnly?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EksPodProperties": close({
-	Containers?:  [..._#defs."/$defs/Properties/definitions/EksContainer" | fn.#ObjectExpression] | fn.#ListExpression
-	DnsPolicy?:   string | fn.#StringExpression
-	HostNetwork?: bool | fn.#BooleanExpression
-	ImagePullSecrets?: [..._#defs."/$defs/Properties/definitions/ImagePullSecret" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	InitContainers?: [..._#defs."/$defs/Properties/definitions/EksContainer" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Metadata?:              _#defs."/$defs/Properties/definitions/EksMetadata" | fn.#ObjectExpression
+	Containers?:            [..._#defs."/$defs/Properties/definitions/EksContainer"] | fn.#ListExpression
+	DnsPolicy?:             string | fn.#StringExpression
+	HostNetwork?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ImagePullSecrets?:      [..._#defs."/$defs/Properties/definitions/ImagePullSecret"] | fn.#ListExpression
+	InitContainers?:        [..._#defs."/$defs/Properties/definitions/EksContainer"] | fn.#ListExpression
+	Metadata?:              _#defs."/$defs/Properties/definitions/EksMetadata"
 	ServiceAccountName?:    string | fn.#StringExpression
-	ShareProcessNamespace?: bool | fn.#BooleanExpression
-	Volumes?: [..._#defs."/$defs/Properties/definitions/EksVolume" | fn.#ObjectExpression] | fn.#ListExpression
+	ShareProcessNamespace?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Volumes?:               [..._#defs."/$defs/Properties/definitions/EksVolume"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EksProperties": close(
-	{PodProperties?: _#defs."/$defs/Properties/definitions/EksPodProperties" | fn.#ObjectExpression},
+	{PodProperties?: _#defs."/$defs/Properties/definitions/EksPodProperties"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EksSecret": close({
-	Optional?:   bool | fn.#BooleanExpression
+	Optional?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SecretName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EksVolume": close({
-	EmptyDir?:              _#defs."/$defs/Properties/definitions/EksEmptyDir" | fn.#ObjectExpression
-	HostPath?:              _#defs."/$defs/Properties/definitions/EksHostPath" | fn.#ObjectExpression
+	EmptyDir?:              _#defs."/$defs/Properties/definitions/EksEmptyDir"
+	HostPath?:              _#defs."/$defs/Properties/definitions/EksHostPath"
 	Name!:                  string | fn.#StringExpression
-	PersistentVolumeClaim?: _#defs."/$defs/Properties/definitions/EksPersistentVolumeClaim" | fn.#ObjectExpression
-	Secret?:                _#defs."/$defs/Properties/definitions/EksSecret" | fn.#ObjectExpression
+	PersistentVolumeClaim?: _#defs."/$defs/Properties/definitions/EksPersistentVolumeClaim"
+	Secret?:                _#defs."/$defs/Properties/definitions/EksSecret"
 }) |
 fn.#ObjectExpression
 
@@ -245,7 +336,22 @@ _#defs: "/$defs/Properties/definitions/Environment": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EphemeralStorage": close({SizeInGiB!: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/EphemeralStorage": close({
+	SizeInGiB!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EvaluateOnExit": close({
@@ -261,16 +367,70 @@ _#defs: "/$defs/Properties/definitions/Host": close({SourcePath?: string | fn.#S
 _#defs: "/$defs/Properties/definitions/ImagePullSecret": close({Name?: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobTimeout": close({AttemptDurationSeconds?: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/JobTimeout": close({
+	AttemptDurationSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LinuxParameters": close({
-	Devices?:            [..._#defs."/$defs/Properties/definitions/Device" | fn.#ObjectExpression] | fn.#ListExpression
-	InitProcessEnabled?: bool | fn.#BooleanExpression
-	MaxSwap?:            int | fn.#NumberExpression
-	SharedMemorySize?:   int | fn.#NumberExpression
-	Swappiness?:         int | fn.#NumberExpression
-	Tmpfs?:              [..._#defs."/$defs/Properties/definitions/Tmpfs" | fn.#ObjectExpression] | fn.#ListExpression
+	Devices?:            [..._#defs."/$defs/Properties/definitions/Device"] | fn.#ListExpression
+	InitProcessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MaxSwap?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SharedMemorySize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Swappiness?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Tmpfs?: [..._#defs."/$defs/Properties/definitions/Tmpfs"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -280,59 +440,86 @@ _#defs: "/$defs/Properties/definitions/LogConfiguration": close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	SecretOptions?: [..._#defs."/$defs/Properties/definitions/Secret" | fn.#ObjectExpression] | fn.#ListExpression
+	SecretOptions?: [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MountPoint": close({
 	ContainerPath?: string | fn.#StringExpression
-	ReadOnly?:      bool | fn.#BooleanExpression
+	ReadOnly?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SourceVolume?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MultiNodeContainerProperties": close({
 	Command?:              [...string | fn.#StringExpression] | fn.#ListExpression
-	EnableExecuteCommand?: bool | fn.#BooleanExpression
-	Environment?: [..._#defs."/$defs/Properties/definitions/Environment" | fn.#ObjectExpression] | fn.#ListExpression
-	EphemeralStorage?: _#defs."/$defs/Properties/definitions/EphemeralStorage" | fn.#ObjectExpression
-	ExecutionRoleArn?: string | fn.#StringExpression
-	Image!:            string | fn.#StringExpression
-	InstanceType?:     string | fn.#StringExpression
-	JobRoleArn?:       string | fn.#StringExpression
-	LinuxParameters?:  _#defs."/$defs/Properties/definitions/LinuxParameters" | fn.#ObjectExpression
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
-	Memory?:           int | fn.#NumberExpression
-	MountPoints?: [..._#defs."/$defs/Properties/definitions/MountPoint" | fn.#ObjectExpression] | fn.#ListExpression
-	Privileged?:  bool | fn.#BooleanExpression
-	ReadonlyRootFilesystem?: bool | fn.#BooleanExpression
-	RepositoryCredentials?:  _#defs."/$defs/Properties/definitions/RepositoryCredentials" | fn.#ObjectExpression
-	ResourceRequirements?: [..._#defs."/$defs/Properties/definitions/ResourceRequirement" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	RuntimePlatform?: _#defs."/$defs/Properties/definitions/RuntimePlatform" | fn.#ObjectExpression
-	Secrets?:         [..._#defs."/$defs/Properties/definitions/Secret" | fn.#ObjectExpression] | fn.#ListExpression
-	Ulimits?:         [..._#defs."/$defs/Properties/definitions/Ulimit" | fn.#ObjectExpression] | fn.#ListExpression
-	User?:            string | fn.#StringExpression
-	Vcpus?:           int | fn.#NumberExpression
-	Volumes?:         [..._#defs."/$defs/Properties/definitions/Volume" | fn.#ObjectExpression] | fn.#ListExpression
+	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Environment?:          [..._#defs."/$defs/Properties/definitions/Environment"] | fn.#ListExpression
+	EphemeralStorage?:     _#defs."/$defs/Properties/definitions/EphemeralStorage"
+	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Image!:        string | fn.#StringExpression
+	InstanceType?: string | fn.#StringExpression
+	JobRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	LinuxParameters?:  _#defs."/$defs/Properties/definitions/LinuxParameters"
+	LogConfiguration?: _#defs."/$defs/Properties/definitions/LogConfiguration"
+	Memory?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MountPoints?:            [..._#defs."/$defs/Properties/definitions/MountPoint"] | fn.#ListExpression
+	Privileged?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ReadonlyRootFilesystem?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RepositoryCredentials?:  _#defs."/$defs/Properties/definitions/RepositoryCredentials"
+	ResourceRequirements?:   [..._#defs."/$defs/Properties/definitions/ResourceRequirement"] | fn.#ListExpression
+	RuntimePlatform?:        _#defs."/$defs/Properties/definitions/RuntimePlatform"
+	Secrets?:                [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
+	Ulimits?:                [..._#defs."/$defs/Properties/definitions/Ulimit"] | fn.#ListExpression
+	User?:                   string | fn.#StringExpression
+	Vcpus?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Volumes?: [..._#defs."/$defs/Properties/definitions/Volume"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiNodeEcsProperties": close({
-	TaskProperties!: [..._#defs."/$defs/Properties/definitions/MultiNodeEcsTaskProperties" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/MultiNodeEcsProperties": close(
+	{TaskProperties!: [..._#defs."/$defs/Properties/definitions/MultiNodeEcsTaskProperties"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MultiNodeEcsTaskProperties": close({
-	Containers?: [..._#defs."/$defs/Properties/definitions/TaskContainerProperties" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	EnableExecuteCommand?: bool | fn.#BooleanExpression
-	ExecutionRoleArn?:     string | fn.#StringExpression
-	IpcMode?:              string | fn.#StringExpression
-	PidMode?:              string | fn.#StringExpression
-	TaskRoleArn?:          string | fn.#StringExpression
-	Volumes?: [..._#defs."/$defs/Properties/definitions/Volume" | fn.#ObjectExpression] | fn.#ListExpression
+	Containers?:           [..._#defs."/$defs/Properties/definitions/TaskContainerProperties"] | fn.#ListExpression
+	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	IpcMode?: string | fn.#StringExpression
+	PidMode?: string | fn.#StringExpression
+	TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Volumes?: [..._#defs."/$defs/Properties/definitions/Volume"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -342,21 +529,45 @@ _#defs: "/$defs/Properties/definitions/NetworkConfiguration": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NodeProperties": close({
-	MainNode!: int | fn.#NumberExpression
-	NodeRangeProperties!: [..._#defs."/$defs/Properties/definitions/NodeRangeProperty" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	NumNodes!: int | fn.#NumberExpression
+	MainNode!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	NodeRangeProperties!: [..._#defs."/$defs/Properties/definitions/NodeRangeProperty"] | fn.#ListExpression
+	NumNodes!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NodeRangeProperty": close({
-	ConsumableResourceProperties?: _#defs."/$defs/Properties/definitions/ConsumableResourceProperties" |
-		fn.#ObjectExpression
-	Container?:     _#defs."/$defs/Properties/definitions/MultiNodeContainerProperties" | fn.#ObjectExpression
-	EcsProperties?: _#defs."/$defs/Properties/definitions/MultiNodeEcsProperties" | fn.#ObjectExpression
-	EksProperties?: _#defs."/$defs/Properties/definitions/EksProperties" | fn.#ObjectExpression
-	InstanceTypes?: [...string | fn.#StringExpression] | fn.#ListExpression
-	TargetNodes!:   string | fn.#StringExpression
+	ConsumableResourceProperties?: _#defs."/$defs/Properties/definitions/ConsumableResourceProperties"
+	Container?:                    _#defs."/$defs/Properties/definitions/MultiNodeContainerProperties"
+	EcsProperties?:                _#defs."/$defs/Properties/definitions/MultiNodeEcsProperties"
+	EksProperties?:                _#defs."/$defs/Properties/definitions/EksProperties"
+	InstanceTypes?:                [...string | fn.#StringExpression] | fn.#ListExpression
+	TargetNodes!:                  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -372,14 +583,26 @@ _#defs: "/$defs/Properties/definitions/ResourceRequirement": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceRetentionPolicy": close(
-	{SkipDeregisterOnUpdate?: bool | fn.#BooleanExpression},
+	{SkipDeregisterOnUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RetryStrategy": close({
-	Attempts?: int | fn.#NumberExpression
-	EvaluateOnExit?: [..._#defs."/$defs/Properties/definitions/EvaluateOnExit" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Attempts?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	EvaluateOnExit?: [..._#defs."/$defs/Properties/definitions/EvaluateOnExit"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -390,10 +613,23 @@ _#defs: "/$defs/Properties/definitions/RuntimePlatform": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3FilesVolumeConfiguration": close({
-	AccessPointArn?:        string | fn.#StringExpression
-	FileSystemArn!:         string | fn.#StringExpression
-	RootDirectory?:         string | fn.#StringExpression
-	TransitEncryptionPort?: int | fn.#NumberExpression
+	AccessPointArn?: string | fn.#StringExpression
+	FileSystemArn!:  string | fn.#StringExpression
+	RootDirectory?:  string | fn.#StringExpression
+	TransitEncryptionPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -410,11 +646,10 @@ _#defs: "/$defs/Properties/definitions/TaskContainerDependency": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TaskContainerProperties": close({
-	Command?: [...string | fn.#StringExpression] | fn.#ListExpression
-	DependsOn?: [..._#defs."/$defs/Properties/definitions/TaskContainerDependency" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Environment?: [..._#defs."/$defs/Properties/definitions/Environment" | fn.#ObjectExpression] | fn.#ListExpression
-	Essential?:   bool | fn.#BooleanExpression
+	Command?:     [...string | fn.#StringExpression] | fn.#ListExpression
+	DependsOn?:   [..._#defs."/$defs/Properties/definitions/TaskContainerDependency"] | fn.#ListExpression
+	Environment?: [..._#defs."/$defs/Properties/definitions/Environment"] | fn.#ListExpression
+	Essential?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FirelensConfiguration?: close({
 		Options?: close({
 
@@ -423,44 +658,107 @@ _#defs: "/$defs/Properties/definitions/TaskContainerProperties": close({
 		Type!: =~"(?i)^(?:fluentbit|fluentd)$" | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Image!:            string | fn.#StringExpression
-	LinuxParameters?:  _#defs."/$defs/Properties/definitions/LinuxParameters" | fn.#ObjectExpression
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
-	MountPoints?: [..._#defs."/$defs/Properties/definitions/MountPoint" | fn.#ObjectExpression] | fn.#ListExpression
-	Name?:        string | fn.#StringExpression
-	Privileged?:  bool | fn.#BooleanExpression
-	ReadonlyRootFilesystem?: bool | fn.#BooleanExpression
-	RepositoryCredentials?:  _#defs."/$defs/Properties/definitions/RepositoryCredentials" | fn.#ObjectExpression
-	ResourceRequirements?: [..._#defs."/$defs/Properties/definitions/ResourceRequirement" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Secrets?:      [..._#defs."/$defs/Properties/definitions/Secret" | fn.#ObjectExpression] | fn.#ListExpression
-	StartTimeout?: int | fn.#NumberExpression
-	StopTimeout?:  int | fn.#NumberExpression
-	Ulimits?:      [..._#defs."/$defs/Properties/definitions/Ulimit" | fn.#ObjectExpression] | fn.#ListExpression
-	User?:         string | fn.#StringExpression
+	Image!:                  string | fn.#StringExpression
+	LinuxParameters?:        _#defs."/$defs/Properties/definitions/LinuxParameters"
+	LogConfiguration?:       _#defs."/$defs/Properties/definitions/LogConfiguration"
+	MountPoints?:            [..._#defs."/$defs/Properties/definitions/MountPoint"] | fn.#ListExpression
+	Name?:                   string | fn.#StringExpression
+	Privileged?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ReadonlyRootFilesystem?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RepositoryCredentials?:  _#defs."/$defs/Properties/definitions/RepositoryCredentials"
+	ResourceRequirements?:   [..._#defs."/$defs/Properties/definitions/ResourceRequirement"] | fn.#ListExpression
+	Secrets?:                [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
+	StartTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StopTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ulimits?: [..._#defs."/$defs/Properties/definitions/Ulimit"] | fn.#ListExpression
+	User?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tmpfs": close({
 	ContainerPath!: string | fn.#StringExpression
 	MountOptions?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	Size!:          int | fn.#NumberExpression
+	Size!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Ulimit": close({
-	HardLimit!: int | fn.#NumberExpression
-	Name!:      string | fn.#StringExpression
-	SoftLimit!: int | fn.#NumberExpression
+	HardLimit!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name!: string | fn.#StringExpression
+	SoftLimit!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Volume": close({
-	EfsVolumeConfiguration?: _#defs."/$defs/Properties/definitions/EFSVolumeConfiguration" | fn.#ObjectExpression
-	Host?:                   _#defs."/$defs/Properties/definitions/Host" | fn.#ObjectExpression
-	Name?:                   string | fn.#StringExpression
-	S3FilesVolumeConfiguration?: _#defs."/$defs/Properties/definitions/S3FilesVolumeConfiguration" |
-		fn.#ObjectExpression
+	EfsVolumeConfiguration?:     _#defs."/$defs/Properties/definitions/EFSVolumeConfiguration"
+	Host?:                       _#defs."/$defs/Properties/definitions/Host"
+	Name?:                       string | fn.#StringExpression
+	S3FilesVolumeConfiguration?: _#defs."/$defs/Properties/definitions/S3FilesVolumeConfiguration"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -7,13 +7,17 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Backup::BackupPlan
 #Properties: close({
-	BackupPlan!: _#defs."/$defs/Properties/definitions/BackupPlanResourceType" | fn.#ObjectExpression
+	BackupPlan!: _#defs."/$defs/Properties/definitions/BackupPlanResourceType"
 	BackupPlanTags?: close({
 
 		{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
@@ -27,36 +31,65 @@ _#defs: "/$defs/Properties/definitions/AdvancedBackupSettingResourceType": close
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BackupPlanResourceType": close({
-	AdvancedBackupSettings?: [
-		..._#defs."/$defs/Properties/definitions/AdvancedBackupSettingResourceType" | fn.#ObjectExpression
-	] |
+	AdvancedBackupSettings?: [..._#defs."/$defs/Properties/definitions/AdvancedBackupSettingResourceType"] |
 		fn.#ListExpression
 	BackupPlanName!: string | fn.#StringExpression
-	BackupPlanRule!: [..._#defs."/$defs/Properties/definitions/BackupRuleResourceType" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ScanSettings?: [..._#defs."/$defs/Properties/definitions/ScanSettingResourceType" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	BackupPlanRule!: [..._#defs."/$defs/Properties/definitions/BackupRuleResourceType"] | fn.#ListExpression
+	ScanSettings?:   [..._#defs."/$defs/Properties/definitions/ScanSettingResourceType"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BackupRuleResourceType": close({
-	CompletionWindowMinutes?: number | fn.#NumberExpression
-	CopyActions?: [..._#defs."/$defs/Properties/definitions/CopyActionResourceType" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	EnableContinuousBackup?: bool | fn.#BooleanExpression
-	IndexActions?: [..._#defs."/$defs/Properties/definitions/IndexActionsResourceType" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Lifecycle?: _#defs."/$defs/Properties/definitions/LifecycleResourceType" | fn.#ObjectExpression
+	CompletionWindowMinutes?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CopyActions?:            [..._#defs."/$defs/Properties/definitions/CopyActionResourceType"] | fn.#ListExpression
+	EnableContinuousBackup?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IndexActions?:           [..._#defs."/$defs/Properties/definitions/IndexActionsResourceType"] | fn.#ListExpression
+	Lifecycle?:              _#defs."/$defs/Properties/definitions/LifecycleResourceType"
 	RecoveryPointTags?: close({
 
 		{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	RuleName!: string | fn.#StringExpression
-	ScanActions?: [..._#defs."/$defs/Properties/definitions/ScanActionResourceType" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ScheduleExpression?:                     string | fn.#StringExpression
-	ScheduleExpressionTimezone?:             string | fn.#StringExpression
-	StartWindowMinutes?:                     number | fn.#NumberExpression
+	RuleName!:                   string | fn.#StringExpression
+	ScanActions?:                [..._#defs."/$defs/Properties/definitions/ScanActionResourceType"] | fn.#ListExpression
+	ScheduleExpression?:         string | fn.#StringExpression
+	ScheduleExpressionTimezone?: string | fn.#StringExpression
+	StartWindowMinutes?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	TargetBackupVault!:                      string | fn.#StringExpression
 	TargetLogicallyAirGappedBackupVaultArn?: string | fn.#StringExpression
 }) |
@@ -64,19 +97,62 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CopyActionResourceType": close({
 	DestinationBackupVaultArn!: string | fn.#StringExpression
-	Lifecycle?:                 _#defs."/$defs/Properties/definitions/LifecycleResourceType" | fn.#ObjectExpression
+	Lifecycle?:                 _#defs."/$defs/Properties/definitions/LifecycleResourceType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IndexActionsResourceType": close(
-	{ResourceTypes?: _#defs."/$defs/Properties/definitions/ResourceTypes" | fn.#ListExpression},
+	{ResourceTypes?: _#defs."/$defs/Properties/definitions/ResourceTypes"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LifecycleResourceType": close({
-	DeleteAfterDays?:                     number | fn.#NumberExpression
-	MoveToColdStorageAfterDays?:          number | fn.#NumberExpression
-	OptInToArchiveForSupportedResources?: bool | fn.#BooleanExpression
+	DeleteAfterDays?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MoveToColdStorageAfterDays?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	OptInToArchiveForSupportedResources?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -85,22 +161,23 @@ _#defs: "/$defs/Properties/definitions/MalwareScanner": "GUARDDUTY" | fn.#String
 _#defs: "/$defs/Properties/definitions/ResourceType": =~"^[a-zA-Z0-9\\-\\_\\.]{1,50}$" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceTypes": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/ResourceType" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/ResourceType"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ScanActionResourceType": close({
-	MalwareScanner?: _#defs."/$defs/Properties/definitions/MalwareScanner" | fn.#StringExpression
-	ScanMode?:       _#defs."/$defs/Properties/definitions/ScanMode" | fn.#StringExpression
+	MalwareScanner?: _#defs."/$defs/Properties/definitions/MalwareScanner"
+	ScanMode?:       _#defs."/$defs/Properties/definitions/ScanMode"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScanMode": "FULL_SCAN" | "INCREMENTAL_SCAN" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ScanSettingResourceType": close({
-	MalwareScanner?: _#defs."/$defs/Properties/definitions/MalwareScanner" | fn.#StringExpression
-	ResourceTypes?:  _#defs."/$defs/Properties/definitions/ResourceTypes" | fn.#ListExpression
-	ScannerRoleArn?: string | fn.#StringExpression
+	MalwareScanner?: _#defs."/$defs/Properties/definitions/MalwareScanner"
+	ResourceTypes?:  _#defs."/$defs/Properties/definitions/ResourceTypes"
+	ScannerRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

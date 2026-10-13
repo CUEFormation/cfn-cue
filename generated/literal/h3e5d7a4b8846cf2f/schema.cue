@@ -88,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/InputRecordTables": close({
 // The encryption-at-rest settings of the transform that apply to accessing user data.
 _#defs: "/$defs/Properties/definitions/MLUserDataEncryption": close({
 	// The ID for the customer-provided KMS key.
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(255) & strings.MinRunes(1))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(255) & strings.MinRunes(1))
 
 	// The encryption mode applied to user data.
 	MLUserDataEncryptionMode!: "DISABLED" | "SSE-KMS"

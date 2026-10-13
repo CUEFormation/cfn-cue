@@ -31,7 +31,8 @@ _#defs: "/$defs/Properties/definitions/AssociationData": matchN(1, [close(
 _#defs: "/$defs/Properties/definitions/AssociationType": "KNOWLEDGE_BASE" | "EXTERNAL_BEDROCK_KNOWLEDGE_BASE"
 
 _#defs: "/$defs/Properties/definitions/ExternalBedrockKnowledgeBaseConfig": close({
-	AccessRoleArn!:           =~"^arn:aws:iam::[0-9]{12}:role/(?:service-role/)?[a-zA-Z0-9_+=,.@-]{1,64}$"
+	AccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:aws:iam::[0-9]{12}:role/(?:service-role/)?[a-zA-Z0-9_+=,.@-]{1,64}$"
 	BedrockKnowledgeBaseArn!: =~"^arn:aws(|-cn|-us-gov):bedrock:[a-zA-Z0-9-]*:[0-9]{12}:knowledge-base/[0-9a-zA-Z]+$"
 })
 

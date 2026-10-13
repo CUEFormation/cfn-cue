@@ -17,9 +17,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ClientToken?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	DnsViewId!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
 	ExpiresAt?:   string | fn.#StringExpression
-	Name?:        _#defs."/$defs/Properties/definitions/ResourceName" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Name?:        _#defs."/$defs/Properties/definitions/ResourceName"
+	Tags?:        list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccessToken": strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression

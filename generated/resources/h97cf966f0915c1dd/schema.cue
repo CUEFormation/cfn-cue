@@ -21,7 +21,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PlanFamily!:   "CloudFront" | fn.#StringExpression
 	PlanTier!:     string | fn.#StringExpression
 	ResourceArns!: list.MaxItems(10) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	UsageLevel?:   _#defs."/$defs/Properties/definitions/UsageLevel" | fn.#StringExpression
+	UsageLevel?:   _#defs."/$defs/Properties/definitions/UsageLevel"
 })
 
 _#defs: "/$defs/Properties/definitions/UsageLevel": "DEFAULT" |

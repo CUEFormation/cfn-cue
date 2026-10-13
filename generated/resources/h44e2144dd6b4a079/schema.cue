@@ -27,7 +27,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	RegionLinkingMode!: "ALL_REGIONS" | "ALL_REGIONS_EXCEPT_SPECIFIED" | "SPECIFIED_REGIONS" | fn.#StringExpression
 	Regions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Region" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/Region"
 	] |
 		fn.#ListExpression
 })

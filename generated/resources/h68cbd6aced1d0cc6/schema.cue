@@ -18,22 +18,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AppTemplateBody!: strings.MaxRunes(409600) & strings.MinRunes(0) & =~"^[\\w\\s:,-\\.'\\/{}\\[\\]:\"]+$" |
 	fn.#StringExpression
 	Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	EventSubscriptions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/EventSubscription" | fn.#ObjectExpression
-	] |
+	EventSubscriptions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/EventSubscription"] |
 		fn.#ListExpression
 	Name!:                =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-	PermissionModel?:     _#defs."/$defs/Properties/definitions/PermissionModel" | fn.#ObjectExpression
+	PermissionModel?:     _#defs."/$defs/Properties/definitions/PermissionModel"
 	ResiliencyPolicyArn?: string | fn.#StringExpression
-	ResourceMappings!: [..._#defs."/$defs/Properties/definitions/ResourceMapping" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
+	ResourceMappings!:    [..._#defs."/$defs/Properties/definitions/ResourceMapping"] | fn.#ListExpression
+	Tags?:                _#defs."/$defs/Properties/definitions/TagMap"
 })
 
 _#defs: "/$defs/Properties/definitions/EventSubscription": close({
-	EventType!:   "ScheduledAssessmentFailure" | "DriftDetected" | fn.#StringExpression
-	Name!:        strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	SnsTopicArn?: string | fn.#StringExpression
+	EventType!: "ScheduledAssessmentFailure" | "DriftDetected" | fn.#StringExpression
+	Name!:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	SnsTopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -41,9 +39,7 @@ _#defs: "/$defs/Properties/definitions/IamRoleArn": =~"arn:(aws|aws-cn|aws-iso|a
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PermissionModel": close({
-	CrossAccountRoleArns?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/IamRoleArn" | fn.#StringExpression
-	] |
+	CrossAccountRoleArns?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/IamRoleArn"] |
 		fn.#ListExpression
 	InvokerRoleName?: =~"((\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F}){1,511})?[A-Za-z0-9+=,.@_/-]{1,64}" |
 		fn.#StringExpression
@@ -63,7 +59,7 @@ _#defs: "/$defs/Properties/definitions/ResourceMapping": close({
 	EksSourceName?:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	LogicalStackName?:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	MappingType!:         =~"CfnStack|Resource|Terraform|EKS" | fn.#StringExpression
-	PhysicalResourceId!:  _#defs."/$defs/Properties/definitions/PhysicalResourceId" | fn.#ObjectExpression
+	PhysicalResourceId!:  _#defs."/$defs/Properties/definitions/PhysicalResourceId"
 	ResourceName?:        =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
 	TerraformSourceName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
@@ -71,7 +67,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TagMap": close({
 
-	{[=~".{1,128}"]: _#defs."/$defs/Properties/definitions/TagValue" | fn.#StringExpression}}) |
+	{[=~".{1,128}"]: _#defs."/$defs/Properties/definitions/TagValue"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TagValue": strings.MaxRunes(256) | fn.#StringExpression

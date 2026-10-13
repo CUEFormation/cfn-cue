@@ -37,7 +37,7 @@ package schema
 	CidrBlock?:             string
 	CidrBlockAssociations?: [...string]
 	DefaultNetworkAcl?:     string
-	DefaultSecurityGroup?:  string
+	DefaultSecurityGroup?:  =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 
 	// Indicates whether the instances launched in the VPC get DNS hostnames. If
 	// enabled, instances in the VPC get DNS hostnames; otherwise, they do not.
@@ -93,7 +93,7 @@ package schema
 	// transit](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-encryption-controls.html)
 	// in the *Amazon VPC User Guide*.
 	VpcEncryptionControl?: _#defs."/$defs/Properties/definitions/VpcEncryptionControl"
-	VpcId?:                string
+	VpcId?:                =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 // Specifies a tag. For more information, see [Resource
@@ -134,7 +134,7 @@ _#defs: "/$defs/Properties/definitions/VpcEncryptionControl": close({
 	VpcEncryptionControlId?: string
 
 	// The ID of the VPC associated with the encryption control configuration.
-	VpcId?:               string
+	VpcId?:               =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 	VpcLatticeExclusion?: "enable" | "disable"
 	VpcPeeringExclusion?: "enable" | "disable"
 })

@@ -16,20 +16,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
 	fn.#StringExpression
-	BrowserExtensionConfiguration?: _#defs."/$defs/Properties/definitions/BrowserExtensionConfiguration" |
-		fn.#ObjectExpression
-	CustomizationConfiguration?: _#defs."/$defs/Properties/definitions/CustomizationConfiguration" |
-		fn.#ObjectExpression
-	IdentityProviderConfiguration?: _#defs."/$defs/Properties/definitions/IdentityProviderConfiguration" |
-		fn.#ValueExpression
-	Origins?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Origin" | fn.#StringExpression] |
-		fn.#ListExpression
-	RoleArn?: strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
-	SamplePromptsControlMode?: _#defs."/$defs/Properties/definitions/WebExperienceSamplePromptsControlMode" |
-		fn.#StringExpression
-	Subtitle?: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	BrowserExtensionConfiguration?: _#defs."/$defs/Properties/definitions/BrowserExtensionConfiguration"
+	CustomizationConfiguration?:    _#defs."/$defs/Properties/definitions/CustomizationConfiguration"
+	IdentityProviderConfiguration?: _#defs."/$defs/Properties/definitions/IdentityProviderConfiguration"
+	Origins?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Origin"] | fn.#ListExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+	fn.#StringExpression
+	SamplePromptsControlMode?: _#defs."/$defs/Properties/definitions/WebExperienceSamplePromptsControlMode"
+	Subtitle?:                 strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	Tags?:           list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Title?:          strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	WelcomeMessage?: strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
 })
@@ -38,7 +33,7 @@ _#defs: "/$defs/Properties/definitions/BrowserExtension": "FIREFOX" | "CHROME" |
 
 _#defs: "/$defs/Properties/definitions/BrowserExtensionConfiguration": close({
 	EnabledBrowserExtensions!: list.MaxItems(2) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/BrowserExtension" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/BrowserExtension"
 	] |
 		fn.#ListExpression
 }) |
@@ -57,11 +52,10 @@ _#defs: "/$defs/Properties/definitions/CustomizationConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IdentityProviderConfiguration": matchN(1, [close(
-	{SamlConfiguration!: _#defs."/$defs/Properties/definitions/SamlProviderConfiguration" | fn.#ObjectExpression},
-), close({
-	OpenIDConnectConfiguration!: _#defs."/$defs/Properties/definitions/OpenIDConnectProviderConfiguration" |
-		fn.#ObjectExpression
-})]) |
+	{SamlConfiguration!: _#defs."/$defs/Properties/definitions/SamlProviderConfiguration"},
+), close(
+	{OpenIDConnectConfiguration!: _#defs."/$defs/Properties/definitions/OpenIDConnectProviderConfiguration"},
+)]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/OpenIDConnectProviderConfiguration": close({

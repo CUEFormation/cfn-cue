@@ -17,8 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	FailureRedirectionURL!: string | fn.#StringExpression
 	FromEmailAddress!:      string | fn.#StringExpression
 	SuccessRedirectionURL!: string | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:            list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TemplateContent!: string | fn.#StringExpression
 	TemplateName!:    strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	TemplateSubject!: string | fn.#StringExpression

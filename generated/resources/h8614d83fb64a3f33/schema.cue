@@ -22,13 +22,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // + Log group names consist of the following characters: a-z, A-Z, 0-9, '_'
 // (underscore), '-' (hyphen), '/' (forward slash), and '.' (period).
 #Properties: close({
-	BearerTokenAuthenticationEnabled?: bool | fn.#BooleanExpression
-	DataProtectionPolicy?:             string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	DeletionProtectionEnabled?:        bool | fn.#BooleanExpression
+	BearerTokenAuthenticationEnabled?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	DataProtectionPolicy?:      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FieldIndexPolicies?: list.UniqueItems() & [...{[string]: fn.#Value} | fn.#ObjectExpression] | fn.#ListExpression
-	KmsKeyId?:      (string | string | string) & (strings.MaxRunes(256) & strings.MinRunes(0)) | fn.#StringExpression
-	LogGroupClass?: "STANDARD" | "INFREQUENT_ACCESS" | "DELIVERY" | fn.#StringExpression
-	LogGroupName?:  strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & (strings.MaxRunes(256) & strings.MinRunes(0)) |
+	fn.#StringExpression
+	LogGroupClass?:          "STANDARD" | "INFREQUENT_ACCESS" | "DELIVERY" | fn.#StringExpression
+	LogGroupName?:           strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	ResourcePolicyDocument?: {[string]: fn.#Value} | fn.#ObjectExpression
 	RetentionInDays?: (==1 |
 		==3 |
@@ -54,8 +63,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		==3653) &
 		int |
 		fn.#NumberExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

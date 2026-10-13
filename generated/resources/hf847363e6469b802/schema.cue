@@ -16,10 +16,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // CIS Scan Configuration resource schema
 #Properties: close({
 	ScanName!:      strings.MinRunes(1) | fn.#StringExpression
-	Schedule!:      _#defs."/$defs/Properties/definitions/Schedule" | fn.#ValueExpression
-	SecurityLevel!: _#defs."/$defs/Properties/definitions/CisSecurityLevel" | fn.#StringExpression
-	Tags?:          _#defs."/$defs/Properties/definitions/CisTagMap" | fn.#ObjectExpression
-	Targets!:       _#defs."/$defs/Properties/definitions/CisTargets" | fn.#ValueExpression
+	Schedule!:      _#defs."/$defs/Properties/definitions/Schedule"
+	SecurityLevel!: _#defs."/$defs/Properties/definitions/CisSecurityLevel"
+	Tags?:          _#defs."/$defs/Properties/definitions/CisTagMap"
+	Targets!:       _#defs."/$defs/Properties/definitions/CisTargets"
 })
 
 _#defs: "/$defs/Properties/definitions/CisSecurityLevel": "LEVEL_1" | "LEVEL_2" | fn.#StringExpression
@@ -39,13 +39,11 @@ close({
 		...=~"^\\d{12}|ALL_ACCOUNTS|SELF$" | fn.#StringExpression
 	] |
 		fn.#ListExpression
-	TargetResourceTags!: _#defs."/$defs/Properties/definitions/TargetResourceTags" | fn.#ValueExpression
+	TargetResourceTags!: _#defs."/$defs/Properties/definitions/TargetResourceTags"
 }) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/DailySchedule": close(
-	{StartTime!: _#defs."/$defs/Properties/definitions/Time" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/DailySchedule": close({StartTime!: _#defs."/$defs/Properties/definitions/Time"}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Day": "MON" |
@@ -58,13 +56,13 @@ _#defs: "/$defs/Properties/definitions/Day": "MON" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DaysList": list.MaxItems(7) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Day" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/Day"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/MonthlySchedule": close({
-	Day!:       _#defs."/$defs/Properties/definitions/Day" | fn.#StringExpression
-	StartTime!: _#defs."/$defs/Properties/definitions/Time" | fn.#ObjectExpression
+	Day!:       _#defs."/$defs/Properties/definitions/Day"
+	StartTime!: _#defs."/$defs/Properties/definitions/Time"
 }) |
 fn.#ObjectExpression
 
@@ -79,10 +77,10 @@ number |
 string |
 [...] |
 {
-	Daily?:   _#defs."/$defs/Properties/definitions/DailySchedule" | fn.#ObjectExpression
-	Monthly?: _#defs."/$defs/Properties/definitions/MonthlySchedule" | fn.#ObjectExpression
-	OneTime?: _#defs."/$defs/Properties/definitions/OneTimeSchedule" | fn.#ObjectExpression | fn.#StringExpression
-	Weekly?:  _#defs."/$defs/Properties/definitions/WeeklySchedule" | fn.#ObjectExpression
+	Daily?:   _#defs."/$defs/Properties/definitions/DailySchedule"
+	Monthly?: _#defs."/$defs/Properties/definitions/MonthlySchedule"
+	OneTime?: _#defs."/$defs/Properties/definitions/OneTimeSchedule"
+	Weekly?:  _#defs."/$defs/Properties/definitions/WeeklySchedule"
 	...
 } |
 fn.#ValueExpression
@@ -99,7 +97,7 @@ string |
 [...] |
 struct.MaxFields(5) & close({
 
-	{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/TagValueList" | fn.#ListExpression}}) |
+	{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/TagValueList"}}) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/Time": close({
@@ -109,8 +107,8 @@ _#defs: "/$defs/Properties/definitions/Time": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WeeklySchedule": close({
-	Days!:      _#defs."/$defs/Properties/definitions/DaysList" | fn.#ListExpression
-	StartTime!: _#defs."/$defs/Properties/definitions/Time" | fn.#ObjectExpression
+	Days!:      _#defs."/$defs/Properties/definitions/DaysList"
+	StartTime!: _#defs."/$defs/Properties/definitions/Time"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -40,7 +40,7 @@ import (
 })
 
 _#defs: "/$defs/Properties/definitions/Entry": close({
-	Cidr!:        (string | string) & (strings.MaxRunes(46) & strings.MinRunes(1))
+	Cidr!:        string & (strings.MaxRunes(46) & strings.MinRunes(1))
 	Description?: strings.MaxRunes(255) & strings.MinRunes(0)
 })
 

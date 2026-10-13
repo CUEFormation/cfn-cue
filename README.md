@@ -47,7 +47,7 @@ Requires Go 1.26+ and Python 3.12+. These are the same entry points used in CI:
 ./scripts/corpus.sh test
 ```
 
-`test` runs Go checks, the pinned S3/IAM integration, parser tests, and all 40
+`test` runs Go checks, the pinned S3/IAM integration, parser tests, and all 78
 offline corpus expectations. To repeat the downloaded-example investigation:
 
 ```sh
@@ -77,6 +77,20 @@ generated/
 
 The two resource representations serve different purposes. `literal/` preserves resource data shapes, including read-only properties. `resources/` describes inputs to a template: it removes read-only properties and permits expressions at value boundaries. Required fields, closed objects, numeric limits, enums, arrays, local references and schema applicators are handled by the CUE JSON Schema extractor.
 
+Template-input schemas also permit CloudFormation boolean spellings and numeric
+strings, checking parsed numbers against the property's numeric constraints.
+The original spelling is retained; this is generated CUE validation, not a YAML
+rewrite. Literal resource schemas keep strict primitive types. Enum and const
+constraints conservatively retain their upstream value types in this batch;
+cfn-lint accepts some quoted enum values that these schemas still reject.
+
+Supported boolean strings are `true`, `True`, `TRUE`, `false`, `False`, and
+`FALSE`. Numeric strings use finite ASCII decimal syntax, including signs,
+whitespace, digit separators, and number exponents; integer strings do not
+accept fractions or exponents. Unicode numeral conversions and non-finite
+numbers remain unsupported. Composed scalar constraints whose exact-value
+semantics cannot be established stay strict and produce conversion diagnostics.
+
 Inside the generated module, an authored CUE template can import a regional package:
 
 ```cue
@@ -104,6 +118,17 @@ The generator emits a finite graph of named CUE definitions. It does not recursi
 
 A shared function table has optional function keys and enforces exactly one key in a concrete expression. Result-type views select the permitted keys for strings, numbers, booleans, lists and objects. Common input types keep the recursive graph small. `Fn::If` branches use the expected result type; `Ref: "AWS::NoValue"` works through the dynamic reference alternative. Logical functions enforce their argument counts without constructing an eagerly expanded recursive tuple.
 
+Local schema references reuse intrinsic alternatives already present in their
+target definition. Adding them again at a reference created incomplete values
+for object-valued `Fn::If`, including the pinned EMR example. References to
+unlifted applicator constraints still receive their own alternatives.
+
+Simple “at least one of these properties is required” alternatives remain
+presence predicates. Converting them into a CUE union can leave a branch with
+an absent required key unresolved, even when another branch accepts the input.
+Exact duplicate normalized `anyOf` alternatives are removed; `oneOf` duplicates
+remain because they affect whether exactly one branch matches.
+
 The schema checks call shapes and known result categories. Dynamic functions such as `Ref`, `GetAtt`, `FindInMap` and `Select` remain compatible with multiple result categories because their values depend on template context. LanguageExtensions output requires a transform containing `AWS::LanguageExtensions`; standard output excludes `Fn::Length` and `Fn::ToJsonString`. Resource `Fn::ForEach` fragments have their own recursive definition.
 
 ## Validation boundary
@@ -112,7 +137,16 @@ This is a structural schema generator, not a replacement for cfn-lint. Keep cfn-
 
 Literal property constraints apply directly to literal values. Intrinsic values receive argument and result-type checks; this version does not evaluate them or specialize their branches with the complete target property's enum, pattern, or nested object schema. Policy objects, parameter type names, and SAM Globals have structural coverage. ForEach expansion and ForEach in Conditions/Outputs remain future work.
 
-The current conversion report has **2,625 diagnostics**: 2,038 semantic format annotations, 546 regex patterns, 29 pattern-property regexes, 9 selected-key uniqueness constraints and 3 distinct-item limits. Unsupported Python/ECMAScript regex features are reported; Unicode `\uXXXX` escapes are translated to RE2 notation. Selected-key uniqueness degrades to whole-item uniqueness. Other unsupported constraints are reported rather than silently presented as enforced. AWS provider annotations and defaults are not emitted as deployable values.
+The conversion report in generated/manifest.json lists every remaining approximation. Unsupported Python/ECMAScript regex features are reported; Unicode `\uXXXX` escapes are translated to RE2 notation. Selected-key uniqueness degrades to whole-item uniqueness. Other unsupported constraints are reported rather than silently presented as enforced. AWS provider annotations and defaults are not emitted as deployable values.
+
+Eight cfn-lint identifier formats are enforced as additional literal patterns:
+VPC, security group, and AMI IDs, plus IAM role, KMS key, SNS topic, ACM
+certificate, and Lambda function ARNs. Existing provider patterns still apply.
+Unresolved intrinsic values and template dynamic references defer their result
+format checks. LaunchTemplate's `resolve:ssm` ImageId exception is scoped to
+that property. Dynamic references still receive existing provider constraints;
+placement and syntax checks remain with cfn-lint. Embedded IAM policy semantics
+remain separate.
 
 ## Checks
 

@@ -90,7 +90,7 @@ package schema
 
 	// The ID of the AMI. An AMI ID is required to launch an instance and must be
 	// specified here or in a launch template.
-	ImageId?: string
+	ImageId?: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$"
 
 	// The EC2 Instance ID.
 	InstanceId?: string
@@ -167,7 +167,7 @@ package schema
 	RamdiskId?: string
 
 	// The IDs of the security groups.
-	SecurityGroupIds?: ([...] | [...]) & [...string | string]
+	SecurityGroupIds?: [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" | string]
 
 	// the names of the security groups. For a nondefault VPC, you must use security group IDs instead.
 	SecurityGroups?: [...string]
@@ -198,7 +198,7 @@ package schema
 	Volumes?: [..._#defs."/$defs/Properties/definitions/Volume"]
 
 	// The ID of the VPC that the instance is running in.
-	VpcId?: string
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/AssociationParameter": close({
@@ -246,7 +246,7 @@ _#defs: "/$defs/Properties/definitions/Ebs": close({
 	// CMK to use for Amazon EBS encryption. If KmsKeyId is specified, the
 	// encrypted state must be true. If the encrypted state is true but you do not
 	// specify KmsKeyId, your AWS managed CMK for EBS is used.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The ID of the snapshot.
 	SnapshotId?: string
@@ -380,7 +380,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
 	EnaSrdSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdSpecification"
 
 	// The IDs of the security groups for the network interface.
-	GroupSet?: [...string]
+	GroupSet?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// A number of IPv6 addresses to assign to the network interface.
 	Ipv6AddressCount?: int

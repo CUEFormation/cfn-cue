@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -31,19 +35,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	RuleType!: "AccountRule" | "OrganizationRule" | fn.#StringExpression
 	Schedule!: _#defs."/$defs/Properties/definitions/Schedule" | fn.#ObjectExpression
 	Status!:   "Active" | "Inactive" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:     list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Criteria": close({
-	EbsVolumeSizeInGib?:      _#defs."/$defs/Properties/definitions/IntegerCriteriaConditionList" | fn.#ListExpression
-	EbsVolumeType?:           _#defs."/$defs/Properties/definitions/StringCriteriaConditionList" | fn.#ListExpression
-	EstimatedMonthlySavings?: _#defs."/$defs/Properties/definitions/DoubleCriteriaConditionList" | fn.#ListExpression
-	LookBackPeriodInDays?:    _#defs."/$defs/Properties/definitions/IntegerCriteriaConditionList" | fn.#ListExpression
-	Region?:                  _#defs."/$defs/Properties/definitions/StringCriteriaConditionList" | fn.#ListExpression
-	ResourceArn?:             _#defs."/$defs/Properties/definitions/StringCriteriaConditionList" | fn.#ListExpression
-	ResourceTag?:   _#defs."/$defs/Properties/definitions/ResourceTagsCriteriaConditionList" | fn.#ListExpression
-	RestartNeeded?: _#defs."/$defs/Properties/definitions/StringCriteriaConditionList" | fn.#ListExpression
+	EbsVolumeSizeInGib?:      _#defs."/$defs/Properties/definitions/IntegerCriteriaConditionList"
+	EbsVolumeType?:           _#defs."/$defs/Properties/definitions/StringCriteriaConditionList"
+	EstimatedMonthlySavings?: _#defs."/$defs/Properties/definitions/DoubleCriteriaConditionList"
+	LookBackPeriodInDays?:    _#defs."/$defs/Properties/definitions/IntegerCriteriaConditionList"
+	Region?:                  _#defs."/$defs/Properties/definitions/StringCriteriaConditionList"
+	ResourceArn?:             _#defs."/$defs/Properties/definitions/StringCriteriaConditionList"
+	ResourceTag?:             _#defs."/$defs/Properties/definitions/ResourceTagsCriteriaConditionList"
+	RestartNeeded?:           _#defs."/$defs/Properties/definitions/StringCriteriaConditionList"
 }) |
 fn.#ObjectExpression
 
@@ -61,12 +64,33 @@ _#defs: "/$defs/Properties/definitions/DoubleCriteriaCondition": close({
 		"NumericGreaterThan" |
 		"NumericGreaterThanEquals" |
 		fn.#StringExpression
-	Values?: [...number | fn.#NumberExpression] | fn.#ListExpression
+	Values?: [
+		...number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DoubleCriteriaConditionList": [
-	..._#defs."/$defs/Properties/definitions/DoubleCriteriaCondition" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/DoubleCriteriaCondition"
 ] |
 	fn.#ListExpression
 
@@ -84,12 +108,30 @@ _#defs: "/$defs/Properties/definitions/IntegerCriteriaCondition": close({
 		"NumericGreaterThan" |
 		"NumericGreaterThanEquals" |
 		fn.#StringExpression
-	Values?: [...int | fn.#NumberExpression] | fn.#ListExpression
+	Values?: [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IntegerCriteriaConditionList": [
-	..._#defs."/$defs/Properties/definitions/IntegerCriteriaCondition" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/IntegerCriteriaCondition"
 ] |
 	fn.#ListExpression
 
@@ -124,12 +166,27 @@ _#defs: "/$defs/Properties/definitions/ResourceTagsCriteriaCondition": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceTagsCriteriaConditionList": [
-	..._#defs."/$defs/Properties/definitions/ResourceTagsCriteriaCondition" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ResourceTagsCriteriaCondition"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/Schedule": close({
-	ExecutionWindowInMinutes?:   int & <=1440 & >=60 | fn.#NumberExpression
+	ExecutionWindowInMinutes?: int & <=1440 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1440 &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ScheduleExpression?:         string | fn.#StringExpression
 	ScheduleExpressionTimezone?: string | fn.#StringExpression
 }) |
@@ -158,7 +215,7 @@ _#defs: "/$defs/Properties/definitions/StringCriteriaCondition": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StringCriteriaConditionList": [
-	..._#defs."/$defs/Properties/definitions/StringCriteriaCondition" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/StringCriteriaCondition"
 ] |
 	fn.#ListExpression
 

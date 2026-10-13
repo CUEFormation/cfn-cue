@@ -20,22 +20,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Configuration!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
 	Description?:   strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	DisplayName!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
-	DocumentEnrichmentConfiguration?: _#defs."/$defs/Properties/definitions/DocumentEnrichmentConfiguration" |
-		fn.#ObjectExpression
+	DocumentEnrichmentConfiguration?: _#defs."/$defs/Properties/definitions/DocumentEnrichmentConfiguration"
 	IndexId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" | fn.#StringExpression
-	MediaExtractionConfiguration?: _#defs."/$defs/Properties/definitions/MediaExtractionConfiguration" |
-		fn.#ObjectExpression
-	RoleArn?:      strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
-	SyncSchedule?: strings.MaxRunes(998) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/DataSourceVpcConfiguration" | fn.#ObjectExpression
+	MediaExtractionConfiguration?: _#defs."/$defs/Properties/definitions/MediaExtractionConfiguration"
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+	fn.#StringExpression
+	SyncSchedule?:     strings.MaxRunes(998) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	Tags?:             list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VpcConfiguration?: _#defs."/$defs/Properties/definitions/DataSourceVpcConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/AttributeValueOperator": "DELETE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AudioExtractionConfiguration": close(
-	{AudioExtractionStatus!: _#defs."/$defs/Properties/definitions/AudioExtractionStatus" | fn.#StringExpression},
+	{AudioExtractionStatus!: _#defs."/$defs/Properties/definitions/AudioExtractionStatus"},
 ) |
 	fn.#ObjectExpression
 
@@ -51,7 +49,11 @@ _#defs: "/$defs/Properties/definitions/DataSourceStatus": "PENDING_CREATION" |
 
 _#defs: "/$defs/Properties/definitions/DataSourceVpcConfiguration": close({
 	SecurityGroupIds!: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[-0-9a-zA-Z]+$" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(200) &
+		strings.MinRunes(1) &
+		=~"^[-0-9a-zA-Z]+$" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SubnetIds!: [...strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[-0-9a-zA-Z]+$" | fn.#StringExpression] |
@@ -61,15 +63,15 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DocumentAttributeCondition": close({
 	Key!:      strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_][a-zA-Z0-9_-]*$" | fn.#StringExpression
-	Operator!: _#defs."/$defs/Properties/definitions/DocumentEnrichmentConditionOperator" | fn.#StringExpression
-	Value?:    _#defs."/$defs/Properties/definitions/DocumentAttributeValue" | fn.#ValueExpression
+	Operator!: _#defs."/$defs/Properties/definitions/DocumentEnrichmentConditionOperator"
+	Value?:    _#defs."/$defs/Properties/definitions/DocumentAttributeValue"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DocumentAttributeTarget": close({
-	AttributeValueOperator?: _#defs."/$defs/Properties/definitions/AttributeValueOperator" | fn.#StringExpression
+	AttributeValueOperator?: _#defs."/$defs/Properties/definitions/AttributeValueOperator"
 	Key!:   strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_][a-zA-Z0-9_-]*$" | fn.#StringExpression
-	Value?: _#defs."/$defs/Properties/definitions/DocumentAttributeValue" | fn.#ValueExpression
+	Value?: _#defs."/$defs/Properties/definitions/DocumentAttributeValue"
 }) |
 fn.#ObjectExpression
 
@@ -101,47 +103,46 @@ _#defs: "/$defs/Properties/definitions/DocumentEnrichmentConditionOperator": "GR
 
 _#defs: "/$defs/Properties/definitions/DocumentEnrichmentConfiguration": close({
 	InlineConfigurations?: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/InlineDocumentEnrichmentConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/InlineDocumentEnrichmentConfiguration"
 	] |
 		fn.#ListExpression
-	PostExtractionHookConfiguration?: _#defs."/$defs/Properties/definitions/HookConfiguration" | fn.#ObjectExpression
-	PreExtractionHookConfiguration?:  _#defs."/$defs/Properties/definitions/HookConfiguration" | fn.#ObjectExpression
+	PostExtractionHookConfiguration?: _#defs."/$defs/Properties/definitions/HookConfiguration"
+	PreExtractionHookConfiguration?:  _#defs."/$defs/Properties/definitions/HookConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HookConfiguration": close({
-	InvocationCondition?: _#defs."/$defs/Properties/definitions/DocumentAttributeCondition" | fn.#ObjectExpression
-	LambdaArn?: strings.MaxRunes(2048) &
+	InvocationCondition?: _#defs."/$defs/Properties/definitions/DocumentAttributeCondition"
+	LambdaArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-zA-Z-]*:lambda:[a-z-]*-[0-9]:[0-9]{12}:function:[a-zA-Z0-9-_]+(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})?(:[a-zA-Z0-9-_]+)?$" |
 	fn.#StringExpression
-	RoleArn?: strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+	fn.#StringExpression
 	S3BucketName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ImageExtractionConfiguration": close(
-	{ImageExtractionStatus!: _#defs."/$defs/Properties/definitions/ImageExtractionStatus" | fn.#StringExpression},
+	{ImageExtractionStatus!: _#defs."/$defs/Properties/definitions/ImageExtractionStatus"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ImageExtractionStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/InlineDocumentEnrichmentConfiguration": close({
-	Condition?:               _#defs."/$defs/Properties/definitions/DocumentAttributeCondition" | fn.#ObjectExpression
-	DocumentContentOperator?: _#defs."/$defs/Properties/definitions/DocumentContentOperator" | fn.#StringExpression
-	Target?:                  _#defs."/$defs/Properties/definitions/DocumentAttributeTarget" | fn.#ObjectExpression
+	Condition?:               _#defs."/$defs/Properties/definitions/DocumentAttributeCondition"
+	DocumentContentOperator?: _#defs."/$defs/Properties/definitions/DocumentContentOperator"
+	Target?:                  _#defs."/$defs/Properties/definitions/DocumentAttributeTarget"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MediaExtractionConfiguration": close({
-	AudioExtractionConfiguration?: _#defs."/$defs/Properties/definitions/AudioExtractionConfiguration" |
-		fn.#ObjectExpression
-	ImageExtractionConfiguration?: _#defs."/$defs/Properties/definitions/ImageExtractionConfiguration" |
-		fn.#ObjectExpression
-	VideoExtractionConfiguration?: _#defs."/$defs/Properties/definitions/VideoExtractionConfiguration" |
-		fn.#ObjectExpression
+	AudioExtractionConfiguration?: _#defs."/$defs/Properties/definitions/AudioExtractionConfiguration"
+	ImageExtractionConfiguration?: _#defs."/$defs/Properties/definitions/ImageExtractionConfiguration"
+	VideoExtractionConfiguration?: _#defs."/$defs/Properties/definitions/VideoExtractionConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -152,7 +153,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VideoExtractionConfiguration": close(
-	{VideoExtractionStatus!: _#defs."/$defs/Properties/definitions/VideoExtractionStatus" | fn.#StringExpression},
+	{VideoExtractionStatus!: _#defs."/$defs/Properties/definitions/VideoExtractionStatus"},
 ) |
 	fn.#ObjectExpression
 

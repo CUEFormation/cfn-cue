@@ -19,7 +19,10 @@ import (
 
 	// The ID of one or more security groups to associate with the endpoint network interface
 	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+\\-]+$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"^[\\w+\\-]+$"
 	]
 
 	// The ID of one or more subnets in which to create an endpoint network interface
@@ -28,5 +31,8 @@ import (
 	]
 
 	// The ID of the VPC in which the endpoint will be used.
-	VpcId!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^vpc-[0-9a-z]*$"
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1) &
+	=~"^vpc-[0-9a-z]*$"
 })

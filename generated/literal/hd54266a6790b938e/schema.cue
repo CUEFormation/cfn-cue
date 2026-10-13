@@ -87,7 +87,10 @@ import (
 	UserRole?: _#defs."/$defs/Properties/definitions/Arn"
 
 	// The ID of the Amazon Virtual Private Cloud (Amazon VPC) to associate with the Studio.
-	VpcId!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17})$"
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(256) &
+	strings.MinRunes(0) &
+	=~"^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17})$"
 
 	// The ID of the Amazon EMR Studio Workspace security group. The Workspace
 	// security group allows outbound network traffic to resources in the Engine

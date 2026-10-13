@@ -9,6 +9,10 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -23,9 +27,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Entries!: list.MaxItems(1000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/LimitEntry" | fn.#ObjectExpression
-	] |
+	Entries!: list.MaxItems(1000) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LimitEntry"] |
 		fn.#ListExpression
 	GatewayIdentifier?: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
 	RateLimitId?: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_\\.]{0,62}[a-zA-Z0-9]$" |
@@ -45,18 +47,12 @@ _#defs: "/$defs/Properties/definitions/GatewayRateLimitStatus": "CREATING" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LimitEntry": close({
-	Connections?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RateConfig" | fn.#ObjectExpression
-	] |
+	Connections?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RateConfig"] |
 		fn.#ListExpression
-	Dimensions!: _#defs."/$defs/Properties/definitions/Dimensions" | fn.#ObjectExpression
-	Requests?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RateConfig" | fn.#ObjectExpression
-	] |
+	Dimensions!: _#defs."/$defs/Properties/definitions/Dimensions"
+	Requests?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RateConfig"] |
 		fn.#ListExpression
-	Tokens?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RateConfig" | fn.#ObjectExpression
-	] |
+	Tokens?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RateConfig"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -64,8 +60,27 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/Period": "second" | "minute" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RateConfig": close({
-	Period!: _#defs."/$defs/Properties/definitions/Period" | fn.#StringExpression
-	Rate!:   <=10000000 & >=0 | fn.#NumberExpression
+	Period!: _#defs."/$defs/Properties/definitions/Period"
+	Rate!: <=10000000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=10000000 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

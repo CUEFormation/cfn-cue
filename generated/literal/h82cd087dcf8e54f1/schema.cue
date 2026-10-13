@@ -26,7 +26,8 @@ import (
 
 	// The ID of one or more security groups to associate with the endpoint network interface.
 	SecurityGroupIds?: list.UniqueItems() & [
-		...(string | string | string) &
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		string &
 		strings.MaxRunes(200) &
 		strings.MinRunes(5) &
 		=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$"

@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,21 +24,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?$" |
 	fn.#StringExpression
 	Properties?: _#defs."/$defs/Properties/definitions/Properties" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:       list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Properties": close(
-	{DnsProperties?: _#defs."/$defs/Properties/definitions/PublicDnsPropertiesMutable" | fn.#ObjectExpression},
+	{DnsProperties?: _#defs."/$defs/Properties/definitions/PublicDnsPropertiesMutable"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PublicDnsPropertiesMutable": close(
-	{SOA?: _#defs."/$defs/Properties/definitions/SOA" | fn.#ObjectExpression},
+	{SOA?: _#defs."/$defs/Properties/definitions/SOA"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SOA": close({TTL?: <=2147483647 & >=0 | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/SOA": close({
+	TTL?: <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=2147483647 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

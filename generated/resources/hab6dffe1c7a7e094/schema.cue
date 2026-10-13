@@ -4,58 +4,88 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::FunctionDefinition
 #Properties: close({
-	InitialVersion?: _#defs."/$defs/Properties/definitions/FunctionDefinitionVersion" | fn.#ObjectExpression
+	InitialVersion?: _#defs."/$defs/Properties/definitions/FunctionDefinitionVersion"
 	Name!:           string | fn.#StringExpression
 	Tags?:           string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DefaultConfig": close(
-	{Execution!: _#defs."/$defs/Properties/definitions/Execution" | fn.#ObjectExpression},
+	{Execution!: _#defs."/$defs/Properties/definitions/Execution"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Environment": close({
-	AccessSysfs?: bool | fn.#BooleanExpression
-	Execution?:   _#defs."/$defs/Properties/definitions/Execution" | fn.#ObjectExpression
-	ResourceAccessPolicies?: [..._#defs."/$defs/Properties/definitions/ResourceAccessPolicy" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Variables?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	AccessSysfs?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Execution?:              _#defs."/$defs/Properties/definitions/Execution"
+	ResourceAccessPolicies?: [..._#defs."/$defs/Properties/definitions/ResourceAccessPolicy"] | fn.#ListExpression
+	Variables?:              string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Execution": close({
 	IsolationMode?: string | fn.#StringExpression
-	RunAs?:         _#defs."/$defs/Properties/definitions/RunAs" | fn.#ObjectExpression
+	RunAs?:         _#defs."/$defs/Properties/definitions/RunAs"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Function": close({
-	FunctionArn!:           string | fn.#StringExpression
-	FunctionConfiguration!: _#defs."/$defs/Properties/definitions/FunctionConfiguration" | fn.#ObjectExpression
+	FunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	FunctionConfiguration!: _#defs."/$defs/Properties/definitions/FunctionConfiguration"
 	Id!:                    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FunctionConfiguration": close({
 	EncodingType?: string | fn.#StringExpression
-	Environment?:  _#defs."/$defs/Properties/definitions/Environment" | fn.#ObjectExpression
+	Environment?:  _#defs."/$defs/Properties/definitions/Environment"
 	ExecArgs?:     string | fn.#StringExpression
 	Executable?:   string | fn.#StringExpression
-	MemorySize?:   int | fn.#NumberExpression
-	Pinned?:       bool | fn.#BooleanExpression
-	Timeout?:      int | fn.#NumberExpression
+	MemorySize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Pinned?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Timeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FunctionDefinitionVersion": close({
-	DefaultConfig?: _#defs."/$defs/Properties/definitions/DefaultConfig" | fn.#ObjectExpression
-	Functions!:     [..._#defs."/$defs/Properties/definitions/Function" | fn.#ObjectExpression] | fn.#ListExpression
+	DefaultConfig?: _#defs."/$defs/Properties/definitions/DefaultConfig"
+	Functions!:     [..._#defs."/$defs/Properties/definitions/Function"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -66,8 +96,34 @@ _#defs: "/$defs/Properties/definitions/ResourceAccessPolicy": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RunAs": close({
-	Gid?: int | fn.#NumberExpression
-	Uid?: int | fn.#NumberExpression
+	Gid?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Uid?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

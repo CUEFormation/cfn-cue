@@ -49,8 +49,8 @@ _#defs: "/$defs/Properties/definitions/InfluxDBDestinationProperties": close({
 _#defs: "/$defs/Properties/definitions/TopicRuleDestinationStatus": "ENABLED" | "IN_PROGRESS" | "DISABLED"
 
 _#defs: "/$defs/Properties/definitions/VpcDestinationProperties": close({
-	RoleArn?:        string
-	SecurityGroups?: list.UniqueItems() & [...string]
+	RoleArn?:        =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
+	SecurityGroups?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SubnetIds?:      list.UniqueItems() & [...string]
-	VpcId?:          string
+	VpcId?:          =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })

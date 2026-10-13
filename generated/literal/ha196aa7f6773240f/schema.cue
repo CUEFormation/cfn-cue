@@ -97,7 +97,7 @@ import (
 
 	// The identifier of the virtual private cloud (VPC). If the target is a Lambda
 	// function, this parameter does not apply.
-	VpcId?: string
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/Matcher": close({

@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A replication configuration that you later provide to configure and start a
 // AWS DMS Serverless replication
 #Properties: close({
-	ComputeConfig!:               _#defs."/$defs/Properties/definitions/ComputeConfig" | fn.#ObjectExpression
+	ComputeConfig!:               _#defs."/$defs/Properties/definitions/ComputeConfig"
 	ReplicationConfigIdentifier!: string | fn.#StringExpression
 	ReplicationSettings?:         string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
 	ReplicationType!:             "full-load" | "full-load-and-cdc" | "cdc" | fn.#StringExpression
@@ -23,23 +27,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SourceEndpointArn!:           string | fn.#StringExpression
 	SupplementalSettings?:        string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
 	TableMappings!:               string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetEndpointArn!: string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ComputeConfig": close({
-	AvailabilityZone?:           string | fn.#StringExpression
-	DnsNameServers?:             string | fn.#StringExpression
-	KmsKeyId?:                   string | string | string | fn.#StringExpression
-	MaxCapacityUnits!:           int | fn.#NumberExpression
-	MinCapacityUnits?:           int | fn.#NumberExpression
-	MultiAZ?:                    bool | fn.#BooleanExpression
+	AvailabilityZone?: string | fn.#StringExpression
+	DnsNameServers?:   string | fn.#StringExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	MaxCapacityUnits!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinCapacityUnits?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MultiAZ?:                    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PreferredMaintenanceWindow?: string | fn.#StringExpression
 	ReplicationSubnetGroupId?:   string | fn.#StringExpression
-	VpcSecurityGroupIds?:        [...string | fn.#StringExpression] | fn.#ListExpression
+	VpcSecurityGroupIds?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

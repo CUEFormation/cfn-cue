@@ -64,5 +64,5 @@ import "strings"
 	// The ARN of an IAM role that grants CWL permissions to deliver ingested log
 	// events to the destination stream. You don't need to provide the ARN when you
 	// are working with a logical destination for cross-account delivery.
-	RoleArn?: strings.MinRunes(1)
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1)
 })

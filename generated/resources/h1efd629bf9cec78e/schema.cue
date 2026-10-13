@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -21,14 +25,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CapacityProviderScalingConfig?: _#defs."/$defs/Properties/definitions/CapacityProviderScalingConfig" |
 		fn.#ObjectExpression
 	InstanceRequirements?: _#defs."/$defs/Properties/definitions/InstanceRequirements" | fn.#ObjectExpression
-	KmsKeyArn?: strings.MaxRunes(10000) & strings.MinRunes(0) & =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(10000) &
+	strings.MinRunes(0) &
+	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
 	fn.#StringExpression
 	PermissionsConfig!: _#defs."/$defs/Properties/definitions/CapacityProviderPermissionsConfig" | fn.#ObjectExpression
 	PropagateTags?:     _#defs."/$defs/Properties/definitions/PropagateTagsConfig" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TelemetryConfig?: _#defs."/$defs/Properties/definitions/CapacityProviderTelemetryConfig" | fn.#ObjectExpression
-	VpcConfig!:       _#defs."/$defs/Properties/definitions/CapacityProviderVpcConfig" | fn.#ObjectExpression
+	Tags?:              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TelemetryConfig?:   _#defs."/$defs/Properties/definitions/CapacityProviderTelemetryConfig" | fn.#ObjectExpression
+	VpcConfig!:         _#defs."/$defs/Properties/definitions/CapacityProviderVpcConfig" | fn.#ObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Architecture": "x86_64" | "arm64" | fn.#StringExpression
@@ -40,7 +46,8 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderLoggingConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CapacityProviderPermissionsConfig": close({
-	CapacityProviderOperatorRoleArn!: strings.MaxRunes(10000) &
+	CapacityProviderOperatorRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(10000) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
@@ -52,10 +59,25 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderPredefinedMetricType": "L
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CapacityProviderScalingConfig": close({
-	MaxVCpuCount?: int & <=15000 & >=2 | fn.#NumberExpression
-	ScalingMode?:  _#defs."/$defs/Properties/definitions/CapacityProviderScalingMode" | fn.#StringExpression
+	MaxVCpuCount?: int & <=15000 & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=15000 &
+							>=2,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ScalingMode?: _#defs."/$defs/Properties/definitions/CapacityProviderScalingMode" | fn.#StringExpression
 	ScalingPolicies?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TargetTrackingScalingPolicy" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/TargetTrackingScalingPolicy"
 	] |
 		fn.#ListExpression
 }) |
@@ -76,7 +98,11 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderTelemetryConfig": close(
 
 _#defs: "/$defs/Properties/definitions/CapacityProviderVpcConfig": close({
 	SecurityGroupIds!: list.MaxItems(5) & [...] & [
-		...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^sg-[0-9a-zA-Z]*$" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(0) &
+		=~"^sg-[0-9a-zA-Z]*$" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SubnetIds!: list.MaxItems(16) & list.MinItems(1) & [
@@ -91,9 +117,7 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Architectures?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Architecture" | fn.#StringExpression
-	] |
+	Architectures?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Architecture"] |
 		fn.#ListExpression
 	ExcludedInstanceTypes?: list.MaxItems(400) & [...] & [
 		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" | fn.#StringExpression
@@ -103,9 +127,7 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PropagateTagsConfig": close({
-	ExplicitTags?: list.MaxItems(40) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	ExplicitTags?: list.MaxItems(40) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	Mode?: _#defs."/$defs/Properties/definitions/PropagateTagsMode" | fn.#StringExpression
 }) |
@@ -122,7 +144,26 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/TargetTrackingScalingPolicy": close({
 	PredefinedMetricType!: _#defs."/$defs/Properties/definitions/CapacityProviderPredefinedMetricType" |
 		fn.#StringExpression
-	TargetValue!: <=100 & >=0 | fn.#NumberExpression
+	TargetValue!: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

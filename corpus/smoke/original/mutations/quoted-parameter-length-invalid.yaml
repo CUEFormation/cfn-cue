@@ -1,0 +1,15 @@
+Parameters:
+  Text:
+    Type: String
+    MinLength: not-a-length
+    MaxLength: '18'
+    NoEcho: 'TRUE'
+    Default: abc
+  Count:
+    Type: Number
+    MinValue: '1.5'
+    MaxValue: '20'
+    Default: '2'
+Resources:
+  Queue:
+    Type: AWS::SQS::Queue

@@ -17,21 +17,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Systems Manager (SSM).
 #Properties: close({
 	Name!:             strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
-	SsmCommandConfig?: _#defs."/$defs/Properties/definitions/ConnectorSsmCommandConfig" | fn.#ObjectExpression
+	SsmCommandConfig?: _#defs."/$defs/Properties/definitions/ConnectorSsmCommandConfig"
 	SsmInstanceID!: strings.MaxRunes(20) & strings.MinRunes(19) & =~"(^i-[0-9a-zA-Z]{17}$)|(^mi-[0-9a-zA-Z]{17}$)" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ConnectorSsmCommandConfig": close({
 	CloudWatchLogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$" |
 	fn.#StringExpression
-	CloudWatchOutputEnabled!: bool | fn.#BooleanExpression
+	CloudWatchOutputEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	OutputS3BucketName?:      =~"^[a-zA-Z0-9.\\-_]{1,255}$" | fn.#StringExpression
-	S3OutputEnabled!:         bool | fn.#BooleanExpression
+	S3OutputEnabled!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 

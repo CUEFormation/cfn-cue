@@ -8,27 +8,28 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApplicationInsights::Application
 #Properties: close({
-	AttachMissingPermission?:  bool | fn.#BooleanExpression
-	AutoConfigurationEnabled?: bool | fn.#BooleanExpression
-	CWEMonitorEnabled?:        bool | fn.#BooleanExpression
+	AttachMissingPermission?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AutoConfigurationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CWEMonitorEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ComponentMonitoringSettings?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ComponentMonitoringSetting" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ComponentMonitoringSetting"
 	] |
 		fn.#ListExpression
-	CustomComponents?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/CustomComponent" | fn.#ObjectExpression
-	] |
+	CustomComponents?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomComponent"] |
 		fn.#ListExpression
-	GroupingType?: "ACCOUNT_BASED" | fn.#StringExpression
-	LogPatternSets?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LogPatternSet" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	OpsCenterEnabled?: bool | fn.#BooleanExpression
+	GroupingType?:     "ACCOUNT_BASED" | fn.#StringExpression
+	LogPatternSets?:   list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LogPatternSet"] | fn.#ListExpression
+	OpsCenterEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	OpsItemSNSTopicArn?: strings.MaxRunes(300) &
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" |
@@ -38,10 +39,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Alarm": close({
@@ -56,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/AlarmMetric": close({AlarmMetricName!: st
 _#defs: "/$defs/Properties/definitions/ComponentConfiguration": close({
 	ConfigurationDetails?: _#defs."/$defs/Properties/definitions/ConfigurationDetails" | fn.#ObjectExpression
 	SubComponentTypeConfigurations?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/SubComponentTypeConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/SubComponentTypeConfiguration"
 	] |
 		fn.#ListExpression
 }) |
@@ -83,19 +81,19 @@ _#defs: "/$defs/Properties/definitions/ComponentMonitoringSetting": matchN(1, [{
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfigurationDetails": close({
-	AlarmMetrics?: [..._#defs."/$defs/Properties/definitions/AlarmMetric" | fn.#ObjectExpression] | fn.#ListExpression
-	Alarms?:       [..._#defs."/$defs/Properties/definitions/Alarm" | fn.#ObjectExpression] | fn.#ListExpression
+	AlarmMetrics?: [..._#defs."/$defs/Properties/definitions/AlarmMetric"] | fn.#ListExpression
+	Alarms?:       [..._#defs."/$defs/Properties/definitions/Alarm"] | fn.#ListExpression
 	HAClusterPrometheusExporter?: _#defs."/$defs/Properties/definitions/HAClusterPrometheusExporter" |
 		fn.#ObjectExpression
 	HANAPrometheusExporter?: _#defs."/$defs/Properties/definitions/HANAPrometheusExporter" | fn.#ObjectExpression
 	JMXPrometheusExporter?:  _#defs."/$defs/Properties/definitions/JMXPrometheusExporter" | fn.#ObjectExpression
-	Logs?:                   [..._#defs."/$defs/Properties/definitions/Log" | fn.#ObjectExpression] | fn.#ListExpression
+	Logs?:                   [..._#defs."/$defs/Properties/definitions/Log"] | fn.#ListExpression
 	NetWeaverPrometheusExporter?: _#defs."/$defs/Properties/definitions/NetWeaverPrometheusExporter" |
 		fn.#ObjectExpression
-	Processes?: [..._#defs."/$defs/Properties/definitions/Process" | fn.#ObjectExpression] | fn.#ListExpression
+	Processes?: [..._#defs."/$defs/Properties/definitions/Process"] | fn.#ListExpression
 	SQLServerPrometheusExporter?: _#defs."/$defs/Properties/definitions/SQLServerPrometheusExporter" |
 		fn.#ObjectExpression
-	WindowsEvents?: [..._#defs."/$defs/Properties/definitions/WindowsEvent" | fn.#ObjectExpression] | fn.#ListExpression
+	WindowsEvents?: [..._#defs."/$defs/Properties/definitions/WindowsEvent"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -124,7 +122,7 @@ _#defs: "/$defs/Properties/definitions/HAClusterPrometheusExporter": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HANAPrometheusExporter": close({
-	AgreeToInstallHANADBClient!: bool | fn.#BooleanExpression
+	AgreeToInstallHANADBClient!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	HANAPort!:                   string | fn.#StringExpression
 	HANASID!:                    string | fn.#StringExpression
 	HANASecretName!:             string | fn.#StringExpression
@@ -152,13 +150,25 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/LogPattern": close({
 	Pattern!:     strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 	PatternName!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" | fn.#StringExpression
-	Rank!:        int | fn.#NumberExpression
+	Rank!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LogPatternSet": close({
-	LogPatterns!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LogPattern" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	LogPatterns!:    list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LogPattern"] | fn.#ListExpression
 	PatternSetName!: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -174,7 +184,7 @@ _#defs: "/$defs/Properties/definitions/NetWeaverPrometheusExporter": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Process": close({
-	AlarmMetrics!: [..._#defs."/$defs/Properties/definitions/AlarmMetric" | fn.#ObjectExpression] | fn.#ListExpression
+	AlarmMetrics!: [..._#defs."/$defs/Properties/definitions/AlarmMetric"] | fn.#ListExpression
 	ProcessName!:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_,-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -186,10 +196,10 @@ _#defs: "/$defs/Properties/definitions/SQLServerPrometheusExporter": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SubComponentConfigurationDetails": close({
-	AlarmMetrics?:  [..._#defs."/$defs/Properties/definitions/AlarmMetric" | fn.#ObjectExpression] | fn.#ListExpression
-	Logs?:          [..._#defs."/$defs/Properties/definitions/Log" | fn.#ObjectExpression] | fn.#ListExpression
-	Processes?:     [..._#defs."/$defs/Properties/definitions/Process" | fn.#ObjectExpression] | fn.#ListExpression
-	WindowsEvents?: [..._#defs."/$defs/Properties/definitions/WindowsEvent" | fn.#ObjectExpression] | fn.#ListExpression
+	AlarmMetrics?:  [..._#defs."/$defs/Properties/definitions/AlarmMetric"] | fn.#ListExpression
+	Logs?:          [..._#defs."/$defs/Properties/definitions/Log"] | fn.#ListExpression
+	Processes?:     [..._#defs."/$defs/Properties/definitions/Process"] | fn.#ListExpression
+	WindowsEvents?: [..._#defs."/$defs/Properties/definitions/WindowsEvent"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -207,8 +217,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WindowsEvent": close({
-	EventLevels!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EventLevel" | fn.#StringExpression] |
-		fn.#ListExpression
+	EventLevels!:  list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EventLevel"] | fn.#ListExpression
 	EventName!:    strings.MaxRunes(260) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_ \\\\/-]+$" | fn.#StringExpression
 	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
 	PatternSet?:   strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" | fn.#StringExpression

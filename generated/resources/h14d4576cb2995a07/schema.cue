@@ -7,6 +7,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,9 +19,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // that API Gateway activates for methods that have authorization enabled. API
 // Gateway activates the authorizer when a client calls those methods.
 #Properties: close({
-	AuthType?:                     string | fn.#StringExpression
-	AuthorizerCredentials?:        string | fn.#StringExpression
-	AuthorizerResultTtlInSeconds?: int | fn.#NumberExpression
+	AuthType?:              string | fn.#StringExpression
+	AuthorizerCredentials?: string | fn.#StringExpression
+	AuthorizerResultTtlInSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	AuthorizerUri?:                string | fn.#StringExpression
 	IdentitySource?:               string | fn.#StringExpression
 	IdentityValidationExpression?: string | fn.#StringExpression

@@ -49,5 +49,5 @@ _#defs: "/$defs/Properties/definitions/ReferenceSchema": close({
 _#defs: "/$defs/Properties/definitions/S3ReferenceDataSource": close({
 	BucketARN!:        string
 	FileKey!:          string
-	ReferenceRoleARN!: string
+	ReferenceRoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })

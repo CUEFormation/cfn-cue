@@ -18,7 +18,7 @@ import "strings"
 	// The ARN of the role that grants permission to AWS IoT to access information
 	// about your devices, policies, certificates and other items as required when
 	// performing an audit.
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
 // The configuration for a specific audit check.
@@ -54,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/AuditNotificationTarget": close({
 	Enabled?: bool
 
 	// The ARN of the role that grants permission to send notifications to the target.
-	RoleArn?: strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 	// The ARN of the target (SNS topic) to which audit notifications are sent.
 	TargetArn?: strings.MaxRunes(2048)

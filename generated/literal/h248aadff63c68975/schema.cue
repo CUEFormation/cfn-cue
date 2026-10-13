@@ -19,7 +19,7 @@ import "strings"
 })
 
 _#defs: "/$defs/Properties/definitions/ConfigurationDefinition": close({
-	LocalDeploymentAdministrationRoleArn?: string
+	LocalDeploymentAdministrationRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	LocalDeploymentExecutionRoleName?:     strings.MaxRunes(256) & strings.MinRunes(1)
 	Parameters!:                           _#defs."/$defs/Properties/definitions/ConfigurationParametersMap"
 	Type!:                                 =~"^[a-zA-Z0-9_\\-.:/]{3,200}$"

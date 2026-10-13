@@ -105,7 +105,9 @@ _#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTls": close({
 	Validation?:  _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsValidationContext"
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsAcmCertificate": close({CertificateArn!: string})
+_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsAcmCertificate": close(
+	{CertificateArn!: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"},
+)
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsCertificate": close({
 	ACM?:  _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsAcmCertificate"

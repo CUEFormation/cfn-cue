@@ -33,7 +33,7 @@ import (
 	Id?: strings.MaxRunes(40) & strings.MinRunes(3)
 
 	// Key Management Service key used to encrypt the collection.
-	KmsKeyArn?: string
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 
 	// The name of the collection.
 	//
@@ -63,7 +63,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfig": close({
 	AWSOwnedKey?: bool
 
 	// Key Management Service key used to encrypt the collection.
-	KmsKeyArn?: string
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/FipsEndpoints": close({

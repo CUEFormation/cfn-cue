@@ -19,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(4000) & strings.MinRunes(1) | fn.#StringExpression
 	Pillars!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Pillar" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/Pillar"
 	] |
 		fn.#ListExpression
 	ProfileArn!: strings.MaxRunes(2048) &

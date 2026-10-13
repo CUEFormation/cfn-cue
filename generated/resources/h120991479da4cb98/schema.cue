@@ -10,8 +10,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::EC2::SqlHaStandbyDetectedInstance
 #Properties: close({
-	InstanceId!:           _#defs."/$defs/Properties/definitions/InstanceId" | fn.#StringExpression
-	SqlServerCredentials?: _#defs."/$defs/Properties/definitions/SqlServerCredentials" | fn.#StringExpression
+	InstanceId!:           _#defs."/$defs/Properties/definitions/InstanceId"
+	SqlServerCredentials?: _#defs."/$defs/Properties/definitions/SqlServerCredentials"
 })
 
 _#defs: "/$defs/Properties/definitions/HaStatus": "processing" | "active" | "standby" | "invalid" | fn.#StringExpression

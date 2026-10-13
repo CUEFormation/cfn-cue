@@ -13,8 +13,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:  string | fn.#StringExpression
 	FunctionName!: string | fn.#StringExpression
 	LogGroupName?: string | fn.#StringExpression
-	LogRoleARN?:   string | fn.#StringExpression
-	Name!:         string | fn.#StringExpression
+	LogRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Name!: string | fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::CloudFormation::Macro"

@@ -14,9 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Connect::EmailAddress
 #Properties: close({
-	AliasConfigurations?: list.MaxItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AliasConfiguration" | fn.#ObjectExpression
-	] |
+	AliasConfigurations?: list.MaxItems(1) & [..._#defs."/$defs/Properties/definitions/AliasConfiguration"] |
 		fn.#ListExpression
 	Description?: strings.MaxRunes(250) & strings.MinRunes(1) & =~"(^[\\S].*[\\S]$)|(^[\\S]$)" | fn.#StringExpression
 	DisplayName?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"(^[\\S].*[\\S]$)|(^[\\S]$)" | fn.#StringExpression
@@ -26,10 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^arn:(aws|aws-us-gov):connect:[a-z]{2}-[a-z]+-[0-9]{1}:[0-9]{1,20}:instance/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AliasConfiguration": close({

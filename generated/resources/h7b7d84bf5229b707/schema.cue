@@ -10,10 +10,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Greengrass::Group
 #Properties: close({
-	InitialVersion?: _#defs."/$defs/Properties/definitions/GroupVersion" | fn.#ObjectExpression
+	InitialVersion?: _#defs."/$defs/Properties/definitions/GroupVersion"
 	Name!:           string | fn.#StringExpression
-	RoleArn?:        string | fn.#StringExpression
-	Tags?:           string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Tags?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/GroupVersion": close({

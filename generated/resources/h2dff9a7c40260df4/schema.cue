@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,33 +19,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::ElasticLoadBalancing::LoadBalancer
 #Properties: close({
 	AccessLoggingPolicy?: _#defs."/$defs/Properties/definitions/AccessLoggingPolicy" | fn.#ObjectExpression
-	AppCookieStickinessPolicy?: [
-		..._#defs."/$defs/Properties/definitions/AppCookieStickinessPolicy" | fn.#ObjectExpression
-	] |
+	AppCookieStickinessPolicy?: [..._#defs."/$defs/Properties/definitions/AppCookieStickinessPolicy"] |
 		fn.#ListExpression
 	AvailabilityZones?:        [...string | fn.#StringExpression] | fn.#ListExpression
 	ConnectionDrainingPolicy?: _#defs."/$defs/Properties/definitions/ConnectionDrainingPolicy" | fn.#ObjectExpression
 	ConnectionSettings?:       _#defs."/$defs/Properties/definitions/ConnectionSettings" | fn.#ObjectExpression
-	CrossZone?:                bool | fn.#BooleanExpression
+	CrossZone?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	HealthCheck?:              _#defs."/$defs/Properties/definitions/HealthCheck" | fn.#ObjectExpression
 	Instances?:                [...string | fn.#StringExpression] | fn.#ListExpression
-	LBCookieStickinessPolicy?: [
-		..._#defs."/$defs/Properties/definitions/LBCookieStickinessPolicy" | fn.#ObjectExpression
+	LBCookieStickinessPolicy?: [..._#defs."/$defs/Properties/definitions/LBCookieStickinessPolicy"] | fn.#ListExpression
+	Listeners!:                [..._#defs."/$defs/Properties/definitions/Listeners"] | fn.#ListExpression
+	LoadBalancerName?:         string | fn.#StringExpression
+	Policies?:                 [..._#defs."/$defs/Properties/definitions/Policies"] | fn.#ListExpression
+	Scheme?:                   string | fn.#StringExpression
+	SecurityGroups?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	Listeners!:        [..._#defs."/$defs/Properties/definitions/Listeners" | fn.#ObjectExpression] | fn.#ListExpression
-	LoadBalancerName?: string | fn.#StringExpression
-	Policies?:         [..._#defs."/$defs/Properties/definitions/Policies" | fn.#ObjectExpression] | fn.#ListExpression
-	Scheme?:           string | fn.#StringExpression
-	SecurityGroups?:   [...string | fn.#StringExpression] | fn.#ListExpression
-	Subnets?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Subnets?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Tags?:    list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccessLoggingPolicy": close({
-	EmitInterval?:   int | fn.#NumberExpression
-	Enabled!:        bool | fn.#BooleanExpression
+	EmitInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Enabled!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	S3BucketName!:   string | fn.#StringExpression
 	S3BucketPrefix?: string | fn.#StringExpression
 }) |
@@ -54,12 +69,40 @@ _#defs: "/$defs/Properties/definitions/AppCookieStickinessPolicy": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConnectionDrainingPolicy": close({
-	Enabled!: bool | fn.#BooleanExpression
-	Timeout?: int | fn.#NumberExpression
+	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Timeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionSettings": close({IdleTimeout!: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/ConnectionSettings": close({
+	IdleTimeout!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HealthCheck": close({
@@ -88,8 +131,8 @@ _#defs: "/$defs/Properties/definitions/Listeners": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Policies": close({
-	Attributes!:    [..._#defs."/$defs/Properties/definitions/PolicyItem" | fn.#ObjectExpression] | fn.#ListExpression
-	InstancePorts?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Attributes!:        [..._#defs."/$defs/Properties/definitions/PolicyItem"] | fn.#ListExpression
+	InstancePorts?:     [...string | fn.#StringExpression] | fn.#ListExpression
 	LoadBalancerPorts?: [...string | fn.#StringExpression] | fn.#ListExpression
 	PolicyName!:        string | fn.#StringExpression
 	PolicyType!:        string | fn.#StringExpression

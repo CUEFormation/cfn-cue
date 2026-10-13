@@ -17,7 +17,8 @@ import (
 	ApprovalModel?:   "AUTOMATIC" | "MANUAL"
 	BudgetName!:      strings.MaxRunes(100) & strings.MinRunes(1)
 	Definition!:      _#defs."/$defs/Properties/definitions/Definition"
-	ExecutionRoleArn!: strings.MaxRunes(618) &
+	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(618) &
 	strings.MinRunes(32) &
 	=~"^arn:aws(-eusc|-cn|-us-gov|-iso|-iso-[a-z]{1})?:iam::\\d{12}:role(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}|\\x{002F})[\\w+=,.@-]+$"
 	NotificationType!: "ACTUAL" | "FORECASTED"

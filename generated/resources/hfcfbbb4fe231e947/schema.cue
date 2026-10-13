@@ -8,51 +8,50 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A security profile defines a set of expected behaviors for devices in your account.
 #Properties: close({
-	AdditionalMetricsToRetainV2?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricToRetain" | fn.#ObjectExpression
-	] |
+	AdditionalMetricsToRetainV2?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricToRetain"] |
 		fn.#ListExpression
 	AlertTargets?: close({
 
-		{[=~"[a-zA-Z0-9:_-]+"]: _#defs."/$defs/Properties/definitions/AlertTarget" | fn.#ObjectExpression}}) |
+		{[=~"[a-zA-Z0-9:_-]+"]: _#defs."/$defs/Properties/definitions/AlertTarget"}}) |
 	fn.#ObjectExpression
-	Behaviors?: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Behavior" | fn.#ObjectExpression
-	] |
+	Behaviors?: list.MaxItems(100) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Behavior"] |
 		fn.#ListExpression
 	MetricsExportConfig?: close({
 		MqttTopic!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-		RoleArn!:   strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	SecurityProfileDescription?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
 	SecurityProfileName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetArns?: list.UniqueItems() & [...strings.MaxRunes(2048) | fn.#StringExpression] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AlertTarget": close({
 	AlertTargetArn!: strings.MaxRunes(2048) | fn.#StringExpression
-	RoleArn!:        strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Behavior": close({
-	Criteria?:        _#defs."/$defs/Properties/definitions/BehaviorCriteria" | fn.#ObjectExpression
-	ExportMetric?:    _#defs."/$defs/Properties/definitions/ExportMetric" | fn.#BooleanExpression
+	Criteria?:        _#defs."/$defs/Properties/definitions/BehaviorCriteria"
+	ExportMetric?:    _#defs."/$defs/Properties/definitions/ExportMetric"
 	Metric?:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-	MetricDimension?: _#defs."/$defs/Properties/definitions/MetricDimension" | fn.#ObjectExpression
+	MetricDimension?: _#defs."/$defs/Properties/definitions/MetricDimension"
 	Name!:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-	SuppressAlerts?:  bool | fn.#BooleanExpression
+	SuppressAlerts?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -68,16 +67,66 @@ _#defs: "/$defs/Properties/definitions/BehaviorCriteria": close({
 		"in-set" |
 		"not-in-set" |
 		fn.#StringExpression
-	ConsecutiveDatapointsToAlarm?: int & <=10 & >=1 | fn.#NumberExpression
-	ConsecutiveDatapointsToClear?: int & <=10 & >=1 | fn.#NumberExpression
-	DurationSeconds?:              int | fn.#NumberExpression
-	MlDetectionConfig?:    _#defs."/$defs/Properties/definitions/MachineLearningDetectionConfig" | fn.#ObjectExpression
-	StatisticalThreshold?: _#defs."/$defs/Properties/definitions/StatisticalThreshold" | fn.#ObjectExpression
-	Value?:                _#defs."/$defs/Properties/definitions/MetricValue" | fn.#ObjectExpression
+	ConsecutiveDatapointsToAlarm?: int & <=10 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ConsecutiveDatapointsToClear?: int & <=10 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DurationSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MlDetectionConfig?:    _#defs."/$defs/Properties/definitions/MachineLearningDetectionConfig"
+	StatisticalThreshold?: _#defs."/$defs/Properties/definitions/StatisticalThreshold"
+	Value?:                _#defs."/$defs/Properties/definitions/MetricValue"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExportMetric": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/ExportMetric": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/MachineLearningDetectionConfig": close(
 	{ConfidenceLevel?: "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression},
@@ -91,9 +140,9 @@ _#defs: "/$defs/Properties/definitions/MetricDimension": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetricToRetain": close({
-	ExportMetric?:    _#defs."/$defs/Properties/definitions/ExportMetric" | fn.#BooleanExpression
+	ExportMetric?:    _#defs."/$defs/Properties/definitions/ExportMetric"
 	Metric!:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-	MetricDimension?: _#defs."/$defs/Properties/definitions/MetricDimension" | fn.#ObjectExpression
+	MetricDimension?: _#defs."/$defs/Properties/definitions/MetricDimension"
 }) |
 fn.#ObjectExpression
 
@@ -102,10 +151,69 @@ _#defs: "/$defs/Properties/definitions/MetricValue": close({
 		...strings.MaxRunes(43) & strings.MinRunes(2) & =~"^[a-fA-F0-9:\\.\\/]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Count?:   string | fn.#StringExpression
-	Number?:  number | fn.#NumberExpression
-	Numbers?: list.UniqueItems() & [...number | fn.#NumberExpression] | fn.#ListExpression
-	Ports?:   list.UniqueItems() & [...int & <=65535 & >=0 | fn.#NumberExpression] | fn.#ListExpression
+	Count?: string | fn.#StringExpression
+	Number?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Numbers?: list.UniqueItems() & [
+		...number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	Ports?: list.UniqueItems() & [
+		...int & <=65535 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=65535 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
 	Strings?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression

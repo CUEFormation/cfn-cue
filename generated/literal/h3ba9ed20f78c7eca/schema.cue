@@ -24,7 +24,7 @@ import (
 	DestinationPolicy?: strings.MinRunes(1)
 
 	// The ARN of an IAM role that permits CloudWatch Logs to send data to the specified AWS resource
-	RoleArn!: strings.MinRunes(1)
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1)
 
 	// An array of key-value pairs to apply to this resource.
 	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]

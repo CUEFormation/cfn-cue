@@ -22,8 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	StudioLifecycleConfigContent!: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"[\\S\\s]+" | fn.#StringExpression
 	StudioLifecycleConfigName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

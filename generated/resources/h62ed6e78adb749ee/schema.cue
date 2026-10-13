@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,18 +19,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Schema of AWS::EMRContainers::Endpoint Type
 #Properties: close({
 	ConfigurationOverrides?: _#defs."/$defs/Properties/definitions/ConfigurationOverrides" | fn.#ObjectExpression
-	ExecutionRoleArn!: strings.MaxRunes(2048) &
+	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$" |
 	fn.#StringExpression
 	Name?:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-9A-Za-z][A-Za-z0-9\\-_]*" | fn.#StringExpression
 	ReleaseLabel!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-Za-z0-9._/-]+" | fn.#StringExpression
-	SessionIdleTimeoutInMinutes?: int & <=1440 & >=1 | fn.#NumberExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Type!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+	SessionIdleTimeoutInMinutes?: int & <=1440 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1440 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Type!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 	VirtualClusterId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z]+$" | fn.#StringExpression
 })
 
@@ -44,24 +61,37 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfigurationOverrides": close({
 	ApplicationConfiguration?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/EMREKSConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/EMREKSConfiguration"
 	] |
 		fn.#ListExpression
-	MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/MonitoringConfiguration" | fn.#ObjectExpression
+	MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/MonitoringConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ContainerLogRotationConfiguration": close({
-	MaxFilesToKeep!: int & <=50 & >=1 | fn.#NumberExpression
-	RotationSize!:   strings.MaxRunes(12) & strings.MinRunes(3) & =~"^\\d+(\\.\\d+)?[KMG][Bb]?$" | fn.#StringExpression
+	MaxFilesToKeep!: int & <=50 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=50 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RotationSize!: strings.MaxRunes(12) & strings.MinRunes(3) & =~"^\\d+(\\.\\d+)?[KMG][Bb]?$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EMREKSConfiguration": close({
 	Classification!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	Configurations?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/EMREKSConfiguration" | fn.#ObjectExpression
-	] |
+	Configurations?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/EMREKSConfiguration"] |
 		fn.#ListExpression
 	Properties?: close({
 
@@ -71,12 +101,10 @@ _#defs: "/$defs/Properties/definitions/EMREKSConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MonitoringConfiguration": close({
-	CloudWatchMonitoringConfiguration?: _#defs."/$defs/Properties/definitions/CloudWatchMonitoringConfiguration" |
-		fn.#ObjectExpression
-	ContainerLogRotationConfiguration?: _#defs."/$defs/Properties/definitions/ContainerLogRotationConfiguration" |
-		fn.#ObjectExpression
-	PersistentAppUI?:           "ENABLED" | "DISABLED" | fn.#StringExpression
-	S3MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/S3MonitoringConfiguration" | fn.#ObjectExpression
+	CloudWatchMonitoringConfiguration?: _#defs."/$defs/Properties/definitions/CloudWatchMonitoringConfiguration"
+	ContainerLogRotationConfiguration?: _#defs."/$defs/Properties/definitions/ContainerLogRotationConfiguration"
+	PersistentAppUI?:                   "ENABLED" | "DISABLED" | fn.#StringExpression
+	S3MonitoringConfiguration?:         _#defs."/$defs/Properties/definitions/S3MonitoringConfiguration"
 }) |
 fn.#ObjectExpression
 

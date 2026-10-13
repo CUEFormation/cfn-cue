@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,7 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	MetricCalculation!: close({
 		Calculation!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 		CalculationComponents!: list.MaxItems(5) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/CalculationComponent" | fn.#ObjectExpression
+			..._#defs."/$defs/Properties/definitions/CalculationComponent"
 		] |
 			fn.#ListExpression
 	}) |
@@ -28,10 +32,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!:                   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	PositiveTrendIndicator?: "POSITIVE" | "NEGATIVE" | "NEUTRAL" | fn.#StringExpression
 	Status!:                 "SAVED" | "PUBLISHED" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Unit!: "INTEGER" | "DOUBLE" | "PERCENT" | "SECONDS" | fn.#StringExpression
 })
 
@@ -43,9 +44,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CalculationComponent": close({
 	Alias!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_][a-zA-Z0-9_]*" | fn.#StringExpression
-	MetricFilters?: list.MaxItems(5) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MetricFilter" | fn.#ObjectExpression
-	] |
+	MetricFilters?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/MetricFilter"] |
 		fn.#ListExpression
 	MetricId?:   strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
 	MetricName?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -58,11 +57,11 @@ _#defs: "/$defs/Properties/definitions/CreatedByInfo": matchN(1, [
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetricFilter": close({
-	BooleanCondition?: _#defs."/$defs/Properties/definitions/MetricFilterBooleanCondition" | fn.#ObjectExpression
+	BooleanCondition?: _#defs."/$defs/Properties/definitions/MetricFilterBooleanCondition"
 	MetricFilterKey!:  strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Negate?:           bool | fn.#BooleanExpression
-	NumberCondition?:  _#defs."/$defs/Properties/definitions/MetricFilterNumberCondition" | fn.#ObjectExpression
-	StringCondition?:  _#defs."/$defs/Properties/definitions/MetricFilterStringCondition" | fn.#ObjectExpression
+	Negate?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NumberCondition?:  _#defs."/$defs/Properties/definitions/MetricFilterNumberCondition"
+	StringCondition?:  _#defs."/$defs/Properties/definitions/MetricFilterStringCondition"
 }) |
 fn.#ObjectExpression
 
@@ -73,7 +72,28 @@ _#defs: "/$defs/Properties/definitions/MetricFilterBooleanCondition": close(
 
 _#defs: "/$defs/Properties/definitions/MetricFilterNumberCondition": close({
 	Comparison!: "LESSER" | "LESSER_OR_EQUAL" | "GREATER" | "GREATER_OR_EQUAL" | fn.#StringExpression
-	Values!:     list.MaxItems(10) & list.MinItems(1) & [...number | fn.#NumberExpression] | fn.#ListExpression
+	Values!: list.MaxItems(10) & list.MinItems(1) & [
+		...number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

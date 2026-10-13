@@ -35,7 +35,8 @@ import "strings"
 
 	// The IAM Role that allows AWS to update CloudFormation stacks based on content
 	// in the specified repository.
-	RoleArn!: strings.MaxRunes(1024) &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[\\w]+)*:iam::\\d{12}:role/[a-zA-Z_0-9+=,.@\\-_/]+$"
 

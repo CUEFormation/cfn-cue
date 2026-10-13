@@ -19,10 +19,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!:             strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
 	Nodes?:            list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	SignalCatalogArn!: string | fn.#StringExpression
-	Status?:           _#defs."/$defs/Properties/definitions/ManifestStatus" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Status?:           _#defs."/$defs/Properties/definitions/ManifestStatus"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

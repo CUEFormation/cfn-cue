@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,51 +18,104 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::AmplifyUIBuilder::Form Resource Type
 #Properties: close({
 	AppId?:             string | fn.#StringExpression
-	Cta?:               _#defs."/$defs/Properties/definitions/FormCTA" | fn.#ObjectExpression
-	DataType?:          _#defs."/$defs/Properties/definitions/FormDataTypeConfig" | fn.#ObjectExpression
+	Cta?:               _#defs."/$defs/Properties/definitions/FormCTA"
+	DataType?:          _#defs."/$defs/Properties/definitions/FormDataTypeConfig"
 	EnvironmentName?:   string | fn.#StringExpression
-	Fields?:            _#defs."/$defs/Properties/definitions/FieldsMap" | fn.#ObjectExpression
-	FormActionType?:    _#defs."/$defs/Properties/definitions/FormActionType" | fn.#StringExpression
-	LabelDecorator?:    _#defs."/$defs/Properties/definitions/LabelDecorator" | fn.#StringExpression
+	Fields?:            _#defs."/$defs/Properties/definitions/FieldsMap"
+	FormActionType?:    _#defs."/$defs/Properties/definitions/FormActionType"
+	LabelDecorator?:    _#defs."/$defs/Properties/definitions/LabelDecorator"
 	Name?:              strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	SchemaVersion?:     string | fn.#StringExpression
-	SectionalElements?: _#defs."/$defs/Properties/definitions/SectionalElementMap" | fn.#ObjectExpression
-	Style?:             _#defs."/$defs/Properties/definitions/FormStyle" | fn.#ObjectExpression
-	Tags?:              _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	SectionalElements?: _#defs."/$defs/Properties/definitions/SectionalElementMap"
+	Style?:             _#defs."/$defs/Properties/definitions/FormStyle"
+	Tags?:              _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/FieldConfig": close({
-	Excluded?:  bool | fn.#BooleanExpression
-	InputType?: _#defs."/$defs/Properties/definitions/FieldInputConfig" | fn.#ObjectExpression
-	Label?:     string | fn.#StringExpression
-	Position?:  _#defs."/$defs/Properties/definitions/FieldPosition" | fn.#ValueExpression
-	Validations?: [..._#defs."/$defs/Properties/definitions/FieldValidationConfiguration" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Excluded?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InputType?:   _#defs."/$defs/Properties/definitions/FieldInputConfig"
+	Label?:       string | fn.#StringExpression
+	Position?:    _#defs."/$defs/Properties/definitions/FieldPosition"
+	Validations?: [..._#defs."/$defs/Properties/definitions/FieldValidationConfiguration"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldInputConfig": close({
-	DefaultChecked?:     bool | fn.#BooleanExpression
+	DefaultChecked?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DefaultCountryCode?: string | fn.#StringExpression
 	DefaultValue?:       string | fn.#StringExpression
 	DescriptiveText?:    string | fn.#StringExpression
-	FileUploaderConfig?: _#defs."/$defs/Properties/definitions/FileUploaderFieldConfig" | fn.#ObjectExpression
-	IsArray?:            bool | fn.#BooleanExpression
-	MaxValue?:           number | fn.#NumberExpression
-	MinValue?:           number | fn.#NumberExpression
-	Name?:               string | fn.#StringExpression
-	Placeholder?:        string | fn.#StringExpression
-	ReadOnly?:           bool | fn.#BooleanExpression
-	Required?:           bool | fn.#BooleanExpression
-	Step?:               number | fn.#NumberExpression
-	Type!:               string | fn.#StringExpression
-	Value?:              string | fn.#StringExpression
-	ValueMappings?:      _#defs."/$defs/Properties/definitions/ValueMappings" | fn.#ObjectExpression
+	FileUploaderConfig?: _#defs."/$defs/Properties/definitions/FileUploaderFieldConfig"
+	IsArray?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MaxValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name?:        string | fn.#StringExpression
+	Placeholder?: string | fn.#StringExpression
+	ReadOnly?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Required?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Step?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type!:          string | fn.#StringExpression
+	Value?:         string | fn.#StringExpression
+	ValueMappings?: _#defs."/$defs/Properties/definitions/ValueMappings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldPosition": matchN(1, [close(
-	{Fixed!: _#defs."/$defs/Properties/definitions/FixedPosition" | fn.#StringExpression},
+	{Fixed!: _#defs."/$defs/Properties/definitions/FixedPosition"},
 ), close(
 	{RightOf!: string | fn.#StringExpression},
 ), close(
@@ -67,7 +124,28 @@ _#defs: "/$defs/Properties/definitions/FieldPosition": matchN(1, [close(
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/FieldValidationConfiguration": close({
-	NumValues?:         [...number | fn.#NumberExpression] | fn.#ListExpression
+	NumValues?: [
+		...number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
 	StrValues?:         [...string | fn.#StringExpression] | fn.#ListExpression
 	Type!:              string | fn.#StringExpression
 	ValidationMessage?: string | fn.#StringExpression
@@ -76,16 +154,52 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldsMap": close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/FieldConfig" | fn.#ObjectExpression}}) |
+	{[=~".+"]: _#defs."/$defs/Properties/definitions/FieldConfig"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FileUploaderFieldConfig": close({
 	AcceptedFileTypes!: [...string | fn.#StringExpression] | fn.#ListExpression
-	AccessLevel!:       _#defs."/$defs/Properties/definitions/StorageAccessLevel" | fn.#StringExpression
-	IsResumable?:       bool | fn.#BooleanExpression
-	MaxFileCount?:      number | fn.#NumberExpression
-	MaxSize?:           number | fn.#NumberExpression
-	ShowThumbnails?:    bool | fn.#BooleanExpression
+	AccessLevel!:       _#defs."/$defs/Properties/definitions/StorageAccessLevel"
+	IsResumable?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MaxFileCount?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxSize?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ShowThumbnails?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -95,38 +209,37 @@ _#defs: "/$defs/Properties/definitions/FormActionType": "create" | "update" | fn
 
 _#defs: "/$defs/Properties/definitions/FormButton": close({
 	Children?: string | fn.#StringExpression
-	Excluded?: bool | fn.#BooleanExpression
-	Position?: _#defs."/$defs/Properties/definitions/FieldPosition" | fn.#ValueExpression
+	Excluded?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Position?: _#defs."/$defs/Properties/definitions/FieldPosition"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FormButtonsPosition": "top" | "bottom" | "top_and_bottom" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/FormCTA": close({
-	Cancel?:   _#defs."/$defs/Properties/definitions/FormButton" | fn.#ObjectExpression
-	Clear?:    _#defs."/$defs/Properties/definitions/FormButton" | fn.#ObjectExpression
-	Position?: _#defs."/$defs/Properties/definitions/FormButtonsPosition" | fn.#StringExpression
-	Submit?:   _#defs."/$defs/Properties/definitions/FormButton" | fn.#ObjectExpression
+	Cancel?:   _#defs."/$defs/Properties/definitions/FormButton"
+	Clear?:    _#defs."/$defs/Properties/definitions/FormButton"
+	Position?: _#defs."/$defs/Properties/definitions/FormButtonsPosition"
+	Submit?:   _#defs."/$defs/Properties/definitions/FormButton"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FormDataSourceType": "DataStore" | "Custom" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/FormDataTypeConfig": close({
-	DataSourceType!: _#defs."/$defs/Properties/definitions/FormDataSourceType" | fn.#StringExpression
+	DataSourceType!: _#defs."/$defs/Properties/definitions/FormDataSourceType"
 	DataTypeName!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FormInputBindingProperties": close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/FormInputBindingPropertiesValue" | fn.#ObjectExpression}}) |
+	{[=~".+"]: _#defs."/$defs/Properties/definitions/FormInputBindingPropertiesValue"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FormInputBindingPropertiesValue": close({
-	BindingProperties?: _#defs."/$defs/Properties/definitions/FormInputBindingPropertiesValueProperties" |
-		fn.#ObjectExpression
-	Type?: string | fn.#StringExpression
+	BindingProperties?: _#defs."/$defs/Properties/definitions/FormInputBindingPropertiesValueProperties"
+	Type?:              string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -136,11 +249,9 @@ _#defs: "/$defs/Properties/definitions/FormInputBindingPropertiesValueProperties
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FormInputValueProperty": close({
-	BindingProperties?: _#defs."/$defs/Properties/definitions/FormInputValuePropertyBindingProperties" |
-		fn.#ObjectExpression
-	Concat?: [..._#defs."/$defs/Properties/definitions/FormInputValueProperty" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Value?: string | fn.#StringExpression
+	BindingProperties?: _#defs."/$defs/Properties/definitions/FormInputValuePropertyBindingProperties"
+	Concat?:            [..._#defs."/$defs/Properties/definitions/FormInputValueProperty"] | fn.#ListExpression
+	Value?:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -151,9 +262,9 @@ _#defs: "/$defs/Properties/definitions/FormInputValuePropertyBindingProperties":
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FormStyle": close({
-	HorizontalGap?: _#defs."/$defs/Properties/definitions/FormStyleConfig" | fn.#ValueExpression
-	OuterPadding?:  _#defs."/$defs/Properties/definitions/FormStyleConfig" | fn.#ValueExpression
-	VerticalGap?:   _#defs."/$defs/Properties/definitions/FormStyleConfig" | fn.#ValueExpression
+	HorizontalGap?: _#defs."/$defs/Properties/definitions/FormStyleConfig"
+	OuterPadding?:  _#defs."/$defs/Properties/definitions/FormStyleConfig"
+	VerticalGap?:   _#defs."/$defs/Properties/definitions/FormStyleConfig"
 }) |
 fn.#ObjectExpression
 
@@ -165,10 +276,28 @@ fn.#ValueExpression
 _#defs: "/$defs/Properties/definitions/LabelDecorator": "required" | "optional" | "none" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SectionalElement": close({
-	Excluded?:    bool | fn.#BooleanExpression
-	Level?:       number | fn.#NumberExpression
+	Excluded?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Level?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Orientation?: string | fn.#StringExpression
-	Position?:    _#defs."/$defs/Properties/definitions/FieldPosition" | fn.#ValueExpression
+	Position?:    _#defs."/$defs/Properties/definitions/FieldPosition"
 	Text?:        string | fn.#StringExpression
 	Type!:        string | fn.#StringExpression
 }) |
@@ -176,7 +305,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SectionalElementMap": close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/SectionalElement" | fn.#ObjectExpression}}) |
+	{[=~".+"]: _#defs."/$defs/Properties/definitions/SectionalElement"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StorageAccessLevel": "public" | "protected" | "private" | fn.#StringExpression
@@ -184,14 +313,14 @@ _#defs: "/$defs/Properties/definitions/StorageAccessLevel": "public" | "protecte
 _#defs: "/$defs/Properties/definitions/Tags": {...} | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ValueMapping": close({
-	DisplayValue?: _#defs."/$defs/Properties/definitions/FormInputValueProperty" | fn.#ObjectExpression
-	Value!:        _#defs."/$defs/Properties/definitions/FormInputValueProperty" | fn.#ObjectExpression
+	DisplayValue?: _#defs."/$defs/Properties/definitions/FormInputValueProperty"
+	Value!:        _#defs."/$defs/Properties/definitions/FormInputValueProperty"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ValueMappings": close({
-	BindingProperties?: _#defs."/$defs/Properties/definitions/FormInputBindingProperties" | fn.#ObjectExpression
-	Values!: [..._#defs."/$defs/Properties/definitions/ValueMapping" | fn.#ObjectExpression] | fn.#ListExpression
+	BindingProperties?: _#defs."/$defs/Properties/definitions/FormInputBindingProperties"
+	Values!:            [..._#defs."/$defs/Properties/definitions/ValueMapping"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

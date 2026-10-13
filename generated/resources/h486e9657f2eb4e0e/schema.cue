@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,14 +23,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in that group.
 // The maximum number of metric filters that can be associated with a log group is 100.
 #Properties: close({
-	ApplyOnTransformedLogs?:    bool | fn.#BooleanExpression
+	ApplyOnTransformedLogs?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EmitSystemFieldDimensions?: [...string | fn.#StringExpression] | fn.#ListExpression
 	FieldSelectionCriteria?:    strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
 	FilterName?:                strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]{1,512}" | fn.#StringExpression
 	FilterPattern!:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]{1,512}" | fn.#StringExpression
 	MetricTransformations!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MetricTransformation" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MetricTransformation"
 	] |
 		fn.#ListExpression
 })
@@ -38,9 +42,27 @@ _#defs: "/$defs/Properties/definitions/Dimension": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetricTransformation": close({
-	DefaultValue?: number | fn.#NumberExpression
+	DefaultValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Dimensions?: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Dimension" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/Dimension"
 	] |
 		fn.#ListExpression
 	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression

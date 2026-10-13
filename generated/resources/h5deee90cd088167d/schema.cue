@@ -11,8 +11,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::EC2::VPCGatewayAttachment
 #Properties: close({
 	InternetGatewayId?: string | fn.#StringExpression
-	VpcId!:             string | fn.#StringExpression
-	VpnGatewayId?:      string | fn.#StringExpression
+	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	VpnGatewayId?: string | fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EC2::VPCGatewayAttachment"

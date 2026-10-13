@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,8 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::IoTFleetWise::DecoderManifest Resource Type
 #Properties: close({
-	DefaultForUnmappedSignals?: _#defs."/$defs/Properties/definitions/DefaultForUnmappedSignalsType" |
-		fn.#StringExpression
+	DefaultForUnmappedSignals?: _#defs."/$defs/Properties/definitions/DefaultForUnmappedSignalsType"
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression
 	ModelManifestArn!: string | fn.#StringExpression
@@ -38,10 +37,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ValueExpression
 	] |
 	fn.#ListExpression
-	Status?: _#defs."/$defs/Properties/definitions/ManifestStatus" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Status?: _#defs."/$defs/Properties/definitions/ManifestStatus"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
@@ -53,7 +50,7 @@ _#defs: "/$defs/Properties/definitions/CanInterface": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CanNetworkInterface": close({
-	CanInterface!: _#defs."/$defs/Properties/definitions/CanInterface" | fn.#ObjectExpression
+	CanInterface!: _#defs."/$defs/Properties/definitions/CanInterface"
 	InterfaceId!:  strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 	Type!:         "CAN_INTERFACE" | fn.#StringExpression
 }) |
@@ -67,13 +64,13 @@ _#defs: "/$defs/Properties/definitions/CanSignal": close({
 	MessageId!:       int | string | fn.#NumberExpression | fn.#StringExpression
 	Name?:            strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	Offset!:          number | string | fn.#NumberExpression | fn.#StringExpression
-	SignalValueType?: _#defs."/$defs/Properties/definitions/SignalValueType" | fn.#StringExpression
+	SignalValueType?: _#defs."/$defs/Properties/definitions/SignalValueType"
 	StartBit!:        int | string | fn.#NumberExpression | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CanSignalDecoder": close({
-	CanSignal!:          _#defs."/$defs/Properties/definitions/CanSignal" | fn.#ObjectExpression
+	CanSignal!:          _#defs."/$defs/Properties/definitions/CanSignal"
 	FullyQualifiedName!: strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
 	InterfaceId!:        strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 	Type!:               "CAN_SIGNAL" | fn.#StringExpression
@@ -86,7 +83,7 @@ _#defs: "/$defs/Properties/definitions/CustomDecodingInterface": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomDecodingNetworkInterface": close({
-	CustomDecodingInterface!: _#defs."/$defs/Properties/definitions/CustomDecodingInterface" | fn.#ObjectExpression
+	CustomDecodingInterface!: _#defs."/$defs/Properties/definitions/CustomDecodingInterface"
 	InterfaceId!:             strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 	Type!:                    "CUSTOM_DECODING_INTERFACE" | fn.#StringExpression
 }) |
@@ -98,7 +95,7 @@ _#defs: "/$defs/Properties/definitions/CustomDecodingSignal": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomDecodingSignalDecoder": close({
-	CustomDecodingSignal!: _#defs."/$defs/Properties/definitions/CustomDecodingSignal" | fn.#ObjectExpression
+	CustomDecodingSignal!: _#defs."/$defs/Properties/definitions/CustomDecodingSignal"
 	FullyQualifiedName!:   strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
 	InterfaceId!:          strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 	Type!:                 "CUSTOM_DECODING_SIGNAL" | fn.#StringExpression
@@ -122,7 +119,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ObdNetworkInterface": close({
 	InterfaceId!:  strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	ObdInterface!: _#defs."/$defs/Properties/definitions/ObdInterface" | fn.#ObjectExpression
+	ObdInterface!: _#defs."/$defs/Properties/definitions/ObdInterface"
 	Type!:         "OBD_INTERFACE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -137,7 +134,7 @@ _#defs: "/$defs/Properties/definitions/ObdSignal": close({
 	PidResponseLength!: int | string | fn.#NumberExpression | fn.#StringExpression
 	Scaling!:           number | string | fn.#NumberExpression | fn.#StringExpression
 	ServiceMode!:       int | string | fn.#NumberExpression | fn.#StringExpression
-	SignalValueType?:   _#defs."/$defs/Properties/definitions/SignalValueType" | fn.#StringExpression
+	SignalValueType?:   _#defs."/$defs/Properties/definitions/SignalValueType"
 	StartByte!:         int | string | fn.#NumberExpression | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -145,7 +142,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ObdSignalDecoder": close({
 	FullyQualifiedName!: strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
 	InterfaceId!:        strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	ObdSignal!:          _#defs."/$defs/Properties/definitions/ObdSignal" | fn.#ObjectExpression
+	ObdSignal!:          _#defs."/$defs/Properties/definitions/ObdSignal"
 	Type!:               "OBD_SIGNAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

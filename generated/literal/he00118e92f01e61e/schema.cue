@@ -23,7 +23,10 @@ import "strings"
 	// Each tag is a key-value pair.
 	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"]
 	UrlEndpoint?: _#defs."/$defs/Properties/definitions/UrlEndpointInput"
-	VpcId?:       strings.MaxRunes(21) & strings.MinRunes(12) & =~"^vpc-[-a-f0-9]{8}([-a-f0-9]{9})?$"
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(21) &
+	strings.MinRunes(12) &
+	=~"^vpc-[-a-f0-9]{8}([-a-f0-9]{9})?$"
 })
 
 _#defs: "/$defs/Properties/definitions/LambdaEndpointInput": close({

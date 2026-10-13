@@ -38,7 +38,7 @@ import (
 	// see [Message ordering and deduplication (FIFO
 	// topics)](https://docs.aws.amazon.com/sns/latest/dg/sns-fifo-topics.html) in
 	// the *Amazon Simple Notification Service Developer Guide*.
-	SnsTopicArn!: string
+	SnsTopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 
 	// The list of identifiers of the event sources for which events are returned.
 	// If not specified, then all sources are included in the response. An

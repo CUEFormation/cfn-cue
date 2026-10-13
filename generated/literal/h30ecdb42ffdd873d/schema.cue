@@ -13,6 +13,6 @@ package schema
 // API Gateway access to write API logs to CloudWatch logs, update the
 // permissions policies or change the IAM role to deny access.
 #Properties: close({
-	CloudWatchRoleArn?: string
+	CloudWatchRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Id?:                string
 })

@@ -23,13 +23,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	AuthenticationType?: "NTLM" | "KERBEROS" | fn.#StringExpression
 	CmkSecretConfig?: close({
-		KmsKeyArn?: strings.MaxRunes(2048) &
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
 		strings.MinRunes(0) &
 		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
 		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	CustomSecretConfig?: _#defs."/$defs/Properties/definitions/CustomSecretConfig" | fn.#ObjectExpression
+	CustomSecretConfig?: _#defs."/$defs/Properties/definitions/CustomSecretConfig"
 	DnsIpAddresses?: list.MaxItems(2) & [...] & [...strings.MaxRunes(15) & strings.MinRunes(7) | fn.#StringExpression] |
 	fn.#ListExpression
 	Domain?: strings.MaxRunes(253) & strings.MinRunes(0) & =~"^([A-Za-z0-9]+[A-Za-z0-9-.]*)*[A-Za-z0-9-]*[A-Za-z0-9]$" |
@@ -37,7 +38,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	KerberosKeytab?:    strings.MaxRunes(87384) | fn.#StringExpression
 	KerberosKrb5Conf?:  strings.MaxRunes(174764) | fn.#StringExpression
 	KerberosPrincipal?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	MountOptions?:      _#defs."/$defs/Properties/definitions/MountOptions" | fn.#ObjectExpression
+	MountOptions?:      _#defs."/$defs/Properties/definitions/MountOptions"
 	Password?:          strings.MaxRunes(104) & =~"^.{0,104}$" | fn.#StringExpression
 	ServerHostname?: strings.MaxRunes(255) &
 	strings.MinRunes(0) &
@@ -45,15 +46,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	User?: strings.MaxRunes(104) & =~"^[^\\x5B\\x5D\\\\/:;|=,+*?]{1,104}$" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
 	fn.#StringExpression
@@ -65,7 +65,8 @@ _#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
-	SecretAccessRoleArn!: strings.MaxRunes(2048) &
+	SecretAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*|)$" |
 	fn.#StringExpression

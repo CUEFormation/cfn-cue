@@ -18,50 +18,133 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DirectoryId?:            strings.MaxRunes(12) & strings.MinRunes(12) & =~"^d-[0-9a-f]{10}$" | fn.#StringExpression
 	IdentityManagementType!: "SAML" | "CONNECT_MANAGED" | "EXISTING_DIRECTORY" | fn.#StringExpression
 	InstanceAlias?:          strings.MaxRunes(45) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Attributes": close({
-	AutoResolveBestVoices?:     _#defs."/$defs/Properties/definitions/AutoResolveBestVoices" | fn.#BooleanExpression
-	ContactLens?:               _#defs."/$defs/Properties/definitions/ContactLens" | fn.#BooleanExpression
-	ContactflowLogs?:           _#defs."/$defs/Properties/definitions/ContactflowLogs" | fn.#BooleanExpression
-	EarlyMedia?:                _#defs."/$defs/Properties/definitions/EarlyMedia" | fn.#BooleanExpression
-	EnhancedChatMonitoring?:    _#defs."/$defs/Properties/definitions/EnhancedChatMonitoring" | fn.#BooleanExpression
-	EnhancedContactMonitoring?: _#defs."/$defs/Properties/definitions/EnhancedContactMonitoring" | fn.#BooleanExpression
-	HighVolumeOutBound?:        _#defs."/$defs/Properties/definitions/HighVolumeOutBound" | fn.#BooleanExpression
-	InboundCalls!:              _#defs."/$defs/Properties/definitions/InboundCalls" | fn.#BooleanExpression
-	MessageStreaming?:          _#defs."/$defs/Properties/definitions/MessageStreaming" | fn.#BooleanExpression
-	MultiPartyChatConference?:  _#defs."/$defs/Properties/definitions/MultiPartyChatConference" | fn.#BooleanExpression
-	MultiPartyConference?:      _#defs."/$defs/Properties/definitions/MultiPartyConference" | fn.#BooleanExpression
-	OutboundCalls!:             _#defs."/$defs/Properties/definitions/OutboundCalls" | fn.#BooleanExpression
-	UseCustomTTSVoices?:        _#defs."/$defs/Properties/definitions/UseCustomTTSVoices" | fn.#BooleanExpression
+	AutoResolveBestVoices?:     _#defs."/$defs/Properties/definitions/AutoResolveBestVoices"
+	ContactLens?:               _#defs."/$defs/Properties/definitions/ContactLens"
+	ContactflowLogs?:           _#defs."/$defs/Properties/definitions/ContactflowLogs"
+	EarlyMedia?:                _#defs."/$defs/Properties/definitions/EarlyMedia"
+	EnhancedChatMonitoring?:    _#defs."/$defs/Properties/definitions/EnhancedChatMonitoring"
+	EnhancedContactMonitoring?: _#defs."/$defs/Properties/definitions/EnhancedContactMonitoring"
+	HighVolumeOutBound?:        _#defs."/$defs/Properties/definitions/HighVolumeOutBound"
+	InboundCalls!:              _#defs."/$defs/Properties/definitions/InboundCalls"
+	MessageStreaming?:          _#defs."/$defs/Properties/definitions/MessageStreaming"
+	MultiPartyChatConference?:  _#defs."/$defs/Properties/definitions/MultiPartyChatConference"
+	MultiPartyConference?:      _#defs."/$defs/Properties/definitions/MultiPartyConference"
+	OutboundCalls!:             _#defs."/$defs/Properties/definitions/OutboundCalls"
+	UseCustomTTSVoices?:        _#defs."/$defs/Properties/definitions/UseCustomTTSVoices"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoResolveBestVoices": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/AutoResolveBestVoices": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/ContactLens": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/ContactLens": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/ContactflowLogs": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/ContactflowLogs": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/EarlyMedia": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/EarlyMedia": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/EnhancedChatMonitoring": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/EnhancedChatMonitoring": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/EnhancedContactMonitoring": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/EnhancedContactMonitoring": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/HighVolumeOutBound": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/HighVolumeOutBound": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/InboundCalls": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/InboundCalls": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/MessageStreaming": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/MessageStreaming": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/MultiPartyChatConference": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/MultiPartyChatConference": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/MultiPartyConference": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/MultiPartyConference": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/OutboundCalls": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/OutboundCalls": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -69,7 +152,14 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UseCustomTTSVoices": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/UseCustomTTSVoices": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Connect::Instance"
 	Properties!: #Properties

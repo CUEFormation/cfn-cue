@@ -41,10 +41,13 @@ import "strings"
 		{[=~".{1,}"]: string}})
 
 	// The security group IDs of the infrastructure configuration.
-	SecurityGroupIds?: [...strings.MaxRunes(1024) & strings.MinRunes(1)]
+	SecurityGroupIds?: [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(1024) & strings.MinRunes(1))
+	]
 
 	// The SNS Topic Amazon Resource Name (ARN) of the infrastructure configuration.
-	SnsTopicArn?: =~"^arn:aws[^:]*:sns:[^:]+:[0-9]{12}:[a-zA-Z0-9-_]{1,256}$"
+	SnsTopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
+		=~"^arn:aws[^:]*:sns:[^:]+:[0-9]{12}:[a-zA-Z0-9-_]{1,256}$"
 
 	// The subnet ID of the infrastructure configuration.
 	SubnetId?: strings.MaxRunes(1024) & strings.MinRunes(1)

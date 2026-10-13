@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,22 +21,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CapacityProviders?: [...string | fn.#StringExpression] | fn.#ListExpression
 	ClusterName?:       string | fn.#StringExpression
-	ClusterSettings?: [..._#defs."/$defs/Properties/definitions/ClusterSettings" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Configuration?: _#defs."/$defs/Properties/definitions/ClusterConfiguration" | fn.#ObjectExpression
-	DefaultCapacityProviderStrategy?: [
-		..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem" | fn.#ObjectExpression
-	] |
+	ClusterSettings?:   [..._#defs."/$defs/Properties/definitions/ClusterSettings"] | fn.#ListExpression
+	Configuration?:     _#defs."/$defs/Properties/definitions/ClusterConfiguration" | fn.#ObjectExpression
+	DefaultCapacityProviderStrategy?: [..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"] |
 		fn.#ListExpression
 	ServiceConnectDefaults?: _#defs."/$defs/Properties/definitions/ServiceConnectDefaults" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
-	Base?:             int & <=100000 & >=0 | fn.#NumberExpression
+	Base?: int & <=100000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	CapacityProvider?: string | fn.#StringExpression
-	Weight?:           int & <=1000 & >=0 | fn.#NumberExpression
+	Weight?: int & <=1000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -51,24 +81,28 @@ _#defs: "/$defs/Properties/definitions/ClusterSettings": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExecuteCommandConfiguration": close({
-	KmsKeyId?:         string | string | string | fn.#StringExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
 	LogConfiguration?: _#defs."/$defs/Properties/definitions/ExecuteCommandLogConfiguration" | fn.#ObjectExpression
 	Logging?:          "DEFAULT" | "NONE" | "OVERRIDE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExecuteCommandLogConfiguration": close({
-	CloudWatchEncryptionEnabled?: bool | fn.#BooleanExpression
+	CloudWatchEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CloudWatchLogGroupName?:      string | fn.#StringExpression
 	S3BucketName?:                string | fn.#StringExpression
-	S3EncryptionEnabled?:         bool | fn.#BooleanExpression
+	S3EncryptionEnabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	S3KeyPrefix?:                 string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ManagedStorageConfiguration": close({
 	FargateEphemeralStorageKmsKeyId?: string | fn.#StringExpression
-	KmsKeyId?:                        string | string | string | fn.#StringExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

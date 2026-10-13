@@ -55,8 +55,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"TWITTER" |
 		"WEB_CRAWLER" |
 		fn.#StringExpression
-	IdentityProviderVpcConnectionProperties?: _#defs."/$defs/Properties/definitions/IdentityProviderVpcConnectionProperties" |
-		fn.#ObjectExpression
+	IdentityProviderVpcConnectionProperties?:
+		_#defs."/$defs/Properties/definitions/IdentityProviderVpcConnectionProperties"
 	Name!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	OAuthAuthorizationEndpointUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[^\\p{Cc}]+$" |
 	fn.#StringExpression
@@ -66,10 +66,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	OAuthScopes?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$" | fn.#StringExpression
 	OAuthTokenEndpointUrl!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[^\\p{Cc}]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/IdentityProviderVpcConnectionProperties": close(

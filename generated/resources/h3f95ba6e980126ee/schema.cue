@@ -14,10 +14,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for SSO InstanceAccessControlAttributeConfiguration
 #Properties: close({
-	AccessControlAttributes?: _#defs."/$defs/Properties/definitions/AccessControlAttributeList" | fn.#ListExpression
-	InstanceAccessControlAttributeConfiguration?: close({
-		AccessControlAttributes!: _#defs."/$defs/Properties/definitions/AccessControlAttributeList" | fn.#ListExpression
-	}) |
+	AccessControlAttributes?: _#defs."/$defs/Properties/definitions/AccessControlAttributeList"
+	InstanceAccessControlAttributeConfiguration?: close(
+		{AccessControlAttributes!: _#defs."/$defs/Properties/definitions/AccessControlAttributeList"},
+	) |
 		fn.#ObjectExpression
 	InstanceArn!: strings.MaxRunes(1224) &
 	strings.MinRunes(10) &
@@ -27,17 +27,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 _#defs: "/$defs/Properties/definitions/AccessControlAttribute": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]+" | fn.#StringExpression
-	Value!: _#defs."/$defs/Properties/definitions/AccessControlAttributeValue" | fn.#ObjectExpression
+	Value!: _#defs."/$defs/Properties/definitions/AccessControlAttributeValue"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AccessControlAttributeList": list.MaxItems(50) & [
-	..._#defs."/$defs/Properties/definitions/AccessControlAttribute" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/AccessControlAttribute"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/AccessControlAttributeValue": close(
-	{Source!: _#defs."/$defs/Properties/definitions/AccessControlAttributeValueSourceList" | fn.#ListExpression},
+	{Source!: _#defs."/$defs/Properties/definitions/AccessControlAttributeValueSourceList"},
 ) |
 	fn.#ObjectExpression
 
@@ -47,7 +47,7 @@ strings.MinRunes(0) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AccessControlAttributeValueSourceList": list.MaxItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AccessControlAttributeValueSource" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/AccessControlAttributeValueSource"
 ] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {

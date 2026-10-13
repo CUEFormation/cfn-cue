@@ -23,26 +23,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Namespace!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" | fn.#StringExpression
 	PartitionSpec?: close({
 		Fields!: list.MaxItems(10) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/DataLakeDatasetPartitionField" | fn.#ObjectExpression
+			..._#defs."/$defs/Properties/definitions/DataLakeDatasetPartitionField"
 		] |
 			fn.#ListExpression
 	}) |
 		fn.#ObjectExpression
 	Schema?: close({
 		Fields!: list.MaxItems(500) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/DataLakeDatasetSchemaField" | fn.#ObjectExpression
+			..._#defs."/$defs/Properties/definitions/DataLakeDatasetSchemaField"
 		] |
 			fn.#ListExpression
 		Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9]+$" | fn.#StringExpression
 		PrimaryKeys?: list.MaxItems(20) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/DataLakeDatasetPrimaryKeyField" | fn.#ObjectExpression
+			..._#defs."/$defs/Properties/definitions/DataLakeDatasetPrimaryKeyField"
 		] |
 			fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
@@ -59,7 +57,7 @@ _#defs: "/$defs/Properties/definitions/DataLakeDatasetPrimaryKeyField": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataLakeDatasetSchemaField": close({
-	IsRequired!: bool | fn.#BooleanExpression
+	IsRequired!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!:       strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" | fn.#StringExpression
 	Type!:       "INT" | "DOUBLE" | "STRING" | "TIMESTAMP" | "LONG" | fn.#StringExpression
 }) |

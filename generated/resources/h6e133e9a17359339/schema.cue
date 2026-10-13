@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -11,23 +15,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::ManagedBlockchain::Member
 #Properties: close({
 	InvitationId?:         string | fn.#StringExpression
-	MemberConfiguration!:  _#defs."/$defs/Properties/definitions/MemberConfiguration" | fn.#ObjectExpression
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration" | fn.#ObjectExpression
+	MemberConfiguration!:  _#defs."/$defs/Properties/definitions/MemberConfiguration"
+	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
 	NetworkId?:            string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ApprovalThresholdPolicy": close({
-	ProposalDurationInHours?: int | fn.#NumberExpression
-	ThresholdComparator?:     string | fn.#StringExpression
-	ThresholdPercentage?:     int | fn.#NumberExpression
+	ProposalDurationInHours?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ThresholdComparator?: string | fn.#StringExpression
+	ThresholdPercentage?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MemberConfiguration": close({
-	Description?: string | fn.#StringExpression
-	MemberFrameworkConfiguration?: _#defs."/$defs/Properties/definitions/MemberFrameworkConfiguration" |
-		fn.#ObjectExpression
-	Name!: string | fn.#StringExpression
+	Description?:                  string | fn.#StringExpression
+	MemberFrameworkConfiguration?: _#defs."/$defs/Properties/definitions/MemberFrameworkConfiguration"
+	Name!:                         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -37,33 +66,31 @@ _#defs: "/$defs/Properties/definitions/MemberFabricConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemberFrameworkConfiguration": close({
-	MemberFabricConfiguration?: _#defs."/$defs/Properties/definitions/MemberFabricConfiguration" | fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/MemberFrameworkConfiguration": close(
+	{MemberFabricConfiguration?: _#defs."/$defs/Properties/definitions/MemberFabricConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
-	Description?:      string | fn.#StringExpression
-	Framework!:        string | fn.#StringExpression
-	FrameworkVersion!: string | fn.#StringExpression
-	Name!:             string | fn.#StringExpression
-	NetworkFrameworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkFrameworkConfiguration" |
-		fn.#ObjectExpression
-	VotingPolicy!: _#defs."/$defs/Properties/definitions/VotingPolicy" | fn.#ObjectExpression
+	Description?:                   string | fn.#StringExpression
+	Framework!:                     string | fn.#StringExpression
+	FrameworkVersion!:              string | fn.#StringExpression
+	Name!:                          string | fn.#StringExpression
+	NetworkFrameworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkFrameworkConfiguration"
+	VotingPolicy!:                  _#defs."/$defs/Properties/definitions/VotingPolicy"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkFabricConfiguration": close({Edition!: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkFrameworkConfiguration": close({
-	NetworkFabricConfiguration?: _#defs."/$defs/Properties/definitions/NetworkFabricConfiguration" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/NetworkFrameworkConfiguration": close(
+	{NetworkFabricConfiguration?: _#defs."/$defs/Properties/definitions/NetworkFabricConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VotingPolicy": close(
-	{ApprovalThresholdPolicy?: _#defs."/$defs/Properties/definitions/ApprovalThresholdPolicy" | fn.#ObjectExpression},
+	{ApprovalThresholdPolicy?: _#defs."/$defs/Properties/definitions/ApprovalThresholdPolicy"},
 ) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

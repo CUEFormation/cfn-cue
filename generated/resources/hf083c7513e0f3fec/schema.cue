@@ -19,13 +19,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ContainerAssociationName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
 	ContainerMonitoringConfigurations!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerMonitoringConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ContainerMonitoringConfiguration"
 	] |
 		fn.#ListExpression
 	Description?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	Type!: "ECS" | "EKS" | fn.#StringExpression
 })
@@ -37,9 +35,7 @@ _#defs: "/$defs/Properties/definitions/ContainerAttribute": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ContainerMonitoringConfiguration": close({
-	AttributeFilters?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerAttribute" | fn.#ObjectExpression
-	] |
+	AttributeFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ContainerAttribute"] |
 		fn.#ListExpression
 	ClusterArn!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws" | fn.#StringExpression
 }) |

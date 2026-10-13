@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -26,27 +30,69 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CertificateConfiguration?: _#defs."/$defs/Properties/definitions/CertificateConfiguration" | fn.#ObjectExpression
 	ComputeType?:              "EC2" | "ANYWHERE" | fn.#StringExpression
 	Description?:              strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	DesiredEC2Instances?:      int & >=0 | fn.#NumberExpression
-	EC2InboundPermissions?: list.MaxItems(50) & [...] & [
-		..._#defs."/$defs/Properties/definitions/IpPermission" | fn.#ObjectExpression
-	] |
+	DesiredEC2Instances?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	EC2InboundPermissions?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/IpPermission"] |
 		fn.#ListExpression
 	EC2InstanceType?: =~"^.*..*$" | fn.#StringExpression
 	FleetType?:       "ON_DEMAND" | "SPOT" | fn.#StringExpression
-	InstanceRoleARN?: strings.MinRunes(1) & =~"^arn:aws(-.*)?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
+	InstanceRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MinRunes(1) &
+	=~"^arn:aws(-.*)?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
 	fn.#StringExpression
 	InstanceRoleCredentialsProvider?: "SHARED_CREDENTIAL_FILE" | fn.#StringExpression
 	Locations?: list.MaxItems(100) & list.MinItems(1) & [...close({
-		Location!:         _#defs."/$defs/Properties/definitions/Location" | fn.#StringExpression
-		LocationCapacity?: _#defs."/$defs/Properties/definitions/LocationCapacity" | fn.#ObjectExpression
+		Location!:         _#defs."/$defs/Properties/definitions/Location"
+		LocationCapacity?: _#defs."/$defs/Properties/definitions/LocationCapacity"
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
 	LogPaths?: [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	MaxSize?:  int & >=0 | fn.#NumberExpression
+	MaxSize?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	MetricGroups?: list.MaxItems(1) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
-	MinSize?:                        int & >=0 | fn.#NumberExpression
+	MinSize?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Name!:                           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	NewGameSessionProtectionPolicy?: "FullProtection" | "NoProtection" | fn.#StringExpression
 	PeerVpcAwsAccountId?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]{12}$" | fn.#StringExpression
@@ -57,10 +103,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ResourceCreationLimitPolicy?: _#defs."/$defs/Properties/definitions/ResourceCreationLimitPolicy" |
 		fn.#ObjectExpression
 	RuntimeConfiguration?: _#defs."/$defs/Properties/definitions/RuntimeConfiguration" | fn.#ObjectExpression
-	ScalingPolicies?: list.MaxItems(50) & [
-		..._#defs."/$defs/Properties/definitions/ScalingPolicy" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	ScalingPolicies?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/ScalingPolicy"] | fn.#ListExpression
 	ScriptId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^script-\\S+|^arn:.*:script/script-\\S+" |
 	fn.#StringExpression
 	ServerLaunchParameters?: strings.MaxRunes(1024) &
@@ -69,9 +112,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	ServerLaunchPath?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:.+\\/\\\\\\- ]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
@@ -89,11 +130,41 @@ _#defs: "/$defs/Properties/definitions/CertificateConfiguration": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IpPermission": close({
-	FromPort!: int & <=60000 & >=1 | fn.#NumberExpression
+	FromPort!: int & <=60000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=60000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	IpRange!: =~"(^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(/([0-9]|[1-2][0-9]|3[0-2]))$)" |
 		fn.#StringExpression
 	Protocol!: "TCP" | "UDP" | fn.#StringExpression
-	ToPort!:   int & <=60000 & >=1 | fn.#NumberExpression
+	ToPort!: int & <=60000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=60000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -101,24 +172,81 @@ _#defs: "/$defs/Properties/definitions/Location": strings.MaxRunes(64) & strings
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LocationCapacity": close({
-	DesiredEC2Instances?: int & >=0 | fn.#NumberExpression
+	DesiredEC2Instances?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ManagedCapacityConfiguration?: _#defs."/$defs/Properties/definitions/ManagedCapacityConfiguration" |
 		fn.#ObjectExpression
-	MaxSize!: int & >=0 | fn.#NumberExpression
-	MinSize?: int & >=0 | fn.#NumberExpression
+	MaxSize!: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinSize?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LocationConfiguration": close({
-	Location!:            _#defs."/$defs/Properties/definitions/Location" | fn.#StringExpression
-	LocationCapacity?:    _#defs."/$defs/Properties/definitions/LocationCapacity" | fn.#ObjectExpression
+	Location!:            _#defs."/$defs/Properties/definitions/Location"
+	LocationCapacity?:    _#defs."/$defs/Properties/definitions/LocationCapacity"
 	PlayerGatewayStatus?: "DISABLED" | "ENABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ManagedCapacityConfiguration": close({
-	ScaleInAfterInactivityMinutes?: int & <=1440 & >=5 | fn.#NumberExpression
-	ZeroCapacityStrategy!:          "SCALE_TO_AND_FROM_ZERO" | "MANUAL" | fn.#StringExpression
+	ScaleInAfterInactivityMinutes?: int & <=1440 & >=5 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1440 &
+							>=5,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ZeroCapacityStrategy!: "SCALE_TO_AND_FROM_ZERO" | "MANUAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -128,17 +256,73 @@ _#defs: "/$defs/Properties/definitions/PlayerGatewayConfiguration": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceCreationLimitPolicy": close({
-	NewGameSessionsPerCreator?: int & >=0 | fn.#NumberExpression
-	PolicyPeriodInMinutes?:     int & >=0 | fn.#NumberExpression
+	NewGameSessionsPerCreator?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PolicyPeriodInMinutes?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RuntimeConfiguration": close({
-	GameSessionActivationTimeoutSeconds?: int & <=600 & >=1 | fn.#NumberExpression
-	MaxConcurrentGameSessionActivations?: int & <=2147483647 & >=1 | fn.#NumberExpression
-	ServerProcesses?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ServerProcess" | fn.#ObjectExpression
-	] |
+	GameSessionActivationTimeoutSeconds?: int & <=600 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=600 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxConcurrentGameSessionActivations?: int & <=2147483647 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ServerProcesses?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ServerProcess"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -149,8 +333,22 @@ _#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
 		"LessThanThreshold" |
 		"LessThanOrEqualToThreshold" |
 		fn.#StringExpression
-	EvaluationPeriods?: int & >=1 | fn.#NumberExpression
-	Location?:          _#defs."/$defs/Properties/definitions/Location" | fn.#StringExpression
+	EvaluationPeriods?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Location?: _#defs."/$defs/Properties/definitions/Location"
 	MetricName?: "ActivatingGameSessions" |
 		"ActiveGameSessions" |
 		"ActiveInstances" |
@@ -164,9 +362,22 @@ _#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
 		"WaitTime" |
 		"ConcurrentActivatableGameSessions" |
 		fn.#StringExpression
-	Name!:                  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	PolicyType?:            "RuleBased" | "TargetBased" | "ManagedScaling" | fn.#StringExpression
-	ScalingAdjustment?:     int | fn.#NumberExpression
+	Name!:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	PolicyType?: "RuleBased" | "TargetBased" | "ManagedScaling" | fn.#StringExpression
+	ScalingAdjustment?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ScalingAdjustmentType?: "ChangeInCapacity" | "ExactCapacity" | "PercentChangeInCapacity" | fn.#StringExpression
 	Status?: "ACTIVE" |
 		"UPDATE_REQUESTED" |
@@ -177,13 +388,45 @@ _#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
 		"ERROR" |
 		fn.#StringExpression
 	TargetConfiguration?: _#defs."/$defs/Properties/definitions/TargetConfiguration" | fn.#ObjectExpression
-	Threshold?:           number | fn.#NumberExpression
-	UpdateStatus?:        "PENDING_UPDATE" | fn.#StringExpression
+	Threshold?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UpdateStatus?: "PENDING_UPDATE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServerProcess": close({
-	ConcurrentExecutions!: int & >=1 | fn.#NumberExpression
+	ConcurrentExecutions!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	LaunchPath!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([Cc]:\\\\game\\S+|/local/game/\\S+)" |
 	fn.#StringExpression
 	Parameters?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:.+\\/\\\\\\- =@;{},?'\\[\\]\"]+$" |
@@ -197,7 +440,27 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetConfiguration": close({TargetValue!: number | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/TargetConfiguration": close({
+	TargetValue!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::GameLift::Fleet"

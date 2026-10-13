@@ -16,34 +16,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Amazon S3 bucket. A maximum of five trails can exist in a region,
 // irrespective of the region in which they were created.
 #Properties: close({
-	AdvancedEventSelectors?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AdvancedEventSelector" | fn.#ObjectExpression
-	] |
+	AdvancedEventSelectors?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AdvancedEventSelector"] |
 		fn.#ListExpression
 	AggregationConfigurations?: list.MaxItems(1) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/AggregationConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/AggregationConfiguration"
 	] |
 		fn.#ListExpression
 	CloudWatchLogsLogGroupArn?: string | fn.#StringExpression
-	CloudWatchLogsRoleArn?:     string | fn.#StringExpression
-	EnableLogFileValidation?:   bool | fn.#BooleanExpression
-	EventSelectors?: list.MaxItems(5) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/EventSelector" | fn.#ObjectExpression
-	] |
+	CloudWatchLogsRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	EnableLogFileValidation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EventSelectors?: list.MaxItems(5) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EventSelector"] |
 		fn.#ListExpression
-	IncludeGlobalServiceEvents?: bool | fn.#BooleanExpression
-	InsightSelectors?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/InsightSelector" | fn.#ObjectExpression
-	] |
+	IncludeGlobalServiceEvents?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InsightSelectors?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InsightSelector"] |
 		fn.#ListExpression
-	IsLogging!:           bool | fn.#BooleanExpression
-	IsMultiRegionTrail?:  bool | fn.#BooleanExpression
-	IsOrganizationTrail?: bool | fn.#BooleanExpression
-	KMSKeyId?:            string | string | string | fn.#StringExpression
-	S3BucketName!:        string | fn.#StringExpression
-	S3KeyPrefix?:         strings.MaxRunes(200) | fn.#StringExpression
-	SnsTopicName?:        strings.MaxRunes(256) | fn.#StringExpression
-	Tags?:                [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	IsLogging!:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IsMultiRegionTrail?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IsOrganizationTrail?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KMSKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	S3BucketName!: string | fn.#StringExpression
+	S3KeyPrefix?:  strings.MaxRunes(200) | fn.#StringExpression
+	SnsTopicName?: strings.MaxRunes(256) | fn.#StringExpression
+	Tags?:         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TrailName?: strings.MaxRunes(128) &
 	strings.MinRunes(3) &
 	=~"(^[a-zA-Z0-9]$)|(^[a-zA-Z0-9]([a-zA-Z0-9\\._-])*[a-zA-Z0-9]$)" |
@@ -52,7 +49,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 _#defs: "/$defs/Properties/definitions/AdvancedEventSelector": close({
 	FieldSelectors!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AdvancedFieldSelector" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/AdvancedFieldSelector"
 	] |
 		fn.#ListExpression
 	Name?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
@@ -91,7 +88,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/AggregationConfiguration": close({
 	EventCategory!: "Data" | fn.#StringExpression
 	Templates!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Template" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/Template"
 	] |
 		fn.#ListExpression
 }) |
@@ -113,18 +110,15 @@ _#defs: "/$defs/Properties/definitions/DataResource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EventSelector": close({
-	DataResources?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DataResource" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	DataResources?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DataResource"] | fn.#ListExpression
 	ExcludeManagementEventSources?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	IncludeManagementEvents?:       bool | fn.#BooleanExpression
-	ReadWriteType?:                 "All" | "ReadOnly" | "WriteOnly" | fn.#StringExpression
+	IncludeManagementEvents?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ReadWriteType?:           "All" | "ReadOnly" | "WriteOnly" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InsightSelector": close({
-	EventCategories?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SourceEventCategory" | fn.#StringExpression
-	] |
+	EventCategories?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SourceEventCategory"] |
 		fn.#ListExpression
 	InsightType?: "ApiCallRateInsight" | "ApiErrorRateInsight" | fn.#StringExpression
 }) |

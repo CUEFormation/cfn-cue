@@ -13,9 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::WAF::IPSet
 #Properties: close({
-	IPSetDescriptors?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IPSetDescriptor" | fn.#ObjectExpression
-	] |
+	IPSetDescriptors?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/IPSetDescriptor"] |
 		fn.#ListExpression
 	Name!: string | fn.#StringExpression
 })

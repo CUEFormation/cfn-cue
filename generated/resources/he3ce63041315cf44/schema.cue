@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -86,7 +90,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...
 	}])
 ]) & close({
-	ActionsEnabled?: bool | fn.#BooleanExpression
+	ActionsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AlarmActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	AlarmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	AlarmName?:        strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
@@ -98,31 +102,99 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"LessThanOrEqualToThreshold" |
 		"LessThanThreshold" |
 		fn.#StringExpression
-	DatapointsToAlarm?: int & >=1 | fn.#NumberExpression
-	Dimensions?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/Dimension" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	DatapointsToAlarm?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Dimensions?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Dimension"] | fn.#ListExpression
 	EvaluateLowSampleCountPercentile?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	EvaluationCriteria?:               _#defs."/$defs/Properties/definitions/EvaluationCriteria" | fn.#ObjectExpression
-	EvaluationInterval?:               int & <=3600 & >=10 | fn.#NumberExpression
-	EvaluationPeriods?:                int & >=1 | fn.#NumberExpression
-	EvaluationWindow?:                 _#defs."/$defs/Properties/definitions/EvaluationWindow" | fn.#ObjectExpression
-	ExtendedStatistic?:                string | fn.#StringExpression
+	EvaluationInterval?: int & <=3600 & >=10 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=3600 &
+							>=10,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	EvaluationPeriods?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	EvaluationWindow?:  _#defs."/$defs/Properties/definitions/EvaluationWindow" | fn.#ObjectExpression
+	ExtendedStatistic?: string | fn.#StringExpression
 	InsufficientDataActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
 	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Metrics?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricDataQuery" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Namespace?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" | fn.#StringExpression
-	OKActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Period?:    int & >=1 | fn.#NumberExpression
+	Metrics?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricDataQuery"] | fn.#ListExpression
+	Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" | fn.#StringExpression
+	OKActions?:  [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+	Period?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Statistic?: "Average" | "Maximum" | "Minimum" | "SampleCount" | "Sum" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Threshold?:         number | fn.#NumberExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Threshold?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ThresholdMetricId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	TreatMissingData?: ("breaching" | "ignore" | "missing" | "notBreaching") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
 	fn.#StringExpression
@@ -158,9 +230,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/AlarmPromQLCriteria": close({
-	PendingPeriod?:  int | fn.#NumberExpression
-	Query?:          string | fn.#StringExpression
-	RecoveryPeriod?: int | fn.#NumberExpression
+	PendingPeriod?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Query?: string | fn.#StringExpression
+	RecoveryPeriod?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -188,10 +286,7 @@ _#defs: "/$defs/Properties/definitions/EvaluationWindow": matchN(1, [{
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Metric": close({
-	Dimensions?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/Dimension" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Dimensions?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Dimension"] | fn.#ListExpression
 	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" | fn.#StringExpression
 }) |
@@ -203,15 +298,43 @@ _#defs: "/$defs/Properties/definitions/MetricDataQuery": close({
 	Id!:         strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([a-z])([A-Za-z0-9\\_]*)$" | fn.#StringExpression
 	Label?:      string | fn.#StringExpression
 	MetricStat?: _#defs."/$defs/Properties/definitions/MetricStat" | fn.#ObjectExpression
-	Period?:     int & >=1 | fn.#NumberExpression
-	ReturnData?: bool | fn.#BooleanExpression
+	Period?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ReturnData?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetricStat": close({
 	Metric!: _#defs."/$defs/Properties/definitions/Metric" | fn.#ObjectExpression
-	Period!: int & >=1 | fn.#NumberExpression
-	Stat!:   string | fn.#StringExpression
+	Period!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Stat!: string | fn.#StringExpression
 	Unit?: "Bits" |
 		"Bits/Second" |
 		"Bytes" |
@@ -253,8 +376,30 @@ _#defs: "/$defs/Properties/definitions/WallClockWindow": close({Timezone?: strin
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WarmUpConfiguration": close({
-	OnlyStartEvaluatingAfterWarmUpPeriodEnds?: bool | fn.#BooleanExpression
-	WarmUpPeriodDurationInMinutes?:            int & <=2880 & >=1 | fn.#NumberExpression
+	OnlyStartEvaluatingAfterWarmUpPeriodEnds?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	WarmUpPeriodDurationInMinutes?: int & <=2880 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2880 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

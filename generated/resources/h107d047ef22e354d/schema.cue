@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,14 +21,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Certificate?:             strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
 	ConnectionConfiguration!: _#defs."/$defs/Properties/definitions/ConnectionConfiguration" | fn.#ObjectExpression
 	Name!: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ConnectionConfiguration": matchN(1, [close(
-	{SelfManaged!: _#defs."/$defs/Properties/definitions/SelfManagedMode" | fn.#ObjectExpression},
+	{SelfManaged!: _#defs."/$defs/Properties/definitions/SelfManagedMode"},
 ), close(
-	{ServiceManaged!: _#defs."/$defs/Properties/definitions/ServiceManagedMode" | fn.#ObjectExpression},
+	{ServiceManaged!: _#defs."/$defs/Properties/definitions/ServiceManagedMode"},
 )]) & {[string]: fn.#Value} |
 fn.#ObjectExpression
 
@@ -37,14 +40,33 @@ _#defs: "/$defs/Properties/definitions/SelfManagedMode": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceManagedMode": close({
-	DnsResolution?:       "PUBLIC" | "IN_VPC" | fn.#StringExpression
-	HostAddress!:         strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.:\\-]+$" | fn.#StringExpression
-	IpAddressType?:       "IPV4" | "IPV6" | "DUAL_STACK" | fn.#StringExpression
-	Ipv4AddressesPerEni?: int & <=62 & >=1 | fn.#NumberExpression
+	DnsResolution?: "PUBLIC" | "IN_VPC" | fn.#StringExpression
+	HostAddress!:   strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.:\\-]+$" | fn.#StringExpression
+	IpAddressType?: "IPV4" | "IPV6" | "DUAL_STACK" | fn.#StringExpression
+	Ipv4AddressesPerEni?: int & <=62 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=62 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	PortRanges?: list.MaxItems(11) & list.MinItems(1) & [...=~"^((\\d{1,5}\\-\\d{1,5})|(\\d+))$" | fn.#StringExpression] |
 		fn.#ListExpression
 	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(20) & strings.MinRunes(11) & =~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(20) &
+		strings.MinRunes(11) &
+		=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SubnetIds?: list.MaxItems(20) & list.MinItems(1) & [
@@ -52,7 +74,11 @@ _#defs: "/$defs/Properties/definitions/ServiceManagedMode": close({
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	VpcId!: strings.MaxRunes(50) & strings.MinRunes(5) & =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" | fn.#StringExpression
+	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(50) &
+	strings.MinRunes(5) &
+	=~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

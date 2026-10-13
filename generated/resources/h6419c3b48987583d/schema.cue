@@ -20,14 +20,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 	Id!:                strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	IngressAccessLogs?: _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/HlsIngest": close({
-	ingestEndpoints?: [..._#defs."/$defs/Properties/definitions/IngestEndpoint" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/HlsIngest": close(
+	{ingestEndpoints?: [..._#defs."/$defs/Properties/definitions/IngestEndpoint"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IngestEndpoint": close({

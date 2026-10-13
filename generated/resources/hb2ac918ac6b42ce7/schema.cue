@@ -10,7 +10,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Cognito::LogDeliveryConfiguration
 #Properties: close({
-	LogConfigurations?: _#defs."/$defs/Properties/definitions/LogConfigurations" | fn.#ListExpression
+	LogConfigurations?: _#defs."/$defs/Properties/definitions/LogConfigurations"
 	UserPoolId!:        string | fn.#StringExpression
 })
 
@@ -23,18 +23,15 @@ _#defs: "/$defs/Properties/definitions/FirehoseConfiguration": close({StreamArn?
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LogConfiguration": close({
-	CloudWatchLogsConfiguration?: _#defs."/$defs/Properties/definitions/CloudWatchLogsConfiguration" |
-		fn.#ObjectExpression
-	EventSource?:           string | fn.#StringExpression
-	FirehoseConfiguration?: _#defs."/$defs/Properties/definitions/FirehoseConfiguration" | fn.#ObjectExpression
-	LogLevel?:              string | fn.#StringExpression
-	S3Configuration?:       _#defs."/$defs/Properties/definitions/S3Configuration" | fn.#ObjectExpression
+	CloudWatchLogsConfiguration?: _#defs."/$defs/Properties/definitions/CloudWatchLogsConfiguration"
+	EventSource?:                 string | fn.#StringExpression
+	FirehoseConfiguration?:       _#defs."/$defs/Properties/definitions/FirehoseConfiguration"
+	LogLevel?:                    string | fn.#StringExpression
+	S3Configuration?:             _#defs."/$defs/Properties/definitions/S3Configuration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogConfigurations": [
-	..._#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/LogConfigurations": [..._#defs."/$defs/Properties/definitions/LogConfiguration"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/S3Configuration": close({BucketArn?: string | fn.#StringExpression}) |

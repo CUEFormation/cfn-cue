@@ -25,7 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
 	fn.#StringExpression
-	Policies?: [..._#defs."/$defs/Properties/definitions/Policy" | fn.#ObjectExpression] | fn.#ListExpression
+	Policies?: [..._#defs."/$defs/Properties/definitions/Policy"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Policy": close({

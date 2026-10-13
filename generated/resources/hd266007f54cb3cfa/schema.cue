@@ -16,8 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	BaselineIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
 	fn.#StringExpression
 	BaselineVersion!: =~"^\\d+(?:\\.\\d+){0,2}$" | fn.#StringExpression
-	Parameters?:      [..._#defs."/$defs/Properties/definitions/Parameter" | fn.#ObjectExpression] | fn.#ListExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Parameters?:      [..._#defs."/$defs/Properties/definitions/Parameter"] | fn.#ListExpression
+	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
 	fn.#StringExpression
 })
@@ -43,13 +43,8 @@ _#defs: "/$defs/Properties/definitions/AnyType": bool |
 	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/Parameter": close({
-	Key?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: _#defs."/$defs/Properties/definitions/AnyType" |
-		fn.#ListExpression |
-		fn.#StringExpression |
-		fn.#NumberExpression |
-		fn.#ObjectExpression |
-		fn.#BooleanExpression
+	Key?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Value?: _#defs."/$defs/Properties/definitions/AnyType"
 }) |
 fn.#ObjectExpression
 

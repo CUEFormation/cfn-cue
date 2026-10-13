@@ -37,7 +37,8 @@ import "strings"
 })
 
 _#defs: "/$defs/Properties/definitions/CustomDomainConfigType": close({
-	CertificateArn?: strings.MaxRunes(2048) &
+	CertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
 	SecurityPolicy?: "TLS_V1" | "TLS_V1_2_2021" | "TLS_V1_3_2025"

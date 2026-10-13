@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,10 +13,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::FIS::TargetAccountConfiguration
 #Properties: close({
-	AccountId!:   _#defs."/$defs/Properties/definitions/TargetAccountId" | fn.#StringExpression
-	Description?: _#defs."/$defs/Properties/definitions/TargetAccountConfigurationDescription" | fn.#StringExpression
-	ExperimentTemplateId!: _#defs."/$defs/Properties/definitions/TargetExperimentTemplateId" | fn.#StringExpression
-	RoleArn!:              _#defs."/$defs/Properties/definitions/TargetAccountRoleArn" | fn.#StringExpression
+	AccountId!:            _#defs."/$defs/Properties/definitions/TargetAccountId"
+	Description?:          _#defs."/$defs/Properties/definitions/TargetAccountConfigurationDescription"
+	ExperimentTemplateId!: _#defs."/$defs/Properties/definitions/TargetExperimentTemplateId"
+	RoleArn!:              _#defs."/$defs/Properties/definitions/TargetAccountRoleArn"
 })
 
 _#defs: "/$defs/Properties/definitions/TargetAccountConfigurationDescription": strings.MaxRunes(512) &
@@ -27,7 +27,8 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/TargetAccountId": strings.MaxRunes(512) & strings.MinRunes(12) & =~"^[\\S]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TargetAccountRoleArn": strings.MaxRunes(1224) &
+_#defs: "/$defs/Properties/definitions/TargetAccountRoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(1224) &
 strings.MinRunes(20) &
 =~"^[\\S]+$" |
 fn.#StringExpression

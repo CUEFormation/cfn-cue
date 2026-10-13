@@ -54,10 +54,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"vi-VN" |
 		"sv-SE" |
 		fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VocabularyFileUri?: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"(s3://|http(s*)://).+" | fn.#StringExpression
 	VocabularyName!:    strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
 })

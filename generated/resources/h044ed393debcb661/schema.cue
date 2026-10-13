@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,34 +20,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:        strings.MaxRunes(50) & strings.MinRunes(2) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Widgets!: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/Widget" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:        list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Widgets!:     list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/Widget"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CostAndUsageExpression": close({
-	And?: [..._#defs."/$defs/Properties/definitions/CostAndUsageExpression" | fn.#ObjectExpression] | fn.#ListExpression
-	CostCategories?: _#defs."/$defs/Properties/definitions/CostCategoryValues" | fn.#ObjectExpression
-	Dimensions?:     _#defs."/$defs/Properties/definitions/DimensionValues" | fn.#ObjectExpression
-	Not?:            _#defs."/$defs/Properties/definitions/CostAndUsageExpression" | fn.#ObjectExpression
-	Or?: [..._#defs."/$defs/Properties/definitions/CostAndUsageExpression" | fn.#ObjectExpression] | fn.#ListExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagValues" | fn.#ObjectExpression
+	And?:            [..._#defs."/$defs/Properties/definitions/CostAndUsageExpression"] | fn.#ListExpression
+	CostCategories?: _#defs."/$defs/Properties/definitions/CostCategoryValues"
+	Dimensions?:     _#defs."/$defs/Properties/definitions/DimensionValues"
+	Not?:            _#defs."/$defs/Properties/definitions/CostAndUsageExpression"
+	Or?:             [..._#defs."/$defs/Properties/definitions/CostAndUsageExpression"] | fn.#ListExpression
+	Tags?:           _#defs."/$defs/Properties/definitions/TagValues"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CostAndUsageQuery": close({
-	Filter?:      _#defs."/$defs/Properties/definitions/CostAndUsageExpression" | fn.#ObjectExpression
-	Granularity!: _#defs."/$defs/Properties/definitions/Granularity" | fn.#StringExpression
-	GroupBy?:   [..._#defs."/$defs/Properties/definitions/GroupDefinition" | fn.#ObjectExpression] | fn.#ListExpression
-	Metrics!:   [..._#defs."/$defs/Properties/definitions/MetricName" | fn.#StringExpression] | fn.#ListExpression
-	TimeRange!: _#defs."/$defs/Properties/definitions/DateTimeRange" | fn.#ObjectExpression
+	Filter?:      _#defs."/$defs/Properties/definitions/CostAndUsageExpression"
+	Granularity!: _#defs."/$defs/Properties/definitions/Granularity"
+	GroupBy?:     [..._#defs."/$defs/Properties/definitions/GroupDefinition"] | fn.#ListExpression
+	Metrics!:     [..._#defs."/$defs/Properties/definitions/MetricName"] | fn.#ListExpression
+	TimeRange!:   _#defs."/$defs/Properties/definitions/DateTimeRange"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CostCategoryValues": close({
 	Key!:          string | fn.#StringExpression
-	MatchOptions?: [..._#defs."/$defs/Properties/definitions/MatchOption" | fn.#StringExpression] | fn.#ListExpression
+	MatchOptions?: [..._#defs."/$defs/Properties/definitions/MatchOption"] | fn.#ListExpression
 	Values!:       [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -51,15 +53,15 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/DashboardType": "CUSTOM" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DateTimeRange": close({
-	EndTime!:   _#defs."/$defs/Properties/definitions/DateTimeValue" | fn.#ObjectExpression
-	StartTime!: _#defs."/$defs/Properties/definitions/DateTimeValue" | fn.#ObjectExpression
+	EndTime!:   _#defs."/$defs/Properties/definitions/DateTimeValue"
+	StartTime!: _#defs."/$defs/Properties/definitions/DateTimeValue"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DateTimeType": "ABSOLUTE" | "RELATIVE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DateTimeValue": close({
-	Type!:  _#defs."/$defs/Properties/definitions/DateTimeType" | fn.#StringExpression
+	Type!:  _#defs."/$defs/Properties/definitions/DateTimeType"
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -93,42 +95,42 @@ _#defs: "/$defs/Properties/definitions/Dimension": "AZ" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DimensionValues": close({
-	Key!:          _#defs."/$defs/Properties/definitions/Dimension" | fn.#StringExpression
-	MatchOptions?: [..._#defs."/$defs/Properties/definitions/MatchOption" | fn.#StringExpression] | fn.#ListExpression
+	Key!:          _#defs."/$defs/Properties/definitions/Dimension"
+	MatchOptions?: [..._#defs."/$defs/Properties/definitions/MatchOption"] | fn.#ListExpression
 	Values!:       [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DisplayConfig": close({
-	Graph?: _#defs."/$defs/Properties/definitions/GraphDisplayConfigMap" | fn.#ObjectExpression
-	Table?: _#defs."/$defs/Properties/definitions/TableDisplayConfigStruct" | fn.#ObjectExpression
+	Graph?: _#defs."/$defs/Properties/definitions/GraphDisplayConfigMap"
+	Table?: _#defs."/$defs/Properties/definitions/TableDisplayConfigStruct"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Expression": close({
-	And?:            [..._#defs."/$defs/Properties/definitions/Expression" | fn.#ObjectExpression] | fn.#ListExpression
-	CostCategories?: _#defs."/$defs/Properties/definitions/CostCategoryValues" | fn.#ObjectExpression
-	Dimensions?:     _#defs."/$defs/Properties/definitions/DimensionValues" | fn.#ObjectExpression
-	Not?:            _#defs."/$defs/Properties/definitions/Expression" | fn.#ObjectExpression
-	Tags?:           _#defs."/$defs/Properties/definitions/TagValues" | fn.#ObjectExpression
+	And?:            [..._#defs."/$defs/Properties/definitions/Expression"] | fn.#ListExpression
+	CostCategories?: _#defs."/$defs/Properties/definitions/CostCategoryValues"
+	Dimensions?:     _#defs."/$defs/Properties/definitions/DimensionValues"
+	Not?:            _#defs."/$defs/Properties/definitions/Expression"
+	Tags?:           _#defs."/$defs/Properties/definitions/TagValues"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Granularity": "HOURLY" | "DAILY" | "MONTHLY" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/GraphDisplayConfig": close(
-	{VisualType!: _#defs."/$defs/Properties/definitions/VisualType" | fn.#StringExpression},
+	{VisualType!: _#defs."/$defs/Properties/definitions/VisualType"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GraphDisplayConfigMap": close({
 
-	{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/GraphDisplayConfig" | fn.#ObjectExpression}}) |
+	{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/GraphDisplayConfig"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GroupDefinition": close({
 	Key!:  strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\S\\s]*$" | fn.#StringExpression
-	Type?: _#defs."/$defs/Properties/definitions/GroupDefinitionType" | fn.#StringExpression
+	Type?: _#defs."/$defs/Properties/definitions/GroupDefinitionType"
 }) |
 fn.#ObjectExpression
 
@@ -161,44 +163,44 @@ _#defs: "/$defs/Properties/definitions/MetricName": "AmortizedCost" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/QueryParameters": close({
-	CostAndUsage?:            _#defs."/$defs/Properties/definitions/CostAndUsageQuery" | fn.#ObjectExpression
-	ReservationCoverage?:     _#defs."/$defs/Properties/definitions/ReservationCoverageQuery" | fn.#ObjectExpression
-	ReservationUtilization?:  _#defs."/$defs/Properties/definitions/ReservationUtilizationQuery" | fn.#ObjectExpression
-	SavingsPlansCoverage?:    _#defs."/$defs/Properties/definitions/SavingsPlansCoverageQuery" | fn.#ObjectExpression
-	SavingsPlansUtilization?: _#defs."/$defs/Properties/definitions/SavingsPlansUtilizationQuery" | fn.#ObjectExpression
+	CostAndUsage?:            _#defs."/$defs/Properties/definitions/CostAndUsageQuery"
+	ReservationCoverage?:     _#defs."/$defs/Properties/definitions/ReservationCoverageQuery"
+	ReservationUtilization?:  _#defs."/$defs/Properties/definitions/ReservationUtilizationQuery"
+	SavingsPlansCoverage?:    _#defs."/$defs/Properties/definitions/SavingsPlansCoverageQuery"
+	SavingsPlansUtilization?: _#defs."/$defs/Properties/definitions/SavingsPlansUtilizationQuery"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReservationCoverageQuery": close({
-	Filter?:      _#defs."/$defs/Properties/definitions/Expression" | fn.#ObjectExpression
-	Granularity?: _#defs."/$defs/Properties/definitions/Granularity" | fn.#StringExpression
-	GroupBy?:   [..._#defs."/$defs/Properties/definitions/GroupDefinition" | fn.#ObjectExpression] | fn.#ListExpression
-	Metrics?:   [..._#defs."/$defs/Properties/definitions/MetricName" | fn.#StringExpression] | fn.#ListExpression
-	TimeRange!: _#defs."/$defs/Properties/definitions/DateTimeRange" | fn.#ObjectExpression
+	Filter?:      _#defs."/$defs/Properties/definitions/Expression"
+	Granularity?: _#defs."/$defs/Properties/definitions/Granularity"
+	GroupBy?:     [..._#defs."/$defs/Properties/definitions/GroupDefinition"] | fn.#ListExpression
+	Metrics?:     [..._#defs."/$defs/Properties/definitions/MetricName"] | fn.#ListExpression
+	TimeRange!:   _#defs."/$defs/Properties/definitions/DateTimeRange"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReservationUtilizationQuery": close({
-	Filter?:      _#defs."/$defs/Properties/definitions/Expression" | fn.#ObjectExpression
-	Granularity?: _#defs."/$defs/Properties/definitions/Granularity" | fn.#StringExpression
-	GroupBy?:   [..._#defs."/$defs/Properties/definitions/GroupDefinition" | fn.#ObjectExpression] | fn.#ListExpression
-	TimeRange!: _#defs."/$defs/Properties/definitions/DateTimeRange" | fn.#ObjectExpression
+	Filter?:      _#defs."/$defs/Properties/definitions/Expression"
+	Granularity?: _#defs."/$defs/Properties/definitions/Granularity"
+	GroupBy?:     [..._#defs."/$defs/Properties/definitions/GroupDefinition"] | fn.#ListExpression
+	TimeRange!:   _#defs."/$defs/Properties/definitions/DateTimeRange"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SavingsPlansCoverageQuery": close({
-	Filter?:      _#defs."/$defs/Properties/definitions/Expression" | fn.#ObjectExpression
-	Granularity?: _#defs."/$defs/Properties/definitions/Granularity" | fn.#StringExpression
-	GroupBy?:   [..._#defs."/$defs/Properties/definitions/GroupDefinition" | fn.#ObjectExpression] | fn.#ListExpression
-	Metrics?:   [..._#defs."/$defs/Properties/definitions/MetricName" | fn.#StringExpression] | fn.#ListExpression
-	TimeRange!: _#defs."/$defs/Properties/definitions/DateTimeRange" | fn.#ObjectExpression
+	Filter?:      _#defs."/$defs/Properties/definitions/Expression"
+	Granularity?: _#defs."/$defs/Properties/definitions/Granularity"
+	GroupBy?:     [..._#defs."/$defs/Properties/definitions/GroupDefinition"] | fn.#ListExpression
+	Metrics?:     [..._#defs."/$defs/Properties/definitions/MetricName"] | fn.#ListExpression
+	TimeRange!:   _#defs."/$defs/Properties/definitions/DateTimeRange"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SavingsPlansUtilizationQuery": close({
-	Filter?:      _#defs."/$defs/Properties/definitions/Expression" | fn.#ObjectExpression
-	Granularity?: _#defs."/$defs/Properties/definitions/Granularity" | fn.#StringExpression
-	TimeRange!:   _#defs."/$defs/Properties/definitions/DateTimeRange" | fn.#ObjectExpression
+	Filter?:      _#defs."/$defs/Properties/definitions/Expression"
+	Granularity?: _#defs."/$defs/Properties/definitions/Granularity"
+	TimeRange!:   _#defs."/$defs/Properties/definitions/DateTimeRange"
 }) |
 fn.#ObjectExpression
 
@@ -212,7 +214,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TagValues": close({
 	Key!:          string | fn.#StringExpression
-	MatchOptions?: [..._#defs."/$defs/Properties/definitions/MatchOption" | fn.#StringExpression] | fn.#ListExpression
+	MatchOptions?: [..._#defs."/$defs/Properties/definitions/MatchOption"] | fn.#ListExpression
 	Values!:       [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -220,21 +222,62 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/VisualType": "LINE" | "BAR" | "STACK" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Widget": close({
-	Configs!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/WidgetConfig" | fn.#ObjectExpression
-	] |
+	Configs!: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/WidgetConfig"] |
 		fn.#ListExpression
-	Description?:      strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	Height?:           int & <=10 & >=4 | fn.#NumberExpression
-	HorizontalOffset?: int | fn.#NumberExpression
-	Title!:            strings.MaxRunes(50) & strings.MinRunes(2) | fn.#StringExpression
-	Width?:            int & <=6 & >=2 | fn.#NumberExpression
+	Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	Height?: int & <=10 & >=4 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10 &
+							>=4,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	HorizontalOffset?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Title!: strings.MaxRunes(50) & strings.MinRunes(2) | fn.#StringExpression
+	Width?: int & <=6 & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=6 &
+							>=2,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WidgetConfig": close({
-	DisplayConfig!:   _#defs."/$defs/Properties/definitions/DisplayConfig" | fn.#ObjectExpression
-	QueryParameters!: _#defs."/$defs/Properties/definitions/QueryParameters" | fn.#ObjectExpression
+	DisplayConfig!:   _#defs."/$defs/Properties/definitions/DisplayConfig"
+	QueryParameters!: _#defs."/$defs/Properties/definitions/QueryParameters"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

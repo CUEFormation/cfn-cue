@@ -9,6 +9,10 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -40,8 +44,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"ZEPPELIN-FLINK-3_0" |
 		fn.#StringExpression
 	ServiceExecutionRole!: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ApplicationCodeConfiguration": close({
@@ -94,12 +97,12 @@ _#defs: "/$defs/Properties/definitions/ApplicationRestoreConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ApplicationSnapshotConfiguration": close(
-	{SnapshotsEnabled!: bool | fn.#BooleanExpression},
+	{SnapshotsEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ApplicationSystemRollbackConfiguration": close(
-	{RollbackEnabled!: bool | fn.#BooleanExpression},
+	{RollbackEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
@@ -119,10 +122,40 @@ _#defs: "/$defs/Properties/definitions/CatalogConfiguration": close({
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CheckpointConfiguration": close({
-	CheckpointInterval?:         int & <=9223372036854776000 & >=1 | fn.#NumberExpression
-	CheckpointingEnabled?:       bool | fn.#BooleanExpression
-	ConfigurationType!:          "DEFAULT" | "CUSTOM" | fn.#StringExpression
-	MinPauseBetweenCheckpoints?: int & <=9223372036854776000 & >=0 | fn.#NumberExpression
+	CheckpointInterval?: int & <=9223372036854776000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=9223372036854776000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CheckpointingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ConfigurationType!:    "DEFAULT" | "CUSTOM" | fn.#StringExpression
+	MinPauseBetweenCheckpoints?: int & <=9223372036854776000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=9223372036854776000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -151,9 +184,7 @@ _#defs: "/$defs/Properties/definitions/DeployAsApplicationConfiguration": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EnvironmentProperties": close({
-	PropertyGroups?: list.MaxItems(50) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PropertyGroup" | fn.#ObjectExpression
-	] |
+	PropertyGroups?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/PropertyGroup"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -166,7 +197,7 @@ _#defs: "/$defs/Properties/definitions/FlinkApplicationConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FlinkRunConfiguration": close(
-	{AllowNonRestoredState?: bool | fn.#BooleanExpression},
+	{AllowNonRestoredState?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
@@ -191,7 +222,24 @@ _#defs: "/$defs/Properties/definitions/InputLambdaProcessor": close(
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputParallelism": close({Count?: int & <=64 & >=1 | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/InputParallelism": close({
+	Count?: int & <=64 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=64 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InputProcessingConfiguration": close(
@@ -200,9 +248,7 @@ _#defs: "/$defs/Properties/definitions/InputProcessingConfiguration": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InputSchema": close({
-	RecordColumns!: list.MaxItems(1000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RecordColumn" | fn.#ObjectExpression
-	] |
+	RecordColumns!: list.MaxItems(1000) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RecordColumn"] |
 		fn.#ListExpression
 	RecordEncoding?: "UTF-8" & (strings.MaxRunes(5) & strings.MinRunes(5)) | fn.#StringExpression
 	RecordFormat!:   _#defs."/$defs/Properties/definitions/RecordFormat" | fn.#ObjectExpression
@@ -245,10 +291,38 @@ _#defs: "/$defs/Properties/definitions/MonitoringConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParallelismConfiguration": close({
-	AutoScalingEnabled?: bool | fn.#BooleanExpression
+	AutoScalingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ConfigurationType!:  "CUSTOM" | "DEFAULT" | fn.#StringExpression
-	Parallelism?:        int & >=1 | fn.#NumberExpression
-	ParallelismPerKPU?:  int & >=1 | fn.#NumberExpression
+	Parallelism?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ParallelismPerKPU?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -291,10 +365,9 @@ _#defs: "/$defs/Properties/definitions/S3ContentLocation": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SqlApplicationConfiguration": close({
-	Inputs?: list.MaxItems(1) & [..._#defs."/$defs/Properties/definitions/Input" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/SqlApplicationConfiguration": close(
+	{Inputs?: list.MaxItems(1) & [..._#defs."/$defs/Properties/definitions/Input"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
@@ -304,8 +377,12 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
-	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	SubnetIds!:        list.MaxItems(16) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	SubnetIds!: list.MaxItems(16) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

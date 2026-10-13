@@ -16,10 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AmazonSideAsn?:            =~"^[1-9][0-9]*$" | fn.#StringExpression
 	DirectConnectGatewayName!: =~"^[\\w \\-_,\\/]{1,100}$" | fn.#StringExpression
-	Tags?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

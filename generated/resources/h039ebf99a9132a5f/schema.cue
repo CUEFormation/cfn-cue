@@ -11,7 +11,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::KinesisAnalytics::ApplicationOutput
 #Properties: close({
 	ApplicationName!: string | fn.#StringExpression
-	Output!:          _#defs."/$defs/Properties/definitions/Output" | fn.#ObjectExpression
+	Output!:          _#defs."/$defs/Properties/definitions/Output"
 })
 
 _#defs: "/$defs/Properties/definitions/DestinationSchema": close({RecordFormatType?: string | fn.#StringExpression}) |
@@ -19,27 +19,30 @@ _#defs: "/$defs/Properties/definitions/DestinationSchema": close({RecordFormatTy
 
 _#defs: "/$defs/Properties/definitions/KinesisFirehoseOutput": close({
 	ResourceARN!: string | fn.#StringExpression
-	RoleARN!:     string | fn.#StringExpression
+	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KinesisStreamsOutput": close({
 	ResourceARN!: string | fn.#StringExpression
-	RoleARN!:     string | fn.#StringExpression
+	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LambdaOutput": close({
 	ResourceARN!: string | fn.#StringExpression
-	RoleARN!:     string | fn.#StringExpression
+	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Output": close({
-	DestinationSchema!:     _#defs."/$defs/Properties/definitions/DestinationSchema" | fn.#ObjectExpression
-	KinesisFirehoseOutput?: _#defs."/$defs/Properties/definitions/KinesisFirehoseOutput" | fn.#ObjectExpression
-	KinesisStreamsOutput?:  _#defs."/$defs/Properties/definitions/KinesisStreamsOutput" | fn.#ObjectExpression
-	LambdaOutput?:          _#defs."/$defs/Properties/definitions/LambdaOutput" | fn.#ObjectExpression
+	DestinationSchema!:     _#defs."/$defs/Properties/definitions/DestinationSchema"
+	KinesisFirehoseOutput?: _#defs."/$defs/Properties/definitions/KinesisFirehoseOutput"
+	KinesisStreamsOutput?:  _#defs."/$defs/Properties/definitions/KinesisStreamsOutput"
+	LambdaOutput?:          _#defs."/$defs/Properties/definitions/LambdaOutput"
 	Name?:                  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

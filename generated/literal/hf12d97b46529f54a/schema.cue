@@ -26,7 +26,10 @@ import "strings"
 	// The ARN of the AWS Key Management Service (AWS KMS) key that's used to
 	// encrypt your function's environment variables. If it's not provided, AWS
 	// Lambda uses a default service key.
-	KMSArn?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:aws:kms:.*:[0-9]+:.*"
+	KMSArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"arn:aws:kms:.*:[0-9]+:.*"
 
 	// Configurations of metadata catalog of the flow.
 	MetadataCatalogConfig?: _#defs."/$defs/Properties/definitions/MetadataCatalogConfig"
@@ -239,7 +242,10 @@ _#defs: "/$defs/Properties/definitions/GlueDataCatalog": close({
 	DatabaseName!: strings.MaxRunes(255) & strings.MinRunes(0)
 
 	// A string containing the value for the tag
-	RoleArn!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"arn:aws:iam:.*:[0-9]+:.*"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(0) &
+	=~"arn:aws:iam:.*:[0-9]+:.*"
 
 	// A string containing the value for the tag
 	TablePrefix!: strings.MaxRunes(128) & strings.MinRunes(0)

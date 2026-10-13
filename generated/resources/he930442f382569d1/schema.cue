@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // <p>Represents a resource policy that allows or denies access to an origin endpoint.</p>
 #Properties: close({
-	CdnAuthConfiguration?: _#defs."/$defs/Properties/definitions/CdnAuthConfiguration" | fn.#ObjectExpression
+	CdnAuthConfiguration?: _#defs."/$defs/Properties/definitions/CdnAuthConfiguration"
 	ChannelGroupName!:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	ChannelName!:          strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	OriginEndpointName!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
@@ -26,7 +26,8 @@ _#defs: "/$defs/Properties/definitions/CdnAuthConfiguration": close({
 		...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	SecretsRoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	SecretsRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

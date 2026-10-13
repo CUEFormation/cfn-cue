@@ -65,19 +65,19 @@ _#defs: "/$defs/Properties/definitions/CampaignType": "MANAGED" | "JOURNEY"
 _#defs: "/$defs/Properties/definitions/Capacity": <=1 & >=0.01
 
 // The possible types of channel subtype config parameters
-_#defs: "/$defs/Properties/definitions/ChannelSubtypeConfig": ({
+_#defs: "/$defs/Properties/definitions/ChannelSubtypeConfig": matchN(>=1, [{
 	Telephony!: _
 	...
-} | {
+}, {
 	Sms!: _
 	...
-} | {
+}, {
 	Email!: _
 	...
-} | {
+}, {
 	WhatsApp!: _
 	...
-}) & close({
+}]) & close({
 	Email?:     _#defs."/$defs/Properties/definitions/EmailChannelSubtypeConfig"
 	Sms?:       _#defs."/$defs/Properties/definitions/SmsChannelSubtypeConfig"
 	Telephony?: _#defs."/$defs/Properties/definitions/TelephonyChannelSubtypeConfig"

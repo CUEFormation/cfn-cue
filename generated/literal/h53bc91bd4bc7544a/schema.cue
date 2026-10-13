@@ -18,7 +18,10 @@ import "strings"
 	// call those AWS APIs, and provision that execution role in your account.
 	// CloudFormation then assumes that execution role to provide your resource
 	// type with the appropriate credentials.
-	ExecutionRoleArn?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:.+:iam::[0-9]{12}:role/.+"
+	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"arn:.+:iam::[0-9]{12}:role/.+"
 
 	// Indicates if this type version is the current default version
 	IsDefaultVersion?: bool
@@ -65,5 +68,8 @@ _#defs: "/$defs/Properties/definitions/LoggingConfig": close({
 
 	// The ARN of the role that CloudFormation should assume when sending log
 	// entries to CloudWatch logs.
-	LogRoleArn?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:.+:iam::[0-9]{12}:role/.+$"
+	LogRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"^arn:.+:iam::[0-9]{12}:role/.+$"
 })

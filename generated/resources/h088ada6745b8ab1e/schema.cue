@@ -13,18 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Account level Launch Configuration Template for AWS Elastic Disaster Recovery.
 #Properties: close({
-	CopyPrivateIp?:            bool | fn.#BooleanExpression
-	CopyTags?:                 bool | fn.#BooleanExpression
+	CopyPrivateIp?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CopyTags?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ExportBucketArn?:          strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 	LaunchDisposition?:        "STOPPED" | "STARTED" | fn.#StringExpression
-	LaunchIntoSourceInstance?: bool | fn.#BooleanExpression
-	Licensing?:                _#defs."/$defs/Properties/definitions/Licensing" | fn.#ObjectExpression
-	PostLaunchEnabled?:        bool | fn.#BooleanExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	LaunchIntoSourceInstance?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Licensing?:                _#defs."/$defs/Properties/definitions/Licensing"
+	PostLaunchEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?:                     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetInstanceTypeRightSizingMethod?: "NONE" | "BASIC" | "IN_AWS" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Licensing": close({OsByol?: bool | fn.#BooleanExpression}) | fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/Licensing": close(
+	{OsByol?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
+	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression

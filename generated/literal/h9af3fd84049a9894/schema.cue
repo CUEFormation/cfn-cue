@@ -22,7 +22,7 @@ import (
 	DocumentEnrichmentConfiguration?: _#defs."/$defs/Properties/definitions/DocumentEnrichmentConfiguration"
 	IndexId!:                         strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"
 	MediaExtractionConfiguration?:    _#defs."/$defs/Properties/definitions/MediaExtractionConfiguration"
-	RoleArn?:                         strings.MaxRunes(1284) & strings.MinRunes(0)
+	RoleArn?:                         =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
 	Status?:                          _#defs."/$defs/Properties/definitions/DataSourceStatus"
 	SyncSchedule?:                    strings.MaxRunes(998) & =~"^[\\s\\S]*$"
 	Tags?:                            list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
@@ -48,7 +48,10 @@ _#defs: "/$defs/Properties/definitions/DataSourceStatus": "PENDING_CREATION" |
 
 _#defs: "/$defs/Properties/definitions/DataSourceVpcConfiguration": close({
 	SecurityGroupIds!: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[-0-9a-zA-Z]+$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(200) &
+		strings.MinRunes(1) &
+		=~"^[-0-9a-zA-Z]+$"
 	]
 	SubnetIds!: [...strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[-0-9a-zA-Z]+$"]
 })
@@ -99,10 +102,11 @@ _#defs: "/$defs/Properties/definitions/DocumentEnrichmentConfiguration": close({
 
 _#defs: "/$defs/Properties/definitions/HookConfiguration": close({
 	InvocationCondition?: _#defs."/$defs/Properties/definitions/DocumentAttributeCondition"
-	LambdaArn?: strings.MaxRunes(2048) &
+	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-zA-Z-]*:lambda:[a-z-]*-[0-9]:[0-9]{12}:function:[a-zA-Z0-9-_]+(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})?(:[a-zA-Z0-9-_]+)?$"
-	RoleArn?:      strings.MaxRunes(1284) & strings.MinRunes(0)
+	RoleArn?:      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
 	S3BucketName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 })
 

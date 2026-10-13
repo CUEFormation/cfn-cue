@@ -13,18 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::RDS::DBSecurityGroup
 #Properties: close({
-	DBSecurityGroupIngress!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Ingress" | fn.#ObjectExpression
-	] |
+	DBSecurityGroupIngress!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Ingress"] |
 		fn.#ListExpression
 	EC2VpcId?:         string | fn.#StringExpression
 	GroupDescription!: string | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Ingress": close({
-	CIDRIP?:                  string | fn.#StringExpression
-	EC2SecurityGroupId?:      string | fn.#StringExpression
+	CIDRIP?: string | fn.#StringExpression
+	EC2SecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	EC2SecurityGroupName?:    string | fn.#StringExpression
 	EC2SecurityGroupOwnerId?: string | fn.#StringExpression
 }) |

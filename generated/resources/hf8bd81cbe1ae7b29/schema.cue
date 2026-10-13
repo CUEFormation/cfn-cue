@@ -3,11 +3,15 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"struct"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -15,15 +19,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::GameLiftStreams::StreamGroup Resource Type
 #Properties: close({
-	DefaultApplication?: _#defs."/$defs/Properties/definitions/DefaultApplication" | fn.#ObjectExpression
+	DefaultApplication?: _#defs."/$defs/Properties/definitions/DefaultApplication"
 	Description!: strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.!+@/][a-zA-Z0-9-_.!+@/ ]*$" |
 	fn.#StringExpression
 	LocationConfigurations!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/LocationConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/LocationConfiguration"
 	] |
 		fn.#ListExpression
-	StreamClass!: _#defs."/$defs/Properties/definitions/StreamClass" | fn.#StringExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	StreamClass!: _#defs."/$defs/Properties/definitions/StreamClass"
+	Tags?:        _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/DefaultApplication": close({
@@ -40,12 +44,68 @@ _#defs: "/$defs/Properties/definitions/DefaultApplication": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LocationConfiguration": close({
-	AlwaysOnCapacity?:        int & >=0 | fn.#NumberExpression
-	LocationName!:            strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	MaximumCapacity?:         int & >=0 | fn.#NumberExpression
-	OnDemandCapacity?:        int & >=0 | fn.#NumberExpression
-	TargetIdleCapacity?:      int & >=0 | fn.#NumberExpression
-	VpcTransitConfiguration?: _#defs."/$defs/Properties/definitions/VpcTransitConfiguration" | fn.#ObjectExpression
+	AlwaysOnCapacity?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LocationName!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+	MaximumCapacity?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	OnDemandCapacity?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TargetIdleCapacity?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VpcTransitConfiguration?: _#defs."/$defs/Properties/definitions/VpcTransitConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -62,7 +122,8 @@ _#defs: "/$defs/Properties/definitions/VpcTransitConfiguration": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	VpcId!: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(32) & strings.MinRunes(1)) |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

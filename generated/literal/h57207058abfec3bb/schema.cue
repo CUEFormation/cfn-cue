@@ -18,7 +18,7 @@ import "strings"
 	// The Amazon Resource Name (ARN) of the SNS topic created for event
 	// notification. Amazon SNS creates the ARN when you create a topic and
 	// subscribe to it.
-	SnsTopicArn!: string
+	SnsTopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 
 	// The list of identifiers of the event sources for which events are returned
 	SourceIds?: [...=~"^[a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9]$|^[a-zA-Z]$"]

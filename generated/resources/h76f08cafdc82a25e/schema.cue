@@ -15,9 +15,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::BedrockAgentCore::PaymentConnector
 #Properties: close({
 	ConnectorName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
-	ConnectorType!: _#defs."/$defs/Properties/definitions/PaymentConnectorType" | fn.#StringExpression
+	ConnectorType!: _#defs."/$defs/Properties/definitions/PaymentConnectorType"
 	CredentialProviderConfigurations?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CredentialsProviderConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/CredentialsProviderConfiguration"
 	] |
 		fn.#ListExpression
 	Description?:      strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s]+$" | fn.#StringExpression
@@ -26,8 +26,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/CredentialsProviderConfiguration": close({
-	CoinbaseCDP?: _#defs."/$defs/Properties/definitions/PaymentCredentialProviderConfiguration" | fn.#ObjectExpression
-	StripePrivy?: _#defs."/$defs/Properties/definitions/PaymentCredentialProviderConfiguration" | fn.#ObjectExpression
+	CoinbaseCDP?: _#defs."/$defs/Properties/definitions/PaymentCredentialProviderConfiguration"
+	StripePrivy?: _#defs."/$defs/Properties/definitions/PaymentCredentialProviderConfiguration"
 }) |
 fn.#ObjectExpression
 

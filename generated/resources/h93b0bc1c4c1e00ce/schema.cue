@@ -28,37 +28,39 @@ _#defs: "/$defs/Properties/definitions/Alias": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AwsLambda": close({
-	FunctionArn!:     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	FunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	fn.#StringExpression
 	FunctionPayload?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ObjectLambdaConfiguration": close({
 	AllowedFeatures?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	CloudWatchMetricsEnabled?: bool | fn.#BooleanExpression
+	CloudWatchMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SupportingAccessPoint!:    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	TransformationConfigurations!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TransformationConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/TransformationConfiguration"
 	] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyStatus": close({IsPublic?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/PolicyStatus": close(
+	{IsPublic?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
-	BlockPublicAcls?:       bool | fn.#BooleanExpression
-	BlockPublicPolicy?:     bool | fn.#BooleanExpression
-	IgnorePublicAcls?:      bool | fn.#BooleanExpression
-	RestrictPublicBuckets?: bool | fn.#BooleanExpression
+	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	BlockPublicPolicy?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IgnorePublicAcls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RestrictPublicBuckets?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TransformationConfiguration": close({
-	Actions!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Action" | fn.#StringExpression] |
-		fn.#ListExpression
-	ContentTransformation!: close({AwsLambda!: _#defs."/$defs/Properties/definitions/AwsLambda" | fn.#ObjectExpression}) & {
+	Actions!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
+	ContentTransformation!: close({AwsLambda!: _#defs."/$defs/Properties/definitions/AwsLambda"}) & {
 		[string]: fn.#Value
 	} |
 		fn.#ObjectExpression

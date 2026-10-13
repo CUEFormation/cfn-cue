@@ -17,13 +17,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: strings.MaxRunes(255) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
 	fn.#StringExpression
-	IdMappingConfig?: _#defs."/$defs/Properties/definitions/IdMappingConfig" | fn.#ObjectExpression
-	InputReferenceConfig!: _#defs."/$defs/Properties/definitions/IdNamespaceAssociationInputReferenceConfig" |
-		fn.#ObjectExpression
-	MembershipIdentifier!: _#defs."/$defs/Properties/definitions/UUID" | fn.#StringExpression
+	IdMappingConfig?:      _#defs."/$defs/Properties/definitions/IdMappingConfig"
+	InputReferenceConfig!: _#defs."/$defs/Properties/definitions/IdNamespaceAssociationInputReferenceConfig"
+	MembershipIdentifier!: _#defs."/$defs/Properties/definitions/UUID"
 	Name!:                 strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:                 list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Document": string |
@@ -32,7 +30,7 @@ _#defs: "/$defs/Properties/definitions/Document": string |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/IdMappingConfig": close(
-	{AllowUseAsDimensionColumn!: bool | fn.#BooleanExpression},
+	{AllowUseAsDimensionColumn!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
@@ -40,16 +38,13 @@ _#defs: "/$defs/Properties/definitions/IdNamespaceAssociationInputReferenceConfi
 	InputReferenceArn!: strings.MaxRunes(256) &
 	=~"^arn:aws:entityresolution:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:idnamespace/[\\d\\w-]+$" |
 	fn.#StringExpression
-	ManageResourcePolicies!: bool | fn.#BooleanExpression
+	ManageResourcePolicies!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IdNamespaceAssociationInputReferenceProperties": close({
-	IdMappingWorkflowsSupported?: [
-		..._#defs."/$defs/Properties/definitions/Document" | fn.#ObjectExpression | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	IdNamespaceType?: "SOURCE" | "TARGET" | fn.#StringExpression
+	IdMappingWorkflowsSupported?: [..._#defs."/$defs/Properties/definitions/Document"] | fn.#ListExpression
+	IdNamespaceType?:             "SOURCE" | "TARGET" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

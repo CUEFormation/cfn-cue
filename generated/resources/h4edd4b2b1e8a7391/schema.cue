@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,10 +16,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // the conditions for a rule, API Gateway invokes a stage of a target API.
 // Supported only for REST APIs.
 #Properties: close({
-	Actions!:       [..._#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression] | fn.#ListExpression
-	Conditions!:    [..._#defs."/$defs/Properties/definitions/Condition" | fn.#ObjectExpression] | fn.#ListExpression
+	Actions!:       [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
+	Conditions!:    [..._#defs."/$defs/Properties/definitions/Condition"] | fn.#ListExpression
 	DomainNameArn!: string | fn.#StringExpression
-	Priority!:      int & <=1000000 & >=1 | fn.#NumberExpression
+	Priority!: int & <=1000000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Action": {
@@ -26,7 +45,7 @@ _#defs: "/$defs/Properties/definitions/Action": {
 _#defs: "/$defs/Properties/definitions/ActionInvokeApi": {
 	ApiId!:         string | fn.#StringExpression
 	Stage!:         string | fn.#StringExpression
-	StripBasePath?: bool | fn.#BooleanExpression
+	StripBasePath?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	...
 } | fn.#ObjectExpression
 
@@ -48,7 +67,7 @@ _#defs: "/$defs/Properties/definitions/MatchHeaderValue": {
 } | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MatchHeaders": {
-	AnyOf!: [..._#defs."/$defs/Properties/definitions/MatchHeaderValue" | fn.#ObjectExpression] | fn.#ListExpression
+	AnyOf!: [..._#defs."/$defs/Properties/definitions/MatchHeaderValue"] | fn.#ListExpression
 	...
 } | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

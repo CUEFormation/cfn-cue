@@ -14,29 +14,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource type definition for AWS::NetworkFirewall::Firewall
 #Properties: close({
-	AvailabilityZoneChangeProtection?: bool | fn.#BooleanExpression
-	AvailabilityZoneMappings?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AvailabilityZoneMapping" | fn.#ObjectExpression
-	] |
+	AvailabilityZoneChangeProtection?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	AvailabilityZoneMappings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AvailabilityZoneMapping"] |
 		fn.#ListExpression
-	DeleteProtection?: bool | fn.#BooleanExpression
-	Description?:      strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
-	EnabledAnalysisTypes?: [..._#defs."/$defs/Properties/definitions/EnabledAnalysisType" | fn.#StringExpression] |
-		fn.#ListExpression
-	FirewallName!:      strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	FirewallPolicyArn!: _#defs."/$defs/Properties/definitions/ResourceArn" | fn.#StringExpression
-	FirewallPolicyChangeProtection?: bool | fn.#BooleanExpression
-	SubnetChangeProtection?:         bool | fn.#BooleanExpression
-	SubnetMappings?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SubnetMapping" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	DeleteProtection?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Description?:          strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
+	EnabledAnalysisTypes?: [..._#defs."/$defs/Properties/definitions/EnabledAnalysisType"] | fn.#ListExpression
+	FirewallName!:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+	FirewallPolicyArn!:    _#defs."/$defs/Properties/definitions/ResourceArn"
+	FirewallPolicyChangeProtection?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	SubnetChangeProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SubnetMappings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SubnetMapping"] | fn.#ListExpression
+	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	TransitGatewayId?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^tgw-[0-9a-z]+$" | fn.#StringExpression
-	VpcId?:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"^vpc-[0-9a-f]+$" | fn.#StringExpression
+	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) &
+	=~"^vpc-[0-9a-f]+$" |
+	fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AvailabilityZoneMapping": close(

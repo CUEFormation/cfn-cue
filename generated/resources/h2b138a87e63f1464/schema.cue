@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,17 +16,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // can use this resource type to attach additional network interfaces to an
 // instance without interruption.
 #Properties: close({
-	DeleteOnTermination?: bool | fn.#BooleanExpression
+	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DeviceIndex!:         string | fn.#StringExpression
-	EnaQueueCount?:       int | fn.#NumberExpression
+	EnaQueueCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	EnaSrdSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdSpecification" | fn.#ObjectExpression
 	InstanceId!:          string | fn.#StringExpression
 	NetworkInterfaceId!:  string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EnaSrdSpecification": close({
-	EnaSrdEnabled?:          bool | fn.#BooleanExpression
-	EnaSrdUdpSpecification?: close({EnaSrdUdpEnabled?: bool | fn.#BooleanExpression}) | fn.#ObjectExpression
+	EnaSrdEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnaSrdUdpSpecification?: close(
+		{EnaSrdUdpEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+	) |
+		fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -13,6 +13,8 @@ func Intrinsics(extensions bool) *ast.File {
 	f := file("fn")
 	addImport(f, "structs", "struct")
 	addImport(f, "list", "list")
+	addImport(f, "cfnScalarStrings", "strings")
+	addImport(f, "cfnScalarStrconv", "strconv")
 	r := func(s string) ast.Expr { return id("#" + s) }
 	type sig struct {
 		key  string
@@ -64,6 +66,13 @@ func Intrinsics(extensions bool) *ast.File {
 	fn("If", "Fn::If", tuple(id("string"), r("Value"), r("Value")))
 	for _, name := range []string{"String", "Number", "Boolean", "List", "Object"} {
 		literal := map[string]ast.Expr{"String": id("string"), "Number": id("number"), "Boolean": id("bool"), "List": r("List"), "Object": r("Object")}[name]
+		// Coercion belongs to typed CloudFormation value branches. Keep
+		// generic JSON scalars and function argument shapes unchanged.
+		if name == "Number" {
+			literal = union(literal, quotedNumber(id("number"), false))
+		} else if name == "Boolean" {
+			literal = union(literal, str("true"), str("True"), str("TRUE"), str("false"), str("False"), str("FALSE"))
+		}
 		add(name+"Value", union(literal, r(name+"Expression")))
 		fn("If"+name, "Fn::If", tuple(id("string"), r(name+"Value"), r(name+"Value")))
 	}

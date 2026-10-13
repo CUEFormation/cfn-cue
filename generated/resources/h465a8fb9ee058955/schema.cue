@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,19 +14,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Lightsail::Bucket
 #Properties: close({
-	AccessRules?: _#defs."/$defs/Properties/definitions/AccessRules" | fn.#ObjectExpression
+	AccessRules?: _#defs."/$defs/Properties/definitions/AccessRules"
 	BucketName!: strings.MaxRunes(54) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9-]{1,52}[a-z0-9]$" |
 	fn.#StringExpression
 	BundleId!:                 =~"\\S" | fn.#StringExpression
-	ObjectVersioning?:         bool | fn.#BooleanExpression
+	ObjectVersioning?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReadOnlyAccessAccounts?:   list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	ResourcesReceivingAccess?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccessRules": close({
-	AllowPublicOverrides?: bool | fn.#BooleanExpression
+	AllowPublicOverrides?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	GetObject?:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

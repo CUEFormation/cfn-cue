@@ -3,11 +3,15 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"time"
 	"strings"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -15,28 +19,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::S3Vectors::Index
 #Properties: close({
-	DataType!:                _#defs."/$defs/Properties/definitions/DataType" | fn.#StringExpression
-	Dimension!:               _#defs."/$defs/Properties/definitions/Dimension" | fn.#NumberExpression
-	DistanceMetric!:          _#defs."/$defs/Properties/definitions/DistanceMetric" | fn.#StringExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
-	IndexName?:               _#defs."/$defs/Properties/definitions/IndexName" | fn.#StringExpression
-	MetadataConfiguration?:   _#defs."/$defs/Properties/definitions/MetadataConfiguration" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	VectorBucketArn?:  _#defs."/$defs/Properties/definitions/VectorBucketArn" | fn.#StringExpression
-	VectorBucketName?: _#defs."/$defs/Properties/definitions/VectorBucketName" | fn.#StringExpression
+	DataType!:                _#defs."/$defs/Properties/definitions/DataType"
+	Dimension!:               _#defs."/$defs/Properties/definitions/Dimension"
+	DistanceMetric!:          _#defs."/$defs/Properties/definitions/DistanceMetric"
+	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	IndexName?:               _#defs."/$defs/Properties/definitions/IndexName"
+	MetadataConfiguration?:   _#defs."/$defs/Properties/definitions/MetadataConfiguration"
+	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VectorBucketArn?:         _#defs."/$defs/Properties/definitions/VectorBucketArn"
+	VectorBucketName?:        _#defs."/$defs/Properties/definitions/VectorBucketName"
 })
 
 _#defs: "/$defs/Properties/definitions/CreationTime": time.Time | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DataType": "float32" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Dimension": int & <=4096 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Dimension": int & <=4096 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=4096 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/DistanceMetric": "cosine" | "euclidean" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	KmsKeyArn?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(arn:aws[-a-z0-9]*:kms:[-a-z0-9]*:[0-9]{12}:key/.+)$" |
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^(arn:aws[-a-z0-9]*:kms:[-a-z0-9]*:[0-9]{12}:key/.+)$" |
 	fn.#StringExpression
 	SseType?: "AES256" | "aws:kms" | fn.#StringExpression
 }) |

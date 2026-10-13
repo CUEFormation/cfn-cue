@@ -21,9 +21,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name?:            strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	NodeJsVersion?:   strings.MaxRunes(16) & strings.MinRunes(0) & =~"^\\d+\\.[x0-9]+$" | fn.#StringExpression
 	StorageLocation!: _#defs."/$defs/Properties/definitions/S3Location" & {[string]: fn.#Value} | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	Version?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 })
@@ -32,7 +30,8 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 	Bucket!:        strings.MinRunes(1) | fn.#StringExpression
 	Key!:           strings.MinRunes(1) | fn.#StringExpression
 	ObjectVersion?: strings.MinRunes(1) | fn.#StringExpression
-	RoleArn!:       strings.MinRunes(1) | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

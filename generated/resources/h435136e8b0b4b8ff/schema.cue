@@ -15,38 +15,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Actors?: [...close({
 			Authentication?: _#defs."/$defs/Properties/definitions/Authentication" | fn.#ObjectExpression
 			Description?:    string | fn.#StringExpression
-			EnableEmailMfa?: bool | fn.#BooleanExpression
+			EnableEmailMfa?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 			Identifier?:     string | fn.#StringExpression
 			Uris?:           [...string | fn.#StringExpression] | fn.#ListExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		Documents?: [..._#defs."/$defs/Properties/definitions/DocumentInfo" | fn.#ObjectExpression] | fn.#ListExpression
-		Endpoints?: [..._#defs."/$defs/Properties/definitions/Endpoint" | fn.#ObjectExpression] | fn.#ListExpression
-		IntegratedRepositories?: [..._#defs."/$defs/Properties/definitions/IntegratedRepository" | fn.#ObjectExpression] |
-			fn.#ListExpression
-		SourceCode?: [..._#defs."/$defs/Properties/definitions/SourceCodeRepository" | fn.#ObjectExpression] |
-			fn.#ListExpression
-		TrustedCaCertificates?: [..._#defs."/$defs/Properties/definitions/TrustedCaCertificate" | fn.#ObjectExpression] |
-			fn.#ListExpression
+		Documents?:              [..._#defs."/$defs/Properties/definitions/DocumentInfo"] | fn.#ListExpression
+		Endpoints?:              [..._#defs."/$defs/Properties/definitions/Endpoint"] | fn.#ListExpression
+		IntegratedRepositories?: [..._#defs."/$defs/Properties/definitions/IntegratedRepository"] | fn.#ListExpression
+		SourceCode?:             [..._#defs."/$defs/Properties/definitions/SourceCodeRepository"] | fn.#ListExpression
+		TrustedCaCertificates?:  [..._#defs."/$defs/Properties/definitions/TrustedCaCertificate"] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
 	CleanUpStrategy?:         _#defs."/$defs/Properties/definitions/CleanUpStrategy" | fn.#StringExpression
 	CodeRemediationStrategy?: _#defs."/$defs/Properties/definitions/CodeRemediationStrategy" | fn.#StringExpression
-	DisableManagedSkills?: [..._#defs."/$defs/Properties/definitions/SkillType" | fn.#StringExpression] |
-		fn.#ListExpression
-	ExcludeRiskTypes?: [..._#defs."/$defs/Properties/definitions/RiskType" | fn.#StringExpression] | fn.#ListExpression
-	LogConfig?:        _#defs."/$defs/Properties/definitions/CloudWatchLog" | fn.#ObjectExpression
-	NetworkTrafficConfig?: _#defs."/$defs/Properties/definitions/NetworkTrafficConfig" | fn.#ObjectExpression
-	ServiceRole!:          string | fn.#StringExpression
-	Title?:                string | fn.#StringExpression
-	VpcConfig?:            _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
+	DisableManagedSkills?:    [..._#defs."/$defs/Properties/definitions/SkillType"] | fn.#ListExpression
+	ExcludeRiskTypes?:        [..._#defs."/$defs/Properties/definitions/RiskType"] | fn.#ListExpression
+	LogConfig?:               _#defs."/$defs/Properties/definitions/CloudWatchLog" | fn.#ObjectExpression
+	NetworkTrafficConfig?:    _#defs."/$defs/Properties/definitions/NetworkTrafficConfig" | fn.#ObjectExpression
+	ServiceRole!:             string | fn.#StringExpression
+	Title?:                   string | fn.#StringExpression
+	VpcConfig?:               _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Actor": close({
 	Authentication?:       _#defs."/$defs/Properties/definitions/Authentication" | fn.#ObjectExpression
 	Description?:          string | fn.#StringExpression
-	EnableEmailMfa?:       bool | fn.#BooleanExpression
+	EnableEmailMfa?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Identifier?:           string | fn.#StringExpression
 	MfaForwardingAddress?: string | fn.#StringExpression
 	Uris?:                 [...string | fn.#StringExpression] | fn.#ListExpression
@@ -54,15 +50,12 @@ _#defs: "/$defs/Properties/definitions/Actor": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Assets": close({
-	Actors?:    [..._#defs."/$defs/Properties/definitions/Actor" | fn.#ObjectExpression] | fn.#ListExpression
-	Documents?: [..._#defs."/$defs/Properties/definitions/DocumentInfo" | fn.#ObjectExpression] | fn.#ListExpression
-	Endpoints?: [..._#defs."/$defs/Properties/definitions/Endpoint" | fn.#ObjectExpression] | fn.#ListExpression
-	IntegratedRepositories?: [..._#defs."/$defs/Properties/definitions/IntegratedRepository" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	SourceCode?: [..._#defs."/$defs/Properties/definitions/SourceCodeRepository" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TrustedCaCertificates?: [..._#defs."/$defs/Properties/definitions/TrustedCaCertificate" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Actors?:                 [..._#defs."/$defs/Properties/definitions/Actor"] | fn.#ListExpression
+	Documents?:              [..._#defs."/$defs/Properties/definitions/DocumentInfo"] | fn.#ListExpression
+	Endpoints?:              [..._#defs."/$defs/Properties/definitions/Endpoint"] | fn.#ListExpression
+	IntegratedRepositories?: [..._#defs."/$defs/Properties/definitions/IntegratedRepository"] | fn.#ListExpression
+	SourceCode?:             [..._#defs."/$defs/Properties/definitions/SourceCodeRepository"] | fn.#ListExpression
+	TrustedCaCertificates?:  [..._#defs."/$defs/Properties/definitions/TrustedCaCertificate"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -120,8 +113,8 @@ _#defs: "/$defs/Properties/definitions/IntegratedRepository": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkTrafficConfig": close({
-	CustomHeaders?: [..._#defs."/$defs/Properties/definitions/CustomHeader" | fn.#ObjectExpression] | fn.#ListExpression
-	Rules?: [..._#defs."/$defs/Properties/definitions/NetworkTrafficRule" | fn.#ObjectExpression] | fn.#ListExpression
+	CustomHeaders?: [..._#defs."/$defs/Properties/definitions/CustomHeader"] | fn.#ListExpression
+	Rules?:         [..._#defs."/$defs/Properties/definitions/NetworkTrafficRule"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

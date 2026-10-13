@@ -4,22 +4,25 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecretsManager::RotationSchedule
 #Properties: close({
-	ExternalSecretRotationMetadata?: [
-		..._#defs."/$defs/Properties/definitions/ExternalSecretRotationMetadataItem" | fn.#ObjectExpression
-	] |
+	ExternalSecretRotationMetadata?: [..._#defs."/$defs/Properties/definitions/ExternalSecretRotationMetadataItem"] |
 		fn.#ListExpression
-	ExternalSecretRotationRoleArn?: string | fn.#StringExpression
-	HostedRotationLambda?:          _#defs."/$defs/Properties/definitions/HostedRotationLambda" | fn.#ObjectExpression
-	RotateImmediatelyOnUpdate?:     bool | fn.#BooleanExpression
-	RotationLambdaARN?:             string | fn.#StringExpression
-	RotationRules?:                 _#defs."/$defs/Properties/definitions/RotationRules" | fn.#ObjectExpression
-	SecretId!:                      string | fn.#StringExpression
+	ExternalSecretRotationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	HostedRotationLambda?:      _#defs."/$defs/Properties/definitions/HostedRotationLambda" | fn.#ObjectExpression
+	RotateImmediatelyOnUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RotationLambdaARN?:         string | fn.#StringExpression
+	RotationRules?:             _#defs."/$defs/Properties/definitions/RotationRules" | fn.#ObjectExpression
+	SecretId!:                  string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ExternalSecretRotationMetadataItem": close({
@@ -29,8 +32,9 @@ _#defs: "/$defs/Properties/definitions/ExternalSecretRotationMetadataItem": clos
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HostedRotationLambda": close({
-	ExcludeCharacters?:        string | fn.#StringExpression
-	KmsKeyArn?:                string | fn.#StringExpression
+	ExcludeCharacters?: string | fn.#StringExpression
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	MasterSecretArn?:          string | fn.#StringExpression
 	MasterSecretKmsKeyArn?:    string | fn.#StringExpression
 	RotationLambdaName?:       string | fn.#StringExpression
@@ -44,9 +48,22 @@ _#defs: "/$defs/Properties/definitions/HostedRotationLambda": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RotationRules": close({
-	AutomaticallyAfterDays?: int | fn.#NumberExpression
-	Duration?:               string | fn.#StringExpression
-	ScheduleExpression?:     string | fn.#StringExpression
+	AutomaticallyAfterDays?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Duration?:           string | fn.#StringExpression
+	ScheduleExpression?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

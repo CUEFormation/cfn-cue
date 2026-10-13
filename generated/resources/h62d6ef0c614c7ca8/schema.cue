@@ -21,8 +21,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	] |
 		fn.#ListExpression
 	RoleName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\w+=,.@-]{1,64}" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

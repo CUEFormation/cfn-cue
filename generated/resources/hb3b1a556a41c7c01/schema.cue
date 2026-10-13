@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,32 +18,89 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Deadline::Fleet
 #Properties: close({
-	Configuration!:     _#defs."/$defs/Properties/definitions/FleetConfiguration" | fn.#ValueExpression
+	Configuration!:     _#defs."/$defs/Properties/definitions/FleetConfiguration"
 	Description?:       strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
 	DisplayName!:       strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	FarmId!:            =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
-	HostConfiguration?: _#defs."/$defs/Properties/definitions/HostConfiguration" | fn.#ObjectExpression
-	MaxWorkerCount!:    int & <=2147483647 & >=0 | fn.#NumberExpression
-	MinWorkerCount?:    int & <=2147483647 & >=0 | fn.#NumberExpression
-	RoleArn!:           =~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	HostConfiguration?: _#defs."/$defs/Properties/definitions/HostConfiguration"
+	MaxWorkerCount!: int & <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinWorkerCount?: int & <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" |
+		fn.#StringExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AcceleratorCapabilities": close({
-	Count?: _#defs."/$defs/Properties/definitions/AcceleratorCountRange" | fn.#ObjectExpression
-	Selections!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AcceleratorSelection" | fn.#ObjectExpression
-	] |
+	Count?: _#defs."/$defs/Properties/definitions/AcceleratorCountRange"
+	Selections!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AcceleratorSelection"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AcceleratorCountRange": close({
-	Max?: int & <=2147483647 & >=0 | fn.#NumberExpression
-	Min!: int & <=2147483647 & >=0 | fn.#NumberExpression
+	Max?: int & <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Min!: int & <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -50,8 +111,38 @@ _#defs: "/$defs/Properties/definitions/AcceleratorSelection": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRange": close({
-	Max?: int & <=2147483647 & >=0 | fn.#NumberExpression
-	Min!: int & <=2147483647 & >=0 | fn.#NumberExpression
+	Max?: int & <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Min!: int & <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -64,19 +155,63 @@ _#defs: "/$defs/Properties/definitions/AutoScalingMode": "NO_SCALING" |
 _#defs: "/$defs/Properties/definitions/CpuArchitectureType": "x86_64" | "arm64" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CustomerManagedAutoScalingConfiguration": close({
-	ScaleOutWorkersPerMinute?:  int & <=2147483647 & >=1 | fn.#NumberExpression
-	StandbyWorkerCount?:        int & <=2147483647 & >=0 | fn.#NumberExpression
-	WorkerIdleDurationSeconds?: int & <=2147483647 & >=0 | fn.#NumberExpression
+	ScaleOutWorkersPerMinute?: int & <=2147483647 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StandbyWorkerCount?: int & <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	WorkerIdleDurationSeconds?: int & <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomerManagedFleetConfiguration": close({
-	AutoScalingConfiguration?: _#defs."/$defs/Properties/definitions/CustomerManagedAutoScalingConfiguration" |
-		fn.#ObjectExpression
-	Mode!:               _#defs."/$defs/Properties/definitions/AutoScalingMode" | fn.#StringExpression
-	StorageProfileId?:   =~"^sp-[0-9a-f]{32}$" | fn.#StringExpression
-	TagPropagationMode?: _#defs."/$defs/Properties/definitions/TagPropagationMode" | fn.#StringExpression
-	WorkerCapabilities!: _#defs."/$defs/Properties/definitions/CustomerManagedWorkerCapabilities" | fn.#ObjectExpression
+	AutoScalingConfiguration?: _#defs."/$defs/Properties/definitions/CustomerManagedAutoScalingConfiguration"
+	Mode!:                     _#defs."/$defs/Properties/definitions/AutoScalingMode"
+	StorageProfileId?:         =~"^sp-[0-9a-f]{32}$" | fn.#StringExpression
+	TagPropagationMode?:       _#defs."/$defs/Properties/definitions/TagPropagationMode"
+	WorkerCapabilities!:       _#defs."/$defs/Properties/definitions/CustomerManagedWorkerCapabilities"
 }) |
 fn.#ObjectExpression
 
@@ -86,38 +221,115 @@ _#defs: "/$defs/Properties/definitions/CustomerManagedFleetOperatingSystemFamily
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CustomerManagedWorkerCapabilities": close({
-	AcceleratorCount?: _#defs."/$defs/Properties/definitions/AcceleratorCountRange" | fn.#ObjectExpression
-	AcceleratorTotalMemoryMiB?: _#defs."/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRange" |
-		fn.#ObjectExpression
-	AcceleratorTypes?: [..._#defs."/$defs/Properties/definitions/AcceleratorType" | fn.#StringExpression] |
-		fn.#ListExpression
-	CpuArchitectureType!: _#defs."/$defs/Properties/definitions/CpuArchitectureType" | fn.#StringExpression
+	AcceleratorCount?:          _#defs."/$defs/Properties/definitions/AcceleratorCountRange"
+	AcceleratorTotalMemoryMiB?: _#defs."/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRange"
+	AcceleratorTypes?:          [..._#defs."/$defs/Properties/definitions/AcceleratorType"] | fn.#ListExpression
+	CpuArchitectureType!:       _#defs."/$defs/Properties/definitions/CpuArchitectureType"
 	CustomAmounts?: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FleetAmountCapability" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/FleetAmountCapability"
 	] |
 		fn.#ListExpression
 	CustomAttributes?: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FleetAttributeCapability" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/FleetAttributeCapability"
 	] |
 		fn.#ListExpression
-	MemoryMiB!: _#defs."/$defs/Properties/definitions/MemoryMiBRange" | fn.#ObjectExpression
-	OsFamily!:  _#defs."/$defs/Properties/definitions/CustomerManagedFleetOperatingSystemFamily" | fn.#StringExpression
-	VCpuCount!: _#defs."/$defs/Properties/definitions/VCpuCountRange" | fn.#ObjectExpression
+	MemoryMiB!: _#defs."/$defs/Properties/definitions/MemoryMiBRange"
+	OsFamily!:  _#defs."/$defs/Properties/definitions/CustomerManagedFleetOperatingSystemFamily"
+	VCpuCount!: _#defs."/$defs/Properties/definitions/VCpuCountRange"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Ec2EbsVolume": close({
-	Iops?:          int & <=16000 & >=3000 | fn.#NumberExpression
-	SizeGiB?:       int | fn.#NumberExpression
-	ThroughputMiB?: int & <=1000 & >=125 | fn.#NumberExpression
+	Iops?: int & <=16000 & >=3000 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=16000 &
+							>=3000,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SizeGiB?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ThroughputMiB?: int & <=1000 & >=125 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=125,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Ec2MarketType": "on-demand" | "spot" | "wait-and-save" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/FleetAmountCapability": close({
-	Max?: number | fn.#NumberExpression
-	Min!: number | fn.#NumberExpression
+	Max?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Min!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Name!: strings.MaxRunes(100) &
 	strings.MinRunes(1) &
 	=~"^([a-zA-Z][a-zA-Z0-9]{0,63}:)?amount(\\.[a-zA-Z][a-zA-Z0-9]{0,63})+$" |
@@ -138,27 +350,24 @@ _#defs: "/$defs/Properties/definitions/FleetAttributeCapability": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FleetCapabilities": close({
-	Amounts?: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FleetAmountCapability" | fn.#ObjectExpression
-	] |
+	Amounts?: list.MaxItems(15) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/FleetAmountCapability"] |
 		fn.#ListExpression
 	Attributes?: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FleetAttributeCapability" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/FleetAttributeCapability"
 	] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FleetConfiguration": matchN(1, [close(
-	{CustomerManaged!: _#defs."/$defs/Properties/definitions/CustomerManagedFleetConfiguration" | fn.#ObjectExpression},
-), close({
-	ServiceManagedEc2!: _#defs."/$defs/Properties/definitions/ServiceManagedEc2FleetConfiguration" |
-		fn.#ObjectExpression
-})]) |
+	{CustomerManaged!: _#defs."/$defs/Properties/definitions/CustomerManagedFleetConfiguration"},
+), close(
+	{ServiceManagedEc2!: _#defs."/$defs/Properties/definitions/ServiceManagedEc2FleetConfiguration"},
+)]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/FleetSoftwareAddOn": close(
-	{Name!: _#defs."/$defs/Properties/definitions/FleetSoftwareAddOnName" | fn.#StringExpression},
+	{Name!: _#defs."/$defs/Properties/definitions/FleetSoftwareAddOnName"},
 ) |
 	fn.#ObjectExpression
 
@@ -173,79 +382,225 @@ _#defs: "/$defs/Properties/definitions/FleetStatus": "ACTIVE" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/HostConfiguration": close({
-	ScriptBody!:           strings.MaxRunes(15000) & strings.MinRunes(0) | fn.#StringExpression
-	ScriptTimeoutSeconds?: int & <=3600 & >=300 | fn.#NumberExpression
+	ScriptBody!: strings.MaxRunes(15000) & strings.MinRunes(0) | fn.#StringExpression
+	ScriptTimeoutSeconds?: int & <=3600 & >=300 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=3600 &
+							>=300,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MemoryMiBRange": close({
-	Max?: int & <=2147483647 & >=512 | fn.#NumberExpression
-	Min!: int & <=2147483647 & >=512 | fn.#NumberExpression
+	Max?: int & <=2147483647 & >=512 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=512,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Min!: int & <=2147483647 & >=512 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=512,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PersistentVolumeConfiguration": close({
-	Iops?:             int & <=80000 & >=100 | fn.#NumberExpression
-	LastUsedTtlHours?: int & <=8760 & >=1 | fn.#NumberExpression
-	MountPath!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	SizeGiB?:          int & <=65536 & >=1 | fn.#NumberExpression
-	ThroughputMiB?:    int & <=2000 & >=125 | fn.#NumberExpression
+	Iops?: int & <=80000 & >=100 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=80000 &
+							>=100,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LastUsedTtlHours?: int & <=8760 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=8760 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MountPath!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	SizeGiB?: int & <=65536 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65536 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ThroughputMiB?: int & <=2000 & >=125 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2000 &
+							>=125,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceManagedEc2AutoScalingConfiguration": close({
-	ScaleOutWorkersPerMinute?:  int & <=2147483647 & >=1 | fn.#NumberExpression
-	StandbyWorkerCount?:        int & <=2147483647 & >=0 | fn.#NumberExpression
-	WorkerIdleDurationSeconds?: int & <=86400 & >=0 | fn.#NumberExpression
+	ScaleOutWorkersPerMinute?: int & <=2147483647 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StandbyWorkerCount?: int & <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	WorkerIdleDurationSeconds?: int & <=86400 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=86400 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceManagedEc2FleetConfiguration": close({
-	AutoScalingConfiguration?: _#defs."/$defs/Properties/definitions/ServiceManagedEc2AutoScalingConfiguration" |
-		fn.#ObjectExpression
-	InstanceCapabilities!: _#defs."/$defs/Properties/definitions/ServiceManagedEc2InstanceCapabilities" |
-		fn.#ObjectExpression
-	InstanceMarketOptions!: _#defs."/$defs/Properties/definitions/ServiceManagedEc2InstanceMarketOptions" |
-		fn.#ObjectExpression
-	PersistentVolumeConfiguration?: _#defs."/$defs/Properties/definitions/PersistentVolumeConfiguration" |
-		fn.#ObjectExpression
-	StorageProfileId?: =~"^sp-[0-9a-f]{32}$" | fn.#StringExpression
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration" | fn.#ObjectExpression
+	AutoScalingConfiguration?:      _#defs."/$defs/Properties/definitions/ServiceManagedEc2AutoScalingConfiguration"
+	InstanceCapabilities!:          _#defs."/$defs/Properties/definitions/ServiceManagedEc2InstanceCapabilities"
+	InstanceMarketOptions!:         _#defs."/$defs/Properties/definitions/ServiceManagedEc2InstanceMarketOptions"
+	PersistentVolumeConfiguration?: _#defs."/$defs/Properties/definitions/PersistentVolumeConfiguration"
+	StorageProfileId?:              =~"^sp-[0-9a-f]{32}$" | fn.#StringExpression
+	VpcConfiguration?:              _#defs."/$defs/Properties/definitions/VpcConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceManagedEc2InstanceCapabilities": close({
-	AcceleratorCapabilities?: _#defs."/$defs/Properties/definitions/AcceleratorCapabilities" | fn.#ObjectExpression
+	AcceleratorCapabilities?: _#defs."/$defs/Properties/definitions/AcceleratorCapabilities"
 	AllowedInstanceTypes?: list.MaxItems(100) & list.MinItems(1) & [
 		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	CpuArchitectureType!: _#defs."/$defs/Properties/definitions/CpuArchitectureType" | fn.#StringExpression
+	CpuArchitectureType!: _#defs."/$defs/Properties/definitions/CpuArchitectureType"
 	CustomAmounts?: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FleetAmountCapability" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/FleetAmountCapability"
 	] |
 		fn.#ListExpression
 	CustomAttributes?: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FleetAttributeCapability" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/FleetAttributeCapability"
 	] |
 		fn.#ListExpression
 	ExcludedInstanceTypes?: list.MaxItems(100) & list.MinItems(1) & [
 		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	MemoryMiB!: _#defs."/$defs/Properties/definitions/MemoryMiBRange" | fn.#ObjectExpression
-	OsFamily!:  _#defs."/$defs/Properties/definitions/ServiceManagedFleetOperatingSystemFamily" | fn.#StringExpression
-	RootEbsVolume?: _#defs."/$defs/Properties/definitions/Ec2EbsVolume" | fn.#ObjectExpression
+	MemoryMiB!:     _#defs."/$defs/Properties/definitions/MemoryMiBRange"
+	OsFamily!:      _#defs."/$defs/Properties/definitions/ServiceManagedFleetOperatingSystemFamily"
+	RootEbsVolume?: _#defs."/$defs/Properties/definitions/Ec2EbsVolume"
 	SoftwareAddOns?: list.MaxItems(10) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/FleetSoftwareAddOn" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/FleetSoftwareAddOn"
 	] |
 		fn.#ListExpression
-	VCpuCount!: _#defs."/$defs/Properties/definitions/VCpuCountRange" | fn.#ObjectExpression
+	VCpuCount!: _#defs."/$defs/Properties/definitions/VCpuCountRange"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceManagedEc2InstanceMarketOptions": close(
-	{Type!: _#defs."/$defs/Properties/definitions/Ec2MarketType" | fn.#StringExpression},
+	{Type!: _#defs."/$defs/Properties/definitions/Ec2MarketType"},
 ) |
 	fn.#ObjectExpression
 
@@ -264,8 +619,38 @@ _#defs: "/$defs/Properties/definitions/TagPropagationMode": "NO_PROPAGATION" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/VCpuCountRange": close({
-	Max?: int & <=10000 & >=1 | fn.#NumberExpression
-	Min!: int & <=10000 & >=1 | fn.#NumberExpression
+	Max?: int & <=10000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Min!: int & <=10000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

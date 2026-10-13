@@ -22,7 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^([a-z0-9]([a-z0-9-]*[a-z0-9])?\\.)*[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
 	fn.#StringExpression
-	PrevalidationOptions!: _#defs."/$defs/Properties/definitions/PrevalidationOptions" | fn.#ObjectExpression
+	PrevalidationOptions!: _#defs."/$defs/Properties/definitions/PrevalidationOptions"
 	Tags?: list.MaxItems(50) & list.MinItems(1) & [...close({
 		Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
 		fn.#StringExpression
@@ -34,7 +34,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/DnsPrevalidationOptions": close({
-	DomainScope?:  _#defs."/$defs/Properties/definitions/DomainScope" | fn.#ObjectExpression
+	DomainScope?:  _#defs."/$defs/Properties/definitions/DomainScope"
 	HostedZoneId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -47,7 +47,7 @@ _#defs: "/$defs/Properties/definitions/DomainScope": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrevalidationOptions": close(
-	{DnsPrevalidation!: _#defs."/$defs/Properties/definitions/DnsPrevalidationOptions" | fn.#ObjectExpression},
+	{DnsPrevalidation!: _#defs."/$defs/Properties/definitions/DnsPrevalidationOptions"},
 ) |
 	fn.#ObjectExpression
 

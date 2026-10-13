@@ -8,13 +8,19 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::PCS::ComputeNodeGroup resource creates an AWS PCS compute node group.
 #Properties: close({
-	AmiId?:     =~"^ami-[a-z0-9]+$" | fn.#StringExpression
+	AmiId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^ami-[a-z0-9]+$" |
+		fn.#StringExpression
 	ClusterId!: string | fn.#StringExpression
 	CustomLaunchTemplate?: close({
 		TemplateId?: string | fn.#StringExpression
@@ -23,33 +29,79 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 	IamInstanceProfileArn!: =~"^arn:aws([a-zA-Z-]{0,10})?:iam::[0-9]{12}:instance-profile/.{1,128}$" |
 		fn.#StringExpression
-	InstanceConfigs!: [..._#defs."/$defs/Properties/definitions/InstanceConfig" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	InstanceConfigs!:      [..._#defs."/$defs/Properties/definitions/InstanceConfig"] | fn.#ListExpression
 	Name?:                 string | fn.#StringExpression
-	NodeLifecycleActions?: _#defs."/$defs/Properties/definitions/NodeLifecycleActions" | fn.#ObjectExpression
+	NodeLifecycleActions?: _#defs."/$defs/Properties/definitions/NodeLifecycleActions"
 	PurchaseOption?: "ONDEMAND" |
 		"SPOT" |
 		"CAPACITY_BLOCK" |
 		"INTERRUPTIBLE_CAPACITY_RESERVATION" |
 		fn.#StringExpression
 	ScalingConfiguration!: close({
-		MaxInstanceCount!: int & >=0 | fn.#NumberExpression
-		MinInstanceCount!: int & >=0 | fn.#NumberExpression
+		MaxInstanceCount!: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MinInstanceCount!: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
 	SlurmConfiguration?: close({
-		GresCustomSettings?: [..._#defs."/$defs/Properties/definitions/GresCustomSetting" | fn.#ObjectExpression] |
-			fn.#ListExpression
-		ScaleDownIdleTimeInSeconds?: int & <=10000000 & >=1 | fn.#NumberExpression
-		SlurmCustomSettings?: [..._#defs."/$defs/Properties/definitions/SlurmCustomSetting" | fn.#ObjectExpression] |
-			fn.#ListExpression
+		GresCustomSettings?: [..._#defs."/$defs/Properties/definitions/GresCustomSetting"] | fn.#ListExpression
+		ScaleDownIdleTimeInSeconds?: int & <=10000000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=10000000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SlurmCustomSettings?: [..._#defs."/$defs/Properties/definitions/SlurmCustomSetting"] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
 	SpotOptions?: close(
 		{AllocationStrategy?: "lowest-price" | "capacity-optimized" | "price-capacity-optimized" | fn.#StringExpression},
 	) |
 		fn.#ObjectExpression
-	SubnetIds!: [..._#defs."/$defs/Properties/definitions/SubnetId" | fn.#StringExpression] | fn.#ListExpression
+	SubnetIds!: [..._#defs."/$defs/Properties/definitions/SubnetId"] | fn.#ListExpression
 	Tags?: null |
 	bool |
 	number |
@@ -77,7 +129,7 @@ _#defs: "/$defs/Properties/definitions/InstanceConfig": close({InstanceType?: st
 
 _#defs: "/$defs/Properties/definitions/NodeLifecycleActions": close({
 	ScriptCachingPolicy?: "CACHE_ONCE" | "REFRESH_ON_REBOOT" | fn.#StringExpression
-	Stages!:              _#defs."/$defs/Properties/definitions/NodeLifecycleStages" | fn.#ObjectExpression
+	Stages!:              _#defs."/$defs/Properties/definitions/NodeLifecycleStages"
 }) |
 fn.#ObjectExpression
 
@@ -86,18 +138,16 @@ _#defs: "/$defs/Properties/definitions/NodeLifecycleScript": close({
 	ExecutionPolicy?: "FIRST_BOOT_ONLY" | "EVERY_BOOT" | fn.#StringExpression
 	Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9 _-]*$" | fn.#StringExpression
 	OnError?:      "TERMINATE" | "STOP_SEQUENCE" | "CONTINUE" | fn.#StringExpression
-	ScriptSource!: _#defs."/$defs/Properties/definitions/ScriptSource" | fn.#ObjectExpression
+	ScriptSource!: _#defs."/$defs/Properties/definitions/ScriptSource"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NodeLifecycleStages": close({
 	NodeBootstrapped?: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/NodeLifecycleScript" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/NodeLifecycleScript"
 	] |
 		fn.#ListExpression
-	NodeReady?: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/NodeLifecycleScript" | fn.#ObjectExpression
-	] |
+	NodeReady?: list.MaxItems(20) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/NodeLifecycleScript"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression

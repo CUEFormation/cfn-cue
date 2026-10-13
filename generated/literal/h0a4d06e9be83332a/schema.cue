@@ -72,7 +72,8 @@ _#defs: "/$defs/Properties/definitions/JobTemplateData": close({
 	ConfigurationOverrides?: _#defs."/$defs/Properties/definitions/ParametricConfigurationOverrides"
 
 	// The execution role ARN of the job run, or a template parameter reference.
-	ExecutionRoleArn!: strings.MaxRunes(2048) &
+	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(4) &
 	=~"^(^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$)|([\\.\\-_\\#A-Za-z0-9\\$\\{\\}]+)$"
 	JobDriver!: _#defs."/$defs/Properties/definitions/JobDriver"

@@ -62,7 +62,7 @@ import (
 // CFN are supported. You can use the ``AWS::KMS::Key`` resource to create and
 // manage all KMS key types that are supported in a Region.
 #Properties: close({
-	Arn?: string
+	Arn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 
 	// Skips ("bypasses") the key policy lockout safety check. The default value is false.
 	// Setting this value to true increases the risk that the KMS key becomes

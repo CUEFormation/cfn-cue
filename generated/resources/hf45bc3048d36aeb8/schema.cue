@@ -4,16 +4,33 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EC2::IPAMAllocation Type
 #Properties: close({
-	Cidr?:          _#defs."/$defs/Properties/definitions/Cidr" | fn.#StringExpression
-	Description?:   string | fn.#StringExpression
-	IpamPoolId!:    string | fn.#StringExpression
-	NetmaskLength?: int | fn.#NumberExpression
+	Cidr?:        _#defs."/$defs/Properties/definitions/Cidr"
+	Description?: string | fn.#StringExpression
+	IpamPoolId!:  string | fn.#StringExpression
+	NetmaskLength?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Cidr": string | fn.#StringExpression

@@ -1,0 +1,14 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "CidrIp": "10.0.0.0/24",
+        "FromPort": "22",
+        "GroupId": "sg-test",
+        "IpProtocol": "tcp",
+        "ToPort": "22"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress"
+    }
+  }
+}

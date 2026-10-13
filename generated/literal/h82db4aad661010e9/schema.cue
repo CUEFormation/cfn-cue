@@ -25,7 +25,9 @@ import (
 	Description?: strings.MaxRunes(200) & strings.MinRunes(1)
 
 	// ARN of a IAM role
-	ExecutionRoleArn?: strings.MaxRunes(2048) & =~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/(service-role/)?.+$"
+	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/(service-role/)?.+$"
 
 	// Arn representation of the Flow
 	FlowArn!: =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:flow/[0-9a-zA-Z]{10}$"
@@ -284,7 +286,8 @@ _#defs: "/$defs/Properties/definitions/KnowledgeBasePromptTemplate": close(
 // Lambda function flow node configuration
 _#defs: "/$defs/Properties/definitions/LambdaFunctionFlowNodeConfiguration": close({
 	// ARN of a Lambda.
-	LambdaArn!: strings.MaxRunes(2048) &
+	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+	strings.MaxRunes(2048) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9-_\\.]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$"
 })
 

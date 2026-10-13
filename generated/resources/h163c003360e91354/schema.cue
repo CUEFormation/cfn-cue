@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,21 +23,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ClusteringConfig?: _#defs."/$defs/Properties/definitions/ClusteringConfig" | fn.#ObjectExpression
 	DataSourceConfig!: _#defs."/$defs/Properties/definitions/DataSourceConfig" | fn.#ObjectExpression
 	Description?:      strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	EvaluationExecutionRoleArn!: strings.MaxRunes(2048) &
+	EvaluationExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
 	fn.#StringExpression
-	Evaluators?: list.MaxItems(25) & [...] & [
-		..._#defs."/$defs/Properties/definitions/EvaluatorReference" | fn.#ObjectExpression
-	] |
+	Evaluators?: list.MaxItems(25) & [...] & [..._#defs."/$defs/Properties/definitions/EvaluatorReference"] |
 		fn.#ListExpression
 	ExecutionStatus?: _#defs."/$defs/Properties/definitions/ExecutionStatus" | fn.#StringExpression
-	Insights?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Insight" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Insights?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Insight"] | fn.#ListExpression
 	OnlineEvaluationConfigName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
 	OutputConfig?:               _#defs."/$defs/Properties/definitions/OutputConfig" | fn.#ObjectExpression
 	Rule!:                       _#defs."/$defs/Properties/definitions/Rule" | fn.#ObjectExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                       [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CloudWatchLogsInputConfig": matchN(1, [{
@@ -66,9 +68,7 @@ _#defs: "/$defs/Properties/definitions/CloudWatchOutputConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClusteringConfig": close({
-	Frequencies!: list.MaxItems(3) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ClusteringFrequency" | fn.#StringExpression
-	] |
+	Frequencies!: list.MaxItems(3) & [...] & [..._#defs."/$defs/Properties/definitions/ClusteringFrequency"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -76,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/ClusteringConfig": close({
 _#defs: "/$defs/Properties/definitions/ClusteringFrequency": "DAILY" | "WEEKLY" | "MONTHLY" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DataSourceConfig": close(
-	{CloudWatchLogs!: _#defs."/$defs/Properties/definitions/CloudWatchLogsInputConfig" | fn.#ObjectExpression},
+	{CloudWatchLogs!: _#defs."/$defs/Properties/definitions/CloudWatchLogsInputConfig"},
 ) |
 	fn.#ObjectExpression
 
@@ -99,14 +99,32 @@ _#defs: "/$defs/Properties/definitions/Filter": close({
 		"Contains" |
 		"NotContains" |
 		fn.#StringExpression
-	Value!: _#defs."/$defs/Properties/definitions/FilterValue" | fn.#ObjectExpression
+	Value!: _#defs."/$defs/Properties/definitions/FilterValue"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilterValue": close({
-	BooleanValue?: bool | fn.#BooleanExpression
-	DoubleValue?:  number | fn.#NumberExpression
-	StringValue?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	BooleanValue?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DoubleValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StringValue?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -124,26 +142,59 @@ _#defs: "/$defs/Properties/definitions/OnlineEvaluationConfigStatus": "ACTIVE" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/OutputConfig": close(
-	{CloudWatchConfig?: _#defs."/$defs/Properties/definitions/CloudWatchOutputConfig" | fn.#ObjectExpression},
+	{CloudWatchConfig?: _#defs."/$defs/Properties/definitions/CloudWatchOutputConfig"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Rule": close({
-	Filters?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Filter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	SamplingConfig!: _#defs."/$defs/Properties/definitions/SamplingConfig" | fn.#ObjectExpression
-	SessionConfig?:  _#defs."/$defs/Properties/definitions/SessionConfig" | fn.#ObjectExpression
+	Filters?:        list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Filter"] | fn.#ListExpression
+	SamplingConfig!: _#defs."/$defs/Properties/definitions/SamplingConfig"
+	SessionConfig?:  _#defs."/$defs/Properties/definitions/SessionConfig"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SamplingConfig": close(
-	{SamplingPercentage!: <=100 & >=0.01 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/SamplingConfig": close({
+	SamplingPercentage!: <=100 & >=0.01 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0.01,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SessionConfig": close(
-	{SessionTimeoutMinutes!: int & <=1440 & >=1 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/SessionConfig": close({
+	SessionTimeoutMinutes!: int & <=1440 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1440 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

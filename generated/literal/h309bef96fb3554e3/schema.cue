@@ -19,7 +19,8 @@ import (
 	InputSourceConfig!:  list.MaxItems(20) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/InputSource"]
 	OutputSourceConfig!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/OutputSource"]
 	ResolutionTechniques!: _#defs."/$defs/Properties/definitions/ResolutionTechniques"
-	RoleArn!:              =~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 	Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
 	UpdatedAt?:   _#defs."/$defs/Properties/definitions/UpdatedAt"
 	WorkflowArn?: _#defs."/$defs/Properties/definitions/MatchingWorkflowArn"
@@ -69,7 +70,8 @@ _#defs: "/$defs/Properties/definitions/IntermediateSourceConfiguration": close({
 	=~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$"
 })
 
-_#defs: "/$defs/Properties/definitions/KMSArn": =~"^arn:(aws|aws-us-gov|aws-cn):kms:.*:[0-9]+:.*$"
+_#defs: "/$defs/Properties/definitions/KMSArn": =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	=~"^arn:(aws|aws-us-gov|aws-cn):kms:.*:[0-9]+:.*$"
 
 // Configuration for matching behavior within rule condition properties
 _#defs: "/$defs/Properties/definitions/MatchingConfig": close({

@@ -7,6 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::AppSync::GraphQLApi
 #Properties: close({
 	AdditionalAuthenticationProviders?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AdditionalAuthenticationProvider" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/AdditionalAuthenticationProvider"
 	] |
 		fn.#ListExpression
 	ApiType?: "GRAPHQL" | "MERGED" | fn.#StringExpression
@@ -29,20 +33,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		{[=~"^[A-Za-z]+\\w*$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	IntrospectionConfig?:       "DISABLED" | "ENABLED" | fn.#StringExpression
-	LambdaAuthorizerConfig?:    _#defs."/$defs/Properties/definitions/LambdaAuthorizerConfig" | fn.#ObjectExpression
-	LogConfig?:                 _#defs."/$defs/Properties/definitions/LogConfig" | fn.#ObjectExpression
-	MergedApiExecutionRoleArn?: string | fn.#StringExpression
-	Name!:                      string | fn.#StringExpression
-	OpenIDConnectConfig?:       _#defs."/$defs/Properties/definitions/OpenIDConnectConfig" | fn.#ObjectExpression
-	OwnerContact?:              string | fn.#StringExpression
-	QueryDepthLimit?:           int & <=75 & >=0 | fn.#NumberExpression
-	ResolverCountLimit?:        int & <=10000 & >=0 | fn.#NumberExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	IntrospectionConfig?:    "DISABLED" | "ENABLED" | fn.#StringExpression
+	LambdaAuthorizerConfig?: _#defs."/$defs/Properties/definitions/LambdaAuthorizerConfig" | fn.#ObjectExpression
+	LogConfig?:              _#defs."/$defs/Properties/definitions/LogConfig" | fn.#ObjectExpression
+	MergedApiExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Name!:                string | fn.#StringExpression
+	OpenIDConnectConfig?: _#defs."/$defs/Properties/definitions/OpenIDConnectConfig" | fn.#ObjectExpression
+	OwnerContact?:        string | fn.#StringExpression
+	QueryDepthLimit?: int & <=75 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=75 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ResolverCountLimit?: int & <=10000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	UserPoolConfig?: _#defs."/$defs/Properties/definitions/UserPoolConfig" | fn.#ObjectExpression
 	Visibility?:     "GLOBAL" | "PRIVATE" | fn.#StringExpression
-	XrayEnabled?:    bool | fn.#BooleanExpression
+	XrayEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AdditionalAuthenticationProvider": close({
@@ -52,9 +86,9 @@ _#defs: "/$defs/Properties/definitions/AdditionalAuthenticationProvider": close(
 		"AWS_LAMBDA" |
 		"OPENID_CONNECT" |
 		fn.#StringExpression
-	LambdaAuthorizerConfig?: _#defs."/$defs/Properties/definitions/LambdaAuthorizerConfig" | fn.#ObjectExpression
-	OpenIDConnectConfig?:    _#defs."/$defs/Properties/definitions/OpenIDConnectConfig" | fn.#ObjectExpression
-	UserPoolConfig?:         _#defs."/$defs/Properties/definitions/CognitoUserPoolConfig" | fn.#ObjectExpression
+	LambdaAuthorizerConfig?: _#defs."/$defs/Properties/definitions/LambdaAuthorizerConfig"
+	OpenIDConnectConfig?:    _#defs."/$defs/Properties/definitions/OpenIDConnectConfig"
+	UserPoolConfig?:         _#defs."/$defs/Properties/definitions/CognitoUserPoolConfig"
 }) |
 fn.#ObjectExpression
 
@@ -75,24 +109,76 @@ _#defs: "/$defs/Properties/definitions/EnhancedMetricsConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LambdaAuthorizerConfig": close({
-	AuthorizerResultTtlInSeconds?: int & <=3600 & >=0 | fn.#NumberExpression
+	AuthorizerResultTtlInSeconds?: int & <=3600 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=3600 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	AuthorizerUri?:                string | fn.#StringExpression
 	IdentityValidationExpression?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LogConfig": close({
-	CloudWatchLogsRoleArn!: string | fn.#StringExpression
-	ExcludeVerboseContent?: bool | fn.#BooleanExpression
+	CloudWatchLogsRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	ExcludeVerboseContent?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FieldLogLevel!:         "ALL" | "DEBUG" | "ERROR" | "INFO" | "NONE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OpenIDConnectConfig": close({
-	AuthTTL?:  number | fn.#NumberExpression
+	AuthTTL?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ClientId?: string | fn.#StringExpression
-	IatTTL?:   number | fn.#NumberExpression
-	Issuer?:   string | fn.#StringExpression
+	IatTTL?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Issuer?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

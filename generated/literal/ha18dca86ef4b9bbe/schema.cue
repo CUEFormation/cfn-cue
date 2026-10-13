@@ -39,7 +39,8 @@ import (
 	Description?: strings.MaxRunes(500) & strings.MinRunes(1) & =~"^.+$"
 
 	// The ARN of the KMS key used to encrypt component configurations.
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$"
 	LineageMetadata?: _#defs."/$defs/Properties/definitions/VersionLineageMetadata"

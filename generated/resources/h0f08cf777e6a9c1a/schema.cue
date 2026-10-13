@@ -19,37 +19,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: strings.MaxRunes(255) | fn.#StringExpression
 	DomainId?:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
-	Rule!:        _#defs."/$defs/Properties/definitions/CaseRuleDetails" | fn.#ValueExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Rule!:        _#defs."/$defs/Properties/definitions/CaseRuleDetails"
+	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/BooleanCondition": matchN(1, [close(
-	{EqualTo!: _#defs."/$defs/Properties/definitions/BooleanOperands" | fn.#ObjectExpression},
+	{EqualTo!: _#defs."/$defs/Properties/definitions/BooleanOperands"},
 ), close(
-	{NotEqualTo!: _#defs."/$defs/Properties/definitions/BooleanOperands" | fn.#ObjectExpression},
+	{NotEqualTo!: _#defs."/$defs/Properties/definitions/BooleanOperands"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/BooleanOperands": close({
-	OperandOne!: _#defs."/$defs/Properties/definitions/OperandOne" | fn.#ValueExpression
-	OperandTwo!: _#defs."/$defs/Properties/definitions/OperandTwo" | fn.#ValueExpression
-	Result!:     bool | fn.#BooleanExpression
+	OperandOne!: _#defs."/$defs/Properties/definitions/OperandOne"
+	OperandTwo!: _#defs."/$defs/Properties/definitions/OperandTwo"
+	Result!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CaseRuleDetails": matchN(1, [close(
-	{Required!: _#defs."/$defs/Properties/definitions/RequiredCaseRule" | fn.#ObjectExpression},
+	{Required!: _#defs."/$defs/Properties/definitions/RequiredCaseRule"},
 ), close(
-	{Hidden!: _#defs."/$defs/Properties/definitions/HiddenCaseRule" | fn.#ObjectExpression},
+	{Hidden!: _#defs."/$defs/Properties/definitions/HiddenCaseRule"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/EmptyOperandValue": close({}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HiddenCaseRule": close({
-	Conditions!: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/BooleanCondition" | fn.#ValueExpression] |
-		fn.#ListExpression
-	DefaultValue!: bool | fn.#BooleanExpression
+	Conditions!: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/BooleanCondition"] | fn.#ListExpression
+	DefaultValue!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -65,14 +64,13 @@ _#defs: "/$defs/Properties/definitions/OperandTwo": matchN(1, [close(
 ), close(
 	{DoubleValue!: number | fn.#NumberExpression},
 ), close(
-	{EmptyValue!: _#defs."/$defs/Properties/definitions/EmptyOperandValue" | fn.#ObjectExpression},
+	{EmptyValue!: _#defs."/$defs/Properties/definitions/EmptyOperandValue"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/RequiredCaseRule": close({
-	Conditions!: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/BooleanCondition" | fn.#ValueExpression] |
-		fn.#ListExpression
-	DefaultValue!: bool | fn.#BooleanExpression
+	Conditions!: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/BooleanCondition"] | fn.#ListExpression
+	DefaultValue!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 

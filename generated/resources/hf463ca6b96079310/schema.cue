@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,11 +18,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::MediaLive::Multiplex
 #Properties: close({
 	AvailabilityZones!: [...string | fn.#StringExpression] | fn.#ListExpression
-	Destinations?: [..._#defs."/$defs/Properties/definitions/MultiplexOutputDestination" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Destinations?:      [..._#defs."/$defs/Properties/definitions/MultiplexOutputDestination"] | fn.#ListExpression
 	MultiplexSettings!: _#defs."/$defs/Properties/definitions/MultiplexSettings" | fn.#ObjectExpression
 	Name!:              string | fn.#StringExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:              [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/MultiplexOutputDestination": close({
@@ -33,10 +36,70 @@ _#defs: "/$defs/Properties/definitions/MultiplexOutputDestination": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MultiplexSettings": close({
-	MaximumVideoBufferDelayMilliseconds?: int & <=3000 & >=800 | fn.#NumberExpression
-	TransportStreamBitrate!:              int & <=100000000 & >=1000000 | fn.#NumberExpression
-	TransportStreamId!:                   int & <=65535 & >=0 | fn.#NumberExpression
-	TransportStreamReservedBitrate?:      int & <=100000000 & >=0 | fn.#NumberExpression
+	MaximumVideoBufferDelayMilliseconds?: int & <=3000 & >=800 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=3000 &
+							>=800,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TransportStreamBitrate!: int & <=100000000 & >=1000000 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100000000 &
+							>=1000000,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TransportStreamId!: int & <=65535 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TransportStreamReservedBitrate?: int & <=100000000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100000000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

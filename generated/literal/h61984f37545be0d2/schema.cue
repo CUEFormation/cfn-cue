@@ -51,7 +51,7 @@ _#defs: "/$defs/Properties/definitions/CodeS3Location": close({
 _#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.+$"
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 	Type!:     "AWS_MANAGED_KEY" | "CUSTOMER_MANAGED_KEY"
 })
 
@@ -62,11 +62,17 @@ strings.MinRunes(1) &
 =~"^[a-zA-Z0-9]+[a-zA-Z0-9\\.\\-_]*$"
 
 _#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
-	SecurityGroupIds?: [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^sg-[a-z0-9]*$"]
-	SubnetIds?:        [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^subnet-[a-z0-9]*$"]
+	SecurityGroupIds?: [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^sg-[a-z0-9]*$"
+	]
+	SubnetIds?: [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^subnet-[a-z0-9]*$"]
 })
 
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(2048) &
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(?:-(?:cn|us-gov|iso|iso-b|iso-e|iso-f))?:iam::[0-9]{12}:role(/[a-zA-Z0-9+=,.@_-]{1,512})*?/[a-zA-Z0-9+=,.@_-]{1,64}$"
 

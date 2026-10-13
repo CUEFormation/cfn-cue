@@ -31,7 +31,8 @@ import (
 	GroupName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.]+$"
 
 	// The ARN for a KMS Key that will be used to encrypt customer data.
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-z-]*:kms:[a-z0-9\\-]+:\\d{12}:(key|alias)\\/[0-9a-zA-Z-_]*$"
 	Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.]+$"
@@ -65,7 +66,9 @@ _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
 	// must all be in the same VPC. You can specify as many as five security
 	// groups. If you do not specify a security group, the default security group
 	// for the VPC is used.
-	SecurityGroups?: list.MaxItems(5) & list.MinItems(1) & [...strings.MaxRunes(1000) & strings.MinRunes(1)]
+	SecurityGroups?: list.MaxItems(5) & list.MinItems(1) & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(1000) & strings.MinRunes(1))
+	]
 
 	// Specifies the subnets associated with the task. These subnets must all be in
 	// the same VPC. You can specify as many as 16 subnets.
@@ -295,7 +298,10 @@ _#defs: "/$defs/Properties/definitions/Target": close({
 
 	// The Amazon Resource Name (ARN) of the IAM role to be used for this target
 	// when the schedule is triggered.
-	RoleArn!: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws[a-z-]*:iam::\\d{12}:role\\/[\\w+=,.@\\/-]+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1600) &
+	strings.MinRunes(1) &
+	=~"^arn:aws[a-z-]*:iam::\\d{12}:role\\/[\\w+=,.@\\/-]+$"
 	SageMakerPipelineParameters?: _#defs."/$defs/Properties/definitions/SageMakerPipelineParameters"
 	SqsParameters?:               _#defs."/$defs/Properties/definitions/SqsParameters"
 })

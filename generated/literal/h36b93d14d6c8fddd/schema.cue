@@ -48,7 +48,7 @@ import (
 	InstanceConfiguration?: _#defs."/$defs/Properties/definitions/InstanceConfiguration"
 
 	// Identifies which KMS key is used to encrypt the container image.
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(1024) & strings.MinRunes(1))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(1024) & strings.MinRunes(1))
 
 	// The latest version references of the container recipe.
 	LatestVersion?: _#defs."/$defs/Properties/definitions/LatestVersion"
@@ -108,7 +108,7 @@ _#defs: "/$defs/Properties/definitions/EbsInstanceBlockDeviceSpecification": clo
 	Iops?: int & <=64000 & >=100
 
 	// Use to configure the KMS key to use when encrypting the device.
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(1024) & strings.MinRunes(1))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(1024) & strings.MinRunes(1))
 
 	// The snapshot that defines the device contents.
 	SnapshotId?: strings.MaxRunes(1024) & strings.MinRunes(1)

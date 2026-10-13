@@ -8,51 +8,125 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::ElastiCache::ServerlessCache resource creates an Amazon ElastiCache Serverless Cache.
 #Properties: close({
-	CacheUsageLimits?:       _#defs."/$defs/Properties/definitions/CacheUsageLimits" | fn.#ObjectExpression
-	ConnectionType?:         _#defs."/$defs/Properties/definitions/ConnectionType" | fn.#StringExpression
-	DailySnapshotTime?:      string | fn.#StringExpression
-	Description?:            string | fn.#StringExpression
-	Endpoint?:               close({}) | fn.#ObjectExpression
-	Engine!:                 string | fn.#StringExpression
-	FinalSnapshotName?:      string | fn.#StringExpression
-	KmsKeyId?:               string | string | string | fn.#StringExpression
-	MajorEngineVersion?:     string | fn.#StringExpression
-	NetworkType?:            _#defs."/$defs/Properties/definitions/NetworkType" | fn.#StringExpression
-	ReaderEndpoint?:         close({}) | fn.#ObjectExpression
-	SecurityGroupIds?:       list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	ServerlessCacheName!:    string | fn.#StringExpression
-	SnapshotArnsToRestore?:  list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SnapshotRetentionLimit?: int | fn.#NumberExpression
-	SubnetIds?:              list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
+	CacheUsageLimits?:  _#defs."/$defs/Properties/definitions/CacheUsageLimits"
+	ConnectionType?:    _#defs."/$defs/Properties/definitions/ConnectionType"
+	DailySnapshotTime?: string | fn.#StringExpression
+	Description?:       string | fn.#StringExpression
+	Endpoint?:          close({}) | fn.#ObjectExpression
+	Engine!:            string | fn.#StringExpression
+	FinalSnapshotName?: string | fn.#StringExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	MajorEngineVersion?: string | fn.#StringExpression
+	NetworkType?:        _#defs."/$defs/Properties/definitions/NetworkType"
+	ReaderEndpoint?:     close({}) | fn.#ObjectExpression
+	SecurityGroupIds?: list.UniqueItems() & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
 		fn.#ListExpression
+	ServerlessCacheName!:   string | fn.#StringExpression
+	SnapshotArnsToRestore?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	SnapshotRetentionLimit?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SubnetIds?:   list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	UserGroupId?: string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CacheUsageLimits": close({
-	DataStorage?:   _#defs."/$defs/Properties/definitions/DataStorage" | fn.#ObjectExpression
-	ECPUPerSecond?: _#defs."/$defs/Properties/definitions/ECPUPerSecond" | fn.#ObjectExpression
+	DataStorage?:   _#defs."/$defs/Properties/definitions/DataStorage"
+	ECPUPerSecond?: _#defs."/$defs/Properties/definitions/ECPUPerSecond"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConnectionType": =~"(?i)^(?:public|vpc)$" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DataStorage": close({
-	Maximum?: int | fn.#NumberExpression
-	Minimum?: int | fn.#NumberExpression
-	Unit!:    =~"(?i)^(?:gb)$" | fn.#StringExpression
+	Maximum?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Minimum?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Unit!: =~"(?i)^(?:gb)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ECPUPerSecond": close({
-	Maximum?: int | fn.#NumberExpression
-	Minimum?: int | fn.#NumberExpression
+	Maximum?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Minimum?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,30 +19,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::AccessAnalyzer::Analyzer type specifies an analyzer of the user's account
 #Properties: close({
 	AnalyzerConfiguration?: close({
-		InternalAccessConfiguration?: _#defs."/$defs/Properties/definitions/InternalAccessConfiguration" |
-			fn.#ObjectExpression
-		UnusedAccessConfiguration?: _#defs."/$defs/Properties/definitions/UnusedAccessConfiguration" |
-			fn.#ObjectExpression
+		InternalAccessConfiguration?: _#defs."/$defs/Properties/definitions/InternalAccessConfiguration"
+		UnusedAccessConfiguration?:   _#defs."/$defs/Properties/definitions/UnusedAccessConfiguration"
 	}) |
 	fn.#ObjectExpression
 	AnalyzerName?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[A-Za-z_][A-Za-z0-9_.-]*$" | fn.#StringExpression
-	ArchiveRules?: [..._#defs."/$defs/Properties/definitions/ArchiveRule" | fn.#ObjectExpression] | fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	ArchiveRules?: [..._#defs."/$defs/Properties/definitions/ArchiveRule"] | fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Type!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AnalysisRuleCriteria": close({
 	AccountIds?:   [...string | fn.#StringExpression] | fn.#ListExpression
-	ResourceTags?: [..._#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression] | fn.#ListExpression
+	ResourceTags?: [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ArchiveRule": close({
-	Filter!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Filter" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Filter!:   list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Filter"] | fn.#ListExpression
 	RuleName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -46,7 +44,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/Filter": close({
 	Contains?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Eq?:       [...string | fn.#StringExpression] | fn.#ListExpression
-	Exists?:   bool | fn.#BooleanExpression
+	Exists?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Neq?:      [...string | fn.#StringExpression] | fn.#ListExpression
 	Property!: string | fn.#StringExpression
 }) |
@@ -61,10 +59,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InternalAccessConfiguration": close({
 	InternalAccessAnalysisRule?: close({
-		Inclusions?: [
-			..._#defs."/$defs/Properties/definitions/InternalAccessAnalysisRuleCriteria" | fn.#ObjectExpression
-		] |
-			fn.#ListExpression
+		Inclusions?: [..._#defs."/$defs/Properties/definitions/InternalAccessAnalysisRuleCriteria"] | fn.#ListExpression
 	}) |
 		fn.#ObjectExpression
 }) |
@@ -76,18 +71,30 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/UnusedAccessConfiguration": close({
-	AnalysisRule?: close({
-		Exclusions?: [..._#defs."/$defs/Properties/definitions/AnalysisRuleCriteria" | fn.#ObjectExpression] |
-			fn.#ListExpression
-	}) |
+	AnalysisRule?: close(
+		{Exclusions?: [..._#defs."/$defs/Properties/definitions/AnalysisRuleCriteria"] | fn.#ListExpression},
+	) |
 		fn.#ObjectExpression
-	UnusedAccessAge?: int & <=365 & >=1 | fn.#NumberExpression
+	UnusedAccessAge?: int & <=365 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=365 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

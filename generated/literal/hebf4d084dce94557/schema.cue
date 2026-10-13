@@ -37,7 +37,7 @@ import (
 	IamInstanceProfile?: strings.MaxRunes(1600) & strings.MinRunes(1)
 
 	// Provides the unique ID of the Amazon Machine Image (AMI) that was assigned during registration.
-	ImageId!: strings.MaxRunes(255) & strings.MinRunes(1)
+	ImageId!: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1))
 
 	// The ID of the Amazon EC2 instance you want to use to create the launch configuration.
 	InstanceId?: strings.MaxRunes(19) & strings.MinRunes(1)
@@ -68,7 +68,7 @@ import (
 	RamDiskId?: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// A list that contains the security groups to assign to the instances in the Auto Scaling group.
-	SecurityGroups?: ([...] | [...]) & [...string | string]
+	SecurityGroups?: [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" | string]
 
 	// The maximum hourly price you are willing to pay for any Spot Instances
 	// launched to fulfill the request.

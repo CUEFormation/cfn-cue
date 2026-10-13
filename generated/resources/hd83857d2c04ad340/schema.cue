@@ -14,10 +14,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // RuleGroupsNamespace schema for cloudformation.
 #Properties: close({
-	Data!: string | fn.#StringExpression
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Data!:      string | fn.#StringExpression
+	Name!:      strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Tags?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Workspace!: =~"^arn:(aws|aws-us-gov|aws-cn):aps:[a-z0-9-]+:[0-9]+:workspace/[a-zA-Z0-9-]+$" | fn.#StringExpression
 })
 

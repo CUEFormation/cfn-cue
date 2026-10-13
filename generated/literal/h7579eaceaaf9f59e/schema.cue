@@ -57,9 +57,12 @@ _#defs: "/$defs/Properties/definitions/Date": number
 _#defs: "/$defs/Properties/definitions/DestinationField": strings.MaxRunes(256) & strings.MinRunes(0) & =~".*"
 
 _#defs: "/$defs/Properties/definitions/FlowDefinition": close({
-	Description?:      strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\w!@#\\-.?,\\s]*"
-	FlowName!:         strings.MaxRunes(256) & strings.MinRunes(0) & =~"[a-zA-Z0-9][\\w!@#.-]+"
-	KmsArn!:           strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:aws:kms:.*:[0-9]+:.*"
+	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\w!@#\\-.?,\\s]*"
+	FlowName!:    strings.MaxRunes(256) & strings.MinRunes(0) & =~"[a-zA-Z0-9][\\w!@#.-]+"
+	KmsArn!: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"arn:aws:kms:.*:[0-9]+:.*"
 	SourceFlowConfig!: _#defs."/$defs/Properties/definitions/SourceFlowConfig"
 	Tasks!:            [..._#defs."/$defs/Properties/definitions/Task"]
 	TriggerConfig!:    _#defs."/$defs/Properties/definitions/TriggerConfig"

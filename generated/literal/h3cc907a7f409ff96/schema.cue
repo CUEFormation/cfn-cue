@@ -62,7 +62,7 @@ import (
 	=~"^((`[\\w\\- ]+`)|([\\w\\-]+))(\\.((`[\\w\\- ]+`)|([\\w\\-]+)))*$"
 
 	// The ARN of the role that grants permission to ITE to perform its operations.
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(1)
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 	// An array of key-value pairs to apply to this resource.
 	// For more information, see
@@ -494,7 +494,8 @@ _#defs: "/$defs/Properties/definitions/IotTopicPublish": close({
 // instance and the event that triggered the action.
 _#defs: "/$defs/Properties/definitions/Lambda": close({
 	// The ARN of the Lambda function that is executed.
-	FunctionArn!: strings.MaxRunes(2048) & strings.MinRunes(1)
+	FunctionArn!:
+		=~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 	// You can configure the action payload when you send a message to a Lambda function.
 	Payload?: _#defs."/$defs/Properties/definitions/Payload"

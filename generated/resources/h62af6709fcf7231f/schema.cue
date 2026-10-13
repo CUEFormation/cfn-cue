@@ -8,20 +8,23 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::ModelCard.
 #Properties: close({
-	Content!:         _#defs."/$defs/Properties/definitions/Content" | fn.#ObjectExpression
+	Content!:         _#defs."/$defs/Properties/definitions/Content"
 	CreatedBy?:       close({}) | fn.#ObjectExpression
 	LastModifiedBy?:  close({}) | fn.#ObjectExpression
 	ModelCardName!:   strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
 	ModelCardStatus!: "Draft" | "PendingReview" | "Approved" | "Archived" | fn.#StringExpression
-	SecurityConfig?:  _#defs."/$defs/Properties/definitions/SecurityConfig" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	SecurityConfig?:  _#defs."/$defs/Properties/definitions/SecurityConfig"
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AdditionalInformation": close({
@@ -44,8 +47,8 @@ _#defs: "/$defs/Properties/definitions/BarChartMetric": close({
 	Notes?:     strings.MaxRunes(1024) | fn.#StringExpression
 	Type!:      "bar_chart" | fn.#StringExpression
 	Value!:     list.MinItems(1) & [...number | string | fn.#ValueExpression] | fn.#ListExpression
-	XAxisName?: _#defs."/$defs/Properties/definitions/AxisNameArray" | fn.#ListExpression
-	YAxisName?: _#defs."/$defs/Properties/definitions/AxisNameString" | fn.#StringExpression
+	XAxisName?: _#defs."/$defs/Properties/definitions/AxisNameArray"
+	YAxisName?: _#defs."/$defs/Properties/definitions/AxisNameString"
 }) |
 fn.#ObjectExpression
 
@@ -64,13 +67,13 @@ _#defs: "/$defs/Properties/definitions/Container": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Content": close({
-	AdditionalInformation?: _#defs."/$defs/Properties/definitions/AdditionalInformation" | fn.#ObjectExpression
-	BusinessDetails?:       _#defs."/$defs/Properties/definitions/BusinessDetails" | fn.#ObjectExpression
-	EvaluationDetails?:     _#defs."/$defs/Properties/definitions/EvaluationDetails" | fn.#ListExpression
-	IntendedUses?:          _#defs."/$defs/Properties/definitions/IntendedUses" | fn.#ObjectExpression
-	ModelOverview?:         _#defs."/$defs/Properties/definitions/ModelOverview" | fn.#ObjectExpression
-	ModelPackageDetails?:   _#defs."/$defs/Properties/definitions/ModelPackageDetails" | fn.#ObjectExpression
-	TrainingDetails?:       _#defs."/$defs/Properties/definitions/TrainingDetails" | fn.#ObjectExpression
+	AdditionalInformation?: _#defs."/$defs/Properties/definitions/AdditionalInformation"
+	BusinessDetails?:       _#defs."/$defs/Properties/definitions/BusinessDetails"
+	EvaluationDetails?:     _#defs."/$defs/Properties/definitions/EvaluationDetails"
+	IntendedUses?:          _#defs."/$defs/Properties/definitions/IntendedUses"
+	ModelOverview?:         _#defs."/$defs/Properties/definitions/ModelOverview"
+	ModelPackageDetails?:   _#defs."/$defs/Properties/definitions/ModelPackageDetails"
+	TrainingDetails?:       _#defs."/$defs/Properties/definitions/TrainingDetails"
 }) |
 fn.#ObjectExpression
 
@@ -82,20 +85,16 @@ _#defs: "/$defs/Properties/definitions/EvaluationDetail": close({
 
 		{[=~"[a-zA-Z_][a-zA-Z0-9_]*"]: strings.MaxRunes(1024) | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	MetricGroups?: [..._#defs."/$defs/Properties/definitions/MetricGroup" | fn.#ObjectExpression] | fn.#ListExpression
+	MetricGroups?: [..._#defs."/$defs/Properties/definitions/MetricGroup"] | fn.#ListExpression
 	Name!:         =~".{1,63}" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationDetails": [
-	..._#defs."/$defs/Properties/definitions/EvaluationDetail" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/EvaluationDetails": [..._#defs."/$defs/Properties/definitions/EvaluationDetail"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceSpecification": close({
-	Containers!: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Container" | fn.#ObjectExpression
-	] |
+	Containers!: list.MaxItems(15) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Container"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -105,7 +104,7 @@ _#defs: "/$defs/Properties/definitions/IntendedUses": close({
 	FactorsAffectingModelEfficiency?: strings.MaxRunes(2048) | fn.#StringExpression
 	IntendedUses?:                    strings.MaxRunes(2048) | fn.#StringExpression
 	PurposeOfModel?:                  strings.MaxRunes(2048) | fn.#StringExpression
-	RiskRating?:                      _#defs."/$defs/Properties/definitions/RiskRating" | fn.#StringExpression
+	RiskRating?:                      _#defs."/$defs/Properties/definitions/RiskRating"
 }) |
 fn.#ObjectExpression
 
@@ -117,8 +116,8 @@ _#defs: "/$defs/Properties/definitions/LinearGraphMetric": close({
 		...list.MaxItems(2) & list.MinItems(2) & [...number | string | fn.#ValueExpression] | fn.#ListExpression
 	] |
 		fn.#ListExpression
-	XAxisName?: _#defs."/$defs/Properties/definitions/AxisNameString" | fn.#StringExpression
-	YAxisName?: _#defs."/$defs/Properties/definitions/AxisNameString" | fn.#StringExpression
+	XAxisName?: _#defs."/$defs/Properties/definitions/AxisNameString"
+	YAxisName?: _#defs."/$defs/Properties/definitions/AxisNameString"
 }) |
 fn.#ObjectExpression
 
@@ -130,8 +129,8 @@ _#defs: "/$defs/Properties/definitions/MatrixMetric": close({
 		...list.MaxItems(20) & list.MinItems(1) & [...number | string | fn.#ValueExpression] | fn.#ListExpression
 	] |
 		fn.#ListExpression
-	XAxisName?: _#defs."/$defs/Properties/definitions/AxisNameArray" | fn.#ListExpression
-	YAxisName?: _#defs."/$defs/Properties/definitions/AxisNameArray" | fn.#ListExpression
+	XAxisName?: _#defs."/$defs/Properties/definitions/AxisNameArray"
+	YAxisName?: _#defs."/$defs/Properties/definitions/AxisNameArray"
 }) |
 fn.#ObjectExpression
 
@@ -160,8 +159,26 @@ _#defs: "/$defs/Properties/definitions/ModelOverview": close({
 	ModelId?:          strings.MaxRunes(1024) | fn.#StringExpression
 	ModelName?:        strings.MaxRunes(1024) | fn.#StringExpression
 	ModelOwner?:       strings.MaxRunes(1024) | fn.#StringExpression
-	ModelVersion?:     >=1 | fn.#NumberExpression
-	ProblemType?:      strings.MaxRunes(1024) | fn.#StringExpression
+	ModelVersion?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ProblemType?: strings.MaxRunes(1024) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -181,9 +198,27 @@ _#defs: "/$defs/Properties/definitions/ModelPackageDetails": close({
 	ModelPackageGroupName?:   strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
 	ModelPackageName?:        strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
 	ModelPackageStatus?:      "Pending" | "InProgress" | "Completed" | "Failed" | "Deleting" | fn.#StringExpression
-	ModelPackageVersion?:     >=1 | fn.#NumberExpression
-	SourceAlgorithms?:        _#defs."/$defs/Properties/definitions/SourceAlgorithms" | fn.#ListExpression
-	Task?:                    string | fn.#StringExpression
+	ModelPackageVersion?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SourceAlgorithms?: _#defs."/$defs/Properties/definitions/SourceAlgorithms" | fn.#ListExpression
+	Task?:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -201,17 +236,48 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/RiskRating": "High" | "Medium" | "Low" | "Unknown" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SecurityConfig": close({
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~".*" |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SimpleMetric": close({
-	Name!:      =~".{1,255}" | fn.#StringExpression
-	Notes?:     strings.MaxRunes(1024) | fn.#StringExpression
-	Type!:      "number" | "string" | "boolean" | fn.#StringExpression
-	Value!:     number | strings.MaxRunes(63) | bool | fn.#ValueExpression
-	XAxisName?: _#defs."/$defs/Properties/definitions/AxisNameString" | fn.#StringExpression
-	YAxisName?: _#defs."/$defs/Properties/definitions/AxisNameString" | fn.#StringExpression
+	Name!:  =~".{1,255}" | fn.#StringExpression
+	Notes?: strings.MaxRunes(1024) | fn.#StringExpression
+	Type!:  "number" | "string" | "boolean" | fn.#StringExpression
+	Value!: number |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						number,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	strings.MaxRunes(63) |
+	bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#ValueExpression
+	XAxisName?: _#defs."/$defs/Properties/definitions/AxisNameString"
+	YAxisName?: _#defs."/$defs/Properties/definitions/AxisNameString"
 }) |
 fn.#ObjectExpression
 
@@ -222,7 +288,7 @@ _#defs: "/$defs/Properties/definitions/SourceAlgorithm": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SourceAlgorithms": list.MaxItems(1) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SourceAlgorithm" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/SourceAlgorithm"
 ] |
 	fn.#ListExpression
 
@@ -233,7 +299,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TrainingDetails": close({
-	ObjectiveFunction?: _#defs."/$defs/Properties/definitions/ObjectiveFunction" | fn.#ObjectExpression
+	ObjectiveFunction?: _#defs."/$defs/Properties/definitions/ObjectiveFunction"
 	TrainingJobDetails?: close({
 		HyperParameters?: [
 			..._#defs."/$defs/Properties/definitions/TrainingHyperParameter" &
@@ -280,7 +346,25 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/TrainingMetric": close({
 	Name!:  =~".{1,255}" | fn.#StringExpression
 	Notes?: strings.MaxRunes(1024) | fn.#StringExpression
-	Value!: number | fn.#NumberExpression
+	Value!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

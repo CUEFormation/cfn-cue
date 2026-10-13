@@ -30,8 +30,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"APPLICATION_LOAD_BALANCER" |
 		"GLOBAL_ACCELERATOR" |
 		fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

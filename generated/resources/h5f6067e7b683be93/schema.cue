@@ -13,12 +13,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::MSK::VpcConnection
 #Properties: close({
-	Authentication!:   _#defs."/$defs/Properties/definitions/Authentication" | fn.#StringExpression
-	ClientSubnets!:    _#defs."/$defs/Properties/definitions/ClientSubnets" | fn.#ListExpression
-	SecurityGroups!:   _#defs."/$defs/Properties/definitions/SecurityGroups" | fn.#ListExpression
-	Tags?:             _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	Authentication!:   _#defs."/$defs/Properties/definitions/Authentication"
+	ClientSubnets!:    _#defs."/$defs/Properties/definitions/ClientSubnets"
+	SecurityGroups!:   _#defs."/$defs/Properties/definitions/SecurityGroups"
+	Tags?:             _#defs."/$defs/Properties/definitions/Tags"
 	TargetClusterArn!: string | fn.#StringExpression
-	VpcId!:            _#defs."/$defs/Properties/definitions/VpcId" | fn.#StringExpression
+	VpcId!:            _#defs."/$defs/Properties/definitions/VpcId"
 })
 
 _#defs: "/$defs/Properties/definitions/Authentication": ("SASL_IAM" | "SASL_SCRAM" | "TLS") & (strings.MaxRunes(10) & strings.MinRunes(3)) |
@@ -26,14 +26,19 @@ fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ClientSubnets": [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroups": [...string | fn.#StringExpression] | fn.#ListExpression
+_#defs: "/$defs/Properties/definitions/SecurityGroups": [
+	...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+] |
+	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": close({
 
 	{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcId": string | fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/VpcId": =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+	fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::MSK::VpcConnection"
 	Properties!: #Properties

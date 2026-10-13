@@ -39,10 +39,7 @@ _#defs: "/$defs/Properties/definitions/Region": =~"[0-9a-z-]{2,25}" | fn.#String
 _#defs: "/$defs/Properties/definitions/RegistryId": =~"^[0-9]{12}$" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ReplicationConfiguration": close({
-	Rules!: list.MaxItems(25) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ReplicationRule" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Rules!: list.MaxItems(25) & [...] & [..._#defs."/$defs/Properties/definitions/ReplicationRule"] | fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
@@ -54,12 +51,10 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReplicationRule": close({
 	Destinations!: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ReplicationDestination" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ReplicationDestination"
 	] |
 		fn.#ListExpression
-	RepositoryFilters?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/RepositoryFilter" | fn.#ObjectExpression
-	] |
+	RepositoryFilters?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/RepositoryFilter"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression

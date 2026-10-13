@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -16,11 +20,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // on a link within RTB Fabric that controls request routing based on
 // conditions such as host headers, path matching, and query string parameters.
 #Properties: close({
-	Conditions!: _#defs."/$defs/Properties/definitions/RuleCondition" | fn.#ObjectExpression
-	GatewayId!:  _#defs."/$defs/Properties/definitions/GatewayId" | fn.#StringExpression
-	LinkId!:     _#defs."/$defs/Properties/definitions/LinkId" | fn.#StringExpression
-	Priority!:   _#defs."/$defs/Properties/definitions/RulePriority" | fn.#NumberExpression
-	Tags?:       _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	Conditions!: _#defs."/$defs/Properties/definitions/RuleCondition"
+	GatewayId!:  _#defs."/$defs/Properties/definitions/GatewayId"
+	LinkId!:     _#defs."/$defs/Properties/definitions/LinkId"
+	Priority!:   _#defs."/$defs/Properties/definitions/RulePriority"
+	Tags?:       _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
@@ -83,7 +87,22 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RuleId": =~"^rule-[a-z0-9-]{1,25}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RulePriority": int & <=1000 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/RulePriority": int & <=1000 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=1000 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/RuleStatus": "CREATION_IN_PROGRESS" |
 	"ACTIVE" |
@@ -101,7 +120,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 

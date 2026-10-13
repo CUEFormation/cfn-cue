@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,35 +14,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::QuickSight::KnowledgeBase Resource Type
 #Properties: close({
-	AccessControlConfiguration?: _#defs."/$defs/Properties/definitions/AccessControlConfiguration" |
-		fn.#ObjectExpression
-	AwsAccountId!:  strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]*$" | fn.#StringExpression
-	DataSourceArn!: strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
-	Description?:   strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-	IsEmailNotificationOptedForIngestionFailures?: bool | fn.#BooleanExpression
-	KnowledgeBaseConfiguration!: _#defs."/$defs/Properties/definitions/KnowledgeBaseConfiguration" |
-		fn.#ObjectExpression
+	AccessControlConfiguration?: _#defs."/$defs/Properties/definitions/AccessControlConfiguration"
+	AwsAccountId!:               strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]*$" | fn.#StringExpression
+	DataSourceArn!:              strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
+	Description?:                strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
+	IsEmailNotificationOptedForIngestionFailures?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	KnowledgeBaseConfiguration!: _#defs."/$defs/Properties/definitions/KnowledgeBaseConfiguration"
 	KnowledgeBaseId!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_=.+]+$" | fn.#StringExpression
-	MediaExtractionConfiguration?: _#defs."/$defs/Properties/definitions/MediaExtractionConfiguration" |
-		fn.#ObjectExpression
+	MediaExtractionConfiguration?: _#defs."/$defs/Properties/definitions/MediaExtractionConfiguration"
 	Name!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[\\p{L}\\p{N}][\\p{L}\\p{N} _\\-\\.]*$" |
 	fn.#StringExpression
-	Permissions?: list.MaxItems(64) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ResourcePermission" | fn.#ObjectExpression
-	] |
+	Permissions?: list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"] |
 		fn.#ListExpression
 	PrimaryOwnerArn?: string | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccessControlConfiguration": close({IsACLEnabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/AccessControlConfiguration": close(
+	{IsACLEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AudioExtractionConfiguration": close(
-	{AudioExtractionStatus!: _#defs."/$defs/Properties/definitions/AudioExtractionStatus" | fn.#StringExpression},
+	{AudioExtractionStatus!: _#defs."/$defs/Properties/definitions/AudioExtractionStatus"},
 ) |
 	fn.#ObjectExpression
 
@@ -56,7 +57,7 @@ _#defs: "/$defs/Properties/definitions/DataSetStatus": "CREATING" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ImageExtractionConfiguration": close(
-	{ImageExtractionStatus!: _#defs."/$defs/Properties/definitions/ImageExtractionStatus" | fn.#StringExpression},
+	{ImageExtractionStatus!: _#defs."/$defs/Properties/definitions/ImageExtractionStatus"},
 ) |
 	fn.#ObjectExpression
 
@@ -65,17 +66,14 @@ _#defs: "/$defs/Properties/definitions/ImageExtractionStatus": "ENABLED" | "DISA
 _#defs: "/$defs/Properties/definitions/KbTemplateConfiguration": close({Template?: fn.#Value}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KnowledgeBaseConfiguration": close(
-	{TemplateConfiguration?: _#defs."/$defs/Properties/definitions/KbTemplateConfiguration" | fn.#ObjectExpression},
+	{TemplateConfiguration?: _#defs."/$defs/Properties/definitions/KbTemplateConfiguration"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MediaExtractionConfiguration": close({
-	AudioExtractionConfiguration?: _#defs."/$defs/Properties/definitions/AudioExtractionConfiguration" |
-		fn.#ObjectExpression
-	ImageExtractionConfiguration?: _#defs."/$defs/Properties/definitions/ImageExtractionConfiguration" |
-		fn.#ObjectExpression
-	VideoExtractionConfiguration?: _#defs."/$defs/Properties/definitions/VideoExtractionConfiguration" |
-		fn.#ObjectExpression
+	AudioExtractionConfiguration?: _#defs."/$defs/Properties/definitions/AudioExtractionConfiguration"
+	ImageExtractionConfiguration?: _#defs."/$defs/Properties/definitions/ImageExtractionConfiguration"
+	VideoExtractionConfiguration?: _#defs."/$defs/Properties/definitions/VideoExtractionConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -93,8 +91,8 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VideoExtractionConfiguration": close({
-	VideoExtractionStatus!: _#defs."/$defs/Properties/definitions/VideoExtractionStatus" | fn.#StringExpression
-	VideoExtractionType?:   _#defs."/$defs/Properties/definitions/VideoExtractionType" | fn.#StringExpression
+	VideoExtractionStatus!: _#defs."/$defs/Properties/definitions/VideoExtractionStatus"
+	VideoExtractionType?:   _#defs."/$defs/Properties/definitions/VideoExtractionType"
 }) |
 fn.#ObjectExpression
 

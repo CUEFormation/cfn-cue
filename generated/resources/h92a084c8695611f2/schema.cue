@@ -25,22 +25,20 @@ fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CatalogResource": string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ColumnNames": [
-	..._#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-] |
+_#defs: "/$defs/Properties/definitions/ColumnNames": [..._#defs."/$defs/Properties/definitions/NameString"] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/DataLakePrincipal": close({
-	DataLakePrincipalIdentifier?: _#defs."/$defs/Properties/definitions/DataLakePrincipalString" | fn.#StringExpression
-}) |
+_#defs: "/$defs/Properties/definitions/DataLakePrincipal": close(
+	{DataLakePrincipalIdentifier?: _#defs."/$defs/Properties/definitions/DataLakePrincipalString"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataLakePrincipalString": strings.MaxRunes(255) & strings.MinRunes(1) |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DatabaseResource": close({
-	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	Name!:      _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
+	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString"
+	Name!:      _#defs."/$defs/Properties/definitions/NameString"
 }) |
 fn.#ObjectExpression
 
@@ -50,9 +48,9 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LFTagPair": close({
-	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	TagKey!:    _#defs."/$defs/Properties/definitions/LFTagKey" | fn.#StringExpression
-	TagValues!: _#defs."/$defs/Properties/definitions/TagValueList" | fn.#ListExpression
+	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString"
+	TagKey!:    _#defs."/$defs/Properties/definitions/LFTagKey"
+	TagValues!: _#defs."/$defs/Properties/definitions/TagValueList"
 }) |
 fn.#ObjectExpression
 
@@ -62,27 +60,27 @@ strings.MinRunes(0) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LFTagsList": list.MaxItems(50) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/LFTagPair" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/LFTagPair"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/NameString": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Resource": close({
-	Catalog?:          _#defs."/$defs/Properties/definitions/CatalogResource" | fn.#StringExpression
-	Database?:         _#defs."/$defs/Properties/definitions/DatabaseResource" | fn.#ObjectExpression
-	Table?:            _#defs."/$defs/Properties/definitions/TableResource" | fn.#ObjectExpression
-	TableWithColumns?: _#defs."/$defs/Properties/definitions/TableWithColumnsResource" | fn.#ObjectExpression
+	Catalog?:          _#defs."/$defs/Properties/definitions/CatalogResource"
+	Database?:         _#defs."/$defs/Properties/definitions/DatabaseResource"
+	Table?:            _#defs."/$defs/Properties/definitions/TableResource"
+	TableWithColumns?: _#defs."/$defs/Properties/definitions/TableWithColumnsResource"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceType": "DATABASE" | "TABLE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TableResource": close({
-	CatalogId!:     _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	DatabaseName!:  _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	Name?:          _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	TableWildcard?: _#defs."/$defs/Properties/definitions/TableWildcard" | fn.#ObjectExpression | fn.#StringExpression
+	CatalogId!:     _#defs."/$defs/Properties/definitions/CatalogIdString"
+	DatabaseName!:  _#defs."/$defs/Properties/definitions/NameString"
+	Name?:          _#defs."/$defs/Properties/definitions/NameString"
+	TableWildcard?: _#defs."/$defs/Properties/definitions/TableWildcard"
 }) |
 fn.#ObjectExpression
 
@@ -92,15 +90,15 @@ _#defs: "/$defs/Properties/definitions/TableWildcard": string |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TableWithColumnsResource": close({
-	CatalogId!:    _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	ColumnNames!:  _#defs."/$defs/Properties/definitions/ColumnNames" | fn.#ListExpression
-	DatabaseName!: _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	Name!:         _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
+	CatalogId!:    _#defs."/$defs/Properties/definitions/CatalogIdString"
+	ColumnNames!:  _#defs."/$defs/Properties/definitions/ColumnNames"
+	DatabaseName!: _#defs."/$defs/Properties/definitions/NameString"
+	Name!:         _#defs."/$defs/Properties/definitions/NameString"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TagValueList": list.MaxItems(50) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/LFTagValue" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/LFTagValue"
 ] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {

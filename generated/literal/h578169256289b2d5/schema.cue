@@ -27,7 +27,7 @@ import (
 	Name!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9:_-]+"
 
 	// AWS role ARN that grants access
-	RoleArn?: strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 	// A list of key-value pairs that contain metadata for the destination.
 	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]

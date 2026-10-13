@@ -28,7 +28,7 @@ strings.MinRunes(50) &
 =~"^arn:[a-zA-Z-]+:secretsmanager:[a-zA-Z0-9-:]+:secret:ecr\\-pullthroughcache\\/[a-zA-Z0-9\\/_+=.@-]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomRoleArn": strings.MaxRunes(2048) & strings.MinRunes(0) |
+_#defs: "/$defs/Properties/definitions/CustomRoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(0)) |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/EcrRepositoryPrefix": strings.MaxRunes(30) &
@@ -37,13 +37,13 @@ strings.MinRunes(2) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PullThroughCacheRule": close({
-	CredentialArn?:            _#defs."/$defs/Properties/definitions/CredentialArn" | fn.#StringExpression
-	CustomRoleArn?:            _#defs."/$defs/Properties/definitions/CustomRoleArn" | fn.#StringExpression
-	EcrRepositoryPrefix!:      _#defs."/$defs/Properties/definitions/EcrRepositoryPrefix" | fn.#StringExpression
-	RegistryId?:               _#defs."/$defs/Properties/definitions/RegistryId" | fn.#StringExpression
-	UpstreamRegistry?:         _#defs."/$defs/Properties/definitions/UpstreamRegistry" | fn.#StringExpression
-	UpstreamRegistryUrl!:      _#defs."/$defs/Properties/definitions/UpstreamRegistryUrl" | fn.#StringExpression
-	UpstreamRepositoryPrefix?: _#defs."/$defs/Properties/definitions/UpstreamRepositoryPrefix" | fn.#StringExpression
+	CredentialArn?:            _#defs."/$defs/Properties/definitions/CredentialArn"
+	CustomRoleArn?:            _#defs."/$defs/Properties/definitions/CustomRoleArn"
+	EcrRepositoryPrefix!:      _#defs."/$defs/Properties/definitions/EcrRepositoryPrefix"
+	RegistryId?:               _#defs."/$defs/Properties/definitions/RegistryId"
+	UpstreamRegistry?:         _#defs."/$defs/Properties/definitions/UpstreamRegistry"
+	UpstreamRegistryUrl!:      _#defs."/$defs/Properties/definitions/UpstreamRegistryUrl"
+	UpstreamRepositoryPrefix?: _#defs."/$defs/Properties/definitions/UpstreamRepositoryPrefix"
 }) |
 fn.#ObjectExpression
 

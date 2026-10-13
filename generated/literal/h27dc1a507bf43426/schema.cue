@@ -14,16 +14,21 @@ import (
 	Arn?:               =~"^arn:(aws[a-zA-Z-]*):deadline:[a-z0-9-]+:[0-9]{12}:license-endpoint/le-[0-9a-z]{32}"
 	DnsName?:           string
 	LicenseEndpointId?: =~"^le-[0-9a-f]{32}$"
-	SecurityGroupIds!:  list.MaxItems(10) & list.MinItems(1) & [...=~"^sg-[\\w]{1,120}$"]
-	Status?:            _#defs."/$defs/Properties/definitions/LicenseEndpointStatus"
-	StatusMessage?:     strings.MaxRunes(1024) & strings.MinRunes(0)
+	SecurityGroupIds!: list.MaxItems(10) & list.MinItems(1) & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-[\\w]{1,120}$"
+	]
+	Status?:        _#defs."/$defs/Properties/definitions/LicenseEndpointStatus"
+	StatusMessage?: strings.MaxRunes(1024) & strings.MinRunes(0)
 	SubnetIds!: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"^subnet-[\\w]{1,120}$"
 	]
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?:  list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	VpcId!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^vpc-[\\w]{1,120}$"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(1) &
+	=~"^vpc-[\\w]{1,120}$"
 })
 
 _#defs: "/$defs/Properties/definitions/LicenseEndpointStatus": "CREATE_IN_PROGRESS" |

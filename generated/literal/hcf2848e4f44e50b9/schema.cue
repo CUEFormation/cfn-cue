@@ -46,40 +46,40 @@ import (
 	ExactSettings?: bool
 
 	// The property identifies the exact type of settings for the data provider.
-	Settings?: ({
+	Settings?: matchN(>=1, [{
 		PostgreSqlSettings!: _
 		...
-	} | {
+	}, {
 		MySqlSettings!: _
 		...
-	} | {
+	}, {
 		OracleSettings!: _
 		...
-	} | {
+	}, {
 		MicrosoftSqlServerSettings!: _
 		...
-	} | {
+	}, {
 		RedshiftSettings!: _
 		...
-	} | {
+	}, {
 		DocDbSettings!: _
 		...
-	} | {
+	}, {
 		MariaDbSettings!: _
 		...
-	} | {
+	}, {
 		MongoDbSettings!: _
 		...
-	} | {
+	}, {
 		IbmDb2LuwSettings!: _
 		...
-	} | {
+	}, {
 		IbmDb2zOsSettings!: _
 		...
-	} | {
+	}, {
 		SybaseAseSettings!: _
 		...
-	}) & close({
+	}]) & close({
 		// DocDbSettings property identifier.
 		DocDbSettings?: close({
 			CertificateArn?: string

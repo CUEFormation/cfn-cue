@@ -7,25 +7,28 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpsWorks::Instance
 #Properties: close({
-	AgentVersion?:     string | fn.#StringExpression
-	AmiId?:            string | fn.#StringExpression
+	AgentVersion?: string | fn.#StringExpression
+	AmiId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	Architecture?:     string | fn.#StringExpression
 	AutoScalingType?:  string | fn.#StringExpression
 	AvailabilityZone?: string | fn.#StringExpression
-	BlockDeviceMappings?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/BlockDeviceMapping" | fn.#ObjectExpression
-	] |
+	BlockDeviceMappings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"] |
 		fn.#ListExpression
-	EbsOptimized?:         bool | fn.#BooleanExpression
+	EbsOptimized?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ElasticIps?:           list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Hostname?:             string | fn.#StringExpression
-	InstallUpdatesOnBoot?: bool | fn.#BooleanExpression
+	InstallUpdatesOnBoot?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InstanceType!:         string | fn.#StringExpression
 	LayerIds!:             [...string | fn.#StringExpression] | fn.#ListExpression
 	Os?:                   string | fn.#StringExpression
@@ -34,7 +37,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	StackId!:              string | fn.#StringExpression
 	SubnetId?:             string | fn.#StringExpression
 	Tenancy?:              string | fn.#StringExpression
-	TimeBasedAutoScaling?: _#defs."/$defs/Properties/definitions/TimeBasedAutoScaling" | fn.#ObjectExpression
+	TimeBasedAutoScaling?: _#defs."/$defs/Properties/definitions/TimeBasedAutoScaling"
 	VirtualizationType?:   string | fn.#StringExpression
 	Volumes?:              list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 })
@@ -50,18 +53,44 @@ _#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
 	...
 }]) & close({
 	DeviceName?:  string | fn.#StringExpression
-	Ebs?:         _#defs."/$defs/Properties/definitions/EbsBlockDevice" | fn.#ObjectExpression
+	Ebs?:         _#defs."/$defs/Properties/definitions/EbsBlockDevice"
 	NoDevice?:    string | fn.#StringExpression
 	VirtualName?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EbsBlockDevice": close({
-	DeleteOnTermination?: bool | fn.#BooleanExpression
-	Iops?:                int | fn.#NumberExpression
-	SnapshotId?:          string | fn.#StringExpression
-	VolumeSize?:          int | fn.#NumberExpression
-	VolumeType?:          string | fn.#StringExpression
+	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Iops?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SnapshotId?: string | fn.#StringExpression
+	VolumeSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VolumeType?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

@@ -17,28 +17,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:                             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	DiscoveryEntryPointArn!:                  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	EventBridgeRuleTemplateGroupIdentifiers?: [...=~"^[^\\s]+$" | fn.#StringExpression] | fn.#ListExpression
-	ForceRediscovery?:                        bool | fn.#BooleanExpression
-	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
+	ForceRediscovery?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Name!:             strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
+	Tags?:             _#defs."/$defs/Properties/definitions/TagMap"
 })
 
 _#defs: "/$defs/Properties/definitions/FailedMediaResourceMap": close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/MediaResource" | fn.#ObjectExpression}}) |
+	{[=~".+"]: _#defs."/$defs/Properties/definitions/MediaResource"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MediaResource": close({
-	Destinations?: [..._#defs."/$defs/Properties/definitions/MediaResourceNeighbor" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Name?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Sources?: [..._#defs."/$defs/Properties/definitions/MediaResourceNeighbor" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Destinations?: [..._#defs."/$defs/Properties/definitions/MediaResourceNeighbor"] | fn.#ListExpression
+	Name?:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Sources?:      [..._#defs."/$defs/Properties/definitions/MediaResourceNeighbor"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MediaResourceMap": close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/MediaResource" | fn.#ObjectExpression}}) |
+	{[=~".+"]: _#defs."/$defs/Properties/definitions/MediaResource"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MediaResourceNeighbor": close({
@@ -50,7 +48,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/MonitorDeployment": close({
 	DetailsUri?:   strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	ErrorMessage?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Status!:       _#defs."/$defs/Properties/definitions/SignalMapMonitorDeploymentStatus" | fn.#StringExpression
+	Status!:       _#defs."/$defs/Properties/definitions/SignalMapMonitorDeploymentStatus"
 }) |
 fn.#ObjectExpression
 
@@ -79,7 +77,7 @@ _#defs: "/$defs/Properties/definitions/SignalMapStatus": "CREATE_IN_PROGRESS" |
 
 _#defs: "/$defs/Properties/definitions/SuccessfulMonitorDeployment": close({
 	DetailsUri!: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Status!:     _#defs."/$defs/Properties/definitions/SignalMapMonitorDeploymentStatus" | fn.#StringExpression
+	Status!:     _#defs."/$defs/Properties/definitions/SignalMapMonitorDeploymentStatus"
 }) |
 fn.#ObjectExpression
 

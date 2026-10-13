@@ -18,8 +18,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(5) &
 	=~"^arn:aws(-[a-z]+)*:acm-pca:[a-z]+(-[a-z]+)+-[1-9]\\d*:\\d{12}:certificate-authority\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
 	fn.#StringExpression
-	MobileDeviceManagement?: _#defs."/$defs/Properties/definitions/MobileDeviceManagement" | fn.#ObjectExpression
-	Tags?:                   _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	MobileDeviceManagement?: _#defs."/$defs/Properties/definitions/MobileDeviceManagement"
+	Tags?:                   _#defs."/$defs/Properties/definitions/Tags"
 	VpcEndpointId?: strings.MaxRunes(200) & strings.MinRunes(5) & =~"^vpce-[0-9a-f]{8}([0-9a-f]{9})?$" |
 	fn.#StringExpression
 })
@@ -36,7 +36,7 @@ _#defs: "/$defs/Properties/definitions/IntuneConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MobileDeviceManagement": close(
-	{Intune!: _#defs."/$defs/Properties/definitions/IntuneConfiguration" | fn.#ObjectExpression},
+	{Intune!: _#defs."/$defs/Properties/definitions/IntuneConfiguration"},
 ) & {[string]: fn.#Value} |
 	fn.#ObjectExpression
 

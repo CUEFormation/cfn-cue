@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // recommendations.
 #Properties: close({
 	Content!:     {[string]: fn.#Value} | fn.#ObjectExpression
-	ContextType!: _#defs."/$defs/Properties/definitions/ContextType" | fn.#StringExpression
+	ContextType!: _#defs."/$defs/Properties/definitions/ContextType"
 	ProfileArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws([a-z0-9-]+)?:wellarchitected:[a-z0-9-]{6,64}:[0-9]{12}:agent-profile/[a-zA-Z0-9_-]+$" |

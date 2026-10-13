@@ -34,7 +34,7 @@ import (
 	DbName?: strings.MaxRunes(127) & =~"[a-zA-Z][a-zA-Z_0-9+.@-]*"
 
 	// The default IAM role ARN for the namespace that is being created.
-	DefaultIamRoleArn?: string
+	DefaultIamRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The name of the namespace the source snapshot was created from. Please
 	// specify the name if needed before deleting namespace
@@ -54,7 +54,7 @@ import (
 
 	// The AWS Key Management Service (KMS) key ID of the encryption key that you
 	// want to use to encrypt data in the namespace.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The collection of log types to be exported provided by the customer. Should
 	// only be one of the three supported log types: userlog, useractivitylog and
@@ -97,9 +97,9 @@ _#defs: "/$defs/Properties/definitions/Namespace": close({
 	AdminUsername?:               string
 	CreationDate?:                string
 	DbName?:                      =~"[a-zA-Z][a-zA-Z_0-9+.@-]*"
-	DefaultIamRoleArn?:           string
+	DefaultIamRoleArn?:           =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	IamRoles?:                    [...strings.MaxRunes(512) & strings.MinRunes(0)]
-	KmsKeyId?:                    string | string | string
+	KmsKeyId?:                    =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 	LogExports?:                  list.MaxItems(16) & [...] & [..._#defs."/$defs/Properties/definitions/LogExport"]
 	NamespaceArn?:                string
 	NamespaceId?:                 string

@@ -19,7 +19,7 @@ import (
 	ClusterArn?:                 string
 	ClusterEndpoint?:            string
 	ClusterName!:                strings.MaxRunes(50) & strings.MinRunes(1) & =~"[a-zA-z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*"
-	KmsKeyId?:                   string | string | string
+	KmsKeyId?:                   =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 	PreferredBackupWindow?:      string
 	PreferredMaintenanceWindow?: string
 	ShardCapacity!:              int
@@ -27,7 +27,7 @@ import (
 	ShardInstanceCount?:         int
 	SubnetIds?:                  [...string]
 	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	VpcSecurityGroupIds?: [...string]
+	VpcSecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

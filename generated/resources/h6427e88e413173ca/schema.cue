@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,21 +22,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:   _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
 	DocumentMetadataConfigurations?: _#defs."/$defs/Properties/definitions/DocumentMetadataConfigurationList" |
 		fn.#ListExpression
-	Edition!: _#defs."/$defs/Properties/definitions/Edition" | fn.#StringExpression
-	Name!:    _#defs."/$defs/Properties/definitions/Name" | fn.#StringExpression
-	RoleArn!: _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
+	Edition!: _#defs."/$defs/Properties/definitions/Edition"
+	Name!:    _#defs."/$defs/Properties/definitions/Name"
+	RoleArn!: _#defs."/$defs/Properties/definitions/RoleArn"
 	ServerSideEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionConfiguration" |
 		fn.#ObjectExpression
 	Tags?:                    _#defs."/$defs/Properties/definitions/TagList" | fn.#ListExpression
-	UserContextPolicy?:       _#defs."/$defs/Properties/definitions/UserContextPolicy" | fn.#StringExpression
-	UserTokenConfigurations?: _#defs."/$defs/Properties/definitions/UserTokenConfigurationList" | fn.#ListExpression
+	UserContextPolicy?:       _#defs."/$defs/Properties/definitions/UserContextPolicy"
+	UserTokenConfigurations?: _#defs."/$defs/Properties/definitions/UserTokenConfigurationList"
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(1000) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CapacityUnitsConfiguration": close({
-	QueryCapacityUnits!:   _#defs."/$defs/Properties/definitions/QueryCapacityUnits" | fn.#NumberExpression
-	StorageCapacityUnits!: _#defs."/$defs/Properties/definitions/StorageCapacityUnits" | fn.#NumberExpression
+	QueryCapacityUnits!:   _#defs."/$defs/Properties/definitions/QueryCapacityUnits"
+	StorageCapacityUnits!: _#defs."/$defs/Properties/definitions/StorageCapacityUnits"
 }) |
 fn.#ObjectExpression
 
@@ -49,15 +53,15 @@ _#defs: "/$defs/Properties/definitions/DocumentAttributeValueType": "STRING_VALU
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DocumentMetadataConfiguration": close({
-	Name!:      _#defs."/$defs/Properties/definitions/DocumentMetadataConfigurationName" | fn.#StringExpression
-	Relevance?: _#defs."/$defs/Properties/definitions/Relevance" | fn.#ObjectExpression
-	Search?:    _#defs."/$defs/Properties/definitions/Search" | fn.#ObjectExpression
-	Type!:      _#defs."/$defs/Properties/definitions/DocumentAttributeValueType" | fn.#StringExpression
+	Name!:      _#defs."/$defs/Properties/definitions/DocumentMetadataConfigurationName"
+	Relevance?: _#defs."/$defs/Properties/definitions/Relevance"
+	Search?:    _#defs."/$defs/Properties/definitions/Search"
+	Type!:      _#defs."/$defs/Properties/definitions/DocumentAttributeValueType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DocumentMetadataConfigurationList": list.MaxItems(500) & [
-	..._#defs."/$defs/Properties/definitions/DocumentMetadataConfiguration" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/DocumentMetadataConfiguration"
 ] |
 	fn.#ListExpression
 
@@ -72,38 +76,61 @@ _#defs: "/$defs/Properties/definitions/Edition": "DEVELOPER_EDITION" |
 	"GEN_AI_ENTERPRISE_EDITION" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Freshness": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/Freshness": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/GroupAttributeField": strings.MaxRunes(100) & strings.MinRunes(1) |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Importance": int & <=10 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Importance": int & <=10 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=10 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Issuer": strings.MaxRunes(65) & strings.MinRunes(1) & =~"^\\P{C}*$" |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/JsonTokenTypeConfiguration": close({
-	GroupAttributeField!:    _#defs."/$defs/Properties/definitions/GroupAttributeField" | fn.#StringExpression
-	UserNameAttributeField!: _#defs."/$defs/Properties/definitions/UserNameAttributeField" | fn.#StringExpression
+	GroupAttributeField!:    _#defs."/$defs/Properties/definitions/GroupAttributeField"
+	UserNameAttributeField!: _#defs."/$defs/Properties/definitions/UserNameAttributeField"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/JwtTokenTypeConfiguration": close({
-	ClaimRegex?:             _#defs."/$defs/Properties/definitions/ClaimRegex" | fn.#StringExpression
-	GroupAttributeField?:    _#defs."/$defs/Properties/definitions/GroupAttributeField" | fn.#StringExpression
-	Issuer?:                 _#defs."/$defs/Properties/definitions/Issuer" | fn.#StringExpression
-	KeyLocation!:            _#defs."/$defs/Properties/definitions/KeyLocation" | fn.#StringExpression
-	SecretManagerArn?:       _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
-	URL?:                    _#defs."/$defs/Properties/definitions/Url" | fn.#StringExpression
-	UserNameAttributeField?: _#defs."/$defs/Properties/definitions/UserNameAttributeField" | fn.#StringExpression
+	ClaimRegex?:             _#defs."/$defs/Properties/definitions/ClaimRegex"
+	GroupAttributeField?:    _#defs."/$defs/Properties/definitions/GroupAttributeField"
+	Issuer?:                 _#defs."/$defs/Properties/definitions/Issuer"
+	KeyLocation!:            _#defs."/$defs/Properties/definitions/KeyLocation"
+	SecretManagerArn?:       _#defs."/$defs/Properties/definitions/RoleArn"
+	URL?:                    _#defs."/$defs/Properties/definitions/Url"
+	UserNameAttributeField?: _#defs."/$defs/Properties/definitions/UserNameAttributeField"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KeyLocation": "URL" | "SECRET_MANAGER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKeyId": (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+_#defs: "/$defs/Properties/definitions/KmsKeyId": (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+	string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(1000) &
@@ -113,33 +140,61 @@ fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Order": "ASCENDING" | "DESCENDING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/QueryCapacityUnits": int & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/QueryCapacityUnits": int & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Relevance": close({
-	Duration?:             _#defs."/$defs/Properties/definitions/Duration" | fn.#StringExpression
-	Freshness?:            _#defs."/$defs/Properties/definitions/Freshness" | fn.#BooleanExpression
-	Importance?:           _#defs."/$defs/Properties/definitions/Importance" | fn.#NumberExpression
-	RankOrder?:            _#defs."/$defs/Properties/definitions/Order" | fn.#StringExpression
-	ValueImportanceItems?: _#defs."/$defs/Properties/definitions/ValueImportanceItems" | fn.#ListExpression
+	Duration?:             _#defs."/$defs/Properties/definitions/Duration"
+	Freshness?:            _#defs."/$defs/Properties/definitions/Freshness"
+	Importance?:           _#defs."/$defs/Properties/definitions/Importance"
+	RankOrder?:            _#defs."/$defs/Properties/definitions/Order"
+	ValueImportanceItems?: _#defs."/$defs/Properties/definitions/ValueImportanceItems"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(1284) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Search": close({
-	Displayable?: bool | fn.#BooleanExpression
-	Facetable?:   bool | fn.#BooleanExpression
-	Searchable?:  bool | fn.#BooleanExpression
-	Sortable?:    bool | fn.#BooleanExpression
+	Displayable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Facetable?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Searchable?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Sortable?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close(
-	{KmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId" | fn.#StringExpression},
+	{KmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageCapacityUnits": int & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/StorageCapacityUnits": int & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -148,7 +203,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TagList": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 
@@ -163,20 +218,19 @@ _#defs: "/$defs/Properties/definitions/UserNameAttributeField": strings.MaxRunes
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/UserTokenConfiguration": close({
-	JsonTokenTypeConfiguration?: _#defs."/$defs/Properties/definitions/JsonTokenTypeConfiguration" |
-		fn.#ObjectExpression
-	JwtTokenTypeConfiguration?: _#defs."/$defs/Properties/definitions/JwtTokenTypeConfiguration" | fn.#ObjectExpression
+	JsonTokenTypeConfiguration?: _#defs."/$defs/Properties/definitions/JsonTokenTypeConfiguration"
+	JwtTokenTypeConfiguration?:  _#defs."/$defs/Properties/definitions/JwtTokenTypeConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UserTokenConfigurationList": list.MaxItems(1) & [...] & [
-	..._#defs."/$defs/Properties/definitions/UserTokenConfiguration" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/UserTokenConfiguration"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ValueImportanceItem": close({
-	Key?:   _#defs."/$defs/Properties/definitions/ValueImportanceItemKey" | fn.#StringExpression
-	Value?: _#defs."/$defs/Properties/definitions/Importance" | fn.#NumberExpression
+	Key?:   _#defs."/$defs/Properties/definitions/ValueImportanceItemKey"
+	Value?: _#defs."/$defs/Properties/definitions/Importance"
 }) |
 fn.#ObjectExpression
 
@@ -184,7 +238,7 @@ _#defs: "/$defs/Properties/definitions/ValueImportanceItemKey": strings.MaxRunes
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ValueImportanceItems": [
-	..._#defs."/$defs/Properties/definitions/ValueImportanceItem" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ValueImportanceItem"
 ] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {

@@ -7,6 +7,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,45 +23,71 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Id!:               string | fn.#StringExpression
 	MssPackage?:       _#defs."/$defs/Properties/definitions/MssPackage" | fn.#ObjectExpression
 	PackagingGroupId!: string | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CmafEncryption": close(
-	{SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider" | fn.#ObjectExpression},
+	{SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CmafPackage": close({
-	Encryption?:   _#defs."/$defs/Properties/definitions/CmafEncryption" | fn.#ObjectExpression
-	HlsManifests!: [..._#defs."/$defs/Properties/definitions/HlsManifest" | fn.#ObjectExpression] | fn.#ListExpression
-	IncludeEncoderConfigurationInSegments?: bool | fn.#BooleanExpression
-	SegmentDurationSeconds?: _#defs."/$defs/Properties/definitions/SegmentDurationSeconds" | fn.#NumberExpression
+	Encryption?:   _#defs."/$defs/Properties/definitions/CmafEncryption"
+	HlsManifests!: [..._#defs."/$defs/Properties/definitions/HlsManifest"] | fn.#ListExpression
+	IncludeEncoderConfigurationInSegments?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	SegmentDurationSeconds?: _#defs."/$defs/Properties/definitions/SegmentDurationSeconds"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DashEncryption": close(
-	{SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider" | fn.#ObjectExpression},
+	{SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DashManifest": close({
-	ManifestLayout?:       "FULL" | "COMPACT" | fn.#StringExpression
-	ManifestName?:         _#defs."/$defs/Properties/definitions/ManifestName" | fn.#StringExpression
-	MinBufferTimeSeconds?: int | fn.#NumberExpression
-	Profile?:              "NONE" | "HBBTV_1_5" | fn.#StringExpression
-	ScteMarkersSource?:    "SEGMENTS" | "MANIFEST" | fn.#StringExpression
-	StreamSelection?:      _#defs."/$defs/Properties/definitions/StreamSelection" | fn.#ObjectExpression
+	ManifestLayout?: "FULL" | "COMPACT" | fn.#StringExpression
+	ManifestName?:   _#defs."/$defs/Properties/definitions/ManifestName"
+	MinBufferTimeSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Profile?:           "NONE" | "HBBTV_1_5" | fn.#StringExpression
+	ScteMarkersSource?: "SEGMENTS" | "MANIFEST" | fn.#StringExpression
+	StreamSelection?:   _#defs."/$defs/Properties/definitions/StreamSelection"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DashPackage": close({
-	DashManifests!: [..._#defs."/$defs/Properties/definitions/DashManifest" | fn.#ObjectExpression] | fn.#ListExpression
-	Encryption?:    _#defs."/$defs/Properties/definitions/DashEncryption" | fn.#ObjectExpression
-	IncludeEncoderConfigurationInSegments?: bool | fn.#BooleanExpression
-	IncludeIframeOnlyStream?:               bool | fn.#BooleanExpression
-	PeriodTriggers?:                        [..."ADS" | fn.#StringExpression] | fn.#ListExpression
-	SegmentDurationSeconds?: _#defs."/$defs/Properties/definitions/SegmentDurationSeconds" | fn.#NumberExpression
+	DashManifests!: [..._#defs."/$defs/Properties/definitions/DashManifest"] | fn.#ListExpression
+	Encryption?:    _#defs."/$defs/Properties/definitions/DashEncryption"
+	IncludeEncoderConfigurationInSegments?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	IncludeIframeOnlyStream?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PeriodTriggers?:          [..."ADS" | fn.#StringExpression] | fn.#ListExpression
+	SegmentDurationSeconds?:  _#defs."/$defs/Properties/definitions/SegmentDurationSeconds"
 	SegmentTemplateFormat?: "NUMBER_WITH_TIMELINE" |
 		"TIME_WITH_TIMELINE" |
 		"NUMBER_WITH_DURATION" |
@@ -89,66 +119,117 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/HlsEncryption": close({
 	ConstantInitializationVector?: string | fn.#StringExpression
 	EncryptionMethod?:             "AES_128" | "SAMPLE_AES" | fn.#StringExpression
-	SpekeKeyProvider!:             _#defs."/$defs/Properties/definitions/SpekeKeyProvider" | fn.#ObjectExpression
+	SpekeKeyProvider!:             _#defs."/$defs/Properties/definitions/SpekeKeyProvider"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HlsManifest": close({
-	AdMarkers?:                      "NONE" | "SCTE35_ENHANCED" | "PASSTHROUGH" | fn.#StringExpression
-	IncludeIframeOnlyStream?:        bool | fn.#BooleanExpression
-	ManifestName?:                   _#defs."/$defs/Properties/definitions/ManifestName" | fn.#StringExpression
-	ProgramDateTimeIntervalSeconds?: int | fn.#NumberExpression
-	RepeatExtXKey?:                  bool | fn.#BooleanExpression
-	StreamSelection?:                _#defs."/$defs/Properties/definitions/StreamSelection" | fn.#ObjectExpression
+	AdMarkers?:               "NONE" | "SCTE35_ENHANCED" | "PASSTHROUGH" | fn.#StringExpression
+	IncludeIframeOnlyStream?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ManifestName?:            _#defs."/$defs/Properties/definitions/ManifestName"
+	ProgramDateTimeIntervalSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RepeatExtXKey?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	StreamSelection?: _#defs."/$defs/Properties/definitions/StreamSelection"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HlsPackage": close({
-	Encryption?:   _#defs."/$defs/Properties/definitions/HlsEncryption" | fn.#ObjectExpression
-	HlsManifests!: [..._#defs."/$defs/Properties/definitions/HlsManifest" | fn.#ObjectExpression] | fn.#ListExpression
-	IncludeDvbSubtitles?:    bool | fn.#BooleanExpression
-	SegmentDurationSeconds?: _#defs."/$defs/Properties/definitions/SegmentDurationSeconds" | fn.#NumberExpression
-	UseAudioRenditionGroup?: bool | fn.#BooleanExpression
+	Encryption?:             _#defs."/$defs/Properties/definitions/HlsEncryption"
+	HlsManifests!:           [..._#defs."/$defs/Properties/definitions/HlsManifest"] | fn.#ListExpression
+	IncludeDvbSubtitles?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SegmentDurationSeconds?: _#defs."/$defs/Properties/definitions/SegmentDurationSeconds"
+	UseAudioRenditionGroup?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ManifestName": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/MssEncryption": close(
-	{SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider" | fn.#ObjectExpression},
+	{SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MssManifest": close({
-	ManifestName?:    _#defs."/$defs/Properties/definitions/ManifestName" | fn.#StringExpression
-	StreamSelection?: _#defs."/$defs/Properties/definitions/StreamSelection" | fn.#ObjectExpression
+	ManifestName?:    _#defs."/$defs/Properties/definitions/ManifestName"
+	StreamSelection?: _#defs."/$defs/Properties/definitions/StreamSelection"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MssPackage": close({
-	Encryption?:   _#defs."/$defs/Properties/definitions/MssEncryption" | fn.#ObjectExpression
-	MssManifests!: [..._#defs."/$defs/Properties/definitions/MssManifest" | fn.#ObjectExpression] | fn.#ListExpression
-	SegmentDurationSeconds?: _#defs."/$defs/Properties/definitions/SegmentDurationSeconds" | fn.#NumberExpression
+	Encryption?:             _#defs."/$defs/Properties/definitions/MssEncryption"
+	MssManifests!:           [..._#defs."/$defs/Properties/definitions/MssManifest"] | fn.#ListExpression
+	SegmentDurationSeconds?: _#defs."/$defs/Properties/definitions/SegmentDurationSeconds"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": string | fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SegmentDurationSeconds": int | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/SegmentDurationSeconds": int |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/SpekeKeyProvider": close({
-	EncryptionContractConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionContractConfiguration" |
-		fn.#ObjectExpression
-	RoleArn!:   _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
-	SystemIds!: [...string | fn.#StringExpression] | fn.#ListExpression
-	Url!:       string | fn.#StringExpression
+	EncryptionContractConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionContractConfiguration"
+	RoleArn!:                         _#defs."/$defs/Properties/definitions/RoleArn"
+	SystemIds!:                       [...string | fn.#StringExpression] | fn.#ListExpression
+	Url!:                             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StreamSelection": close({
-	MaxVideoBitsPerSecond?: int | fn.#NumberExpression
-	MinVideoBitsPerSecond?: int | fn.#NumberExpression
-	StreamOrder?:           "ORIGINAL" | "VIDEO_BITRATE_ASCENDING" | "VIDEO_BITRATE_DESCENDING" | fn.#StringExpression
+	MaxVideoBitsPerSecond?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinVideoBitsPerSecond?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StreamOrder?: "ORIGINAL" | "VIDEO_BITRATE_ASCENDING" | "VIDEO_BITRATE_DESCENDING" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
