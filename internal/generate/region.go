@@ -1,21 +1,24 @@
 package generate
 
 import (
-	"strings"
-
 	"github.com/cueformation/cfn-cue/internal/cfn"
 
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/token"
 )
 
-func Region(module string, resources map[string]string, extensions bool) *ast.File {
+func Region(module string, resources map[string]string, extensions bool) (*ast.File, error) {
+	names := sortedStringKeys(resources)
+	aliases, err := cfn.ResourceAliases(names)
+	if err != nil {
+		return nil, err
+	}
 	f := file("cf")
 	addImport(f, "base", module+"/template:template")
 	types := &ast.StructLit{}
 	alternatives := []ast.Expr{}
-	for _, typ := range sortedStringKeys(resources) {
-		alias := strings.ReplaceAll(typ, "::", "_")
+	for _, typ := range names {
+		alias := aliases[typ]
 		addImport(f, alias, module+"/resources/h"+resources[typ]+":schema")
 		v := sel(alias, "Resource")
 		alternatives = append(alternatives, v)
@@ -23,7 +26,7 @@ func Region(module string, resources map[string]string, extensions bool) *ast.Fi
 	}
 	f.Decls = append(f.Decls, def("ResourceTypes", types), def("Resource", union(alternatives...)))
 	regionTemplate(f, module, extensions)
-	return f
+	return f, nil
 }
 
 // RegionTypes checks regional availability without importing resource property

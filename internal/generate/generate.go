@@ -229,7 +229,11 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 		m.Diagnostics = append(m.Diagnostics, c.diagnostics...)
 	}
 	for _, region := range sortedRegionKeys(m.Regions) {
-		if e = writeAST("regions/"+region+"/region.cue", Region(opt.Module, m.Regions[region], opt.LanguageExtensions)); e != nil {
+		regional, err := Region(opt.Module, m.Regions[region], opt.LanguageExtensions)
+		if err != nil {
+			return nil, fmt.Errorf("region %s: %w", region, err)
+		}
+		if e = writeAST("regions/"+region+"/region.cue", regional); e != nil {
 			return nil, e
 		}
 		if e = writeAST("regions/"+region+"/types/region.cue", RegionTypes(opt.Module, m.Regions[region], opt.LanguageExtensions)); e != nil {

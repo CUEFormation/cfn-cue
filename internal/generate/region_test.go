@@ -1,6 +1,7 @@
 package generate
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"strings"
@@ -8,6 +9,40 @@ import (
 
 	"cuelang.org/go/cue"
 )
+
+func TestRegionalAliasCollisionPreservesOutput(t *testing.T) {
+	source := fixture(t)
+	out := filepath.Join(t.TempDir(), "generated")
+	if _, err := Generate(source, Options{Out: out}); err != nil {
+		t.Fatal(err)
+	}
+	previous := map[string][]byte{}
+	for _, path := range []string{"manifest.json", "regions/us-east-1/region.cue"} {
+		data, err := os.ReadFile(filepath.Join(out, path))
+		if err != nil {
+			t.Fatal(err)
+		}
+		previous[path] = data
+	}
+	source.files["providers/us-east-1.json"] = []byte(`{"AWS::Test_A::Thing":"first","AWS::Test::A_Thing":"second"}`)
+	source.files["resources/first.json"] = []byte(strings.Replace(string(source.files["resources/test.json"]), "AWS::Test::Thing", "AWS::Test_A::Thing", 1))
+	source.files["resources/second.json"] = []byte(strings.Replace(string(source.files["resources/test.json"]), "AWS::Test::Thing", "AWS::Test::A_Thing", 1))
+	_, err := Generate(source, Options{Out: out})
+	if err == nil {
+		t.Fatal("generated colliding import aliases")
+	}
+	for _, detail := range []string{"us-east-1", "AWS::Test_A::Thing", "AWS::Test::A_Thing", "AWS_Test_A_Thing", "same import alias"} {
+		if !strings.Contains(err.Error(), detail) {
+			t.Fatalf("collision error omits %q: %v", detail, err)
+		}
+	}
+	for path, want := range previous {
+		got, err := os.ReadFile(filepath.Join(out, path))
+		if err != nil || !bytes.Equal(got, want) {
+			t.Fatalf("failed generation changed %s: %v", path, err)
+		}
+	}
+}
 
 func TestRegionalTypeNames(t *testing.T) {
 	out := filepath.Join(t.TempDir(), "generated")

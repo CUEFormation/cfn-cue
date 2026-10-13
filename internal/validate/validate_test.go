@@ -162,3 +162,33 @@ func TestResourceIsolation(t *testing.T) {
 		t.Fatal("validation wrote to the generated bundle")
 	}
 }
+
+func TestResourceAliasCollision(t *testing.T) {
+	dir := fixture(t)
+	path := filepath.Join(dir, "manifest.json")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var manifest generate.Manifest
+	if err := json.Unmarshal(data, &manifest); err != nil {
+		t.Fatal(err)
+	}
+	manifest.Regions["us-east-1"] = map[string]string{"AWS::Test_A::Thing": "first", "AWS::Test::A_Thing": "second"}
+	data, err = json.Marshal(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, data, 0644); err != nil {
+		t.Fatal(err)
+	}
+	result := Check([]byte(`{"Resources":{"First":{"Type":"AWS::Test_A::Thing"},"Second":{"Type":"AWS::Test::A_Thing"}}}`), Options{Schemas: dir, Region: "us-east-1"})
+	if result.Status != "error" || result.Phase != "input" {
+		t.Fatalf("want collision detected before loading schemas: %+v", result)
+	}
+	for _, detail := range []string{"AWS::Test_A::Thing", "AWS::Test::A_Thing", "AWS_Test_A_Thing", "same import alias"} {
+		if !strings.Contains(result.Message, detail) {
+			t.Fatalf("collision error omits %q: %s", detail, result.Message)
+		}
+	}
+}

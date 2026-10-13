@@ -160,7 +160,6 @@ func Check(data []byte, opt Options) (result Result) {
 		result.ResourceTypes = append(result.ResourceTypes, typ)
 	}
 	sort.Strings(result.ResourceTypes)
-	aliases := map[string]string{}
 	f := &ast.File{Decls: []ast.Decl{&ast.Package{Name: ast.NewIdent("validation")}}}
 	imports := &ast.ImportDecl{}
 	if opt.Resource == "" {
@@ -171,9 +170,12 @@ func Check(data []byte, opt Options) (result Result) {
 		importTypes = append(importTypes, typ)
 	}
 	sort.Strings(importTypes)
-	for i, typ := range importTypes {
-		alias := fmt.Sprintf("r%d", i)
-		aliases[typ] = alias
+	aliases, err := cfn.ResourceAliases(importTypes)
+	if err != nil {
+		return fail("error", err.Error())
+	}
+	for _, typ := range importTypes {
+		alias := aliases[typ]
 		imports.Specs = append(imports.Specs, ast.NewImport(ast.NewIdent(alias), manifest.Module+"/resources/h"+types[typ]+":schema"))
 	}
 	f.Decls = append(f.Decls, imports)
