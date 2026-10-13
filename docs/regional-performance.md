@@ -105,7 +105,7 @@ expected to change.
 
 The **Regional CUE performance** GitHub workflow can be dispatched manually with
 a CUE version, scale list, deadline and repeat count. It preserves reports as run
-artifacts. Both GitHub workflows use `ubuntu-24.04` to avoid changing the OS family
+artifacts. Both GitHub workflows use `ubuntu-26.04` to avoid changing the OS family
 implicitly when `ubuntu-latest` migrates. GitHub still updates that image's
 software and kernel, so compare the recorded platform details across runs.
 The performance workflow becomes available in the Actions UI once it reaches the
