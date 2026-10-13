@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApiId!:                    string | fn.#StringExpression
 	ModelSelectionExpression?: string | fn.#StringExpression
-	ResponseModels?:           string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	ResponseModels?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 	ResponseParameters?:       _#defs."/$defs/Properties/definitions/RouteParameters" | fn.#ValueExpression
 	RouteId!:                  string | fn.#StringExpression
 	RouteResponseKey!:         string | fn.#StringExpression

@@ -317,7 +317,7 @@ _#defs: "/$defs/Properties/definitions/HarnessAgentCoreRuntimeEnvironment": clos
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessBedrockModelConfig": close({
-	AdditionalParams?: {[string]: fn.#Value} | fn.#ObjectExpression
+	AdditionalParams?: fn.#Object & {...} | fn.#ObjectExpression
 	ApiFormat?:        "converse_stream" | "responses" | "chat_completions" | fn.#StringExpression
 	MaxTokens?: int & >=1 |
 		{
@@ -419,7 +419,7 @@ _#defs: "/$defs/Properties/definitions/HarnessGatewayOutboundAuth": matchN(1, [{
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessGeminiModelConfig": close({
-	AdditionalParams?: {[string]: fn.#Value} | fn.#ObjectExpression
+	AdditionalParams?: fn.#Object & {...} | fn.#ObjectExpression
 	ApiKeyArn!: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:token-vault/[a-zA-Z0-9-.]+/apikeycredentialprovider/[a-zA-Z0-9-.]+$" |
 		fn.#StringExpression
 	MaxTokens?: int & >=1 |
@@ -572,12 +572,12 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessInlineFunctionConfig": close({
 	Description!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	InputSchema!: {[string]: fn.#Value} | fn.#ObjectExpression
+	InputSchema!: fn.#Object & {...} | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessLiteLlmModelConfig": close({
-	AdditionalParams?: {[string]: fn.#Value} | fn.#ObjectExpression
+	AdditionalParams?: fn.#Object & {...} | fn.#ObjectExpression
 	ApiBase?:          strings.MaxRunes(16383) & strings.MinRunes(1) | fn.#StringExpression
 	ApiKeyArn?: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:token-vault/[a-zA-Z0-9-.]+/apikeycredentialprovider/[a-zA-Z0-9-.]+$" |
 		fn.#StringExpression
@@ -695,7 +695,7 @@ _#defs: "/$defs/Properties/definitions/HarnessModelConfiguration": matchN(1, [{
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HarnessOpenAiModelConfig": close({
-	AdditionalParams?: {[string]: fn.#Value} | fn.#ObjectExpression
+	AdditionalParams?: fn.#Object & {...} | fn.#ObjectExpression
 	ApiBase?:          strings.MaxRunes(16383) & strings.MinRunes(1) | fn.#StringExpression
 	ApiFormat?:        "chat_completions" | "responses" | fn.#StringExpression
 	ApiKeyArn!: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:token-vault/[a-zA-Z0-9-.]+/apikeycredentialprovider/[a-zA-Z0-9-.]+$" |

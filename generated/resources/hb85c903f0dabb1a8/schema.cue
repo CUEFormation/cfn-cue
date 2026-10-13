@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Assets?:                   _#defs."/$defs/Properties/definitions/AssetList"
 	ClientId?:                 strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+]+$" | fn.#StringExpression
 	ReturnMergedResources?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Settings?:                 {[string]: fn.#Value} | fn.#ObjectExpression
+	Settings?:                 fn.#Object & {...} | fn.#ObjectExpression
 	UseCognitoProvidedValues?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
 })

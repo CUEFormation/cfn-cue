@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::MWAA::Environment
 #Properties: close({
-	AirflowConfigurationOptions?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	AirflowConfigurationOptions?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	AirflowVersion?:              _#defs."/$defs/Properties/definitions/AirflowVersion"
 	DagS3Path?:                   _#defs."/$defs/Properties/definitions/RelativePath"
 	EndpointManagement?:          _#defs."/$defs/Properties/definitions/EndpointManagement"
@@ -67,7 +67,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SourceBucketArn?:              _#defs."/$defs/Properties/definitions/S3BucketArn"
 	StartupScriptS3ObjectVersion?: _#defs."/$defs/Properties/definitions/S3ObjectVersion"
 	StartupScriptS3Path?:          _#defs."/$defs/Properties/definitions/RelativePath"
-	Tags?:                         string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:                         fn.#Object & {...} | string | fn.#StringObjectExpression
 	WebserverAccessMode?:          _#defs."/$defs/Properties/definitions/WebserverAccessMode"
 	WeeklyMaintenanceWindowStart?: _#defs."/$defs/Properties/definitions/WeeklyMaintenanceWindowStart"
 	WorkerReplacementStrategy?:    _#defs."/$defs/Properties/definitions/WorkerReplacementStrategy"

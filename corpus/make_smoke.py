@@ -57,6 +57,26 @@ def compatibility_cases():
     malformed_value = copy.deepcopy(parameters)
     malformed_value["Parameters"]["Count"]["MinValue"] = "not-a-number"
     cases["quoted-parameter-value-invalid"] = (malformed_value, "invalid", "invalid")
+    token = "arn:aws:lambda:us-east-1:123456789012:function:CustomResourceProvider"
+    custom = {"Resources": {"Thing": {"Type": "Custom::Thing", "Properties": {"ServiceToken": token}}}}
+    cases["custom-resource-valid"] = (custom, "valid", "valid")
+    intrinsic = copy.deepcopy(custom)
+    intrinsic["Resources"]["Thing"]["Properties"]["ServiceToken"] = {"Fn::Sub":
+        "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:CustomResourceProvider"}
+    cases["custom-resource-intrinsic"] = (intrinsic, "valid", "valid")
+    mixed = copy.deepcopy(custom)
+    mixed["Resources"]["Other"] = {"Type": "Custom::Other", "Properties": {"ServiceToken": token, "Payload": {"Enabled": True}}}
+    mixed["Resources"]["Canonical"] = {"Type": "AWS::CloudFormation::CustomResource", "Properties": {"ServiceToken": token}}
+    cases["custom-resource-mixed"] = (mixed, "valid", "valid")
+    missing = copy.deepcopy(custom)
+    missing["Resources"]["Thing"]["Properties"] = {}
+    cases["custom-resource-missing-token"] = (missing, "invalid", "invalid")
+    invalid = copy.deepcopy(custom)
+    invalid["Resources"]["Thing"]["Type"] = "Custom::bad!"
+    # cfn-lint currently accepts names outside the regional schema's grammar.
+    cases["custom-resource-invalid-name"] = (invalid, "invalid", "valid")
+    for name, transform in (("transform-null", None), ("transform-list-null", ["AWS::LanguageExtensions", None])):
+        cases[name] = ({"Transform": transform, "Resources": {"Queue": {"Type": "AWS::SQS::Queue"}}}, "invalid", "invalid")
     return cases
 
 
@@ -121,7 +141,8 @@ def build(source, output):
         for region in ("us-east-1", "us-west-2"):
             expected[cid + ":" + region] = dict(cue=cue_status, lint=lint_status,
                 note="Project-authored valid template." if cue_status == "valid" else
-                     "Intentional mutation: " + name + (". Known lint gap: the read-only property is accepted by cfn-lint." if name == "read-only-property" else ""))
+                     "Intentional mutation: " + name + (". Known lint gap: the read-only property is accepted by cfn-lint." if name == "read-only-property" else
+                     ". Known lint gap: the malformed custom type name is accepted by cfn-lint." if name == "custom-resource-invalid-name" else ""))
     index["templates"], index["skipped"] = records, []
     corpus.write(output / "index.json", corpus.canonical(index))
     corpus.write(output / "expectations.json", corpus.canonical(expected))

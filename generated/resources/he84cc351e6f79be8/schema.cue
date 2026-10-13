@@ -209,7 +209,7 @@ _#defs: "/$defs/Properties/definitions/ClientSideActionConfig": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CookieMatchPattern": close({
-	All?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	All?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	ExcludedCookies?: list.MaxItems(199) & list.MinItems(1) & [
 		...strings.MaxRunes(60) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 	] |
@@ -328,7 +328,7 @@ _#defs: "/$defs/Properties/definitions/FieldIdentifier": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldToMatch": close({
-	AllQueryArguments?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	AllQueryArguments?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	Body?:              _#defs."/$defs/Properties/definitions/Body"
 	Cookies?:           _#defs."/$defs/Properties/definitions/Cookies"
 	HeaderOrder?:       _#defs."/$defs/Properties/definitions/HeaderOrder"
@@ -336,14 +336,14 @@ _#defs: "/$defs/Properties/definitions/FieldToMatch": close({
 	JA3Fingerprint?:    _#defs."/$defs/Properties/definitions/JA3Fingerprint"
 	JA4Fingerprint?:    _#defs."/$defs/Properties/definitions/JA4Fingerprint"
 	JsonBody?:          _#defs."/$defs/Properties/definitions/JsonBody"
-	Method?:            string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	QueryString?:       string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Method?:            fn.#Object & {...} | string | fn.#StringObjectExpression
+	QueryString?:       fn.#Object & {...} | string | fn.#StringObjectExpression
 	SingleHeader?: close({Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 	SingleQueryArgument?: close({Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 	UriFragment?: _#defs."/$defs/Properties/definitions/UriFragment"
-	UriPath?:     string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	UriPath?:     fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
@@ -628,7 +628,7 @@ _#defs: "/$defs/Properties/definitions/GeoMatchStatement": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HeaderMatchPattern": close({
-	All?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	All?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	ExcludedHeaders?: list.MaxItems(199) & list.MinItems(1) & [
 		...strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 	] |
@@ -704,7 +704,7 @@ _#defs: "/$defs/Properties/definitions/JsonBody": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/JsonMatchPattern": close({
-	All?:           string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	All?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 	IncludedPaths?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/JsonPointerPath"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -782,8 +782,8 @@ _#defs: "/$defs/Properties/definitions/OrStatement": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OverrideAction": close({
-	Count?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	None?:  string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Count?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	None?:  fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
@@ -860,10 +860,7 @@ _#defs: "/$defs/Properties/definitions/Prices": list.MaxItems(1) & list.MinItems
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/QueryString": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/QueryString": fn.#Object & {...} | string | fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RateBasedStatement": close({
 	AggregateKeyType!: "CONSTANT" | "IP" | "FORWARDED_IP" | "CUSTOM_KEYS" | fn.#StringExpression
@@ -909,7 +906,7 @@ _#defs: "/$defs/Properties/definitions/RateLimit": int & <=2000000000 & >=10 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/RateLimitAsn": {[string]: fn.#Value} | fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/RateLimitAsn": fn.#Object & {...} | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RateLimitCookie": close({
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
@@ -918,15 +915,9 @@ _#defs: "/$defs/Properties/definitions/RateLimitCookie": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateLimitForwardedIP": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/RateLimitForwardedIP": fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateLimitHTTPMethod": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/RateLimitHTTPMethod": fn.#Object & {...} | string | fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RateLimitHeader": close({
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
@@ -935,10 +926,7 @@ _#defs: "/$defs/Properties/definitions/RateLimitHeader": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateLimitIP": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/RateLimitIP": fn.#Object & {...} | string | fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RateLimitJA3Fingerprint": close(
 	{FallbackBehavior!: "MATCH" | "NO_MATCH" | fn.#StringExpression},
@@ -1359,10 +1347,7 @@ _#defs: "/$defs/Properties/definitions/UriFragment": close(
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UriPath": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/UriPath": fn.#Object & {...} | string | fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UsageOfAction": "ENABLED" | "DISABLED" | fn.#StringExpression
 

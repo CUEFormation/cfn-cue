@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Glue::DevEndpoint
 #Properties: close({
-	Arguments?:             string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Arguments?:             fn.#Object & {...} | string | fn.#StringObjectExpression
 	EndpointName?:          string | fn.#StringExpression
 	ExtraJarsS3Path?:       string | fn.#StringExpression
 	ExtraPythonLibsS3Path?: string | fn.#StringExpression
@@ -58,7 +58,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	] |
 		fn.#ListExpression
 	SubnetId?:   string | fn.#StringExpression
-	Tags?:       string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:       fn.#Object & {...} | string | fn.#StringObjectExpression
 	WorkerType?: string | fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {

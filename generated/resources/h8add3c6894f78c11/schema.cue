@@ -35,10 +35,10 @@ _#defs: "/$defs/Properties/definitions/IntuneConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MobileDeviceManagement": close(
+_#defs: "/$defs/Properties/definitions/MobileDeviceManagement": fn.#Object & {...} & close(
 	{Intune!: _#defs."/$defs/Properties/definitions/IntuneConfiguration"},
-) & {[string]: fn.#Value} |
-	fn.#ObjectExpression
+) |
+fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OpenIdConfiguration": close({
 	Audience?: string | fn.#StringExpression

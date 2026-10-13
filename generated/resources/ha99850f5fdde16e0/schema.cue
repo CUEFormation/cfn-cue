@@ -32,11 +32,11 @@ _#defs: "/$defs/Properties/definitions/BudgetData": close({
 	BudgetLimit?:         _#defs."/$defs/Properties/definitions/Spend"
 	BudgetName?:          string | fn.#StringExpression
 	BudgetType!:          string | fn.#StringExpression
-	CostFilters?:         string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	CostFilters?:         fn.#Object & {...} | string | fn.#StringObjectExpression
 	CostTypes?:           _#defs."/$defs/Properties/definitions/CostTypes"
 	FilterExpression?:    _#defs."/$defs/Properties/definitions/Expression"
 	Metrics?:             [...string | fn.#StringExpression] | fn.#ListExpression
-	PlannedBudgetLimits?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	PlannedBudgetLimits?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	TimePeriod?:          _#defs."/$defs/Properties/definitions/TimePeriod"
 	TimeUnit!:            string | fn.#StringExpression
 }) |

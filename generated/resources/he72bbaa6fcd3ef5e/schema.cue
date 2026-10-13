@@ -87,13 +87,13 @@ _#defs: "/$defs/Properties/definitions/PriorityFifoSchedulingConfiguration": clo
 
 _#defs: "/$defs/Properties/definitions/RunAs": "QUEUE_CONFIGURED_USER" | "WORKER_AGENT_USER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SchedulingConfiguration": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/SchedulingConfiguration": fn.#Object & {...} & matchN(1, [close(
 	{PriorityFifo!: _#defs."/$defs/Properties/definitions/PriorityFifoSchedulingConfiguration"},
 ), close(
 	{PriorityBalanced!: _#defs."/$defs/Properties/definitions/PriorityBalancedSchedulingConfiguration"},
 ), close(
 	{WeightedBalanced!: _#defs."/$defs/Properties/definitions/WeightedBalancedSchedulingConfiguration"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SchedulingMaxPriorityOverride": close(

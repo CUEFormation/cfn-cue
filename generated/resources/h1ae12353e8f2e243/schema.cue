@@ -99,8 +99,8 @@ _#defs: "/$defs/Properties/definitions/StageOverrides": close({
 	AutoDeploy?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DefaultRouteSettings?: _#defs."/$defs/Properties/definitions/RouteSettings" | fn.#ObjectExpression
 	Description?:          string | fn.#StringExpression
-	RouteSettings?:        string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	StageVariables?:       string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	RouteSettings?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+	StageVariables?:       fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

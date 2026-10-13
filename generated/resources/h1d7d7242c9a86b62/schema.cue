@@ -36,11 +36,11 @@ _#defs: "/$defs/Properties/definitions/EncryptionContext": close({
 	{[=~"^.+$"]: strings.MinRunes(1) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionSettings": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/EncryptionSettings": fn.#Object & {...} & matchN(1, [close(
 	{KmsEncryptionSettings!: _#defs."/$defs/Properties/definitions/KmsEncryptionSettings"},
 ), close(
 	{Default!: _#defs."/$defs/Properties/definitions/Default"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KmsEncryptionSettings": close({

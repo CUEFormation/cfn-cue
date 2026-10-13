@@ -15,7 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Pinpoint::InAppTemplate
 #Properties: close({
 	Content?:      [..._#defs."/$defs/Properties/definitions/InAppMessageContent"] | fn.#ListExpression
-	CustomConfig?: {[string]: fn.#Value} | fn.#ObjectExpression
+	CustomConfig?: fn.#Object & {...} | fn.#ObjectExpression
 	Layout?: "BOTTOM_BANNER" |
 		"TOP_BANNER" |
 		"OVERLAYS" |
@@ -23,7 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"MIDDLE_BANNER" |
 		"CAROUSEL" |
 		fn.#StringExpression
-	Tags?:                string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:                fn.#Object & {...} | string | fn.#StringObjectExpression
 	TemplateDescription?: string | fn.#StringExpression
 	TemplateName!:        string | fn.#StringExpression
 })

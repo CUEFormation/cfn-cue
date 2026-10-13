@@ -36,10 +36,10 @@ _#defs: "/$defs/Properties/definitions/DataSourceType": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InlineExamplesSource": close({
-	Examples!: list.MaxItems(1000) & list.MinItems(1) & [...{[string]: fn.#Value} | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Examples!: list.MaxItems(1000) & list.MinItems(1) & [...fn.#Object & {...} | fn.#ObjectExpression] |
+	fn.#ListExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3Source": close({S3Uri!: string | fn.#StringExpression}) | fn.#ObjectExpression
 

@@ -67,7 +67,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?:                  string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:                  fn.#Object & {...} | string | fn.#StringObjectExpression
 	TemplateConfiguration?: _#defs."/$defs/Properties/definitions/TemplateConfiguration"
 	TreatmentDescription?:  string | fn.#StringExpression
 	TreatmentName?:         string | fn.#StringExpression
@@ -99,7 +99,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CampaignInAppMessage": close({
 	Content?:      [..._#defs."/$defs/Properties/definitions/InAppMessageContent"] | fn.#ListExpression
-	CustomConfig?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	CustomConfig?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	Layout?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -144,9 +144,9 @@ _#defs: "/$defs/Properties/definitions/DefaultButtonConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EventDimensions": close({
-	Attributes?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Attributes?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	EventType?:  _#defs."/$defs/Properties/definitions/SetDimension"
-	Metrics?:    string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Metrics?:    fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 

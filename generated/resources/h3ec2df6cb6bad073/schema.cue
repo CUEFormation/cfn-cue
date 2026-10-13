@@ -60,7 +60,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
-	TargetFilters?: matchN(1, [
+	TargetFilters?: fn.#Object & {...} & matchN(1, [
 		struct.MinFields(1) & close({
 			Actions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
 				..._#defs."/$defs/Properties/definitions/Action"
@@ -81,7 +81,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			] |
 				fn.#ListExpression
 		})
-	]) & {[string]: fn.#Value} |
+	]) |
 	fn.#ObjectExpression
 	TargetOperations!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetOperation"] |
 		fn.#ListExpression

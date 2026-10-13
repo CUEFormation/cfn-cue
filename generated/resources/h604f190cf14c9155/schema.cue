@@ -221,11 +221,11 @@ _#defs: "/$defs/Properties/definitions/ListenerConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedEndpointConfiguration": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/ManagedEndpointConfiguration": fn.#Object & {...} & matchN(1, [close(
 	{AutoScalingGroupsConfiguration!: _#defs."/$defs/Properties/definitions/AutoScalingGroupsConfiguration"},
 ), close(
 	{EksEndpointsConfiguration!: _#defs."/$defs/Properties/definitions/EksEndpointsConfiguration"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=1 |

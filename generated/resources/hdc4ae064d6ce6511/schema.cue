@@ -23,7 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApiKeySelectionExpression?: string | fn.#StringExpression
 	BasePath?:                  string | fn.#StringExpression
-	Body?:                      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Body?:                      fn.#Object & {...} | string | fn.#StringObjectExpression
 	BodyS3Location?:            _#defs."/$defs/Properties/definitions/BodyS3Location" | fn.#ObjectExpression
 	CorsConfiguration?:         _#defs."/$defs/Properties/definitions/Cors" | fn.#ObjectExpression
 	CredentialsArn?:            string | fn.#StringExpression

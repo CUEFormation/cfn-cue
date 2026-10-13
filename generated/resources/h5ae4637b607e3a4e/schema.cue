@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Glue::Workflow
 #Properties: close({
-	DefaultRunProperties?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	DefaultRunProperties?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	Description?:          strings.MaxRunes(120000) & strings.MinRunes(0) | fn.#StringExpression
 	MaxConcurrentRuns?: int |
 		{
@@ -34,7 +34,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Glue::Workflow"

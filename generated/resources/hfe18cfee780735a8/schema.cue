@@ -19,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ArchiveName?:      strings.MaxRunes(48) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" | fn.#StringExpression
 	Description?:      strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	EventPattern?:     string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	EventPattern?:     fn.#Object & {...} | string | fn.#StringObjectExpression
 	KmsKeyIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	RetentionDays?: int & >=0 |
 		{

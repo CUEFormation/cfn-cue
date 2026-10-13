@@ -10,7 +10,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::EventSchemas::RegistryPolicy
 #Properties: close({
-	Policy!:       string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Policy!:       fn.#Object & {...} | string | fn.#StringObjectExpression
 	RegistryName!: string | fn.#StringExpression
 	RevisionId?:   string | fn.#StringExpression
 })

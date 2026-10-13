@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ChannelGroupName!:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	ChannelName!:          strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	OriginEndpointName!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Policy!:               strings.MaxRunes(6144) | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Policy!:               fn.#Object & {...} | strings.MaxRunes(6144) | fn.#StringObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CdnAuthConfiguration": close({

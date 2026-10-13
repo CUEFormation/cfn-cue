@@ -268,14 +268,14 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SerdeInfo": close({
 	Name?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters?:           string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Parameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 	SerializationLibrary?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SkewedInfo": close({
 	SkewedColumnNames?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	SkewedColumnValueLocationMaps?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	SkewedColumnValueLocationMaps?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	SkewedColumnValues?:            [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -301,7 +301,7 @@ _#defs: "/$defs/Properties/definitions/StorageDescriptor": close({
 		} |
 		fn.#NumberExpression
 	OutputFormat?:    strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Parameters?:      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Parameters?:      fn.#Object & {...} | string | fn.#StringObjectExpression
 	SchemaReference?: _#defs."/$defs/Properties/definitions/SchemaReference" | fn.#ObjectExpression
 	SerdeInfo?:       _#defs."/$defs/Properties/definitions/SerdeInfo" | fn.#ObjectExpression
 	SkewedInfo?:      _#defs."/$defs/Properties/definitions/SkewedInfo" | fn.#ObjectExpression
@@ -322,7 +322,7 @@ _#defs: "/$defs/Properties/definitions/TableInput": close({
 	Description?:   strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	Name?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Owner?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters?:    string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Parameters?:    fn.#Object & {...} | string | fn.#StringObjectExpression
 	PartitionKeys?: [..._#defs."/$defs/Properties/definitions/Column"] | fn.#ListExpression
 	Retention?: int & >=0 |
 		{

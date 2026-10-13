@@ -76,10 +76,7 @@ _#defs: "/$defs/Properties/definitions/IotSiteWiseMultiLayerStorage": close(
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JsonConfiguration": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/JsonConfiguration": fn.#Object & {...} | string | fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParquetConfiguration": close(
 	{SchemaDefinition?: _#defs."/$defs/Properties/definitions/SchemaDefinition"},
@@ -116,10 +113,7 @@ _#defs: "/$defs/Properties/definitions/SchemaDefinition": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceManagedS3": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/ServiceManagedS3": fn.#Object & {...} | string | fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

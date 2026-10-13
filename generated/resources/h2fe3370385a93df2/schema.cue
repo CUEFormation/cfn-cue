@@ -29,7 +29,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/Policy": close({
-	PolicyDocument!: string | {[string]: fn.#Value} | fn.#StringExpression | fn.#ObjectExpression
+	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
 	PolicyName!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -25,11 +25,11 @@ _#defs: "/$defs/Properties/definitions/OwnerGroupProperties": close({
 _#defs: "/$defs/Properties/definitions/OwnerGroupPropertiesOutput": close({GroupId?: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OwnerProperties": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/OwnerProperties": fn.#Object & {...} & matchN(1, [close(
 	{Group?: _#defs."/$defs/Properties/definitions/OwnerGroupProperties"},
 ), close(
 	{User?: _#defs."/$defs/Properties/definitions/OwnerUserProperties"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OwnerPropertiesOutput": close({

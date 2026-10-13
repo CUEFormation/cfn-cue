@@ -12,13 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	InitialVersion?: _#defs."/$defs/Properties/definitions/ConnectorDefinitionVersion"
 	Name!:           string | fn.#StringExpression
-	Tags?:           string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Connector": close({
 	ConnectorArn!: string | fn.#StringExpression
 	Id!:           string | fn.#StringExpression
-	Parameters?:   string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Parameters?:   fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 

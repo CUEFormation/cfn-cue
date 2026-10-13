@@ -22,25 +22,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AnyType": bool |
-	number |
-	string |
-	[
-		...bool |
-			number |
-			string |
-			{[string]: fn.#Value} |
-			fn.#StringExpression |
-			fn.#NumberExpression |
-			fn.#ObjectExpression |
-			fn.#BooleanExpression
-	] |
-	{[string]: fn.#Value} |
-	fn.#ListExpression |
-	fn.#StringExpression |
-	fn.#NumberExpression |
-	fn.#ObjectExpression |
-	fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/AnyType": fn.#Object & {...} |
+bool |
+number |
+string |
+[...fn.#Object & {...} | bool | number | string | fn.#StringNumberBooleanObjectExpression] |
+fn.#StringNumberBooleanListObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Parameter": close({
 	Key?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression

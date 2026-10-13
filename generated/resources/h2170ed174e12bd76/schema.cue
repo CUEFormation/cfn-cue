@@ -73,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/BedrockEmbeddingModelConfiguration": clos
 		} |
 		fn.#NumberExpression
 	EmbeddingDataType?:  "FLOAT32" | "BINARY" | fn.#StringExpression
-	ModelConfiguration?: {[string]: fn.#Value} | fn.#ObjectExpression
+	ModelConfiguration?: fn.#Object & {...} | fn.#ObjectExpression
 	Video?:              _#defs."/$defs/Properties/definitions/VideoConfigurations"
 }) |
 fn.#ObjectExpression

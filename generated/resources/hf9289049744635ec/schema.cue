@@ -37,10 +37,9 @@ _#defs: "/$defs/Properties/definitions/NotificationConfiguration": matchN(1, [{
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SqsNotificationConfiguration": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/SqsNotificationConfiguration": fn.#Object & {...} |
+string |
+fn.#StringObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SecurityLake::SubscriberNotification"
 	Properties!: #Properties

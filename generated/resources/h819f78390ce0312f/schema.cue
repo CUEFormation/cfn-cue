@@ -39,7 +39,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	Command!:              _#defs."/$defs/Properties/definitions/JobCommand" | fn.#ObjectExpression
 	Connections?:          _#defs."/$defs/Properties/definitions/ConnectionsList" | fn.#ObjectExpression
-	DefaultArguments?:     string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	DefaultArguments?:     fn.#Object & {...} | string | fn.#StringObjectExpression
 	Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	ExecutionClass?:       "FLEX" | "STANDARD" | fn.#StringExpression
 	ExecutionProperty?:    _#defs."/$defs/Properties/definitions/ExecutionProperty" | fn.#ObjectExpression
@@ -87,7 +87,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	Name?:                    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	NonOverridableArguments?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	NonOverridableArguments?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	NotificationProperty?:    _#defs."/$defs/Properties/definitions/NotificationProperty" | fn.#ObjectExpression
 	NumberOfWorkers?: int & >=0 |
 		{
@@ -106,7 +106,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	Role!:                  string | fn.#StringExpression
 	SecurityConfiguration?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                  string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:                  fn.#Object & {...} | string | fn.#StringObjectExpression
 	Timeout?: int & >=1 |
 		{
 			string &

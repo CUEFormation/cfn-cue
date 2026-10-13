@@ -17,10 +17,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::MediaConnect::Bridge
 #Properties: close({
-	EgressGatewayBridge?: _#defs."/$defs/Properties/definitions/EgressGatewayBridge" & {[string]: fn.#Value} |
-		fn.#ObjectExpression
-	IngressGatewayBridge?: _#defs."/$defs/Properties/definitions/IngressGatewayBridge" & {[string]: fn.#Value} |
-		fn.#ObjectExpression
+	EgressGatewayBridge?: _#defs."/$defs/Properties/definitions/EgressGatewayBridge" & fn.#Object & {...} |
+	fn.#ObjectExpression
+	IngressGatewayBridge?: _#defs."/$defs/Properties/definitions/IngressGatewayBridge" & fn.#Object & {...} |
+	fn.#ObjectExpression
 	Name!:    string | fn.#StringExpression
 	Outputs?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/BridgeOutput"] | fn.#ListExpression
 	PlacementArn!:         string | fn.#StringExpression

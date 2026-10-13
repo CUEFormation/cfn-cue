@@ -19,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // An example resource schema demonstrating some basic constructs and validation rules.
 #Properties: close({
 	AIMLOptions?:    _#defs."/$defs/Properties/definitions/AIMLOptions"
-	AccessPolicies?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	AccessPolicies?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	AdvancedOptions?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |

@@ -13,8 +13,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::GuardDuty::PublishingDestination.
 #Properties: close({
-	DestinationProperties!: _#defs."/$defs/Properties/definitions/CFNDestinationProperties" & {[string]: fn.#Value} |
-		fn.#ObjectExpression
+	DestinationProperties!: _#defs."/$defs/Properties/definitions/CFNDestinationProperties" & fn.#Object & {...} |
+	fn.#ObjectExpression
 	DestinationType!: "S3" | fn.#StringExpression
 	DetectorId!:      strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
 	Tags?:            [..._#defs."/$defs/Properties/definitions/TagItem"] | fn.#ListExpression

@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ModelPackageGroupDescription?: _#defs."/$defs/Properties/definitions/ModelPackageGroupDescription"
 	ModelPackageGroupName!:        _#defs."/$defs/Properties/definitions/ModelPackageGroupName"
-	ModelPackageGroupPolicy?:      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	ModelPackageGroupPolicy?:      fn.#Object & {...} | string | fn.#StringObjectExpression
 	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 

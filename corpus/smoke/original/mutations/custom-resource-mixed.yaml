@@ -1,0 +1,15 @@
+Resources:
+  Thing:
+    Type: Custom::Thing
+    Properties:
+      ServiceToken: arn:aws:lambda:us-east-1:123456789012:function:CustomResourceProvider
+  Other:
+    Type: Custom::Other
+    Properties:
+      ServiceToken: arn:aws:lambda:us-east-1:123456789012:function:CustomResourceProvider
+      Payload:
+        Enabled: true
+  Canonical:
+    Type: AWS::CloudFormation::CustomResource
+    Properties:
+      ServiceToken: arn:aws:lambda:us-east-1:123456789012:function:CustomResourceProvider

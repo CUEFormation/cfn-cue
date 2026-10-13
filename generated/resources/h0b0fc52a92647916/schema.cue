@@ -127,7 +127,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	RedriveAllowPolicy?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	RedriveAllowPolicy?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	RedrivePolicy?: string |
 	close({
 		deadLetterTargetArn?: string | fn.#StringExpression
@@ -148,8 +148,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	}) |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+	fn.#StringObjectExpression
 	SqsManagedSseEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VisibilityTimeout?: int & <=43200 & >=0 |

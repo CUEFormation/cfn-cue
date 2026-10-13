@@ -3,6 +3,8 @@ package generate
 import (
 	"fmt"
 
+	"github.com/cueformation/cfn-cue/internal/cfn"
+
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/token"
 )
@@ -38,8 +40,8 @@ func RegionTypes(module string, resources map[string]string, extensions bool) *a
 	}
 	// Custom resource names are supported by the full CustomResource schema too.
 	// Availability of that provider type controls whether these names are allowed.
-	if _, ok := resources["AWS::CloudFormation::CustomResource"]; ok {
-		names = append(names, &ast.UnaryExpr{Op: token.MAT, X: str("^Custom::[A-Za-z0-9_@-]{1,60}$")})
+	if _, ok := resources[cfn.CustomResourceType]; ok {
+		names = append(names, &ast.UnaryExpr{Op: token.MAT, X: str(cfn.CustomResourcePattern)})
 	}
 	f.Decls = append(f.Decls,
 		def("ResourceType", union(names...)),

@@ -59,7 +59,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:    strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	EvaluationModes?: [..._#defs."/$defs/Properties/definitions/EvaluationModeConfiguration" | fn.#ObjectExpression] |
 		fn.#ListExpression
-	InputParameters?:           string | {[string]: fn.#Value} | fn.#StringExpression | fn.#ObjectExpression
+	InputParameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 	MaximumExecutionFrequency?: string | fn.#StringExpression
 	Scope?:                     _#defs."/$defs/Properties/definitions/Scope" | fn.#ObjectExpression
 	Source!:                    _#defs."/$defs/Properties/definitions/Source" | fn.#ObjectExpression

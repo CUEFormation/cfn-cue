@@ -23,7 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	CognitoEvents?:            string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	CognitoEvents?:            fn.#Object & {...} | string | fn.#StringObjectExpression
 	CognitoIdentityProviders?: [..._#defs."/$defs/Properties/definitions/CognitoIdentityProvider"] | fn.#ListExpression
 	CognitoStreams?:           _#defs."/$defs/Properties/definitions/CognitoStreams"
 	DeveloperProviderName?:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w._-]+$" | fn.#StringExpression
@@ -33,7 +33,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	PushSync?:         _#defs."/$defs/Properties/definitions/PushSync"
 	SamlProviderARNs?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] | fn.#ListExpression
-	SupportedLoginProviders?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	SupportedLoginProviders?: fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CognitoIdentityProvider": close({

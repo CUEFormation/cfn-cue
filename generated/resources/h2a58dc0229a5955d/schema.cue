@@ -12,7 +12,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:         string | fn.#StringExpression
 	ParameterGroupName?:  string | fn.#StringExpression
-	ParameterNameValues?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	ParameterNameValues?: fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::DAX::ParameterGroup"

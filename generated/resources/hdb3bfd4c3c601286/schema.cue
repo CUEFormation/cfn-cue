@@ -25,13 +25,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Predicate?:              _#defs."/$defs/Properties/definitions/Predicate" | fn.#ObjectExpression
 	Schedule?:               string | fn.#StringExpression
 	StartOnCreation?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                   string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:                   fn.#Object & {...} | string | fn.#StringObjectExpression
 	Type!:                   "CONDITIONAL" | "EVENT" | "ON_DEMAND" | "SCHEDULED" | fn.#StringExpression
 	WorkflowName?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Action": close({
-	Arguments?:             string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Arguments?:             fn.#Object & {...} | string | fn.#StringObjectExpression
 	CrawlerName?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	JobName?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	NotificationProperty?:  _#defs."/$defs/Properties/definitions/NotificationProperty" | fn.#ObjectExpression

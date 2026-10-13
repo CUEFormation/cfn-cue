@@ -46,7 +46,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	LogExports?: list.MaxItems(16) & [...] & [..._#defs."/$defs/Properties/definitions/LogExport"] | fn.#ListExpression
 	ManageAdminPassword?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NamespaceName!:             strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" | fn.#StringExpression
-	NamespaceResourcePolicy?:   string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	NamespaceResourcePolicy?:   fn.#Object & {...} | string | fn.#StringObjectExpression
 	RedshiftIdcApplicationArn?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	SnapshotCopyConfigurations?: list.MaxItems(1) & [...] & [
 		..._#defs."/$defs/Properties/definitions/SnapshotCopyConfiguration"

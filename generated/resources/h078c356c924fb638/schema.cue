@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(20) &
 	=~"^arn:[^:]+:s3-outposts:[a-zA-Z0-9\\-]+:\\d{12}:outpost\\/[^:]+\\/bucket\\/[^:]+$" |
 	fn.#StringExpression
-	PolicyDocument!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::S3Outposts::BucketPolicy"

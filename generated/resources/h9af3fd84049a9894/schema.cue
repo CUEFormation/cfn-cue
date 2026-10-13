@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
 	fn.#StringExpression
-	Configuration!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Configuration!: fn.#Object & {...} | string | fn.#StringObjectExpression
 	Description?:   strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	DisplayName!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
 	DocumentEnrichmentConfiguration?: _#defs."/$defs/Properties/definitions/DocumentEnrichmentConfiguration"

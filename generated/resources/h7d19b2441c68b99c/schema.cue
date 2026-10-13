@@ -368,13 +368,13 @@ _#defs: "/$defs/Properties/definitions/ClusterInstanceGroupsList": list.MaxItems
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterInstanceStorageConfig": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/ClusterInstanceStorageConfig": fn.#Object & {...} & matchN(1, [close(
 	{EbsVolumeConfig?: _#defs."/$defs/Properties/definitions/ClusterEbsVolumeConfig"},
 ), close(
 	{FsxLustreConfig?: _#defs."/$defs/Properties/definitions/ClusterFsxLustreConfig"},
 ), close(
 	{FsxOpenZfsConfig?: _#defs."/$defs/Properties/definitions/ClusterFsxOpenZfsConfig"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClusterInstanceStorageConfigs": list.MaxItems(4) & [...] & [
@@ -608,11 +608,11 @@ _#defs: "/$defs/Properties/definitions/OnStartDeepHealthChecks": list.MaxItems(3
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Orchestrator": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/Orchestrator": fn.#Object & {...} & matchN(1, [close(
 	{Eks?: _#defs."/$defs/Properties/definitions/ClusterOrchestratorEksConfig"},
 ), close(
 	{Slurm?: _#defs."/$defs/Properties/definitions/ClusterOrchestratorSlurmConfig"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PatchSchedule": close({NextPatchDate?: string | fn.#StringExpression}) |

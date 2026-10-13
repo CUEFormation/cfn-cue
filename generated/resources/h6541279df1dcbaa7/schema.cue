@@ -107,8 +107,8 @@ _#defs: "/$defs/Properties/definitions/ExpiresInSec": int & <=3600 & >=60 |
 _#defs: "/$defs/Properties/definitions/ExponentialRolloutRate": close({
 	BaseRatePerMinute!: _#defs."/$defs/Properties/definitions/BaseRatePerMinute" | fn.#NumberExpression
 	IncrementFactor!:   _#defs."/$defs/Properties/definitions/IncrementFactor" | fn.#NumberExpression
-	RateIncreaseCriteria!: _#defs."/$defs/Properties/definitions/RateIncreaseCriteria" & {[string]: fn.#Value} |
-		fn.#ObjectExpression
+	RateIncreaseCriteria!: _#defs."/$defs/Properties/definitions/RateIncreaseCriteria" & fn.#Object & {...} |
+	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 

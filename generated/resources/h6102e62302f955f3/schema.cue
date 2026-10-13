@@ -25,25 +25,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 _#defs: "/$defs/Properties/definitions/EnabledControlParameter": close({
 	Key!: string | fn.#StringExpression
-	Value!: bool |
-		number |
-		string |
-		list.MinItems(1) & [
-			...bool |
-				number |
-				string |
-				{[string]: fn.#Value} |
-				fn.#StringExpression |
-				fn.#NumberExpression |
-				fn.#ObjectExpression |
-				fn.#BooleanExpression
-		] |
-		{[string]: fn.#Value} |
-		fn.#ListExpression |
-		fn.#StringExpression |
-		fn.#NumberExpression |
-		fn.#ObjectExpression |
-		fn.#BooleanExpression
+	Value!: fn.#Object & {...} |
+	bool |
+	number |
+	string |
+	list.MinItems(1) & [...fn.#Object & {...} | bool | number | string | fn.#StringNumberBooleanObjectExpression] |
+	fn.#StringNumberBooleanListObjectExpression
 }) |
 fn.#ObjectExpression
 

@@ -32,7 +32,7 @@ or newer dependencies. An offline version check rejects stale or manually
 upgraded Python packages and points back to setup.
 
 `test` runs formatting checks, Go tests and vet, the pinned S3/IAM integration,
-Python parser/provenance tests, and the 39-template contract in two regions.
+Python parser/provenance tests, and the 46-template contract in two regions.
 Expected failures remain explicit. The final report is
 `.corpus-smoke-report/report.md`; a changed expectation makes the command fail.
 
@@ -190,6 +190,20 @@ bundle and does not evaluate the full regional union. `-resource LogicalID`
 checks an individual resource without template-level constraints. Full-template
 validation remains necessary to check template sections and resource names.
 
+Valid `Custom::<name>` resource types use the regional
+`AWS::CloudFormation::CustomResource` provider schema. Actual type names are
+preserved in the template and result metadata; multiple custom names share one
+schema import. The provider's required properties and intrinsic rules still
+apply. Missing provider schemas remain unsupported, while malformed custom names
+and null/non-string Transform entries are invalid.
+
+Tool SHA-256 fingerprints are checked at startup and completion. Between engine
+calls, the harness checks file identity, size, nanosecond mtime and ctime to detect
+rebuilds without repeatedly reading the validator binary. Each original and
+normalized template is content-verified once per record, outside the region loop;
+metadata guards detect changes during its evaluations. Changing tools or inputs
+still requires a new report, including when resuming.
+
 The lint driver uses the original YAML, a fixed empty configuration, and
 mandatory error rules. It disables source-provided cfn-lint configuration, so
 downloaded metadata cannot load custom rule code or hide errors. cfn-lint may
@@ -223,12 +237,13 @@ negative examples and documented known disagreements. Missing cases, unexecuted
 expectations, or changed results fail the contract; no automatic baseline
 updates occur.
 
-The checked-in `smoke/` corpus contains ten unmodified upstream templates and
-ten project-authored cases exercising nested intrinsics, required properties,
-enums, unknown fields, read-only fields, wrong result classes, wrong arity,
-multiple function keys, and invalid conditional branches. It also records the
-current quoted-boolean and object-valued `Fn::If` compatibility gaps, and a read-only property that CUE
-rejects while cfn-lint accepts. Expected failures are explicit and annotated.
+The checked-in `smoke/` corpus contains 46 templates: 11 pinned upstream examples
+and 35 project-authored cases, with 92 expectations across two regions. Cases
+cover scalar compatibility, formats, nested intrinsics, required properties,
+enums, unknown/read-only fields, wrong function results and arguments, custom
+resource aliases and ServiceToken requirements, and invalid Transform values.
+The read-only property and malformed custom type name disagreements with cfn-lint
+remain documented. Expected failures are explicit and annotated.
 
 ```sh
 .venv/bin/python -m unittest discover -s corpus -v

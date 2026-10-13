@@ -22,7 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]*" |
 	fn.#StringExpression
-	InlinePolicy?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	InlinePolicy?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	InstanceArn!: strings.MaxRunes(1224) &
 	strings.MinRunes(10) &
 	=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" |

@@ -46,7 +46,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	] |
 		fn.#ListExpression
 	SubnetGroupName?: string | fn.#StringExpression
-	Tags?:            string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:            fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/SSESpecification": close(

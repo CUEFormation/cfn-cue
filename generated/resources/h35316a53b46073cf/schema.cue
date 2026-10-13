@@ -39,7 +39,7 @@ _#defs: "/$defs/Properties/definitions/LoginProfile": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Policy": close({
-	PolicyDocument!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
 	PolicyName!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

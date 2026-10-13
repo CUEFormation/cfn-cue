@@ -1,0 +1,8 @@
+{
+  "Resources": {
+    "Queue": {
+      "Type": "AWS::SQS::Queue"
+    }
+  },
+  "Transform": null
+}

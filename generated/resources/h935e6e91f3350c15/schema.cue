@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Dimensions?:    _#defs."/$defs/Properties/definitions/SegmentDimensions"
 	Name!:          string | fn.#StringExpression
 	SegmentGroups?: _#defs."/$defs/Properties/definitions/SegmentGroups"
-	Tags?:          string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:          fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Behavior": close({Recency?: _#defs."/$defs/Properties/definitions/Recency"}) |
@@ -121,12 +121,12 @@ _#defs: "/$defs/Properties/definitions/Recency": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SegmentDimensions": close({
-	Attributes?:     string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Attributes?:     fn.#Object & {...} | string | fn.#StringObjectExpression
 	Behavior?:       _#defs."/$defs/Properties/definitions/Behavior"
 	Demographic?:    _#defs."/$defs/Properties/definitions/Demographic"
 	Location?:       _#defs."/$defs/Properties/definitions/Location"
-	Metrics?:        string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	UserAttributes?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Metrics?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+	UserAttributes?: fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 

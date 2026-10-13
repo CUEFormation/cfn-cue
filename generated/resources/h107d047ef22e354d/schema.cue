@@ -24,11 +24,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectionConfiguration": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/ConnectionConfiguration": fn.#Object & {...} & matchN(1, [close(
 	{SelfManaged!: _#defs."/$defs/Properties/definitions/SelfManagedMode"},
 ), close(
 	{ServiceManaged!: _#defs."/$defs/Properties/definitions/ServiceManagedMode"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SelfManagedMode": close({

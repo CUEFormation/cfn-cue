@@ -38,10 +38,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Ipv4IpamPoolId?: string | fn.#StringExpression
 	LoadBalancerAttributes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LoadBalancerAttribute"] |
 		fn.#ListExpression
-	MinimumLoadBalancerCapacity?: _#defs."/$defs/Properties/definitions/MinimumLoadBalancerCapacity" & {
-		[string]: fn.#Value
-	} |
-		fn.#ObjectExpression
+	MinimumLoadBalancerCapacity?: _#defs."/$defs/Properties/definitions/MinimumLoadBalancerCapacity" &
+	fn.#Object &
+	{...} |
+	fn.#ObjectExpression
 	Name?:   string | fn.#StringExpression
 	Scheme?: "internal" | "internet-facing" | fn.#StringExpression
 	SecurityGroups?: list.UniqueItems() & [

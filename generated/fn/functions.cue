@@ -38,17 +38,43 @@ import cfnScalarStrconv "strconv"
 			)
 	} |
 	#NumberExpression
-#BooleanValue:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #BooleanExpression
-#ListValue:         #List | #ListExpression
-#ObjectValue:       #Object | #ObjectExpression
-#String:            #StringValue
-#Number:            #NumberValue
-#StringExpression:  #Choice4
-#NumberExpression:  #Choice5
-#BooleanExpression: #Choice6
-#ListExpression:    #Choice7
-#ObjectExpression:  #Choice8
-#ValueExpression:   #Choice9
+#BooleanValue:                        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #BooleanExpression
+#ListValue:                           #List | #ListExpression
+#ObjectValue:                         #Object | #ObjectExpression
+#String:                              #StringValue
+#Number:                              #NumberValue
+#StringExpression:                    #Choice4
+#NumberExpression:                    #Choice5
+#BooleanExpression:                   #Choice6
+#ListExpression:                      #Choice7
+#ObjectExpression:                    #Choice8
+#StringNumberExpression:              #Choice9
+#StringBooleanExpression:             #Choice10
+#NumberBooleanExpression:             #Choice11
+#StringNumberBooleanExpression:       #Choice12
+#StringListExpression:                #Choice13
+#NumberListExpression:                #Choice14
+#StringNumberListExpression:          #Choice15
+#BooleanListExpression:               #Choice16
+#StringBooleanListExpression:         #Choice17
+#NumberBooleanListExpression:         #Choice18
+#StringNumberBooleanListExpression:   #Choice19
+#StringObjectExpression:              #Choice20
+#NumberObjectExpression:              #Choice21
+#StringNumberObjectExpression:        #Choice22
+#BooleanObjectExpression:             #Choice23
+#StringBooleanObjectExpression:       #Choice24
+#NumberBooleanObjectExpression:       #Choice25
+#StringNumberBooleanObjectExpression: #Choice26
+#ListObjectExpression:                #Choice27
+#StringListObjectExpression:          #Choice28
+#NumberListObjectExpression:          #Choice29
+#StringNumberListObjectExpression:    #Choice30
+#BooleanListObjectExpression:         #Choice31
+#StringBooleanListObjectExpression:   #Choice32
+#NumberBooleanListObjectExpression:   #Choice33
+#StringNumberBooleanListObjectExpression: #Choice34
+#ValueExpression:                         #Choice35
 #Function: {
 	"Fn::And"?:              [...bool | #Choice1] & matchN(1, [list.MinItems(2) & list.MaxItems(10)])
 	"Fn::Base64"?:           #String
@@ -98,12 +124,920 @@ import cfnScalarStrconv "strconv"
 #GetStackOutput:   #Function & close({"Fn::GetStackOutput"?: _})
 #If:               #Function & close({"Fn::If"?: [string, #Value, #Value]})
 #IfBoolean:        #Function & close({"Fn::If"?: [string, #BooleanValue, #BooleanValue]})
-#IfList:           #Function & close({"Fn::If"?: [string, #ListValue, #ListValue]})
-#IfNumber:         #Function & close({"Fn::If"?: [string, #NumberValue, #NumberValue]})
-#IfObject:         #Function & close({"Fn::If"?: [string, #ObjectValue, #ObjectValue]})
-#IfString:         #Function & close({"Fn::If"?: [string, #StringValue, #StringValue]})
-#ImportValue:      #Function & close({"Fn::ImportValue"?: _})
-#Join:             #Function & close({"Fn::Join"?: _})
+#IfBooleanList: #Function & close({
+	"Fn::If"?: [
+		string,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #BooleanListExpression,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #BooleanListExpression,
+	]
+})
+#IfBooleanListObject: #Function & close({
+	"Fn::If"?: [
+		string,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #Object | #BooleanListObjectExpression,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #Object | #BooleanListObjectExpression,
+	]
+})
+#IfBooleanObject: #Function & close({
+	"Fn::If"?: [
+		string,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #Object | #BooleanObjectExpression,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #Object | #BooleanObjectExpression,
+	]
+})
+#IfList: #Function & close({"Fn::If"?: [string, #ListValue, #ListValue]})
+#IfListObject: #Function & close(
+	{"Fn::If"?: [string, #List | #Object | #ListObjectExpression, #List | #Object | #ListObjectExpression]},
+)
+#IfNumber: #Function & close({"Fn::If"?: [string, #NumberValue, #NumberValue]})
+#IfNumberBoolean: #Function & close({
+	"Fn::If"?: [
+		string,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#NumberBooleanExpression,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#NumberBooleanExpression,
+	]
+})
+#IfNumberBooleanList: #Function & close({
+	"Fn::If"?: [
+		string,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#NumberBooleanListExpression,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#NumberBooleanListExpression,
+	]
+})
+#IfNumberBooleanListObject: #Function & close({
+	"Fn::If"?: [
+		string,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#Object |
+			#NumberBooleanListObjectExpression,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#Object |
+			#NumberBooleanListObjectExpression,
+	]
+})
+#IfNumberBooleanObject: #Function & close({
+	"Fn::If"?: [
+		string,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#Object |
+			#NumberBooleanObjectExpression,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#Object |
+			#NumberBooleanObjectExpression,
+	]
+})
+#IfNumberList: #Function & close({
+	"Fn::If"?: [
+		string,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#List |
+			#NumberListExpression,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#List |
+			#NumberListExpression,
+	]
+})
+#IfNumberListObject: #Function & close({
+	"Fn::If"?: [
+		string,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#List |
+			#Object |
+			#NumberListObjectExpression,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#List |
+			#Object |
+			#NumberListObjectExpression,
+	]
+})
+#IfNumberObject: #Function & close({
+	"Fn::If"?: [
+		string,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#Object |
+			#NumberObjectExpression,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#Object |
+			#NumberObjectExpression,
+	]
+})
+#IfObject: #Function & close({"Fn::If"?: [string, #ObjectValue, #ObjectValue]})
+#IfString: #Function & close({"Fn::If"?: [string, #StringValue, #StringValue]})
+#IfStringBoolean: #Function & close({
+	"Fn::If"?: [
+		string,
+		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #StringBooleanExpression,
+		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #StringBooleanExpression,
+	]
+})
+#IfStringBooleanList: #Function & close({
+	"Fn::If"?: [
+		string,
+		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #StringBooleanListExpression,
+		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #StringBooleanListExpression,
+	]
+})
+#IfStringBooleanListObject: #Function & close({
+	"Fn::If"?: [
+		string,
+		string |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#Object |
+			#StringBooleanListObjectExpression,
+		string |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#Object |
+			#StringBooleanListObjectExpression,
+	]
+})
+#IfStringBooleanObject: #Function & close({
+	"Fn::If"?: [
+		string,
+		string |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#Object |
+			#StringBooleanObjectExpression,
+		string |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#Object |
+			#StringBooleanObjectExpression,
+	]
+})
+#IfStringList: #Function & close(
+	{"Fn::If"?: [string, string | #List | #StringListExpression, string | #List | #StringListExpression]},
+)
+#IfStringListObject: #Function & close({
+	"Fn::If"?: [
+		string,
+		string | #List | #Object | #StringListObjectExpression,
+		string | #List | #Object | #StringListObjectExpression,
+	]
+})
+#IfStringNumber: #Function & close({
+	"Fn::If"?: [
+		string,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#StringNumberExpression,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#StringNumberExpression,
+	]
+})
+#IfStringNumberBoolean: #Function & close({
+	"Fn::If"?: [
+		string,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#StringNumberBooleanExpression,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#StringNumberBooleanExpression,
+	]
+})
+#IfStringNumberBooleanList: #Function & close({
+	"Fn::If"?: [
+		string,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#StringNumberBooleanListExpression,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#StringNumberBooleanListExpression,
+	]
+})
+#IfStringNumberBooleanListObject: #Function & close({
+	"Fn::If"?: [
+		string,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#Object |
+			#StringNumberBooleanListObjectExpression,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#Object |
+			#StringNumberBooleanListObjectExpression,
+	]
+})
+#IfStringNumberBooleanObject: #Function & close({
+	"Fn::If"?: [
+		string,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#Object |
+			#StringNumberBooleanObjectExpression,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#Object |
+			#StringNumberBooleanObjectExpression,
+	]
+})
+#IfStringNumberList: #Function & close({
+	"Fn::If"?: [
+		string,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#List |
+			#StringNumberListExpression,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#List |
+			#StringNumberListExpression,
+	]
+})
+#IfStringNumberListObject: #Function & close({
+	"Fn::If"?: [
+		string,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#List |
+			#Object |
+			#StringNumberListObjectExpression,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#List |
+			#Object |
+			#StringNumberListObjectExpression,
+	]
+})
+#IfStringNumberObject: #Function & close({
+	"Fn::If"?: [
+		string,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#Object |
+			#StringNumberObjectExpression,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#Object |
+			#StringNumberObjectExpression,
+	]
+})
+#IfStringObject: #Function & close(
+	{"Fn::If"?: [string, string | #Object | #StringObjectExpression, string | #Object | #StringObjectExpression]},
+)
+#ImportValue: #Function & close({"Fn::ImportValue"?: _})
+#Join:        #Function & close({"Fn::Join"?: _})
 #NoValue: Ref!: "AWS::NoValue"
 #Not:        #Function & close({"Fn::Not"?: _})
 #Or:         #Function & close({"Fn::Or"?: _})
@@ -186,6 +1120,1174 @@ import cfnScalarStrconv "strconv"
 	"Fn::If"?:        [string, #ObjectValue, #ObjectValue]
 })
 #Choice9: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::Base64"?:         _
+	"Fn::ImportValue"?:    _
+	"Fn::Join"?:           _
+	"Fn::Sub"?:            _
+	"Fn::GetStackOutput"?: _
+	"Fn::If"?: [
+		string,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#StringNumberExpression,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#StringNumberExpression,
+	]
+})
+#Choice10: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::Base64"?:         _
+	"Fn::ImportValue"?:    _
+	"Fn::Join"?:           _
+	"Fn::Sub"?:            _
+	"Fn::GetStackOutput"?: _
+	"Fn::If"?: [
+		string,
+		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #StringBooleanExpression,
+		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #StringBooleanExpression,
+	]
+})
+#Choice11: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::GetStackOutput"?: _
+	"Fn::If"?: [
+		string,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#NumberBooleanExpression,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#NumberBooleanExpression,
+	]
+})
+#Choice12: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::Base64"?:         _
+	"Fn::ImportValue"?:    _
+	"Fn::Join"?:           _
+	"Fn::Sub"?:            _
+	"Fn::GetStackOutput"?: _
+	"Fn::If"?: [
+		string,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#StringNumberBooleanExpression,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#StringNumberBooleanExpression,
+	]
+})
+#Choice13: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::Base64"?:         _
+	"Fn::ImportValue"?:    _
+	"Fn::Join"?:           _
+	"Fn::Sub"?:            _
+	"Fn::GetStackOutput"?: _
+	"Fn::Cidr"?:           _
+	"Fn::GetAZs"?:         _
+	"Fn::Split"?:          _
+	"Fn::If"?:             [string, string | #List | #StringListExpression, string | #List | #StringListExpression]
+})
+#Choice14: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::GetStackOutput"?: _
+	"Fn::Cidr"?:           _
+	"Fn::GetAZs"?:         _
+	"Fn::Split"?:          _
+	"Fn::If"?: [
+		string,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#List |
+			#NumberListExpression,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#List |
+			#NumberListExpression,
+	]
+})
+#Choice15: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::Base64"?:         _
+	"Fn::ImportValue"?:    _
+	"Fn::Join"?:           _
+	"Fn::Sub"?:            _
+	"Fn::GetStackOutput"?: _
+	"Fn::Cidr"?:           _
+	"Fn::GetAZs"?:         _
+	"Fn::Split"?:          _
+	"Fn::If"?: [
+		string,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#List |
+			#StringNumberListExpression,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#List |
+			#StringNumberListExpression,
+	]
+})
+#Choice16: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::GetStackOutput"?: _
+	"Fn::Cidr"?:           _
+	"Fn::GetAZs"?:         _
+	"Fn::Split"?:          _
+	"Fn::If"?: [
+		string,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #BooleanListExpression,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #BooleanListExpression,
+	]
+})
+#Choice17: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::Base64"?:         _
+	"Fn::ImportValue"?:    _
+	"Fn::Join"?:           _
+	"Fn::Sub"?:            _
+	"Fn::GetStackOutput"?: _
+	"Fn::Cidr"?:           _
+	"Fn::GetAZs"?:         _
+	"Fn::Split"?:          _
+	"Fn::If"?: [
+		string,
+		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #StringBooleanListExpression,
+		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #StringBooleanListExpression,
+	]
+})
+#Choice18: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::GetStackOutput"?: _
+	"Fn::Cidr"?:           _
+	"Fn::GetAZs"?:         _
+	"Fn::Split"?:          _
+	"Fn::If"?: [
+		string,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#NumberBooleanListExpression,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#NumberBooleanListExpression,
+	]
+})
+#Choice19: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::Base64"?:         _
+	"Fn::ImportValue"?:    _
+	"Fn::Join"?:           _
+	"Fn::Sub"?:            _
+	"Fn::GetStackOutput"?: _
+	"Fn::Cidr"?:           _
+	"Fn::GetAZs"?:         _
+	"Fn::Split"?:          _
+	"Fn::If"?: [
+		string,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#StringNumberBooleanListExpression,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#StringNumberBooleanListExpression,
+	]
+})
+#Choice20: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::Base64"?:         _
+	"Fn::ImportValue"?:    _
+	"Fn::Join"?:           _
+	"Fn::Sub"?:            _
+	"Fn::GetStackOutput"?: _
+	"Fn::If"?: [string, string | #Object | #StringObjectExpression, string | #Object | #StringObjectExpression]
+})
+#Choice21: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::GetStackOutput"?: _
+	"Fn::If"?: [
+		string,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#Object |
+			#NumberObjectExpression,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#Object |
+			#NumberObjectExpression,
+	]
+})
+#Choice22: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::Base64"?:         _
+	"Fn::ImportValue"?:    _
+	"Fn::Join"?:           _
+	"Fn::Sub"?:            _
+	"Fn::GetStackOutput"?: _
+	"Fn::If"?: [
+		string,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#Object |
+			#StringNumberObjectExpression,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#Object |
+			#StringNumberObjectExpression,
+	]
+})
+#Choice23: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::GetStackOutput"?: _
+	"Fn::If"?: [
+		string,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #Object | #BooleanObjectExpression,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #Object | #BooleanObjectExpression,
+	]
+})
+#Choice24: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::Base64"?:         _
+	"Fn::ImportValue"?:    _
+	"Fn::Join"?:           _
+	"Fn::Sub"?:            _
+	"Fn::GetStackOutput"?: _
+	"Fn::If"?: [
+		string,
+		string |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#Object |
+			#StringBooleanObjectExpression,
+		string |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#Object |
+			#StringBooleanObjectExpression,
+	]
+})
+#Choice25: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::GetStackOutput"?: _
+	"Fn::If"?: [
+		string,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#Object |
+			#NumberBooleanObjectExpression,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#Object |
+			#NumberBooleanObjectExpression,
+	]
+})
+#Choice26: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::Base64"?:         _
+	"Fn::ImportValue"?:    _
+	"Fn::Join"?:           _
+	"Fn::Sub"?:            _
+	"Fn::GetStackOutput"?: _
+	"Fn::If"?: [
+		string,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#Object |
+			#StringNumberBooleanObjectExpression,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#Object |
+			#StringNumberBooleanObjectExpression,
+	]
+})
+#Choice27: #Function & close({
+	Ref?:             _
+	"Fn::GetAtt"?:    _
+	"Fn::FindInMap"?: _
+	"Fn::Select"?:    _
+	"Fn::Transform"?: _
+	"Fn::Cidr"?:      _
+	"Fn::GetAZs"?:    _
+	"Fn::Split"?:     _
+	"Fn::If"?:        [string, #List | #Object | #ListObjectExpression, #List | #Object | #ListObjectExpression]
+})
+#Choice28: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::Base64"?:         _
+	"Fn::ImportValue"?:    _
+	"Fn::Join"?:           _
+	"Fn::Sub"?:            _
+	"Fn::GetStackOutput"?: _
+	"Fn::Cidr"?:           _
+	"Fn::GetAZs"?:         _
+	"Fn::Split"?:          _
+	"Fn::If"?: [
+		string,
+		string | #List | #Object | #StringListObjectExpression,
+		string | #List | #Object | #StringListObjectExpression,
+	]
+})
+#Choice29: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::GetStackOutput"?: _
+	"Fn::Cidr"?:           _
+	"Fn::GetAZs"?:         _
+	"Fn::Split"?:          _
+	"Fn::If"?: [
+		string,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#List |
+			#Object |
+			#NumberListObjectExpression,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#List |
+			#Object |
+			#NumberListObjectExpression,
+	]
+})
+#Choice30: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::Base64"?:         _
+	"Fn::ImportValue"?:    _
+	"Fn::Join"?:           _
+	"Fn::Sub"?:            _
+	"Fn::GetStackOutput"?: _
+	"Fn::Cidr"?:           _
+	"Fn::GetAZs"?:         _
+	"Fn::Split"?:          _
+	"Fn::If"?: [
+		string,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#List |
+			#Object |
+			#StringNumberListObjectExpression,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			#List |
+			#Object |
+			#StringNumberListObjectExpression,
+	]
+})
+#Choice31: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::GetStackOutput"?: _
+	"Fn::Cidr"?:           _
+	"Fn::GetAZs"?:         _
+	"Fn::Split"?:          _
+	"Fn::If"?: [
+		string,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #Object | #BooleanListObjectExpression,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #Object | #BooleanListObjectExpression,
+	]
+})
+#Choice32: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::Base64"?:         _
+	"Fn::ImportValue"?:    _
+	"Fn::Join"?:           _
+	"Fn::Sub"?:            _
+	"Fn::GetStackOutput"?: _
+	"Fn::Cidr"?:           _
+	"Fn::GetAZs"?:         _
+	"Fn::Split"?:          _
+	"Fn::If"?: [
+		string,
+		string |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#Object |
+			#StringBooleanListObjectExpression,
+		string |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#Object |
+			#StringBooleanListObjectExpression,
+	]
+})
+#Choice33: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::GetStackOutput"?: _
+	"Fn::Cidr"?:           _
+	"Fn::GetAZs"?:         _
+	"Fn::Split"?:          _
+	"Fn::If"?: [
+		string,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#Object |
+			#NumberBooleanListObjectExpression,
+		number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#Object |
+			#NumberBooleanListObjectExpression,
+	]
+})
+#Choice34: #Function & close({
+	Ref?:                  _
+	"Fn::GetAtt"?:         _
+	"Fn::FindInMap"?:      _
+	"Fn::Select"?:         _
+	"Fn::Transform"?:      _
+	"Fn::Base64"?:         _
+	"Fn::ImportValue"?:    _
+	"Fn::Join"?:           _
+	"Fn::Sub"?:            _
+	"Fn::GetStackOutput"?: _
+	"Fn::Cidr"?:           _
+	"Fn::GetAZs"?:         _
+	"Fn::Split"?:          _
+	"Fn::If"?: [
+		string,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#Object |
+			#StringNumberBooleanListObjectExpression,
+		string |
+			number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			#Object |
+			#StringNumberBooleanListObjectExpression,
+	]
+})
+#Choice35: #Function & close({
 	Ref?:                  _
 	"Fn::GetAtt"?:         _
 	"Fn::FindInMap"?:      _

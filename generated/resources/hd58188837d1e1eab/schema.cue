@@ -29,7 +29,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PortRanges?:           [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
 	ProtocolType?:         "TCP" | fn.#StringExpression
 	ResourceConfigurationAuthType?: "NONE" | "AWS_IAM" | fn.#StringExpression
-	ResourceConfigurationDefinition?: matchN(1, [close(
+	ResourceConfigurationDefinition?: fn.#Object & {...} & matchN(1, [close(
 		{IpResource!: _#defs."/$defs/Properties/definitions/IpResource"},
 	), close(
 		{ArnResource!: _#defs."/$defs/Properties/definitions/ArnResource"},
@@ -37,7 +37,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		{DnsResource!: _#defs."/$defs/Properties/definitions/DnsResource"},
 	), close(
 		{CidrResource!: _#defs."/$defs/Properties/definitions/CidrResource"},
-	)]) & {[string]: fn.#Value} |
+	)]) |
 	fn.#ObjectExpression
 	ResourceConfigurationGroupId?: _#defs."/$defs/Properties/definitions/Id"
 	ResourceConfigurationType!:    "GROUP" | "CHILD" | "SINGLE" | "ARN" | "CIDR" | fn.#StringExpression

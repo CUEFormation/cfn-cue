@@ -35,7 +35,7 @@ _#defs: "/$defs/Properties/definitions/Arn": =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:
 
 _#defs: "/$defs/Properties/definitions/KinesisConfiguration": close({
 	AggregationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	StreamArn?:          _#defs."/$defs/Properties/definitions/Arn" & {[string]: fn.#Value} | fn.#StringExpression
+	StreamArn?:          _#defs."/$defs/Properties/definitions/Arn" & fn.#Object & {...} | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

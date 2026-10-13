@@ -129,6 +129,56 @@
     "lint": "valid",
     "note": "Project-authored valid template."
   },
+  "mutation-custom-resource-intrinsic:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-custom-resource-intrinsic:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-custom-resource-invalid-name:us-east-1": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: custom-resource-invalid-name. Known lint gap: the malformed custom type name is accepted by cfn-lint."
+  },
+  "mutation-custom-resource-invalid-name:us-west-2": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: custom-resource-invalid-name. Known lint gap: the malformed custom type name is accepted by cfn-lint."
+  },
+  "mutation-custom-resource-missing-token:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: custom-resource-missing-token"
+  },
+  "mutation-custom-resource-missing-token:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: custom-resource-missing-token"
+  },
+  "mutation-custom-resource-mixed:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-custom-resource-mixed:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-custom-resource-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-custom-resource-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
   "mutation-dynamic-vpc-id:us-east-1": {
     "cue": "valid",
     "lint": "valid",
@@ -308,6 +358,26 @@
     "cue": "valid",
     "lint": "valid",
     "note": "Project-authored valid template."
+  },
+  "mutation-transform-list-null:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: transform-list-null"
+  },
+  "mutation-transform-list-null:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: transform-list-null"
+  },
+  "mutation-transform-null:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: transform-null"
+  },
+  "mutation-transform-null:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: transform-null"
   },
   "mutation-two-function-keys:us-east-1": {
     "cue": "invalid",

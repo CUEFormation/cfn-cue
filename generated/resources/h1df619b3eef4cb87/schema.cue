@@ -36,7 +36,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	Queue?:        string | fn.#StringExpression
-	SettingsJson!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	SettingsJson!: fn.#Object & {...} | string | fn.#StringObjectExpression
 	StatusUpdateInterval?: "SECONDS_10" |
 		"SECONDS_12" |
 		"SECONDS_120" |
@@ -53,7 +53,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"SECONDS_60" |
 		"SECONDS_600" |
 		fn.#StringExpression
-	Tags?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccelerationSettings": close(

@@ -90,7 +90,7 @@ _#defs: "/$defs/Properties/definitions/ActionGroupSignature": "AMAZON.UserInput"
 
 _#defs: "/$defs/Properties/definitions/ActionGroupState": "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AdditionalModelRequestFields": {[string]: fn.#Value} | fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/AdditionalModelRequestFields": fn.#Object & {...} | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AgentActionGroup": close({
 	ActionGroupExecutor?:        _#defs."/$defs/Properties/definitions/ActionGroupExecutor"

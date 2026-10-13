@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	FileSystemId!: strings.MaxRunes(128) &
 	=~"^(arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}|fs-[0-9a-f]{17,40})$" |
 	fn.#StringExpression
-	Policy!: {[string]: fn.#Value} | fn.#ObjectExpression
+	Policy!: fn.#Object & {...} | fn.#ObjectExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::S3Files::FileSystemPolicy"

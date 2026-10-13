@@ -47,7 +47,7 @@ Requires Go 1.26+ and Python 3.12+. These are the same entry points used in CI:
 ./scripts/corpus.sh test
 ```
 
-`test` runs Go checks, the pinned S3/IAM integration, parser tests, and all 78
+`test` runs Go checks, the pinned S3/IAM integration, parser tests, and all 92
 offline corpus expectations. To repeat the downloaded-example investigation:
 
 ```sh
@@ -140,7 +140,7 @@ timeout interpretation, and the manual GitHub performance workflow.
 
 The generator emits a finite graph of named CUE definitions. It does not recursively expand function definitions in Go and does not impose a nesting-depth cutoff.
 
-A shared function table has optional function keys and enforces exactly one key in a concrete expression. Result-type views select the permitted keys for strings, numbers, booleans, lists and objects. Common input types keep the recursive graph small. `Fn::If` branches use the expected result type; `Ref: "AWS::NoValue"` works through the dynamic reference alternative. Logical functions enforce their argument counts without constructing an eagerly expanded recursive tuple.
+A shared function table has optional function keys and enforces exactly one key in a concrete expression. Result-type views select the permitted keys for strings, numbers, booleans, lists and objects. Multi-type properties use a combined view so shared functions such as `Ref` do not leave competing alternatives. Generic objects reserve intrinsic keys, which prevents malformed functions from passing as ordinary objects. Common input types keep the recursive graph small. `Fn::If` branches use the expected result type; `Ref: "AWS::NoValue"` works through the dynamic reference alternative. Logical functions enforce their argument counts without constructing an eagerly expanded recursive tuple.
 
 Local schema references reuse intrinsic alternatives already present in their
 target definition. Adding them again at a reference created incomplete values

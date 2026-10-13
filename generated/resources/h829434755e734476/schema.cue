@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Bucket!:          strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
 	BucketAccountId?: strings.MaxRunes(64) & =~"^\\d{12}$" | fn.#StringExpression
 	Name?:   strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" | fn.#StringExpression
-	Policy?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Policy?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	PublicAccessBlockConfiguration?: _#defs."/$defs/Properties/definitions/PublicAccessBlockConfiguration" |
 		fn.#ObjectExpression
 	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression

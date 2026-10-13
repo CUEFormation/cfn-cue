@@ -28,7 +28,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
 	fn.#StringExpression
-	Schema!: {[string]: fn.#Value} | fn.#ObjectExpression
+	Schema!: fn.#Object & {...} | fn.#ObjectExpression
 	Tags?:   list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Type!:   "DOCUMENT" | "IMAGE" | "AUDIO" | "VIDEO" | fn.#StringExpression
 })

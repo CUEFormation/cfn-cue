@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // policy](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-iam.html#scenario-sns-policy)
 // in the *User Guide*.
 #Properties: close({
-	PolicyDocument!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
 	Topics!:         [...string | fn.#StringExpression] | fn.#ListExpression
 })
 #Resource: base.#ResourceAttributes & {

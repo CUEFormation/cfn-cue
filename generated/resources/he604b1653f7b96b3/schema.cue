@@ -16,11 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Criteria": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/Criteria": fn.#Object & {...} & matchN(1, [close(
 	{Regex!: string | fn.#StringExpression},
 ), close(
 	{S3WordsList!: _#defs."/$defs/Properties/definitions/S3WordsList" | fn.#ObjectExpression},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Regex": string | fn.#StringExpression

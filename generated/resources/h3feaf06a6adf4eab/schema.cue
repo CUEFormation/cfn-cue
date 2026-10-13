@@ -34,7 +34,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 	LifecyclePolicy?:      _#defs."/$defs/Properties/definitions/LifecyclePolicy" | fn.#ObjectExpression
 	RepositoryName?:       strings.MaxRunes(256) & strings.MinRunes(2) | fn.#StringExpression
-	RepositoryPolicyText?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	RepositoryPolicyText?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 

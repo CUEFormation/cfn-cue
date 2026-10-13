@@ -31,7 +31,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name?:                  string | fn.#StringExpression
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	Tags?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	Vpc?:  _#defs."/$defs/Properties/definitions/VpcOutputSettings"
 })
 
@@ -1532,10 +1532,9 @@ _#defs: "/$defs/Properties/definitions/EmbeddedCaptionPositionSettings": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EmbeddedDestinationSettings": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/EmbeddedDestinationSettings": fn.#Object & {...} |
+string |
+fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EmbeddedSourceSettings": close({
 	Convert608To708?: string | fn.#StringExpression
@@ -3376,10 +3375,9 @@ _#defs: "/$defs/Properties/definitions/MediaPackageOutputDestinationSettings": c
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaPackageOutputSettings": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/MediaPackageOutputSettings": fn.#Object & {...} |
+string |
+fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MediaPackageV2DestinationSettings": close({
 	AudioGroupId?:       string | fn.#StringExpression
@@ -3908,10 +3906,9 @@ _#defs: "/$defs/Properties/definitions/OutputSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipelineLockingSettings": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/PipelineLockingSettings": fn.#Object & {...} |
+string |
+fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrimaryChannelSettings": close(
 	{LinkedChannelType?: string | fn.#StringExpression},

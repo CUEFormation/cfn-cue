@@ -64,6 +64,7 @@ func Intrinsics(extensions bool) *ast.File {
 	fn("ValueOfAll", "Fn::ValueOfAll", tuple(id("string"), id("string")))
 	add("ConditionExpression", union(id("bool"), condition))
 	fn("If", "Fn::If", tuple(id("string"), r("Value"), r("Value")))
+	classLiterals := map[string]ast.Expr{}
 	for _, name := range []string{"String", "Number", "Boolean", "List", "Object"} {
 		literal := map[string]ast.Expr{"String": id("string"), "Number": id("number"), "Boolean": id("bool"), "List": r("List"), "Object": r("Object")}[name]
 		// Coercion belongs to typed CloudFormation value branches. Keep
@@ -71,8 +72,9 @@ func Intrinsics(extensions bool) *ast.File {
 		if name == "Number" {
 			literal = union(literal, quotedNumber(id("number"), false))
 		} else if name == "Boolean" {
-			literal = union(literal, str("true"), str("True"), str("TRUE"), str("false"), str("False"), str("FALSE"))
+			literal = booleanCompatibility(literal)
 		}
+		classLiterals[name] = literal
 		add(name+"Value", union(literal, r(name+"Expression")))
 		fn("If"+name, "Fn::If", tuple(id("string"), r(name+"Value"), r(name+"Value")))
 	}
@@ -111,6 +113,34 @@ func Intrinsics(extensions bool) *ast.File {
 	add("BooleanExpression", refs(boolNames...))
 	add("ListExpression", refs(listNames...))
 	add("ObjectExpression", refs(objectNames...))
+	// A union of return classes needs one function table, not a disjunction
+	// of tables with different optional Fn::If fields. Shared functions such
+	// as Ref would otherwise match several distinct, incomplete alternatives.
+	classNames := []string{"String", "Number", "Boolean", "List", "Object"}
+	classFunctions := [][]string{stringNames, numberNames, boolNames, listNames, objectNames}
+	for mask := 1; mask < 1<<len(classNames); mask++ {
+		if mask&(mask-1) == 0 {
+			continue // single-class definitions already exist above
+		}
+		name := ""
+		var values []ast.Expr
+		var names []string
+		for i, class := range classNames {
+			if mask&(1<<i) == 0 {
+				continue
+			}
+			name += class
+			values = append(values, classLiterals[class])
+			for _, function := range classFunctions[i] {
+				if !strings.HasPrefix(function, "If") && !includes(names, function) {
+					names = append(names, function)
+				}
+			}
+		}
+		branch := union(append(values, r(name+"Expression"))...)
+		fn("If"+name, "Fn::If", tuple(id("string"), branch, branch))
+		add(name+"Expression", refs(append(names, "If"+name)...))
+	}
 	all := []string{"Ref", "GetAtt", "FindInMap", "Select", "Transform", "Base64", "ImportValue", "Join", "Sub", "GetStackOutput", "If", "Cidr", "GetAZs", "Split"}
 	if extensions {
 		all = append(all, "Length", "ToJsonString")

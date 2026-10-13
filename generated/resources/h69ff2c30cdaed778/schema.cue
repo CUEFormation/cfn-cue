@@ -835,11 +835,11 @@ _#defs: "/$defs/Properties/definitions/TagFilter": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetObjectKeyFormat": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/TargetObjectKeyFormat": fn.#Object & {...} & matchN(1, [close(
 	{SimplePrefix!: close({}) | fn.#ObjectExpression},
 ), close(
 	{PartitionedPrefix!: _#defs."/$defs/Properties/definitions/PartitionedPrefix"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tiering": close({

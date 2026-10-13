@@ -23,9 +23,9 @@ _#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Overrides": close(
-	{Manifest?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression},
+	{Manifest?: fn.#Object & {...} | string | fn.#StringObjectExpression},
 ) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SkillPackage": close({
 	Overrides?:       _#defs."/$defs/Properties/definitions/Overrides"

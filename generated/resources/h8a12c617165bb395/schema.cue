@@ -38,11 +38,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 	}) |
 		fn.#ObjectExpression
-	PipelineDefinition!: matchN(1, [close(
+	PipelineDefinition!: fn.#Object & {...} & matchN(1, [close(
 		{PipelineDefinitionBody!: string | fn.#StringExpression},
 	), close(
 		{PipelineDefinitionS3Location!: _#defs."/$defs/Properties/definitions/S3Location"},
-	)]) & {[string]: fn.#Value} |
+	)]) |
 	fn.#ObjectExpression
 	PipelineDescription?: strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
 	PipelineDisplayName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" |

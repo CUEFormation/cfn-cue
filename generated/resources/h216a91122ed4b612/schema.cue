@@ -21,7 +21,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(8192) & strings.MinRunes(0) | fn.#StringExpression
 	Enabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KeyPolicy!:   string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	KeyPolicy!:   fn.#Object & {...} | string | fn.#StringObjectExpression
 	PendingWindowInDays?: int & <=30 & >=7 |
 		{
 			string &

@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Condition?:    _#defs."/$defs/Properties/definitions/Condition"
 	EventBusName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" | fn.#StringExpression
 	Principal?:    strings.MaxRunes(12) & strings.MinRunes(1) & =~"(\\d{12}|\\*)" | fn.#StringExpression
-	Statement?:    string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Statement?:    fn.#Object & {...} | string | fn.#StringObjectExpression
 	StatementId!:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9-_]+" | fn.#StringExpression
 })
 

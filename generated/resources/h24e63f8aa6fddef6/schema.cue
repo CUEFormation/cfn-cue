@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Default?:              _#defs."/$defs/Properties/definitions/DefaultPushNotificationTemplate"
 	DefaultSubstitutions?: string | fn.#StringExpression
 	GCM?:                  _#defs."/$defs/Properties/definitions/AndroidPushNotificationTemplate"
-	Tags?:                 string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:                 fn.#Object & {...} | string | fn.#StringObjectExpression
 	TemplateDescription?:  string | fn.#StringExpression
 	TemplateName!:         string | fn.#StringExpression
 })

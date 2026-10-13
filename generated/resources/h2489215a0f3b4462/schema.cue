@@ -47,10 +47,7 @@ _#defs: "/$defs/Properties/definitions/CustomPluginConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NoAuthConfiguration": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/NoAuthConfiguration": fn.#Object & {...} | string | fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OAuth2ClientCredentialConfiguration": close({
 	AuthorizationUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$" |

@@ -35,7 +35,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AWSResource": close({
 	ResourceArn!:      string | fn.#StringExpression
-	ResourceMetadata?: {[string]: fn.#Value} | fn.#ObjectExpression
+	ResourceMetadata?: fn.#Object & {...} | fn.#ObjectExpression
 	ResourceType?: "AWS::CloudFormation::Stack" |
 		"AWS::ECR::Repository" |
 		"AWS::S3::Bucket" |
@@ -172,7 +172,7 @@ _#defs: "/$defs/Properties/definitions/PagerDutyConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConfiguration": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/ServiceConfiguration": fn.#Object & {...} & matchN(1, [close(
 	{SourceAws!: _#defs."/$defs/Properties/definitions/SourceAwsConfiguration"},
 ), close(
 	{Aws!: _#defs."/$defs/Properties/definitions/AWSConfiguration"},
@@ -204,7 +204,7 @@ _#defs: "/$defs/Properties/definitions/ServiceConfiguration": matchN(1, [close(
 	{Azure!: _#defs."/$defs/Properties/definitions/AzureConfiguration"},
 ), close(
 	{MCPServerSigV4!: _#defs."/$defs/Properties/definitions/MCPServerSigV4Configuration"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceId": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression

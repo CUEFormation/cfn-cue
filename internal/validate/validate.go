@@ -21,6 +21,7 @@ import (
 	"cuelang.org/go/cue/load"
 	"cuelang.org/go/cue/token"
 	cuejson "cuelang.org/go/encoding/json"
+	"github.com/cueformation/cfn-cue/internal/cfn"
 	"github.com/cueformation/cfn-cue/internal/generate"
 )
 
@@ -79,10 +80,24 @@ func Check(data []byte, opt Options) (result Result) {
 	}
 	var transforms []string
 	if raw, ok := template["Transform"]; ok {
-		var single string
-		if json.Unmarshal(raw, &single) == nil {
-			transforms = []string{single}
-		} else if json.Unmarshal(raw, &transforms) != nil {
+		// Unmarshal into an interface first: encoding/json accepts null for
+		// string and []string targets without reporting a type mismatch.
+		var value any
+		if err := json.Unmarshal(raw, &value); err != nil {
+			return fail("invalid", "Transform must be a string or a list of strings")
+		}
+		switch value := value.(type) {
+		case string:
+			transforms = []string{value}
+		case []any:
+			for _, entry := range value {
+				name, ok := entry.(string)
+				if !ok {
+					return fail("invalid", "Transform must be a string or a list of strings")
+				}
+				transforms = append(transforms, name)
+			}
+		default:
 			return fail("invalid", "Transform must be a string or a list of strings")
 		}
 	}
@@ -112,10 +127,9 @@ func Check(data []byte, opt Options) (result Result) {
 	}
 	names := make([]string, 0, len(resources))
 	types := map[string]string{}
+	actualTypes := map[string]bool{}
+	schemaTypes := map[string]string{}
 	for name, raw := range resources {
-		if strings.HasPrefix(name, "Fn::ForEach::") {
-			return fail("unsupported", "Fn::ForEach requires loop expansion before resource validation")
-		}
 		if !logicalID.MatchString(name) {
 			return fail("invalid", "invalid resource logical ID: "+name)
 		}
@@ -125,7 +139,11 @@ func Check(data []byte, opt Options) (result Result) {
 		if err := json.Unmarshal(raw, &resource); err != nil || resource.Type == "" {
 			return fail("invalid", "resource "+name+" must have a string Type")
 		}
-		hash, ok := mapping[resource.Type]
+		if strings.HasPrefix(resource.Type, "Custom::") && !cfn.IsCustomResource(resource.Type) {
+			return fail("invalid", "resource "+name+" has an invalid custom resource Type")
+		}
+		schemaType := cfn.SchemaType(resource.Type)
+		hash, ok := mapping[schemaType]
 		if !ok {
 			return fail("unsupported", fmt.Sprintf("resource %s: %s is absent from %s", name, resource.Type, opt.Region))
 		}
@@ -133,10 +151,12 @@ func Check(data []byte, opt Options) (result Result) {
 			return fail("error", "unsafe schema identifier in manifest")
 		}
 		names = append(names, name)
-		types[resource.Type] = hash
+		types[schemaType] = hash
+		schemaTypes[name] = schemaType
+		actualTypes[resource.Type] = true
 	}
 	sort.Strings(names)
-	for typ := range types {
+	for typ := range actualTypes {
 		result.ResourceTypes = append(result.ResourceTypes, typ)
 	}
 	sort.Strings(result.ResourceTypes)
@@ -146,7 +166,12 @@ func Check(data []byte, opt Options) (result Result) {
 	if opt.Resource == "" {
 		imports.Specs = append(imports.Specs, ast.NewImport(ast.NewIdent("base"), manifest.Module+"/template:template"))
 	}
-	for i, typ := range result.ResourceTypes {
+	importTypes := make([]string, 0, len(types))
+	for typ := range types {
+		importTypes = append(importTypes, typ)
+	}
+	sort.Strings(importTypes)
+	for i, typ := range importTypes {
 		alias := fmt.Sprintf("r%d", i)
 		aliases[typ] = alias
 		imports.Specs = append(imports.Specs, ast.NewImport(ast.NewIdent(alias), manifest.Module+"/resources/h"+types[typ]+":schema"))
@@ -154,14 +179,17 @@ func Check(data []byte, opt Options) (result Result) {
 	f.Decls = append(f.Decls, imports)
 	selected := &ast.StructLit{}
 	for _, name := range names {
-		var resource struct{ Type string }
-		_ = json.Unmarshal(resources[name], &resource)
-		expr, err := cuejson.Extract("input.json", resources[name])
-		if err != nil {
-			return fail("invalid", err.Error())
+		var constraint ast.Expr = ast.NewSel(ast.NewIdent(aliases[schemaTypes[name]]), "#Resource")
+		if opt.Resource != "" {
+			// Whole-template mode supplies the data once below. Single-resource
+			// mode needs only the selected resource's concrete input.
+			expr, err := cuejson.Extract("input.json", resources[name])
+			if err != nil {
+				return fail("invalid", err.Error())
+			}
+			constraint = ast.NewBinExpr(token.AND, constraint, expr)
 		}
-		x := ast.NewBinExpr(token.AND, ast.NewSel(ast.NewIdent(aliases[resource.Type]), "#Resource"), expr)
-		selected.Elts = append(selected.Elts, &ast.Field{Label: ast.NewString(name), Value: x})
+		selected.Elts = append(selected.Elts, &ast.Field{Label: ast.NewString(name), Value: constraint})
 	}
 	var value ast.Expr
 	if opt.Resource != "" {

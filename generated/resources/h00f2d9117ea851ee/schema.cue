@@ -46,10 +46,9 @@ _#defs: "/$defs/Properties/definitions/AggregationSortConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AllSheetsFilterScopeConfiguration": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/AllSheetsFilterScopeConfiguration": fn.#Object & {...} |
+string |
+fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AnalysisDefaults": close(
 	{DefaultNewSheetConfiguration!: _#defs."/$defs/Properties/definitions/DefaultNewSheetConfiguration"},
@@ -183,10 +182,9 @@ _#defs: "/$defs/Properties/definitions/AxisDataOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AxisDisplayDataDrivenRange": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/AxisDisplayDataDrivenRange": fn.#Object & {...} |
+string |
+fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AxisDisplayMinMaxRange": close({
 	Maximum?: number |

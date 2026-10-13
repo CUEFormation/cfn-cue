@@ -10,7 +10,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Schema for SQS QueueInlinePolicy
 #Properties: close({
-	PolicyDocument!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
 	Queue!:          string | fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {

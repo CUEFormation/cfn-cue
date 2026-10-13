@@ -15,7 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DomainName?:            string | fn.#StringExpression
 	EndpointAccessMode?:    string | fn.#StringExpression
 	EndpointConfiguration?: _#defs."/$defs/Properties/definitions/EndpointConfiguration"
-	Policy?:                string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Policy?:                fn.#Object & {...} | string | fn.#StringObjectExpression
 	RoutingMode?: "BASE_PATH_MAPPING_ONLY" |
 		"ROUTING_RULE_THEN_BASE_PATH_MAPPING" |
 		"ROUTING_RULE_ONLY" |

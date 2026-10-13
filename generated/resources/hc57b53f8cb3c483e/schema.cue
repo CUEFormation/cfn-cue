@@ -28,7 +28,7 @@ _#defs: "/$defs/Properties/definitions/Environment": close({
 	AccessSysfs?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Execution?:              _#defs."/$defs/Properties/definitions/Execution"
 	ResourceAccessPolicies?: [..._#defs."/$defs/Properties/definitions/ResourceAccessPolicy"] | fn.#ListExpression
-	Variables?:              string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Variables?:              fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 

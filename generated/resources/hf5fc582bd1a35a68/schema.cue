@@ -320,11 +320,11 @@ _#defs: "/$defs/Properties/definitions/MultiplexStatmuxVideoSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiplexVideoSettings": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/MultiplexVideoSettings": fn.#Object & {...} & matchN(1, [close(
 	{ConstantBitrate!: int & <=100000000 & >=100000 | fn.#NumberExpression},
 ), close(
 	{StatmuxSettings!: _#defs."/$defs/Properties/definitions/MultiplexStatmuxVideoSettings" | fn.#ObjectExpression},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PreferredChannelPipeline": "CURRENTLY_ACTIVE" |

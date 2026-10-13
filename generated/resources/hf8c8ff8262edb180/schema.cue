@@ -763,9 +763,9 @@ _#defs: "/$defs/Properties/definitions/TagList": list.MaxItems(200) & [...] & [
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/TemplateConfiguration": close(
-	{Template!: {[string]: fn.#Value} | fn.#ObjectExpression},
+	{Template!: fn.#Object & {...} | fn.#ObjectExpression},
 ) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TenantDomain": strings.MaxRunes(256) &
 strings.MinRunes(1) &

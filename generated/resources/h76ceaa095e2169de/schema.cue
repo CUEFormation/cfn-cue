@@ -206,10 +206,12 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/RequiredProperty": =~"[a-zA-Z_\\-0-9]+" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Status": close({
-	Error?: (close({}) | close({
+	Error?: fn.#Object &
+	{...} &
+	(close({}) | close({
 		Code?:    "VALIDATION_ERROR" | "INTERNAL_FAILURE" | fn.#StringExpression
 		Message?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	})) & {[string]: fn.#Value} |
+	})) |
 	fn.#ObjectExpression
 	State?: "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "ERROR" | fn.#StringExpression
 }) |

@@ -66,7 +66,7 @@ func addScalarCompatibility(f *ast.File, definitions ...string) (skipped int) {
 			if ident, ok := expr.(*ast.Ident); !ok || ident.Name != "bool" {
 				return false
 			}
-			cur.Replace(union(expr, str("true"), str("True"), str("TRUE"), str("false"), str("False"), str("FALSE")))
+			cur.Replace(booleanCompatibility(expr))
 			return false
 		}
 		if info.kind != scalarInteger && info.kind != scalarNumber {
@@ -208,6 +208,10 @@ func scalarExprInfo(expr ast.Expr) scalarInfo {
 const quotedIntegerPattern = `^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$`
 const quotedNumberPattern = `^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\.(?:[0-9](?:_?[0-9])*)?)?|\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$`
 
+func booleanCompatibility(literal ast.Expr) ast.Expr {
+	return union(literal, str("true"), str("True"), str("TRUE"), str("false"), str("False"), str("FALSE"))
+}
+
 func quotedNumber(constraints ast.Expr, integer bool) ast.Expr {
 	call := func(pkg, name string, args ...ast.Expr) ast.Expr {
 		path := map[string]string{"cfnScalarStrings": "strings", "cfnScalarStrconv": "strconv"}[pkg]
@@ -220,6 +224,8 @@ func quotedNumber(constraints ast.Expr, integer bool) ast.Expr {
 	pattern := quotedIntegerPattern
 	var parsed, formatted ast.Expr
 	if integer {
+		// CUE's strconv.Atoi and FormatInt use big.Int, unlike Go's standard
+		// strconv.Atoi. Quoted integers therefore retain unlimited precision.
 		parsed = call("cfnScalarStrconv", "Atoi", cleaned)
 		formatted = call("cfnScalarStrconv", "FormatInt", and(parsed, constraints), ast.NewLit(token.INT, "10"))
 	} else {

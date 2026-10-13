@@ -24,7 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AutoAssignElasticIps!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AutoAssignPublicIps!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CustomInstanceProfileArn?: string | fn.#StringExpression
-	CustomJson?:               string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	CustomJson?:               fn.#Object & {...} | string | fn.#StringObjectExpression
 	CustomRecipes?:            _#defs."/$defs/Properties/definitions/Recipes"
 	CustomSecurityGroupIds?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |

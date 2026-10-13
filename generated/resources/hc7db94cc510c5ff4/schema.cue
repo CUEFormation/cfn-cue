@@ -19,13 +19,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // enforces fine-grained, role-based access control beyond what is possible
 // through AWS IAM alone.
 #Properties: close({
-	Detail!: _#defs."/$defs/Properties/definitions/PolicyGrantDetail" & {[string]: fn.#Value} | fn.#ValueExpression
+	Detail!: _#defs."/$defs/Properties/definitions/PolicyGrantDetail" & fn.#Object & {...} | fn.#ValueExpression
 	DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 	EntityIdentifier!: string | fn.#StringExpression
 	EntityType!:       _#defs."/$defs/Properties/definitions/TargetEntityType"
 	PolicyType!:       _#defs."/$defs/Properties/definitions/ManagedPolicyType"
-	Principal!: _#defs."/$defs/Properties/definitions/PolicyGrantPrincipal" & {[string]: fn.#Value} |
-		fn.#ValueExpression
+	Principal!: _#defs."/$defs/Properties/definitions/PolicyGrantPrincipal" & fn.#Object & {...} | fn.#ValueExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AddToProjectMemberPoolPolicyGrantDetail": close(

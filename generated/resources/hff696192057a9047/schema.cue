@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::EMR::Cluster
 #Properties: close({
-	AdditionalInfo?:  string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	AdditionalInfo?:  fn.#Object & {...} | string | fn.#StringObjectExpression
 	Applications?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Application"] | fn.#ListExpression
 	AutoScalingRole?: string | fn.#StringExpression
 	AutoTerminationPolicy?: _#defs."/$defs/Properties/definitions/AutoTerminationPolicy"

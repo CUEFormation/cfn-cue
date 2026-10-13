@@ -283,16 +283,12 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/Environment": close({
 	Variables?: close({
 
-		{[=~"[a-zA-Z][a-zA-Z0-9_]+"]: bool |
-			int |
-			string |
-			[...] |
-			{[string]: fn.#Value} |
-			fn.#StringExpression |
-			fn.#NumberExpression |
-			fn.#ObjectExpression |
-			fn.#ListExpression |
-			fn.#BooleanExpression}}) |
+		{[=~"[a-zA-Z][a-zA-Z0-9_]+"]: fn.#Object & {...} |
+		bool |
+		int |
+		string |
+		[...] |
+		fn.#StringNumberBooleanListObjectExpression}}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression

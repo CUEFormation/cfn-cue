@@ -25,7 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/AdvancedBackupSettingResourceType": close({
-	BackupOptions!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	BackupOptions!: fn.#Object & {...} | string | fn.#StringObjectExpression
 	ResourceType!:  =~"^[a-zA-Z0-9\\-\\_\\.]{1,50}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -736,8 +736,7 @@ _#defs: "/$defs/Properties/definitions/NotificationConfiguration": close({
 			...=~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 				fn.#StringExpression
 		] |
-		fn.#StringExpression |
-		fn.#ListExpression
+		fn.#StringListExpression
 }) |
 fn.#ObjectExpression
 

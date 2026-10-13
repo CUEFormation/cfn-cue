@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Attachments?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/AttachmentsSource"] |
 		fn.#ListExpression
-	Content!:        strings.MinRunes(1) | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Content!:        fn.#Object & {...} | strings.MinRunes(1) | fn.#StringObjectExpression
 	DocumentFormat?: "YAML" | "JSON" | "TEXT" | fn.#StringExpression
 	DocumentType?: "ApplicationConfiguration" |
 		"ApplicationConfigurationSchema" |

@@ -30,10 +30,10 @@ _#defs: "/$defs/Properties/definitions/InstanceConnectEndpointDnsNames": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InstanceConnectEndpointPublicDnsNames": close({
-	Dualstack?: _#defs."/$defs/Properties/definitions/InstanceConnectEndpointDnsNames" & {[string]: fn.#Value} |
-		fn.#ObjectExpression
-	Ipv4?: _#defs."/$defs/Properties/definitions/InstanceConnectEndpointDnsNames" & {[string]: fn.#Value} |
-		fn.#ObjectExpression
+	Dualstack?: _#defs."/$defs/Properties/definitions/InstanceConnectEndpointDnsNames" & fn.#Object & {...} |
+	fn.#ObjectExpression
+	Ipv4?: _#defs."/$defs/Properties/definitions/InstanceConnectEndpointDnsNames" & fn.#Object & {...} |
+	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 

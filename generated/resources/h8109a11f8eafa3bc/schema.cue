@@ -183,14 +183,11 @@ _#defs: "/$defs/Properties/definitions/TableResource": close({
 	CatalogId!:     _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
 	DatabaseName!:  _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
 	Name?:          _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	TableWildcard?: _#defs."/$defs/Properties/definitions/TableWildcard" | fn.#ObjectExpression | fn.#StringExpression
+	TableWildcard?: _#defs."/$defs/Properties/definitions/TableWildcard" | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TableWildcard": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/TableWildcard": fn.#Object & {...} | string | fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableWithColumnsResource": close({
 	CatalogId!:      _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression

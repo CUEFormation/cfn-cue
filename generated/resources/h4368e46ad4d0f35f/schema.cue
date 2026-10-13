@@ -40,10 +40,10 @@ _#defs: "/$defs/Properties/definitions/Condition": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldToMatch": close({
-	Method?:       string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	QueryString?:  string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Method?:       fn.#Object & {...} | string | fn.#StringObjectExpression
+	QueryString?:  fn.#Object & {...} | string | fn.#StringObjectExpression
 	SingleHeader?: close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
-	UriPath?:      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	UriPath?:      fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 

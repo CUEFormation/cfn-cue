@@ -198,17 +198,43 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 	if len(m) == 0 {
 		return map[string]any{"$ref": "cue://intrinsics/Value"}
 	}
-	if includes(schemaTypes(s), "object") && s["additionalProperties"] == nil && s["properties"] == nil && s["patternProperties"] == nil {
-		m["additionalProperties"] = map[string]any{"$ref": "cue://intrinsics/Value"}
-	}
 	// Literal alternatives already belong to m. Adding #Value here would
 	// duplicate open objects and arrays, leaving nested values ambiguous in
 	// CUE v0.18, and would let literals bypass the property's constraints.
 	classes := schemaClasses(s, root, map[string]bool{})
 	if len(classes) == 0 {
 		classes = []string{"ValueExpression"}
+	} else if len(classes) > 1 {
+		name := ""
+		for _, class := range []string{"String", "Number", "Boolean", "List", "Object"} {
+			if includes(classes, class+"Expression") {
+				name += class
+			}
+		}
+		classes = []string{name + "Expression"}
 	}
 	alternatives := []any{m}
+	if includes(schemaTypes(s), "object") && s["additionalProperties"] == nil && s["properties"] == nil && s["patternProperties"] == nil {
+		// Generic objects must use the same literal/expression distinction as
+		// #Value. Otherwise an intrinsic also matches an open object, leaving
+		// intersections with typed properties ambiguous. Split mixed types so
+		// the object guard does not constrain their scalar/array alternatives.
+		object := clone(m).(map[string]any)
+		object["type"] = "object"
+		object["allOf"] = append(asArray(object["allOf"]), map[string]any{"$ref": "cue://intrinsics/Object"})
+		alternatives = []any{object}
+		var otherTypes []any
+		for _, typ := range schemaTypes(s) {
+			if typ != "object" {
+				otherTypes = append(otherTypes, typ)
+			}
+		}
+		if len(otherTypes) > 0 {
+			other := clone(m).(map[string]any)
+			other["type"] = otherTypes
+			alternatives = append(alternatives, other)
+		}
+	}
 	for _, class := range classes {
 		alternatives = append(alternatives, map[string]any{"$ref": "cue://intrinsics/" + class})
 	}
@@ -261,6 +287,7 @@ func (c *converter) extract(root map[string]any, template bool) (*ast.File, erro
 	if template {
 		c.removeReadOnly(s)
 	}
+	preservePatternReferences(s)
 	n := c.normalize(s, "#", false, s, map[string]bool{})
 	wrapper := map[string]any{"$schema": "https://json-schema.org/draft/2020-12/schema", "$defs": map[string]any{"Properties": n}, "$ref": "#/$defs/Properties"}
 	b, e := json.Marshal(wrapper)

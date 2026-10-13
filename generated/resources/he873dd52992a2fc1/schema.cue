@@ -49,7 +49,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 _#defs: "/$defs/Properties/definitions/ActionDeclaration": close({
 	ActionTypeId!:  _#defs."/$defs/Properties/definitions/ActionTypeId"
 	Commands?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	Configuration?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Configuration?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	EnvironmentVariables?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"] |
 		fn.#ListExpression
 	InputArtifacts?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InputArtifact"] | fn.#ListExpression
@@ -209,7 +209,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RuleDeclaration": close({
 	Commands?:       [...string | fn.#StringExpression] | fn.#ListExpression
-	Configuration?:  {[string]: fn.#Value} | fn.#ObjectExpression
+	Configuration?:  fn.#Object & {...} | fn.#ObjectExpression
 	InputArtifacts?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InputArtifact"] | fn.#ListExpression
 	Name?:           string | fn.#StringExpression
 	Region?:         string | fn.#StringExpression
@@ -231,12 +231,12 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/StageDeclaration": close({
 	Actions!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ActionDeclaration"] |
 		fn.#ListExpression
-	BeforeEntry?: _#defs."/$defs/Properties/definitions/BeforeEntryConditions" & {[string]: fn.#Value} |
-		fn.#ObjectExpression
+	BeforeEntry?: _#defs."/$defs/Properties/definitions/BeforeEntryConditions" & fn.#Object & {...} |
+	fn.#ObjectExpression
 	Blockers?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BlockerDeclaration"] | fn.#ListExpression
 	Name!:      string | fn.#StringExpression
-	OnFailure?: _#defs."/$defs/Properties/definitions/FailureConditions" & {[string]: fn.#Value} | fn.#ObjectExpression
-	OnSuccess?: _#defs."/$defs/Properties/definitions/SuccessConditions" & {[string]: fn.#Value} | fn.#ObjectExpression
+	OnFailure?: _#defs."/$defs/Properties/definitions/FailureConditions" & fn.#Object & {...} | fn.#ObjectExpression
+	OnSuccess?: _#defs."/$defs/Properties/definitions/SuccessConditions" & fn.#Object & {...} | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 

@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^arn:[^:]+:s3-outposts:[a-zA-Z0-9\\-]+:\\d{12}:outpost\\/[^:]+\\/bucket\\/[^:]+$" |
 	fn.#StringExpression
 	Name!:   strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\\\-]*[a-z0-9])?$" | fn.#StringExpression
-	Policy?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Policy?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	VpcConfiguration!: _#defs."/$defs/Properties/definitions/VpcConfiguration" | fn.#ObjectExpression
 })
 

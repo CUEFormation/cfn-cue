@@ -32,7 +32,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"FALSE" |
 		fn.#BooleanExpression
 	Encrypted?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FileSystemPolicy?:     string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	FileSystemPolicy?:     fn.#Object & {...} | string | fn.#StringObjectExpression
 	FileSystemProtection?: _#defs."/$defs/Properties/definitions/FileSystemProtection" | fn.#ObjectExpression
 	FileSystemTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ElasticFileSystemTag"] |
 		fn.#ListExpression

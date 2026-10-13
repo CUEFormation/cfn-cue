@@ -20,10 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 _#defs: "/$defs/Properties/definitions/PhysicalId": string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Policy": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/Policy": fn.#Object & {...} | string | fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
 

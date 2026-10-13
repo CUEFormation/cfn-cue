@@ -57,15 +57,15 @@ _#defs: "/$defs/Properties/definitions/CanNetworkInterface": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CanSignal": close({
-	Factor!:          number | string | fn.#NumberExpression | fn.#StringExpression
-	IsBigEndian!:     bool | string | fn.#BooleanExpression | fn.#StringExpression
-	IsSigned!:        bool | string | fn.#BooleanExpression | fn.#StringExpression
-	Length!:          int | string | fn.#NumberExpression | fn.#StringExpression
-	MessageId!:       int | string | fn.#NumberExpression | fn.#StringExpression
+	Factor!:          number | string | fn.#StringNumberExpression
+	IsBigEndian!:     bool | string | fn.#StringBooleanExpression
+	IsSigned!:        bool | string | fn.#StringBooleanExpression
+	Length!:          int | string | fn.#StringNumberExpression
+	MessageId!:       int | string | fn.#StringNumberExpression
 	Name?:            strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Offset!:          number | string | fn.#NumberExpression | fn.#StringExpression
+	Offset!:          number | string | fn.#StringNumberExpression
 	SignalValueType?: _#defs."/$defs/Properties/definitions/SignalValueType"
-	StartBit!:        int | string | fn.#NumberExpression | fn.#StringExpression
+	StartBit!:        int | string | fn.#StringNumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -107,13 +107,13 @@ _#defs: "/$defs/Properties/definitions/DefaultForUnmappedSignalsType": "CUSTOM_D
 _#defs: "/$defs/Properties/definitions/ManifestStatus": "ACTIVE" | "DRAFT" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ObdInterface": close({
-	DtcRequestIntervalSeconds?: int | string | fn.#NumberExpression | fn.#StringExpression
-	HasTransmissionEcu?:        bool | string | fn.#BooleanExpression | fn.#StringExpression
+	DtcRequestIntervalSeconds?: int | string | fn.#StringNumberExpression
+	HasTransmissionEcu?:        bool | string | fn.#StringBooleanExpression
 	Name!:                      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	ObdStandard?:               strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	PidRequestIntervalSeconds?: int | string | fn.#NumberExpression | fn.#StringExpression
-	RequestMessageId!:          int | string | fn.#NumberExpression | fn.#StringExpression
-	UseExtendedIds?:            bool | string | fn.#BooleanExpression | fn.#StringExpression
+	PidRequestIntervalSeconds?: int | string | fn.#StringNumberExpression
+	RequestMessageId!:          int | string | fn.#StringNumberExpression
+	UseExtendedIds?:            bool | string | fn.#StringBooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -125,17 +125,17 @@ _#defs: "/$defs/Properties/definitions/ObdNetworkInterface": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ObdSignal": close({
-	BitMaskLength?:     int | string | fn.#NumberExpression | fn.#StringExpression
-	BitRightShift?:     int | string | fn.#NumberExpression | fn.#StringExpression
-	ByteLength!:        int | string | fn.#NumberExpression | fn.#StringExpression
-	IsSigned?:          bool | string | fn.#BooleanExpression | fn.#StringExpression
-	Offset!:            number | string | fn.#NumberExpression | fn.#StringExpression
-	Pid!:               int | string | fn.#NumberExpression | fn.#StringExpression
-	PidResponseLength!: int | string | fn.#NumberExpression | fn.#StringExpression
-	Scaling!:           number | string | fn.#NumberExpression | fn.#StringExpression
-	ServiceMode!:       int | string | fn.#NumberExpression | fn.#StringExpression
+	BitMaskLength?:     int | string | fn.#StringNumberExpression
+	BitRightShift?:     int | string | fn.#StringNumberExpression
+	ByteLength!:        int | string | fn.#StringNumberExpression
+	IsSigned?:          bool | string | fn.#StringBooleanExpression
+	Offset!:            number | string | fn.#StringNumberExpression
+	Pid!:               int | string | fn.#StringNumberExpression
+	PidResponseLength!: int | string | fn.#StringNumberExpression
+	Scaling!:           number | string | fn.#StringNumberExpression
+	ServiceMode!:       int | string | fn.#StringNumberExpression
 	SignalValueType?:   _#defs."/$defs/Properties/definitions/SignalValueType"
-	StartByte!:         int | string | fn.#NumberExpression | fn.#StringExpression
+	StartByte!:         int | string | fn.#StringNumberExpression
 }) |
 fn.#ObjectExpression
 

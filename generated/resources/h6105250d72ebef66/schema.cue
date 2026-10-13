@@ -77,11 +77,11 @@ _#defs: "/$defs/Properties/definitions/HighAvailabilityConfig": close({
 
 _#defs: "/$defs/Properties/definitions/NetworkType": "ipv4" | "dual" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StorageConfiguration": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/StorageConfiguration": fn.#Object & {...} & matchN(1, [close(
 	{Efs!: _#defs."/$defs/Properties/definitions/EfsStorageConfiguration"},
 ), close(
 	{Fsx!: _#defs."/$defs/Properties/definitions/FsxStorageConfiguration"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TagMap": struct.MaxFields(200) & struct.MinFields(0) & {...} |

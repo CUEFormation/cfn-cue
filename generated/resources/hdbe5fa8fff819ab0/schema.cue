@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -14,10 +14,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::IoT::Policy
 #Properties: close({
-	PolicyDocument!: strings.MaxRunes(404600) & strings.MinRunes(1) & =~"^[\\s\\S]*$" |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+	PolicyDocument!: fn.#Object & {...} |
+	strings.MaxRunes(404600) & strings.MinRunes(1) & =~"^[\\s\\S]*$" |
+	fn.#StringObjectExpression
 	PolicyName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
 	Tags?:       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })

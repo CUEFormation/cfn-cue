@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Agent Profile, used to improve the quality of Well-Architected Agent
 // recommendations.
 #Properties: close({
-	Content!:     {[string]: fn.#Value} | fn.#ObjectExpression
+	Content!:     fn.#Object & {...} | fn.#ObjectExpression
 	ContextType!: _#defs."/$defs/Properties/definitions/ContextType"
 	ProfileArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &

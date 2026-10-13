@@ -20,14 +20,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CatalogId!:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	ConnectionInput!: _#defs."/$defs/Properties/definitions/ConnectionInput" | fn.#ObjectExpression
-	Tags?:            {[string]: fn.#Value} | fn.#ObjectExpression
+	Tags?:            fn.#Object & {...} | fn.#ObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
 	AuthenticationType!: "BASIC" | "CUSTOM" | "IAM" | "OAUTH2" | fn.#StringExpression
 	BasicAuthenticationCredentials?: _#defs."/$defs/Properties/definitions/BasicAuthenticationCredentials" |
 		fn.#ObjectExpression
-	CustomAuthenticationCredentials?: {[string]: fn.#Value} | fn.#ObjectExpression
+	CustomAuthenticationCredentials?: fn.#Object & {...} | fn.#ObjectExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^$|arn:aws[a-z0-9-]*:kms:" |
 		fn.#StringExpression
@@ -90,10 +90,10 @@ _#defs: "/$defs/Properties/definitions/BasicAuthenticationCredentials": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConnectionInput": close({
-	AthenaProperties?: {[string]: fn.#Value} | fn.#ObjectExpression
+	AthenaProperties?: fn.#Object & {...} | fn.#ObjectExpression
 	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/AuthenticationConfiguration" |
 		fn.#ObjectExpression
-	ConnectionProperties?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	ConnectionProperties?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	ConnectionType!: "ADOBEANALYTICS" |
 		"ASANA" |
 		"AZURECOSMOS" |
@@ -193,8 +193,8 @@ _#defs: "/$defs/Properties/definitions/ConnectionInput": close({
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	PhysicalConnectionRequirements?: _#defs."/$defs/Properties/definitions/PhysicalConnectionRequirements" |
 		fn.#ObjectExpression
-	PythonProperties?:    {[string]: fn.#Value} | fn.#ObjectExpression
-	SparkProperties?:     {[string]: fn.#Value} | fn.#ObjectExpression
+	PythonProperties?:    fn.#Object & {...} | fn.#ObjectExpression
+	SparkProperties?:     fn.#Object & {...} | fn.#ObjectExpression
 	ValidateCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ValidateForComputeEnvironments?: [..."ATHENA" | "PYTHON" | "SPARK" | fn.#StringExpression] | fn.#ListExpression
 }) |
@@ -234,7 +234,7 @@ _#defs: "/$defs/Properties/definitions/OAuth2Properties": close({
 	strings.MinRunes(0) &
 	=~"^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$" |
 	fn.#StringExpression
-	TokenUrlParametersMap?: {[string]: fn.#Value} | fn.#ObjectExpression
+	TokenUrlParametersMap?: fn.#Object & {...} | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 

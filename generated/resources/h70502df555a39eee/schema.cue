@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/Order": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PartitionInput": close({
-	Parameters?:        string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Parameters?:        fn.#Object & {...} | string | fn.#StringObjectExpression
 	StorageDescriptor?: _#defs."/$defs/Properties/definitions/StorageDescriptor"
 	Values!:            [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 }) |
@@ -93,14 +93,14 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SerdeInfo": close({
 	Name?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters?:           string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Parameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 	SerializationLibrary?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SkewedInfo": close({
 	SkewedColumnNames?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	SkewedColumnValueLocationMaps?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	SkewedColumnValueLocationMaps?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	SkewedColumnValues?:            [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -126,7 +126,7 @@ _#defs: "/$defs/Properties/definitions/StorageDescriptor": close({
 		} |
 		fn.#NumberExpression
 	OutputFormat?:           strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Parameters?:             string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Parameters?:             fn.#Object & {...} | string | fn.#StringObjectExpression
 	SchemaReference?:        _#defs."/$defs/Properties/definitions/SchemaReference"
 	SerdeInfo?:              _#defs."/$defs/Properties/definitions/SerdeInfo"
 	SkewedInfo?:             _#defs."/$defs/Properties/definitions/SkewedInfo"

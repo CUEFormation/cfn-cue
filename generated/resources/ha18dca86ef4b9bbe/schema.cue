@@ -30,9 +30,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/ComponentConfiguration": close(
-	{Configuration!: {[string]: fn.#Value} | fn.#ObjectExpression},
+	{Configuration!: fn.#Object & {...} | fn.#ObjectExpression},
 ) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression

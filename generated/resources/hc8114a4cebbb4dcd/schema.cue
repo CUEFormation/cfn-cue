@@ -25,7 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApiKeySourceType?:          string | fn.#StringExpression
 	BinaryMediaTypes?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Body?:                      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Body?:                      fn.#Object & {...} | string | fn.#StringObjectExpression
 	BodyS3Location?:            _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
 	CloneFrom?:                 string | fn.#StringExpression
 	Description?:               string | fn.#StringExpression
@@ -53,9 +53,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression |
-	fn.#StringExpression
-	Policy?:         string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	fn.#StringObjectExpression
+	Policy?:         fn.#Object & {...} | string | fn.#StringObjectExpression
 	SecurityPolicy?: string | fn.#StringExpression
 	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Version?:        string | fn.#StringExpression

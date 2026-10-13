@@ -86,8 +86,8 @@ _#defs: "/$defs/Properties/definitions/LogPublishingOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourcePolicy": close({Policy!: {[string]: fn.#Value} | fn.#ObjectExpression}) |
-	fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/ResourcePolicy": close({Policy!: fn.#Object & {...} | fn.#ObjectExpression}) |
+fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

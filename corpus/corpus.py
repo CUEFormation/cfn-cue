@@ -32,6 +32,42 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def files_digest(paths):
+    """Stream a stable group fingerprint without repeatedly loading binaries."""
+    checksum = hashlib.sha256()
+    for path in paths:
+        with path.open("rb") as source:
+            for block in iter(lambda: source.read(1024 * 1024), b""):
+                checksum.update(block)
+    return checksum.hexdigest()
+
+
+class FileGuard:
+    """Cheap change detection between content checks within a single run.
+
+    Include inode, ctime and nanosecond mtime, not just size/mtime: rebuilding via
+    replacement or writing the same size and restoring mtime still changes these.
+    Full tool fingerprints remain verified at the beginning and end of the run.
+    """
+    def __init__(self, paths, message):
+        self.message = message
+        self.signatures = {path: self.signature(path) for path in paths}
+
+    @staticmethod
+    def signature(path):
+        st = path.stat()
+        return st.st_dev, st.st_ino, st.st_size, st.st_mtime_ns, st.st_ctime_ns
+
+    def check(self):
+        for path, expected in self.signatures.items():
+            try:
+                actual = self.signature(path)
+            except OSError as error:
+                raise ValueError(self.message + ": " + str(path)) from error
+            if actual != expected:
+                raise ValueError(self.message + ": " + str(path))
+
+
 def schema_fingerprint(root):
     checksum = hashlib.sha256()
     for path in sorted(root.rglob("*.cue")):
@@ -308,10 +344,12 @@ def run(args):
     results = []
     args.report.mkdir(parents=True, exist_ok=True)
     journal = args.report / "results.jsonl"
-    validator_sha = digest(args.validator.read_bytes())
-    schema_sha = schema_fingerprint(args.schemas)
     driver_files = [HERE / "corpus.py", HERE / "lint.py", HERE / "cfnlintrc.json"]
-    driver_sha = digest(b"".join(p.read_bytes() for p in driver_files))
+    tool_guard = FileGuard([args.validator, *driver_files], "validator or harness changed during the run; start a new report")
+    validator_sha = files_digest([args.validator])
+    driver_sha = files_digest(driver_files)
+    tool_guard.check()
+    schema_sha = schema_fingerprint(args.schemas)
     state = dict(corpus_index_sha256=digest(index_bytes), schema_manifest_sha256=digest(manifest_bytes), schema_cue_sha256=schema_sha,
                  validator_sha256=validator_sha, driver_sha256=driver_sha, runtime=versions(),
                  selected_ids=[r["id"] for r in records], regions=regions, timeout=args.timeout,
@@ -337,36 +375,43 @@ def run(args):
         write(state_path, canonical(state))
     with journal.open("a" if args.resume else "w") as output:
         for record in records:
+            # Content checks happen once per template, including resumed rows.
+            # Metadata guards detect changes while its regions are evaluated.
+            original = args.corpus / safe_relative(record["original"])
+            paths = [original]
+            path = None
+            if "normalized" in record:
+                path = args.corpus / safe_relative(record["normalized"])
+                paths.append(path)
+            input_guard = FileGuard(paths, "template changed during region evaluation")
+            if files_digest([original]) != record["original_sha256"]:
+                raise ValueError("original template checksum mismatch: " + str(original))
+            normalized_bytes = path.read_bytes() if path else None
+            if path and digest(normalized_bytes) != record["normalized_sha256"]:
+                raise ValueError("normalized template checksum mismatch: " + str(path))
+            input_guard.check()
             for region in regions:
                 row = dict(id=record["id"], source=record["source"], path=record["path"], url=record["url"],
                            region=region, resource_count=record.get("resource_count", 0),
                            resource_types=record.get("resource_types", []), intrinsics=record.get("intrinsics", {}))
-                original = args.corpus / safe_relative(record["original"])
-                if digest(original.read_bytes()) != record["original_sha256"]:
-                    raise ValueError("original template checksum mismatch: " + str(original))
-                if "normalized" in record:
-                    normalized_path = args.corpus / safe_relative(record["normalized"])
-                    if digest(normalized_path.read_bytes()) != record["normalized_sha256"]:
-                        raise ValueError("normalized template checksum mismatch: " + str(normalized_path))
                 key = record["id"] + ":" + region
                 if key in completed:
                     results.append(completed[key])
                     continue
-                if digest(args.validator.read_bytes()) != validator_sha or digest(b"".join(p.read_bytes() for p in driver_files)) != driver_sha:
-                    raise ValueError("validator or harness changed during the run; start a new report")
+                tool_guard.check()
+                input_guard.check()
                 row["lint"] = lint(original.resolve(), region, args.timeout)
                 if "normalization_error" in record:
                     row["cue"] = dict(status="error", message=record["normalization_error"])
                     row["classification"] = "normalization-error"
                 else:
-                    path = args.corpus / safe_relative(record["normalized"])
-                    if digest(path.read_bytes()) != record["normalized_sha256"]:
-                        raise ValueError("normalized template checksum mismatch: " + str(path))
+                    tool_guard.check()
+                    input_guard.check()
                     row["cue"] = cue(args, path, region)
                     row["classification"] = classify(row["cue"], row["lint"])
                     row["resources"] = {}
                     if args.resources == "all" or (args.resources == "failures" and row["cue"]["status"] != "valid"):
-                        value = json.loads(path.read_bytes())
+                        value = json.loads(normalized_bytes)
                         resources = value.get("Resources", {})
                         if isinstance(resources, dict):
                             names = sorted(resources)
@@ -374,7 +419,11 @@ def run(args):
                                 row["resource_checks_skipped"] = names[args.max_resource_checks:]
                                 names = names[:args.max_resource_checks]
                             for name in names:
+                                tool_guard.check()
+                                input_guard.check()
                                 row["resources"][name] = cue(args, path, region, name)
+                tool_guard.check()
+                input_guard.check()
                 if expected is not None:
                     expectation = expected.get(record["id"] + ":" + region)
                     row["contract_pass"] = bool(expectation and
@@ -383,6 +432,10 @@ def run(args):
                 output.write(json.dumps(row, ensure_ascii=False) + "\n")
                 output.flush()
                 print(f"{len(results)}/{len(records)*len(regions)} {record['source']} {record['path']} [{region}]: {row['classification']}", flush=True)
+    tool_guard.check()
+    if files_digest([args.validator]) != validator_sha or files_digest(driver_files) != driver_sha:
+        raise ValueError("validator or harness changed during the run; start a new report")
+    tool_guard.check()
     summary = summarize(results, index, manifest, digest(manifest_bytes), args)
     summary["schema_cue_sha256"] = schema_sha
     summary["validator_sha256"] = validator_sha

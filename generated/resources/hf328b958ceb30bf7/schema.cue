@@ -56,13 +56,13 @@ _#defs: "/$defs/Properties/definitions/JiraCloudProviderConfiguration": close(
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Provider": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/Provider": fn.#Object & {...} & matchN(1, [close(
 	{JiraCloud!: _#defs."/$defs/Properties/definitions/JiraCloudProviderConfiguration"},
 ), close(
 	{ServiceNow!: _#defs."/$defs/Properties/definitions/ServiceNowProviderConfiguration"},
 ), close(
 	{Azure!: _#defs."/$defs/Properties/definitions/AzureProviderConfiguration"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceNowProviderConfiguration": close({

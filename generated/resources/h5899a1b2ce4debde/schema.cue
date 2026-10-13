@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Backup::LogicallyAirGappedBackupVault
 #Properties: close({
-	AccessPolicy?:    string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	AccessPolicy?:    fn.#Object & {...} | string | fn.#StringObjectExpression
 	BackupVaultName!: _#defs."/$defs/Properties/definitions/BackupVaultNamePattern"
 	BackupVaultTags?: close({
 

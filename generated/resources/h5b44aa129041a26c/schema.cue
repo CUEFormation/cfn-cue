@@ -103,9 +103,9 @@ _#defs: "/$defs/Properties/definitions/DetailedStatusCodesMetrics": close(
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Encryption": matchN(1, [
+_#defs: "/$defs/Properties/definitions/Encryption": fn.#Object & {...} & matchN(1, [
 	close({SSES3!: close({}) | fn.#ObjectExpression}), close({SSEKMS!: _#defs."/$defs/Properties/definitions/SSEKMS"}),
-]) & {[string]: fn.#Value} |
+]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_.]+$" |

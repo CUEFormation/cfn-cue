@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionParameters": close(
 _#defs: "/$defs/Properties/definitions/ProvisioningArtifactProperties": close({
 	Description?:               string | fn.#StringExpression
 	DisableTemplateValidation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Info!:                      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Info!:                      fn.#Object & {...} | string | fn.#StringObjectExpression
 	Name?:                      string | fn.#StringExpression
 	Type?: "CLOUD_FORMATION_TEMPLATE" |
 		"MARKETPLACE_AMI" |

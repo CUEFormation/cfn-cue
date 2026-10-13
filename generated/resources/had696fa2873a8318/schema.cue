@@ -101,9 +101,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 _#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConsolidationConfiguration": _#defs."/$defs/Properties/definitions/CustomConsolidationConfiguration" & {...} & {
-	[string]: fn.#Value
-} |
+_#defs: "/$defs/Properties/definitions/ConsolidationConfiguration": fn.#Object &
+{...} &
+_#defs."/$defs/Properties/definitions/CustomConsolidationConfiguration" &
+{...} |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ContentConfiguration": close({
@@ -121,17 +122,17 @@ _#defs: "/$defs/Properties/definitions/CustomConfigurationInput": struct.MaxFiel
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomConsolidationConfiguration": matchN(1, [
+_#defs: "/$defs/Properties/definitions/CustomConsolidationConfiguration": fn.#Object & {...} & matchN(1, [
 	_#defs."/$defs/Properties/definitions/SemanticConsolidationOverride" & {...},
 	_#defs."/$defs/Properties/definitions/SummaryConsolidationOverride" & {...},
 	_#defs."/$defs/Properties/definitions/UserPreferenceConsolidationOverride" & {...}
-]) & {[string]: fn.#Value} |
+]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomExtractionConfiguration": matchN(1, [
+_#defs: "/$defs/Properties/definitions/CustomExtractionConfiguration": fn.#Object & {...} & matchN(1, [
 	_#defs."/$defs/Properties/definitions/SemanticExtractionOverride" & {...},
 	_#defs."/$defs/Properties/definitions/UserPreferenceExtractionOverride" & {...}
-]) & {[string]: fn.#Value} |
+]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomMemoryStrategy": close({
@@ -208,9 +209,10 @@ _#defs: "/$defs/Properties/definitions/ExtractionConfig": struct.MaxFields(1) & 
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExtractionConfiguration": _#defs."/$defs/Properties/definitions/CustomExtractionConfiguration" & {...} & {
-	[string]: fn.#Value
-} |
+_#defs: "/$defs/Properties/definitions/ExtractionConfiguration": fn.#Object &
+{...} &
+_#defs."/$defs/Properties/definitions/CustomExtractionConfiguration" &
+{...} |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExtractionType": "LLM_INFERRED" | "STRICTLY_CONSISTENT" | fn.#StringExpression

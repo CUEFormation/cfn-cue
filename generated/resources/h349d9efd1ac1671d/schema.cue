@@ -330,9 +330,9 @@ _#defs: "/$defs/Properties/definitions/ReplicaStreamSpecification": matchN(>=1, 
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResourcePolicy": close(
-	{PolicyDocument!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression},
+	{PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression},
 ) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SSESpecification": close({
 	SSEEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

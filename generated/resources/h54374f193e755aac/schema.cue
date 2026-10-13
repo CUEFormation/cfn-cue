@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Family!:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Name?:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9-]*" | fn.#StringExpression
-	Parameters!:  string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Parameters!:  fn.#Object & {...} | string | fn.#StringObjectExpression
 	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 

@@ -30,15 +30,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	DataProtectionPolicy?:      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	DataProtectionPolicy?:      fn.#Object & {...} | string | fn.#StringObjectExpression
 	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FieldIndexPolicies?: list.UniqueItems() & [...{[string]: fn.#Value} | fn.#ObjectExpression] | fn.#ListExpression
+	FieldIndexPolicies?:        list.UniqueItems() & [...fn.#Object & {...} | fn.#ObjectExpression] | fn.#ListExpression
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) & (strings.MaxRunes(256) & strings.MinRunes(0)) |
 	fn.#StringExpression
 	LogGroupClass?:          "STANDARD" | "INFREQUENT_ACCESS" | "DELIVERY" | fn.#StringExpression
 	LogGroupName?:           strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	ResourcePolicyDocument?: {[string]: fn.#Value} | fn.#ObjectExpression
+	ResourcePolicyDocument?: fn.#Object & {...} | fn.#ObjectExpression
 	RetentionInDays?: (==1 |
 		==3 |
 		==5 |

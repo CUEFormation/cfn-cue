@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -18,12 +18,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // information, see [Registry
 // permissions](https://docs.aws.amazon.com/AmazonECR/latest/userguide/registry-permissions.html)
 // in the *Amazon Elastic Container Registry User Guide*.
-#Properties: close({
-	PolicyText!: strings.MaxRunes(10240) & strings.MinRunes(0) |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
-})
+#Properties: close(
+	{PolicyText!: fn.#Object & {...} | strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringObjectExpression},
+)
 
 _#defs: "/$defs/Properties/definitions/RegistryId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
 fn.#StringExpression

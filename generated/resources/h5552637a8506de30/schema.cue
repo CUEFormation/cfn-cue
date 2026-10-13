@@ -32,7 +32,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Smpte2110ReceiverGroupSettings?: _#defs."/$defs/Properties/definitions/Smpte2110ReceiverGroupSettings"
 	Sources?:                        [..._#defs."/$defs/Properties/definitions/InputSourceRequest"] | fn.#ListExpression
 	SrtSettings?:                    _#defs."/$defs/Properties/definitions/SrtSettingsRequest"
-	Tags?:                           string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:                           fn.#Object & {...} | string | fn.#StringObjectExpression
 	Type?:                           string | fn.#StringExpression
 	Vpc?:                            _#defs."/$defs/Properties/definitions/InputVpcRequest"
 })

@@ -102,16 +102,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Ipv6Addresses?: [..._#defs."/$defs/Properties/definitions/InstanceIpv6Address"] | fn.#ListExpression
 	KernelId?:      string | fn.#StringExpression
 	KeyName?:       string | fn.#StringExpression
-	LaunchTemplate?: _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification" & {[string]: fn.#Value} |
-		fn.#ObjectExpression
+	LaunchTemplate?: _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification" & fn.#Object & {...} |
+	fn.#ObjectExpression
 	LicenseSpecifications?: [..._#defs."/$defs/Properties/definitions/LicenseSpecification"] | fn.#ListExpression
-	MetadataOptions?: _#defs."/$defs/Properties/definitions/MetadataOptions" & {[string]: fn.#Value} |
-		fn.#ObjectExpression
-	Monitoring?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MetadataOptions?: _#defs."/$defs/Properties/definitions/MetadataOptions" & fn.#Object & {...} | fn.#ObjectExpression
+	Monitoring?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NetworkInterfaces?:  [..._#defs."/$defs/Properties/definitions/NetworkInterface"] | fn.#ListExpression
 	PlacementGroupName?: string | fn.#StringExpression
-	PrivateDnsNameOptions?: _#defs."/$defs/Properties/definitions/PrivateDnsNameOptions" & {[string]: fn.#Value} |
-		fn.#ObjectExpression
+	PrivateDnsNameOptions?: _#defs."/$defs/Properties/definitions/PrivateDnsNameOptions" & fn.#Object & {...} |
+	fn.#ObjectExpression
 	PrivateIpAddress?: string | fn.#StringExpression
 	PropagateTagsToVolumeOnCreation?: bool |
 		"true" |

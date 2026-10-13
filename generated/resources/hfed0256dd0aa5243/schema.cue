@@ -27,7 +27,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 	ExternalDataFilteringAllowList?: [..._#defs."/$defs/Properties/definitions/DataLakePrincipal"] | fn.#ListExpression
 	MutationType?:                   string | fn.#StringExpression
-	Parameters?:                     string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Parameters?:                     fn.#Object & {...} | string | fn.#StringObjectExpression
 	ReadOnlyAdmins?:                 [..._#defs."/$defs/Properties/definitions/DataLakePrincipal"] | fn.#ListExpression
 	TrustedResourceOwners?:          [...string | fn.#StringExpression] | fn.#ListExpression
 })

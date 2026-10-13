@@ -29,7 +29,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Variants?: list.MaxItems(3) & [...] & [..._#defs."/$defs/Properties/definitions/PromptVariant"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AdditionalModelRequestFields": {[string]: fn.#Value} | fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/AdditionalModelRequestFields": fn.#Object & {...} | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AnyToolChoice": close({}) | fn.#ObjectExpression
 
@@ -255,8 +255,8 @@ _#defs: "/$defs/Properties/definitions/ToolConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ToolInputSchema": close({Json!: {[string]: fn.#Value} | fn.#ObjectExpression}) |
-	fn.#ValueExpression
+_#defs: "/$defs/Properties/definitions/ToolInputSchema": close({Json!: fn.#Object & {...} | fn.#ObjectExpression}) |
+fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/ToolSpecification": close({
 	Description?: strings.MinRunes(1) | fn.#StringExpression

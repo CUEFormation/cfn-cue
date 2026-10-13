@@ -321,7 +321,7 @@ _#defs: "/$defs/Properties/definitions/IntermediateStorage": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ManagedKnowledgeBaseConnectorConfiguration": close({
-	ConnectorParameters?:             {[string]: fn.#Value} | fn.#ObjectExpression
+	ConnectorParameters?:             fn.#Object & {...} | fn.#ObjectExpression
 	DeletionProtectionConfiguration?: _#defs."/$defs/Properties/definitions/DeletionProtectionConfiguration"
 	MediaExtractionConfiguration?:    _#defs."/$defs/Properties/definitions/MediaExtractionConfiguration"
 	SyncSchedule?:                    _#defs."/$defs/Properties/definitions/SyncSchedule"

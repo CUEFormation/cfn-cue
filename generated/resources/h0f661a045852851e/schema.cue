@@ -31,7 +31,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Parameters?:   string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Parameters?:   fn.#Object & {...} | string | fn.#StringObjectExpression
 	ResourceType?: string | fn.#StringExpression
 	RetryAttemptSeconds?: int |
 		{

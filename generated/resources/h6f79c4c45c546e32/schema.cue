@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DefaultSubstitutions?: string | fn.#StringExpression
 	HtmlPart?:             string | fn.#StringExpression
 	Subject!:              string | fn.#StringExpression
-	Tags?:                 string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:                 fn.#Object & {...} | string | fn.#StringObjectExpression
 	TemplateDescription?:  string | fn.#StringExpression
 	TemplateName!:         string | fn.#StringExpression
 	TextPart?:             string | fn.#StringExpression

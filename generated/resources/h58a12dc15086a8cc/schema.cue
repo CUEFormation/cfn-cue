@@ -33,7 +33,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AdditionalServiceDetails": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/AdditionalServiceDetails": fn.#Object & {...} & matchN(1, [close(
 	{MCPServer!: _#defs."/$defs/Properties/definitions/RegisteredMCPServerDetails"},
 ), close(
 	{GitLab!: _#defs."/$defs/Properties/definitions/RegisteredGitLabServiceDetails"},
@@ -55,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/AdditionalServiceDetails": matchN(1, [clo
 	{MCPServerSigV4!: _#defs."/$defs/Properties/definitions/RegisteredMCPServerSigV4Details"},
 ), close(
 	{MCPServerGrafana!: _#defs."/$defs/Properties/definitions/RegisteredMCPServerGrafanaDetails"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ApiKeyDetails": close({
@@ -105,11 +105,11 @@ _#defs: "/$defs/Properties/definitions/GitHubAppVerificationDetails": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GitHubDetails": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/GitHubDetails": fn.#Object & {...} & matchN(1, [close(
 	{AppVerification!: _#defs."/$defs/Properties/definitions/GitHubAppVerificationDetails"},
 ), close(
 	{DirectAccess!: _#defs."/$defs/Properties/definitions/GitHubPatDetails"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GitHubPatDetails": close({
@@ -131,13 +131,13 @@ _#defs: "/$defs/Properties/definitions/GitLabDetails": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MCPServerAuthorizationConfig": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/MCPServerAuthorizationConfig": fn.#Object & {...} & matchN(1, [close(
 	{OAuthClientCredentials!: _#defs."/$defs/Properties/definitions/MCPServerOAuthClientCredentialsConfig"},
 ), close(
 	{ApiKey!: _#defs."/$defs/Properties/definitions/ApiKeyDetails"},
 ), close(
 	{BearerToken!: _#defs."/$defs/Properties/definitions/BearerTokenDetails"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MCPServerDetails": close({
@@ -148,10 +148,10 @@ _#defs: "/$defs/Properties/definitions/MCPServerDetails": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MCPServerGrafanaAuthorizationConfig": close(
+_#defs: "/$defs/Properties/definitions/MCPServerGrafanaAuthorizationConfig": fn.#Object & {...} & close(
 	{BearerToken!: _#defs."/$defs/Properties/definitions/BearerTokenDetails"},
-) & {[string]: fn.#Value} |
-	fn.#ObjectExpression
+) |
+fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MCPServerGrafanaDetails": close({
 	AuthorizationConfig!: _#defs."/$defs/Properties/definitions/MCPServerGrafanaAuthorizationConfig"
@@ -165,7 +165,7 @@ _#defs: "/$defs/Properties/definitions/MCPServerOAuthClientCredentialsConfig": c
 	ClientId!:           string | fn.#StringExpression
 	ClientName?:         string | fn.#StringExpression
 	ClientSecret!:       string | fn.#StringExpression
-	ExchangeParameters?: {[string]: fn.#Value} | fn.#ObjectExpression
+	ExchangeParameters?: fn.#Object & {...} | fn.#ObjectExpression
 	ExchangeUrl!:        =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
 	Scopes?:             [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
@@ -195,10 +195,10 @@ _#defs: "/$defs/Properties/definitions/MCPServerSigV4Details": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MCPServerSplunkAuthorizationConfig": close(
+_#defs: "/$defs/Properties/definitions/MCPServerSplunkAuthorizationConfig": fn.#Object & {...} & close(
 	{BearerToken!: _#defs."/$defs/Properties/definitions/BearerTokenDetails"},
-) & {[string]: fn.#Value} |
-	fn.#ObjectExpression
+) |
+fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MCPServerSplunkDetails": close({
 	AuthorizationConfig!: _#defs."/$defs/Properties/definitions/MCPServerSplunkAuthorizationConfig"
@@ -232,7 +232,7 @@ _#defs: "/$defs/Properties/definitions/OAuthClientDetails": close({
 	ClientId!:           string | fn.#StringExpression
 	ClientName?:         string | fn.#StringExpression
 	ClientSecret!:       string | fn.#StringExpression
-	ExchangeParameters?: {[string]: fn.#Value} | fn.#ObjectExpression
+	ExchangeParameters?: fn.#Object & {...} | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
@@ -328,7 +328,7 @@ _#defs: "/$defs/Properties/definitions/RegisteredServiceNowDetails": close(
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceDetails": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/ServiceDetails": fn.#Object & {...} & matchN(1, [close(
 	{Dynatrace!: _#defs."/$defs/Properties/definitions/DynatraceServiceDetails"},
 ), close(
 	{MCPServer!: _#defs."/$defs/Properties/definitions/MCPServerDetails"},
@@ -350,7 +350,7 @@ _#defs: "/$defs/Properties/definitions/ServiceDetails": matchN(1, [close(
 	{MCPServerSigV4!: _#defs."/$defs/Properties/definitions/MCPServerSigV4Details"},
 ), close(
 	{MCPServerGrafana!: _#defs."/$defs/Properties/definitions/MCPServerGrafanaDetails"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceId": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression

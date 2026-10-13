@@ -47,7 +47,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name?:        string | fn.#StringExpression
 	PricingPlan?: "ON_DEMAND" | "RESERVED" | fn.#StringExpression
 	Status?:      "ACTIVE" | "PAUSED" | fn.#StringExpression
-	Tags?:        string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:        fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::MediaConvert::Queue"

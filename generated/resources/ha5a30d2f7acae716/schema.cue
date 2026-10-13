@@ -42,10 +42,9 @@ _#defs: "/$defs/Properties/definitions/Actions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssignContactCategoryAction": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/AssignContactCategoryAction": fn.#Object & {...} |
+string |
+fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AssignContactCategoryActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
 	..._#defs."/$defs/Properties/definitions/AssignContactCategoryAction"
@@ -101,10 +100,9 @@ _#defs: "/$defs/Properties/definitions/CreateCaseActions": list.MaxItems(1) & li
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/EndAssociatedTasksAction": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/EndAssociatedTasksAction": fn.#Object & {...} |
+string |
+fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EndAssociatedTasksActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
 	..._#defs."/$defs/Properties/definitions/EndAssociatedTasksAction"
@@ -148,7 +146,7 @@ _#defs: "/$defs/Properties/definitions/FieldValue": close({
 				)
 		} |
 		fn.#NumberExpression
-	EmptyValue?:  string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	EmptyValue?:  fn.#Object & {...} | string | fn.#StringObjectExpression
 	StringValue?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

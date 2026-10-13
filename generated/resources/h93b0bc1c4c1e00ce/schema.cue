@@ -60,10 +60,8 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TransformationConfiguration": close({
 	Actions!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
-	ContentTransformation!: close({AwsLambda!: _#defs."/$defs/Properties/definitions/AwsLambda"}) & {
-		[string]: fn.#Value
-	} |
-		fn.#ObjectExpression
+	ContentTransformation!: fn.#Object & {...} & close({AwsLambda!: _#defs."/$defs/Properties/definitions/AwsLambda"}) |
+	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

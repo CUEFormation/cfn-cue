@@ -38,7 +38,7 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogsLogGroup": close(
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Definition": struct.MinFields(1) & {[string]: fn.#Value} | fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/Definition": fn.#Object & {...} & struct.MinFields(1) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefinitionSubstitutions": struct.MinFields(1) & close({
 

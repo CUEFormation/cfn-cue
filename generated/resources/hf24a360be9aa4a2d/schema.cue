@@ -46,7 +46,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Targets?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Target"] | fn.#ListExpression
 	TaskArn!: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
 	TaskInvocationParameters?: _#defs."/$defs/Properties/definitions/TaskInvocationParameters" | fn.#ObjectExpression
-	TaskParameters?:           string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	TaskParameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 	TaskType!:                 "AUTOMATION" | "LAMBDA" | "RUN_COMMAND" | "STEP_FUNCTIONS" | fn.#StringExpression
 	WindowId!: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^mw-[0-9a-f]{17}$" | fn.#StringExpression
 })
@@ -66,7 +66,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MaintenanceWindowAutomationParameters": close({
 	DocumentVersion?: string | fn.#StringExpression
-	Parameters?:      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Parameters?:      fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
@@ -86,7 +86,7 @@ _#defs: "/$defs/Properties/definitions/MaintenanceWindowRunCommandParameters": c
 	NotificationConfig?:     _#defs."/$defs/Properties/definitions/NotificationConfig"
 	OutputS3BucketName?:     string | fn.#StringExpression
 	OutputS3KeyPrefix?:      string | fn.#StringExpression
-	Parameters?:             string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Parameters?:             fn.#Object & {...} | string | fn.#StringObjectExpression
 	ServiceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	TimeoutSeconds?: int |

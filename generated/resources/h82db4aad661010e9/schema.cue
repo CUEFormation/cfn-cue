@@ -22,7 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	FlowArn!:     =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:flow/[0-9a-zA-Z]{10}$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AdditionalModelRequestFields": {[string]: fn.#Value} | fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/AdditionalModelRequestFields": fn.#Object & {...} | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AgentFlowNodeConfiguration": close({
 	AgentAliasArn!: strings.MaxRunes(2048) &

@@ -34,7 +34,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DnsOptions?:               _#defs."/$defs/Properties/definitions/DnsOptionsSpecification" | fn.#ObjectExpression
 	IpAddressType?:            "ipv4" | "ipv6" | "dualstack" | "not-specified" | fn.#StringExpression
-	PolicyDocument?:           string | {[string]: fn.#Value} | fn.#StringExpression | fn.#ObjectExpression
+	PolicyDocument?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 	PrivateDnsEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ResourceConfigurationArn?: string | fn.#StringExpression
 	RouteTableIds?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression

@@ -154,11 +154,11 @@ _#defs: "/$defs/Properties/definitions/ModuleConfigurationList": [
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ModuleParameters": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/ModuleParameters": fn.#Object & {...} & matchN(1, [close(
 	{NoBid!: _#defs."/$defs/Properties/definitions/NoBidModuleParameters"},
 ), close(
 	{OpenRtbAttribute!: _#defs."/$defs/Properties/definitions/OpenRtbAttributeModuleParameters"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NoBidAction": close({
@@ -222,11 +222,11 @@ _#defs: "/$defs/Properties/definitions/NoBidModuleParameters": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OpenRtbAttributeModuleParameters": close({
-	Action!: matchN(1, [close(
+	Action!: fn.#Object & {...} & matchN(1, [close(
 		{NoBid!: _#defs."/$defs/Properties/definitions/NoBidAction"},
 	), close(
 		{HeaderTag!: _#defs."/$defs/Properties/definitions/HeaderTagAction"},
-	)]) & {[string]: fn.#Value} |
+	)]) |
 	fn.#ObjectExpression
 	FilterConfiguration!: [..._#defs."/$defs/Properties/definitions/Filter"] | fn.#ListExpression
 	FilterType!:          "INCLUDE" | "EXCLUDE" | fn.#StringExpression

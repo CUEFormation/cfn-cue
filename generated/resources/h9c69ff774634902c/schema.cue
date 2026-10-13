@@ -21,12 +21,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ComputeConfig!:               _#defs."/$defs/Properties/definitions/ComputeConfig"
 	ReplicationConfigIdentifier!: string | fn.#StringExpression
-	ReplicationSettings?:         string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	ReplicationSettings?:         fn.#Object & {...} | string | fn.#StringObjectExpression
 	ReplicationType!:             "full-load" | "full-load-and-cdc" | "cdc" | fn.#StringExpression
 	ResourceIdentifier?:          string | fn.#StringExpression
 	SourceEndpointArn!:           string | fn.#StringExpression
-	SupplementalSettings?:        string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	TableMappings!:               string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	SupplementalSettings?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+	TableMappings!:               fn.#Object & {...} | string | fn.#StringObjectExpression
 	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetEndpointArn!: string | fn.#StringExpression
 })

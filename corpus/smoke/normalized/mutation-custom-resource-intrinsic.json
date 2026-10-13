@@ -1,0 +1,12 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "ServiceToken": {
+          "Fn::Sub": "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:CustomResourceProvider"
+        }
+      },
+      "Type": "Custom::Thing"
+    }
+  }
+}

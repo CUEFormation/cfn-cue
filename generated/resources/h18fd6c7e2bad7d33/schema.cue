@@ -10,7 +10,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SMSVOICE::ResourcePolicy
 #Properties: close({
-	PolicyDocument!: {[string]: fn.#Value} | fn.#ObjectExpression
+	PolicyDocument!: fn.#Object & {...} | fn.#ObjectExpression
 	ResourceArn!:    =~"^arn:\\S+$" | fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {

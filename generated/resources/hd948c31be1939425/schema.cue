@@ -30,7 +30,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Schedule?:                     _#defs."/$defs/Properties/definitions/Schedule"
 	SchemaChangePolicy?:           _#defs."/$defs/Properties/definitions/SchemaChangePolicy"
 	TablePrefix?:                  strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?:                         string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:                         fn.#Object & {...} | string | fn.#StringObjectExpression
 	Targets!:                      _#defs."/$defs/Properties/definitions/Targets"
 })
 

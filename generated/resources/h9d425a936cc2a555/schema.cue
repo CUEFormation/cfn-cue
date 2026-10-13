@@ -29,10 +29,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	OpenZFSConfiguration?: _#defs."/$defs/Properties/definitions/S3AccessPointOpenZFSConfiguration" |
 		fn.#ObjectExpression
 	S3AccessPoint?: close({
-		Policy?: strings.MaxRunes(200000) & strings.MinRunes(1) |
-		{[string]: fn.#Value} |
-		fn.#ObjectExpression |
-		fn.#StringExpression
+		Policy?: fn.#Object & {...} | strings.MaxRunes(200000) & strings.MinRunes(1) | fn.#StringObjectExpression
 		VpcConfiguration?: _#defs."/$defs/Properties/definitions/S3AccessPointVpcConfiguration" | fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
@@ -141,11 +138,8 @@ _#defs: "/$defs/Properties/definitions/OpenZFSPosixFileSystemUser": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3AccessPoint": close({
-	Alias?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[0-9a-z\\\\-]{1,63}" | fn.#StringExpression
-	Policy?: strings.MaxRunes(200000) & strings.MinRunes(1) |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+	Alias?:            strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[0-9a-z\\\\-]{1,63}" | fn.#StringExpression
+	Policy?:           fn.#Object & {...} | strings.MaxRunes(200000) & strings.MinRunes(1) | fn.#StringObjectExpression
 	ResourceARN?:      strings.MaxRunes(1024) & strings.MinRunes(8) | fn.#StringExpression
 	VpcConfiguration?: _#defs."/$defs/Properties/definitions/S3AccessPointVpcConfiguration" | fn.#ObjectExpression
 }) |

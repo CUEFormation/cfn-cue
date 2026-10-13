@@ -28,7 +28,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ClonePermissions?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ConfigurationManager?:      _#defs."/$defs/Properties/definitions/StackConfigurationManager"
 	CustomCookbooksSource?:     _#defs."/$defs/Properties/definitions/Source"
-	CustomJson?:                string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	CustomJson?:                fn.#Object & {...} | string | fn.#StringObjectExpression
 	DefaultAvailabilityZone?:   string | fn.#StringExpression
 	DefaultInstanceProfileArn!: string | fn.#StringExpression
 	DefaultOs?:                 string | fn.#StringExpression

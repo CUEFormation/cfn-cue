@@ -21,16 +21,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	NotificationARNs?: list.MaxItems(5) & [...string | fn.#StringExpression] | fn.#ListExpression
 	Parameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: bool |
-			int |
-			string |
-			[...] |
-			{[string]: fn.#Value} |
-			fn.#StringExpression |
-			fn.#NumberExpression |
-			fn.#ObjectExpression |
-			fn.#ListExpression |
-			fn.#BooleanExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: fn.#Object & {...} |
+		bool |
+		int |
+		string |
+		[...] |
+		fn.#StringNumberBooleanListObjectExpression}}) |
 	fn.#ObjectExpression
 	Tags?:        list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TemplateURL!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression

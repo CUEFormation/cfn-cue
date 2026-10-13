@@ -1,0 +1,6 @@
+Transform:
+- AWS::LanguageExtensions
+- null
+Resources:
+  Queue:
+    Type: AWS::SQS::Queue

@@ -1,0 +1,11 @@
+{
+  "Resources": {
+    "Queue": {
+      "Type": "AWS::SQS::Queue"
+    }
+  },
+  "Transform": [
+    "AWS::LanguageExtensions",
+    null
+  ]
+}

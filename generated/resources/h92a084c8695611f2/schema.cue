@@ -84,10 +84,7 @@ _#defs: "/$defs/Properties/definitions/TableResource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TableWildcard": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/TableWildcard": fn.#Object & {...} | string | fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableWithColumnsResource": close({
 	CatalogId!:    _#defs."/$defs/Properties/definitions/CatalogIdString"

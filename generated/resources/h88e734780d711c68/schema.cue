@@ -80,7 +80,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:       strings.MaxRunes(8192) & strings.MinRunes(0) | fn.#StringExpression
 	EnableKeyRotation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Enabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KeyPolicy?:         string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	KeyPolicy?:         fn.#Object & {...} | string | fn.#StringObjectExpression
 	KeySpec?: "SYMMETRIC_DEFAULT" |
 		"RSA_2048" |
 		"RSA_3072" |

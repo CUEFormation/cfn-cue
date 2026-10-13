@@ -66,10 +66,7 @@ _#defs: "/$defs/Properties/definitions/MonthlySchedule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OneTimeSchedule": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/OneTimeSchedule": fn.#Object & {...} | string | fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Schedule": null |
 bool |

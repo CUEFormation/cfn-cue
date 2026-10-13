@@ -66,8 +66,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	PricePerformanceTarget?: _#defs."/$defs/Properties/definitions/PerformanceTarget" & {[string]: fn.#Value} |
-		fn.#ObjectExpression
+	PricePerformanceTarget?: _#defs."/$defs/Properties/definitions/PerformanceTarget" & fn.#Object & {...} |
+	fn.#ObjectExpression
 	PubliclyAccessible?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RecoveryPointId?:    string | fn.#StringExpression
 	SecurityGroupIds?: list.MaxItems(32) & list.MinItems(1) & [

@@ -33,7 +33,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 	ContainerHostname?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 	fn.#StringExpression
-	Environment?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Environment?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	Image?:       strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$" | fn.#StringExpression
 	ImageConfig?: _#defs."/$defs/Properties/definitions/ImageConfig"
 	InferenceSpecificationName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |

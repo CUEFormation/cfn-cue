@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -17,10 +17,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	TableBucketARN!: _#defs."/$defs/Properties/definitions/TableBucketARN"
 })
 
-_#defs: "/$defs/Properties/definitions/ResourcePolicy": strings.MaxRunes(20480) & strings.MinRunes(1) |
-{[string]: fn.#Value} |
-fn.#ObjectExpression |
-fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/ResourcePolicy": fn.#Object & {...} |
+strings.MaxRunes(20480) & strings.MinRunes(1) |
+fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableBucketARN": =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" |
 	fn.#StringExpression

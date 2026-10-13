@@ -21,9 +21,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DefaultRouteSettings?: _#defs."/$defs/Properties/definitions/RouteSettings" | fn.#ObjectExpression
 	DeploymentId?:         string | fn.#StringExpression
 	Description?:          string | fn.#StringExpression
-	RouteSettings?:        string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	RouteSettings?:        fn.#Object & {...} | string | fn.#StringObjectExpression
 	StageName!:            string | fn.#StringExpression
-	StageVariables?:       string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	StageVariables?:       fn.#Object & {...} | string | fn.#StringObjectExpression
 	Tags?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |

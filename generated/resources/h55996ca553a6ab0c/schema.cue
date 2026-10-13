@@ -27,9 +27,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // process](https://docs.aws.amazon.com/general/latest/gr/sigv4-signed-request-examples.html)
 // in the *General Reference*.
 #Properties: close({
-	ArchivePolicy?:             string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	ArchivePolicy?:             fn.#Object & {...} | string | fn.#StringObjectExpression
 	ContentBasedDeduplication?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DataProtectionPolicy?:      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	DataProtectionPolicy?:      fn.#Object & {...} | string | fn.#StringObjectExpression
 	DeliveryStatusLogging?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LoggingConfig"] |
 		fn.#ListExpression
 	DisplayName?:         string | fn.#StringExpression

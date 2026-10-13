@@ -51,9 +51,9 @@ _#defs: "/$defs/Properties/definitions/CalculationComponent": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CreatedByInfo": matchN(1, [
+_#defs: "/$defs/Properties/definitions/CreatedByInfo": fn.#Object & {...} & matchN(1, [
 	close({AWSIdentityArn!: string | fn.#StringExpression}), close({ConnectUserArn!: string | fn.#StringExpression}),
-]) & {[string]: fn.#Value} |
+]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetricFilter": close({

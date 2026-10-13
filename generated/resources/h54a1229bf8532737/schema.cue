@@ -55,13 +55,13 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ResumeClusterMessage": close({ClusterIdentifier!: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduledActionType": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/ScheduledActionType": fn.#Object & {...} & matchN(1, [close(
 	{ResizeCluster?: _#defs."/$defs/Properties/definitions/ResizeClusterMessage"},
 ), close(
 	{PauseCluster?: _#defs."/$defs/Properties/definitions/PauseClusterMessage"},
 ), close(
 	{ResumeCluster?: _#defs."/$defs/Properties/definitions/ResumeClusterMessage"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/timestamp": string | fn.#StringExpression

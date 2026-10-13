@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"struct"
 )
 
@@ -14,10 +14,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Schema for AWS::ServiceCatalogAppRegistry::AttributeGroup.
 #Properties: close({
-	Attributes!: strings.MaxRunes(8000) & strings.MinRunes(1) & =~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+	Attributes!: fn.#Object & {...} |
+	strings.MaxRunes(8000) & strings.MinRunes(1) & =~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
+	fn.#StringObjectExpression
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\w+" | fn.#StringExpression
 	Tags?:        _#defs."/$defs/Properties/definitions/Tags"

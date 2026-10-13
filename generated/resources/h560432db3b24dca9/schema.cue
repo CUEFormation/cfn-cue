@@ -31,11 +31,11 @@ _#defs: "/$defs/Properties/definitions/AIPromptAPIFormat": "ANTHROPIC_CLAUDE_MES
 	"TEXT_COMPLETIONS" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AIPromptTemplateConfiguration": close({
+_#defs: "/$defs/Properties/definitions/AIPromptTemplateConfiguration": fn.#Object & {...} & close({
 	TextFullAIPromptEditTemplateConfiguration!:
 		_#defs."/$defs/Properties/definitions/TextFullAIPromptEditTemplateConfiguration"
-}) & {[string]: fn.#Value} |
-	fn.#ObjectExpression
+}) |
+fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AIPromptTemplateType": "TEXT" | fn.#StringExpression
 

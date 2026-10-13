@@ -17,8 +17,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AuthorizerId?:             string | fn.#StringExpression
 	ModelSelectionExpression?: string | fn.#StringExpression
 	OperationName?:            string | fn.#StringExpression
-	RequestModels?:            string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	RequestParameters?:        {[string]: fn.#Value} | fn.#ObjectExpression
+	RequestModels?:            fn.#Object & {...} | string | fn.#StringObjectExpression
+	RequestParameters?:        fn.#Object & {...} | fn.#ObjectExpression
 	RouteKey!:                 string | fn.#StringExpression
 	RouteResponseSelectionExpression?: string | fn.#StringExpression
 	Target?:                           string | fn.#StringExpression

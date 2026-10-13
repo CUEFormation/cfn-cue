@@ -15,14 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::CloudFormation::CustomResource
 #Properties: close({
 
-	{[=~".*"]: int |
-		string |
-		[...] |
-		{[string]: fn.#Value} |
-		fn.#StringExpression |
-		fn.#NumberExpression |
-		fn.#ListExpression |
-		fn.#ObjectExpression}
+	{[=~".*"]: fn.#Object & {...} | int | string | [...] | fn.#StringNumberListObjectExpression}
 	ServiceTimeout?: int |
 		{
 			string &

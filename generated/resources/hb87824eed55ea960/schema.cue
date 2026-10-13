@@ -219,11 +219,11 @@ _#defs: "/$defs/Properties/definitions/IoTJobExponentialRolloutRate": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IoTJobRateIncreaseCriteria": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/IoTJobRateIncreaseCriteria": fn.#Object & {...} & matchN(1, [close(
 	{NumberOfNotifiedThings?: _#defs."/$defs/Properties/definitions/NumberOfThings"},
 ), close(
 	{NumberOfSucceededThings?: _#defs."/$defs/Properties/definitions/NumberOfThings"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IoTJobTimeoutConfig": close({

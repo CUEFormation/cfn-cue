@@ -59,15 +59,15 @@ _#defs: "/$defs/Properties/definitions/AutomationRulesAction": {
 _#defs: "/$defs/Properties/definitions/AutomationRulesFindingFieldsUpdate": {
 	Confidence?:  _#defs."/$defs/Properties/definitions/int100" | fn.#NumberExpression
 	Criticality?: _#defs."/$defs/Properties/definitions/int100" | fn.#NumberExpression
-	Note?:        _#defs."/$defs/Properties/definitions/NoteUpdate" & {[string]: fn.#Value} | fn.#ObjectExpression
+	Note?:        _#defs."/$defs/Properties/definitions/NoteUpdate" & fn.#Object & {...} | fn.#ObjectExpression
 	RelatedFindings?: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RelatedFinding"] |
 		fn.#ListExpression
-	Severity?: _#defs."/$defs/Properties/definitions/SeverityUpdate" & {[string]: fn.#Value} | fn.#ObjectExpression
+	Severity?: _#defs."/$defs/Properties/definitions/SeverityUpdate" & fn.#Object & {...} | fn.#ObjectExpression
 	Types?: list.MaxItems(50) & list.UniqueItems() & [...=~"^([^/]+)(/[^/]+){0,2}$" | fn.#StringExpression] |
 		fn.#ListExpression
 	UserDefinedFields?: _#defs."/$defs/Properties/definitions/map" | fn.#ObjectExpression
 	VerificationState?: "UNKNOWN" | "TRUE_POSITIVE" | "FALSE_POSITIVE" | "BENIGN_POSITIVE" | fn.#StringExpression
-	Workflow?: _#defs."/$defs/Properties/definitions/WorkflowUpdate" & {[string]: fn.#Value} | fn.#ObjectExpression
+	Workflow?: _#defs."/$defs/Properties/definitions/WorkflowUpdate" & fn.#Object & {...} | fn.#ObjectExpression
 	...
 } | fn.#ObjectExpression
 

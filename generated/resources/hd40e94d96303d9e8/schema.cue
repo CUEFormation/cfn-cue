@@ -11,7 +11,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::MSK::ClusterPolicy
 #Properties: close({
 	ClusterArn!: string | fn.#StringExpression
-	Policy!:     string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Policy!:     fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::MSK::ClusterPolicy"

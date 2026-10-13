@@ -67,7 +67,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // 1. Use this policy to create a new ``AWS::Lambda::ResourcePolicy`` resource.
 // 1. Delete all the existing ``AWS::Lambda::Permission`` resources for the function.
 #Properties: close({
-	PolicyDocument!: {[string]: fn.#Value} | fn.#ObjectExpression
+	PolicyDocument!: fn.#Object & {...} | fn.#ObjectExpression
 	ResourceArn!: _#defs."/$defs/Properties/definitions/FunctionResourceArn" &
 	string &
 	strings.MaxRunes(1024) &

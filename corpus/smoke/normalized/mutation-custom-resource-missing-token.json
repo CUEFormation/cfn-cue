@@ -1,0 +1,8 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {},
+      "Type": "Custom::Thing"
+    }
+  }
+}

@@ -19,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EksProperties?:        _#defs."/$defs/Properties/definitions/EksProperties"
 	JobDefinitionName?:    string | fn.#StringExpression
 	NodeProperties?:       _#defs."/$defs/Properties/definitions/NodeProperties"
-	Parameters?:           string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Parameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 	PlatformCapabilities?: [...string | fn.#StringExpression] | fn.#ListExpression
 	PropagateTags?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RetryStrategy?:        _#defs."/$defs/Properties/definitions/RetryStrategy"
@@ -178,8 +178,8 @@ _#defs: "/$defs/Properties/definitions/EksContainerEnvironmentVariable": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EksContainerResourceRequirements": close({
-	Limits?:   string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	Requests?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Limits?:   fn.#Object & {...} | string | fn.#StringObjectExpression
+	Requests?: fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
@@ -345,15 +345,15 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LogConfiguration": close({
 	LogDriver!:     string | fn.#StringExpression
-	Options?:       string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Options?:       fn.#Object & {...} | string | fn.#StringObjectExpression
 	SecretOptions?: [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Metadata": close(
-	{Labels?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression},
+	{Labels?: fn.#Object & {...} | string | fn.#StringObjectExpression},
 ) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MountPoints": close({
 	ContainerPath?: string | fn.#StringExpression

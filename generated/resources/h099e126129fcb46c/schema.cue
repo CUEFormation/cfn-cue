@@ -35,7 +35,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/BedrockEvaluatorModelConfig": close({
-	AdditionalModelRequestFields?: {[string]: fn.#Value} | fn.#ObjectExpression
+	AdditionalModelRequestFields?: fn.#Object & {...} | fn.#ObjectExpression
 	InferenceConfig?:              _#defs."/$defs/Properties/definitions/InferenceConfiguration"
 	ModelId!:                      string | fn.#StringExpression
 }) |

@@ -25,7 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	S3AccessPolicy?: {[string]: fn.#Value} | fn.#ObjectExpression
+	S3AccessPolicy?: fn.#Object & {...} | fn.#ObjectExpression
 	SseConfig?:      _#defs."/$defs/Properties/definitions/SseConfig"
 	Tags?:           _#defs."/$defs/Properties/definitions/TagMap"
 })

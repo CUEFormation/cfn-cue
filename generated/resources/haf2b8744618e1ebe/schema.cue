@@ -33,7 +33,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 	RequestParameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: bool | string | fn.#BooleanExpression | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: bool | string | fn.#StringBooleanExpression}}) |
 	fn.#ObjectExpression
 	RequestValidatorId?: string | fn.#StringExpression
 	ResourceId!:         string | fn.#StringExpression
@@ -103,7 +103,7 @@ _#defs: "/$defs/Properties/definitions/MethodResponse": close({
 	fn.#ObjectExpression
 	ResponseParameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: bool | string | fn.#BooleanExpression | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: bool | string | fn.#StringBooleanExpression}}) |
 	fn.#ObjectExpression
 	StatusCode!: string | fn.#StringExpression
 }) |

@@ -96,7 +96,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	MasterUserPassword?:           strings.MaxRunes(64) | fn.#StringExpression
 	MasterUsername!:               strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	MultiAZ?:                      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	NamespaceResourcePolicy?:      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	NamespaceResourcePolicy?:      fn.#Object & {...} | string | fn.#StringObjectExpression
 	NodeType!:                     strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
 	NumberOfNodes?: int & <=100 & >=1 |
 		{

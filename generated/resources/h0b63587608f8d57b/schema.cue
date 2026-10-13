@@ -328,11 +328,11 @@ _#defs: "/$defs/Properties/definitions/NetworkMode": "PUBLIC" | "VPC" | fn.#Stri
 _#defs: "/$defs/Properties/definitions/PlatformVersion": strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[^\\s]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateEndpoint": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/PrivateEndpoint": fn.#Object & {...} & matchN(1, [close(
 	{SelfManagedLatticeResource!: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource"},
 ), close(
 	{ManagedVpcResource!: _#defs."/$defs/Properties/definitions/ManagedVpcResource"},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateEndpointOverride": close({

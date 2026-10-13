@@ -34,7 +34,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^([\\p{L}\\p{N}_.:\\/=+\\-@()']+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@()']*)$" |
 	fn.#StringExpression
 	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Template!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Template!: fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

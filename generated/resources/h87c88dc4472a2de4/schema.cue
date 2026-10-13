@@ -13,11 +13,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::CloudTrail::ResourcePolicy
 #Properties: close({
-	ResourceArn!: strings.MaxRunes(256) & strings.MinRunes(3) & =~"^[a-zA-Z0-9._/\\-:]+$" | fn.#StringExpression
-	ResourcePolicy!: strings.MaxRunes(8192) & strings.MinRunes(1) |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+	ResourceArn!:    strings.MaxRunes(256) & strings.MinRunes(3) & =~"^[a-zA-Z0-9._/\\-:]+$" | fn.#StringExpression
+	ResourcePolicy!: fn.#Object & {...} | strings.MaxRunes(8192) & strings.MinRunes(1) | fn.#StringObjectExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::CloudTrail::ResourcePolicy"

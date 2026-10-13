@@ -321,7 +321,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentEarlySuccessCriteria": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DeploymentLifecycleHook": close({
-	HookDetails?:   string | {[string]: fn.#Value} | fn.#StringExpression | fn.#ObjectExpression
+	HookDetails?:   fn.#Object & {...} | string | fn.#StringObjectExpression
 	HookTargetArn?: string | fn.#StringExpression
 	LifecycleStages!: list.MinItems(1) & [
 		..."RECONCILE_SERVICE" |

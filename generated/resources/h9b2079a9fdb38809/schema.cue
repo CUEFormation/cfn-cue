@@ -11,7 +11,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::MediaTailor::ChannelPolicy Resource Type
 #Properties: close({
 	ChannelName!: string | fn.#StringExpression
-	Policy!:      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Policy!:      fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::MediaTailor::ChannelPolicy"

@@ -11,6 +11,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/cueformation/cfn-cue/internal/cfn"
+
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/parser"
 	"cuelang.org/go/cue/token"
@@ -217,8 +219,8 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 		addImport(f, "base", opt.Module+"/template:template")
 		propsRequired := len(asArray(root["required"])) > 0
 		resource := and(sel("base", "ResourceAttributes"), obj(field("Type", str(typ), false), field("Properties", id("#Properties"), !propsRequired)))
-		if typ == "AWS::CloudFormation::CustomResource" {
-			resource = and(sel("base", "ResourceAttributes"), obj(field("Type", union(str(typ), &ast.UnaryExpr{Op: token.MAT, X: str("^Custom::[A-Za-z0-9_@-]{1,60}$")}), false), field("Properties", id("#Properties"), false)))
+		if typ == cfn.CustomResourceType {
+			resource = and(sel("base", "ResourceAttributes"), obj(field("Type", union(str(typ), &ast.UnaryExpr{Op: token.MAT, X: str(cfn.CustomResourcePattern)}), false), field("Properties", id("#Properties"), false)))
 		}
 		f.Decls = append(f.Decls, def("Resource", resource))
 		if e = writeAST("resources/h"+hash+"/schema.cue", f); e != nil {

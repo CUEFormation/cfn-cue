@@ -231,10 +231,10 @@ _#defs: "/$defs/Properties/definitions/Tags": {...} | fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ToolConfiguration": close({
 	Annotations?:                  _#defs."/$defs/Properties/definitions/Annotation"
 	Description?:                  strings.MinRunes(1) | fn.#StringExpression
-	InputSchema?:                  {[string]: fn.#Value} | fn.#ObjectExpression
+	InputSchema?:                  fn.#Object & {...} | fn.#ObjectExpression
 	Instruction?:                  _#defs."/$defs/Properties/definitions/ToolInstruction"
 	OutputFilters?:                _#defs."/$defs/Properties/definitions/ToolOutputFilterList"
-	OutputSchema?:                 {[string]: fn.#Value} | fn.#ObjectExpression
+	OutputSchema?:                 fn.#Object & {...} | fn.#ObjectExpression
 	OverrideInputValues?:          _#defs."/$defs/Properties/definitions/ToolOverrideInputValueList"
 	Title?:                        strings.MinRunes(1) | fn.#StringExpression
 	ToolId?:                       strings.MinRunes(1) | fn.#StringExpression

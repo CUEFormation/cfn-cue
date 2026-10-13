@@ -21,14 +21,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CustomEventData?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
 	Destinations?:    [..._#defs."/$defs/Properties/definitions/GameSessionQueueDestination"] | fn.#ListExpression
-	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration" & {[string]: fn.#Value} |
-		fn.#ObjectExpression
+	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration" & fn.#Object & {...} |
+	fn.#ObjectExpression
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-]+" | fn.#StringExpression
 	NotificationTarget?: strings.MaxRunes(300) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]*(\\.fifo)?" |
 	fn.#StringExpression
 	PlayerLatencyPolicies?: [..._#defs."/$defs/Properties/definitions/PlayerLatencyPolicy"] | fn.#ListExpression
-	PriorityConfiguration?: _#defs."/$defs/Properties/definitions/PriorityConfiguration" & {[string]: fn.#Value} |
-		fn.#ObjectExpression
+	PriorityConfiguration?: _#defs."/$defs/Properties/definitions/PriorityConfiguration" & fn.#Object & {...} |
+	fn.#ObjectExpression
 	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	TimeoutInSeconds?: int & >=0 |

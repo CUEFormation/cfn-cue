@@ -12,7 +12,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Body!:                 string | fn.#StringExpression
 	DefaultSubstitutions?: string | fn.#StringExpression
-	Tags?:                 string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:                 fn.#Object & {...} | string | fn.#StringObjectExpression
 	TemplateDescription?:  string | fn.#StringExpression
 	TemplateName!:         string | fn.#StringExpression
 })

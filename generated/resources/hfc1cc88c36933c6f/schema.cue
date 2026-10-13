@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -24,12 +24,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // quotas](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-quotas.html)
 // in the *IAM User Guide*.
 #Properties: close({
-	AssumeRolePolicyDocument!: strings.MaxRunes(131072) &
-	strings.MinRunes(1) &
-	=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+	AssumeRolePolicyDocument!: fn.#Object & {...} |
+	strings.MaxRunes(131072) & strings.MinRunes(1) & =~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
+	fn.#StringObjectExpression
 	Description?: strings.MaxRunes(1000) &
 	strings.MinRunes(0) &
 	=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]*$" |
@@ -63,7 +60,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/Policy": close({
-	PolicyDocument!: string | {[string]: fn.#Value} | fn.#StringExpression | fn.#ObjectExpression
+	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
 	PolicyName!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Elasticsearch::Domain
 #Properties: close({
-	AccessPolicies?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	AccessPolicies?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	AdvancedOptions?: {
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
 		...

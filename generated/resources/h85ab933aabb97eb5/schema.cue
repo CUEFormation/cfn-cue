@@ -29,9 +29,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/ApplicationLayerAutomaticResponseConfiguration": close({
-	Action!: matchN(1, [
+	Action!: fn.#Object & {...} & matchN(1, [
 		close({Count?: close({}) | fn.#ObjectExpression}), close({Block?: close({}) | fn.#ObjectExpression}),
-	]) & {[string]: fn.#Value} |
+	]) |
 	fn.#ObjectExpression
 	Status!: "ENABLED" | "DISABLED" | fn.#StringExpression
 }) |

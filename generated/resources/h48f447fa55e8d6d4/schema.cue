@@ -37,7 +37,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	TestAliasTags?: _#defs."/$defs/Properties/definitions/TagsMap"
 })
 
-_#defs: "/$defs/Properties/definitions/AdditionalModelRequestFields": {[string]: fn.#Value} | fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/AdditionalModelRequestFields": fn.#Object & {...} | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AgentFlowNodeConfiguration": close({
 	AgentAliasArn!: strings.MaxRunes(2048) &
