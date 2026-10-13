@@ -105,6 +105,9 @@ expected to change.
 
 The **Regional CUE performance** GitHub workflow can be dispatched manually with
 a CUE version, scale list, deadline and repeat count. It preserves reports as run
-artifacts. It becomes available in the Actions UI once the workflow reaches the
+artifacts. Both GitHub workflows use `ubuntu-24.04` to avoid changing the OS family
+implicitly when `ubuntu-latest` migrates. GitHub still updates that image's
+software and kernel, so compare the recorded platform details across runs.
+The performance workflow becomes available in the Actions UI once it reaches the
 default branch. Normal CI checks both representations and the timeout harness
 without running a potentially expensive full-region benchmark on every commit.
