@@ -1,0 +1,60 @@
+name: Regional CUE performance
+
+on:
+  workflow_dispatch:
+    inputs:
+      cue_version:
+        description: CUE CLI version to measure
+        default: v0.18.0-alpha.3
+        required: true
+      sizes:
+        description: Nested resource counts, with all for the complete region
+        default: 2,10,50,all
+        required: true
+      timeout:
+        description: Deadline in seconds for each fresh CLI process
+        default: '20'
+        required: true
+      repeats:
+        description: Number of repeats per representation and scale
+        default: '1'
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Build the requested CUE CLI
+        env:
+          CUE_VERSION: ${{ inputs.cue_version }}
+        run: |
+          mkdir -p bin
+          GOBIN="$PWD/bin" go install "cuelang.org/go/cmd/cue@$CUE_VERSION"
+      - name: Measure both regional schema representations
+        env:
+          BENCHMARK_SIZES: ${{ inputs.sizes }}
+          CASE_TIMEOUT: ${{ inputs.timeout }}
+          BENCHMARK_REPEATS: ${{ inputs.repeats }}
+        run: |
+          ./scripts/regions.sh benchmark --cue "$PWD/bin/cue" \
+            --sizes "$BENCHMARK_SIZES" --timeout "$CASE_TIMEOUT" \
+            --repeats "$BENCHMARK_REPEATS" --out .region-performance-report
+      - name: Preserve measurements and diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: regional-performance-${{ github.run_id }}
+          path: .region-performance-report/
+          include-hidden-files: true
+          if-no-files-found: ignore

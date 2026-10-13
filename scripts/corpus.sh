@@ -125,6 +125,7 @@ case "$corpus_command" in
         CFN_CUE_INTEGRATION=1 go test ./internal/generate -run '^TestCurrentResources$' -v -timeout 3m
         printf '%s\n' 'Checking parser behavior and the offline corpus contract...'
         "$corpus_python" -m unittest discover -s corpus -v
+        "$corpus_python" -m unittest discover -s scripts -p 'test_*.py' -v
         "$corpus_python" corpus/corpus.py run --corpus corpus/smoke \
             --schemas generated --validator bin/cfn-cue-validate --limit 0 \
             --regions us-east-1,us-west-2 --resources none --timeout 15 --memory 2GiB \

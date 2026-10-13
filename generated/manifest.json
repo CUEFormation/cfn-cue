@@ -4,6 +4,7 @@
   "sourceSHA256": "140973ce07b875afb8d7e3517e9aca28734c9bffd55dc0e90c344bae38e0e067",
   "module": "github.com/cueformation/cfn-cue",
   "languageExtensions": false,
+  "includeSAM": false,
   "regions": {
     "af-south-1": {
       "AMZN::SDC::Deployment": "d49523269b8efe5f",
@@ -78051,7 +78052,8 @@
     }
   ],
   "validationNotes": [
-    "Full regional aggregate evaluation exceeds the current verification budget; filtered resource modules are the verified authoring path.",
+    "Each region has a full resource package and a separate types package. The types package checks template structure and regional type names, leaving resource Properties unconstrained.",
+    "Full regional aggregate evaluation has exceeded prior verification budgets; use the reproducible regional performance script to measure current CUE versions and resource scales.",
     "Intrinsic schemas validate argument shapes and result type classes. Function-specific nesting permissions and context permissions require cfn-lint.",
     "Ref, GetAtt, Sub, mapping lookups, condition evaluation, macro expansion, and property-specific constraints on intrinsic results require semantic validation.",
     "CreationPolicy, UpdatePolicy, parameter type names, and SAM Globals use structural schemas; service-specific restrictions require cfn-lint.",

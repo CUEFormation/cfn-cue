@@ -32,6 +32,7 @@ type Manifest struct {
 	SourceSHA256       string                       `json:"sourceSHA256"`
 	Module             string                       `json:"module"`
 	LanguageExtensions bool                         `json:"languageExtensions"`
+	IncludeSAM         bool                         `json:"includeSAM"`
 	Regions            map[string]map[string]string `json:"regions"`
 	Schemas            map[string]SchemaInfo        `json:"schemas"`
 	Diagnostics        []Diagnostic                 `json:"diagnostics"`
@@ -65,9 +66,10 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 	} else if !os.IsNotExist(e) {
 		return nil, e
 	}
-	m := &Manifest{Generator: "cfn-cue/v2", Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, Regions: map[string]map[string]string{}, Schemas: map[string]SchemaInfo{}, Diagnostics: []Diagnostic{}}
+	m := &Manifest{Generator: "cfn-cue/v2", Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, Regions: map[string]map[string]string{}, Schemas: map[string]SchemaInfo{}, Diagnostics: []Diagnostic{}}
 	m.ValidationNotes = []string{
-		"Full regional aggregate evaluation exceeds the current verification budget; filtered resource modules are the verified authoring path.",
+		"Each region has a full resource package and a separate types package. The types package checks template structure and regional type names, leaving resource Properties unconstrained.",
+		"Full regional aggregate evaluation has exceeded prior verification budgets; use the reproducible regional performance script to measure current CUE versions and resource scales.",
 		"Intrinsic schemas validate argument shapes and result type classes. Function-specific nesting permissions and context permissions require cfn-lint.",
 		"Ref, GetAtt, Sub, mapping lookups, condition evaluation, macro expansion, and property-specific constraints on intrinsic results require semantic validation.",
 		"CreationPolicy, UpdatePolicy, parameter type names, and SAM Globals use structural schemas; service-specific restrictions require cfn-lint.",
@@ -226,6 +228,9 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 	}
 	for _, region := range sortedRegionKeys(m.Regions) {
 		if e = writeAST("regions/"+region+"/region.cue", Region(opt.Module, m.Regions[region], opt.LanguageExtensions)); e != nil {
+			return nil, e
+		}
+		if e = writeAST("regions/"+region+"/types/region.cue", RegionTypes(opt.Module, m.Regions[region], opt.LanguageExtensions)); e != nil {
 			return nil, e
 		}
 	}

@@ -2,7 +2,7 @@
 
 A working Go generator for regional CloudFormation CUE schemas, built with CUE's Go AST and JSON Schema extractor. This is a new implementation alongside the 2021 generator in [cue-sh/cfn-cue](https://github.com/cue-sh/cfn-cue).
 
-The included snapshot produces **45 regional template packages and 1,866 shared resource schemas**, covering **58,816 region/resource bindings**. Identical input schemas are emitted once and referenced by regional packages. SAM's 13 additional schemas are available with `-include-sam`.
+The included snapshot produces **45 full regional template packages, 45 lightweight type-name packages, and 1,866 shared resource schemas**, covering **58,816 region/resource bindings**. Every generator run emits both regional representations. Identical input schemas are emitted once and referenced by the full regional packages. SAM's 13 additional schemas are available with `-include-sam`.
 
 ## Run
 
@@ -72,6 +72,7 @@ generated/
   literal/h<hash>/schema.cue        #Properties for literal resource data
   resources/h<hash>/schema.cue      #Properties with intrinsics, plus #Resource
   regions/<region>/region.cue      #Template, #Resources, #Resource, #ResourceTypes
+  regions/<region>/types/region.cue #Template, #Resources, #Resource, #ResourceType
   manifest.json                   Source checksum, availability, conversion report
 ```
 
@@ -110,7 +111,30 @@ template: cf.#Template & {
 
 For another CUE module, copy or publish the generated module through CUE's module system before importing it. `cf.#ResourceTypes["AWS::S3::Bucket"]` exposes a specific regional definition. Read the manifest to locate and import its shared hash package.
 
-**Scaling limitation:** generation across all regions completes, but evaluating the complete us-east-1 aggregate with CUE v0.18.0-alpha.3 still exceeded the three-minute verification limit, with `GOMEMLIMIT=2GiB` as the Go memory target. Use `-resources` to generate a filtered authoring module, or import individual shared resource packages, while the aggregate representation is improved. The full generated files are supplied for inspection, not as a claim that full-region evaluation is production-ready.
+For lightweight regional validation, import `regions/us-east-1/types:types` and use
+its `#Template`. It checks template structure and available resource type names,
+leaving resource `Properties` unconstrained. Common template sections retain
+their intrinsic validation. The full regional imports above retain property and
+intrinsic checking. The two packages are isolated so importing the lightweight
+one never imports the full resource registry.
+
+**Scaling limitation:** prior complete us-east-1 evaluation with CUE
+v0.18.0-alpha.3 exceeded a three-minute limit with `GOMEMLIMIT=2GiB` as the soft
+Go memory target. Both versions are retained so this can be measured as CUE and
+the schemas evolve. Use the lightweight package for structure/type-name checks,
+`-resources` for a smaller full module, or individual resource imports for full
+property checks. The full regional representation remains experimental at scale.
+
+To record paired measurements at several resource counts:
+
+```sh
+./scripts/regions.sh benchmark --cue /path/to/cue \
+  --sizes 2,10,50,all --timeout 20 --out .region-performance-alpha3
+```
+
+See the [regional schema and performance guide](docs/regional-performance.md)
+for YAML validation, repeatable samples, optional template checks, memory and
+timeout interpretation, and the manual GitHub performance workflow.
 
 ## Recursive intrinsic model
 

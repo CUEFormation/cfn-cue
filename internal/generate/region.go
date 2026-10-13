@@ -1,9 +1,10 @@
 package generate
 
 import (
+	"fmt"
+
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/token"
-	"fmt"
 )
 
 func Region(module string, resources map[string]string, extensions bool) *ast.File {
@@ -19,6 +20,36 @@ func Region(module string, resources map[string]string, extensions bool) *ast.Fi
 		types.Elts = append(types.Elts, &ast.Field{Label: ast.NewString(typ), Value: v})
 	}
 	f.Decls = append(f.Decls, def("ResourceTypes", types), def("Resource", union(alternatives...)))
+	regionTemplate(f, module, extensions)
+	return f
+}
+
+// RegionTypes checks regional availability without importing resource property
+// schemas. Keep it in a separate package so loading it never loads the full
+// registry or resource union produced by Region.
+func RegionTypes(module string, resources map[string]string, extensions bool) *ast.File {
+	// A different package name prevents CUE from inheriting the parent region's
+	// cf files and accidentally loading its full registry.
+	f := file("types")
+	addImport(f, "base", module+"/template:template")
+	names := []ast.Expr{}
+	for _, typ := range sortedStringKeys(resources) {
+		names = append(names, str(typ))
+	}
+	// Custom resource names are supported by the full CustomResource schema too.
+	// Availability of that provider type controls whether these names are allowed.
+	if _, ok := resources["AWS::CloudFormation::CustomResource"]; ok {
+		names = append(names, &ast.UnaryExpr{Op: token.MAT, X: str("^Custom::[A-Za-z0-9_@-]{1,60}$")})
+	}
+	f.Decls = append(f.Decls,
+		def("ResourceType", union(names...)),
+		def("Resource", and(sel("base", "ResourceAttributes"), obj(field("Type", id("#ResourceType"), false)))),
+	)
+	regionTemplate(f, module, extensions)
+	return f
+}
+
+func regionTemplate(f *ast.File, module string, extensions bool) {
 	collection := pattern(sel("base", "LogicalID"), id("#Resource"))
 	if extensions {
 		addImport(f, "fn", module+"/fn:fn")
@@ -30,5 +61,4 @@ func Region(module string, resources map[string]string, extensions bool) *ast.Fi
 		collection.Elts = append(collection.Elts, &ast.Field{Label: ast.NewList(&ast.UnaryExpr{Op: token.MAT, X: str("^Fn::ForEach::[A-Za-z0-9]+$")}), Value: id("#ForEach")})
 	}
 	f.Decls = append(f.Decls, def("Resources", collection), def("Template", and(sel("base", "Template"), obj(field("Resources", id("#Resources"), false)))))
-	return f
 }
