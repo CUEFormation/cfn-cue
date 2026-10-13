@@ -38,16 +38,14 @@ _#defs: "/$defs/Properties/definitions/ScanFrequency": "SCAN_ON_PUSH" | "CONTINU
 _#defs: "/$defs/Properties/definitions/ScanType": "BASIC" | "ENHANCED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ScanningRule": close({
-	RepositoryFilters!: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/RepositoryFilter" | fn.#ObjectExpression
-	] |
+	RepositoryFilters!: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/RepositoryFilter"] |
 		fn.#ListExpression
 	ScanFrequency!: _#defs."/$defs/Properties/definitions/ScanFrequency" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScanningRules": list.MaxItems(2) & [...] & [
-	..._#defs."/$defs/Properties/definitions/ScanningRule" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ScanningRule"
 ] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {

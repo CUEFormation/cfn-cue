@@ -3,11 +3,15 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"struct"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -16,42 +20,90 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::SecurityHub::ConfigurationPolicy resource represents the Central
 // Configuration Policy in your account.
 #Properties: close({
-	ConfigurationPolicy!: _#defs."/$defs/Properties/definitions/Policy" | fn.#ObjectExpression
+	ConfigurationPolicy!: _#defs."/$defs/Properties/definitions/Policy"
 	Description?:         strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S" | fn.#StringExpression
 	Name!:                strings.MaxRunes(128) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	Tags?:                _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	Tags?:                _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/ParameterConfiguration": close({
-	Value?:     _#defs."/$defs/Properties/definitions/ParameterValue" | fn.#ObjectExpression
+	Value?:     _#defs."/$defs/Properties/definitions/ParameterValue"
 	ValueType!: "DEFAULT" | "CUSTOM" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParameterValue": struct.MaxFields(1) & struct.MinFields(1) & close({
-	Boolean?: bool | fn.#BooleanExpression
-	Double?:  number | fn.#NumberExpression
-	Enum?:    strings.MaxRunes(2048) | fn.#StringExpression
+	Boolean?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Double?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Enum?: strings.MaxRunes(2048) | fn.#StringExpression
 	EnumList?: list.MaxItems(100) & list.UniqueItems() & [...strings.MaxRunes(2048) | fn.#StringExpression] |
 	fn.#ListExpression
-	Integer?:     int | fn.#NumberExpression
-	IntegerList?: list.MaxItems(100) & list.UniqueItems() & [...int | fn.#NumberExpression] | fn.#ListExpression
-	String?:      strings.MaxRunes(2048) | fn.#StringExpression
+	Integer?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IntegerList?: list.MaxItems(100) & list.UniqueItems() & [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	String?: strings.MaxRunes(2048) | fn.#StringExpression
 	StringList?: list.MaxItems(100) & list.UniqueItems() & [...strings.MaxRunes(2048) | fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Policy": close(
-	{SecurityHub?: _#defs."/$defs/Properties/definitions/SecurityHubPolicy" | fn.#ObjectExpression},
+	{SecurityHub?: _#defs."/$defs/Properties/definitions/SecurityHubPolicy"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SecurityControlCustomParameter": close({
 	Parameters?: struct.MinFields(1) & close({
 
-		{[=~"^[-_+=.:/@\\w\\s]{1,128}$"]: _#defs."/$defs/Properties/definitions/ParameterConfiguration" |
-			fn.#ObjectExpression}}) |
+		{[=~"^[-_+=.:/@\\w\\s]{1,128}$"]: _#defs."/$defs/Properties/definitions/ParameterConfiguration"}}) |
 	fn.#ObjectExpression
 	SecurityControlId?: strings.MaxRunes(2048) | fn.#StringExpression
 }) |
@@ -67,7 +119,7 @@ _#defs: "/$defs/Properties/definitions/SecurityControlsConfiguration": close({
 	] |
 	fn.#ListExpression
 	SecurityControlCustomParameters?: list.MaxItems(1000) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SecurityControlCustomParameter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/SecurityControlCustomParameter"
 	] |
 		fn.#ListExpression
 }) |
@@ -78,9 +130,8 @@ _#defs: "/$defs/Properties/definitions/SecurityHubPolicy": close({
 		...strings.MaxRunes(2048) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	SecurityControlsConfiguration?: _#defs."/$defs/Properties/definitions/SecurityControlsConfiguration" |
-		fn.#ObjectExpression
-	ServiceEnabled?: bool | fn.#BooleanExpression
+	SecurityControlsConfiguration?: _#defs."/$defs/Properties/definitions/SecurityControlsConfiguration"
+	ServiceEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 

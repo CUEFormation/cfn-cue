@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -46,25 +50,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // that you specify when you configure the tools. When you use these tools, you
 // don't have to sign requests yourself.
 #Properties: close({
-	ContainerDefinitions?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerDefinition" | fn.#ObjectExpression
-	] |
+	ContainerDefinitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ContainerDefinition"] |
 		fn.#ListExpression
 	Cpu?:                  string | fn.#StringExpression
-	EnableFaultInjection?: bool | fn.#BooleanExpression
+	EnableFaultInjection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EphemeralStorage?:     _#defs."/$defs/Properties/definitions/EphemeralStorage" | fn.#ObjectExpression
-	ExecutionRoleArn?:     string | fn.#StringExpression
-	Family?:               string | fn.#StringExpression
-	InferenceAccelerators?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/InferenceAccelerator" | fn.#ObjectExpression
-	] |
+	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Family?: string | fn.#StringExpression
+	InferenceAccelerators?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InferenceAccelerator"] |
 		fn.#ListExpression
 	IpcMode?:     "host" | "none" | "task" | fn.#StringExpression
 	Memory?:      string | fn.#StringExpression
 	NetworkMode?: "awsvpc" | "bridge" | "host" | "none" | fn.#StringExpression
 	PidMode?:     "host" | "task" | fn.#StringExpression
 	PlacementConstraints?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TaskDefinitionPlacementConstraint" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/TaskDefinitionPlacementConstraint"
 	] |
 		fn.#ListExpression
 	ProxyConfiguration?: _#defs."/$defs/Properties/definitions/ProxyConfiguration" | fn.#ObjectExpression
@@ -73,11 +74,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	] |
 		fn.#ListExpression
 	RuntimePlatform?: _#defs."/$defs/Properties/definitions/RuntimePlatform" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TaskRoleArn?: string | fn.#StringExpression
-	Volumes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Volume" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:            list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Volumes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Volume"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AuthorizationConfig": close({
@@ -87,12 +87,24 @@ _#defs: "/$defs/Properties/definitions/AuthorizationConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
-	Command?:         [...string | fn.#StringExpression] | fn.#ListExpression
-	Cpu?:             int | fn.#NumberExpression
-	CredentialSpecs?: [...string | fn.#StringExpression] | fn.#ListExpression
-	DependsOn?: [..._#defs."/$defs/Properties/definitions/ContainerDependency" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	DisableNetworking?: bool | fn.#BooleanExpression
+	Command?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Cpu?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CredentialSpecs?:   [...string | fn.#StringExpression] | fn.#ListExpression
+	DependsOn?:         [..._#defs."/$defs/Properties/definitions/ContainerDependency"] | fn.#ListExpression
+	DisableNetworking?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DnsSearchDomains?:  [...string | fn.#StringExpression] | fn.#ListExpression
 	DnsServers?:        [...string | fn.#StringExpression] | fn.#ListExpression
 	DockerLabels?: close({
@@ -101,44 +113,89 @@ _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 	fn.#ObjectExpression
 	DockerSecurityOptions?: [...string | fn.#StringExpression] | fn.#ListExpression
 	EntryPoint?:            [...string | fn.#StringExpression] | fn.#ListExpression
-	Environment?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/KeyValuePair" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	EnvironmentFiles?: [..._#defs."/$defs/Properties/definitions/EnvironmentFile" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Essential?:  bool | fn.#BooleanExpression
-	ExtraHosts?: [..._#defs."/$defs/Properties/definitions/HostEntry" | fn.#ObjectExpression] | fn.#ListExpression
+	Environment?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/KeyValuePair"] | fn.#ListExpression
+	EnvironmentFiles?:      [..._#defs."/$defs/Properties/definitions/EnvironmentFile"] | fn.#ListExpression
+	Essential?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExtraHosts?:            [..._#defs."/$defs/Properties/definitions/HostEntry"] | fn.#ListExpression
 	FirelensConfiguration?: _#defs."/$defs/Properties/definitions/FirelensConfiguration" | fn.#ObjectExpression
 	HealthCheck?:           _#defs."/$defs/Properties/definitions/HealthCheck" | fn.#ObjectExpression
 	Hostname?:              string | fn.#StringExpression
 	Image!:                 string | fn.#StringExpression
-	Interactive?:           bool | fn.#BooleanExpression
+	Interactive?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Links?:                 list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	LinuxParameters?:       _#defs."/$defs/Properties/definitions/LinuxParameters" | fn.#ObjectExpression
 	LogConfiguration?:      _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
-	Memory?:                int | fn.#NumberExpression
-	MemoryReservation?:     int | fn.#NumberExpression
-	MountPoints?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MountPoint" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Name!: string | fn.#StringExpression
-	PortMappings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortMapping" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Privileged?:             bool | fn.#BooleanExpression
-	PseudoTerminal?:         bool | fn.#BooleanExpression
-	ReadonlyRootFilesystem?: bool | fn.#BooleanExpression
+	Memory?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MemoryReservation?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MountPoints?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MountPoint"] | fn.#ListExpression
+	Name!:           string | fn.#StringExpression
+	PortMappings?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortMapping"] | fn.#ListExpression
+	Privileged?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PseudoTerminal?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ReadonlyRootFilesystem?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RepositoryCredentials?:  _#defs."/$defs/Properties/definitions/RepositoryCredentials" | fn.#ObjectExpression
-	ResourceRequirements?: [..._#defs."/$defs/Properties/definitions/ResourceRequirement" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	RestartPolicy?: _#defs."/$defs/Properties/definitions/RestartPolicy" | fn.#ObjectExpression
-	Secrets?:       [..._#defs."/$defs/Properties/definitions/Secret" | fn.#ObjectExpression] | fn.#ListExpression
-	StartTimeout?:  int | fn.#NumberExpression
-	StopTimeout?:   int | fn.#NumberExpression
-	SystemControls?: [..._#defs."/$defs/Properties/definitions/SystemControl" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Ulimits?:            [..._#defs."/$defs/Properties/definitions/Ulimit" | fn.#ObjectExpression] | fn.#ListExpression
+	ResourceRequirements?:   [..._#defs."/$defs/Properties/definitions/ResourceRequirement"] | fn.#ListExpression
+	RestartPolicy?:          _#defs."/$defs/Properties/definitions/RestartPolicy" | fn.#ObjectExpression
+	Secrets?:                [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
+	StartTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StopTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SystemControls?:     [..._#defs."/$defs/Properties/definitions/SystemControl"] | fn.#ListExpression
+	Ulimits?:            [..._#defs."/$defs/Properties/definitions/Ulimit"] | fn.#ListExpression
 	User?:               string | fn.#StringExpression
 	VersionConsistency?: "enabled" | "disabled" | fn.#StringExpression
-	VolumesFrom?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VolumeFrom" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	VolumesFrom?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VolumeFrom"] | fn.#ListExpression
 	WorkingDirectory?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -157,7 +214,7 @@ _#defs: "/$defs/Properties/definitions/Device": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DockerVolumeConfiguration": close({
-	Autoprovision?: bool | fn.#BooleanExpression
+	Autoprovision?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Driver?:        string | fn.#StringExpression
 	DriverOpts?: close({
 
@@ -172,11 +229,24 @@ _#defs: "/$defs/Properties/definitions/DockerVolumeConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EFSVolumeConfiguration": close({
-	AuthorizationConfig?:   _#defs."/$defs/Properties/definitions/AuthorizationConfig" | fn.#ObjectExpression
-	FilesystemId!:          string | fn.#StringExpression
-	RootDirectory?:         string | fn.#StringExpression
-	TransitEncryption?:     "ENABLED" | "DISABLED" | fn.#StringExpression
-	TransitEncryptionPort?: int | fn.#NumberExpression
+	AuthorizationConfig?: _#defs."/$defs/Properties/definitions/AuthorizationConfig" | fn.#ObjectExpression
+	FilesystemId!:        string | fn.#StringExpression
+	RootDirectory?:       string | fn.#StringExpression
+	TransitEncryption?:   "ENABLED" | "DISABLED" | fn.#StringExpression
+	TransitEncryptionPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -186,7 +256,22 @@ _#defs: "/$defs/Properties/definitions/EnvironmentFile": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EphemeralStorage": close({SizeInGiB?: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/EphemeralStorage": close({
+	SizeInGiB?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FSxAuthorizationConfig": close({
@@ -212,11 +297,63 @@ _#defs: "/$defs/Properties/definitions/FirelensConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HealthCheck": close({
-	Command?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	Interval?:    int | fn.#NumberExpression
-	Retries?:     int | fn.#NumberExpression
-	StartPeriod?: int | fn.#NumberExpression
-	Timeout?:     int | fn.#NumberExpression
+	Command?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Interval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Retries?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StartPeriod?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Timeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -249,12 +386,51 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LinuxParameters": close({
 	Capabilities?:       _#defs."/$defs/Properties/definitions/KernelCapabilities" | fn.#ObjectExpression
-	Devices?:            [..._#defs."/$defs/Properties/definitions/Device" | fn.#ObjectExpression] | fn.#ListExpression
-	InitProcessEnabled?: bool | fn.#BooleanExpression
-	MaxSwap?:            int | fn.#NumberExpression
-	SharedMemorySize?:   int | fn.#NumberExpression
-	Swappiness?:         int | fn.#NumberExpression
-	Tmpfs?:              [..._#defs."/$defs/Properties/definitions/Tmpfs" | fn.#ObjectExpression] | fn.#ListExpression
+	Devices?:            [..._#defs."/$defs/Properties/definitions/Device"] | fn.#ListExpression
+	InitProcessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MaxSwap?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SharedMemorySize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Swappiness?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Tmpfs?: [..._#defs."/$defs/Properties/definitions/Tmpfs"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -264,32 +440,56 @@ _#defs: "/$defs/Properties/definitions/LogConfiguration": close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	SecretOptions?: [..._#defs."/$defs/Properties/definitions/Secret" | fn.#ObjectExpression] | fn.#ListExpression
+	SecretOptions?: [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MountPoint": close({
 	ContainerPath?: string | fn.#StringExpression
-	ReadOnly?:      bool | fn.#BooleanExpression
+	ReadOnly?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SourceVolume?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PortMapping": close({
-	AppProtocol?:        "http" | "http2" | "grpc" | fn.#StringExpression
-	ContainerPort?:      int | fn.#NumberExpression
+	AppProtocol?: "http" | "http2" | "grpc" | fn.#StringExpression
+	ContainerPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ContainerPortRange?: string | fn.#StringExpression
-	HostPort?:           int | fn.#NumberExpression
-	Name?:               string | fn.#StringExpression
-	Protocol?:           "tcp" | "udp" | fn.#StringExpression
+	HostPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name?:     string | fn.#StringExpression
+	Protocol?: "tcp" | "udp" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ProxyConfiguration": close({
 	ContainerName!: string | fn.#StringExpression
-	ProxyConfigurationProperties?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/KeyValuePair" | fn.#ObjectExpression
-	] |
+	ProxyConfigurationProperties?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/KeyValuePair"] |
 		fn.#ListExpression
 	Type?: "APPMESH" | fn.#StringExpression
 }) |
@@ -307,9 +507,40 @@ _#defs: "/$defs/Properties/definitions/ResourceRequirement": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RestartPolicy": close({
-	Enabled?:              bool | fn.#BooleanExpression
-	IgnoredExitCodes?:     [...int | fn.#NumberExpression] | fn.#ListExpression
-	RestartAttemptPeriod?: int | fn.#NumberExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IgnoredExitCodes?: [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	RestartAttemptPeriod?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -330,10 +561,23 @@ _#defs: "/$defs/Properties/definitions/RuntimePlatform": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3FilesVolumeConfiguration": close({
-	AccessPointArn?:        string | fn.#StringExpression
-	FileSystemArn!:         string | fn.#StringExpression
-	RootDirectory?:         string | fn.#StringExpression
-	TransitEncryptionPort?: int | fn.#NumberExpression
+	AccessPointArn?: string | fn.#StringExpression
+	FileSystemArn!:  string | fn.#StringExpression
+	RootDirectory?:  string | fn.#StringExpression
+	TransitEncryptionPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -364,12 +608,38 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/Tmpfs": close({
 	ContainerPath?: string | fn.#StringExpression
 	MountOptions?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	Size!:          int | fn.#NumberExpression
+	Size!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Ulimit": close({
-	HardLimit!: int | fn.#NumberExpression
+	HardLimit!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Name!: "core" |
 		"cpu" |
 		"data" |
@@ -386,12 +656,25 @@ _#defs: "/$defs/Properties/definitions/Ulimit": close({
 		"sigpending" |
 		"stack" |
 		fn.#StringExpression
-	SoftLimit!: int | fn.#NumberExpression
+	SoftLimit!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Volume": close({
-	ConfiguredAtLaunch?:        bool | fn.#BooleanExpression
+	ConfiguredAtLaunch?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DockerVolumeConfiguration?: _#defs."/$defs/Properties/definitions/DockerVolumeConfiguration" | fn.#ObjectExpression
 	EFSVolumeConfiguration?:    _#defs."/$defs/Properties/definitions/EFSVolumeConfiguration" | fn.#ObjectExpression
 	FSxWindowsFileServerVolumeConfiguration?: _#defs."/$defs/Properties/definitions/FSxWindowsFileServerVolumeConfiguration" |
@@ -404,7 +687,7 @@ _#defs: "/$defs/Properties/definitions/Volume": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VolumeFrom": close({
-	ReadOnly?:        bool | fn.#BooleanExpression
+	ReadOnly?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SourceContainer?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

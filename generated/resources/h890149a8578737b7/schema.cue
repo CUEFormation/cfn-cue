@@ -7,6 +7,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -22,13 +26,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Comment?:        string | fn.#StringExpression
 	HostedZoneId?:   string | fn.#StringExpression
 	HostedZoneName?: string | fn.#StringExpression
-	RecordSets?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RecordSet" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	RecordSets?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RecordSet"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AliasTarget": close({
 	DNSName!:              string | fn.#StringExpression
-	EvaluateTargetHealth?: bool | fn.#BooleanExpression
+	EvaluateTargetHealth?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	HostedZoneId!:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -53,30 +56,56 @@ _#defs: "/$defs/Properties/definitions/GeoLocation": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeoProximityLocation": close({
-	AWSRegion?:      string | fn.#StringExpression
-	Bias?:           int | fn.#NumberExpression
-	Coordinates?:    _#defs."/$defs/Properties/definitions/Coordinates" | fn.#ObjectExpression
+	AWSRegion?: string | fn.#StringExpression
+	Bias?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Coordinates?:    _#defs."/$defs/Properties/definitions/Coordinates"
 	LocalZoneGroup?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RecordSet": close({
-	AliasTarget?:          _#defs."/$defs/Properties/definitions/AliasTarget" | fn.#ObjectExpression
-	CidrRoutingConfig?:    _#defs."/$defs/Properties/definitions/CidrRoutingConfig" | fn.#ObjectExpression
+	AliasTarget?:          _#defs."/$defs/Properties/definitions/AliasTarget"
+	CidrRoutingConfig?:    _#defs."/$defs/Properties/definitions/CidrRoutingConfig"
 	Failover?:             string | fn.#StringExpression
-	GeoLocation?:          _#defs."/$defs/Properties/definitions/GeoLocation" | fn.#ObjectExpression
-	GeoProximityLocation?: _#defs."/$defs/Properties/definitions/GeoProximityLocation" | fn.#ObjectExpression
+	GeoLocation?:          _#defs."/$defs/Properties/definitions/GeoLocation"
+	GeoProximityLocation?: _#defs."/$defs/Properties/definitions/GeoProximityLocation"
 	HealthCheckId?:        string | fn.#StringExpression
 	HostedZoneId?:         string | fn.#StringExpression
 	HostedZoneName?:       string | fn.#StringExpression
-	MultiValueAnswer?:     bool | fn.#BooleanExpression
+	MultiValueAnswer?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!:                 string | fn.#StringExpression
 	Region?:               string | fn.#StringExpression
 	ResourceRecords?:      list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	SetIdentifier?:        string | fn.#StringExpression
 	TTL?:                  string | fn.#StringExpression
 	Type!:                 string | fn.#StringExpression
-	Weight?:               int | fn.#NumberExpression
+	Weight?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

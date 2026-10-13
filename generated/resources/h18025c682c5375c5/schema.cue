@@ -26,17 +26,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"TERRAFORM_CLOUD" |
 		"EXTERNAL" |
 		fn.#StringExpression
-	ProvisioningArtifactParameters?: [
-		..._#defs."/$defs/Properties/definitions/ProvisioningArtifactProperties" | fn.#ObjectExpression
-	] |
+	ProvisioningArtifactParameters?: [..._#defs."/$defs/Properties/definitions/ProvisioningArtifactProperties"] |
 		fn.#ListExpression
-	ReplaceProvisioningArtifacts?: bool | fn.#BooleanExpression
+	ReplaceProvisioningArtifacts?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SourceConnection?:             _#defs."/$defs/Properties/definitions/SourceConnection" | fn.#ObjectExpression
 	SupportDescription?:           strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
 	SupportEmail?:                 strings.MaxRunes(254) & strings.MinRunes(0) | fn.#StringExpression
 	SupportUrl?:                   strings.MaxRunes(2083) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CodeStarParameters": close({
@@ -54,8 +51,8 @@ _#defs: "/$defs/Properties/definitions/ConnectionParameters": close(
 
 _#defs: "/$defs/Properties/definitions/ProvisioningArtifactProperties": close({
 	Description?:               string | fn.#StringExpression
-	DisableTemplateValidation?: bool | fn.#BooleanExpression
-	Info!:                      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	DisableTemplateValidation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Info!:                      fn.#Object & {...} | string | fn.#StringObjectExpression
 	Name?:                      string | fn.#StringExpression
 	Type?: "CLOUD_FORMATION_TEMPLATE" |
 		"MARKETPLACE_AMI" |
@@ -68,9 +65,7 @@ _#defs: "/$defs/Properties/definitions/ProvisioningArtifactProperties": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SourceConnection": close({
-	ConnectionParameters!: close(
-		{CodeStar?: _#defs."/$defs/Properties/definitions/CodeStarParameters" | fn.#ObjectExpression},
-	) |
+	ConnectionParameters!: close({CodeStar?: _#defs."/$defs/Properties/definitions/CodeStarParameters"}) |
 		fn.#ObjectExpression
 	Type!: "CODESTAR" | fn.#StringExpression
 }) |

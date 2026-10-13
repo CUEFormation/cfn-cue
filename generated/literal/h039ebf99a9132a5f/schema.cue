@@ -15,17 +15,17 @@ _#defs: "/$defs/Properties/definitions/DestinationSchema": close({RecordFormatTy
 
 _#defs: "/$defs/Properties/definitions/KinesisFirehoseOutput": close({
 	ResourceARN!: string
-	RoleARN!:     string
+	RoleARN!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/KinesisStreamsOutput": close({
 	ResourceARN!: string
-	RoleARN!:     string
+	RoleARN!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/LambdaOutput": close({
 	ResourceARN!: string
-	RoleARN!:     string
+	RoleARN!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/Output": close({

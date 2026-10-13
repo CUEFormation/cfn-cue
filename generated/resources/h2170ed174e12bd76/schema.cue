@@ -8,34 +8,39 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::KnowledgeBase Resource Type
 #Properties: close({
-	Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	KnowledgeBaseConfiguration!: _#defs."/$defs/Properties/definitions/KnowledgeBaseConfiguration" |
-		fn.#ObjectExpression
-	Name!:    =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	RoleArn!: strings.MaxRunes(2048) & =~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" | fn.#StringExpression
-	StorageConfiguration?: _#defs."/$defs/Properties/definitions/StorageConfiguration" | fn.#ObjectExpression
-	Tags?:                 _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
+	Description?:                strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	KnowledgeBaseConfiguration!: _#defs."/$defs/Properties/definitions/KnowledgeBaseConfiguration"
+	Name!:                       =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
+	fn.#StringExpression
+	StorageConfiguration?: _#defs."/$defs/Properties/definitions/StorageConfiguration"
+	Tags?:                 _#defs."/$defs/Properties/definitions/TagsMap"
 })
 
-_#defs: "/$defs/Properties/definitions/AudioConfiguration": close({
-	SegmentationConfiguration!: _#defs."/$defs/Properties/definitions/AudioSegmentationConfiguration" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/AudioConfiguration": close(
+	{SegmentationConfiguration!: _#defs."/$defs/Properties/definitions/AudioSegmentationConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AudioConfigurations": list.MaxItems(1) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AudioConfiguration" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/AudioConfiguration"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/AudioSegmentationConfiguration": close(
-	{FixedLengthDuration!: _#defs."/$defs/Properties/definitions/FixedLengthDuration" | fn.#NumberExpression},
+	{FixedLengthDuration!: _#defs."/$defs/Properties/definitions/FixedLengthDuration"},
 ) |
 	fn.#ObjectExpression
 
@@ -45,42 +50,71 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AwsDataCatalogTableNames": list.MaxItems(1000) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AwsDataCatalogTableName" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/AwsDataCatalogTableName"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/BedrockEmbeddingModelConfiguration": close({
-	Audio?:              _#defs."/$defs/Properties/definitions/AudioConfigurations" | fn.#ListExpression
-	Dimensions?:         int & <=4096 & >=0 | fn.#NumberExpression
+	Audio?: _#defs."/$defs/Properties/definitions/AudioConfigurations"
+	Dimensions?: int & <=4096 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=4096 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	EmbeddingDataType?:  "FLOAT32" | "BINARY" | fn.#StringExpression
-	ModelConfiguration?: {[string]: fn.#Value} | fn.#ObjectExpression
-	Video?:              _#defs."/$defs/Properties/definitions/VideoConfigurations" | fn.#ListExpression
+	ModelConfiguration?: fn.#Object & {...} | fn.#ObjectExpression
+	Video?:              _#defs."/$defs/Properties/definitions/VideoConfigurations"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CuratedQueries": list.MaxItems(10) & [
-	..._#defs."/$defs/Properties/definitions/CuratedQuery" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/CuratedQuery"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/CuratedQuery": close({
-	NaturalLanguage!: _#defs."/$defs/Properties/definitions/NaturalLanguageString" | fn.#StringExpression
-	Sql!:             _#defs."/$defs/Properties/definitions/SqlString" | fn.#StringExpression
+	NaturalLanguage!: _#defs."/$defs/Properties/definitions/NaturalLanguageString"
+	Sql!:             _#defs."/$defs/Properties/definitions/SqlString"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DescriptionString": strings.MaxRunes(200) & strings.MinRunes(1) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EmbeddingModelConfiguration": close({
-	BedrockEmbeddingModelConfiguration?: _#defs."/$defs/Properties/definitions/BedrockEmbeddingModelConfiguration" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/EmbeddingModelConfiguration": close(
+	{BedrockEmbeddingModelConfiguration?: _#defs."/$defs/Properties/definitions/BedrockEmbeddingModelConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EmbeddingModelType": "CUSTOM" | "MANAGED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FixedLengthDuration": int & <=30 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/FixedLengthDuration": int & <=30 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=30 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/InclusionType": "INCLUDE" | "EXCLUDE" | fn.#StringExpression
 
@@ -88,20 +122,16 @@ _#defs: "/$defs/Properties/definitions/KendraIndexArn": =~"^arn:aws(|-cn|-us-gov
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/KendraKnowledgeBaseConfiguration": close(
-	{KendraIndexArn!: _#defs."/$defs/Properties/definitions/KendraIndexArn" | fn.#StringExpression},
+	{KendraIndexArn!: _#defs."/$defs/Properties/definitions/KendraIndexArn"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KnowledgeBaseConfiguration": close({
-	KendraKnowledgeBaseConfiguration?: _#defs."/$defs/Properties/definitions/KendraKnowledgeBaseConfiguration" |
-		fn.#ObjectExpression
-	ManagedKnowledgeBaseConfiguration?: _#defs."/$defs/Properties/definitions/ManagedKnowledgeBaseConfiguration" |
-		fn.#ObjectExpression
-	SqlKnowledgeBaseConfiguration?: _#defs."/$defs/Properties/definitions/SqlKnowledgeBaseConfiguration" |
-		fn.#ObjectExpression
-	Type!: _#defs."/$defs/Properties/definitions/KnowledgeBaseType" | fn.#StringExpression
-	VectorKnowledgeBaseConfiguration?: _#defs."/$defs/Properties/definitions/VectorKnowledgeBaseConfiguration" |
-		fn.#ObjectExpression
+	KendraKnowledgeBaseConfiguration?:  _#defs."/$defs/Properties/definitions/KendraKnowledgeBaseConfiguration"
+	ManagedKnowledgeBaseConfiguration?: _#defs."/$defs/Properties/definitions/ManagedKnowledgeBaseConfiguration"
+	SqlKnowledgeBaseConfiguration?:     _#defs."/$defs/Properties/definitions/SqlKnowledgeBaseConfiguration"
+	Type!:                              _#defs."/$defs/Properties/definitions/KnowledgeBaseType"
+	VectorKnowledgeBaseConfiguration?:  _#defs."/$defs/Properties/definitions/VectorKnowledgeBaseConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -134,18 +164,17 @@ _#defs: "/$defs/Properties/definitions/ManagedKnowledgeBaseConfiguration": close
 	strings.MinRunes(20) &
 	=~"^(arn:aws(-[^:]+)?:[a-z0-9-]+:[a-z0-9-]{1,20}:[0-9]{0,12}:[a-zA-Z0-9-:/._+]+)$" |
 	fn.#StringExpression
-	EmbeddingModelConfiguration?: _#defs."/$defs/Properties/definitions/EmbeddingModelConfiguration" |
-		fn.#ObjectExpression
-	EmbeddingModelType?: _#defs."/$defs/Properties/definitions/EmbeddingModelType" | fn.#StringExpression
-	ServerSideEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/ManagedKnowledgeBaseServerSideEncryptionConfiguration" |
-		fn.#ObjectExpression
-	SupplementalDataStorageConfiguration?: _#defs."/$defs/Properties/definitions/SupplementalDataStorageConfiguration" |
-		fn.#ObjectExpression
+	EmbeddingModelConfiguration?: _#defs."/$defs/Properties/definitions/EmbeddingModelConfiguration"
+	EmbeddingModelType?:          _#defs."/$defs/Properties/definitions/EmbeddingModelType"
+	ServerSideEncryptionConfiguration?:
+		_#defs."/$defs/Properties/definitions/ManagedKnowledgeBaseServerSideEncryptionConfiguration"
+	SupplementalDataStorageConfiguration?: _#defs."/$defs/Properties/definitions/SupplementalDataStorageConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ManagedKnowledgeBaseServerSideEncryptionConfiguration": close({
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
 	fn.#StringExpression
@@ -161,7 +190,7 @@ _#defs: "/$defs/Properties/definitions/MongoDbAtlasConfiguration": close({
 	EndpointServiceName?: strings.MaxRunes(255) &
 	=~"^(?:arn:aws(?:-us-gov|-cn|-iso|-iso-[a-z])*:.+:.*:\\d+:.+/.+$|[a-zA-Z0-9*]+[a-zA-Z0-9._-]*)$" |
 	fn.#StringExpression
-	FieldMapping!:    _#defs."/$defs/Properties/definitions/MongoDbAtlasFieldMapping" | fn.#ObjectExpression
+	FieldMapping!:    _#defs."/$defs/Properties/definitions/MongoDbAtlasFieldMapping"
 	TextIndexName?:   strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
 	VectorIndexName!: strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
 }) |
@@ -178,7 +207,7 @@ _#defs: "/$defs/Properties/definitions/NaturalLanguageString": strings.MaxRunes(
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/NeptuneAnalyticsConfiguration": close({
-	FieldMapping!: _#defs."/$defs/Properties/definitions/NeptuneAnalyticsFieldMapping" | fn.#ObjectExpression
+	FieldMapping!: _#defs."/$defs/Properties/definitions/NeptuneAnalyticsFieldMapping"
 	GraphArn!: strings.MaxRunes(255) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(|-cn|-us-gov):neptune-graph:[a-zA-Z0-9-]*:[0-9]{12}:graph\\/g-[a-zA-Z0-9]{10}$" |
@@ -197,7 +226,7 @@ _#defs: "/$defs/Properties/definitions/OpenSearchManagedClusterConfiguration": c
 	=~"^arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:es:([a-z]{2,}-){2,}\\d:\\d{12}:domain/[a-z][a-z0-9-]{3,28}$" |
 	fn.#StringExpression
 	DomainEndpoint!:  strings.MaxRunes(2048) & =~"^https://.*$" | fn.#StringExpression
-	FieldMapping!:    _#defs."/$defs/Properties/definitions/OpenSearchManagedClusterFieldMapping" | fn.#ObjectExpression
+	FieldMapping!:    _#defs."/$defs/Properties/definitions/OpenSearchManagedClusterFieldMapping"
 	VectorIndexName!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -213,7 +242,7 @@ _#defs: "/$defs/Properties/definitions/OpenSearchServerlessConfiguration": close
 	CollectionArn!: strings.MaxRunes(2048) &
 	=~"^arn:aws(|-cn|-us-gov|-iso):aoss:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:collection/[a-z0-9-]{3,32}$" |
 	fn.#StringExpression
-	FieldMapping!:    _#defs."/$defs/Properties/definitions/OpenSearchServerlessFieldMapping" | fn.#ObjectExpression
+	FieldMapping!:    _#defs."/$defs/Properties/definitions/OpenSearchServerlessFieldMapping"
 	VectorIndexName!: strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -229,7 +258,7 @@ _#defs: "/$defs/Properties/definitions/PineconeConfiguration": close({
 	ConnectionString!: strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
 	CredentialsSecretArn!: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" |
 		fn.#StringExpression
-	FieldMapping!: _#defs."/$defs/Properties/definitions/PineconeFieldMapping" | fn.#ObjectExpression
+	FieldMapping!: _#defs."/$defs/Properties/definitions/PineconeFieldMapping"
 	Namespace?:    strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -242,12 +271,27 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/QueryEngineType": "REDSHIFT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/QueryExecutionTimeoutSeconds": int & <=200 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/QueryExecutionTimeoutSeconds": int & <=200 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=200 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/QueryGenerationColumn": close({
-	Description?: _#defs."/$defs/Properties/definitions/DescriptionString" | fn.#StringExpression
-	Inclusion?:   _#defs."/$defs/Properties/definitions/InclusionType" | fn.#StringExpression
-	Name?:        _#defs."/$defs/Properties/definitions/QueryGenerationColumnName" | fn.#StringExpression
+	Description?: _#defs."/$defs/Properties/definitions/DescriptionString"
+	Inclusion?:   _#defs."/$defs/Properties/definitions/InclusionType"
+	Name?:        _#defs."/$defs/Properties/definitions/QueryGenerationColumnName"
 }) |
 fn.#ObjectExpression
 
@@ -255,34 +299,34 @@ _#defs: "/$defs/Properties/definitions/QueryGenerationColumnName": strings.MaxRu
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/QueryGenerationColumns": [
-	..._#defs."/$defs/Properties/definitions/QueryGenerationColumn" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/QueryGenerationColumn"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/QueryGenerationConfiguration": close({
-	ExecutionTimeoutSeconds?: _#defs."/$defs/Properties/definitions/QueryExecutionTimeoutSeconds" | fn.#NumberExpression
-	GenerationContext?:       _#defs."/$defs/Properties/definitions/QueryGenerationContext" | fn.#ObjectExpression
+	ExecutionTimeoutSeconds?: _#defs."/$defs/Properties/definitions/QueryExecutionTimeoutSeconds"
+	GenerationContext?:       _#defs."/$defs/Properties/definitions/QueryGenerationContext"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/QueryGenerationContext": close({
-	CuratedQueries?: _#defs."/$defs/Properties/definitions/CuratedQueries" | fn.#ListExpression
-	Tables?:         _#defs."/$defs/Properties/definitions/QueryGenerationTables" | fn.#ListExpression
+	CuratedQueries?: _#defs."/$defs/Properties/definitions/CuratedQueries"
+	Tables?:         _#defs."/$defs/Properties/definitions/QueryGenerationTables"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/QueryGenerationTable": close({
-	Columns?:     _#defs."/$defs/Properties/definitions/QueryGenerationColumns" | fn.#ListExpression
-	Description?: _#defs."/$defs/Properties/definitions/DescriptionString" | fn.#StringExpression
-	Inclusion?:   _#defs."/$defs/Properties/definitions/InclusionType" | fn.#StringExpression
-	Name!:        _#defs."/$defs/Properties/definitions/QueryGenerationTableName" | fn.#StringExpression
+	Columns?:     _#defs."/$defs/Properties/definitions/QueryGenerationColumns"
+	Description?: _#defs."/$defs/Properties/definitions/DescriptionString"
+	Inclusion?:   _#defs."/$defs/Properties/definitions/InclusionType"
+	Name!:        _#defs."/$defs/Properties/definitions/QueryGenerationTableName"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/QueryGenerationTableName": =~"^.*\\..*\\..*$" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/QueryGenerationTables": list.MaxItems(50) & [
-	..._#defs."/$defs/Properties/definitions/QueryGenerationTable" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/QueryGenerationTable"
 ] |
 	fn.#ListExpression
 
@@ -290,7 +334,7 @@ _#defs: "/$defs/Properties/definitions/RdsConfiguration": close({
 	CredentialsSecretArn!: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" |
 		fn.#StringExpression
 	DatabaseName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" | fn.#StringExpression
-	FieldMapping!: _#defs."/$defs/Properties/definitions/RdsFieldMapping" | fn.#ObjectExpression
+	FieldMapping!: _#defs."/$defs/Properties/definitions/RdsFieldMapping"
 	ResourceArn!: =~"^arn:aws(|-cn|-us-gov):rds:[a-zA-Z0-9-]*:[0-9]{12}:cluster:[a-zA-Z0-9-]{1,63}$" |
 		fn.#StringExpression
 	TableName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\.\\-]+$" | fn.#StringExpression
@@ -310,7 +354,7 @@ _#defs: "/$defs/Properties/definitions/RedisEnterpriseCloudConfiguration": close
 	CredentialsSecretArn!: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" |
 		fn.#StringExpression
 	Endpoint!:        strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
-	FieldMapping!:    _#defs."/$defs/Properties/definitions/RedisEnterpriseCloudFieldMapping" | fn.#ObjectExpression
+	FieldMapping!:    _#defs."/$defs/Properties/definitions/RedisEnterpriseCloudFieldMapping"
 	VectorIndexName!: strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -326,12 +370,9 @@ _#defs: "/$defs/Properties/definitions/RedshiftClusterIdentifier": strings.MaxRu
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftConfiguration": close({
-	QueryEngineConfiguration!: _#defs."/$defs/Properties/definitions/RedshiftQueryEngineConfiguration" |
-		fn.#ObjectExpression
-	QueryGenerationConfiguration?: _#defs."/$defs/Properties/definitions/QueryGenerationConfiguration" |
-		fn.#ObjectExpression
-	StorageConfigurations!: _#defs."/$defs/Properties/definitions/RedshiftQueryEngineStorageConfigurations" |
-		fn.#ListExpression
+	QueryEngineConfiguration!:     _#defs."/$defs/Properties/definitions/RedshiftQueryEngineConfiguration"
+	QueryGenerationConfiguration?: _#defs."/$defs/Properties/definitions/QueryGenerationConfiguration"
+	StorageConfigurations!:        _#defs."/$defs/Properties/definitions/RedshiftQueryEngineStorageConfigurations"
 }) |
 fn.#ObjectExpression
 
@@ -339,9 +380,9 @@ _#defs: "/$defs/Properties/definitions/RedshiftDatabase": strings.MaxRunes(200) 
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftProvisionedAuthConfiguration": close({
-	DatabaseUser?: string | fn.#StringExpression
-	Type!:         _#defs."/$defs/Properties/definitions/RedshiftProvisionedAuthType" | fn.#StringExpression
-	UsernamePasswordSecretArn?: _#defs."/$defs/Properties/definitions/SecretArn" | fn.#StringExpression
+	DatabaseUser?:              string | fn.#StringExpression
+	Type!:                      _#defs."/$defs/Properties/definitions/RedshiftProvisionedAuthType"
+	UsernamePasswordSecretArn?: _#defs."/$defs/Properties/definitions/SecretArn"
 }) |
 fn.#ObjectExpression
 
@@ -351,42 +392,38 @@ _#defs: "/$defs/Properties/definitions/RedshiftProvisionedAuthType": "IAM" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftProvisionedConfiguration": close({
-	AuthConfiguration!: _#defs."/$defs/Properties/definitions/RedshiftProvisionedAuthConfiguration" |
-		fn.#ObjectExpression
-	ClusterIdentifier!: _#defs."/$defs/Properties/definitions/RedshiftClusterIdentifier" | fn.#StringExpression
+	AuthConfiguration!: _#defs."/$defs/Properties/definitions/RedshiftProvisionedAuthConfiguration"
+	ClusterIdentifier!: _#defs."/$defs/Properties/definitions/RedshiftClusterIdentifier"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftQueryEngineAwsDataCatalogStorageConfiguration": close(
-	{TableNames!: _#defs."/$defs/Properties/definitions/AwsDataCatalogTableNames" | fn.#ListExpression},
+	{TableNames!: _#defs."/$defs/Properties/definitions/AwsDataCatalogTableNames"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftQueryEngineConfiguration": close({
-	ProvisionedConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftProvisionedConfiguration" |
-		fn.#ObjectExpression
-	ServerlessConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftServerlessConfiguration" |
-		fn.#ObjectExpression
-	Type!: _#defs."/$defs/Properties/definitions/RedshiftQueryEngineType" | fn.#StringExpression
+	ProvisionedConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftProvisionedConfiguration"
+	ServerlessConfiguration?:  _#defs."/$defs/Properties/definitions/RedshiftServerlessConfiguration"
+	Type!:                     _#defs."/$defs/Properties/definitions/RedshiftQueryEngineType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftQueryEngineRedshiftStorageConfiguration": close(
-	{DatabaseName!: _#defs."/$defs/Properties/definitions/RedshiftDatabase" | fn.#StringExpression},
+	{DatabaseName!: _#defs."/$defs/Properties/definitions/RedshiftDatabase"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftQueryEngineStorageConfiguration": close({
-	AwsDataCatalogConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftQueryEngineAwsDataCatalogStorageConfiguration" |
-		fn.#ObjectExpression
-	RedshiftConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftQueryEngineRedshiftStorageConfiguration" |
-		fn.#ObjectExpression
-	Type!: _#defs."/$defs/Properties/definitions/RedshiftQueryEngineStorageType" | fn.#StringExpression
+	AwsDataCatalogConfiguration?:
+		_#defs."/$defs/Properties/definitions/RedshiftQueryEngineAwsDataCatalogStorageConfiguration"
+	RedshiftConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftQueryEngineRedshiftStorageConfiguration"
+	Type!:                  _#defs."/$defs/Properties/definitions/RedshiftQueryEngineStorageType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftQueryEngineStorageConfigurations": list.MaxItems(1) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/RedshiftQueryEngineStorageConfiguration" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/RedshiftQueryEngineStorageConfiguration"
 ] |
 	fn.#ListExpression
 
@@ -397,17 +434,16 @@ _#defs: "/$defs/Properties/definitions/RedshiftQueryEngineStorageType": "REDSHIF
 _#defs: "/$defs/Properties/definitions/RedshiftQueryEngineType": "SERVERLESS" | "PROVISIONED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftServerlessAuthConfiguration": close({
-	Type!:                      _#defs."/$defs/Properties/definitions/RedshiftServerlessAuthType" | fn.#StringExpression
-	UsernamePasswordSecretArn?: _#defs."/$defs/Properties/definitions/SecretArn" | fn.#StringExpression
+	Type!:                      _#defs."/$defs/Properties/definitions/RedshiftServerlessAuthType"
+	UsernamePasswordSecretArn?: _#defs."/$defs/Properties/definitions/SecretArn"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftServerlessAuthType": "IAM" | "USERNAME_PASSWORD" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftServerlessConfiguration": close({
-	AuthConfiguration!: _#defs."/$defs/Properties/definitions/RedshiftServerlessAuthConfiguration" |
-		fn.#ObjectExpression
-	WorkgroupArn!: _#defs."/$defs/Properties/definitions/WorkgroupArn" | fn.#StringExpression
+	AuthConfiguration!: _#defs."/$defs/Properties/definitions/RedshiftServerlessAuthConfiguration"
+	WorkgroupArn!:      _#defs."/$defs/Properties/definitions/WorkgroupArn"
 }) |
 fn.#ObjectExpression
 
@@ -434,8 +470,8 @@ _#defs: "/$defs/Properties/definitions/SecretArn": =~"^arn:aws(|-cn|-us-gov):sec
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SqlKnowledgeBaseConfiguration": close({
-	RedshiftConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftConfiguration" | fn.#ObjectExpression
-	Type!:                  _#defs."/$defs/Properties/definitions/QueryEngineType" | fn.#StringExpression
+	RedshiftConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftConfiguration"
+	Type!:                  _#defs."/$defs/Properties/definitions/QueryEngineType"
 }) |
 fn.#ObjectExpression
 
@@ -463,37 +499,32 @@ _#defs: "/$defs/Properties/definitions/StorageConfiguration": matchN(1, [{
 	OpensearchManagedClusterConfiguration!: _
 	...
 }]) & close({
-	MongoDbAtlasConfiguration?: _#defs."/$defs/Properties/definitions/MongoDbAtlasConfiguration" | fn.#ObjectExpression
-	NeptuneAnalyticsConfiguration?: _#defs."/$defs/Properties/definitions/NeptuneAnalyticsConfiguration" |
-		fn.#ObjectExpression
-	OpensearchManagedClusterConfiguration?: _#defs."/$defs/Properties/definitions/OpenSearchManagedClusterConfiguration" |
-		fn.#ObjectExpression
-	OpensearchServerlessConfiguration?: _#defs."/$defs/Properties/definitions/OpenSearchServerlessConfiguration" |
-		fn.#ObjectExpression
-	PineconeConfiguration?:  _#defs."/$defs/Properties/definitions/PineconeConfiguration" | fn.#ObjectExpression
-	RdsConfiguration?:       _#defs."/$defs/Properties/definitions/RdsConfiguration" | fn.#ObjectExpression
-	S3VectorsConfiguration?: _#defs."/$defs/Properties/definitions/S3VectorsConfiguration" | fn.#ObjectExpression
-	Type!:                   _#defs."/$defs/Properties/definitions/KnowledgeBaseStorageType" | fn.#StringExpression
+	MongoDbAtlasConfiguration?:             _#defs."/$defs/Properties/definitions/MongoDbAtlasConfiguration"
+	NeptuneAnalyticsConfiguration?:         _#defs."/$defs/Properties/definitions/NeptuneAnalyticsConfiguration"
+	OpensearchManagedClusterConfiguration?: _#defs."/$defs/Properties/definitions/OpenSearchManagedClusterConfiguration"
+	OpensearchServerlessConfiguration?:     _#defs."/$defs/Properties/definitions/OpenSearchServerlessConfiguration"
+	PineconeConfiguration?:                 _#defs."/$defs/Properties/definitions/PineconeConfiguration"
+	RdsConfiguration?:                      _#defs."/$defs/Properties/definitions/RdsConfiguration"
+	S3VectorsConfiguration?:                _#defs."/$defs/Properties/definitions/S3VectorsConfiguration"
+	Type!:                                  _#defs."/$defs/Properties/definitions/KnowledgeBaseStorageType"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SupplementalDataStorageConfiguration": close({
-	SupplementalDataStorageLocations!: _#defs."/$defs/Properties/definitions/SupplementalDataStorageLocations" |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/SupplementalDataStorageConfiguration": close(
+	{SupplementalDataStorageLocations!: _#defs."/$defs/Properties/definitions/SupplementalDataStorageLocations"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SupplementalDataStorageLocation": close({
-	S3Location?: _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
-	SupplementalDataStorageLocationType!: _#defs."/$defs/Properties/definitions/SupplementalDataStorageLocationType" |
-		fn.#StringExpression
+	S3Location?:                          _#defs."/$defs/Properties/definitions/S3Location"
+	SupplementalDataStorageLocationType!: _#defs."/$defs/Properties/definitions/SupplementalDataStorageLocationType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SupplementalDataStorageLocationType": "S3" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SupplementalDataStorageLocations": list.MaxItems(1) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SupplementalDataStorageLocation" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/SupplementalDataStorageLocation"
 ] |
 	fn.#ListExpression
 
@@ -508,26 +539,23 @@ _#defs: "/$defs/Properties/definitions/VectorKnowledgeBaseConfiguration": close(
 	strings.MinRunes(20) &
 	=~"^(arn:aws(-[^:]+)?:[a-z0-9-]+:[a-z0-9-]{1,20}:[0-9]{0,12}:[a-zA-Z0-9-:/._+]+)$" |
 	fn.#StringExpression
-	EmbeddingModelConfiguration?: _#defs."/$defs/Properties/definitions/EmbeddingModelConfiguration" |
-		fn.#ObjectExpression
-	SupplementalDataStorageConfiguration?: _#defs."/$defs/Properties/definitions/SupplementalDataStorageConfiguration" |
-		fn.#ObjectExpression
+	EmbeddingModelConfiguration?:          _#defs."/$defs/Properties/definitions/EmbeddingModelConfiguration"
+	SupplementalDataStorageConfiguration?: _#defs."/$defs/Properties/definitions/SupplementalDataStorageConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VideoConfiguration": close({
-	SegmentationConfiguration!: _#defs."/$defs/Properties/definitions/VideoSegmentationConfiguration" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/VideoConfiguration": close(
+	{SegmentationConfiguration!: _#defs."/$defs/Properties/definitions/VideoSegmentationConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VideoConfigurations": list.MaxItems(1) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/VideoConfiguration" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/VideoConfiguration"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/VideoSegmentationConfiguration": close(
-	{FixedLengthDuration!: _#defs."/$defs/Properties/definitions/FixedLengthDuration" | fn.#NumberExpression},
+	{FixedLengthDuration!: _#defs."/$defs/Properties/definitions/FixedLengthDuration"},
 ) |
 	fn.#ObjectExpression
 

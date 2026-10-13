@@ -11,7 +11,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::KinesisAnalyticsV2::ApplicationOutput
 #Properties: close({
 	ApplicationName!: string | fn.#StringExpression
-	Output!:          _#defs."/$defs/Properties/definitions/Output" | fn.#ObjectExpression
+	Output!:          _#defs."/$defs/Properties/definitions/Output"
 })
 
 _#defs: "/$defs/Properties/definitions/DestinationSchema": close({RecordFormatType?: string | fn.#StringExpression}) |
@@ -27,10 +27,10 @@ _#defs: "/$defs/Properties/definitions/LambdaOutput": close({ResourceARN!: strin
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Output": close({
-	DestinationSchema!:     _#defs."/$defs/Properties/definitions/DestinationSchema" | fn.#ObjectExpression
-	KinesisFirehoseOutput?: _#defs."/$defs/Properties/definitions/KinesisFirehoseOutput" | fn.#ObjectExpression
-	KinesisStreamsOutput?:  _#defs."/$defs/Properties/definitions/KinesisStreamsOutput" | fn.#ObjectExpression
-	LambdaOutput?:          _#defs."/$defs/Properties/definitions/LambdaOutput" | fn.#ObjectExpression
+	DestinationSchema!:     _#defs."/$defs/Properties/definitions/DestinationSchema"
+	KinesisFirehoseOutput?: _#defs."/$defs/Properties/definitions/KinesisFirehoseOutput"
+	KinesisStreamsOutput?:  _#defs."/$defs/Properties/definitions/KinesisStreamsOutput"
+	LambdaOutput?:          _#defs."/$defs/Properties/definitions/LambdaOutput"
 	Name?:                  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

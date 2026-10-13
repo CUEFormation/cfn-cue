@@ -24,7 +24,7 @@ import "strings"
 	Name!: strings.MaxRunes(2048) & strings.MinRunes(1)
 
 	// Role ARN.
-	RoleArn!:            string
+	RoleArn!:            =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	SchemaS3Location?:   _#defs."/$defs/Properties/definitions/S3Location"
 	SnapshotS3Location?: _#defs."/$defs/Properties/definitions/S3Location"
 })

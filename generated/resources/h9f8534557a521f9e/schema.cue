@@ -18,8 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:    strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
 	DisplayName!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	ProviderName!:   strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:           list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

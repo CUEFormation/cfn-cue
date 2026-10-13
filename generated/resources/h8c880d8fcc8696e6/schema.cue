@@ -8,42 +8,71 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RUM::AppMonitor
 #Properties: close({
-	AppMonitorConfiguration?: _#defs."/$defs/Properties/definitions/AppMonitorConfiguration" | fn.#ObjectExpression
-	CustomEvents?:            _#defs."/$defs/Properties/definitions/CustomEvents" | fn.#ObjectExpression
-	CwLogEnabled?:            bool | fn.#BooleanExpression
-	DeobfuscationConfiguration?: _#defs."/$defs/Properties/definitions/DeobfuscationConfiguration" |
-		fn.#ObjectExpression
-	Domain?: strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
+	AppMonitorConfiguration?:    _#defs."/$defs/Properties/definitions/AppMonitorConfiguration"
+	CustomEvents?:               _#defs."/$defs/Properties/definitions/CustomEvents"
+	CwLogEnabled?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DeobfuscationConfiguration?: _#defs."/$defs/Properties/definitions/DeobfuscationConfiguration"
+	Domain?:                     strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
 	DomainList?: list.MaxItems(5) & list.MinItems(1) & [
 		...strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
 	Name!:           strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
 	Platform?:       "Web" | "Android" | "iOS" | fn.#StringExpression
-	ResourcePolicy?: _#defs."/$defs/Properties/definitions/ResourcePolicy" | fn.#ObjectExpression
-	Tags?:           _#defs."/$defs/Properties/definitions/TagDef" | fn.#ListExpression
+	ResourcePolicy?: _#defs."/$defs/Properties/definitions/ResourcePolicy"
+	Tags?:           _#defs."/$defs/Properties/definitions/TagDef"
 })
 
 _#defs: "/$defs/Properties/definitions/AppMonitorConfiguration": close({
-	AllowCookies?:   bool | fn.#BooleanExpression
-	EnableXRay?:     bool | fn.#BooleanExpression
-	ExcludedPages?:  _#defs."/$defs/Properties/definitions/Pages" | fn.#ListExpression
-	FavoritePages?:  _#defs."/$defs/Properties/definitions/FavoritePages" | fn.#ListExpression
-	GuestRoleArn?:   _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
+	AllowCookies?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableXRay?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExcludedPages?: _#defs."/$defs/Properties/definitions/Pages" | fn.#ListExpression
+	FavoritePages?: _#defs."/$defs/Properties/definitions/FavoritePages" | fn.#ListExpression
+	GuestRoleArn?: _#defs."/$defs/Properties/definitions/Arn" &
+	(null |
+	bool |
+	number |
+	=~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+	[...] |
+	{...}) |
+	fn.#StringExpression
 	IdentityPoolId?: strings.MaxRunes(55) & strings.MinRunes(1) & =~"[\\w-]+:[0-9a-f-]+" | fn.#StringExpression
 	IncludedPages?:  _#defs."/$defs/Properties/definitions/Pages" | fn.#ListExpression
 	MetricDestinations?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/MetricDestination" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MetricDestination"
 	] |
 		fn.#ListExpression
-	SessionSampleRate?: <=1 & >=0 | fn.#NumberExpression
-	Telemetries?: [..._#defs."/$defs/Properties/definitions/Telemetry" | fn.#StringExpression] | fn.#ListExpression
+	SessionSampleRate?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Telemetries?: [..._#defs."/$defs/Properties/definitions/Telemetry"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -84,16 +113,18 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/MetricDestination": close({
 	Destination!:    "CloudWatch" | "Evidently" | fn.#StringExpression
 	DestinationArn?: =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*" | fn.#StringExpression
-	IamRoleArn?:     =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*" | fn.#StringExpression
+	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*" |
+		fn.#StringExpression
 	MetricDefinitions?: list.MaxItems(2000) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/MetricDefinition" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MetricDefinition"
 	] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Pages": list.MaxItems(50) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Url" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/Url"
 ] |
 	fn.#ListExpression
 
@@ -109,9 +140,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagDef": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/TagDef": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/Telemetry": "errors" | "performance" | "http" | fn.#StringExpression

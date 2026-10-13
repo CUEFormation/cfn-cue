@@ -16,9 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DomainName!: strings.MaxRunes(50) & strings.MinRunes(2) & =~"^([a-z][a-z0-9\\-]{0,48}[a-z0-9])$" |
 	fn.#StringExpression
-	PermissionsPolicyDocument?: {[string]: fn.#Value} | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	PermissionsPolicyDocument?: fn.#Object & {...} | fn.#ObjectExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

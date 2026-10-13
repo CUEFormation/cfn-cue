@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -27,11 +31,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	BlockDeviceMappings?: [..._#defs."/$defs/Properties/definitions/InstanceBlockDeviceMapping" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Components?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ComponentConfiguration" | fn.#ObjectExpression
-	] |
+	BlockDeviceMappings?: [..._#defs."/$defs/Properties/definitions/InstanceBlockDeviceMapping"] | fn.#ListExpression
+	Components?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ComponentConfiguration"] |
 		fn.#ListExpression
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:        =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
@@ -56,10 +57,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ComponentConfiguration": close({
 	ComponentArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws(?:-[a-z-]+)?|third-party):component/[a-z0-9-_]+/(?:(?:([0-9]+|x)\\.([0-9]+|x)\\.([0-9]+|x))|(?:[0-9]+\\.[0-9]+\\.[0-9]+/[0-9]+))$" |
 		fn.#StringExpression
-	Parameters?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ComponentParameter" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Parameters?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ComponentParameter"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -70,13 +68,60 @@ _#defs: "/$defs/Properties/definitions/ComponentParameter": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EbsInstanceBlockDeviceSpecification": close({
-	DeleteOnTermination?: bool | fn.#BooleanExpression
-	Encrypted?:           bool | fn.#BooleanExpression
-	Iops?:                int & <=64000 & >=100 | fn.#NumberExpression
-	KmsKeyId?:   (string | string | string) & (strings.MaxRunes(1024) & strings.MinRunes(1)) | fn.#StringExpression
+	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Encrypted?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Iops?: int & <=64000 & >=100 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=64000 &
+							>=100,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	fn.#StringExpression
 	SnapshotId?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Throughput?: int & <=1000 & >=125 | fn.#NumberExpression
-	VolumeSize?: int & <=16000 & >=1 | fn.#NumberExpression
+	Throughput?: int & <=1000 & >=125 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=125,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VolumeSize?: int & <=16000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=16000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	VolumeType?: "standard" | "io1" | "io2" | "io2a" | "gp2" | "gp3" | "gp3a" | "sc1" | "st1" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -97,7 +142,9 @@ _#defs: "/$defs/Properties/definitions/LatestVersion": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SystemsManagerAgent": close({UninstallAfterBuild?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/SystemsManagerAgent": close(
+	{UninstallAfterBuild?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ImageBuilder::ImageRecipe"

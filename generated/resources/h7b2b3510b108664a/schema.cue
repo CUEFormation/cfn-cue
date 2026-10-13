@@ -16,11 +16,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // that defines the actions that Systems Manager performs, which can be used to
 // set up and run commands on your instances.
 #Properties: close({
-	Attachments?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/AttachmentsSource" | fn.#ObjectExpression
-	] |
+	Attachments?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/AttachmentsSource"] |
 		fn.#ListExpression
-	Content!:        strings.MinRunes(1) | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Content!:        fn.#Object & {...} | strings.MinRunes(1) | fn.#StringObjectExpression
 	DocumentFormat?: "YAML" | "JSON" | "TEXT" | fn.#StringExpression
 	DocumentType?: "ApplicationConfiguration" |
 		"ApplicationConfigurationSchema" |
@@ -38,11 +36,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"ProblemAnalysisTemplate" |
 		"Session" |
 		fn.#StringExpression
-	Name?: =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
-	Requires?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DocumentRequires" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(1000) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Name?:         =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
+	Requires?:     list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DocumentRequires"] | fn.#ListExpression
+	Tags?:         list.MaxItems(1000) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetType?:   strings.MaxRunes(200) & strings.MinRunes(0) & =~"^\\/[\\w\\.\\-\\:\\/]*$" | fn.#StringExpression
 	UpdateMethod?: "Replace" | "NewVersion" | fn.#StringExpression
 	VersionName?:  =~"^[a-zA-Z0-9_\\-.]{1,128}$" | fn.#StringExpression

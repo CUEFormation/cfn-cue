@@ -8,46 +8,139 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::ODB::CloudAutonomousVmCluster resource creates a Cloud Autonomous VM Cluster
 #Properties: close({
-	AutonomousDataStorageSizeInTBs?: number | fn.#NumberExpression
+	AutonomousDataStorageSizeInTBs?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	CloudExadataInfrastructureId?: strings.MaxRunes(2048) &
 	strings.MinRunes(6) &
 	=~"^(arn:(?:aws|aws-cn|aws-us-gov|aws-iso-{0,1}[a-z]{0,1}):[a-z0-9-]+:[a-z0-9-]*:[0-9]+:[a-z0-9-]+/[a-zA-Z0-9_~.-]{6,64}|[a-zA-Z0-9_~.-]{6,64})$" |
 	fn.#StringExpression
-	CpuCoreCountPerNode?: int | fn.#NumberExpression
+	CpuCoreCountPerNode?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	DbServers?:   list.MaxItems(1024) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	Description?: string | fn.#StringExpression
 	DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	IamRoles?: list.UniqueItems() & [...close({
 		AwsIntegration?: string | fn.#StringExpression
-		IamRoleArn?:     string | fn.#StringExpression
+		IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	IsMtlsEnabledVmCluster?:          bool | fn.#BooleanExpression
-	LicenseModel?:                    "BRING_YOUR_OWN_LICENSE" | "LICENSE_INCLUDED" | fn.#StringExpression
-	MaintenanceWindow?:               _#defs."/$defs/Properties/definitions/MaintenanceWindow" | fn.#ObjectExpression
-	MemoryPerOracleComputeUnitInGBs?: int | fn.#NumberExpression
+	IsMtlsEnabledVmCluster?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	LicenseModel?:           "BRING_YOUR_OWN_LICENSE" | "LICENSE_INCLUDED" | fn.#StringExpression
+	MaintenanceWindow?:      _#defs."/$defs/Properties/definitions/MaintenanceWindow" | fn.#ObjectExpression
+	MemoryPerOracleComputeUnitInGBs?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	OdbNetworkId?: strings.MaxRunes(2048) &
 	strings.MinRunes(6) &
 	=~"^(arn:(?:aws|aws-cn|aws-us-gov|aws-iso-{0,1}[a-z]{0,1}):[a-z0-9-]+:[a-z0-9-]*:[0-9]+:[a-z0-9-]+/[a-zA-Z0-9_~.-]{6,64}|[a-zA-Z0-9_~.-]{6,64})$" |
 	fn.#StringExpression
-	ScanListenerPortNonTls?: int & <=8999 & >=1024 | fn.#NumberExpression
-	ScanListenerPortTls?:    int & <=8999 & >=1024 | fn.#NumberExpression
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	TimeZone?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TotalContainerDatabases?: int | fn.#NumberExpression
+	ScanListenerPortNonTls?: int & <=8999 & >=1024 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=8999 &
+							>=1024,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ScanListenerPortTls?: int & <=8999 & >=1024 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=8999 &
+							>=1024,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TimeZone?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	TotalContainerDatabases?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 
 _#defs: "/$defs/Properties/definitions/IamRole": close({
 	AwsIntegration?: string | fn.#StringExpression
-	IamRoleArn?:     string | fn.#StringExpression
-	Status?:         string | fn.#StringExpression
+	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Status?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -56,8 +149,39 @@ _#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
 		..."MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY" | fn.#StringExpression
 	] |
 		fn.#ListExpression
-	HoursOfDay?:      [...int | fn.#NumberExpression] | fn.#ListExpression
-	LeadTimeInWeeks?: int | fn.#NumberExpression
+	HoursOfDay?: [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	LeadTimeInWeeks?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Months?: [
 		..."JANUARY" |
 			"FEBRUARY" |
@@ -74,8 +198,26 @@ _#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	Preference?:   "NO_PREFERENCE" | "CUSTOM_PREFERENCE" | fn.#StringExpression
-	WeeksOfMonth?: [...int | fn.#NumberExpression] | fn.#ListExpression
+	Preference?: "NO_PREFERENCE" | "CUSTOM_PREFERENCE" | fn.#StringExpression
+	WeeksOfMonth?: [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

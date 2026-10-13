@@ -21,10 +21,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^arn:(aws|aws-cn|aws-us-gov):[a-zA-Z0-9-]+:[a-zA-Z0-9-]*:\\d{12}:([\\w+=,.@-]+[/:])*[\\w+=,.@-]+$" |
 	fn.#StringExpression
 	Name?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+[0-9A-Za-z_\\-]*$" | fn.#StringExpression
-	Provisioning?: _#defs."/$defs/Properties/definitions/Provisioning" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Provisioning?: _#defs."/$defs/Properties/definitions/Provisioning"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

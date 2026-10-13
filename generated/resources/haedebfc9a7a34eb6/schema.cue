@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,8 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	NetworkFunctionGroupName?: string | fn.#StringExpression
 	Options!:                  _#defs."/$defs/Properties/definitions/ConnectAttachmentOptions" | fn.#ObjectExpression
 	RoutingPolicyLabel?:       strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TransportAttachmentId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^attachment-([0-9a-f]{8,17})$" |
 	fn.#StringExpression
 })
@@ -32,18 +35,42 @@ _#defs: "/$defs/Properties/definitions/ConnectAttachmentOptions": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ProposedNetworkFunctionGroupChange": close({
-	AttachmentPolicyRuleNumber?: int | fn.#NumberExpression
-	NetworkFunctionGroupName?:   string | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	AttachmentPolicyRuleNumber?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	NetworkFunctionGroupName?: string | fn.#StringExpression
+	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ProposedSegmentChange": close({
-	AttachmentPolicyRuleNumber?: int | fn.#NumberExpression
-	SegmentName?:                string | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	AttachmentPolicyRuleNumber?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SegmentName?: string | fn.#StringExpression
+	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::Bedrock::KnowledgeBasePolicy Resource Type
 #Properties: close({
 	KnowledgeBaseId!: strings.MaxRunes(10) & strings.MinRunes(1) & =~"^[0-9a-zA-Z]+$" | fn.#StringExpression
-	PolicyDocument!:  {[string]: fn.#Value} | fn.#ObjectExpression
+	PolicyDocument!:  fn.#Object & {...} | fn.#ObjectExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Bedrock::KnowledgeBasePolicy"

@@ -290,7 +290,10 @@ _#defs: "/$defs/Properties/definitions/RiskRating": "High" | "Medium" | "Low" | 
 // model card content for regulated workloads with highly sensitive data.
 _#defs: "/$defs/Properties/definitions/SecurityConfig": close({
 	// A Key Management Service key ID to use for encrypting a model card.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~".*"
 })
 
 // metric data

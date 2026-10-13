@@ -65,7 +65,7 @@ _#defs: "/$defs/Properties/definitions/DataProviderDescriptor": close({
 	DataProviderArn?:             string
 	DataProviderIdentifier?:      string
 	DataProviderName?:            string
-	SecretsManagerAccessRoleArn?: string
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	SecretsManagerSecretId?:      string
 })
 

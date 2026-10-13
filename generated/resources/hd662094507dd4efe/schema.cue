@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ClusterId?: string | fn.#StringExpression
 	Name?:      string | fn.#StringExpression
 	Nodes?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:      [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ChannelPlacementGroupState": "UNASSIGNED" |

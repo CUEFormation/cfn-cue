@@ -16,7 +16,7 @@ package schema
 	Name!: string
 
 	// A list of security group IDs for the VPC link.
-	SecurityGroupIds?: [...string]
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// A list of subnet IDs to include in the VPC link.
 	SubnetIds!: [...string]

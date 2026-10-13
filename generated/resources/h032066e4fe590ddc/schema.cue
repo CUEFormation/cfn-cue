@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -16,12 +20,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // your business entity. Invoice units allow you to separate AWS account costs
 // and configures your invoice for each business entity.
 #Properties: close({
-	Description?:            _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	InvoiceReceiver!:        _#defs."/$defs/Properties/definitions/InvoiceReceiver" | fn.#StringExpression
-	Name!:                   _#defs."/$defs/Properties/definitions/Name" | fn.#StringExpression
-	ResourceTags?:           _#defs."/$defs/Properties/definitions/ResourceTags" | fn.#ListExpression
-	Rule!:                   _#defs."/$defs/Properties/definitions/Rule" | fn.#ObjectExpression
-	TaxInheritanceDisabled?: _#defs."/$defs/Properties/definitions/TaxInheritanceDisabled" | fn.#BooleanExpression
+	Description?:            _#defs."/$defs/Properties/definitions/Description"
+	InvoiceReceiver!:        _#defs."/$defs/Properties/definitions/InvoiceReceiver"
+	Name!:                   _#defs."/$defs/Properties/definitions/Name"
+	ResourceTags?:           _#defs."/$defs/Properties/definitions/ResourceTags"
+	Rule!:                   _#defs."/$defs/Properties/definitions/Rule"
+	TaxInheritanceDisabled?: _#defs."/$defs/Properties/definitions/TaxInheritanceDisabled"
 })
 
 _#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\S\\s]*$" |
@@ -35,7 +39,25 @@ strings.MinRunes(1) &
 =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LastModified": number | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/LastModified": number |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						number,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 
@@ -46,7 +68,7 @@ _#defs: "/$defs/Properties/definitions/ResourceTag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceTags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/ResourceTag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ResourceTag"
 ] |
 	fn.#ListExpression
 
@@ -58,7 +80,14 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TaxInheritanceDisabled": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/TaxInheritanceDisabled": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Invoicing::InvoiceUnit"
 	Properties!: #Properties

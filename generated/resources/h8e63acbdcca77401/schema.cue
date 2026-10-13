@@ -15,8 +15,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DefaultKmsKeyId?:  strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	IdCConfiguration?: close({IdCInstanceArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
-	RoleArn?:          string | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/IdCConfiguration": close({

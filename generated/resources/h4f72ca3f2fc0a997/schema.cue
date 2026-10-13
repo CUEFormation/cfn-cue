@@ -10,13 +10,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::DMS::EventSubscription
 #Properties: close({
-	Enabled?:          bool | fn.#BooleanExpression
-	EventCategories?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	SnsTopicArn!:      string | fn.#StringExpression
+	Enabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EventCategories?: [...string | fn.#StringExpression] | fn.#ListExpression
+	SnsTopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	SourceIds?:        [...string | fn.#StringExpression] | fn.#ListExpression
 	SourceType?:       string | fn.#StringExpression
 	SubscriptionName?: string | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

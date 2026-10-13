@@ -7,19 +7,19 @@ import "strings"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Classifier
-#Properties: ({
+#Properties: matchN(>=1, [{
 	XMLClassifier!: _
 	...
-} | {
+}, {
 	CsvClassifier!: _
 	...
-} | {
+}, {
 	GrokClassifier!: _
 	...
-} | {
+}, {
 	JsonClassifier!: _
 	...
-}) & close({
+}]) & close({
 	// A classifier for comma-separated values (CSV).
 	CsvClassifier?: _#defs."/$defs/Properties/definitions/CsvClassifier"
 

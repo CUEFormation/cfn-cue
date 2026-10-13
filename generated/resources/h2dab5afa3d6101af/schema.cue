@@ -13,15 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::WAF::ByteMatchSet
 #Properties: close({
-	ByteMatchTuples?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ByteMatchTuple" | fn.#ObjectExpression
-	] |
+	ByteMatchTuples?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ByteMatchTuple"] |
 		fn.#ListExpression
 	Name!: string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ByteMatchTuple": close({
-	FieldToMatch!:         _#defs."/$defs/Properties/definitions/FieldToMatch" | fn.#ObjectExpression
+	FieldToMatch!:         _#defs."/$defs/Properties/definitions/FieldToMatch"
 	PositionalConstraint!: string | fn.#StringExpression
 	TargetString?:         string | fn.#StringExpression
 	TargetStringBase64?:   string | fn.#StringExpression

@@ -8,48 +8,85 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DataBrew::Job.
 #Properties: close({
-	DataCatalogOutputs?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataCatalogOutput" | fn.#ObjectExpression
-	] |
+	DataCatalogOutputs?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DataCatalogOutput"] |
 		fn.#ListExpression
-	DatabaseOutputs?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DatabaseOutput" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	DatasetName?:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	DatabaseOutputs?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DatabaseOutput"] | fn.#ListExpression
+	DatasetName?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	EncryptionKeyArn?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 	EncryptionMode?:   "SSE-KMS" | "SSE-S3" | fn.#StringExpression
 	JobSample?:        _#defs."/$defs/Properties/definitions/JobSample" | fn.#ObjectExpression
 	LogSubscription?:  "ENABLE" | "DISABLE" | fn.#StringExpression
-	MaxCapacity?:      int | fn.#NumberExpression
-	MaxRetries?:       int & >=0 | fn.#NumberExpression
-	Name!:             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	OutputLocation?:   _#defs."/$defs/Properties/definitions/OutputLocation" | fn.#ObjectExpression
-	Outputs?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Output" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	MaxCapacity?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxRetries?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name!:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	OutputLocation?:       _#defs."/$defs/Properties/definitions/OutputLocation" | fn.#ObjectExpression
+	Outputs?:              list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Output"] | fn.#ListExpression
 	ProfileConfiguration?: _#defs."/$defs/Properties/definitions/ProfileConfiguration" | fn.#ObjectExpression
 	ProjectName?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Recipe?:               _#defs."/$defs/Properties/definitions/Recipe" | fn.#ObjectExpression
-	RoleArn!:              strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	Timeout?:              int & >=0 | fn.#NumberExpression
-	Type!:                 "PROFILE" | "RECIPE" | fn.#StringExpression
-	ValidationConfigurations?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ValidationConfiguration" | fn.#ObjectExpression
-	] |
+	Recipe?:               _#defs."/$defs/Properties/definitions/Recipe"
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Timeout?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type!: "PROFILE" | "RECIPE" | fn.#StringExpression
+	ValidationConfigurations?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ValidationConfiguration"] |
 		fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AllowedStatistics": close({
-	Statistics!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Statistic" | fn.#StringExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/AllowedStatistics": close(
+	{Statistics!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Statistic"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ColumnSelector": close({
@@ -59,9 +96,8 @@ _#defs: "/$defs/Properties/definitions/ColumnSelector": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ColumnStatisticsConfiguration": close({
-	Selectors?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnSelector" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Statistics!: _#defs."/$defs/Properties/definitions/StatisticsConfiguration" | fn.#ObjectExpression
+	Selectors?:  list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnSelector"] | fn.#ListExpression
+	Statistics!: _#defs."/$defs/Properties/definitions/StatisticsConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -73,15 +109,15 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/DataCatalogOutput": close({
 	CatalogId?:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	DatabaseName!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DatabaseOptions?: _#defs."/$defs/Properties/definitions/DatabaseTableOutputOptions" | fn.#ObjectExpression
-	Overwrite?:       bool | fn.#BooleanExpression
-	S3Options?:       _#defs."/$defs/Properties/definitions/S3TableOutputOptions" | fn.#ObjectExpression
+	DatabaseOptions?: _#defs."/$defs/Properties/definitions/DatabaseTableOutputOptions"
+	Overwrite?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	S3Options?:       _#defs."/$defs/Properties/definitions/S3TableOutputOptions"
 	TableName!:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DatabaseOutput": close({
-	DatabaseOptions!:    _#defs."/$defs/Properties/definitions/DatabaseTableOutputOptions" | fn.#ObjectExpression
+	DatabaseOptions!:    _#defs."/$defs/Properties/definitions/DatabaseTableOutputOptions"
 	DatabaseOutputMode?: "NEW_TABLE" | fn.#StringExpression
 	GlueConnectionName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
@@ -89,12 +125,12 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DatabaseTableOutputOptions": close({
 	TableName!:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TempDirectory?: _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
+	TempDirectory?: _#defs."/$defs/Properties/definitions/S3Location"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EntityDetectorConfiguration": close({
-	AllowedStatistics?: _#defs."/$defs/Properties/definitions/AllowedStatistics" | fn.#ObjectExpression
+	AllowedStatistics?: _#defs."/$defs/Properties/definitions/AllowedStatistics"
 	EntityTypes!: list.MinItems(1) & [
 		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Z_][A-Z\\\\d_]*$" | fn.#StringExpression
 	] |
@@ -103,12 +139,24 @@ _#defs: "/$defs/Properties/definitions/EntityDetectorConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/JobSample": close({
-	Mode?: _#defs."/$defs/Properties/definitions/SampleMode" | fn.#StringExpression
-	Size?: _#defs."/$defs/Properties/definitions/JobSize" | fn.#NumberExpression
+	Mode?: _#defs."/$defs/Properties/definitions/SampleMode"
+	Size?: _#defs."/$defs/Properties/definitions/JobSize"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobSize": int | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/JobSize": int |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Output": close({
 	CompressionFormat?: "GZIP" |
@@ -122,10 +170,25 @@ _#defs: "/$defs/Properties/definitions/Output": close({
 		"ZLIB" |
 		fn.#StringExpression
 	Format?: "CSV" | "JSON" | "PARQUET" | "GLUEPARQUET" | "AVRO" | "ORC" | "XML" | "TABLEAUHYPER" | fn.#StringExpression
-	FormatOptions?:  _#defs."/$defs/Properties/definitions/OutputFormatOptions" | fn.#ObjectExpression
-	Location!:       _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
-	MaxOutputFiles?: int & <=999 & >=1 | fn.#NumberExpression
-	Overwrite?:      bool | fn.#BooleanExpression
+	FormatOptions?: _#defs."/$defs/Properties/definitions/OutputFormatOptions"
+	Location!:      _#defs."/$defs/Properties/definitions/S3Location"
+	MaxOutputFiles?: int & <=999 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=999 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Overwrite?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PartitionColumns?: list.MaxItems(200) & list.UniqueItems() & [...] & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -134,7 +197,7 @@ _#defs: "/$defs/Properties/definitions/Output": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OutputFormatOptions": close(
-	{Csv?: _#defs."/$defs/Properties/definitions/CsvOutputOptions" | fn.#ObjectExpression},
+	{Csv?: _#defs."/$defs/Properties/definitions/CsvOutputOptions"},
 ) |
 	fn.#ObjectExpression
 
@@ -152,17 +215,12 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ProfileConfiguration": close({
 	ColumnStatisticsConfigurations?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ColumnStatisticsConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ColumnStatisticsConfiguration"
 	] |
 		fn.#ListExpression
-	DatasetStatisticsConfiguration?: _#defs."/$defs/Properties/definitions/StatisticsConfiguration" |
-		fn.#ObjectExpression
-	EntityDetectorConfiguration?: _#defs."/$defs/Properties/definitions/EntityDetectorConfiguration" |
-		fn.#ObjectExpression
-	ProfileColumns?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ColumnSelector" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	DatasetStatisticsConfiguration?: _#defs."/$defs/Properties/definitions/StatisticsConfiguration"
+	EntityDetectorConfiguration?:    _#defs."/$defs/Properties/definitions/EntityDetectorConfiguration"
+	ProfileColumns?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnSelector"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -180,7 +238,7 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3TableOutputOptions": close(
-	{Location!: _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression},
+	{Location!: _#defs."/$defs/Properties/definitions/S3Location"},
 ) |
 	fn.#ObjectExpression
 
@@ -190,16 +248,14 @@ _#defs: "/$defs/Properties/definitions/Statistic": strings.MaxRunes(128) & strin
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/StatisticOverride": close({
-	Parameters!: _#defs."/$defs/Properties/definitions/ParameterMap" | fn.#ObjectExpression
-	Statistic!:  _#defs."/$defs/Properties/definitions/Statistic" | fn.#StringExpression
+	Parameters!: _#defs."/$defs/Properties/definitions/ParameterMap"
+	Statistic!:  _#defs."/$defs/Properties/definitions/Statistic"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StatisticsConfiguration": close({
-	IncludedStatistics?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Statistic" | fn.#StringExpression] |
-		fn.#ListExpression
-	Overrides?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/StatisticOverride" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	IncludedStatistics?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Statistic"] | fn.#ListExpression
+	Overrides?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/StatisticOverride"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -211,7 +267,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ValidationConfiguration": close({
 	RulesetArn!:     strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	ValidationMode?: _#defs."/$defs/Properties/definitions/ValidationMode" | fn.#StringExpression
+	ValidationMode?: _#defs."/$defs/Properties/definitions/ValidationMode"
 }) |
 fn.#ObjectExpression
 

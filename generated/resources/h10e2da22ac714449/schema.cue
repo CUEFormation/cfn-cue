@@ -16,16 +16,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: string | fn.#StringExpression
 	OperatingRegions?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/IpamOperatingRegion" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/IpamOperatingRegion"
 	] |
 		fn.#ListExpression
 	OrganizationalUnitExclusions?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IpamResourceDiscoveryOrganizationalUnitExclusion" |
-			fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/IpamResourceDiscoveryOrganizationalUnitExclusion"
 	] |
 		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/IpamOperatingRegion": close({RegionName!: string | fn.#StringExpression}) |

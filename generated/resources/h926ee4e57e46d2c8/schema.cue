@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -16,14 +16,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // AWS accounts in your organization. You can use policies when all features
 // are enabled in your organization.
 #Properties: close({
-	Content!: strings.MaxRunes(1000000) & strings.MinRunes(1) & =~"[\\s\\S]*" |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+	Content!: fn.#Object & {...} |
+	strings.MaxRunes(1000000) & strings.MinRunes(1) & =~"[\\s\\S]*" |
+	fn.#StringObjectExpression
 	Description?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\S]*" | fn.#StringExpression
 	Name!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetIds?: list.UniqueItems() & [
 		...=~"^(r-[0-9a-z]{4,32})|(\\d{12})|(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" | fn.#StringExpression
 	] |

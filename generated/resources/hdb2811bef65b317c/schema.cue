@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -25,18 +29,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SourceSecurityGroupName!: _
 	...
 }]) & close({
-	CidrIp?:                     string | fn.#StringExpression
-	CidrIpv6?:                   string | fn.#StringExpression
-	Description?:                string | fn.#StringExpression
-	FromPort?:                   int & >=-1 | fn.#NumberExpression
-	GroupId?:                    string | fn.#StringExpression
-	GroupName?:                  string | fn.#StringExpression
-	IpProtocol!:                 string | fn.#StringExpression
-	SourcePrefixListId?:         string | fn.#StringExpression
-	SourceSecurityGroupId?:      string | fn.#StringExpression
+	CidrIp?:      string | fn.#StringExpression
+	CidrIpv6?:    string | fn.#StringExpression
+	Description?: string | fn.#StringExpression
+	FromPort?: int & >=-1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=-1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	GroupName?:          string | fn.#StringExpression
+	IpProtocol!:         string | fn.#StringExpression
+	SourcePrefixListId?: string | fn.#StringExpression
+	SourceSecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	SourceSecurityGroupName?:    string | fn.#StringExpression
 	SourceSecurityGroupOwnerId?: string | fn.#StringExpression
-	ToPort?:                     int & >=-1 | fn.#NumberExpression
+	ToPort?: int & >=-1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=-1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EC2::SecurityGroupIngress"

@@ -1,0 +1,12 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "RoleArn": "SomeOptionalParameter",
+        "ScheduleExpression": "rate(5 minutes)",
+        "State": "DISABLED"
+      },
+      "Type": "AWS::Events::Rule"
+    }
+  }
+}

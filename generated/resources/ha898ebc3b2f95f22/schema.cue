@@ -8,24 +8,47 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A replication configuration template for AWS Elastic Disaster Recovery Service.
 #Properties: close({
-	AssociateDefaultSecurityGroup?: bool | fn.#BooleanExpression
-	AutoReplicateNewDisks?:         bool | fn.#BooleanExpression
-	BandwidthThrottling!:           int & >=0 | fn.#NumberExpression
-	CreatePublicIP?:                bool | fn.#BooleanExpression
-	DataPlaneRouting?:              "PRIVATE_IP" | "PUBLIC_IP" | fn.#StringExpression
-	DefaultLargeStagingDiskType?:   "GP2" | "GP3" | "ST1" | "AUTO" | fn.#StringExpression
-	EbsEncryption!:                 "DEFAULT" | "CUSTOM" | "NONE" | fn.#StringExpression
-	EbsEncryptionKeyArn?:           strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	InternetProtocol?:              "IPV4" | "IPV6" | fn.#StringExpression
-	PitPolicy!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/PITPolicyRule" | fn.#ObjectExpression
-	] |
+	AssociateDefaultSecurityGroup?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	AutoReplicateNewDisks?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	BandwidthThrottling!: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CreatePublicIP?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DataPlaneRouting?:            "PRIVATE_IP" | "PUBLIC_IP" | fn.#StringExpression
+	DefaultLargeStagingDiskType?: "GP2" | "GP3" | "ST1" | "AUTO" | fn.#StringExpression
+	EbsEncryption!:               "DEFAULT" | "CUSTOM" | "NONE" | fn.#StringExpression
+	EbsEncryptionKeyArn?:         strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	InternetProtocol?:            "IPV4" | "IPV6" | fn.#StringExpression
+	PitPolicy!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/PITPolicyRule"] |
 		fn.#ListExpression
 	ReplicationServerInstanceType?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 	ReplicationServersSecurityGroupsIDs!: list.MaxItems(32) & [...] & [
@@ -38,17 +61,65 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		{[=~"^.{0,256}$"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	UseDedicatedReplicationServer?: bool | fn.#BooleanExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UseDedicatedReplicationServer?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 })
 
 _#defs: "/$defs/Properties/definitions/PITPolicyRule": close({
-	Enabled?:           bool | fn.#BooleanExpression
-	Interval!:          int & >=1 | fn.#NumberExpression
-	RetentionDuration!: int & >=1 | fn.#NumberExpression
-	RuleID?:            int & >=0 | fn.#NumberExpression
-	Units!:             "MINUTE" | "HOUR" | "DAY" | fn.#StringExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Interval!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RetentionDuration!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RuleID?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Units!: "MINUTE" | "HOUR" | "DAY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

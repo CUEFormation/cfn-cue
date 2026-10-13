@@ -21,7 +21,7 @@ import (
 	DisableIMDSV1?:               bool
 	DisplayName?:                 strings.MaxRunes(100) & strings.MinRunes(0)
 	EnableDefaultInternetAccess?: bool
-	IamRoleArn?:                  string
+	IamRoleArn?:                  =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	InstanceType!:                strings.MinRunes(1)
 	Name!:                        =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$"
 	Platform!:                    _#defs."/$defs/Properties/definitions/PlatformType"
@@ -44,6 +44,8 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroupIds?: list.MaxItems(5) & [...] & [...strings.MinRunes(1)]
-	SubnetIds?:        [...strings.MinRunes(1)]
+	SecurityGroupIds?: list.MaxItems(5) & [...] & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & strings.MinRunes(1)
+	]
+	SubnetIds?: [...strings.MinRunes(1)]
 })

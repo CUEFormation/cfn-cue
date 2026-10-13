@@ -47,8 +47,8 @@ package schema
 	ReplayPolicy?: string | {...}
 
 	// This property applies only to Amazon Data Firehose delivery stream subscriptions.
-	SubscriptionRoleArn?: string
+	SubscriptionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The ARN of the topic to subscribe to.
-	TopicArn!: string
+	TopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 })

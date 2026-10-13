@@ -7,6 +7,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -21,26 +25,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApiKeySourceType?:          string | fn.#StringExpression
 	BinaryMediaTypes?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Body?:                      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Body?:                      fn.#Object & {...} | string | fn.#StringObjectExpression
 	BodyS3Location?:            _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
 	CloneFrom?:                 string | fn.#StringExpression
 	Description?:               string | fn.#StringExpression
-	DisableExecuteApiEndpoint?: bool | fn.#BooleanExpression
+	DisableExecuteApiEndpoint?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EndpointAccessMode?:        string | fn.#StringExpression
 	EndpointConfiguration?:     _#defs."/$defs/Properties/definitions/EndpointConfiguration" | fn.#ObjectExpression
-	FailOnWarnings?:            bool | fn.#BooleanExpression
-	MinimumCompressionSize?:    int | fn.#NumberExpression
-	Mode?:                      string | fn.#StringExpression
-	Name?:                      string | fn.#StringExpression
+	FailOnWarnings?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MinimumCompressionSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Mode?: string | fn.#StringExpression
+	Name?: string | fn.#StringExpression
 	Parameters?: string |
 	close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression |
-	fn.#StringExpression
-	Policy?:         string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	fn.#StringObjectExpression
+	Policy?:         fn.#Object & {...} | string | fn.#StringObjectExpression
 	SecurityPolicy?: string | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Version?:        string | fn.#StringExpression
 })
 

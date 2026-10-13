@@ -16,57 +16,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::QBusiness::DataAccessor Resource Type
 #Properties: close({
 	ActionConfigurations!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ActionConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ActionConfiguration"
 	] |
 		fn.#ListExpression
 	ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
 	fn.#StringExpression
-	AuthenticationDetail?: _#defs."/$defs/Properties/definitions/DataAccessorAuthenticationDetail" |
-		fn.#ObjectExpression
+	AuthenticationDetail?: _#defs."/$defs/Properties/definitions/DataAccessorAuthenticationDetail"
 	DisplayName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
 	Principal!: strings.MaxRunes(1284) & strings.MinRunes(1) & =~"^arn:aws:iam::[0-9]{12}:role/[a-zA-Z0-9_/+=,.@-]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ActionConfiguration": close({
 	Action!:              =~"^qbusiness:[a-zA-Z]+$" | fn.#StringExpression
-	FilterConfiguration?: _#defs."/$defs/Properties/definitions/ActionFilterConfiguration" | fn.#ObjectExpression
+	FilterConfiguration?: _#defs."/$defs/Properties/definitions/ActionFilterConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ActionFilterConfiguration": close(
-	{DocumentAttributeFilter!: _#defs."/$defs/Properties/definitions/AttributeFilter" | fn.#ObjectExpression},
+	{DocumentAttributeFilter!: _#defs."/$defs/Properties/definitions/AttributeFilter"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AttributeFilter": close({
-	AndAllFilters?: [..._#defs."/$defs/Properties/definitions/AttributeFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ContainsAll?:         _#defs."/$defs/Properties/definitions/DocumentAttribute" | fn.#ObjectExpression
-	ContainsAny?:         _#defs."/$defs/Properties/definitions/DocumentAttribute" | fn.#ObjectExpression
-	EqualsTo?:            _#defs."/$defs/Properties/definitions/DocumentAttribute" | fn.#ObjectExpression
-	GreaterThan?:         _#defs."/$defs/Properties/definitions/DocumentAttribute" | fn.#ObjectExpression
-	GreaterThanOrEquals?: _#defs."/$defs/Properties/definitions/DocumentAttribute" | fn.#ObjectExpression
-	LessThan?:            _#defs."/$defs/Properties/definitions/DocumentAttribute" | fn.#ObjectExpression
-	LessThanOrEquals?:    _#defs."/$defs/Properties/definitions/DocumentAttribute" | fn.#ObjectExpression
-	NotFilter?:           _#defs."/$defs/Properties/definitions/AttributeFilter" | fn.#ObjectExpression
-	OrAllFilters?: [..._#defs."/$defs/Properties/definitions/AttributeFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	AndAllFilters?:       [..._#defs."/$defs/Properties/definitions/AttributeFilter"] | fn.#ListExpression
+	ContainsAll?:         _#defs."/$defs/Properties/definitions/DocumentAttribute"
+	ContainsAny?:         _#defs."/$defs/Properties/definitions/DocumentAttribute"
+	EqualsTo?:            _#defs."/$defs/Properties/definitions/DocumentAttribute"
+	GreaterThan?:         _#defs."/$defs/Properties/definitions/DocumentAttribute"
+	GreaterThanOrEquals?: _#defs."/$defs/Properties/definitions/DocumentAttribute"
+	LessThan?:            _#defs."/$defs/Properties/definitions/DocumentAttribute"
+	LessThanOrEquals?:    _#defs."/$defs/Properties/definitions/DocumentAttribute"
+	NotFilter?:           _#defs."/$defs/Properties/definitions/AttributeFilter"
+	OrAllFilters?:        [..._#defs."/$defs/Properties/definitions/AttributeFilter"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataAccessorAuthenticationConfiguration": close({
-	IdcTrustedTokenIssuerConfiguration!: _#defs."/$defs/Properties/definitions/DataAccessorIdcTrustedTokenIssuerConfiguration" |
-		fn.#ObjectExpression
+	IdcTrustedTokenIssuerConfiguration!:
+		_#defs."/$defs/Properties/definitions/DataAccessorIdcTrustedTokenIssuerConfiguration"
 }) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/DataAccessorAuthenticationDetail": close({
-	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/DataAccessorAuthenticationConfiguration" |
-		fn.#ValueExpression
-	AuthenticationType!: _#defs."/$defs/Properties/definitions/DataAccessorAuthenticationType" | fn.#StringExpression
+	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/DataAccessorAuthenticationConfiguration"
+	AuthenticationType!:          _#defs."/$defs/Properties/definitions/DataAccessorAuthenticationType"
 	ExternalIds?: list.MaxItems(1) & list.MinItems(1) & [
 		...strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
 	] |
@@ -88,7 +83,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DocumentAttribute": close({
 	Name!:  strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_][a-zA-Z0-9_-]*$" | fn.#StringExpression
-	Value!: _#defs."/$defs/Properties/definitions/DocumentAttributeValue" | fn.#ValueExpression
+	Value!: _#defs."/$defs/Properties/definitions/DocumentAttributeValue"
 }) |
 fn.#ObjectExpression
 

@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,10 +19,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // An Amazon CloudWatch Network Monitor resource that monitors network traffic
 // between a source VPC subnet and a destination IP address.
 #Properties: close({
-	AggregationPeriod?: int & >=30 | fn.#NumberExpression
-	MonitorName!:       strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	AggregationPeriod?: int & >=30 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=30,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MonitorName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	Tags?:        list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

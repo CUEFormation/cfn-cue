@@ -7,42 +7,135 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaTailor::Channel Resource Type
 #Properties: close({
-	Audiences?:        [...string | fn.#StringExpression] | fn.#ListExpression
-	ChannelName!:      string | fn.#StringExpression
-	FillerSlate?:      _#defs."/$defs/Properties/definitions/SlateSource" | fn.#ObjectExpression
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/LogConfigurationForChannel" | fn.#ObjectExpression
-	Outputs!: [..._#defs."/$defs/Properties/definitions/RequestOutputItem" | fn.#ObjectExpression] | fn.#ListExpression
-	PlaybackMode!: _#defs."/$defs/Properties/definitions/PlaybackMode" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tier?:                   _#defs."/$defs/Properties/definitions/Tier" | fn.#StringExpression
-	TimeShiftConfiguration?: _#defs."/$defs/Properties/definitions/TimeShiftConfiguration" | fn.#ObjectExpression
+	Audiences?:              [...string | fn.#StringExpression] | fn.#ListExpression
+	ChannelName!:            string | fn.#StringExpression
+	FillerSlate?:            _#defs."/$defs/Properties/definitions/SlateSource"
+	LogConfiguration?:       _#defs."/$defs/Properties/definitions/LogConfigurationForChannel"
+	Outputs!:                [..._#defs."/$defs/Properties/definitions/RequestOutputItem"] | fn.#ListExpression
+	PlaybackMode!:           _#defs."/$defs/Properties/definitions/PlaybackMode"
+	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tier?:                   _#defs."/$defs/Properties/definitions/Tier"
+	TimeShiftConfiguration?: _#defs."/$defs/Properties/definitions/TimeShiftConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/AdMarkupType": "DATERANGE" | "SCTE35_ENHANCED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DashPlaylistSettings": close({
-	ManifestWindowSeconds?:             number | fn.#NumberExpression
-	MinBufferTimeSeconds?:              number | fn.#NumberExpression
-	MinUpdatePeriodSeconds?:            number | fn.#NumberExpression
-	SuggestedPresentationDelaySeconds?: number | fn.#NumberExpression
+	ManifestWindowSeconds?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinBufferTimeSeconds?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinUpdatePeriodSeconds?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SuggestedPresentationDelaySeconds?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HlsPlaylistSettings": close({
-	AdMarkupType?: [..._#defs."/$defs/Properties/definitions/AdMarkupType" | fn.#StringExpression] | fn.#ListExpression
-	ManifestWindowSeconds?: number | fn.#NumberExpression
+	AdMarkupType?: [..._#defs."/$defs/Properties/definitions/AdMarkupType"] | fn.#ListExpression
+	ManifestWindowSeconds?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LogConfigurationForChannel": close(
-	{LogTypes?: [..._#defs."/$defs/Properties/definitions/LogType" | fn.#StringExpression] | fn.#ListExpression},
+	{LogTypes?: [..._#defs."/$defs/Properties/definitions/LogType"] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
@@ -51,8 +144,8 @@ _#defs: "/$defs/Properties/definitions/LogType": "AS_RUN" | fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/PlaybackMode": "LOOP" | "LINEAR" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RequestOutputItem": close({
-	DashPlaylistSettings?: _#defs."/$defs/Properties/definitions/DashPlaylistSettings" | fn.#ObjectExpression
-	HlsPlaylistSettings?:  _#defs."/$defs/Properties/definitions/HlsPlaylistSettings" | fn.#ObjectExpression
+	DashPlaylistSettings?: _#defs."/$defs/Properties/definitions/DashPlaylistSettings"
+	HlsPlaylistSettings?:  _#defs."/$defs/Properties/definitions/HlsPlaylistSettings"
 	ManifestName!:         string | fn.#StringExpression
 	SourceGroup!:          string | fn.#StringExpression
 }) |
@@ -72,9 +165,27 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tier": "BASIC" | "STANDARD" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TimeShiftConfiguration": close(
-	{MaxTimeDelaySeconds!: number | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/TimeShiftConfiguration": close({
+	MaxTimeDelaySeconds!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::MediaTailor::Channel"

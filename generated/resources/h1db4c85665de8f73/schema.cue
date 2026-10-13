@@ -13,17 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::EC2::VPCEndpointService
 #Properties: close({
-	AcceptanceRequired?:          bool | fn.#BooleanExpression
-	ContributorInsightsEnabled?:  bool | fn.#BooleanExpression
+	AcceptanceRequired?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ContributorInsightsEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	GatewayLoadBalancerArns?:     [...string | fn.#StringExpression] | fn.#ListExpression
 	NetworkLoadBalancerArns?:     [...string | fn.#StringExpression] | fn.#ListExpression
 	PayerResponsibility?:         string | fn.#StringExpression
 	PrivateDnsName?:              string | fn.#StringExpression
 	PrivateDnsNameConfiguration?: close({}) | fn.#ObjectExpression
-	SupportedIpAddressTypes?: [..._#defs."/$defs/Properties/definitions/IpAddressType" | fn.#StringExpression] |
-		fn.#ListExpression
-	SupportedRegions?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	SupportedIpAddressTypes?:     [..._#defs."/$defs/Properties/definitions/IpAddressType"] | fn.#ListExpression
+	SupportedRegions?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/IpAddressType": "ipv4" | "ipv6" | fn.#StringExpression

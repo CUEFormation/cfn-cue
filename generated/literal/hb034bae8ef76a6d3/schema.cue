@@ -16,8 +16,8 @@ import "strings"
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 	KmsDataKeyReusePeriodSeconds?: int & <=900 & >=60
-	KmsKeyId?:                     (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
-	Type!:                         "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KEY"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
+	Type!: "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KEY"
 })
 
 _#defs: "/$defs/Properties/definitions/TagsEntry": close({

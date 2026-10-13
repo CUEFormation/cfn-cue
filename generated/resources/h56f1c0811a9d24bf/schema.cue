@@ -21,16 +21,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	AIWorkloadConfigs?: _#defs."/$defs/Properties/definitions/AIWorkloadConfigs" | fn.#ObjectExpression
 	DatasetConfig?:     _#defs."/$defs/Properties/definitions/AIDatasetConfig" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AIDatasetConfig": close({
-	InputDataConfig!: [..._#defs."/$defs/Properties/definitions/AIWorkloadInputDataConfig" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/AIDatasetConfig": close(
+	{InputDataConfig!: [..._#defs."/$defs/Properties/definitions/AIWorkloadInputDataConfig"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AIWorkloadConfigs": close(

@@ -128,13 +128,13 @@ _#defs: "/$defs/Properties/definitions/AuthenticateCognitoConfig": close({
 
 // Specifies information required using an identity provide (IdP) that is
 // compliant with OpenID Connect (OIDC) to authenticate users.
-_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": ({
+_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": matchN(>=1, [{
 	ClientSecret!: _
 	...
-} | {
+}, {
 	UseExistingClientSecret!: _
 	...
-}) & close({
+}]) & close({
 	// The query parameters (up to 10) to include in the redirect request to the authorization endpoint.
 	AuthenticationRequestExtraParams?: close({
 

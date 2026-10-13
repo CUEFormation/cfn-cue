@@ -16,9 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F})" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Users!:                [...string | fn.#StringExpression] | fn.#ListExpression
+	Tags?:  list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Users!: [...string | fn.#StringExpression] | fn.#ListExpression
 	VirtualMfaDeviceName?: strings.MaxRunes(226) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
 })
 

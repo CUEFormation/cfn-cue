@@ -27,8 +27,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description!: strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.!+@/][a-zA-Z0-9-_.!+@/ ]*$" |
 	fn.#StringExpression
 	ExecutablePath!:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	RuntimeEnvironment!: _#defs."/$defs/Properties/definitions/RuntimeEnvironment" | fn.#ObjectExpression
-	Tags?:               _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	RuntimeEnvironment!: _#defs."/$defs/Properties/definitions/RuntimeEnvironment"
+	Tags?:               _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/RuntimeEnvironment": close({

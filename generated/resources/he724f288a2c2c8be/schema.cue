@@ -13,12 +13,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SecretsManager::ResourcePolicy
 #Properties: close({
-	BlockPublicPolicy?: bool | fn.#BooleanExpression
-	ResourcePolicy!: strings.MaxRunes(20480) & strings.MinRunes(1) |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
-	SecretId!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	BlockPublicPolicy?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ResourcePolicy!:    fn.#Object & {...} | strings.MaxRunes(20480) & strings.MinRunes(1) | fn.#StringObjectExpression
+	SecretId!:          strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SecretsManager::ResourcePolicy"

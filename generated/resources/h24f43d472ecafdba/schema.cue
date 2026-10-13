@@ -8,46 +8,71 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::Agent Resource Type
 #Properties: close({
-	ActionGroups?: [..._#defs."/$defs/Properties/definitions/AgentActionGroup" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	AgentCollaboration?: _#defs."/$defs/Properties/definitions/AgentCollaboration" | fn.#StringExpression
-	AgentCollaborators?: [..._#defs."/$defs/Properties/definitions/AgentCollaborator" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	AgentName!:            =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	AgentResourceRoleArn?: strings.MaxRunes(2048) | fn.#StringExpression
-	AutoPrepare?:          bool | fn.#BooleanExpression
-	CustomOrchestration?:  _#defs."/$defs/Properties/definitions/CustomOrchestration" | fn.#ObjectExpression
+	ActionGroups?:       [..._#defs."/$defs/Properties/definitions/AgentActionGroup"] | fn.#ListExpression
+	AgentCollaboration?: _#defs."/$defs/Properties/definitions/AgentCollaboration"
+	AgentCollaborators?: [..._#defs."/$defs/Properties/definitions/AgentCollaborator"] | fn.#ListExpression
+	AgentName!:          =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
+	AgentResourceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MaxRunes(2048) |
+	fn.#StringExpression
+	AutoPrepare?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CustomOrchestration?: _#defs."/$defs/Properties/definitions/CustomOrchestration"
 	CustomerEncryptionKeyArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
 	fn.#StringExpression
-	Description?:             strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	FoundationModel?:         _#defs."/$defs/Properties/definitions/FoundationModel" | fn.#StringExpression
-	GuardrailConfiguration?:  _#defs."/$defs/Properties/definitions/GuardrailConfiguration" | fn.#ObjectExpression
-	IdleSessionTTLInSeconds?: <=5400 & >=60 | fn.#NumberExpression
-	Instruction?:             strings.MinRunes(40) | fn.#StringExpression
-	KnowledgeBases?: [..._#defs."/$defs/Properties/definitions/AgentKnowledgeBase" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	MemoryConfiguration?: _#defs."/$defs/Properties/definitions/MemoryConfiguration" | fn.#ObjectExpression
-	OrchestrationType?:   _#defs."/$defs/Properties/definitions/OrchestrationType" | fn.#StringExpression
-	PromptOverrideConfiguration?: _#defs."/$defs/Properties/definitions/PromptOverrideConfiguration" |
-		fn.#ObjectExpression
-	SkipResourceInUseCheckOnDelete?: bool | fn.#BooleanExpression
-	Tags?:                           _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
-	TestAliasTags?:                  _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
+	Description?:            strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	FoundationModel?:        _#defs."/$defs/Properties/definitions/FoundationModel"
+	GuardrailConfiguration?: _#defs."/$defs/Properties/definitions/GuardrailConfiguration"
+	IdleSessionTTLInSeconds?: <=5400 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=5400 &
+							>=60,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Instruction?:                 strings.MinRunes(40) | fn.#StringExpression
+	KnowledgeBases?:              [..._#defs."/$defs/Properties/definitions/AgentKnowledgeBase"] | fn.#ListExpression
+	MemoryConfiguration?:         _#defs."/$defs/Properties/definitions/MemoryConfiguration"
+	OrchestrationType?:           _#defs."/$defs/Properties/definitions/OrchestrationType"
+	PromptOverrideConfiguration?: _#defs."/$defs/Properties/definitions/PromptOverrideConfiguration"
+	SkipResourceInUseCheckOnDelete?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	Tags?:          _#defs."/$defs/Properties/definitions/TagsMap"
+	TestAliasTags?: _#defs."/$defs/Properties/definitions/TagsMap"
 })
 
-_#defs: "/$defs/Properties/definitions/APISchema": matchN(1, [close(
-	{S3!: _#defs."/$defs/Properties/definitions/S3Identifier" | fn.#ObjectExpression},
-), close(
-	{Payload!: string | fn.#StringExpression},
-)]) |
+_#defs: "/$defs/Properties/definitions/APISchema": matchN(1, [
+	close({S3!: _#defs."/$defs/Properties/definitions/S3Identifier"}), close({Payload!: string | fn.#StringExpression}),
+]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/ActionGroupExecutor": matchN(1, [close({
@@ -55,7 +80,7 @@ _#defs: "/$defs/Properties/definitions/ActionGroupExecutor": matchN(1, [close({
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z0-9-]{1,20}:\\d{12}:function:[a-zA-Z0-9-_\\.]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
 	fn.#StringExpression
 }), close(
-	{CustomControl!: _#defs."/$defs/Properties/definitions/CustomControlMethod" | fn.#StringExpression},
+	{CustomControl!: _#defs."/$defs/Properties/definitions/CustomControlMethod"},
 )]) |
 fn.#ValueExpression
 
@@ -65,17 +90,24 @@ _#defs: "/$defs/Properties/definitions/ActionGroupSignature": "AMAZON.UserInput"
 
 _#defs: "/$defs/Properties/definitions/ActionGroupState": "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AdditionalModelRequestFields": {[string]: fn.#Value} | fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/AdditionalModelRequestFields": fn.#Object & {...} | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AgentActionGroup": close({
-	ActionGroupExecutor?:            _#defs."/$defs/Properties/definitions/ActionGroupExecutor" | fn.#ValueExpression
-	ActionGroupName!:                =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	ActionGroupState?:               _#defs."/$defs/Properties/definitions/ActionGroupState" | fn.#StringExpression
-	ApiSchema?:                      _#defs."/$defs/Properties/definitions/APISchema" | fn.#ValueExpression
-	Description?:                    strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	FunctionSchema?:                 _#defs."/$defs/Properties/definitions/FunctionSchema" | fn.#ObjectExpression
-	ParentActionGroupSignature?:     _#defs."/$defs/Properties/definitions/ActionGroupSignature" | fn.#StringExpression
-	SkipResourceInUseCheckOnDelete?: bool | fn.#BooleanExpression
+	ActionGroupExecutor?:        _#defs."/$defs/Properties/definitions/ActionGroupExecutor"
+	ActionGroupName!:            =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
+	ActionGroupState?:           _#defs."/$defs/Properties/definitions/ActionGroupState"
+	ApiSchema?:                  _#defs."/$defs/Properties/definitions/APISchema"
+	Description?:                strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	FunctionSchema?:             _#defs."/$defs/Properties/definitions/FunctionSchema"
+	ParentActionGroupSignature?: _#defs."/$defs/Properties/definitions/ActionGroupSignature"
+	SkipResourceInUseCheckOnDelete?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -92,14 +124,14 @@ _#defs: "/$defs/Properties/definitions/AgentCollaborator": close({
 		fn.#ObjectExpression
 	CollaborationInstruction!: string | fn.#StringExpression
 	CollaboratorName!:         string | fn.#StringExpression
-	RelayConversationHistory?: _#defs."/$defs/Properties/definitions/RelayConversationHistory" | fn.#StringExpression
+	RelayConversationHistory?: _#defs."/$defs/Properties/definitions/RelayConversationHistory"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AgentKnowledgeBase": close({
 	Description!:        strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 	KnowledgeBaseId!:    =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
-	KnowledgeBaseState?: _#defs."/$defs/Properties/definitions/KnowledgeBaseState" | fn.#StringExpression
+	KnowledgeBaseState?: _#defs."/$defs/Properties/definitions/KnowledgeBaseState"
 }) |
 fn.#ObjectExpression
 
@@ -118,13 +150,11 @@ _#defs: "/$defs/Properties/definitions/CreationMode": "DEFAULT" | "OVERRIDDEN" |
 _#defs: "/$defs/Properties/definitions/CustomControlMethod": "RETURN_CONTROL" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CustomOrchestration": close(
-	{Executor?: _#defs."/$defs/Properties/definitions/OrchestrationExecutor" | fn.#ObjectExpression},
+	{Executor?: _#defs."/$defs/Properties/definitions/OrchestrationExecutor"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnabledMemoryTypes": [
-	..._#defs."/$defs/Properties/definitions/MemoryType" | fn.#StringExpression
-] |
+_#defs: "/$defs/Properties/definitions/EnabledMemoryTypes": [..._#defs."/$defs/Properties/definitions/MemoryType"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/FoundationModel": strings.MaxRunes(2048) &
@@ -135,13 +165,13 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/Function": close({
 	Description?:         strings.MaxRunes(1200) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:                =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	Parameters?:          _#defs."/$defs/Properties/definitions/ParameterMap" | fn.#ObjectExpression
-	RequireConfirmation?: _#defs."/$defs/Properties/definitions/RequireConfirmation" | fn.#StringExpression
+	Parameters?:          _#defs."/$defs/Properties/definitions/ParameterMap"
+	RequireConfirmation?: _#defs."/$defs/Properties/definitions/RequireConfirmation"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FunctionSchema": close(
-	{Functions!: [..._#defs."/$defs/Properties/definitions/Function" | fn.#ObjectExpression] | fn.#ListExpression},
+	{Functions!: [..._#defs."/$defs/Properties/definitions/Function"] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
@@ -154,21 +184,114 @@ _#defs: "/$defs/Properties/definitions/GuardrailConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceConfiguration": close({
-	MaximumLength?: <=131072 & >=0 | fn.#NumberExpression
+	MaximumLength?: <=131072 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=131072 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	StopSequences?: list.MaxItems(4) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	Temperature?:   <=1 & >=0 | fn.#NumberExpression
-	TopK?:          <=500 & >=0 | fn.#NumberExpression
-	TopP?:          <=1 & >=0 | fn.#NumberExpression
+	Temperature?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TopK?: <=500 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=500 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TopP?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KnowledgeBaseState": "ENABLED" | "DISABLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/MemoryConfiguration": close({
-	EnabledMemoryTypes?: _#defs."/$defs/Properties/definitions/EnabledMemoryTypes" | fn.#ListExpression
-	SessionSummaryConfiguration?: _#defs."/$defs/Properties/definitions/SessionSummaryConfiguration" |
-		fn.#ObjectExpression
-	StorageDays?: number | fn.#NumberExpression
+	EnabledMemoryTypes?:          _#defs."/$defs/Properties/definitions/EnabledMemoryTypes"
+	SessionSummaryConfiguration?: _#defs."/$defs/Properties/definitions/SessionSummaryConfiguration"
+	StorageDays?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -185,26 +308,25 @@ _#defs: "/$defs/Properties/definitions/OrchestrationType": "DEFAULT" | "CUSTOM_O
 
 _#defs: "/$defs/Properties/definitions/ParameterDetail": close({
 	Description?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	Required?:    bool | fn.#BooleanExpression
-	Type!:        _#defs."/$defs/Properties/definitions/Type" | fn.#StringExpression
+	Required?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Type!:        _#defs."/$defs/Properties/definitions/Type"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParameterMap": close({
 
-	{[=~"^([0-9a-zA-Z][_-]?){1,100}$"]: _#defs."/$defs/Properties/definitions/ParameterDetail" | fn.#ObjectExpression}}) |
+	{[=~"^([0-9a-zA-Z][_-]?){1,100}$"]: _#defs."/$defs/Properties/definitions/ParameterDetail"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PromptConfiguration": close({
-	AdditionalModelRequestFields?: _#defs."/$defs/Properties/definitions/AdditionalModelRequestFields" |
-		fn.#ObjectExpression
-	BasePromptTemplate?:     strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression
-	FoundationModel?:        _#defs."/$defs/Properties/definitions/FoundationModel" | fn.#StringExpression
-	InferenceConfiguration?: _#defs."/$defs/Properties/definitions/InferenceConfiguration" | fn.#ObjectExpression
-	ParserMode?:             _#defs."/$defs/Properties/definitions/CreationMode" | fn.#StringExpression
-	PromptCreationMode?:     _#defs."/$defs/Properties/definitions/CreationMode" | fn.#StringExpression
-	PromptState?:            _#defs."/$defs/Properties/definitions/PromptState" | fn.#StringExpression
-	PromptType?:             _#defs."/$defs/Properties/definitions/PromptType" | fn.#StringExpression
+	AdditionalModelRequestFields?: _#defs."/$defs/Properties/definitions/AdditionalModelRequestFields"
+	BasePromptTemplate?:           strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression
+	FoundationModel?:              _#defs."/$defs/Properties/definitions/FoundationModel"
+	InferenceConfiguration?:       _#defs."/$defs/Properties/definitions/InferenceConfiguration"
+	ParserMode?:                   _#defs."/$defs/Properties/definitions/CreationMode"
+	PromptCreationMode?:           _#defs."/$defs/Properties/definitions/CreationMode"
+	PromptState?:                  _#defs."/$defs/Properties/definitions/PromptState"
+	PromptType?:                   _#defs."/$defs/Properties/definitions/PromptType"
 }) |
 fn.#ObjectExpression
 
@@ -212,9 +334,7 @@ _#defs: "/$defs/Properties/definitions/PromptOverrideConfiguration": close({
 	OverrideLambda?: strings.MaxRunes(2048) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z0-9-]{1,20}:\\d{12}:function:[a-zA-Z0-9-_\\.]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
 	fn.#StringExpression
-	PromptConfigurations!: list.MaxItems(10) & [
-		..._#defs."/$defs/Properties/definitions/PromptConfiguration" | fn.#ObjectExpression
-	] |
+	PromptConfigurations!: list.MaxItems(10) & [..._#defs."/$defs/Properties/definitions/PromptConfiguration"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -243,9 +363,27 @@ _#defs: "/$defs/Properties/definitions/S3Identifier": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SessionSummaryConfiguration": close(
-	{MaxRecentSessions?: number | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/SessionSummaryConfiguration": close({
+	MaxRecentSessions?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TagsMap": close({

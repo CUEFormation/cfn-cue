@@ -28,5 +28,5 @@ import "strings"
 
 _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
 	// Virtual Private Cloud (VPC) Id from which AccessPoint will allow requests.
-	VpcId?: strings.MaxRunes(1024) & strings.MinRunes(1)
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(1024) & strings.MinRunes(1))
 })

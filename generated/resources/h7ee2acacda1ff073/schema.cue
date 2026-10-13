@@ -16,14 +16,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ArchiveName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*[a-zA-Z0-9]$" |
 	fn.#StringExpression
-	KmsKeyArn?: =~"^arn:aws(|-cn|-us-gov|-eusc):kms:[a-z0-9-]{1,20}:[0-9]{12}:(key|alias)/.+$" | fn.#StringExpression
-	Retention?: _#defs."/$defs/Properties/definitions/ArchiveRetention" | fn.#ValueExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:aws(|-cn|-us-gov|-eusc):kms:[a-z0-9-]{1,20}:[0-9]{12}:(key|alias)/.+$" |
+		fn.#StringExpression
+	Retention?: _#defs."/$defs/Properties/definitions/ArchiveRetention"
+	Tags?:      list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ArchiveRetention": close(
-	{RetentionPeriod!: _#defs."/$defs/Properties/definitions/RetentionPeriod" | fn.#StringExpression},
+	{RetentionPeriod!: _#defs."/$defs/Properties/definitions/RetentionPeriod"},
 ) |
 	fn.#ValueExpression
 

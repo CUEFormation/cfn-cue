@@ -14,25 +14,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // IdMappingWorkflow defined in AWS Entity Resolution service
 #Properties: close({
-	Description?: _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	IdMappingIncrementalRunConfig?: _#defs."/$defs/Properties/definitions/IdMappingIncrementalRunConfig" |
-		fn.#ObjectExpression
-	IdMappingTechniques!: _#defs."/$defs/Properties/definitions/IdMappingTechniques" | fn.#ObjectExpression
+	Description?:                   _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
+	IdMappingIncrementalRunConfig?: _#defs."/$defs/Properties/definitions/IdMappingIncrementalRunConfig"
+	IdMappingTechniques!:           _#defs."/$defs/Properties/definitions/IdMappingTechniques"
 	InputSourceConfig!: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/IdMappingWorkflowInputSource" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/IdMappingWorkflowInputSource"
 	] |
 		fn.#ListExpression
 	OutputSourceConfig?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/IdMappingWorkflowOutputSource" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/IdMappingWorkflowOutputSource"
 	] |
 		fn.#ListExpression
-	RoleArn!: strings.MaxRunes(512) &
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(512) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	WorkflowName!: _#defs."/$defs/Properties/definitions/EntityName" | fn.#StringExpression
 })
@@ -58,18 +56,15 @@ _#defs: "/$defs/Properties/definitions/IdMappingRuleBasedProperties": close({
 	AttributeMatchingModel!: "ONE_TO_ONE" | "MANY_TO_MANY" | fn.#StringExpression
 	RecordMatchingModel!:    "ONE_SOURCE_TO_ONE_TARGET" | "MANY_SOURCE_TO_ONE_TARGET" | fn.#StringExpression
 	RuleDefinitionType?:     "SOURCE" | "TARGET" | fn.#StringExpression
-	Rules?: list.MaxItems(25) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Rule" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Rules?: list.MaxItems(25) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IdMappingTechniques": close({
 	IdMappingType?:        "PROVIDER" | "RULE_BASED" | fn.#StringExpression
 	NormalizationVersion?: string | fn.#StringExpression
-	ProviderProperties?:   _#defs."/$defs/Properties/definitions/ProviderProperties" | fn.#ObjectExpression
-	RuleBasedProperties?:  _#defs."/$defs/Properties/definitions/IdMappingRuleBasedProperties" | fn.#ObjectExpression
+	ProviderProperties?:   _#defs."/$defs/Properties/definitions/ProviderProperties"
+	RuleBasedProperties?:  _#defs."/$defs/Properties/definitions/IdMappingRuleBasedProperties"
 }) |
 fn.#ObjectExpression
 
@@ -85,7 +80,7 @@ _#defs: "/$defs/Properties/definitions/IdMappingWorkflowInputSource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IdMappingWorkflowOutputSource": close({
-	KMSArn?: _#defs."/$defs/Properties/definitions/KMSArn" | fn.#StringExpression
+	KMSArn?: _#defs."/$defs/Properties/definitions/KMSArn"
 	OutputS3Path!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^s3://([^/]+)/?(.*?([^/]+)/?)$" |
 	fn.#StringExpression
 }) |
@@ -99,12 +94,12 @@ _#defs: "/$defs/Properties/definitions/IntermediateSourceConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KMSArn": =~"^arn:(aws|aws-us-gov|aws-cn):kms:.*:[0-9]+:.*$" |
+_#defs: "/$defs/Properties/definitions/KMSArn": =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	=~"^arn:(aws|aws-us-gov|aws-cn):kms:.*:[0-9]+:.*$" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ProviderProperties": close({
-	IntermediateSourceConfiguration?: _#defs."/$defs/Properties/definitions/IntermediateSourceConfiguration" |
-		fn.#ObjectExpression
+	IntermediateSourceConfiguration?: _#defs."/$defs/Properties/definitions/IntermediateSourceConfiguration"
 	ProviderConfiguration?: close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
@@ -117,9 +112,7 @@ _#defs: "/$defs/Properties/definitions/ProviderProperties": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Rule": close({
-	MatchingKeys!: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AttributeName" | fn.#StringExpression
-	] |
+	MatchingKeys!: list.MaxItems(15) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AttributeName"] |
 		fn.#ListExpression
 	RuleName!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" | fn.#StringExpression
 }) |

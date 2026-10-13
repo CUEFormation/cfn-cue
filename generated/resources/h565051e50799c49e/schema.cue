@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,17 +18,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::CloudWatch::AnomalyDetector
 #Properties: close({
-	Configuration?: _#defs."/$defs/Properties/definitions/MetricConfiguration" | fn.#ObjectExpression
-	Dimensions?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/Dimension" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	MetricCharacteristics?:     _#defs."/$defs/Properties/definitions/MetricCharacteristics" | fn.#ObjectExpression
-	MetricMathAnomalyDetector?: _#defs."/$defs/Properties/definitions/MetricMathAnomalyDetector" | fn.#ObjectExpression
-	MetricName?:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Namespace?:                 strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*" | fn.#StringExpression
-	SingleMetricAnomalyDetector?: _#defs."/$defs/Properties/definitions/SingleMetricAnomalyDetector" |
-		fn.#ObjectExpression
+	Configuration?: _#defs."/$defs/Properties/definitions/MetricConfiguration"
+	Dimensions?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Dimension"] | fn.#ListExpression
+	MetricCharacteristics?:       _#defs."/$defs/Properties/definitions/MetricCharacteristics"
+	MetricMathAnomalyDetector?:   _#defs."/$defs/Properties/definitions/MetricMathAnomalyDetector"
+	MetricName?:                  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Namespace?:                   strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*" | fn.#StringExpression
+	SingleMetricAnomalyDetector?: _#defs."/$defs/Properties/definitions/SingleMetricAnomalyDetector"
 	Stat?: strings.MaxRunes(50) &
 	strings.MinRunes(0) &
 	=~"^(Minimum|Maximum|Sum|Average|SampleCount|(p|tm)[0-9]{1,2}|(p|tm)[0-9]{1,2}\\.[0-9]{1,2}|(p|tm)100)$" |
@@ -38,20 +38,19 @@ _#defs: "/$defs/Properties/definitions/Dimension": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Metric": close({
-	Dimensions?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/Dimension" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Dimensions?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Dimension"] | fn.#ListExpression
 	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Namespace!:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricCharacteristics": close({PeriodicSpikes?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/MetricCharacteristics": close(
+	{PeriodicSpikes?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetricConfiguration": close({
-	ExcludedTimeRanges?: [..._#defs."/$defs/Properties/definitions/Range" | fn.#ObjectExpression] | fn.#ListExpression
+	ExcludedTimeRanges?: [..._#defs."/$defs/Properties/definitions/Range"] | fn.#ListExpression
 	MetricTimeZone?:     strings.MaxRunes(50) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -61,21 +60,48 @@ _#defs: "/$defs/Properties/definitions/MetricDataQuery": close({
 	Expression?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Id!:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Label?:      string | fn.#StringExpression
-	MetricStat?: _#defs."/$defs/Properties/definitions/MetricStat" | fn.#ObjectExpression
-	Period?:     int & >=1 | fn.#NumberExpression
-	ReturnData?: bool | fn.#BooleanExpression
+	MetricStat?: _#defs."/$defs/Properties/definitions/MetricStat"
+	Period?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ReturnData?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricMathAnomalyDetector": close({
-	MetricDataQueries?: [..._#defs."/$defs/Properties/definitions/MetricDataQuery" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/MetricMathAnomalyDetector": close(
+	{MetricDataQueries?: [..._#defs."/$defs/Properties/definitions/MetricDataQuery"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetricStat": close({
-	Metric!: _#defs."/$defs/Properties/definitions/Metric" | fn.#ObjectExpression
-	Period!: int & >=1 | fn.#NumberExpression
+	Metric!: _#defs."/$defs/Properties/definitions/Metric"
+	Period!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Stat!: =~"^(Minimum|Maximum|Sum|Average|SampleCount|(p|tm)[0-9]{1,2}|(p|tm)[0-9]{1,2}\\.[0-9]{1,2}|(p|tm)100)$" |
 		fn.#StringExpression
 	Unit?: =~"^(Seconds|Microseconds|Milliseconds|Bytes|Kilobytes|Megabytes|Gigabytes|Terabytes|Bits|Kilobits|Megabits|Gigabits|Terabits|Percent|Count|Bytes/Second|Kilobytes/Second|Megabytes/Second|Gigabytes/Second|Terabytes/Second|Bits/Second|Kilobits/Second|Megabits/Second|Gigabits/Second|Terabits/Second|Count/Second|None)$" |
@@ -92,11 +118,8 @@ _#defs: "/$defs/Properties/definitions/Range": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SingleMetricAnomalyDetector": close({
-	AccountId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Dimensions?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/Dimension" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	AccountId?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Dimensions?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Dimension"] | fn.#ListExpression
 	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*" | fn.#StringExpression
 	Stat?: strings.MaxRunes(50) &

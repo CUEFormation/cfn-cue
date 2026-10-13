@@ -20,7 +20,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	RepositoryLinkId!: =~"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}" |
 		fn.#StringExpression
 	ResourceName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[a-za-z0-9_\\.-]+" | fn.#StringExpression
-	RoleArn!: strings.MaxRunes(1024) &
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[\\w]+)*:iam::\\d{12}:role/[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression

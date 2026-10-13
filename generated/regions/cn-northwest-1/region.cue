@@ -4,3143 +4,3150 @@ package cf
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
-import r0 "github.com/cueformation/cfn-cue/resources/h5165bb5873aa1a35:schema"
+import AWS_ACMPCA_Certificate "github.com/cueformation/cfn-cue/resources/h5165bb5873aa1a35:schema"
 
-import r1 "github.com/cueformation/cfn-cue/resources/h9fcfa92780965940:schema"
+import AWS_ACMPCA_CertificateAuthority "github.com/cueformation/cfn-cue/resources/h9fcfa92780965940:schema"
 
-import r2 "github.com/cueformation/cfn-cue/resources/he9cacddc01026abf:schema"
+import AWS_ACMPCA_CertificateAuthorityActivation "github.com/cueformation/cfn-cue/resources/he9cacddc01026abf:schema"
 
-import r3 "github.com/cueformation/cfn-cue/resources/hfd640a518e40962e:schema"
+import AWS_ACMPCA_Permission "github.com/cueformation/cfn-cue/resources/hfd640a518e40962e:schema"
 
-import r4 "github.com/cueformation/cfn-cue/resources/h11376fee0279dcb6:schema"
+import AWS_ARCZonalShift_AutoshiftObserverNotificationStatus "github.com/cueformation/cfn-cue/resources/h11376fee0279dcb6:schema"
 
-import r5 "github.com/cueformation/cfn-cue/resources/hdebdc1e0c1e0fcb3:schema"
+import AWS_ARCZonalShift_ZonalAutoshiftConfiguration "github.com/cueformation/cfn-cue/resources/hdebdc1e0c1e0fcb3:schema"
 
-import r6 "github.com/cueformation/cfn-cue/resources/h6f70b4067903effc:schema"
+import AWS_AccessAnalyzer_Analyzer "github.com/cueformation/cfn-cue/resources/h6f70b4067903effc:schema"
 
-import r7 "github.com/cueformation/cfn-cue/resources/h71b72aaf004c756c:schema"
+import AWS_AmazonMQ_Broker "github.com/cueformation/cfn-cue/resources/h71b72aaf004c756c:schema"
 
-import r8 "github.com/cueformation/cfn-cue/resources/hc074283eaa7d7759:schema"
+import AWS_AmazonMQ_Configuration "github.com/cueformation/cfn-cue/resources/hc074283eaa7d7759:schema"
 
-import r9 "github.com/cueformation/cfn-cue/resources/h9e585c26796fa58f:schema"
+import AWS_AmazonMQ_ConfigurationAssociation "github.com/cueformation/cfn-cue/resources/h9e585c26796fa58f:schema"
 
-import r10 "github.com/cueformation/cfn-cue/resources/h30ecdb42ffdd873d:schema"
+import AWS_ApiGateway_Account "github.com/cueformation/cfn-cue/resources/h30ecdb42ffdd873d:schema"
 
-import r11 "github.com/cueformation/cfn-cue/resources/hb899a0d240b53d9d:schema"
+import AWS_ApiGateway_ApiKey "github.com/cueformation/cfn-cue/resources/hb899a0d240b53d9d:schema"
 
-import r12 "github.com/cueformation/cfn-cue/resources/h14d4576cb2995a07:schema"
+import AWS_ApiGateway_Authorizer "github.com/cueformation/cfn-cue/resources/h14d4576cb2995a07:schema"
 
-import r13 "github.com/cueformation/cfn-cue/resources/hae693bd078b13b46:schema"
+import AWS_ApiGateway_BasePathMapping "github.com/cueformation/cfn-cue/resources/hae693bd078b13b46:schema"
 
-import r14 "github.com/cueformation/cfn-cue/resources/he061928a0352a8cc:schema"
+import AWS_ApiGateway_BasePathMappingV2 "github.com/cueformation/cfn-cue/resources/he061928a0352a8cc:schema"
 
-import r15 "github.com/cueformation/cfn-cue/resources/h9230bcf0b306f207:schema"
+import AWS_ApiGateway_ClientCertificate "github.com/cueformation/cfn-cue/resources/h9230bcf0b306f207:schema"
 
-import r16 "github.com/cueformation/cfn-cue/resources/h75a2510533fcb770:schema"
+import AWS_ApiGateway_Deployment "github.com/cueformation/cfn-cue/resources/h75a2510533fcb770:schema"
 
-import r17 "github.com/cueformation/cfn-cue/resources/he84b0919887ff2fb:schema"
+import AWS_ApiGateway_DocumentationPart "github.com/cueformation/cfn-cue/resources/he84b0919887ff2fb:schema"
 
-import r18 "github.com/cueformation/cfn-cue/resources/hdef1177843a231e8:schema"
+import AWS_ApiGateway_DocumentationVersion "github.com/cueformation/cfn-cue/resources/hdef1177843a231e8:schema"
 
-import r19 "github.com/cueformation/cfn-cue/resources/he8eb5eed19ecfb2e:schema"
+import AWS_ApiGateway_DomainName "github.com/cueformation/cfn-cue/resources/he8eb5eed19ecfb2e:schema"
 
-import r20 "github.com/cueformation/cfn-cue/resources/he780b68ae379f2f8:schema"
+import AWS_ApiGateway_DomainNameAccessAssociation "github.com/cueformation/cfn-cue/resources/he780b68ae379f2f8:schema"
 
-import r21 "github.com/cueformation/cfn-cue/resources/hcb46410d8ffc0504:schema"
+import AWS_ApiGateway_DomainNameV2 "github.com/cueformation/cfn-cue/resources/hcb46410d8ffc0504:schema"
 
-import r22 "github.com/cueformation/cfn-cue/resources/h5ee1cff343d46bc0:schema"
+import AWS_ApiGateway_GatewayResponse "github.com/cueformation/cfn-cue/resources/h5ee1cff343d46bc0:schema"
 
-import r23 "github.com/cueformation/cfn-cue/resources/haf2b8744618e1ebe:schema"
+import AWS_ApiGateway_Method "github.com/cueformation/cfn-cue/resources/haf2b8744618e1ebe:schema"
 
-import r24 "github.com/cueformation/cfn-cue/resources/hdeefbe65b80a54e6:schema"
+import AWS_ApiGateway_Model "github.com/cueformation/cfn-cue/resources/hdeefbe65b80a54e6:schema"
 
-import r25 "github.com/cueformation/cfn-cue/resources/h5e2382d417d1be5e:schema"
+import AWS_ApiGateway_RequestValidator "github.com/cueformation/cfn-cue/resources/h5e2382d417d1be5e:schema"
 
-import r26 "github.com/cueformation/cfn-cue/resources/h7bc03cb00d6eac21:schema"
+import AWS_ApiGateway_Resource "github.com/cueformation/cfn-cue/resources/h7bc03cb00d6eac21:schema"
 
-import r27 "github.com/cueformation/cfn-cue/resources/hc8114a4cebbb4dcd:schema"
+import AWS_ApiGateway_RestApi "github.com/cueformation/cfn-cue/resources/hc8114a4cebbb4dcd:schema"
 
-import r28 "github.com/cueformation/cfn-cue/resources/ha356cbffb93af5f4:schema"
+import AWS_ApiGateway_Stage "github.com/cueformation/cfn-cue/resources/ha356cbffb93af5f4:schema"
 
-import r29 "github.com/cueformation/cfn-cue/resources/hf2210ee1e5532f1e:schema"
+import AWS_ApiGateway_UsagePlan "github.com/cueformation/cfn-cue/resources/hf2210ee1e5532f1e:schema"
 
-import r30 "github.com/cueformation/cfn-cue/resources/hbfa3add8b26e8530:schema"
+import AWS_ApiGateway_UsagePlanKey "github.com/cueformation/cfn-cue/resources/hbfa3add8b26e8530:schema"
 
-import r31 "github.com/cueformation/cfn-cue/resources/h1f90bc5bee16e7c2:schema"
+import AWS_ApiGateway_VpcLink "github.com/cueformation/cfn-cue/resources/h1f90bc5bee16e7c2:schema"
 
-import r32 "github.com/cueformation/cfn-cue/resources/hdc4ae064d6ce6511:schema"
+import AWS_ApiGatewayV2_Api "github.com/cueformation/cfn-cue/resources/hdc4ae064d6ce6511:schema"
 
-import r33 "github.com/cueformation/cfn-cue/resources/h1ae12353e8f2e243:schema"
+import AWS_ApiGatewayV2_ApiGatewayManagedOverrides "github.com/cueformation/cfn-cue/resources/h1ae12353e8f2e243:schema"
 
-import r34 "github.com/cueformation/cfn-cue/resources/h9174be3e50854a59:schema"
+import AWS_ApiGatewayV2_ApiMapping "github.com/cueformation/cfn-cue/resources/h9174be3e50854a59:schema"
 
-import r35 "github.com/cueformation/cfn-cue/resources/hf3f5f24ce58d19a8:schema"
+import AWS_ApiGatewayV2_Authorizer "github.com/cueformation/cfn-cue/resources/hf3f5f24ce58d19a8:schema"
 
-import r36 "github.com/cueformation/cfn-cue/resources/hb80a583ef6ae88bd:schema"
+import AWS_ApiGatewayV2_Deployment "github.com/cueformation/cfn-cue/resources/hb80a583ef6ae88bd:schema"
 
-import r37 "github.com/cueformation/cfn-cue/resources/h3a08600530d8a5de:schema"
+import AWS_ApiGatewayV2_DomainName "github.com/cueformation/cfn-cue/resources/h3a08600530d8a5de:schema"
 
-import r38 "github.com/cueformation/cfn-cue/resources/hdb6c439a900cad01:schema"
+import AWS_ApiGatewayV2_Integration "github.com/cueformation/cfn-cue/resources/hdb6c439a900cad01:schema"
 
-import r39 "github.com/cueformation/cfn-cue/resources/h9da85e0f9f5f0077:schema"
+import AWS_ApiGatewayV2_IntegrationResponse "github.com/cueformation/cfn-cue/resources/h9da85e0f9f5f0077:schema"
 
-import r40 "github.com/cueformation/cfn-cue/resources/hdea44ab0acc0b584:schema"
+import AWS_ApiGatewayV2_Model "github.com/cueformation/cfn-cue/resources/hdea44ab0acc0b584:schema"
 
-import r41 "github.com/cueformation/cfn-cue/resources/hf0d425737183819c:schema"
+import AWS_ApiGatewayV2_Route "github.com/cueformation/cfn-cue/resources/hf0d425737183819c:schema"
 
-import r42 "github.com/cueformation/cfn-cue/resources/h694e17d3e085e4b0:schema"
+import AWS_ApiGatewayV2_RouteResponse "github.com/cueformation/cfn-cue/resources/h694e17d3e085e4b0:schema"
 
-import r43 "github.com/cueformation/cfn-cue/resources/h4edd4b2b1e8a7391:schema"
+import AWS_ApiGatewayV2_RoutingRule "github.com/cueformation/cfn-cue/resources/h4edd4b2b1e8a7391:schema"
 
-import r44 "github.com/cueformation/cfn-cue/resources/h7ad209d7d756607a:schema"
+import AWS_ApiGatewayV2_Stage "github.com/cueformation/cfn-cue/resources/h7ad209d7d756607a:schema"
 
-import r45 "github.com/cueformation/cfn-cue/resources/h00421980662e80a4:schema"
+import AWS_ApiGatewayV2_VpcLink "github.com/cueformation/cfn-cue/resources/h00421980662e80a4:schema"
 
-import r46 "github.com/cueformation/cfn-cue/resources/h427e618e9bd1ed21:schema"
+import AWS_AppConfig_Application "github.com/cueformation/cfn-cue/resources/h427e618e9bd1ed21:schema"
 
-import r47 "github.com/cueformation/cfn-cue/resources/h1c0e8deb0cf5db3d:schema"
+import AWS_AppConfig_ConfigurationProfile "github.com/cueformation/cfn-cue/resources/h1c0e8deb0cf5db3d:schema"
 
-import r48 "github.com/cueformation/cfn-cue/resources/h6dcb58bc756e5745:schema"
+import AWS_AppConfig_Deployment "github.com/cueformation/cfn-cue/resources/h6dcb58bc756e5745:schema"
 
-import r49 "github.com/cueformation/cfn-cue/resources/h327ac582f95cf99d:schema"
+import AWS_AppConfig_DeploymentStrategy "github.com/cueformation/cfn-cue/resources/h327ac582f95cf99d:schema"
 
-import r50 "github.com/cueformation/cfn-cue/resources/h0fa5f11c92832a6b:schema"
+import AWS_AppConfig_Environment "github.com/cueformation/cfn-cue/resources/h0fa5f11c92832a6b:schema"
 
-import r51 "github.com/cueformation/cfn-cue/resources/h8367fa436bbb1d43:schema"
+import AWS_AppConfig_ExperimentDefinition "github.com/cueformation/cfn-cue/resources/h8367fa436bbb1d43:schema"
 
-import r52 "github.com/cueformation/cfn-cue/resources/he6a6b774a1978bcb:schema"
+import AWS_AppConfig_ExperimentRun "github.com/cueformation/cfn-cue/resources/he6a6b774a1978bcb:schema"
 
-import r53 "github.com/cueformation/cfn-cue/resources/hba0942823d0a232c:schema"
+import AWS_AppConfig_Extension "github.com/cueformation/cfn-cue/resources/hba0942823d0a232c:schema"
 
-import r54 "github.com/cueformation/cfn-cue/resources/hacb08bd11a7d0c34:schema"
+import AWS_AppConfig_ExtensionAssociation "github.com/cueformation/cfn-cue/resources/hacb08bd11a7d0c34:schema"
 
-import r55 "github.com/cueformation/cfn-cue/resources/h6ccba5b5ed963c13:schema"
+import AWS_AppConfig_HostedConfigurationVersion "github.com/cueformation/cfn-cue/resources/h6ccba5b5ed963c13:schema"
 
-import r56 "github.com/cueformation/cfn-cue/resources/hb702ec293b02ccb9:schema"
+import AWS_AppMesh_GatewayRoute "github.com/cueformation/cfn-cue/resources/hb702ec293b02ccb9:schema"
 
-import r57 "github.com/cueformation/cfn-cue/resources/h0b001e79261c3af3:schema"
+import AWS_AppMesh_Mesh "github.com/cueformation/cfn-cue/resources/h0b001e79261c3af3:schema"
 
-import r58 "github.com/cueformation/cfn-cue/resources/hb3836c74d71f919d:schema"
+import AWS_AppMesh_Route "github.com/cueformation/cfn-cue/resources/hb3836c74d71f919d:schema"
 
-import r59 "github.com/cueformation/cfn-cue/resources/h9223d736ccc6feb0:schema"
+import AWS_AppMesh_VirtualGateway "github.com/cueformation/cfn-cue/resources/h9223d736ccc6feb0:schema"
 
-import r60 "github.com/cueformation/cfn-cue/resources/h7eae71e9194143fd:schema"
+import AWS_AppMesh_VirtualNode "github.com/cueformation/cfn-cue/resources/h7eae71e9194143fd:schema"
 
-import r61 "github.com/cueformation/cfn-cue/resources/h22e575f395c48d41:schema"
+import AWS_AppMesh_VirtualRouter "github.com/cueformation/cfn-cue/resources/h22e575f395c48d41:schema"
 
-import r62 "github.com/cueformation/cfn-cue/resources/h15862064f26847f0:schema"
+import AWS_AppMesh_VirtualService "github.com/cueformation/cfn-cue/resources/h15862064f26847f0:schema"
 
-import r63 "github.com/cueformation/cfn-cue/resources/heacc3ff64d5d9d0f:schema"
+import AWS_AppStream_DirectoryConfig "github.com/cueformation/cfn-cue/resources/heacc3ff64d5d9d0f:schema"
 
-import r64 "github.com/cueformation/cfn-cue/resources/hb3193feff9c75136:schema"
+import AWS_AppStream_Fleet "github.com/cueformation/cfn-cue/resources/hb3193feff9c75136:schema"
 
-import r65 "github.com/cueformation/cfn-cue/resources/hd4ccab03cb250c9b:schema"
+import AWS_AppStream_ImageBuilder "github.com/cueformation/cfn-cue/resources/hd4ccab03cb250c9b:schema"
 
-import r66 "github.com/cueformation/cfn-cue/resources/h54e20390c619237b:schema"
+import AWS_AppStream_Stack "github.com/cueformation/cfn-cue/resources/h54e20390c619237b:schema"
 
-import r67 "github.com/cueformation/cfn-cue/resources/h5c4bef321cc33d74:schema"
+import AWS_AppStream_StackFleetAssociation "github.com/cueformation/cfn-cue/resources/h5c4bef321cc33d74:schema"
 
-import r68 "github.com/cueformation/cfn-cue/resources/hc9900681170ae751:schema"
+import AWS_AppStream_StackUserAssociation "github.com/cueformation/cfn-cue/resources/hc9900681170ae751:schema"
 
-import r69 "github.com/cueformation/cfn-cue/resources/hf3b2a206ee753e86:schema"
+import AWS_AppStream_User "github.com/cueformation/cfn-cue/resources/hf3b2a206ee753e86:schema"
 
-import r70 "github.com/cueformation/cfn-cue/resources/he72ed46456f3921d:schema"
+import AWS_AppSync_Api "github.com/cueformation/cfn-cue/resources/he72ed46456f3921d:schema"
 
-import r71 "github.com/cueformation/cfn-cue/resources/h25b88096b0c660ef:schema"
+import AWS_AppSync_ApiCache "github.com/cueformation/cfn-cue/resources/h25b88096b0c660ef:schema"
 
-import r72 "github.com/cueformation/cfn-cue/resources/h83c788859d3c6ab6:schema"
+import AWS_AppSync_ApiKey "github.com/cueformation/cfn-cue/resources/h83c788859d3c6ab6:schema"
 
-import r73 "github.com/cueformation/cfn-cue/resources/hc336d391de418c99:schema"
+import AWS_AppSync_ChannelNamespace "github.com/cueformation/cfn-cue/resources/hc336d391de418c99:schema"
 
-import r74 "github.com/cueformation/cfn-cue/resources/h88de25f13a72d96f:schema"
+import AWS_AppSync_DataSource "github.com/cueformation/cfn-cue/resources/h88de25f13a72d96f:schema"
 
-import r75 "github.com/cueformation/cfn-cue/resources/heca160c7f1aa1975:schema"
+import AWS_AppSync_FunctionConfiguration "github.com/cueformation/cfn-cue/resources/heca160c7f1aa1975:schema"
 
-import r76 "github.com/cueformation/cfn-cue/resources/h2481f45c5e2be5c1:schema"
+import AWS_AppSync_GraphQLApi "github.com/cueformation/cfn-cue/resources/h2481f45c5e2be5c1:schema"
 
-import r77 "github.com/cueformation/cfn-cue/resources/h2db971c9bee99214:schema"
+import AWS_AppSync_GraphQLSchema "github.com/cueformation/cfn-cue/resources/h2db971c9bee99214:schema"
 
-import r78 "github.com/cueformation/cfn-cue/resources/h1da64e9d9373f63a:schema"
+import AWS_AppSync_Resolver "github.com/cueformation/cfn-cue/resources/h1da64e9d9373f63a:schema"
 
-import r79 "github.com/cueformation/cfn-cue/resources/h5ba668392326746e:schema"
+import AWS_AppSync_SourceApiAssociation "github.com/cueformation/cfn-cue/resources/h5ba668392326746e:schema"
 
-import r80 "github.com/cueformation/cfn-cue/resources/h1895e8c86f58be70:schema"
+import AWS_ApplicationAutoScaling_ScalableTarget "github.com/cueformation/cfn-cue/resources/h1895e8c86f58be70:schema"
 
-import r81 "github.com/cueformation/cfn-cue/resources/hbcd7e4da0910c41d:schema"
+import AWS_ApplicationAutoScaling_ScalingPolicy "github.com/cueformation/cfn-cue/resources/hbcd7e4da0910c41d:schema"
 
-import r82 "github.com/cueformation/cfn-cue/resources/h191d879f853d2ef4:schema"
+import AWS_ApplicationInsights_Application "github.com/cueformation/cfn-cue/resources/h191d879f853d2ef4:schema"
 
-import r83 "github.com/cueformation/cfn-cue/resources/h3db3108d61067ffa:schema"
+import AWS_ApplicationSignals_Discovery "github.com/cueformation/cfn-cue/resources/h3db3108d61067ffa:schema"
 
-import r84 "github.com/cueformation/cfn-cue/resources/h07db1cc8cbc0787d:schema"
+import AWS_ApplicationSignals_GroupingConfiguration "github.com/cueformation/cfn-cue/resources/h07db1cc8cbc0787d:schema"
 
-import r85 "github.com/cueformation/cfn-cue/resources/hb946e96f4c288774:schema"
+import AWS_ApplicationSignals_ServiceLevelObjective "github.com/cueformation/cfn-cue/resources/hb946e96f4c288774:schema"
 
-import r86 "github.com/cueformation/cfn-cue/resources/h26b802bbbe153af9:schema"
+import AWS_Athena_DataCatalog "github.com/cueformation/cfn-cue/resources/h26b802bbbe153af9:schema"
 
-import r87 "github.com/cueformation/cfn-cue/resources/hb45bfc4368e75ff8:schema"
+import AWS_Athena_NamedQuery "github.com/cueformation/cfn-cue/resources/hb45bfc4368e75ff8:schema"
 
-import r88 "github.com/cueformation/cfn-cue/resources/h53b3d798e5f9cd59:schema"
+import AWS_Athena_PreparedStatement "github.com/cueformation/cfn-cue/resources/h53b3d798e5f9cd59:schema"
 
-import r89 "github.com/cueformation/cfn-cue/resources/h21dcc4c1cd7fe2c9:schema"
+import AWS_Athena_WorkGroup "github.com/cueformation/cfn-cue/resources/h21dcc4c1cd7fe2c9:schema"
 
-import r90 "github.com/cueformation/cfn-cue/resources/h9340fcaa3e773ecc:schema"
+import AWS_AutoScaling_AutoScalingGroup "github.com/cueformation/cfn-cue/resources/h9340fcaa3e773ecc:schema"
 
-import r91 "github.com/cueformation/cfn-cue/resources/hebf4d084dce94557:schema"
+import AWS_AutoScaling_LaunchConfiguration "github.com/cueformation/cfn-cue/resources/hebf4d084dce94557:schema"
 
-import r92 "github.com/cueformation/cfn-cue/resources/heef7564475816781:schema"
+import AWS_AutoScaling_LifecycleHook "github.com/cueformation/cfn-cue/resources/heef7564475816781:schema"
 
-import r93 "github.com/cueformation/cfn-cue/resources/hbde12f84db708ffe:schema"
+import AWS_AutoScaling_ScalingPolicy "github.com/cueformation/cfn-cue/resources/hbde12f84db708ffe:schema"
 
-import r94 "github.com/cueformation/cfn-cue/resources/h33970d53212b5b31:schema"
+import AWS_AutoScaling_ScheduledAction "github.com/cueformation/cfn-cue/resources/h33970d53212b5b31:schema"
 
-import r95 "github.com/cueformation/cfn-cue/resources/h0f8a566ef6e1b9ef:schema"
+import AWS_AutoScaling_WarmPool "github.com/cueformation/cfn-cue/resources/h0f8a566ef6e1b9ef:schema"
 
-import r96 "github.com/cueformation/cfn-cue/resources/h9e22be4bb86316fc:schema"
+import AWS_AutoScalingPlans_ScalingPlan "github.com/cueformation/cfn-cue/resources/h9e22be4bb86316fc:schema"
 
-import r97 "github.com/cueformation/cfn-cue/resources/hfdb923d594377838:schema"
+import AWS_Backup_BackupPlan "github.com/cueformation/cfn-cue/resources/hfdb923d594377838:schema"
 
-import r98 "github.com/cueformation/cfn-cue/resources/h32873e890a445385:schema"
+import AWS_Backup_BackupSelection "github.com/cueformation/cfn-cue/resources/h32873e890a445385:schema"
 
-import r99 "github.com/cueformation/cfn-cue/resources/h07a77a4786c7c0e0:schema"
+import AWS_Backup_BackupVault "github.com/cueformation/cfn-cue/resources/h07a77a4786c7c0e0:schema"
 
-import r100 "github.com/cueformation/cfn-cue/resources/h5140fefb404da421:schema"
+import AWS_Backup_TieringConfiguration "github.com/cueformation/cfn-cue/resources/h5140fefb404da421:schema"
 
-import r101 "github.com/cueformation/cfn-cue/resources/he955fb1747ae7c60:schema"
+import AWS_Batch_ComputeEnvironment "github.com/cueformation/cfn-cue/resources/he955fb1747ae7c60:schema"
 
-import r102 "github.com/cueformation/cfn-cue/resources/hc53d3276caeabdd2:schema"
+import AWS_Batch_ConsumableResource "github.com/cueformation/cfn-cue/resources/hc53d3276caeabdd2:schema"
 
-import r103 "github.com/cueformation/cfn-cue/resources/ha99b30af9210ceae:schema"
+import AWS_Batch_JobDefinition "github.com/cueformation/cfn-cue/resources/ha99b30af9210ceae:schema"
 
-import r104 "github.com/cueformation/cfn-cue/resources/hdbba8a03ff10bb49:schema"
+import AWS_Batch_JobQueue "github.com/cueformation/cfn-cue/resources/hdbba8a03ff10bb49:schema"
 
-import r105 "github.com/cueformation/cfn-cue/resources/h348629a2cb335dfe:schema"
+import AWS_Batch_QuotaShare "github.com/cueformation/cfn-cue/resources/h348629a2cb335dfe:schema"
 
-import r106 "github.com/cueformation/cfn-cue/resources/h56da2060b38e0047:schema"
+import AWS_Batch_SchedulingPolicy "github.com/cueformation/cfn-cue/resources/h56da2060b38e0047:schema"
 
-import r107 "github.com/cueformation/cfn-cue/resources/h7bfe45bef38a6369:schema"
+import AWS_Batch_ServiceEnvironment "github.com/cueformation/cfn-cue/resources/h7bfe45bef38a6369:schema"
 
-import r108 "github.com/cueformation/cfn-cue/resources/h1a71ab28934dffd8:schema"
+import AWS_BedrockAgentCore_BrowserCustom "github.com/cueformation/cfn-cue/resources/h1a71ab28934dffd8:schema"
 
-import r109 "github.com/cueformation/cfn-cue/resources/h1f701f55ad63b290:schema"
+import AWS_BedrockAgentCore_BrowserProfile "github.com/cueformation/cfn-cue/resources/h1f701f55ad63b290:schema"
 
-import r110 "github.com/cueformation/cfn-cue/resources/hf8c234d13fefa0b0:schema"
+import AWS_BedrockAgentCore_CodeInterpreterCustom "github.com/cueformation/cfn-cue/resources/hf8c234d13fefa0b0:schema"
 
-import r111 "github.com/cueformation/cfn-cue/resources/hb002adf67de66b12:schema"
+import AWS_BedrockAgentCore_Gateway "github.com/cueformation/cfn-cue/resources/hb002adf67de66b12:schema"
 
-import r112 "github.com/cueformation/cfn-cue/resources/h0769d8d725cd7160:schema"
+import AWS_BedrockAgentCore_GatewayRateLimit "github.com/cueformation/cfn-cue/resources/h0769d8d725cd7160:schema"
 
-import r113 "github.com/cueformation/cfn-cue/resources/hf867e1d54a22602c:schema"
+import AWS_BedrockAgentCore_GatewayTarget "github.com/cueformation/cfn-cue/resources/hf867e1d54a22602c:schema"
 
-import r114 "github.com/cueformation/cfn-cue/resources/h0b63587608f8d57b:schema"
+import AWS_BedrockAgentCore_Runtime "github.com/cueformation/cfn-cue/resources/h0b63587608f8d57b:schema"
 
-import r115 "github.com/cueformation/cfn-cue/resources/h3d07a740b68bf097:schema"
+import AWS_BedrockAgentCore_RuntimeEndpoint "github.com/cueformation/cfn-cue/resources/h3d07a740b68bf097:schema"
 
-import r116 "github.com/cueformation/cfn-cue/resources/hda272b60037c575f:schema"
+import AWS_BedrockAgentCore_WorkloadIdentity "github.com/cueformation/cfn-cue/resources/hda272b60037c575f:schema"
 
-import r117 "github.com/cueformation/cfn-cue/resources/ha99850f5fdde16e0:schema"
+import AWS_Budgets_Budget "github.com/cueformation/cfn-cue/resources/ha99850f5fdde16e0:schema"
 
-import r118 "github.com/cueformation/cfn-cue/resources/hce9b5c78f45d2037:schema"
+import AWS_Budgets_BudgetsAction "github.com/cueformation/cfn-cue/resources/hce9b5c78f45d2037:schema"
 
-import r119 "github.com/cueformation/cfn-cue/resources/h4764011035779ef3:schema"
+import AWS_CDK_Metadata "github.com/cueformation/cfn-cue/resources/h4764011035779ef3:schema"
 
-import r120 "github.com/cueformation/cfn-cue/resources/h264689f8c3c0d3de:schema"
+import AWS_CE_AnomalyMonitor "github.com/cueformation/cfn-cue/resources/h264689f8c3c0d3de:schema"
 
-import r121 "github.com/cueformation/cfn-cue/resources/h6184977d2f069649:schema"
+import AWS_CE_AnomalySubscription "github.com/cueformation/cfn-cue/resources/h6184977d2f069649:schema"
 
-import r122 "github.com/cueformation/cfn-cue/resources/ha1c49c1a812e5f2e:schema"
+import AWS_CE_CostCategory "github.com/cueformation/cfn-cue/resources/ha1c49c1a812e5f2e:schema"
 
-import r123 "github.com/cueformation/cfn-cue/resources/h955f003d4c281b75:schema"
+import AWS_CUR_ReportDefinition "github.com/cueformation/cfn-cue/resources/h955f003d4c281b75:schema"
 
-import r124 "github.com/cueformation/cfn-cue/resources/hf4bf6e6e3799fe0d:schema"
+import AWS_Cassandra_Keyspace "github.com/cueformation/cfn-cue/resources/hf4bf6e6e3799fe0d:schema"
 
-import r125 "github.com/cueformation/cfn-cue/resources/hb54e6661e89c8ae3:schema"
+import AWS_Cassandra_Table "github.com/cueformation/cfn-cue/resources/hb54e6661e89c8ae3:schema"
 
-import r126 "github.com/cueformation/cfn-cue/resources/hf80830e85fc31e7b:schema"
+import AWS_Cassandra_Type "github.com/cueformation/cfn-cue/resources/hf80830e85fc31e7b:schema"
 
-import r127 "github.com/cueformation/cfn-cue/resources/ha3161919c7b9f322:schema"
+import AWS_CertificateManager_Account "github.com/cueformation/cfn-cue/resources/ha3161919c7b9f322:schema"
 
-import r128 "github.com/cueformation/cfn-cue/resources/h7cfcf2c9acbd65d3:schema"
+import AWS_CertificateManager_Certificate "github.com/cueformation/cfn-cue/resources/h7cfcf2c9acbd65d3:schema"
 
-import r129 "github.com/cueformation/cfn-cue/resources/h1f78f40a15db8b48:schema"
+import AWS_Cloud9_EnvironmentEC2 "github.com/cueformation/cfn-cue/resources/h1f78f40a15db8b48:schema"
 
-import r130 "github.com/cueformation/cfn-cue/resources/hc93cecc5f7f60e14:schema"
+import AWS_CloudFormation_CustomResource "github.com/cueformation/cfn-cue/resources/hc93cecc5f7f60e14:schema"
 
-import r131 "github.com/cueformation/cfn-cue/resources/h634cc9dcccea92df:schema"
+import AWS_CloudFormation_HookDefaultVersion "github.com/cueformation/cfn-cue/resources/h634cc9dcccea92df:schema"
 
-import r132 "github.com/cueformation/cfn-cue/resources/hbc081059782cac49:schema"
+import AWS_CloudFormation_HookTypeConfig "github.com/cueformation/cfn-cue/resources/hbc081059782cac49:schema"
 
-import r133 "github.com/cueformation/cfn-cue/resources/h53bc91bd4bc7544a:schema"
+import AWS_CloudFormation_HookVersion "github.com/cueformation/cfn-cue/resources/h53bc91bd4bc7544a:schema"
 
-import r134 "github.com/cueformation/cfn-cue/resources/h4997f9615a97cef0:schema"
+import AWS_CloudFormation_Macro "github.com/cueformation/cfn-cue/resources/h4997f9615a97cef0:schema"
 
-import r135 "github.com/cueformation/cfn-cue/resources/h4d2e3455d4b6cdde:schema"
+import AWS_CloudFormation_ModuleDefaultVersion "github.com/cueformation/cfn-cue/resources/h4d2e3455d4b6cdde:schema"
 
-import r136 "github.com/cueformation/cfn-cue/resources/h7c12ed24885e6dca:schema"
+import AWS_CloudFormation_ModuleVersion "github.com/cueformation/cfn-cue/resources/h7c12ed24885e6dca:schema"
 
-import r137 "github.com/cueformation/cfn-cue/resources/h28643d3cd0cffa9f:schema"
+import AWS_CloudFormation_ResourceDefaultVersion "github.com/cueformation/cfn-cue/resources/h28643d3cd0cffa9f:schema"
 
-import r138 "github.com/cueformation/cfn-cue/resources/h996afabe9cc42d0f:schema"
+import AWS_CloudFormation_ResourceVersion "github.com/cueformation/cfn-cue/resources/h996afabe9cc42d0f:schema"
 
-import r139 "github.com/cueformation/cfn-cue/resources/h4fb294811823d209:schema"
+import AWS_CloudFormation_Stack "github.com/cueformation/cfn-cue/resources/h4fb294811823d209:schema"
 
-import r140 "github.com/cueformation/cfn-cue/resources/h6bc69beb98e3816c:schema"
+import AWS_CloudFormation_StackSet "github.com/cueformation/cfn-cue/resources/h6bc69beb98e3816c:schema"
 
-import r141 "github.com/cueformation/cfn-cue/resources/h5aa61a5de12c94af:schema"
+import AWS_CloudFormation_WaitCondition "github.com/cueformation/cfn-cue/resources/h5aa61a5de12c94af:schema"
 
-import r142 "github.com/cueformation/cfn-cue/resources/h2c60845d9923c010:schema"
+import AWS_CloudFormation_WaitConditionHandle "github.com/cueformation/cfn-cue/resources/h2c60845d9923c010:schema"
 
-import r143 "github.com/cueformation/cfn-cue/resources/ha2831001640bba3b:schema"
+import AWS_CloudFront_CachePolicy "github.com/cueformation/cfn-cue/resources/ha2831001640bba3b:schema"
 
-import r144 "github.com/cueformation/cfn-cue/resources/h756f99f3e22e87e5:schema"
+import AWS_CloudFront_CloudFrontOriginAccessIdentity "github.com/cueformation/cfn-cue/resources/h756f99f3e22e87e5:schema"
 
-import r145 "github.com/cueformation/cfn-cue/resources/h14d24ae8a612f0ef:schema"
+import AWS_CloudFront_Distribution "github.com/cueformation/cfn-cue/resources/h14d24ae8a612f0ef:schema"
 
-import r146 "github.com/cueformation/cfn-cue/resources/ha752f130cdfa97b3:schema"
+import AWS_CloudFront_KeyGroup "github.com/cueformation/cfn-cue/resources/ha752f130cdfa97b3:schema"
 
-import r147 "github.com/cueformation/cfn-cue/resources/hca88707c91899447:schema"
+import AWS_CloudFront_OriginRequestPolicy "github.com/cueformation/cfn-cue/resources/hca88707c91899447:schema"
 
-import r148 "github.com/cueformation/cfn-cue/resources/h1a68b455ba30f2b8:schema"
+import AWS_CloudFront_PublicKey "github.com/cueformation/cfn-cue/resources/h1a68b455ba30f2b8:schema"
 
-import r149 "github.com/cueformation/cfn-cue/resources/h746cf02202e6f81c:schema"
+import AWS_CloudFront_RealtimeLogConfig "github.com/cueformation/cfn-cue/resources/h746cf02202e6f81c:schema"
 
-import r150 "github.com/cueformation/cfn-cue/resources/h8633a3e4c033154a:schema"
+import AWS_CloudFront_ResponseHeadersPolicy "github.com/cueformation/cfn-cue/resources/h8633a3e4c033154a:schema"
 
-import r151 "github.com/cueformation/cfn-cue/resources/h8e05a11383d0aab3:schema"
+import AWS_CloudFront_StreamingDistribution "github.com/cueformation/cfn-cue/resources/h8e05a11383d0aab3:schema"
 
-import r152 "github.com/cueformation/cfn-cue/resources/h92b0a0f5db6788ed:schema"
+import AWS_CloudTrail_Trail "github.com/cueformation/cfn-cue/resources/h92b0a0f5db6788ed:schema"
 
-import r153 "github.com/cueformation/cfn-cue/resources/he3ce63041315cf44:schema"
+import AWS_CloudWatch_Alarm "github.com/cueformation/cfn-cue/resources/he3ce63041315cf44:schema"
 
-import r154 "github.com/cueformation/cfn-cue/resources/heaf32e7ed8be6870:schema"
+import AWS_CloudWatch_AlarmMuteRule "github.com/cueformation/cfn-cue/resources/heaf32e7ed8be6870:schema"
 
-import r155 "github.com/cueformation/cfn-cue/resources/h565051e50799c49e:schema"
+import AWS_CloudWatch_AnomalyDetector "github.com/cueformation/cfn-cue/resources/h565051e50799c49e:schema"
 
-import r156 "github.com/cueformation/cfn-cue/resources/h47bc3223d6d88916:schema"
+import AWS_CloudWatch_CompositeAlarm "github.com/cueformation/cfn-cue/resources/h47bc3223d6d88916:schema"
 
-import r157 "github.com/cueformation/cfn-cue/resources/h2bfec87e1eba6a46:schema"
+import AWS_CloudWatch_Dashboard "github.com/cueformation/cfn-cue/resources/h2bfec87e1eba6a46:schema"
 
-import r158 "github.com/cueformation/cfn-cue/resources/he0dd7e7a00fbac77:schema"
+import AWS_CloudWatch_InsightRule "github.com/cueformation/cfn-cue/resources/he0dd7e7a00fbac77:schema"
 
-import r159 "github.com/cueformation/cfn-cue/resources/ha056591b3b6254f7:schema"
+import AWS_CloudWatch_MetricStream "github.com/cueformation/cfn-cue/resources/ha056591b3b6254f7:schema"
 
-import r160 "github.com/cueformation/cfn-cue/resources/h736d4b31275ff704:schema"
+import AWS_CodeBuild_Project "github.com/cueformation/cfn-cue/resources/h736d4b31275ff704:schema"
 
-import r161 "github.com/cueformation/cfn-cue/resources/hc07086533b9f1ee6:schema"
+import AWS_CodeBuild_ReportGroup "github.com/cueformation/cfn-cue/resources/hc07086533b9f1ee6:schema"
 
-import r162 "github.com/cueformation/cfn-cue/resources/hb20f9694e8c700ee:schema"
+import AWS_CodeBuild_SourceCredential "github.com/cueformation/cfn-cue/resources/hb20f9694e8c700ee:schema"
 
-import r163 "github.com/cueformation/cfn-cue/resources/hf86b2f36a3ca973b:schema"
+import AWS_CodeCommit_Repository "github.com/cueformation/cfn-cue/resources/hf86b2f36a3ca973b:schema"
 
-import r164 "github.com/cueformation/cfn-cue/resources/h1d497e04e80a5c31:schema"
+import AWS_CodeDeploy_Application "github.com/cueformation/cfn-cue/resources/h1d497e04e80a5c31:schema"
 
-import r165 "github.com/cueformation/cfn-cue/resources/h599ff4f3229061a3:schema"
+import AWS_CodeDeploy_DeploymentConfig "github.com/cueformation/cfn-cue/resources/h599ff4f3229061a3:schema"
 
-import r166 "github.com/cueformation/cfn-cue/resources/h4e2837ac28312660:schema"
+import AWS_CodeDeploy_DeploymentGroup "github.com/cueformation/cfn-cue/resources/h4e2837ac28312660:schema"
 
-import r167 "github.com/cueformation/cfn-cue/resources/h949dafe70b900e5f:schema"
+import AWS_CodePipeline_CustomActionType "github.com/cueformation/cfn-cue/resources/h949dafe70b900e5f:schema"
 
-import r168 "github.com/cueformation/cfn-cue/resources/he873dd52992a2fc1:schema"
+import AWS_CodePipeline_Pipeline "github.com/cueformation/cfn-cue/resources/he873dd52992a2fc1:schema"
 
-import r169 "github.com/cueformation/cfn-cue/resources/hd3e561aa2b32c7ea:schema"
+import AWS_CodePipeline_Webhook "github.com/cueformation/cfn-cue/resources/hd3e561aa2b32c7ea:schema"
 
-import r170 "github.com/cueformation/cfn-cue/resources/h141e19f3841b50f5:schema"
+import AWS_Config_AggregationAuthorization "github.com/cueformation/cfn-cue/resources/h141e19f3841b50f5:schema"
 
-import r171 "github.com/cueformation/cfn-cue/resources/h1fc72217e4dbfe06:schema"
+import AWS_Config_ConfigRule "github.com/cueformation/cfn-cue/resources/h1fc72217e4dbfe06:schema"
 
-import r172 "github.com/cueformation/cfn-cue/resources/h55b69ab4297e6789:schema"
+import AWS_Config_ConfigurationAggregator "github.com/cueformation/cfn-cue/resources/h55b69ab4297e6789:schema"
 
-import r173 "github.com/cueformation/cfn-cue/resources/h2eb0efb166130e4b:schema"
+import AWS_Config_ConfigurationRecorder "github.com/cueformation/cfn-cue/resources/h2eb0efb166130e4b:schema"
 
-import r174 "github.com/cueformation/cfn-cue/resources/h52c118dae98a9c25:schema"
+import AWS_Config_ConformancePack "github.com/cueformation/cfn-cue/resources/h52c118dae98a9c25:schema"
 
-import r175 "github.com/cueformation/cfn-cue/resources/h61e01edd61157baf:schema"
+import AWS_Config_DeliveryChannel "github.com/cueformation/cfn-cue/resources/h61e01edd61157baf:schema"
 
-import r176 "github.com/cueformation/cfn-cue/resources/h050a0b4085aae369:schema"
+import AWS_Config_OrganizationConfigRule "github.com/cueformation/cfn-cue/resources/h050a0b4085aae369:schema"
 
-import r177 "github.com/cueformation/cfn-cue/resources/h5c705cb122178739:schema"
+import AWS_Config_OrganizationConformancePack "github.com/cueformation/cfn-cue/resources/h5c705cb122178739:schema"
 
-import r178 "github.com/cueformation/cfn-cue/resources/h0f661a045852851e:schema"
+import AWS_Config_RemediationConfiguration "github.com/cueformation/cfn-cue/resources/h0f661a045852851e:schema"
 
-import r179 "github.com/cueformation/cfn-cue/resources/h1176dcbcebdb00b5:schema"
+import AWS_Config_StoredQuery "github.com/cueformation/cfn-cue/resources/h1176dcbcebdb00b5:schema"
 
-import r180 "github.com/cueformation/cfn-cue/resources/haf6cfd00b2ff1297:schema"
+import AWS_DAX_Cluster "github.com/cueformation/cfn-cue/resources/haf6cfd00b2ff1297:schema"
 
-import r181 "github.com/cueformation/cfn-cue/resources/h2a58dc0229a5955d:schema"
+import AWS_DAX_ParameterGroup "github.com/cueformation/cfn-cue/resources/h2a58dc0229a5955d:schema"
 
-import r182 "github.com/cueformation/cfn-cue/resources/h5a397854582a9758:schema"
+import AWS_DAX_SubnetGroup "github.com/cueformation/cfn-cue/resources/h5a397854582a9758:schema"
 
-import r183 "github.com/cueformation/cfn-cue/resources/h735e6965c938e1af:schema"
+import AWS_DLM_LifecyclePolicy "github.com/cueformation/cfn-cue/resources/h735e6965c938e1af:schema"
 
-import r184 "github.com/cueformation/cfn-cue/resources/h5cc36e087430f6bd:schema"
+import AWS_DMS_Certificate "github.com/cueformation/cfn-cue/resources/h5cc36e087430f6bd:schema"
 
-import r185 "github.com/cueformation/cfn-cue/resources/hcf2848e4f44e50b9:schema"
+import AWS_DMS_DataProvider "github.com/cueformation/cfn-cue/resources/hcf2848e4f44e50b9:schema"
 
-import r186 "github.com/cueformation/cfn-cue/resources/h0e81472ad96e199b:schema"
+import AWS_DMS_Endpoint "github.com/cueformation/cfn-cue/resources/h0e81472ad96e199b:schema"
 
-import r187 "github.com/cueformation/cfn-cue/resources/h4f72ca3f2fc0a997:schema"
+import AWS_DMS_EventSubscription "github.com/cueformation/cfn-cue/resources/h4f72ca3f2fc0a997:schema"
 
-import r188 "github.com/cueformation/cfn-cue/resources/h9ad73fda26b48ae9:schema"
+import AWS_DMS_InstanceProfile "github.com/cueformation/cfn-cue/resources/h9ad73fda26b48ae9:schema"
 
-import r189 "github.com/cueformation/cfn-cue/resources/h0679d37ebfcf9475:schema"
+import AWS_DMS_MigrationProject "github.com/cueformation/cfn-cue/resources/h0679d37ebfcf9475:schema"
 
-import r190 "github.com/cueformation/cfn-cue/resources/h9c69ff774634902c:schema"
+import AWS_DMS_ReplicationConfig "github.com/cueformation/cfn-cue/resources/h9c69ff774634902c:schema"
 
-import r191 "github.com/cueformation/cfn-cue/resources/h0ed5eabb0bedbc77:schema"
+import AWS_DMS_ReplicationInstance "github.com/cueformation/cfn-cue/resources/h0ed5eabb0bedbc77:schema"
 
-import r192 "github.com/cueformation/cfn-cue/resources/h8679ca82a8e208ad:schema"
+import AWS_DMS_ReplicationSubnetGroup "github.com/cueformation/cfn-cue/resources/h8679ca82a8e208ad:schema"
 
-import r193 "github.com/cueformation/cfn-cue/resources/h58a27b99e5319043:schema"
+import AWS_DMS_ReplicationTask "github.com/cueformation/cfn-cue/resources/h58a27b99e5319043:schema"
 
-import r194 "github.com/cueformation/cfn-cue/resources/h39f77d5363e25838:schema"
+import AWS_DataBrew_Dataset "github.com/cueformation/cfn-cue/resources/h39f77d5363e25838:schema"
 
-import r195 "github.com/cueformation/cfn-cue/resources/he8c1ddc90269ac7f:schema"
+import AWS_DataBrew_Job "github.com/cueformation/cfn-cue/resources/he8c1ddc90269ac7f:schema"
 
-import r196 "github.com/cueformation/cfn-cue/resources/hf221a42934d34c88:schema"
+import AWS_DataBrew_Project "github.com/cueformation/cfn-cue/resources/hf221a42934d34c88:schema"
 
-import r197 "github.com/cueformation/cfn-cue/resources/hd9e914ea91089802:schema"
+import AWS_DataBrew_Recipe "github.com/cueformation/cfn-cue/resources/hd9e914ea91089802:schema"
 
-import r198 "github.com/cueformation/cfn-cue/resources/h5438bdfad326a68e:schema"
+import AWS_DataBrew_Ruleset "github.com/cueformation/cfn-cue/resources/h5438bdfad326a68e:schema"
 
-import r199 "github.com/cueformation/cfn-cue/resources/h0a973b9958e7812c:schema"
+import AWS_DataBrew_Schedule "github.com/cueformation/cfn-cue/resources/h0a973b9958e7812c:schema"
 
-import r200 "github.com/cueformation/cfn-cue/resources/h808c07b4747d8b80:schema"
+import AWS_DataPipeline_Pipeline "github.com/cueformation/cfn-cue/resources/h808c07b4747d8b80:schema"
 
-import r201 "github.com/cueformation/cfn-cue/resources/had101fd5226f2796:schema"
+import AWS_DataSync_Agent "github.com/cueformation/cfn-cue/resources/had101fd5226f2796:schema"
 
-import r202 "github.com/cueformation/cfn-cue/resources/h1b90e60edec1e294:schema"
+import AWS_DataSync_LocationAzureBlob "github.com/cueformation/cfn-cue/resources/h1b90e60edec1e294:schema"
 
-import r203 "github.com/cueformation/cfn-cue/resources/h8673b7437ef55c57:schema"
+import AWS_DataSync_LocationEFS "github.com/cueformation/cfn-cue/resources/h8673b7437ef55c57:schema"
 
-import r204 "github.com/cueformation/cfn-cue/resources/h99195180260edfb8:schema"
+import AWS_DataSync_LocationFSxLustre "github.com/cueformation/cfn-cue/resources/h99195180260edfb8:schema"
 
-import r205 "github.com/cueformation/cfn-cue/resources/hf384c1563ab0c10c:schema"
+import AWS_DataSync_LocationFSxWindows "github.com/cueformation/cfn-cue/resources/hf384c1563ab0c10c:schema"
 
-import r206 "github.com/cueformation/cfn-cue/resources/hb6b2b7203a188504:schema"
+import AWS_DataSync_LocationHDFS "github.com/cueformation/cfn-cue/resources/hb6b2b7203a188504:schema"
 
-import r207 "github.com/cueformation/cfn-cue/resources/h525691396196fcc8:schema"
+import AWS_DataSync_LocationNFS "github.com/cueformation/cfn-cue/resources/h525691396196fcc8:schema"
 
-import r208 "github.com/cueformation/cfn-cue/resources/h50a87d24c0a55fa4:schema"
+import AWS_DataSync_LocationObjectStorage "github.com/cueformation/cfn-cue/resources/h50a87d24c0a55fa4:schema"
 
-import r209 "github.com/cueformation/cfn-cue/resources/h59dc08ae2fb180ff:schema"
+import AWS_DataSync_LocationS3 "github.com/cueformation/cfn-cue/resources/h59dc08ae2fb180ff:schema"
 
-import r210 "github.com/cueformation/cfn-cue/resources/h0e85de07e0cfd58f:schema"
+import AWS_DataSync_LocationSMB "github.com/cueformation/cfn-cue/resources/h0e85de07e0cfd58f:schema"
 
-import r211 "github.com/cueformation/cfn-cue/resources/h5ce0bc0a4a34bba5:schema"
+import AWS_DataSync_Task "github.com/cueformation/cfn-cue/resources/h5ce0bc0a4a34bba5:schema"
 
-import r212 "github.com/cueformation/cfn-cue/resources/hbe420d9280b24925:schema"
+import AWS_DirectConnect_Connection "github.com/cueformation/cfn-cue/resources/hbe420d9280b24925:schema"
 
-import r213 "github.com/cueformation/cfn-cue/resources/h043fe743283ba29d:schema"
+import AWS_DirectConnect_DirectConnectGateway "github.com/cueformation/cfn-cue/resources/h043fe743283ba29d:schema"
 
-import r214 "github.com/cueformation/cfn-cue/resources/he8ce201e75e68e0c:schema"
+import AWS_DirectConnect_DirectConnectGatewayAssociation "github.com/cueformation/cfn-cue/resources/he8ce201e75e68e0c:schema"
 
-import r215 "github.com/cueformation/cfn-cue/resources/hf2e001ca37694efd:schema"
+import AWS_DirectConnect_Lag "github.com/cueformation/cfn-cue/resources/hf2e001ca37694efd:schema"
 
-import r216 "github.com/cueformation/cfn-cue/resources/hc6ac524c03aef4b7:schema"
+import AWS_DirectConnect_PrivateVirtualInterface "github.com/cueformation/cfn-cue/resources/hc6ac524c03aef4b7:schema"
 
-import r217 "github.com/cueformation/cfn-cue/resources/h63be29cdd8e06c83:schema"
+import AWS_DirectConnect_PublicVirtualInterface "github.com/cueformation/cfn-cue/resources/h63be29cdd8e06c83:schema"
 
-import r218 "github.com/cueformation/cfn-cue/resources/h310cc44c28ff3c1a:schema"
+import AWS_DirectConnect_TransitVirtualInterface "github.com/cueformation/cfn-cue/resources/h310cc44c28ff3c1a:schema"
 
-import r219 "github.com/cueformation/cfn-cue/resources/h8af3aa4420d07315:schema"
+import AWS_DirectoryService_MicrosoftAD "github.com/cueformation/cfn-cue/resources/h8af3aa4420d07315:schema"
 
-import r220 "github.com/cueformation/cfn-cue/resources/hcfb0810ad2891808:schema"
+import AWS_DirectoryService_SimpleAD "github.com/cueformation/cfn-cue/resources/hcfb0810ad2891808:schema"
 
-import r221 "github.com/cueformation/cfn-cue/resources/h5c79de0dd922b73c:schema"
+import AWS_DocDB_DBCluster "github.com/cueformation/cfn-cue/resources/h5c79de0dd922b73c:schema"
 
-import r222 "github.com/cueformation/cfn-cue/resources/h54374f193e755aac:schema"
+import AWS_DocDB_DBClusterParameterGroup "github.com/cueformation/cfn-cue/resources/h54374f193e755aac:schema"
 
-import r223 "github.com/cueformation/cfn-cue/resources/h9805be5f9745b7cb:schema"
+import AWS_DocDB_DBInstance "github.com/cueformation/cfn-cue/resources/h9805be5f9745b7cb:schema"
 
-import r224 "github.com/cueformation/cfn-cue/resources/hb2c9167a65a64fbd:schema"
+import AWS_DocDB_DBSubnetGroup "github.com/cueformation/cfn-cue/resources/hb2c9167a65a64fbd:schema"
 
-import r225 "github.com/cueformation/cfn-cue/resources/h57207058abfec3bb:schema"
+import AWS_DocDB_EventSubscription "github.com/cueformation/cfn-cue/resources/h57207058abfec3bb:schema"
 
-import r226 "github.com/cueformation/cfn-cue/resources/h349d9efd1ac1671d:schema"
+import AWS_DynamoDB_GlobalTable "github.com/cueformation/cfn-cue/resources/h349d9efd1ac1671d:schema"
 
-import r227 "github.com/cueformation/cfn-cue/resources/h8de1012311991c4d:schema"
+import AWS_DynamoDB_Table "github.com/cueformation/cfn-cue/resources/h8de1012311991c4d:schema"
 
-import r228 "github.com/cueformation/cfn-cue/resources/h0f933e80c17a2414:schema"
+import AWS_EC2_CapacityReservation "github.com/cueformation/cfn-cue/resources/h0f933e80c17a2414:schema"
 
-import r229 "github.com/cueformation/cfn-cue/resources/h1f4299c89a48d4ff:schema"
+import AWS_EC2_CapacityReservationFleet "github.com/cueformation/cfn-cue/resources/h1f4299c89a48d4ff:schema"
 
-import r230 "github.com/cueformation/cfn-cue/resources/hcda9637e4ba3829c:schema"
+import AWS_EC2_CustomerGateway "github.com/cueformation/cfn-cue/resources/hcda9637e4ba3829c:schema"
 
-import r231 "github.com/cueformation/cfn-cue/resources/h68f5e515c22766db:schema"
+import AWS_EC2_DHCPOptions "github.com/cueformation/cfn-cue/resources/h68f5e515c22766db:schema"
 
-import r232 "github.com/cueformation/cfn-cue/resources/h13df22ce891c9c15:schema"
+import AWS_EC2_EC2Fleet "github.com/cueformation/cfn-cue/resources/h13df22ce891c9c15:schema"
 
-import r233 "github.com/cueformation/cfn-cue/resources/h9424cc2cdbe0ea3d:schema"
+import AWS_EC2_EIP "github.com/cueformation/cfn-cue/resources/h9424cc2cdbe0ea3d:schema"
 
-import r234 "github.com/cueformation/cfn-cue/resources/h79f1e9b62a5b2b5d:schema"
+import AWS_EC2_EIPAssociation "github.com/cueformation/cfn-cue/resources/h79f1e9b62a5b2b5d:schema"
 
-import r235 "github.com/cueformation/cfn-cue/resources/hb2cfdbcf327ef113:schema"
+import AWS_EC2_EgressOnlyInternetGateway "github.com/cueformation/cfn-cue/resources/hb2cfdbcf327ef113:schema"
 
-import r236 "github.com/cueformation/cfn-cue/resources/h7a3686cf8c7483d0:schema"
+import AWS_EC2_FlowLog "github.com/cueformation/cfn-cue/resources/h7a3686cf8c7483d0:schema"
 
-import r237 "github.com/cueformation/cfn-cue/resources/h12fcfe3bb951f94a:schema"
+import AWS_EC2_GatewayRouteTableAssociation "github.com/cueformation/cfn-cue/resources/h12fcfe3bb951f94a:schema"
 
-import r238 "github.com/cueformation/cfn-cue/resources/h04bf2d4bce59b6a5:schema"
+import AWS_EC2_Host "github.com/cueformation/cfn-cue/resources/h04bf2d4bce59b6a5:schema"
 
-import r239 "github.com/cueformation/cfn-cue/resources/hc1046a5d883b8e03:schema"
+import AWS_EC2_IPAM "github.com/cueformation/cfn-cue/resources/hc1046a5d883b8e03:schema"
 
-import r240 "github.com/cueformation/cfn-cue/resources/hf45bc3048d36aeb8:schema"
+import AWS_EC2_IPAMAllocation "github.com/cueformation/cfn-cue/resources/hf45bc3048d36aeb8:schema"
 
-import r241 "github.com/cueformation/cfn-cue/resources/ha732aafbdb105060:schema"
+import AWS_EC2_IPAMPool "github.com/cueformation/cfn-cue/resources/ha732aafbdb105060:schema"
 
-import r242 "github.com/cueformation/cfn-cue/resources/hbe95e21dbfc19175:schema"
+import AWS_EC2_IPAMPoolCidr "github.com/cueformation/cfn-cue/resources/hbe95e21dbfc19175:schema"
 
-import r243 "github.com/cueformation/cfn-cue/resources/h1af36d774d04faba:schema"
+import AWS_EC2_IPAMPrefixListResolver "github.com/cueformation/cfn-cue/resources/h1af36d774d04faba:schema"
 
-import r244 "github.com/cueformation/cfn-cue/resources/h008fa774cc7a05ce:schema"
+import AWS_EC2_IPAMPrefixListResolverTarget "github.com/cueformation/cfn-cue/resources/h008fa774cc7a05ce:schema"
 
-import r245 "github.com/cueformation/cfn-cue/resources/h10e2da22ac714449:schema"
+import AWS_EC2_IPAMResourceDiscovery "github.com/cueformation/cfn-cue/resources/h10e2da22ac714449:schema"
 
-import r246 "github.com/cueformation/cfn-cue/resources/hda7eacb801891242:schema"
+import AWS_EC2_IPAMResourceDiscoveryAssociation "github.com/cueformation/cfn-cue/resources/hda7eacb801891242:schema"
 
-import r247 "github.com/cueformation/cfn-cue/resources/hd830ba7c6920695f:schema"
+import AWS_EC2_IPAMScope "github.com/cueformation/cfn-cue/resources/hd830ba7c6920695f:schema"
 
-import r248 "github.com/cueformation/cfn-cue/resources/h9d166e07ec198cd0:schema"
+import AWS_EC2_Instance "github.com/cueformation/cfn-cue/resources/h9d166e07ec198cd0:schema"
 
-import r249 "github.com/cueformation/cfn-cue/resources/hf9658814f772ccb7:schema"
+import AWS_EC2_InstanceConnectEndpoint "github.com/cueformation/cfn-cue/resources/hf9658814f772ccb7:schema"
 
-import r250 "github.com/cueformation/cfn-cue/resources/h81a73a951e6c6178:schema"
+import AWS_EC2_InternetGateway "github.com/cueformation/cfn-cue/resources/h81a73a951e6c6178:schema"
 
-import r251 "github.com/cueformation/cfn-cue/resources/h550c862324af9064:schema"
+import AWS_EC2_IpPoolRouteTableAssociation "github.com/cueformation/cfn-cue/resources/h550c862324af9064:schema"
 
-import r252 "github.com/cueformation/cfn-cue/resources/hfb19617c2bdd26db:schema"
+import AWS_EC2_KeyPair "github.com/cueformation/cfn-cue/resources/hfb19617c2bdd26db:schema"
 
-import r253 "github.com/cueformation/cfn-cue/resources/h032b26d0a53b361b:schema"
+import AWS_EC2_LaunchTemplate "github.com/cueformation/cfn-cue/resources/h032b26d0a53b361b:schema"
 
-import r254 "github.com/cueformation/cfn-cue/resources/hf7047217b3ed6c33:schema"
+import AWS_EC2_NatGateway "github.com/cueformation/cfn-cue/resources/hf7047217b3ed6c33:schema"
 
-import r255 "github.com/cueformation/cfn-cue/resources/h47541d62a9458818:schema"
+import AWS_EC2_NetworkAcl "github.com/cueformation/cfn-cue/resources/h47541d62a9458818:schema"
 
-import r256 "github.com/cueformation/cfn-cue/resources/h46ee16fa956f8269:schema"
+import AWS_EC2_NetworkAclEntry "github.com/cueformation/cfn-cue/resources/h46ee16fa956f8269:schema"
 
-import r257 "github.com/cueformation/cfn-cue/resources/h743479ab64d9fcf0:schema"
+import AWS_EC2_NetworkInterface "github.com/cueformation/cfn-cue/resources/h743479ab64d9fcf0:schema"
 
-import r258 "github.com/cueformation/cfn-cue/resources/h2b138a87e63f1464:schema"
+import AWS_EC2_NetworkInterfaceAttachment "github.com/cueformation/cfn-cue/resources/h2b138a87e63f1464:schema"
 
-import r259 "github.com/cueformation/cfn-cue/resources/hff2e70a38f5b49eb:schema"
+import AWS_EC2_NetworkInterfacePermission "github.com/cueformation/cfn-cue/resources/hff2e70a38f5b49eb:schema"
 
-import r260 "github.com/cueformation/cfn-cue/resources/h0d14fade154ad02f:schema"
+import AWS_EC2_PlacementGroup "github.com/cueformation/cfn-cue/resources/h0d14fade154ad02f:schema"
 
-import r261 "github.com/cueformation/cfn-cue/resources/h9ccae27e8cdd7ee1:schema"
+import AWS_EC2_PrefixList "github.com/cueformation/cfn-cue/resources/h9ccae27e8cdd7ee1:schema"
 
-import r262 "github.com/cueformation/cfn-cue/resources/h3f538211f723fcf3:schema"
+import AWS_EC2_Route "github.com/cueformation/cfn-cue/resources/h3f538211f723fcf3:schema"
 
-import r263 "github.com/cueformation/cfn-cue/resources/had3a84b5843804be:schema"
+import AWS_EC2_RouteTable "github.com/cueformation/cfn-cue/resources/had3a84b5843804be:schema"
 
-import r264 "github.com/cueformation/cfn-cue/resources/h1eee5de23e01e807:schema"
+import AWS_EC2_SecurityGroup "github.com/cueformation/cfn-cue/resources/h1eee5de23e01e807:schema"
 
-import r265 "github.com/cueformation/cfn-cue/resources/h1aa4209a229f1f50:schema"
+import AWS_EC2_SecurityGroupEgress "github.com/cueformation/cfn-cue/resources/h1aa4209a229f1f50:schema"
 
-import r266 "github.com/cueformation/cfn-cue/resources/hdb2811bef65b317c:schema"
+import AWS_EC2_SecurityGroupIngress "github.com/cueformation/cfn-cue/resources/hdb2811bef65b317c:schema"
 
-import r267 "github.com/cueformation/cfn-cue/resources/h8a64dcaf6c56b0bb:schema"
+import AWS_EC2_SecurityGroupVpcAssociation "github.com/cueformation/cfn-cue/resources/h8a64dcaf6c56b0bb:schema"
 
-import r268 "github.com/cueformation/cfn-cue/resources/hbf71ca727ee5dc52:schema"
+import AWS_EC2_SnapshotBlockPublicAccess "github.com/cueformation/cfn-cue/resources/hbf71ca727ee5dc52:schema"
 
-import r269 "github.com/cueformation/cfn-cue/resources/h306c591b5d776bb0:schema"
+import AWS_EC2_SpotFleet "github.com/cueformation/cfn-cue/resources/h306c591b5d776bb0:schema"
 
-import r270 "github.com/cueformation/cfn-cue/resources/h120991479da4cb98:schema"
+import AWS_EC2_SqlHaStandbyDetectedInstance "github.com/cueformation/cfn-cue/resources/h120991479da4cb98:schema"
 
-import r271 "github.com/cueformation/cfn-cue/resources/hda9b8efd578cecd8:schema"
+import AWS_EC2_Subnet "github.com/cueformation/cfn-cue/resources/hda9b8efd578cecd8:schema"
 
-import r272 "github.com/cueformation/cfn-cue/resources/hcdde40dc22a0c33b:schema"
+import AWS_EC2_SubnetCidrBlock "github.com/cueformation/cfn-cue/resources/hcdde40dc22a0c33b:schema"
 
-import r273 "github.com/cueformation/cfn-cue/resources/h67927af6f133ceb8:schema"
+import AWS_EC2_SubnetNetworkAclAssociation "github.com/cueformation/cfn-cue/resources/h67927af6f133ceb8:schema"
 
-import r274 "github.com/cueformation/cfn-cue/resources/hbbd69d336cb98510:schema"
+import AWS_EC2_SubnetRouteTableAssociation "github.com/cueformation/cfn-cue/resources/hbbd69d336cb98510:schema"
 
-import r275 "github.com/cueformation/cfn-cue/resources/h9b1eb5e94a66c0f2:schema"
+import AWS_EC2_TrafficMirrorFilter "github.com/cueformation/cfn-cue/resources/h9b1eb5e94a66c0f2:schema"
 
-import r276 "github.com/cueformation/cfn-cue/resources/heaeff1e09f9d0158:schema"
+import AWS_EC2_TrafficMirrorFilterRule "github.com/cueformation/cfn-cue/resources/heaeff1e09f9d0158:schema"
 
-import r277 "github.com/cueformation/cfn-cue/resources/h87807f5f29de999d:schema"
+import AWS_EC2_TrafficMirrorSession "github.com/cueformation/cfn-cue/resources/h87807f5f29de999d:schema"
 
-import r278 "github.com/cueformation/cfn-cue/resources/h43c098acb7961fb4:schema"
+import AWS_EC2_TrafficMirrorTarget "github.com/cueformation/cfn-cue/resources/h43c098acb7961fb4:schema"
 
-import r279 "github.com/cueformation/cfn-cue/resources/h0182d15dda50dfe3:schema"
+import AWS_EC2_TransitGateway "github.com/cueformation/cfn-cue/resources/h0182d15dda50dfe3:schema"
 
-import r280 "github.com/cueformation/cfn-cue/resources/he2f7c0222b2c35ac:schema"
+import AWS_EC2_TransitGatewayAttachment "github.com/cueformation/cfn-cue/resources/he2f7c0222b2c35ac:schema"
 
-import r281 "github.com/cueformation/cfn-cue/resources/hfd3d1ca033870c47:schema"
+import AWS_EC2_TransitGatewayConnect "github.com/cueformation/cfn-cue/resources/hfd3d1ca033870c47:schema"
 
-import r282 "github.com/cueformation/cfn-cue/resources/h06f538b68a46c73c:schema"
+import AWS_EC2_TransitGatewayConnectPeer "github.com/cueformation/cfn-cue/resources/h06f538b68a46c73c:schema"
 
-import r283 "github.com/cueformation/cfn-cue/resources/hae68ae3a7b32d6bb:schema"
+import AWS_EC2_TransitGatewayMeteringPolicy "github.com/cueformation/cfn-cue/resources/hae68ae3a7b32d6bb:schema"
 
-import r284 "github.com/cueformation/cfn-cue/resources/h83d7ff91a4f55d15:schema"
+import AWS_EC2_TransitGatewayMeteringPolicyEntry "github.com/cueformation/cfn-cue/resources/h83d7ff91a4f55d15:schema"
 
-import r285 "github.com/cueformation/cfn-cue/resources/h1b7127197cff025a:schema"
+import AWS_EC2_TransitGatewayMulticastDomain "github.com/cueformation/cfn-cue/resources/h1b7127197cff025a:schema"
 
-import r286 "github.com/cueformation/cfn-cue/resources/h1d4ea4422912682f:schema"
+import AWS_EC2_TransitGatewayMulticastDomainAssociation "github.com/cueformation/cfn-cue/resources/h1d4ea4422912682f:schema"
 
-import r287 "github.com/cueformation/cfn-cue/resources/h9516c662433679d4:schema"
+import AWS_EC2_TransitGatewayMulticastGroupMember "github.com/cueformation/cfn-cue/resources/h9516c662433679d4:schema"
 
-import r288 "github.com/cueformation/cfn-cue/resources/h29076fa333225a7a:schema"
+import AWS_EC2_TransitGatewayMulticastGroupSource "github.com/cueformation/cfn-cue/resources/h29076fa333225a7a:schema"
 
-import r289 "github.com/cueformation/cfn-cue/resources/hfaf7524a2f39581b:schema"
+import AWS_EC2_TransitGatewayPeeringAttachment "github.com/cueformation/cfn-cue/resources/hfaf7524a2f39581b:schema"
 
-import r290 "github.com/cueformation/cfn-cue/resources/hc7d814ea07c23a6a:schema"
+import AWS_EC2_TransitGatewayPolicyTable "github.com/cueformation/cfn-cue/resources/hc7d814ea07c23a6a:schema"
 
-import r291 "github.com/cueformation/cfn-cue/resources/ha55e1d9541af18de:schema"
+import AWS_EC2_TransitGatewayPolicyTableAssociation "github.com/cueformation/cfn-cue/resources/ha55e1d9541af18de:schema"
 
-import r292 "github.com/cueformation/cfn-cue/resources/h6705cf658e132e3c:schema"
+import AWS_EC2_TransitGatewayPolicyTableEntry "github.com/cueformation/cfn-cue/resources/h6705cf658e132e3c:schema"
 
-import r293 "github.com/cueformation/cfn-cue/resources/h19073f224096a12c:schema"
+import AWS_EC2_TransitGatewayRoute "github.com/cueformation/cfn-cue/resources/h19073f224096a12c:schema"
 
-import r294 "github.com/cueformation/cfn-cue/resources/h25c0480d754d7df7:schema"
+import AWS_EC2_TransitGatewayRouteTable "github.com/cueformation/cfn-cue/resources/h25c0480d754d7df7:schema"
 
-import r295 "github.com/cueformation/cfn-cue/resources/h52afcd4a35bad6ee:schema"
+import AWS_EC2_TransitGatewayRouteTableAssociation "github.com/cueformation/cfn-cue/resources/h52afcd4a35bad6ee:schema"
 
-import r296 "github.com/cueformation/cfn-cue/resources/hb2dc0ffdd1868756:schema"
+import AWS_EC2_TransitGatewayRouteTablePropagation "github.com/cueformation/cfn-cue/resources/hb2dc0ffdd1868756:schema"
 
-import r297 "github.com/cueformation/cfn-cue/resources/he80130fcec142173:schema"
+import AWS_EC2_TransitGatewayVpcAttachment "github.com/cueformation/cfn-cue/resources/he80130fcec142173:schema"
 
-import r298 "github.com/cueformation/cfn-cue/resources/hb43b813fa6ab6f00:schema"
+import AWS_EC2_VPC "github.com/cueformation/cfn-cue/resources/hb43b813fa6ab6f00:schema"
 
-import r299 "github.com/cueformation/cfn-cue/resources/hd3d9dd56adb82582:schema"
+import AWS_EC2_VPCBlockPublicAccessExclusion "github.com/cueformation/cfn-cue/resources/hd3d9dd56adb82582:schema"
 
-import r300 "github.com/cueformation/cfn-cue/resources/h2e95d4935e7285c8:schema"
+import AWS_EC2_VPCBlockPublicAccessOptions "github.com/cueformation/cfn-cue/resources/h2e95d4935e7285c8:schema"
 
-import r301 "github.com/cueformation/cfn-cue/resources/hfbb3392fd41d48b0:schema"
+import AWS_EC2_VPCCidrBlock "github.com/cueformation/cfn-cue/resources/hfbb3392fd41d48b0:schema"
 
-import r302 "github.com/cueformation/cfn-cue/resources/haf6bfe8b2454dec8:schema"
+import AWS_EC2_VPCDHCPOptionsAssociation "github.com/cueformation/cfn-cue/resources/haf6bfe8b2454dec8:schema"
 
-import r303 "github.com/cueformation/cfn-cue/resources/h4b6d8d58b91595d6:schema"
+import AWS_EC2_VPCEndpoint "github.com/cueformation/cfn-cue/resources/h4b6d8d58b91595d6:schema"
 
-import r304 "github.com/cueformation/cfn-cue/resources/h7bf0147a71eb3201:schema"
+import AWS_EC2_VPCEndpointConnectionNotification "github.com/cueformation/cfn-cue/resources/h7bf0147a71eb3201:schema"
 
-import r305 "github.com/cueformation/cfn-cue/resources/h1db4c85665de8f73:schema"
+import AWS_EC2_VPCEndpointService "github.com/cueformation/cfn-cue/resources/h1db4c85665de8f73:schema"
 
-import r306 "github.com/cueformation/cfn-cue/resources/h26cb825f5342240b:schema"
+import AWS_EC2_VPCEndpointServicePermissions "github.com/cueformation/cfn-cue/resources/h26cb825f5342240b:schema"
 
-import r307 "github.com/cueformation/cfn-cue/resources/h5deee90cd088167d:schema"
+import AWS_EC2_VPCGatewayAttachment "github.com/cueformation/cfn-cue/resources/h5deee90cd088167d:schema"
 
-import r308 "github.com/cueformation/cfn-cue/resources/h8f7fc66494eee03f:schema"
+import AWS_EC2_VPCPeeringConnection "github.com/cueformation/cfn-cue/resources/h8f7fc66494eee03f:schema"
 
-import r309 "github.com/cueformation/cfn-cue/resources/haa12dce2bbef237a:schema"
+import AWS_EC2_VPNConnection "github.com/cueformation/cfn-cue/resources/haa12dce2bbef237a:schema"
 
-import r310 "github.com/cueformation/cfn-cue/resources/h6cba224bb4c3b59e:schema"
+import AWS_EC2_VPNConnectionRoute "github.com/cueformation/cfn-cue/resources/h6cba224bb4c3b59e:schema"
 
-import r311 "github.com/cueformation/cfn-cue/resources/hb98ad550fefcbc53:schema"
+import AWS_EC2_VPNGateway "github.com/cueformation/cfn-cue/resources/hb98ad550fefcbc53:schema"
 
-import r312 "github.com/cueformation/cfn-cue/resources/h38bfa6a5a08e2757:schema"
+import AWS_EC2_VPNGatewayRoutePropagation "github.com/cueformation/cfn-cue/resources/h38bfa6a5a08e2757:schema"
 
-import r313 "github.com/cueformation/cfn-cue/resources/he23cfb1b79c05365:schema"
+import AWS_EC2_Volume "github.com/cueformation/cfn-cue/resources/he23cfb1b79c05365:schema"
 
-import r314 "github.com/cueformation/cfn-cue/resources/h080e1b5b9192211c:schema"
+import AWS_EC2_VolumeAttachment "github.com/cueformation/cfn-cue/resources/h080e1b5b9192211c:schema"
 
-import r315 "github.com/cueformation/cfn-cue/resources/h25ab0343333b54d0:schema"
+import AWS_ECR_PullThroughCacheRule "github.com/cueformation/cfn-cue/resources/h25ab0343333b54d0:schema"
 
-import r316 "github.com/cueformation/cfn-cue/resources/hfbbcda396375959f:schema"
+import AWS_ECR_PullTimeUpdateExclusion "github.com/cueformation/cfn-cue/resources/hfbbcda396375959f:schema"
 
-import r317 "github.com/cueformation/cfn-cue/resources/h1f555fcb9f5c4169:schema"
+import AWS_ECR_RegistryPolicy "github.com/cueformation/cfn-cue/resources/h1f555fcb9f5c4169:schema"
 
-import r318 "github.com/cueformation/cfn-cue/resources/h53563c740e029e36:schema"
+import AWS_ECR_RegistryScanningConfiguration "github.com/cueformation/cfn-cue/resources/h53563c740e029e36:schema"
 
-import r319 "github.com/cueformation/cfn-cue/resources/h5667753d7cdce6a0:schema"
+import AWS_ECR_ReplicationConfiguration "github.com/cueformation/cfn-cue/resources/h5667753d7cdce6a0:schema"
 
-import r320 "github.com/cueformation/cfn-cue/resources/h3feaf06a6adf4eab:schema"
+import AWS_ECR_Repository "github.com/cueformation/cfn-cue/resources/h3feaf06a6adf4eab:schema"
 
-import r321 "github.com/cueformation/cfn-cue/resources/he78e85951d60931c:schema"
+import AWS_ECR_RepositoryCreationTemplate "github.com/cueformation/cfn-cue/resources/he78e85951d60931c:schema"
 
-import r322 "github.com/cueformation/cfn-cue/resources/h0c3eb0584e8d2634:schema"
+import AWS_ECS_CapacityProvider "github.com/cueformation/cfn-cue/resources/h0c3eb0584e8d2634:schema"
 
-import r323 "github.com/cueformation/cfn-cue/resources/h7d177cdded99bd1e:schema"
+import AWS_ECS_Cluster "github.com/cueformation/cfn-cue/resources/h7d177cdded99bd1e:schema"
 
-import r324 "github.com/cueformation/cfn-cue/resources/hc215adb6fd9b20f8:schema"
+import AWS_ECS_ClusterCapacityProviderAssociations "github.com/cueformation/cfn-cue/resources/hc215adb6fd9b20f8:schema"
 
-import r325 "github.com/cueformation/cfn-cue/resources/h9f4acda52690488a:schema"
+import AWS_ECS_ExpressGatewayService "github.com/cueformation/cfn-cue/resources/h9f4acda52690488a:schema"
 
-import r326 "github.com/cueformation/cfn-cue/resources/h605b1e4adb551804:schema"
+import AWS_ECS_PrimaryTaskSet "github.com/cueformation/cfn-cue/resources/h605b1e4adb551804:schema"
 
-import r327 "github.com/cueformation/cfn-cue/resources/h00afa9a1fd4462af:schema"
+import AWS_ECS_Service "github.com/cueformation/cfn-cue/resources/h00afa9a1fd4462af:schema"
 
-import r328 "github.com/cueformation/cfn-cue/resources/h263661491d78026b:schema"
+import AWS_ECS_TaskDefinition "github.com/cueformation/cfn-cue/resources/h263661491d78026b:schema"
 
-import r329 "github.com/cueformation/cfn-cue/resources/h6047a328e3e9f19a:schema"
+import AWS_ECS_TaskSet "github.com/cueformation/cfn-cue/resources/h6047a328e3e9f19a:schema"
 
-import r330 "github.com/cueformation/cfn-cue/resources/ha53f37d93e732a1c:schema"
+import AWS_EFS_AccessPoint "github.com/cueformation/cfn-cue/resources/ha53f37d93e732a1c:schema"
 
-import r331 "github.com/cueformation/cfn-cue/resources/h0eea966143f13ff3:schema"
+import AWS_EFS_FileSystem "github.com/cueformation/cfn-cue/resources/h0eea966143f13ff3:schema"
 
-import r332 "github.com/cueformation/cfn-cue/resources/ha8f9736329595729:schema"
+import AWS_EFS_MountTarget "github.com/cueformation/cfn-cue/resources/ha8f9736329595729:schema"
 
-import r333 "github.com/cueformation/cfn-cue/resources/h7e47c035c1923d24:schema"
+import AWS_EKS_AccessEntry "github.com/cueformation/cfn-cue/resources/h7e47c035c1923d24:schema"
 
-import r334 "github.com/cueformation/cfn-cue/resources/hf314492e0035bc40:schema"
+import AWS_EKS_Addon "github.com/cueformation/cfn-cue/resources/hf314492e0035bc40:schema"
 
-import r335 "github.com/cueformation/cfn-cue/resources/h6da5750a5b2e7915:schema"
+import AWS_EKS_Capability "github.com/cueformation/cfn-cue/resources/h6da5750a5b2e7915:schema"
 
-import r336 "github.com/cueformation/cfn-cue/resources/h917baacf1f83857b:schema"
+import AWS_EKS_Cluster "github.com/cueformation/cfn-cue/resources/h917baacf1f83857b:schema"
 
-import r337 "github.com/cueformation/cfn-cue/resources/ha75afed3eb49bbfc:schema"
+import AWS_EKS_FargateProfile "github.com/cueformation/cfn-cue/resources/ha75afed3eb49bbfc:schema"
 
-import r338 "github.com/cueformation/cfn-cue/resources/h8e5e730746768985:schema"
+import AWS_EKS_IdentityProviderConfig "github.com/cueformation/cfn-cue/resources/h8e5e730746768985:schema"
 
-import r339 "github.com/cueformation/cfn-cue/resources/he703fb10b42108ae:schema"
+import AWS_EKS_Nodegroup "github.com/cueformation/cfn-cue/resources/he703fb10b42108ae:schema"
 
-import r340 "github.com/cueformation/cfn-cue/resources/h5e01d53f20061640:schema"
+import AWS_EKS_PodIdentityAssociation "github.com/cueformation/cfn-cue/resources/h5e01d53f20061640:schema"
 
-import r341 "github.com/cueformation/cfn-cue/resources/hff696192057a9047:schema"
+import AWS_EMR_Cluster "github.com/cueformation/cfn-cue/resources/hff696192057a9047:schema"
 
-import r342 "github.com/cueformation/cfn-cue/resources/h89b6842129aff367:schema"
+import AWS_EMR_InstanceFleetConfig "github.com/cueformation/cfn-cue/resources/h89b6842129aff367:schema"
 
-import r343 "github.com/cueformation/cfn-cue/resources/h710bce07bfebc9a8:schema"
+import AWS_EMR_InstanceGroupConfig "github.com/cueformation/cfn-cue/resources/h710bce07bfebc9a8:schema"
 
-import r344 "github.com/cueformation/cfn-cue/resources/h2d45c2f10e0ce54a:schema"
+import AWS_EMR_SecurityConfiguration "github.com/cueformation/cfn-cue/resources/h2d45c2f10e0ce54a:schema"
 
-import r345 "github.com/cueformation/cfn-cue/resources/h3e91fede99af1931:schema"
+import AWS_EMR_Step "github.com/cueformation/cfn-cue/resources/h3e91fede99af1931:schema"
 
-import r346 "github.com/cueformation/cfn-cue/resources/hd54266a6790b938e:schema"
+import AWS_EMR_Studio "github.com/cueformation/cfn-cue/resources/hd54266a6790b938e:schema"
 
-import r347 "github.com/cueformation/cfn-cue/resources/h6a9a9d4cf6aa41b1:schema"
+import AWS_EMR_StudioSessionMapping "github.com/cueformation/cfn-cue/resources/h6a9a9d4cf6aa41b1:schema"
 
-import r348 "github.com/cueformation/cfn-cue/resources/h96f20ed069647518:schema"
+import AWS_EMRContainers_VirtualCluster "github.com/cueformation/cfn-cue/resources/h96f20ed069647518:schema"
 
-import r349 "github.com/cueformation/cfn-cue/resources/hdee48d51cddadcdb:schema"
+import AWS_EMRServerless_Application "github.com/cueformation/cfn-cue/resources/hdee48d51cddadcdb:schema"
 
-import r350 "github.com/cueformation/cfn-cue/resources/h595f574b776b9cd0:schema"
+import AWS_ElastiCache_CacheCluster "github.com/cueformation/cfn-cue/resources/h595f574b776b9cd0:schema"
 
-import r351 "github.com/cueformation/cfn-cue/resources/h9071f8180737e467:schema"
+import AWS_ElastiCache_GlobalReplicationGroup "github.com/cueformation/cfn-cue/resources/h9071f8180737e467:schema"
 
-import r352 "github.com/cueformation/cfn-cue/resources/h8892c865e009667c:schema"
+import AWS_ElastiCache_ParameterGroup "github.com/cueformation/cfn-cue/resources/h8892c865e009667c:schema"
 
-import r353 "github.com/cueformation/cfn-cue/resources/h4eaa9c534366089c:schema"
+import AWS_ElastiCache_ReplicationGroup "github.com/cueformation/cfn-cue/resources/h4eaa9c534366089c:schema"
 
-import r354 "github.com/cueformation/cfn-cue/resources/h7d004dd93412a869:schema"
+import AWS_ElastiCache_SecurityGroup "github.com/cueformation/cfn-cue/resources/h7d004dd93412a869:schema"
 
-import r355 "github.com/cueformation/cfn-cue/resources/hd97b81b13bf905fe:schema"
+import AWS_ElastiCache_SecurityGroupIngress "github.com/cueformation/cfn-cue/resources/hd97b81b13bf905fe:schema"
 
-import r356 "github.com/cueformation/cfn-cue/resources/h641c2d60092a1d34:schema"
+import AWS_ElastiCache_ServerlessCache "github.com/cueformation/cfn-cue/resources/h641c2d60092a1d34:schema"
 
-import r357 "github.com/cueformation/cfn-cue/resources/heccf6aa3b10130d3:schema"
+import AWS_ElastiCache_SubnetGroup "github.com/cueformation/cfn-cue/resources/heccf6aa3b10130d3:schema"
 
-import r358 "github.com/cueformation/cfn-cue/resources/h28bcf6cd80734861:schema"
+import AWS_ElastiCache_User "github.com/cueformation/cfn-cue/resources/h28bcf6cd80734861:schema"
 
-import r359 "github.com/cueformation/cfn-cue/resources/h1e928fbc342a3eb4:schema"
+import AWS_ElastiCache_UserGroup "github.com/cueformation/cfn-cue/resources/h1e928fbc342a3eb4:schema"
 
-import r360 "github.com/cueformation/cfn-cue/resources/hf96d8320229cabaa:schema"
+import AWS_ElasticBeanstalk_Application "github.com/cueformation/cfn-cue/resources/hf96d8320229cabaa:schema"
 
-import r361 "github.com/cueformation/cfn-cue/resources/h51838564502b859f:schema"
+import AWS_ElasticBeanstalk_ApplicationVersion "github.com/cueformation/cfn-cue/resources/h51838564502b859f:schema"
 
-import r362 "github.com/cueformation/cfn-cue/resources/h7fd41d637adce5f5:schema"
+import AWS_ElasticBeanstalk_ConfigurationTemplate "github.com/cueformation/cfn-cue/resources/h7fd41d637adce5f5:schema"
 
-import r363 "github.com/cueformation/cfn-cue/resources/h84bf9be0ad8daee7:schema"
+import AWS_ElasticBeanstalk_Environment "github.com/cueformation/cfn-cue/resources/h84bf9be0ad8daee7:schema"
 
-import r364 "github.com/cueformation/cfn-cue/resources/h2dff9a7c40260df4:schema"
+import AWS_ElasticLoadBalancing_LoadBalancer "github.com/cueformation/cfn-cue/resources/h2dff9a7c40260df4:schema"
 
-import r365 "github.com/cueformation/cfn-cue/resources/heb55c9f75299f3f2:schema"
+import AWS_ElasticLoadBalancingV2_Listener "github.com/cueformation/cfn-cue/resources/heb55c9f75299f3f2:schema"
 
-import r366 "github.com/cueformation/cfn-cue/resources/h610dbc82eec2b7a1:schema"
+import AWS_ElasticLoadBalancingV2_ListenerCertificate "github.com/cueformation/cfn-cue/resources/h610dbc82eec2b7a1:schema"
 
-import r367 "github.com/cueformation/cfn-cue/resources/h8c148f794d84b084:schema"
+import AWS_ElasticLoadBalancingV2_ListenerRule "github.com/cueformation/cfn-cue/resources/h8c148f794d84b084:schema"
 
-import r368 "github.com/cueformation/cfn-cue/resources/hf9510c7382b5ecc0:schema"
+import AWS_ElasticLoadBalancingV2_LoadBalancer "github.com/cueformation/cfn-cue/resources/hf9510c7382b5ecc0:schema"
 
-import r369 "github.com/cueformation/cfn-cue/resources/ha196aa7f6773240f:schema"
+import AWS_ElasticLoadBalancingV2_TargetGroup "github.com/cueformation/cfn-cue/resources/ha196aa7f6773240f:schema"
 
-import r370 "github.com/cueformation/cfn-cue/resources/h1c85a32871b3afdb:schema"
+import AWS_ElasticLoadBalancingV2_TrustStore "github.com/cueformation/cfn-cue/resources/h1c85a32871b3afdb:schema"
 
-import r371 "github.com/cueformation/cfn-cue/resources/h1f343ce3fddeb0d9:schema"
+import AWS_ElasticLoadBalancingV2_TrustStoreRevocation "github.com/cueformation/cfn-cue/resources/h1f343ce3fddeb0d9:schema"
 
-import r372 "github.com/cueformation/cfn-cue/resources/h1d2fa4cc1b5c1df5:schema"
+import AWS_Elasticsearch_Domain "github.com/cueformation/cfn-cue/resources/h1d2fa4cc1b5c1df5:schema"
 
-import r373 "github.com/cueformation/cfn-cue/resources/h76307344883764fa:schema"
+import AWS_EventSchemas_Discoverer "github.com/cueformation/cfn-cue/resources/h76307344883764fa:schema"
 
-import r374 "github.com/cueformation/cfn-cue/resources/hc1cdd059dc6ba4d8:schema"
+import AWS_EventSchemas_Registry "github.com/cueformation/cfn-cue/resources/hc1cdd059dc6ba4d8:schema"
 
-import r375 "github.com/cueformation/cfn-cue/resources/ha2b0d0d06b6cb98b:schema"
+import AWS_EventSchemas_RegistryPolicy "github.com/cueformation/cfn-cue/resources/ha2b0d0d06b6cb98b:schema"
 
-import r376 "github.com/cueformation/cfn-cue/resources/ha1bb44c11be9a580:schema"
+import AWS_EventSchemas_Schema "github.com/cueformation/cfn-cue/resources/ha1bb44c11be9a580:schema"
 
-import r377 "github.com/cueformation/cfn-cue/resources/h295bf65d087b9866:schema"
+import AWS_Events_ApiDestination "github.com/cueformation/cfn-cue/resources/h295bf65d087b9866:schema"
 
-import r378 "github.com/cueformation/cfn-cue/resources/hfe18cfee780735a8:schema"
+import AWS_Events_Archive "github.com/cueformation/cfn-cue/resources/hfe18cfee780735a8:schema"
 
-import r379 "github.com/cueformation/cfn-cue/resources/hd0df85968cafb831:schema"
+import AWS_Events_Connection "github.com/cueformation/cfn-cue/resources/hd0df85968cafb831:schema"
 
-import r380 "github.com/cueformation/cfn-cue/resources/heea0afdc41c6b137:schema"
+import AWS_Events_EventBus "github.com/cueformation/cfn-cue/resources/heea0afdc41c6b137:schema"
 
-import r381 "github.com/cueformation/cfn-cue/resources/h6bd505a12656a622:schema"
+import AWS_Events_EventBusPolicy "github.com/cueformation/cfn-cue/resources/h6bd505a12656a622:schema"
 
-import r382 "github.com/cueformation/cfn-cue/resources/h17f1d0bd2ac17e93:schema"
+import AWS_Events_Rule "github.com/cueformation/cfn-cue/resources/h17f1d0bd2ac17e93:schema"
 
-import r383 "github.com/cueformation/cfn-cue/resources/h54c837568ba6c32d:schema"
+import AWS_FMS_NotificationChannel "github.com/cueformation/cfn-cue/resources/h54c837568ba6c32d:schema"
 
-import r384 "github.com/cueformation/cfn-cue/resources/h1978bdf731b366e7:schema"
+import AWS_FMS_Policy "github.com/cueformation/cfn-cue/resources/h1978bdf731b366e7:schema"
 
-import r385 "github.com/cueformation/cfn-cue/resources/h5a3658f4c5dbb839:schema"
+import AWS_FMS_ResourceSet "github.com/cueformation/cfn-cue/resources/h5a3658f4c5dbb839:schema"
 
-import r386 "github.com/cueformation/cfn-cue/resources/ha5d95227915ba111:schema"
+import AWS_FSx_DataRepositoryAssociation "github.com/cueformation/cfn-cue/resources/ha5d95227915ba111:schema"
 
-import r387 "github.com/cueformation/cfn-cue/resources/heac496c3918e66ed:schema"
+import AWS_FSx_FileSystem "github.com/cueformation/cfn-cue/resources/heac496c3918e66ed:schema"
 
-import r388 "github.com/cueformation/cfn-cue/resources/h9d425a936cc2a555:schema"
+import AWS_FSx_S3AccessPointAttachment "github.com/cueformation/cfn-cue/resources/h9d425a936cc2a555:schema"
 
-import r389 "github.com/cueformation/cfn-cue/resources/h0c48a049cc8e7f7f:schema"
+import AWS_FSx_Snapshot "github.com/cueformation/cfn-cue/resources/h0c48a049cc8e7f7f:schema"
 
-import r390 "github.com/cueformation/cfn-cue/resources/hfaf1fb4e47f702af:schema"
+import AWS_FSx_StorageVirtualMachine "github.com/cueformation/cfn-cue/resources/hfaf1fb4e47f702af:schema"
 
-import r391 "github.com/cueformation/cfn-cue/resources/hd945cf18bb38cc4c:schema"
+import AWS_FSx_Volume "github.com/cueformation/cfn-cue/resources/hd945cf18bb38cc4c:schema"
 
-import r392 "github.com/cueformation/cfn-cue/resources/hfd7c67aaf6e96e34:schema"
+import AWS_FraudDetector_List "github.com/cueformation/cfn-cue/resources/hfd7c67aaf6e96e34:schema"
 
-import r393 "github.com/cueformation/cfn-cue/resources/h99d597b7662cb00b:schema"
+import AWS_GameLift_Alias "github.com/cueformation/cfn-cue/resources/h99d597b7662cb00b:schema"
 
-import r394 "github.com/cueformation/cfn-cue/resources/h05200686dbc4258c:schema"
+import AWS_GameLift_Build "github.com/cueformation/cfn-cue/resources/h05200686dbc4258c:schema"
 
-import r395 "github.com/cueformation/cfn-cue/resources/h5618adba88af8d4d:schema"
+import AWS_GameLift_Fleet "github.com/cueformation/cfn-cue/resources/h5618adba88af8d4d:schema"
 
-import r396 "github.com/cueformation/cfn-cue/resources/h0750fb1b98aaacf8:schema"
+import AWS_GameLift_GameServerGroup "github.com/cueformation/cfn-cue/resources/h0750fb1b98aaacf8:schema"
 
-import r397 "github.com/cueformation/cfn-cue/resources/h7f5c291a84675f4b:schema"
+import AWS_GameLift_GameSessionQueue "github.com/cueformation/cfn-cue/resources/h7f5c291a84675f4b:schema"
 
-import r398 "github.com/cueformation/cfn-cue/resources/hea2b53cbc1175a8d:schema"
+import AWS_GameLift_MatchmakingConfiguration "github.com/cueformation/cfn-cue/resources/hea2b53cbc1175a8d:schema"
 
-import r399 "github.com/cueformation/cfn-cue/resources/h299e6a356971f808:schema"
+import AWS_GameLift_MatchmakingRuleSet "github.com/cueformation/cfn-cue/resources/h299e6a356971f808:schema"
 
-import r400 "github.com/cueformation/cfn-cue/resources/hcde85e964f8e90f3:schema"
+import AWS_GameLift_Script "github.com/cueformation/cfn-cue/resources/hcde85e964f8e90f3:schema"
 
-import r401 "github.com/cueformation/cfn-cue/resources/h48263506212ea9cc:schema"
+import AWS_Glue_Classifier "github.com/cueformation/cfn-cue/resources/h48263506212ea9cc:schema"
 
-import r402 "github.com/cueformation/cfn-cue/resources/h0a9d8a67eb51b324:schema"
+import AWS_Glue_Connection "github.com/cueformation/cfn-cue/resources/h0a9d8a67eb51b324:schema"
 
-import r403 "github.com/cueformation/cfn-cue/resources/hd948c31be1939425:schema"
+import AWS_Glue_Crawler "github.com/cueformation/cfn-cue/resources/hd948c31be1939425:schema"
 
-import r404 "github.com/cueformation/cfn-cue/resources/h88f79f753d7d497a:schema"
+import AWS_Glue_CustomEntityType "github.com/cueformation/cfn-cue/resources/h88f79f753d7d497a:schema"
 
-import r405 "github.com/cueformation/cfn-cue/resources/h466ae77cbb08475e:schema"
+import AWS_Glue_DataCatalogEncryptionSettings "github.com/cueformation/cfn-cue/resources/h466ae77cbb08475e:schema"
 
-import r406 "github.com/cueformation/cfn-cue/resources/h0ce3af187c649454:schema"
+import AWS_Glue_DataQualityRuleset "github.com/cueformation/cfn-cue/resources/h0ce3af187c649454:schema"
 
-import r407 "github.com/cueformation/cfn-cue/resources/h36b616c0b67d67ba:schema"
+import AWS_Glue_Database "github.com/cueformation/cfn-cue/resources/h36b616c0b67d67ba:schema"
 
-import r408 "github.com/cueformation/cfn-cue/resources/he961d62e3224440d:schema"
+import AWS_Glue_DevEndpoint "github.com/cueformation/cfn-cue/resources/he961d62e3224440d:schema"
 
-import r409 "github.com/cueformation/cfn-cue/resources/h819f78390ce0312f:schema"
+import AWS_Glue_Job "github.com/cueformation/cfn-cue/resources/h819f78390ce0312f:schema"
 
-import r410 "github.com/cueformation/cfn-cue/resources/h3e5d7a4b8846cf2f:schema"
+import AWS_Glue_MLTransform "github.com/cueformation/cfn-cue/resources/h3e5d7a4b8846cf2f:schema"
 
-import r411 "github.com/cueformation/cfn-cue/resources/h70502df555a39eee:schema"
+import AWS_Glue_Partition "github.com/cueformation/cfn-cue/resources/h70502df555a39eee:schema"
 
-import r412 "github.com/cueformation/cfn-cue/resources/h5d32d92d27079c10:schema"
+import AWS_Glue_Registry "github.com/cueformation/cfn-cue/resources/h5d32d92d27079c10:schema"
 
-import r413 "github.com/cueformation/cfn-cue/resources/h3996ea98e1c13853:schema"
+import AWS_Glue_Schema "github.com/cueformation/cfn-cue/resources/h3996ea98e1c13853:schema"
 
-import r414 "github.com/cueformation/cfn-cue/resources/haa7ebc42c3390e9e:schema"
+import AWS_Glue_SchemaVersion "github.com/cueformation/cfn-cue/resources/haa7ebc42c3390e9e:schema"
 
-import r415 "github.com/cueformation/cfn-cue/resources/h9bbf2792300be660:schema"
+import AWS_Glue_SchemaVersionMetadata "github.com/cueformation/cfn-cue/resources/h9bbf2792300be660:schema"
 
-import r416 "github.com/cueformation/cfn-cue/resources/h69770719902b8e29:schema"
+import AWS_Glue_SecurityConfiguration "github.com/cueformation/cfn-cue/resources/h69770719902b8e29:schema"
 
-import r417 "github.com/cueformation/cfn-cue/resources/h1718ad5c5cea8f51:schema"
+import AWS_Glue_Table "github.com/cueformation/cfn-cue/resources/h1718ad5c5cea8f51:schema"
 
-import r418 "github.com/cueformation/cfn-cue/resources/hdb3bfd4c3c601286:schema"
+import AWS_Glue_Trigger "github.com/cueformation/cfn-cue/resources/hdb3bfd4c3c601286:schema"
 
-import r419 "github.com/cueformation/cfn-cue/resources/h5ae4637b607e3a4e:schema"
+import AWS_Glue_Workflow "github.com/cueformation/cfn-cue/resources/h5ae4637b607e3a4e:schema"
 
-import r420 "github.com/cueformation/cfn-cue/resources/hd1cb1e0503b5cd46:schema"
+import AWS_GuardDuty_CustomDetectionRuleAssociation "github.com/cueformation/cfn-cue/resources/hd1cb1e0503b5cd46:schema"
 
-import r421 "github.com/cueformation/cfn-cue/resources/h9d2e78c1e9a7cc51:schema"
+import AWS_GuardDuty_Detector "github.com/cueformation/cfn-cue/resources/h9d2e78c1e9a7cc51:schema"
 
-import r422 "github.com/cueformation/cfn-cue/resources/hb46e9c9cc74333d9:schema"
+import AWS_GuardDuty_Filter "github.com/cueformation/cfn-cue/resources/hb46e9c9cc74333d9:schema"
 
-import r423 "github.com/cueformation/cfn-cue/resources/hc86d7c9fe6d1ac28:schema"
+import AWS_GuardDuty_IPSet "github.com/cueformation/cfn-cue/resources/hc86d7c9fe6d1ac28:schema"
 
-import r424 "github.com/cueformation/cfn-cue/resources/h83bf24150c207080:schema"
+import AWS_GuardDuty_MalwareProtectionPlan "github.com/cueformation/cfn-cue/resources/h83bf24150c207080:schema"
 
-import r425 "github.com/cueformation/cfn-cue/resources/h5d39340332afbe8f:schema"
+import AWS_GuardDuty_Master "github.com/cueformation/cfn-cue/resources/h5d39340332afbe8f:schema"
 
-import r426 "github.com/cueformation/cfn-cue/resources/h7f2f51c3e29594e7:schema"
+import AWS_GuardDuty_Member "github.com/cueformation/cfn-cue/resources/h7f2f51c3e29594e7:schema"
 
-import r427 "github.com/cueformation/cfn-cue/resources/h46b1ab9303339ea5:schema"
+import AWS_GuardDuty_PublishingDestination "github.com/cueformation/cfn-cue/resources/h46b1ab9303339ea5:schema"
 
-import r428 "github.com/cueformation/cfn-cue/resources/h83cc68ce81715d40:schema"
+import AWS_GuardDuty_ThreatIntelSet "github.com/cueformation/cfn-cue/resources/h83cc68ce81715d40:schema"
 
-import r429 "github.com/cueformation/cfn-cue/resources/hbf29289b78d371e3:schema"
+import AWS_IAM_AccessKey "github.com/cueformation/cfn-cue/resources/hbf29289b78d371e3:schema"
 
-import r430 "github.com/cueformation/cfn-cue/resources/h2fe3370385a93df2:schema"
+import AWS_IAM_Group "github.com/cueformation/cfn-cue/resources/h2fe3370385a93df2:schema"
 
-import r431 "github.com/cueformation/cfn-cue/resources/h7411630ceb083532:schema"
+import AWS_IAM_GroupPolicy "github.com/cueformation/cfn-cue/resources/h7411630ceb083532:schema"
 
-import r432 "github.com/cueformation/cfn-cue/resources/h9d171bee0cc0e2fc:schema"
+import AWS_IAM_InstanceProfile "github.com/cueformation/cfn-cue/resources/h9d171bee0cc0e2fc:schema"
 
-import r433 "github.com/cueformation/cfn-cue/resources/hae87aa4d2d4547c9:schema"
+import AWS_IAM_ManagedPolicy "github.com/cueformation/cfn-cue/resources/hae87aa4d2d4547c9:schema"
 
-import r434 "github.com/cueformation/cfn-cue/resources/h05cdf3ac965f476a:schema"
+import AWS_IAM_OIDCProvider "github.com/cueformation/cfn-cue/resources/h05cdf3ac965f476a:schema"
 
-import r435 "github.com/cueformation/cfn-cue/resources/he5e537f8148deae4:schema"
+import AWS_IAM_Policy "github.com/cueformation/cfn-cue/resources/he5e537f8148deae4:schema"
 
-import r436 "github.com/cueformation/cfn-cue/resources/hfc1cc88c36933c6f:schema"
+import AWS_IAM_Role "github.com/cueformation/cfn-cue/resources/hfc1cc88c36933c6f:schema"
 
-import r437 "github.com/cueformation/cfn-cue/resources/hd930ea4463e25855:schema"
+import AWS_IAM_RolePolicy "github.com/cueformation/cfn-cue/resources/hd930ea4463e25855:schema"
 
-import r438 "github.com/cueformation/cfn-cue/resources/heae891304b25d36e:schema"
+import AWS_IAM_SAMLProvider "github.com/cueformation/cfn-cue/resources/heae891304b25d36e:schema"
 
-import r439 "github.com/cueformation/cfn-cue/resources/heae03209bf1fdb48:schema"
+import AWS_IAM_ServerCertificate "github.com/cueformation/cfn-cue/resources/heae03209bf1fdb48:schema"
 
-import r440 "github.com/cueformation/cfn-cue/resources/h0f32d2585ee03d53:schema"
+import AWS_IAM_ServiceLinkedRole "github.com/cueformation/cfn-cue/resources/h0f32d2585ee03d53:schema"
 
-import r441 "github.com/cueformation/cfn-cue/resources/h35316a53b46073cf:schema"
+import AWS_IAM_User "github.com/cueformation/cfn-cue/resources/h35316a53b46073cf:schema"
 
-import r442 "github.com/cueformation/cfn-cue/resources/hc759e29d2e6e0d0f:schema"
+import AWS_IAM_UserPolicy "github.com/cueformation/cfn-cue/resources/hc759e29d2e6e0d0f:schema"
 
-import r443 "github.com/cueformation/cfn-cue/resources/hc2f159876b94abb1:schema"
+import AWS_IAM_UserToGroupAddition "github.com/cueformation/cfn-cue/resources/hc2f159876b94abb1:schema"
 
-import r444 "github.com/cueformation/cfn-cue/resources/h07b42d36f86250f6:schema"
+import AWS_IAM_VirtualMFADevice "github.com/cueformation/cfn-cue/resources/h07b42d36f86250f6:schema"
 
-import r445 "github.com/cueformation/cfn-cue/resources/h27a9a4f9fc816c71:schema"
+import AWS_IdentityStore_Group "github.com/cueformation/cfn-cue/resources/h27a9a4f9fc816c71:schema"
 
-import r446 "github.com/cueformation/cfn-cue/resources/h08b78af964a0ff2f:schema"
+import AWS_IdentityStore_GroupMembership "github.com/cueformation/cfn-cue/resources/h08b78af964a0ff2f:schema"
 
-import r447 "github.com/cueformation/cfn-cue/resources/h6885175a1bba3a7c:schema"
+import AWS_ImageBuilder_Component "github.com/cueformation/cfn-cue/resources/h6885175a1bba3a7c:schema"
 
-import r448 "github.com/cueformation/cfn-cue/resources/h36b93d14d6c8fddd:schema"
+import AWS_ImageBuilder_ContainerRecipe "github.com/cueformation/cfn-cue/resources/h36b93d14d6c8fddd:schema"
 
-import r449 "github.com/cueformation/cfn-cue/resources/h572f77c618232490:schema"
+import AWS_ImageBuilder_DistributionConfiguration "github.com/cueformation/cfn-cue/resources/h572f77c618232490:schema"
 
-import r450 "github.com/cueformation/cfn-cue/resources/habd1636078c26c31:schema"
+import AWS_ImageBuilder_Image "github.com/cueformation/cfn-cue/resources/habd1636078c26c31:schema"
 
-import r451 "github.com/cueformation/cfn-cue/resources/h36d50bec7a410d26:schema"
+import AWS_ImageBuilder_ImagePipeline "github.com/cueformation/cfn-cue/resources/h36d50bec7a410d26:schema"
 
-import r452 "github.com/cueformation/cfn-cue/resources/h2f23f8fa69bffed9:schema"
+import AWS_ImageBuilder_ImageRecipe "github.com/cueformation/cfn-cue/resources/h2f23f8fa69bffed9:schema"
 
-import r453 "github.com/cueformation/cfn-cue/resources/h8ad3fefc08e93b3c:schema"
+import AWS_ImageBuilder_InfrastructureConfiguration "github.com/cueformation/cfn-cue/resources/h8ad3fefc08e93b3c:schema"
 
-import r454 "github.com/cueformation/cfn-cue/resources/hdd4923c5796a9923:schema"
+import AWS_ImageBuilder_LifecyclePolicy "github.com/cueformation/cfn-cue/resources/hdd4923c5796a9923:schema"
 
-import r455 "github.com/cueformation/cfn-cue/resources/h73f9634cc7bb6738:schema"
+import AWS_ImageBuilder_Workflow "github.com/cueformation/cfn-cue/resources/h73f9634cc7bb6738:schema"
 
-import r456 "github.com/cueformation/cfn-cue/resources/hd89a8d8e4acdbd1e:schema"
+import AWS_IoT_AccountAuditConfiguration "github.com/cueformation/cfn-cue/resources/hd89a8d8e4acdbd1e:schema"
 
-import r457 "github.com/cueformation/cfn-cue/resources/h74cef89d4580f46c:schema"
+import AWS_IoT_Authorizer "github.com/cueformation/cfn-cue/resources/h74cef89d4580f46c:schema"
 
-import r458 "github.com/cueformation/cfn-cue/resources/h18ec936b741e5837:schema"
+import AWS_IoT_BillingGroup "github.com/cueformation/cfn-cue/resources/h18ec936b741e5837:schema"
 
-import r459 "github.com/cueformation/cfn-cue/resources/h84c94f99240784fe:schema"
+import AWS_IoT_CACertificate "github.com/cueformation/cfn-cue/resources/h84c94f99240784fe:schema"
 
-import r460 "github.com/cueformation/cfn-cue/resources/h992e0eda44ae9478:schema"
+import AWS_IoT_Certificate "github.com/cueformation/cfn-cue/resources/h992e0eda44ae9478:schema"
 
-import r461 "github.com/cueformation/cfn-cue/resources/h454884084d2f439a:schema"
+import AWS_IoT_CertificateProvider "github.com/cueformation/cfn-cue/resources/h454884084d2f439a:schema"
 
-import r462 "github.com/cueformation/cfn-cue/resources/had4585b6643f1d78:schema"
+import AWS_IoT_Command "github.com/cueformation/cfn-cue/resources/had4585b6643f1d78:schema"
 
-import r463 "github.com/cueformation/cfn-cue/resources/h172c4ac321a37b38:schema"
+import AWS_IoT_CustomMetric "github.com/cueformation/cfn-cue/resources/h172c4ac321a37b38:schema"
 
-import r464 "github.com/cueformation/cfn-cue/resources/h7d3515f80e8746fe:schema"
+import AWS_IoT_Dimension "github.com/cueformation/cfn-cue/resources/h7d3515f80e8746fe:schema"
 
-import r465 "github.com/cueformation/cfn-cue/resources/hecae0ee7068b46f4:schema"
+import AWS_IoT_DomainConfiguration "github.com/cueformation/cfn-cue/resources/hecae0ee7068b46f4:schema"
 
-import r466 "github.com/cueformation/cfn-cue/resources/h6ad2580b260c5036:schema"
+import AWS_IoT_EncryptionConfiguration "github.com/cueformation/cfn-cue/resources/h6ad2580b260c5036:schema"
 
-import r467 "github.com/cueformation/cfn-cue/resources/h4d6cc3612d7c627f:schema"
+import AWS_IoT_FleetMetric "github.com/cueformation/cfn-cue/resources/h4d6cc3612d7c627f:schema"
 
-import r468 "github.com/cueformation/cfn-cue/resources/h6541279df1dcbaa7:schema"
+import AWS_IoT_JobTemplate "github.com/cueformation/cfn-cue/resources/h6541279df1dcbaa7:schema"
 
-import r469 "github.com/cueformation/cfn-cue/resources/h804884d60b13baa9:schema"
+import AWS_IoT_Logging "github.com/cueformation/cfn-cue/resources/h804884d60b13baa9:schema"
 
-import r470 "github.com/cueformation/cfn-cue/resources/hb0e8beeec5c66540:schema"
+import AWS_IoT_MitigationAction "github.com/cueformation/cfn-cue/resources/hb0e8beeec5c66540:schema"
 
-import r471 "github.com/cueformation/cfn-cue/resources/hdbe5fa8fff819ab0:schema"
+import AWS_IoT_Policy "github.com/cueformation/cfn-cue/resources/hdbe5fa8fff819ab0:schema"
 
-import r472 "github.com/cueformation/cfn-cue/resources/h57ec8db882df340d:schema"
+import AWS_IoT_PolicyPrincipalAttachment "github.com/cueformation/cfn-cue/resources/h57ec8db882df340d:schema"
 
-import r473 "github.com/cueformation/cfn-cue/resources/hc1873e337cf46f86:schema"
+import AWS_IoT_ProvisioningTemplate "github.com/cueformation/cfn-cue/resources/hc1873e337cf46f86:schema"
 
-import r474 "github.com/cueformation/cfn-cue/resources/h0653c05fcc577ff1:schema"
+import AWS_IoT_ResourceSpecificLogging "github.com/cueformation/cfn-cue/resources/h0653c05fcc577ff1:schema"
 
-import r475 "github.com/cueformation/cfn-cue/resources/hbc18c29b3da592ee:schema"
+import AWS_IoT_RoleAlias "github.com/cueformation/cfn-cue/resources/hbc18c29b3da592ee:schema"
 
-import r476 "github.com/cueformation/cfn-cue/resources/h6ddcbeea91b54d89:schema"
+import AWS_IoT_ScheduledAudit "github.com/cueformation/cfn-cue/resources/h6ddcbeea91b54d89:schema"
 
-import r477 "github.com/cueformation/cfn-cue/resources/hfcfbbb4fe231e947:schema"
+import AWS_IoT_SecurityProfile "github.com/cueformation/cfn-cue/resources/hfcfbbb4fe231e947:schema"
 
-import r478 "github.com/cueformation/cfn-cue/resources/h402a236bc05b2da7:schema"
+import AWS_IoT_SoftwarePackage "github.com/cueformation/cfn-cue/resources/h402a236bc05b2da7:schema"
 
-import r479 "github.com/cueformation/cfn-cue/resources/ha6252129f7c7a4ab:schema"
+import AWS_IoT_SoftwarePackageVersion "github.com/cueformation/cfn-cue/resources/ha6252129f7c7a4ab:schema"
 
-import r480 "github.com/cueformation/cfn-cue/resources/h19c035414d35169f:schema"
+import AWS_IoT_Thing "github.com/cueformation/cfn-cue/resources/h19c035414d35169f:schema"
 
-import r481 "github.com/cueformation/cfn-cue/resources/hfd8787503df01324:schema"
+import AWS_IoT_ThingGroup "github.com/cueformation/cfn-cue/resources/hfd8787503df01324:schema"
 
-import r482 "github.com/cueformation/cfn-cue/resources/h6ff48bff31f461dd:schema"
+import AWS_IoT_ThingPrincipalAttachment "github.com/cueformation/cfn-cue/resources/h6ff48bff31f461dd:schema"
 
-import r483 "github.com/cueformation/cfn-cue/resources/hf5c414b55a8c31ac:schema"
+import AWS_IoT_ThingType "github.com/cueformation/cfn-cue/resources/hf5c414b55a8c31ac:schema"
 
-import r484 "github.com/cueformation/cfn-cue/resources/h55084ac78d9eab9f:schema"
+import AWS_IoT_TopicRule "github.com/cueformation/cfn-cue/resources/h55084ac78d9eab9f:schema"
 
-import r485 "github.com/cueformation/cfn-cue/resources/hfea6647126c9c089:schema"
+import AWS_IoT_TopicRuleDestination "github.com/cueformation/cfn-cue/resources/hfea6647126c9c089:schema"
 
-import r486 "github.com/cueformation/cfn-cue/resources/hca6029e89757759d:schema"
+import AWS_KMS_Alias "github.com/cueformation/cfn-cue/resources/hca6029e89757759d:schema"
 
-import r487 "github.com/cueformation/cfn-cue/resources/h88e734780d711c68:schema"
+import AWS_KMS_Key "github.com/cueformation/cfn-cue/resources/h88e734780d711c68:schema"
 
-import r488 "github.com/cueformation/cfn-cue/resources/h216a91122ed4b612:schema"
+import AWS_KMS_ReplicaKey "github.com/cueformation/cfn-cue/resources/h216a91122ed4b612:schema"
 
-import r489 "github.com/cueformation/cfn-cue/resources/he3bbb844de16a6cb:schema"
+import AWS_KafkaConnect_Connector "github.com/cueformation/cfn-cue/resources/he3bbb844de16a6cb:schema"
 
-import r490 "github.com/cueformation/cfn-cue/resources/h0eca37390a4279c2:schema"
+import AWS_KafkaConnect_CustomPlugin "github.com/cueformation/cfn-cue/resources/h0eca37390a4279c2:schema"
 
-import r491 "github.com/cueformation/cfn-cue/resources/hd1b346937bacaa70:schema"
+import AWS_KafkaConnect_WorkerConfiguration "github.com/cueformation/cfn-cue/resources/hd1b346937bacaa70:schema"
 
-import r492 "github.com/cueformation/cfn-cue/resources/h1ad161adc132b7a0:schema"
+import AWS_Kinesis_Channel "github.com/cueformation/cfn-cue/resources/h1ad161adc132b7a0:schema"
 
-import r493 "github.com/cueformation/cfn-cue/resources/h9b58a6222dcad127:schema"
+import AWS_Kinesis_ResourcePolicy "github.com/cueformation/cfn-cue/resources/h9b58a6222dcad127:schema"
 
-import r494 "github.com/cueformation/cfn-cue/resources/hbfcac9d3fd69f2e4:schema"
+import AWS_Kinesis_Stream "github.com/cueformation/cfn-cue/resources/hbfcac9d3fd69f2e4:schema"
 
-import r495 "github.com/cueformation/cfn-cue/resources/h29df358ec7c3fd44:schema"
+import AWS_Kinesis_StreamConsumer "github.com/cueformation/cfn-cue/resources/h29df358ec7c3fd44:schema"
 
-import r496 "github.com/cueformation/cfn-cue/resources/h2a7b8e0a5cc3feea:schema"
+import AWS_KinesisAnalytics_Application "github.com/cueformation/cfn-cue/resources/h2a7b8e0a5cc3feea:schema"
 
-import r497 "github.com/cueformation/cfn-cue/resources/h039ebf99a9132a5f:schema"
+import AWS_KinesisAnalytics_ApplicationOutput "github.com/cueformation/cfn-cue/resources/h039ebf99a9132a5f:schema"
 
-import r498 "github.com/cueformation/cfn-cue/resources/h7b038fb8710cf564:schema"
+import AWS_KinesisAnalytics_ApplicationReferenceDataSource "github.com/cueformation/cfn-cue/resources/h7b038fb8710cf564:schema"
 
-import r499 "github.com/cueformation/cfn-cue/resources/h83d2f749647610ea:schema"
+import AWS_KinesisAnalyticsV2_Application "github.com/cueformation/cfn-cue/resources/h83d2f749647610ea:schema"
 
-import r500 "github.com/cueformation/cfn-cue/resources/h585df99626fb3fe9:schema"
+import AWS_KinesisAnalyticsV2_ApplicationCloudWatchLoggingOption "github.com/cueformation/cfn-cue/resources/h585df99626fb3fe9:schema"
 
-import r501 "github.com/cueformation/cfn-cue/resources/h3d1d9422c21fb190:schema"
+import AWS_KinesisAnalyticsV2_ApplicationOutput "github.com/cueformation/cfn-cue/resources/h3d1d9422c21fb190:schema"
 
-import r502 "github.com/cueformation/cfn-cue/resources/h1732375018865dc5:schema"
+import AWS_KinesisAnalyticsV2_ApplicationReferenceDataSource "github.com/cueformation/cfn-cue/resources/h1732375018865dc5:schema"
 
-import r503 "github.com/cueformation/cfn-cue/resources/hc0ff0185e6e75ecb:schema"
+import AWS_KinesisFirehose_DeliveryStream "github.com/cueformation/cfn-cue/resources/hc0ff0185e6e75ecb:schema"
 
-import r504 "github.com/cueformation/cfn-cue/resources/h83f071da734a928d:schema"
+import AWS_LakeFormation_DataCellsFilter "github.com/cueformation/cfn-cue/resources/h83f071da734a928d:schema"
 
-import r505 "github.com/cueformation/cfn-cue/resources/hfed0256dd0aa5243:schema"
+import AWS_LakeFormation_DataLakeSettings "github.com/cueformation/cfn-cue/resources/hfed0256dd0aa5243:schema"
 
-import r506 "github.com/cueformation/cfn-cue/resources/hd61e158d46659c77:schema"
+import AWS_LakeFormation_Permissions "github.com/cueformation/cfn-cue/resources/hd61e158d46659c77:schema"
 
-import r507 "github.com/cueformation/cfn-cue/resources/h8109a11f8eafa3bc:schema"
+import AWS_LakeFormation_PrincipalPermissions "github.com/cueformation/cfn-cue/resources/h8109a11f8eafa3bc:schema"
 
-import r508 "github.com/cueformation/cfn-cue/resources/h75fc7a22b8787b80:schema"
+import AWS_LakeFormation_Resource "github.com/cueformation/cfn-cue/resources/h75fc7a22b8787b80:schema"
 
-import r509 "github.com/cueformation/cfn-cue/resources/hdf0671c90a558eda:schema"
+import AWS_LakeFormation_Tag "github.com/cueformation/cfn-cue/resources/hdf0671c90a558eda:schema"
 
-import r510 "github.com/cueformation/cfn-cue/resources/h92a084c8695611f2:schema"
+import AWS_LakeFormation_TagAssociation "github.com/cueformation/cfn-cue/resources/h92a084c8695611f2:schema"
 
-import r511 "github.com/cueformation/cfn-cue/resources/h74987fe4d8f50ef4:schema"
+import AWS_Lambda_Alias "github.com/cueformation/cfn-cue/resources/h74987fe4d8f50ef4:schema"
 
-import r512 "github.com/cueformation/cfn-cue/resources/hca99e9ad0da87f1b:schema"
+import AWS_Lambda_EventInvokeConfig "github.com/cueformation/cfn-cue/resources/hca99e9ad0da87f1b:schema"
 
-import r513 "github.com/cueformation/cfn-cue/resources/hfda57d3016dc05c0:schema"
+import AWS_Lambda_EventSourceMapping "github.com/cueformation/cfn-cue/resources/hfda57d3016dc05c0:schema"
 
-import r514 "github.com/cueformation/cfn-cue/resources/h137fa0c392feb97f:schema"
+import AWS_Lambda_Function "github.com/cueformation/cfn-cue/resources/h137fa0c392feb97f:schema"
 
-import r515 "github.com/cueformation/cfn-cue/resources/h1011bdf74150da50:schema"
+import AWS_Lambda_LayerVersion "github.com/cueformation/cfn-cue/resources/h1011bdf74150da50:schema"
 
-import r516 "github.com/cueformation/cfn-cue/resources/h5aba518695ee3931:schema"
+import AWS_Lambda_LayerVersionPermission "github.com/cueformation/cfn-cue/resources/h5aba518695ee3931:schema"
 
-import r517 "github.com/cueformation/cfn-cue/resources/h273a66a590dfa9f0:schema"
+import AWS_Lambda_Permission "github.com/cueformation/cfn-cue/resources/h273a66a590dfa9f0:schema"
 
-import r518 "github.com/cueformation/cfn-cue/resources/h2bb0ad3a1fae9e7b:schema"
+import AWS_Lambda_Version "github.com/cueformation/cfn-cue/resources/h2bb0ad3a1fae9e7b:schema"
 
-import r519 "github.com/cueformation/cfn-cue/resources/h77a800a4494fac95:schema"
+import AWS_LaunchWizard_Deployment "github.com/cueformation/cfn-cue/resources/h77a800a4494fac95:schema"
 
-import r520 "github.com/cueformation/cfn-cue/resources/hea646fd6d5717092:schema"
+import AWS_Logs_AccountPolicy "github.com/cueformation/cfn-cue/resources/hea646fd6d5717092:schema"
 
-import r521 "github.com/cueformation/cfn-cue/resources/h409b2fa45e9e1172:schema"
+import AWS_Logs_Delivery "github.com/cueformation/cfn-cue/resources/h409b2fa45e9e1172:schema"
 
-import r522 "github.com/cueformation/cfn-cue/resources/hca0a7f6abd27d592:schema"
+import AWS_Logs_DeliveryDestination "github.com/cueformation/cfn-cue/resources/hca0a7f6abd27d592:schema"
 
-import r523 "github.com/cueformation/cfn-cue/resources/ha8254b2e69e687eb:schema"
+import AWS_Logs_DeliverySource "github.com/cueformation/cfn-cue/resources/ha8254b2e69e687eb:schema"
 
-import r524 "github.com/cueformation/cfn-cue/resources/h3ba9ed20f78c7eca:schema"
+import AWS_Logs_Destination "github.com/cueformation/cfn-cue/resources/h3ba9ed20f78c7eca:schema"
 
-import r525 "github.com/cueformation/cfn-cue/resources/h8614d83fb64a3f33:schema"
+import AWS_Logs_LogGroup "github.com/cueformation/cfn-cue/resources/h8614d83fb64a3f33:schema"
 
-import r526 "github.com/cueformation/cfn-cue/resources/h7d6c7fa55c5f9ad4:schema"
+import AWS_Logs_LogStream "github.com/cueformation/cfn-cue/resources/h7d6c7fa55c5f9ad4:schema"
 
-import r527 "github.com/cueformation/cfn-cue/resources/h486e9657f2eb4e0e:schema"
+import AWS_Logs_MetricFilter "github.com/cueformation/cfn-cue/resources/h486e9657f2eb4e0e:schema"
 
-import r528 "github.com/cueformation/cfn-cue/resources/h9f91a8cf18531dd5:schema"
+import AWS_Logs_QueryDefinition "github.com/cueformation/cfn-cue/resources/h9f91a8cf18531dd5:schema"
 
-import r529 "github.com/cueformation/cfn-cue/resources/h0f275b33894abe0b:schema"
+import AWS_Logs_ResourcePolicy "github.com/cueformation/cfn-cue/resources/h0f275b33894abe0b:schema"
 
-import r530 "github.com/cueformation/cfn-cue/resources/hf699de1429130d15:schema"
+import AWS_Logs_SubscriptionFilter "github.com/cueformation/cfn-cue/resources/hf699de1429130d15:schema"
 
-import r531 "github.com/cueformation/cfn-cue/resources/h05fedab9f86384e2:schema"
+import AWS_Logs_Transformer "github.com/cueformation/cfn-cue/resources/h05fedab9f86384e2:schema"
 
-import r532 "github.com/cueformation/cfn-cue/resources/hb68c9a1a87dfd16e:schema"
+import AWS_MSK_BatchScramSecret "github.com/cueformation/cfn-cue/resources/hb68c9a1a87dfd16e:schema"
 
-import r533 "github.com/cueformation/cfn-cue/resources/h21cf338a47e18bcd:schema"
+import AWS_MSK_Channel "github.com/cueformation/cfn-cue/resources/h21cf338a47e18bcd:schema"
 
-import r534 "github.com/cueformation/cfn-cue/resources/h54208828ed9bbe65:schema"
+import AWS_MSK_Cluster "github.com/cueformation/cfn-cue/resources/h54208828ed9bbe65:schema"
 
-import r535 "github.com/cueformation/cfn-cue/resources/hd40e94d96303d9e8:schema"
+import AWS_MSK_ClusterPolicy "github.com/cueformation/cfn-cue/resources/hd40e94d96303d9e8:schema"
 
-import r536 "github.com/cueformation/cfn-cue/resources/h5ae3322e28167abc:schema"
+import AWS_MSK_Configuration "github.com/cueformation/cfn-cue/resources/h5ae3322e28167abc:schema"
 
-import r537 "github.com/cueformation/cfn-cue/resources/h035c0b2017cea15e:schema"
+import AWS_MSK_Replicator "github.com/cueformation/cfn-cue/resources/h035c0b2017cea15e:schema"
 
-import r538 "github.com/cueformation/cfn-cue/resources/h4e1e433bc3e17d78:schema"
+import AWS_MSK_ServerlessCluster "github.com/cueformation/cfn-cue/resources/h4e1e433bc3e17d78:schema"
 
-import r539 "github.com/cueformation/cfn-cue/resources/h3894c444e76ce4c7:schema"
+import AWS_MSK_Topic "github.com/cueformation/cfn-cue/resources/h3894c444e76ce4c7:schema"
 
-import r540 "github.com/cueformation/cfn-cue/resources/h5f6067e7b683be93:schema"
+import AWS_MSK_VpcConnection "github.com/cueformation/cfn-cue/resources/h5f6067e7b683be93:schema"
 
-import r541 "github.com/cueformation/cfn-cue/resources/h0dc278ecc548cce6:schema"
+import AWS_MWAA_Environment "github.com/cueformation/cfn-cue/resources/h0dc278ecc548cce6:schema"
 
-import r542 "github.com/cueformation/cfn-cue/resources/h1df619b3eef4cb87:schema"
+import AWS_MediaConvert_JobTemplate "github.com/cueformation/cfn-cue/resources/h1df619b3eef4cb87:schema"
 
-import r543 "github.com/cueformation/cfn-cue/resources/h7216772f333bfde7:schema"
+import AWS_MediaConvert_Preset "github.com/cueformation/cfn-cue/resources/h7216772f333bfde7:schema"
 
-import r544 "github.com/cueformation/cfn-cue/resources/hf8486aba41b2d2d4:schema"
+import AWS_MediaConvert_Queue "github.com/cueformation/cfn-cue/resources/hf8486aba41b2d2d4:schema"
 
-import r545 "github.com/cueformation/cfn-cue/resources/h799a15a6b8302a51:schema"
+import AWS_MemoryDB_ACL "github.com/cueformation/cfn-cue/resources/h799a15a6b8302a51:schema"
 
-import r546 "github.com/cueformation/cfn-cue/resources/h6998cc156e6c786a:schema"
+import AWS_MemoryDB_Cluster "github.com/cueformation/cfn-cue/resources/h6998cc156e6c786a:schema"
 
-import r547 "github.com/cueformation/cfn-cue/resources/hd79cb2df1cf2dab5:schema"
+import AWS_MemoryDB_ParameterGroup "github.com/cueformation/cfn-cue/resources/hd79cb2df1cf2dab5:schema"
 
-import r548 "github.com/cueformation/cfn-cue/resources/h7c53f6de6f4da7d5:schema"
+import AWS_MemoryDB_SubnetGroup "github.com/cueformation/cfn-cue/resources/h7c53f6de6f4da7d5:schema"
 
-import r549 "github.com/cueformation/cfn-cue/resources/hb2e3bf6167dffb85:schema"
+import AWS_MemoryDB_User "github.com/cueformation/cfn-cue/resources/hb2e3bf6167dffb85:schema"
 
-import r550 "github.com/cueformation/cfn-cue/resources/h9aee50684db42ea5:schema"
+import AWS_Neptune_DBCluster "github.com/cueformation/cfn-cue/resources/h9aee50684db42ea5:schema"
 
-import r551 "github.com/cueformation/cfn-cue/resources/h77d1ce7a419af665:schema"
+import AWS_Neptune_DBClusterParameterGroup "github.com/cueformation/cfn-cue/resources/h77d1ce7a419af665:schema"
 
-import r552 "github.com/cueformation/cfn-cue/resources/h4c25b4d95fc07601:schema"
+import AWS_Neptune_DBInstance "github.com/cueformation/cfn-cue/resources/h4c25b4d95fc07601:schema"
 
-import r553 "github.com/cueformation/cfn-cue/resources/h688232d41764c3a1:schema"
+import AWS_Neptune_DBParameterGroup "github.com/cueformation/cfn-cue/resources/h688232d41764c3a1:schema"
 
-import r554 "github.com/cueformation/cfn-cue/resources/hde37a9e8650be191:schema"
+import AWS_Neptune_DBSubnetGroup "github.com/cueformation/cfn-cue/resources/hde37a9e8650be191:schema"
 
-import r555 "github.com/cueformation/cfn-cue/resources/h82a05480e982c516:schema"
+import AWS_Neptune_EventSubscription "github.com/cueformation/cfn-cue/resources/h82a05480e982c516:schema"
 
-import r556 "github.com/cueformation/cfn-cue/resources/h5a9db56d38ad6f4f:schema"
+import AWS_NetworkFirewall_Firewall "github.com/cueformation/cfn-cue/resources/h5a9db56d38ad6f4f:schema"
 
-import r557 "github.com/cueformation/cfn-cue/resources/h4ffb7547dfe4221f:schema"
+import AWS_NetworkFirewall_FirewallPolicy "github.com/cueformation/cfn-cue/resources/h4ffb7547dfe4221f:schema"
 
-import r558 "github.com/cueformation/cfn-cue/resources/h874a8bf8979376a2:schema"
+import AWS_NetworkFirewall_LoggingConfiguration "github.com/cueformation/cfn-cue/resources/h874a8bf8979376a2:schema"
 
-import r559 "github.com/cueformation/cfn-cue/resources/h03dbdf25d7f24ad1:schema"
+import AWS_NetworkFirewall_RuleGroup "github.com/cueformation/cfn-cue/resources/h03dbdf25d7f24ad1:schema"
 
-import r560 "github.com/cueformation/cfn-cue/resources/h63e4ebec4c054501:schema"
+import AWS_NetworkFirewall_TLSInspectionConfiguration "github.com/cueformation/cfn-cue/resources/h63e4ebec4c054501:schema"
 
-import r561 "github.com/cueformation/cfn-cue/resources/h3b73812fae6beb98:schema"
+import AWS_NetworkFirewall_VpcEndpointAssociation "github.com/cueformation/cfn-cue/resources/h3b73812fae6beb98:schema"
 
-import r562 "github.com/cueformation/cfn-cue/resources/he3df593828bb9581:schema"
+import AWS_Oam_Link "github.com/cueformation/cfn-cue/resources/he3df593828bb9581:schema"
 
-import r563 "github.com/cueformation/cfn-cue/resources/ha160cdc0122188c9:schema"
+import AWS_Oam_Sink "github.com/cueformation/cfn-cue/resources/ha160cdc0122188c9:schema"
 
-import r564 "github.com/cueformation/cfn-cue/resources/h57137d27787545b3:schema"
+import AWS_OpenSearchService_Domain "github.com/cueformation/cfn-cue/resources/h57137d27787545b3:schema"
 
-import r565 "github.com/cueformation/cfn-cue/resources/h62d6ef0c614c7ca8:schema"
+import AWS_Organizations_Account "github.com/cueformation/cfn-cue/resources/h62d6ef0c614c7ca8:schema"
 
-import r566 "github.com/cueformation/cfn-cue/resources/h330ed7e80a4bce4d:schema"
+import AWS_Organizations_Organization "github.com/cueformation/cfn-cue/resources/h330ed7e80a4bce4d:schema"
 
-import r567 "github.com/cueformation/cfn-cue/resources/h8ef0d1fd27314ac0:schema"
+import AWS_Organizations_OrganizationalUnit "github.com/cueformation/cfn-cue/resources/h8ef0d1fd27314ac0:schema"
 
-import r568 "github.com/cueformation/cfn-cue/resources/h926ee4e57e46d2c8:schema"
+import AWS_Organizations_Policy "github.com/cueformation/cfn-cue/resources/h926ee4e57e46d2c8:schema"
 
-import r569 "github.com/cueformation/cfn-cue/resources/h7b2e4da1706db8e6:schema"
+import AWS_Organizations_ResourcePolicy "github.com/cueformation/cfn-cue/resources/h7b2e4da1706db8e6:schema"
 
-import r570 "github.com/cueformation/cfn-cue/resources/hff7d5431367e8660:schema"
+import AWS_Pipes_Pipe "github.com/cueformation/cfn-cue/resources/hff7d5431367e8660:schema"
 
-import r571 "github.com/cueformation/cfn-cue/resources/h2e4bf164e561e929:schema"
+import AWS_RAM_Permission "github.com/cueformation/cfn-cue/resources/h2e4bf164e561e929:schema"
 
-import r572 "github.com/cueformation/cfn-cue/resources/h8424028eb0cd5e18:schema"
+import AWS_RAM_PermissionAssociation "github.com/cueformation/cfn-cue/resources/h8424028eb0cd5e18:schema"
 
-import r573 "github.com/cueformation/cfn-cue/resources/h658c1e4d609cbf0d:schema"
+import AWS_RAM_PrincipalAssociation "github.com/cueformation/cfn-cue/resources/h658c1e4d609cbf0d:schema"
 
-import r574 "github.com/cueformation/cfn-cue/resources/he581268c5da6426f:schema"
+import AWS_RAM_ResourceAssociation "github.com/cueformation/cfn-cue/resources/he581268c5da6426f:schema"
 
-import r575 "github.com/cueformation/cfn-cue/resources/he52bb6d2edc838b9:schema"
+import AWS_RAM_ResourceShare "github.com/cueformation/cfn-cue/resources/he52bb6d2edc838b9:schema"
 
-import r576 "github.com/cueformation/cfn-cue/resources/h3b1939cc35f2402a:schema"
+import AWS_RAM_SourceAssociation "github.com/cueformation/cfn-cue/resources/h3b1939cc35f2402a:schema"
 
-import r577 "github.com/cueformation/cfn-cue/resources/h452815b7c456bdc1:schema"
+import AWS_RDS_DBCluster "github.com/cueformation/cfn-cue/resources/h452815b7c456bdc1:schema"
 
-import r578 "github.com/cueformation/cfn-cue/resources/h4dc1a1a6b2728907:schema"
+import AWS_RDS_DBClusterParameterGroup "github.com/cueformation/cfn-cue/resources/h4dc1a1a6b2728907:schema"
 
-import r579 "github.com/cueformation/cfn-cue/resources/h1961d0ebac37774f:schema"
+import AWS_RDS_DBInstance "github.com/cueformation/cfn-cue/resources/h1961d0ebac37774f:schema"
 
-import r580 "github.com/cueformation/cfn-cue/resources/h47f1ee455a4b6282:schema"
+import AWS_RDS_DBParameterGroup "github.com/cueformation/cfn-cue/resources/h47f1ee455a4b6282:schema"
 
-import r581 "github.com/cueformation/cfn-cue/resources/h16dcf4464055eefc:schema"
+import AWS_RDS_DBProxy "github.com/cueformation/cfn-cue/resources/h16dcf4464055eefc:schema"
 
-import r582 "github.com/cueformation/cfn-cue/resources/h4af99c615e13a499:schema"
+import AWS_RDS_DBProxyEndpoint "github.com/cueformation/cfn-cue/resources/h4af99c615e13a499:schema"
 
-import r583 "github.com/cueformation/cfn-cue/resources/h6bbbcc50fc86438a:schema"
+import AWS_RDS_DBProxyTargetGroup "github.com/cueformation/cfn-cue/resources/h6bbbcc50fc86438a:schema"
 
-import r584 "github.com/cueformation/cfn-cue/resources/hebd5eea1b89e16d7:schema"
+import AWS_RDS_DBSecurityGroup "github.com/cueformation/cfn-cue/resources/hebd5eea1b89e16d7:schema"
 
-import r585 "github.com/cueformation/cfn-cue/resources/ha0e8e002f07da601:schema"
+import AWS_RDS_DBSecurityGroupIngress "github.com/cueformation/cfn-cue/resources/ha0e8e002f07da601:schema"
 
-import r586 "github.com/cueformation/cfn-cue/resources/hc403b7cf1ba0d97d:schema"
+import AWS_RDS_DBShardGroup "github.com/cueformation/cfn-cue/resources/hc403b7cf1ba0d97d:schema"
 
-import r587 "github.com/cueformation/cfn-cue/resources/hc627041f171f1124:schema"
+import AWS_RDS_DBSubnetGroup "github.com/cueformation/cfn-cue/resources/hc627041f171f1124:schema"
 
-import r588 "github.com/cueformation/cfn-cue/resources/h774cd38e8395c037:schema"
+import AWS_RDS_EventSubscription "github.com/cueformation/cfn-cue/resources/h774cd38e8395c037:schema"
 
-import r589 "github.com/cueformation/cfn-cue/resources/hda6fcff6674bf450:schema"
+import AWS_RDS_GlobalCluster "github.com/cueformation/cfn-cue/resources/hda6fcff6674bf450:schema"
 
-import r590 "github.com/cueformation/cfn-cue/resources/h789be7bae02eaeae:schema"
+import AWS_RDS_Integration "github.com/cueformation/cfn-cue/resources/h789be7bae02eaeae:schema"
 
-import r591 "github.com/cueformation/cfn-cue/resources/h0dd94b8140cdd390:schema"
+import AWS_RDS_OptionGroup "github.com/cueformation/cfn-cue/resources/h0dd94b8140cdd390:schema"
 
-import r592 "github.com/cueformation/cfn-cue/resources/h8fe84be427ab4655:schema"
+import AWS_Rbin_Rule "github.com/cueformation/cfn-cue/resources/h8fe84be427ab4655:schema"
 
-import r593 "github.com/cueformation/cfn-cue/resources/had678ddafb4fed02:schema"
+import AWS_Redshift_Cluster "github.com/cueformation/cfn-cue/resources/had678ddafb4fed02:schema"
 
-import r594 "github.com/cueformation/cfn-cue/resources/hdac1df554940dde9:schema"
+import AWS_Redshift_ClusterParameterGroup "github.com/cueformation/cfn-cue/resources/hdac1df554940dde9:schema"
 
-import r595 "github.com/cueformation/cfn-cue/resources/hb07925e113319554:schema"
+import AWS_Redshift_ClusterSecurityGroup "github.com/cueformation/cfn-cue/resources/hb07925e113319554:schema"
 
-import r596 "github.com/cueformation/cfn-cue/resources/h4fdc5ea0a547a6a8:schema"
+import AWS_Redshift_ClusterSecurityGroupIngress "github.com/cueformation/cfn-cue/resources/h4fdc5ea0a547a6a8:schema"
 
-import r597 "github.com/cueformation/cfn-cue/resources/hcf4c6963e40b0dda:schema"
+import AWS_Redshift_ClusterSubnetGroup "github.com/cueformation/cfn-cue/resources/hcf4c6963e40b0dda:schema"
 
-import r598 "github.com/cueformation/cfn-cue/resources/h6297fd8c4752122e:schema"
+import AWS_Redshift_EndpointAccess "github.com/cueformation/cfn-cue/resources/h6297fd8c4752122e:schema"
 
-import r599 "github.com/cueformation/cfn-cue/resources/hab164694f53a3bf4:schema"
+import AWS_Redshift_EndpointAuthorization "github.com/cueformation/cfn-cue/resources/hab164694f53a3bf4:schema"
 
-import r600 "github.com/cueformation/cfn-cue/resources/h7d33c68eee8d5c54:schema"
+import AWS_Redshift_EventSubscription "github.com/cueformation/cfn-cue/resources/h7d33c68eee8d5c54:schema"
 
-import r601 "github.com/cueformation/cfn-cue/resources/h59e0355d7f9939ea:schema"
+import AWS_Redshift_Integration "github.com/cueformation/cfn-cue/resources/h59e0355d7f9939ea:schema"
 
-import r602 "github.com/cueformation/cfn-cue/resources/h54a1229bf8532737:schema"
+import AWS_Redshift_ScheduledAction "github.com/cueformation/cfn-cue/resources/h54a1229bf8532737:schema"
 
-import r603 "github.com/cueformation/cfn-cue/resources/h417c093522767f46:schema"
+import AWS_RedshiftServerless_Namespace "github.com/cueformation/cfn-cue/resources/h417c093522767f46:schema"
 
-import r604 "github.com/cueformation/cfn-cue/resources/h016b5dfb01156d16:schema"
+import AWS_RedshiftServerless_Snapshot "github.com/cueformation/cfn-cue/resources/h016b5dfb01156d16:schema"
 
-import r605 "github.com/cueformation/cfn-cue/resources/hc9ed22baa83301c2:schema"
+import AWS_RedshiftServerless_Workgroup "github.com/cueformation/cfn-cue/resources/hc9ed22baa83301c2:schema"
 
-import r606 "github.com/cueformation/cfn-cue/resources/h2be7a570d9c707ce:schema"
+import AWS_ResourceExplorer2_DefaultViewAssociation "github.com/cueformation/cfn-cue/resources/h2be7a570d9c707ce:schema"
 
-import r607 "github.com/cueformation/cfn-cue/resources/h5c325913813d6b98:schema"
+import AWS_ResourceExplorer2_Index "github.com/cueformation/cfn-cue/resources/h5c325913813d6b98:schema"
 
-import r608 "github.com/cueformation/cfn-cue/resources/hcbc50ac4e78aa868:schema"
+import AWS_ResourceExplorer2_View "github.com/cueformation/cfn-cue/resources/hcbc50ac4e78aa868:schema"
 
-import r609 "github.com/cueformation/cfn-cue/resources/hf476c746750331e2:schema"
+import AWS_ResourceGroups_Group "github.com/cueformation/cfn-cue/resources/hf476c746750331e2:schema"
 
-import r610 "github.com/cueformation/cfn-cue/resources/he3067ab261dc926a:schema"
+import AWS_RolesAnywhere_CRL "github.com/cueformation/cfn-cue/resources/he3067ab261dc926a:schema"
 
-import r611 "github.com/cueformation/cfn-cue/resources/h107b284807359f07:schema"
+import AWS_RolesAnywhere_Profile "github.com/cueformation/cfn-cue/resources/h107b284807359f07:schema"
 
-import r612 "github.com/cueformation/cfn-cue/resources/h1222605db57002a8:schema"
+import AWS_RolesAnywhere_TrustAnchor "github.com/cueformation/cfn-cue/resources/h1222605db57002a8:schema"
 
-import r613 "github.com/cueformation/cfn-cue/resources/h725fabd41574e3c8:schema"
+import AWS_Route53_CidrCollection "github.com/cueformation/cfn-cue/resources/h725fabd41574e3c8:schema"
 
-import r614 "github.com/cueformation/cfn-cue/resources/h500736f2dde2779f:schema"
+import AWS_Route53_HealthCheck "github.com/cueformation/cfn-cue/resources/h500736f2dde2779f:schema"
 
-import r615 "github.com/cueformation/cfn-cue/resources/hf3f4847d64460f5c:schema"
+import AWS_Route53_HostedZone "github.com/cueformation/cfn-cue/resources/hf3f4847d64460f5c:schema"
 
-import r616 "github.com/cueformation/cfn-cue/resources/h850fd9e2bdac4c5f:schema"
+import AWS_Route53_RecordSet "github.com/cueformation/cfn-cue/resources/h850fd9e2bdac4c5f:schema"
 
-import r617 "github.com/cueformation/cfn-cue/resources/h890149a8578737b7:schema"
+import AWS_Route53_RecordSetGroup "github.com/cueformation/cfn-cue/resources/h890149a8578737b7:schema"
 
-import r618 "github.com/cueformation/cfn-cue/resources/h5565731532c76456:schema"
+import AWS_Route53Profiles_Profile "github.com/cueformation/cfn-cue/resources/h5565731532c76456:schema"
 
-import r619 "github.com/cueformation/cfn-cue/resources/hc7cfa417317220c6:schema"
+import AWS_Route53Profiles_ProfileAssociation "github.com/cueformation/cfn-cue/resources/hc7cfa417317220c6:schema"
 
-import r620 "github.com/cueformation/cfn-cue/resources/h5bc6281576b021e6:schema"
+import AWS_Route53Profiles_ProfileResourceAssociation "github.com/cueformation/cfn-cue/resources/h5bc6281576b021e6:schema"
 
-import r621 "github.com/cueformation/cfn-cue/resources/h45d2b9139b0318a3:schema"
+import AWS_Route53Resolver_FirewallDomainList "github.com/cueformation/cfn-cue/resources/h45d2b9139b0318a3:schema"
 
-import r622 "github.com/cueformation/cfn-cue/resources/h67ec5a4a1f8201e1:schema"
+import AWS_Route53Resolver_FirewallRuleGroup "github.com/cueformation/cfn-cue/resources/h67ec5a4a1f8201e1:schema"
 
-import r623 "github.com/cueformation/cfn-cue/resources/ha6aea971ecc0026e:schema"
+import AWS_Route53Resolver_FirewallRuleGroupAssociation "github.com/cueformation/cfn-cue/resources/ha6aea971ecc0026e:schema"
 
-import r624 "github.com/cueformation/cfn-cue/resources/h8e0dbbbe465dec4c:schema"
+import AWS_Route53Resolver_ResolverConfig "github.com/cueformation/cfn-cue/resources/h8e0dbbbe465dec4c:schema"
 
-import r625 "github.com/cueformation/cfn-cue/resources/hb682d9a0d4f97502:schema"
+import AWS_Route53Resolver_ResolverDNSSECConfig "github.com/cueformation/cfn-cue/resources/hb682d9a0d4f97502:schema"
 
-import r626 "github.com/cueformation/cfn-cue/resources/h31d9d15933f5bcd3:schema"
+import AWS_Route53Resolver_ResolverEndpoint "github.com/cueformation/cfn-cue/resources/h31d9d15933f5bcd3:schema"
 
-import r627 "github.com/cueformation/cfn-cue/resources/ha253b7b04f712329:schema"
+import AWS_Route53Resolver_ResolverQueryLoggingConfig "github.com/cueformation/cfn-cue/resources/ha253b7b04f712329:schema"
 
-import r628 "github.com/cueformation/cfn-cue/resources/h259f05a8436c66f4:schema"
+import AWS_Route53Resolver_ResolverQueryLoggingConfigAssociation "github.com/cueformation/cfn-cue/resources/h259f05a8436c66f4:schema"
 
-import r629 "github.com/cueformation/cfn-cue/resources/h4e5f3b850c4f697a:schema"
+import AWS_Route53Resolver_ResolverRule "github.com/cueformation/cfn-cue/resources/h4e5f3b850c4f697a:schema"
 
-import r630 "github.com/cueformation/cfn-cue/resources/h5aefd2bbb3cd19de:schema"
+import AWS_Route53Resolver_ResolverRuleAssociation "github.com/cueformation/cfn-cue/resources/h5aefd2bbb3cd19de:schema"
 
-import r631 "github.com/cueformation/cfn-cue/resources/h85332053108e55ee:schema"
+import AWS_S3_AccessGrant "github.com/cueformation/cfn-cue/resources/h85332053108e55ee:schema"
 
-import r632 "github.com/cueformation/cfn-cue/resources/h815fa351d8b876b4:schema"
+import AWS_S3_AccessGrantsInstance "github.com/cueformation/cfn-cue/resources/h815fa351d8b876b4:schema"
 
-import r633 "github.com/cueformation/cfn-cue/resources/hb3e30142423272e3:schema"
+import AWS_S3_AccessGrantsLocation "github.com/cueformation/cfn-cue/resources/hb3e30142423272e3:schema"
 
-import r634 "github.com/cueformation/cfn-cue/resources/h829434755e734476:schema"
+import AWS_S3_AccessPoint "github.com/cueformation/cfn-cue/resources/h829434755e734476:schema"
 
-import r635 "github.com/cueformation/cfn-cue/resources/h69ff2c30cdaed778:schema"
+import AWS_S3_Bucket "github.com/cueformation/cfn-cue/resources/h69ff2c30cdaed778:schema"
 
-import r636 "github.com/cueformation/cfn-cue/resources/h052a5ef1e32d1349:schema"
+import AWS_S3_BucketPolicy "github.com/cueformation/cfn-cue/resources/h052a5ef1e32d1349:schema"
 
-import r637 "github.com/cueformation/cfn-cue/resources/h5b44aa129041a26c:schema"
+import AWS_S3_StorageLens "github.com/cueformation/cfn-cue/resources/h5b44aa129041a26c:schema"
 
-import r638 "github.com/cueformation/cfn-cue/resources/hd23c3f365473628a:schema"
+import AWS_S3_StorageLensGroup "github.com/cueformation/cfn-cue/resources/hd23c3f365473628a:schema"
 
-import r639 "github.com/cueformation/cfn-cue/resources/h647c842b76c60d21:schema"
+import AWS_S3Files_AccessPoint "github.com/cueformation/cfn-cue/resources/h647c842b76c60d21:schema"
 
-import r640 "github.com/cueformation/cfn-cue/resources/ha174c50d940570c4:schema"
+import AWS_S3Files_FileSystem "github.com/cueformation/cfn-cue/resources/ha174c50d940570c4:schema"
 
-import r641 "github.com/cueformation/cfn-cue/resources/h23476de910d44b07:schema"
+import AWS_S3Files_FileSystemPolicy "github.com/cueformation/cfn-cue/resources/h23476de910d44b07:schema"
 
-import r642 "github.com/cueformation/cfn-cue/resources/h27de8df1d2126003:schema"
+import AWS_S3Files_MountTarget "github.com/cueformation/cfn-cue/resources/h27de8df1d2126003:schema"
 
-import r643 "github.com/cueformation/cfn-cue/resources/h93b0bc1c4c1e00ce:schema"
+import AWS_S3ObjectLambda_AccessPoint "github.com/cueformation/cfn-cue/resources/h93b0bc1c4c1e00ce:schema"
 
-import r644 "github.com/cueformation/cfn-cue/resources/hc79539f32b81982f:schema"
+import AWS_S3ObjectLambda_AccessPointPolicy "github.com/cueformation/cfn-cue/resources/hc79539f32b81982f:schema"
 
-import r645 "github.com/cueformation/cfn-cue/resources/h3367cb572094177b:schema"
+import AWS_S3Tables_Namespace "github.com/cueformation/cfn-cue/resources/h3367cb572094177b:schema"
 
-import r646 "github.com/cueformation/cfn-cue/resources/hf68616a60c3ecc55:schema"
+import AWS_S3Tables_Table "github.com/cueformation/cfn-cue/resources/hf68616a60c3ecc55:schema"
 
-import r647 "github.com/cueformation/cfn-cue/resources/h59666100a7b0cf60:schema"
+import AWS_S3Tables_TableBucket "github.com/cueformation/cfn-cue/resources/h59666100a7b0cf60:schema"
 
-import r648 "github.com/cueformation/cfn-cue/resources/h33370a179734e636:schema"
+import AWS_S3Tables_TableBucketPolicy "github.com/cueformation/cfn-cue/resources/h33370a179734e636:schema"
 
-import r649 "github.com/cueformation/cfn-cue/resources/h8587a3a8ded92121:schema"
+import AWS_S3Tables_TablePolicy "github.com/cueformation/cfn-cue/resources/h8587a3a8ded92121:schema"
 
-import r650 "github.com/cueformation/cfn-cue/resources/h63cd189547d460b2:schema"
+import AWS_S3Vectors_Index "github.com/cueformation/cfn-cue/resources/h63cd189547d460b2:schema"
 
-import r651 "github.com/cueformation/cfn-cue/resources/he2664c5f98356312:schema"
+import AWS_S3Vectors_VectorBucket "github.com/cueformation/cfn-cue/resources/he2664c5f98356312:schema"
 
-import r652 "github.com/cueformation/cfn-cue/resources/h2345f47aa31c7503:schema"
+import AWS_S3Vectors_VectorBucketPolicy "github.com/cueformation/cfn-cue/resources/h2345f47aa31c7503:schema"
 
-import r653 "github.com/cueformation/cfn-cue/resources/h20adf47bce5f481c:schema"
+import AWS_SDB_Domain "github.com/cueformation/cfn-cue/resources/h20adf47bce5f481c:schema"
 
-import r654 "github.com/cueformation/cfn-cue/resources/hbfe3b47089380bde:schema"
+import AWS_SNS_Subscription "github.com/cueformation/cfn-cue/resources/hbfe3b47089380bde:schema"
 
-import r655 "github.com/cueformation/cfn-cue/resources/h55996ca553a6ab0c:schema"
+import AWS_SNS_Topic "github.com/cueformation/cfn-cue/resources/h55996ca553a6ab0c:schema"
 
-import r656 "github.com/cueformation/cfn-cue/resources/hc8fe2fc6a8e4ded0:schema"
+import AWS_SNS_TopicInlinePolicy "github.com/cueformation/cfn-cue/resources/hc8fe2fc6a8e4ded0:schema"
 
-import r657 "github.com/cueformation/cfn-cue/resources/he420fa2ca5d33180:schema"
+import AWS_SNS_TopicPolicy "github.com/cueformation/cfn-cue/resources/he420fa2ca5d33180:schema"
 
-import r658 "github.com/cueformation/cfn-cue/resources/h0b0fc52a92647916:schema"
+import AWS_SQS_Queue "github.com/cueformation/cfn-cue/resources/h0b0fc52a92647916:schema"
 
-import r659 "github.com/cueformation/cfn-cue/resources/h295bcc64e082cef2:schema"
+import AWS_SQS_QueueInlinePolicy "github.com/cueformation/cfn-cue/resources/h295bcc64e082cef2:schema"
 
-import r660 "github.com/cueformation/cfn-cue/resources/hfaa288be40968b1b:schema"
+import AWS_SQS_QueuePolicy "github.com/cueformation/cfn-cue/resources/hfaa288be40968b1b:schema"
 
-import r661 "github.com/cueformation/cfn-cue/resources/h7218f3eda41f920b:schema"
+import AWS_SSM_Association "github.com/cueformation/cfn-cue/resources/h7218f3eda41f920b:schema"
 
-import r662 "github.com/cueformation/cfn-cue/resources/h7b2b3510b108664a:schema"
+import AWS_SSM_Document "github.com/cueformation/cfn-cue/resources/h7b2b3510b108664a:schema"
 
-import r663 "github.com/cueformation/cfn-cue/resources/h572ebde4745104a1:schema"
+import AWS_SSM_MaintenanceWindow "github.com/cueformation/cfn-cue/resources/h572ebde4745104a1:schema"
 
-import r664 "github.com/cueformation/cfn-cue/resources/hd099ae52d5d2dbab:schema"
+import AWS_SSM_MaintenanceWindowTarget "github.com/cueformation/cfn-cue/resources/hd099ae52d5d2dbab:schema"
 
-import r665 "github.com/cueformation/cfn-cue/resources/hf24a360be9aa4a2d:schema"
+import AWS_SSM_MaintenanceWindowTask "github.com/cueformation/cfn-cue/resources/hf24a360be9aa4a2d:schema"
 
-import r666 "github.com/cueformation/cfn-cue/resources/h93d0ba2d5744d857:schema"
+import AWS_SSM_Parameter "github.com/cueformation/cfn-cue/resources/h93d0ba2d5744d857:schema"
 
-import r667 "github.com/cueformation/cfn-cue/resources/h5478f0751f8a13f1:schema"
+import AWS_SSM_PatchBaseline "github.com/cueformation/cfn-cue/resources/h5478f0751f8a13f1:schema"
 
-import r668 "github.com/cueformation/cfn-cue/resources/h02db4416af391064:schema"
+import AWS_SSM_ResourceDataSync "github.com/cueformation/cfn-cue/resources/h02db4416af391064:schema"
 
-import r669 "github.com/cueformation/cfn-cue/resources/h749c95381a0158d5:schema"
+import AWS_SSO_Application "github.com/cueformation/cfn-cue/resources/h749c95381a0158d5:schema"
 
-import r670 "github.com/cueformation/cfn-cue/resources/hd526f985b22001de:schema"
+import AWS_SSO_ApplicationAssignment "github.com/cueformation/cfn-cue/resources/hd526f985b22001de:schema"
 
-import r671 "github.com/cueformation/cfn-cue/resources/h8f38b07c29b21b49:schema"
+import AWS_SSO_Assignment "github.com/cueformation/cfn-cue/resources/h8f38b07c29b21b49:schema"
 
-import r672 "github.com/cueformation/cfn-cue/resources/h8081a34dd83a4878:schema"
+import AWS_SSO_Instance "github.com/cueformation/cfn-cue/resources/h8081a34dd83a4878:schema"
 
-import r673 "github.com/cueformation/cfn-cue/resources/h3f95ba6e980126ee:schema"
+import AWS_SSO_InstanceAccessControlAttributeConfiguration "github.com/cueformation/cfn-cue/resources/h3f95ba6e980126ee:schema"
 
-import r674 "github.com/cueformation/cfn-cue/resources/h9ab24b4d170529f4:schema"
+import AWS_SSO_PermissionSet "github.com/cueformation/cfn-cue/resources/h9ab24b4d170529f4:schema"
 
-import r675 "github.com/cueformation/cfn-cue/resources/h94b202512265ae42:schema"
+import AWS_SageMaker_App "github.com/cueformation/cfn-cue/resources/h94b202512265ae42:schema"
 
-import r676 "github.com/cueformation/cfn-cue/resources/h8c4949ad09726c1e:schema"
+import AWS_SageMaker_AppImageConfig "github.com/cueformation/cfn-cue/resources/h8c4949ad09726c1e:schema"
 
-import r677 "github.com/cueformation/cfn-cue/resources/hb3407a31ade1ed2a:schema"
+import AWS_SageMaker_CodeRepository "github.com/cueformation/cfn-cue/resources/hb3407a31ade1ed2a:schema"
 
-import r678 "github.com/cueformation/cfn-cue/resources/h4d9dfe6373929a0f:schema"
+import AWS_SageMaker_Domain "github.com/cueformation/cfn-cue/resources/h4d9dfe6373929a0f:schema"
 
-import r679 "github.com/cueformation/cfn-cue/resources/h8c0105c1afacbace:schema"
+import AWS_SageMaker_Endpoint "github.com/cueformation/cfn-cue/resources/h8c0105c1afacbace:schema"
 
-import r680 "github.com/cueformation/cfn-cue/resources/h3529e18613d41f86:schema"
+import AWS_SageMaker_EndpointConfig "github.com/cueformation/cfn-cue/resources/h3529e18613d41f86:schema"
 
-import r681 "github.com/cueformation/cfn-cue/resources/h5561ccd3e4e82a0c:schema"
+import AWS_SageMaker_FeatureGroup "github.com/cueformation/cfn-cue/resources/h5561ccd3e4e82a0c:schema"
 
-import r682 "github.com/cueformation/cfn-cue/resources/h3211995b17eb3616:schema"
+import AWS_SageMaker_Image "github.com/cueformation/cfn-cue/resources/h3211995b17eb3616:schema"
 
-import r683 "github.com/cueformation/cfn-cue/resources/h680a92e70be5ac38:schema"
+import AWS_SageMaker_ImageVersion "github.com/cueformation/cfn-cue/resources/h680a92e70be5ac38:schema"
 
-import r684 "github.com/cueformation/cfn-cue/resources/hf713429cd3f0c181:schema"
+import AWS_SageMaker_Model "github.com/cueformation/cfn-cue/resources/hf713429cd3f0c181:schema"
 
-import r685 "github.com/cueformation/cfn-cue/resources/h62af6709fcf7231f:schema"
+import AWS_SageMaker_ModelCard "github.com/cueformation/cfn-cue/resources/h62af6709fcf7231f:schema"
 
-import r686 "github.com/cueformation/cfn-cue/resources/hd70facd06401d294:schema"
+import AWS_SageMaker_ModelPackage "github.com/cueformation/cfn-cue/resources/hd70facd06401d294:schema"
 
-import r687 "github.com/cueformation/cfn-cue/resources/h070ec42cc2a439c4:schema"
+import AWS_SageMaker_MonitoringSchedule "github.com/cueformation/cfn-cue/resources/h070ec42cc2a439c4:schema"
 
-import r688 "github.com/cueformation/cfn-cue/resources/hb55bfb76c1152913:schema"
+import AWS_SageMaker_NotebookInstance "github.com/cueformation/cfn-cue/resources/hb55bfb76c1152913:schema"
 
-import r689 "github.com/cueformation/cfn-cue/resources/h0a192ea0e1c62ed9:schema"
+import AWS_SageMaker_NotebookInstanceLifecycleConfig "github.com/cueformation/cfn-cue/resources/h0a192ea0e1c62ed9:schema"
 
-import r690 "github.com/cueformation/cfn-cue/resources/h8a12c617165bb395:schema"
+import AWS_SageMaker_Pipeline "github.com/cueformation/cfn-cue/resources/h8a12c617165bb395:schema"
 
-import r691 "github.com/cueformation/cfn-cue/resources/hedba0176185d9c42:schema"
+import AWS_SageMaker_ProcessingJob "github.com/cueformation/cfn-cue/resources/hedba0176185d9c42:schema"
 
-import r692 "github.com/cueformation/cfn-cue/resources/h8dc1a56804094f8b:schema"
+import AWS_SageMaker_Project "github.com/cueformation/cfn-cue/resources/h8dc1a56804094f8b:schema"
 
-import r693 "github.com/cueformation/cfn-cue/resources/h8ec47bfca691f1a0:schema"
+import AWS_SageMaker_StudioLifecycleConfig "github.com/cueformation/cfn-cue/resources/h8ec47bfca691f1a0:schema"
 
-import r694 "github.com/cueformation/cfn-cue/resources/heae3483c61654312:schema"
+import AWS_SageMaker_UserProfile "github.com/cueformation/cfn-cue/resources/heae3483c61654312:schema"
 
-import r695 "github.com/cueformation/cfn-cue/resources/h125c97c2b4190675:schema"
+import AWS_SageMaker_Workteam "github.com/cueformation/cfn-cue/resources/h125c97c2b4190675:schema"
 
-import r696 "github.com/cueformation/cfn-cue/resources/hbf1260827467320e:schema"
+import AWS_Scheduler_Schedule "github.com/cueformation/cfn-cue/resources/hbf1260827467320e:schema"
 
-import r697 "github.com/cueformation/cfn-cue/resources/h0183b32826044ae0:schema"
+import AWS_Scheduler_ScheduleGroup "github.com/cueformation/cfn-cue/resources/h0183b32826044ae0:schema"
 
-import r698 "github.com/cueformation/cfn-cue/resources/he724f288a2c2c8be:schema"
+import AWS_SecretsManager_ResourcePolicy "github.com/cueformation/cfn-cue/resources/he724f288a2c2c8be:schema"
 
-import r699 "github.com/cueformation/cfn-cue/resources/hd4ee5cb536724fa1:schema"
+import AWS_SecretsManager_RotationSchedule "github.com/cueformation/cfn-cue/resources/hd4ee5cb536724fa1:schema"
 
-import r700 "github.com/cueformation/cfn-cue/resources/hf6b785ff8e74d121:schema"
+import AWS_SecretsManager_Secret "github.com/cueformation/cfn-cue/resources/hf6b785ff8e74d121:schema"
 
-import r701 "github.com/cueformation/cfn-cue/resources/h43ab3f22487e70b1:schema"
+import AWS_SecretsManager_SecretTargetAttachment "github.com/cueformation/cfn-cue/resources/h43ab3f22487e70b1:schema"
 
-import r702 "github.com/cueformation/cfn-cue/resources/h165ea60cf7b09dbd:schema"
+import AWS_SecurityHub_AggregatorV2 "github.com/cueformation/cfn-cue/resources/h165ea60cf7b09dbd:schema"
 
-import r703 "github.com/cueformation/cfn-cue/resources/hf789a2e85b4a4422:schema"
+import AWS_SecurityHub_AutomationRule "github.com/cueformation/cfn-cue/resources/hf789a2e85b4a4422:schema"
 
-import r704 "github.com/cueformation/cfn-cue/resources/h710c0f8dcebb6df0:schema"
+import AWS_SecurityHub_AutomationRuleV2 "github.com/cueformation/cfn-cue/resources/h710c0f8dcebb6df0:schema"
 
-import r705 "github.com/cueformation/cfn-cue/resources/h471f624db20604c6:schema"
+import AWS_SecurityHub_ConfigurationPolicy "github.com/cueformation/cfn-cue/resources/h471f624db20604c6:schema"
 
-import r706 "github.com/cueformation/cfn-cue/resources/hd0f360fe89fa8386:schema"
+import AWS_SecurityHub_DelegatedAdmin "github.com/cueformation/cfn-cue/resources/hd0f360fe89fa8386:schema"
 
-import r707 "github.com/cueformation/cfn-cue/resources/h44e2144dd6b4a079:schema"
+import AWS_SecurityHub_FindingAggregator "github.com/cueformation/cfn-cue/resources/h44e2144dd6b4a079:schema"
 
-import r708 "github.com/cueformation/cfn-cue/resources/hea0d4a29e6349da6:schema"
+import AWS_SecurityHub_Hub "github.com/cueformation/cfn-cue/resources/hea0d4a29e6349da6:schema"
 
-import r709 "github.com/cueformation/cfn-cue/resources/h1997ae873297ca5d:schema"
+import AWS_SecurityHub_HubV2 "github.com/cueformation/cfn-cue/resources/h1997ae873297ca5d:schema"
 
-import r710 "github.com/cueformation/cfn-cue/resources/h2ea83a964da23d9e:schema"
+import AWS_SecurityHub_Insight "github.com/cueformation/cfn-cue/resources/h2ea83a964da23d9e:schema"
 
-import r711 "github.com/cueformation/cfn-cue/resources/h16c8a2980ee43fb6:schema"
+import AWS_SecurityHub_OrganizationConfiguration "github.com/cueformation/cfn-cue/resources/h16c8a2980ee43fb6:schema"
 
-import r712 "github.com/cueformation/cfn-cue/resources/hf0a0d75ea0c7549b:schema"
+import AWS_SecurityHub_PolicyAssociation "github.com/cueformation/cfn-cue/resources/hf0a0d75ea0c7549b:schema"
 
-import r713 "github.com/cueformation/cfn-cue/resources/h4f2f38f9a1605314:schema"
+import AWS_SecurityHub_ProductSubscription "github.com/cueformation/cfn-cue/resources/h4f2f38f9a1605314:schema"
 
-import r714 "github.com/cueformation/cfn-cue/resources/h26da3e3dd083f133:schema"
+import AWS_SecurityHub_SecurityControl "github.com/cueformation/cfn-cue/resources/h26da3e3dd083f133:schema"
 
-import r715 "github.com/cueformation/cfn-cue/resources/h248ed6920266fd2e:schema"
+import AWS_SecurityHub_Standard "github.com/cueformation/cfn-cue/resources/h248ed6920266fd2e:schema"
 
-import r716 "github.com/cueformation/cfn-cue/resources/h1d02c7d604716edf:schema"
+import AWS_ServiceCatalog_AcceptedPortfolioShare "github.com/cueformation/cfn-cue/resources/h1d02c7d604716edf:schema"
 
-import r717 "github.com/cueformation/cfn-cue/resources/h18025c682c5375c5:schema"
+import AWS_ServiceCatalog_CloudFormationProduct "github.com/cueformation/cfn-cue/resources/h18025c682c5375c5:schema"
 
-import r718 "github.com/cueformation/cfn-cue/resources/h7e09ce57311dfa3f:schema"
+import AWS_ServiceCatalog_CloudFormationProvisionedProduct "github.com/cueformation/cfn-cue/resources/h7e09ce57311dfa3f:schema"
 
-import r719 "github.com/cueformation/cfn-cue/resources/h7c77f6955e4b4df5:schema"
+import AWS_ServiceCatalog_LaunchNotificationConstraint "github.com/cueformation/cfn-cue/resources/h7c77f6955e4b4df5:schema"
 
-import r720 "github.com/cueformation/cfn-cue/resources/h9136ba5942ec80ac:schema"
+import AWS_ServiceCatalog_LaunchRoleConstraint "github.com/cueformation/cfn-cue/resources/h9136ba5942ec80ac:schema"
 
-import r721 "github.com/cueformation/cfn-cue/resources/h8dc672694dd79f8c:schema"
+import AWS_ServiceCatalog_LaunchTemplateConstraint "github.com/cueformation/cfn-cue/resources/h8dc672694dd79f8c:schema"
 
-import r722 "github.com/cueformation/cfn-cue/resources/h9f8534557a521f9e:schema"
+import AWS_ServiceCatalog_Portfolio "github.com/cueformation/cfn-cue/resources/h9f8534557a521f9e:schema"
 
-import r723 "github.com/cueformation/cfn-cue/resources/h0f18466761f18423:schema"
+import AWS_ServiceCatalog_PortfolioPrincipalAssociation "github.com/cueformation/cfn-cue/resources/h0f18466761f18423:schema"
 
-import r724 "github.com/cueformation/cfn-cue/resources/h1302db7b81a64216:schema"
+import AWS_ServiceCatalog_PortfolioProductAssociation "github.com/cueformation/cfn-cue/resources/h1302db7b81a64216:schema"
 
-import r725 "github.com/cueformation/cfn-cue/resources/hb0eb321ac4ab5924:schema"
+import AWS_ServiceCatalog_PortfolioShare "github.com/cueformation/cfn-cue/resources/hb0eb321ac4ab5924:schema"
 
-import r726 "github.com/cueformation/cfn-cue/resources/h042e5f37b513f4aa:schema"
+import AWS_ServiceCatalog_ResourceUpdateConstraint "github.com/cueformation/cfn-cue/resources/h042e5f37b513f4aa:schema"
 
-import r727 "github.com/cueformation/cfn-cue/resources/h5d5ba8672d2cef2c:schema"
+import AWS_ServiceCatalog_ServiceAction "github.com/cueformation/cfn-cue/resources/h5d5ba8672d2cef2c:schema"
 
-import r728 "github.com/cueformation/cfn-cue/resources/h7ce22ab9705373d5:schema"
+import AWS_ServiceCatalog_ServiceActionAssociation "github.com/cueformation/cfn-cue/resources/h7ce22ab9705373d5:schema"
 
-import r729 "github.com/cueformation/cfn-cue/resources/ha31ea642b28f7e2d:schema"
+import AWS_ServiceCatalog_StackSetConstraint "github.com/cueformation/cfn-cue/resources/ha31ea642b28f7e2d:schema"
 
-import r730 "github.com/cueformation/cfn-cue/resources/h4e39a694ac9fc81d:schema"
+import AWS_ServiceCatalog_TagOption "github.com/cueformation/cfn-cue/resources/h4e39a694ac9fc81d:schema"
 
-import r731 "github.com/cueformation/cfn-cue/resources/h35b57e35d7eff1aa:schema"
+import AWS_ServiceCatalog_TagOptionAssociation "github.com/cueformation/cfn-cue/resources/h35b57e35d7eff1aa:schema"
 
-import r732 "github.com/cueformation/cfn-cue/resources/hcf8e150f39236b87:schema"
+import AWS_ServiceDiscovery_HttpNamespace "github.com/cueformation/cfn-cue/resources/hcf8e150f39236b87:schema"
 
-import r733 "github.com/cueformation/cfn-cue/resources/h5b9c01d7c8dfa8a7:schema"
+import AWS_ServiceDiscovery_Instance "github.com/cueformation/cfn-cue/resources/h5b9c01d7c8dfa8a7:schema"
 
-import r734 "github.com/cueformation/cfn-cue/resources/he3d2b06c010fa097:schema"
+import AWS_ServiceDiscovery_PrivateDnsNamespace "github.com/cueformation/cfn-cue/resources/he3d2b06c010fa097:schema"
 
-import r735 "github.com/cueformation/cfn-cue/resources/hc066c74cd0cbbbbb:schema"
+import AWS_ServiceDiscovery_PublicDnsNamespace "github.com/cueformation/cfn-cue/resources/hc066c74cd0cbbbbb:schema"
 
-import r736 "github.com/cueformation/cfn-cue/resources/h0321e1b0490d6745:schema"
+import AWS_ServiceDiscovery_Service "github.com/cueformation/cfn-cue/resources/h0321e1b0490d6745:schema"
 
-import r737 "github.com/cueformation/cfn-cue/resources/hb034bae8ef76a6d3:schema"
+import AWS_StepFunctions_Activity "github.com/cueformation/cfn-cue/resources/hb034bae8ef76a6d3:schema"
 
-import r738 "github.com/cueformation/cfn-cue/resources/hfab707ee18500074:schema"
+import AWS_StepFunctions_StateMachine "github.com/cueformation/cfn-cue/resources/hfab707ee18500074:schema"
 
-import r739 "github.com/cueformation/cfn-cue/resources/h9ec2b933a5a5266e:schema"
+import AWS_StepFunctions_StateMachineAlias "github.com/cueformation/cfn-cue/resources/h9ec2b933a5a5266e:schema"
 
-import r740 "github.com/cueformation/cfn-cue/resources/h629fdbc63c97365f:schema"
+import AWS_StepFunctions_StateMachineVersion "github.com/cueformation/cfn-cue/resources/h629fdbc63c97365f:schema"
 
-import r741 "github.com/cueformation/cfn-cue/resources/h33dbd00af9f2377b:schema"
+import AWS_Synthetics_Canary "github.com/cueformation/cfn-cue/resources/h33dbd00af9f2377b:schema"
 
-import r742 "github.com/cueformation/cfn-cue/resources/heb1cbbdcb553344d:schema"
+import AWS_Timestream_InfluxDBCluster "github.com/cueformation/cfn-cue/resources/heb1cbbdcb553344d:schema"
 
-import r743 "github.com/cueformation/cfn-cue/resources/h02caddf5e74c7ada:schema"
+import AWS_Timestream_InfluxDBInstance "github.com/cueformation/cfn-cue/resources/h02caddf5e74c7ada:schema"
 
-import r744 "github.com/cueformation/cfn-cue/resources/h22795f28da4be2ff:schema"
+import AWS_Transfer_Agreement "github.com/cueformation/cfn-cue/resources/h22795f28da4be2ff:schema"
 
-import r745 "github.com/cueformation/cfn-cue/resources/h7d085e547573cb2e:schema"
+import AWS_Transfer_Certificate "github.com/cueformation/cfn-cue/resources/h7d085e547573cb2e:schema"
 
-import r746 "github.com/cueformation/cfn-cue/resources/haced0395c8775b8d:schema"
+import AWS_Transfer_Connector "github.com/cueformation/cfn-cue/resources/haced0395c8775b8d:schema"
 
-import r747 "github.com/cueformation/cfn-cue/resources/hd9400a3cc60e6427:schema"
+import AWS_Transfer_Profile "github.com/cueformation/cfn-cue/resources/hd9400a3cc60e6427:schema"
 
-import r748 "github.com/cueformation/cfn-cue/resources/h0392c0db89e7e1af:schema"
+import AWS_Transfer_Server "github.com/cueformation/cfn-cue/resources/h0392c0db89e7e1af:schema"
 
-import r749 "github.com/cueformation/cfn-cue/resources/he4725647eb8e3272:schema"
+import AWS_Transfer_User "github.com/cueformation/cfn-cue/resources/he4725647eb8e3272:schema"
 
-import r750 "github.com/cueformation/cfn-cue/resources/h6957029c2790a0b4:schema"
+import AWS_Transfer_WebApp "github.com/cueformation/cfn-cue/resources/h6957029c2790a0b4:schema"
 
-import r751 "github.com/cueformation/cfn-cue/resources/h7e45dd682186b9fa:schema"
+import AWS_Transfer_Workflow "github.com/cueformation/cfn-cue/resources/h7e45dd682186b9fa:schema"
 
-import r752 "github.com/cueformation/cfn-cue/resources/h803a0e0625a85877:schema"
+import AWS_VerifiedPermissions_Policy "github.com/cueformation/cfn-cue/resources/h803a0e0625a85877:schema"
 
-import r753 "github.com/cueformation/cfn-cue/resources/h1d7d7242c9a86b62:schema"
+import AWS_VerifiedPermissions_PolicyStore "github.com/cueformation/cfn-cue/resources/h1d7d7242c9a86b62:schema"
 
-import r754 "github.com/cueformation/cfn-cue/resources/h2b79542d0b025601:schema"
+import AWS_VerifiedPermissions_PolicyStoreAlias "github.com/cueformation/cfn-cue/resources/h2b79542d0b025601:schema"
 
-import r755 "github.com/cueformation/cfn-cue/resources/h43db1b80fe62289a:schema"
+import AWS_VerifiedPermissions_PolicyTemplate "github.com/cueformation/cfn-cue/resources/h43db1b80fe62289a:schema"
 
-import r756 "github.com/cueformation/cfn-cue/resources/h2dab5afa3d6101af:schema"
+import AWS_WAF_ByteMatchSet "github.com/cueformation/cfn-cue/resources/h2dab5afa3d6101af:schema"
 
-import r757 "github.com/cueformation/cfn-cue/resources/hab75f89634a191e3:schema"
+import AWS_WAF_IPSet "github.com/cueformation/cfn-cue/resources/hab75f89634a191e3:schema"
 
-import r758 "github.com/cueformation/cfn-cue/resources/h22cb6c6a8addc328:schema"
+import AWS_WAF_Rule "github.com/cueformation/cfn-cue/resources/h22cb6c6a8addc328:schema"
 
-import r759 "github.com/cueformation/cfn-cue/resources/h3b38ad38a4493ef2:schema"
+import AWS_WAF_SizeConstraintSet "github.com/cueformation/cfn-cue/resources/h3b38ad38a4493ef2:schema"
 
-import r760 "github.com/cueformation/cfn-cue/resources/h765919b0b7a29ab5:schema"
+import AWS_WAF_SqlInjectionMatchSet "github.com/cueformation/cfn-cue/resources/h765919b0b7a29ab5:schema"
 
-import r761 "github.com/cueformation/cfn-cue/resources/h9a9fe233abc62def:schema"
+import AWS_WAF_WebACL "github.com/cueformation/cfn-cue/resources/h9a9fe233abc62def:schema"
 
-import r762 "github.com/cueformation/cfn-cue/resources/h765699848949c339:schema"
+import AWS_WAF_XssMatchSet "github.com/cueformation/cfn-cue/resources/h765699848949c339:schema"
 
-import r763 "github.com/cueformation/cfn-cue/resources/h96762e69adef05ce:schema"
+import AWS_WAFRegional_ByteMatchSet "github.com/cueformation/cfn-cue/resources/h96762e69adef05ce:schema"
 
-import r764 "github.com/cueformation/cfn-cue/resources/hf98f161cb6bdb3dd:schema"
+import AWS_WAFRegional_GeoMatchSet "github.com/cueformation/cfn-cue/resources/hf98f161cb6bdb3dd:schema"
 
-import r765 "github.com/cueformation/cfn-cue/resources/hd32e3192e026c065:schema"
+import AWS_WAFRegional_IPSet "github.com/cueformation/cfn-cue/resources/hd32e3192e026c065:schema"
 
-import r766 "github.com/cueformation/cfn-cue/resources/h966e2d08cd618c89:schema"
+import AWS_WAFRegional_RateBasedRule "github.com/cueformation/cfn-cue/resources/h966e2d08cd618c89:schema"
 
-import r767 "github.com/cueformation/cfn-cue/resources/h9dab19af7720178c:schema"
+import AWS_WAFRegional_RegexPatternSet "github.com/cueformation/cfn-cue/resources/h9dab19af7720178c:schema"
 
-import r768 "github.com/cueformation/cfn-cue/resources/hcac8ce084430a700:schema"
+import AWS_WAFRegional_Rule "github.com/cueformation/cfn-cue/resources/hcac8ce084430a700:schema"
 
-import r769 "github.com/cueformation/cfn-cue/resources/hd90f2a7bc7d615d2:schema"
+import AWS_WAFRegional_SizeConstraintSet "github.com/cueformation/cfn-cue/resources/hd90f2a7bc7d615d2:schema"
 
-import r770 "github.com/cueformation/cfn-cue/resources/hb12fb14e30c8e307:schema"
+import AWS_WAFRegional_SqlInjectionMatchSet "github.com/cueformation/cfn-cue/resources/hb12fb14e30c8e307:schema"
 
-import r771 "github.com/cueformation/cfn-cue/resources/hbe692d12471090fa:schema"
+import AWS_WAFRegional_WebACL "github.com/cueformation/cfn-cue/resources/hbe692d12471090fa:schema"
 
-import r772 "github.com/cueformation/cfn-cue/resources/he9eb6b54013a4bdb:schema"
+import AWS_WAFRegional_WebACLAssociation "github.com/cueformation/cfn-cue/resources/he9eb6b54013a4bdb:schema"
 
-import r773 "github.com/cueformation/cfn-cue/resources/h0f10f7c1c48c5e93:schema"
+import AWS_WAFRegional_XssMatchSet "github.com/cueformation/cfn-cue/resources/h0f10f7c1c48c5e93:schema"
 
-import r774 "github.com/cueformation/cfn-cue/resources/haeb3c96301ee0492:schema"
+import AWS_WAFv2_IPSet "github.com/cueformation/cfn-cue/resources/haeb3c96301ee0492:schema"
 
-import r775 "github.com/cueformation/cfn-cue/resources/h4368e46ad4d0f35f:schema"
+import AWS_WAFv2_LoggingConfiguration "github.com/cueformation/cfn-cue/resources/h4368e46ad4d0f35f:schema"
 
-import r776 "github.com/cueformation/cfn-cue/resources/h18d70d9aa9e17026:schema"
+import AWS_WAFv2_RegexPatternSet "github.com/cueformation/cfn-cue/resources/h18d70d9aa9e17026:schema"
 
-import r777 "github.com/cueformation/cfn-cue/resources/hadfc3b27e68977b5:schema"
+import AWS_WAFv2_RuleGroup "github.com/cueformation/cfn-cue/resources/hadfc3b27e68977b5:schema"
 
-import r778 "github.com/cueformation/cfn-cue/resources/he84cc351e6f79be8:schema"
+import AWS_WAFv2_WebACL "github.com/cueformation/cfn-cue/resources/he84cc351e6f79be8:schema"
 
-import r779 "github.com/cueformation/cfn-cue/resources/h5cde1ca991360fca:schema"
+import AWS_WAFv2_WebACLAssociation "github.com/cueformation/cfn-cue/resources/h5cde1ca991360fca:schema"
 
-import r780 "github.com/cueformation/cfn-cue/resources/hcbeed79858d3613d:schema"
+import AWS_WorkSpaces_Workspace "github.com/cueformation/cfn-cue/resources/hcbeed79858d3613d:schema"
 
-import r781 "github.com/cueformation/cfn-cue/resources/h520687d93e1f35d1:schema"
+import AWS_XRay_Group "github.com/cueformation/cfn-cue/resources/h520687d93e1f35d1:schema"
 
-import r782 "github.com/cueformation/cfn-cue/resources/h8b765cca57a5ca84:schema"
+import AWS_XRay_ResourcePolicy "github.com/cueformation/cfn-cue/resources/h8b765cca57a5ca84:schema"
 
-import r783 "github.com/cueformation/cfn-cue/resources/h4dc93be643cebf89:schema"
+import AWS_XRay_SamplingRule "github.com/cueformation/cfn-cue/resources/h4dc93be643cebf89:schema"
 
 #ResourceTypes: {
-	"AWS::ACMPCA::Certificate":                                    r0.#Resource
-	"AWS::ACMPCA::CertificateAuthority":                           r1.#Resource
-	"AWS::ACMPCA::CertificateAuthorityActivation":                 r2.#Resource
-	"AWS::ACMPCA::Permission":                                     r3.#Resource
-	"AWS::ARCZonalShift::AutoshiftObserverNotificationStatus":     r4.#Resource
-	"AWS::ARCZonalShift::ZonalAutoshiftConfiguration":             r5.#Resource
-	"AWS::AccessAnalyzer::Analyzer":                               r6.#Resource
-	"AWS::AmazonMQ::Broker":                                       r7.#Resource
-	"AWS::AmazonMQ::Configuration":                                r8.#Resource
-	"AWS::AmazonMQ::ConfigurationAssociation":                     r9.#Resource
-	"AWS::ApiGateway::Account":                                    r10.#Resource
-	"AWS::ApiGateway::ApiKey":                                     r11.#Resource
-	"AWS::ApiGateway::Authorizer":                                 r12.#Resource
-	"AWS::ApiGateway::BasePathMapping":                            r13.#Resource
-	"AWS::ApiGateway::BasePathMappingV2":                          r14.#Resource
-	"AWS::ApiGateway::ClientCertificate":                          r15.#Resource
-	"AWS::ApiGateway::Deployment":                                 r16.#Resource
-	"AWS::ApiGateway::DocumentationPart":                          r17.#Resource
-	"AWS::ApiGateway::DocumentationVersion":                       r18.#Resource
-	"AWS::ApiGateway::DomainName":                                 r19.#Resource
-	"AWS::ApiGateway::DomainNameAccessAssociation":                r20.#Resource
-	"AWS::ApiGateway::DomainNameV2":                               r21.#Resource
-	"AWS::ApiGateway::GatewayResponse":                            r22.#Resource
-	"AWS::ApiGateway::Method":                                     r23.#Resource
-	"AWS::ApiGateway::Model":                                      r24.#Resource
-	"AWS::ApiGateway::RequestValidator":                           r25.#Resource
-	"AWS::ApiGateway::Resource":                                   r26.#Resource
-	"AWS::ApiGateway::RestApi":                                    r27.#Resource
-	"AWS::ApiGateway::Stage":                                      r28.#Resource
-	"AWS::ApiGateway::UsagePlan":                                  r29.#Resource
-	"AWS::ApiGateway::UsagePlanKey":                               r30.#Resource
-	"AWS::ApiGateway::VpcLink":                                    r31.#Resource
-	"AWS::ApiGatewayV2::Api":                                      r32.#Resource
-	"AWS::ApiGatewayV2::ApiGatewayManagedOverrides":               r33.#Resource
-	"AWS::ApiGatewayV2::ApiMapping":                               r34.#Resource
-	"AWS::ApiGatewayV2::Authorizer":                               r35.#Resource
-	"AWS::ApiGatewayV2::Deployment":                               r36.#Resource
-	"AWS::ApiGatewayV2::DomainName":                               r37.#Resource
-	"AWS::ApiGatewayV2::Integration":                              r38.#Resource
-	"AWS::ApiGatewayV2::IntegrationResponse":                      r39.#Resource
-	"AWS::ApiGatewayV2::Model":                                    r40.#Resource
-	"AWS::ApiGatewayV2::Route":                                    r41.#Resource
-	"AWS::ApiGatewayV2::RouteResponse":                            r42.#Resource
-	"AWS::ApiGatewayV2::RoutingRule":                              r43.#Resource
-	"AWS::ApiGatewayV2::Stage":                                    r44.#Resource
-	"AWS::ApiGatewayV2::VpcLink":                                  r45.#Resource
-	"AWS::AppConfig::Application":                                 r46.#Resource
-	"AWS::AppConfig::ConfigurationProfile":                        r47.#Resource
-	"AWS::AppConfig::Deployment":                                  r48.#Resource
-	"AWS::AppConfig::DeploymentStrategy":                          r49.#Resource
-	"AWS::AppConfig::Environment":                                 r50.#Resource
-	"AWS::AppConfig::ExperimentDefinition":                        r51.#Resource
-	"AWS::AppConfig::ExperimentRun":                               r52.#Resource
-	"AWS::AppConfig::Extension":                                   r53.#Resource
-	"AWS::AppConfig::ExtensionAssociation":                        r54.#Resource
-	"AWS::AppConfig::HostedConfigurationVersion":                  r55.#Resource
-	"AWS::AppMesh::GatewayRoute":                                  r56.#Resource
-	"AWS::AppMesh::Mesh":                                          r57.#Resource
-	"AWS::AppMesh::Route":                                         r58.#Resource
-	"AWS::AppMesh::VirtualGateway":                                r59.#Resource
-	"AWS::AppMesh::VirtualNode":                                   r60.#Resource
-	"AWS::AppMesh::VirtualRouter":                                 r61.#Resource
-	"AWS::AppMesh::VirtualService":                                r62.#Resource
-	"AWS::AppStream::DirectoryConfig":                             r63.#Resource
-	"AWS::AppStream::Fleet":                                       r64.#Resource
-	"AWS::AppStream::ImageBuilder":                                r65.#Resource
-	"AWS::AppStream::Stack":                                       r66.#Resource
-	"AWS::AppStream::StackFleetAssociation":                       r67.#Resource
-	"AWS::AppStream::StackUserAssociation":                        r68.#Resource
-	"AWS::AppStream::User":                                        r69.#Resource
-	"AWS::AppSync::Api":                                           r70.#Resource
-	"AWS::AppSync::ApiCache":                                      r71.#Resource
-	"AWS::AppSync::ApiKey":                                        r72.#Resource
-	"AWS::AppSync::ChannelNamespace":                              r73.#Resource
-	"AWS::AppSync::DataSource":                                    r74.#Resource
-	"AWS::AppSync::FunctionConfiguration":                         r75.#Resource
-	"AWS::AppSync::GraphQLApi":                                    r76.#Resource
-	"AWS::AppSync::GraphQLSchema":                                 r77.#Resource
-	"AWS::AppSync::Resolver":                                      r78.#Resource
-	"AWS::AppSync::SourceApiAssociation":                          r79.#Resource
-	"AWS::ApplicationAutoScaling::ScalableTarget":                 r80.#Resource
-	"AWS::ApplicationAutoScaling::ScalingPolicy":                  r81.#Resource
-	"AWS::ApplicationInsights::Application":                       r82.#Resource
-	"AWS::ApplicationSignals::Discovery":                          r83.#Resource
-	"AWS::ApplicationSignals::GroupingConfiguration":              r84.#Resource
-	"AWS::ApplicationSignals::ServiceLevelObjective":              r85.#Resource
-	"AWS::Athena::DataCatalog":                                    r86.#Resource
-	"AWS::Athena::NamedQuery":                                     r87.#Resource
-	"AWS::Athena::PreparedStatement":                              r88.#Resource
-	"AWS::Athena::WorkGroup":                                      r89.#Resource
-	"AWS::AutoScaling::AutoScalingGroup":                          r90.#Resource
-	"AWS::AutoScaling::LaunchConfiguration":                       r91.#Resource
-	"AWS::AutoScaling::LifecycleHook":                             r92.#Resource
-	"AWS::AutoScaling::ScalingPolicy":                             r93.#Resource
-	"AWS::AutoScaling::ScheduledAction":                           r94.#Resource
-	"AWS::AutoScaling::WarmPool":                                  r95.#Resource
-	"AWS::AutoScalingPlans::ScalingPlan":                          r96.#Resource
-	"AWS::Backup::BackupPlan":                                     r97.#Resource
-	"AWS::Backup::BackupSelection":                                r98.#Resource
-	"AWS::Backup::BackupVault":                                    r99.#Resource
-	"AWS::Backup::TieringConfiguration":                           r100.#Resource
-	"AWS::Batch::ComputeEnvironment":                              r101.#Resource
-	"AWS::Batch::ConsumableResource":                              r102.#Resource
-	"AWS::Batch::JobDefinition":                                   r103.#Resource
-	"AWS::Batch::JobQueue":                                        r104.#Resource
-	"AWS::Batch::QuotaShare":                                      r105.#Resource
-	"AWS::Batch::SchedulingPolicy":                                r106.#Resource
-	"AWS::Batch::ServiceEnvironment":                              r107.#Resource
-	"AWS::BedrockAgentCore::BrowserCustom":                        r108.#Resource
-	"AWS::BedrockAgentCore::BrowserProfile":                       r109.#Resource
-	"AWS::BedrockAgentCore::CodeInterpreterCustom":                r110.#Resource
-	"AWS::BedrockAgentCore::Gateway":                              r111.#Resource
-	"AWS::BedrockAgentCore::GatewayRateLimit":                     r112.#Resource
-	"AWS::BedrockAgentCore::GatewayTarget":                        r113.#Resource
-	"AWS::BedrockAgentCore::Runtime":                              r114.#Resource
-	"AWS::BedrockAgentCore::RuntimeEndpoint":                      r115.#Resource
-	"AWS::BedrockAgentCore::WorkloadIdentity":                     r116.#Resource
-	"AWS::Budgets::Budget":                                        r117.#Resource
-	"AWS::Budgets::BudgetsAction":                                 r118.#Resource
-	"AWS::CDK::Metadata":                                          r119.#Resource
-	"AWS::CE::AnomalyMonitor":                                     r120.#Resource
-	"AWS::CE::AnomalySubscription":                                r121.#Resource
-	"AWS::CE::CostCategory":                                       r122.#Resource
-	"AWS::CUR::ReportDefinition":                                  r123.#Resource
-	"AWS::Cassandra::Keyspace":                                    r124.#Resource
-	"AWS::Cassandra::Table":                                       r125.#Resource
-	"AWS::Cassandra::Type":                                        r126.#Resource
-	"AWS::CertificateManager::Account":                            r127.#Resource
-	"AWS::CertificateManager::Certificate":                        r128.#Resource
-	"AWS::Cloud9::EnvironmentEC2":                                 r129.#Resource
-	"AWS::CloudFormation::CustomResource":                         r130.#Resource
-	"AWS::CloudFormation::HookDefaultVersion":                     r131.#Resource
-	"AWS::CloudFormation::HookTypeConfig":                         r132.#Resource
-	"AWS::CloudFormation::HookVersion":                            r133.#Resource
-	"AWS::CloudFormation::Macro":                                  r134.#Resource
-	"AWS::CloudFormation::ModuleDefaultVersion":                   r135.#Resource
-	"AWS::CloudFormation::ModuleVersion":                          r136.#Resource
-	"AWS::CloudFormation::ResourceDefaultVersion":                 r137.#Resource
-	"AWS::CloudFormation::ResourceVersion":                        r138.#Resource
-	"AWS::CloudFormation::Stack":                                  r139.#Resource
-	"AWS::CloudFormation::StackSet":                               r140.#Resource
-	"AWS::CloudFormation::WaitCondition":                          r141.#Resource
-	"AWS::CloudFormation::WaitConditionHandle":                    r142.#Resource
-	"AWS::CloudFront::CachePolicy":                                r143.#Resource
-	"AWS::CloudFront::CloudFrontOriginAccessIdentity":             r144.#Resource
-	"AWS::CloudFront::Distribution":                               r145.#Resource
-	"AWS::CloudFront::KeyGroup":                                   r146.#Resource
-	"AWS::CloudFront::OriginRequestPolicy":                        r147.#Resource
-	"AWS::CloudFront::PublicKey":                                  r148.#Resource
-	"AWS::CloudFront::RealtimeLogConfig":                          r149.#Resource
-	"AWS::CloudFront::ResponseHeadersPolicy":                      r150.#Resource
-	"AWS::CloudFront::StreamingDistribution":                      r151.#Resource
-	"AWS::CloudTrail::Trail":                                      r152.#Resource
-	"AWS::CloudWatch::Alarm":                                      r153.#Resource
-	"AWS::CloudWatch::AlarmMuteRule":                              r154.#Resource
-	"AWS::CloudWatch::AnomalyDetector":                            r155.#Resource
-	"AWS::CloudWatch::CompositeAlarm":                             r156.#Resource
-	"AWS::CloudWatch::Dashboard":                                  r157.#Resource
-	"AWS::CloudWatch::InsightRule":                                r158.#Resource
-	"AWS::CloudWatch::MetricStream":                               r159.#Resource
-	"AWS::CodeBuild::Project":                                     r160.#Resource
-	"AWS::CodeBuild::ReportGroup":                                 r161.#Resource
-	"AWS::CodeBuild::SourceCredential":                            r162.#Resource
-	"AWS::CodeCommit::Repository":                                 r163.#Resource
-	"AWS::CodeDeploy::Application":                                r164.#Resource
-	"AWS::CodeDeploy::DeploymentConfig":                           r165.#Resource
-	"AWS::CodeDeploy::DeploymentGroup":                            r166.#Resource
-	"AWS::CodePipeline::CustomActionType":                         r167.#Resource
-	"AWS::CodePipeline::Pipeline":                                 r168.#Resource
-	"AWS::CodePipeline::Webhook":                                  r169.#Resource
-	"AWS::Config::AggregationAuthorization":                       r170.#Resource
-	"AWS::Config::ConfigRule":                                     r171.#Resource
-	"AWS::Config::ConfigurationAggregator":                        r172.#Resource
-	"AWS::Config::ConfigurationRecorder":                          r173.#Resource
-	"AWS::Config::ConformancePack":                                r174.#Resource
-	"AWS::Config::DeliveryChannel":                                r175.#Resource
-	"AWS::Config::OrganizationConfigRule":                         r176.#Resource
-	"AWS::Config::OrganizationConformancePack":                    r177.#Resource
-	"AWS::Config::RemediationConfiguration":                       r178.#Resource
-	"AWS::Config::StoredQuery":                                    r179.#Resource
-	"AWS::DAX::Cluster":                                           r180.#Resource
-	"AWS::DAX::ParameterGroup":                                    r181.#Resource
-	"AWS::DAX::SubnetGroup":                                       r182.#Resource
-	"AWS::DLM::LifecyclePolicy":                                   r183.#Resource
-	"AWS::DMS::Certificate":                                       r184.#Resource
-	"AWS::DMS::DataProvider":                                      r185.#Resource
-	"AWS::DMS::Endpoint":                                          r186.#Resource
-	"AWS::DMS::EventSubscription":                                 r187.#Resource
-	"AWS::DMS::InstanceProfile":                                   r188.#Resource
-	"AWS::DMS::MigrationProject":                                  r189.#Resource
-	"AWS::DMS::ReplicationConfig":                                 r190.#Resource
-	"AWS::DMS::ReplicationInstance":                               r191.#Resource
-	"AWS::DMS::ReplicationSubnetGroup":                            r192.#Resource
-	"AWS::DMS::ReplicationTask":                                   r193.#Resource
-	"AWS::DataBrew::Dataset":                                      r194.#Resource
-	"AWS::DataBrew::Job":                                          r195.#Resource
-	"AWS::DataBrew::Project":                                      r196.#Resource
-	"AWS::DataBrew::Recipe":                                       r197.#Resource
-	"AWS::DataBrew::Ruleset":                                      r198.#Resource
-	"AWS::DataBrew::Schedule":                                     r199.#Resource
-	"AWS::DataPipeline::Pipeline":                                 r200.#Resource
-	"AWS::DataSync::Agent":                                        r201.#Resource
-	"AWS::DataSync::LocationAzureBlob":                            r202.#Resource
-	"AWS::DataSync::LocationEFS":                                  r203.#Resource
-	"AWS::DataSync::LocationFSxLustre":                            r204.#Resource
-	"AWS::DataSync::LocationFSxWindows":                           r205.#Resource
-	"AWS::DataSync::LocationHDFS":                                 r206.#Resource
-	"AWS::DataSync::LocationNFS":                                  r207.#Resource
-	"AWS::DataSync::LocationObjectStorage":                        r208.#Resource
-	"AWS::DataSync::LocationS3":                                   r209.#Resource
-	"AWS::DataSync::LocationSMB":                                  r210.#Resource
-	"AWS::DataSync::Task":                                         r211.#Resource
-	"AWS::DirectConnect::Connection":                              r212.#Resource
-	"AWS::DirectConnect::DirectConnectGateway":                    r213.#Resource
-	"AWS::DirectConnect::DirectConnectGatewayAssociation":         r214.#Resource
-	"AWS::DirectConnect::Lag":                                     r215.#Resource
-	"AWS::DirectConnect::PrivateVirtualInterface":                 r216.#Resource
-	"AWS::DirectConnect::PublicVirtualInterface":                  r217.#Resource
-	"AWS::DirectConnect::TransitVirtualInterface":                 r218.#Resource
-	"AWS::DirectoryService::MicrosoftAD":                          r219.#Resource
-	"AWS::DirectoryService::SimpleAD":                             r220.#Resource
-	"AWS::DocDB::DBCluster":                                       r221.#Resource
-	"AWS::DocDB::DBClusterParameterGroup":                         r222.#Resource
-	"AWS::DocDB::DBInstance":                                      r223.#Resource
-	"AWS::DocDB::DBSubnetGroup":                                   r224.#Resource
-	"AWS::DocDB::EventSubscription":                               r225.#Resource
-	"AWS::DynamoDB::GlobalTable":                                  r226.#Resource
-	"AWS::DynamoDB::Table":                                        r227.#Resource
-	"AWS::EC2::CapacityReservation":                               r228.#Resource
-	"AWS::EC2::CapacityReservationFleet":                          r229.#Resource
-	"AWS::EC2::CustomerGateway":                                   r230.#Resource
-	"AWS::EC2::DHCPOptions":                                       r231.#Resource
-	"AWS::EC2::EC2Fleet":                                          r232.#Resource
-	"AWS::EC2::EIP":                                               r233.#Resource
-	"AWS::EC2::EIPAssociation":                                    r234.#Resource
-	"AWS::EC2::EgressOnlyInternetGateway":                         r235.#Resource
-	"AWS::EC2::FlowLog":                                           r236.#Resource
-	"AWS::EC2::GatewayRouteTableAssociation":                      r237.#Resource
-	"AWS::EC2::Host":                                              r238.#Resource
-	"AWS::EC2::IPAM":                                              r239.#Resource
-	"AWS::EC2::IPAMAllocation":                                    r240.#Resource
-	"AWS::EC2::IPAMPool":                                          r241.#Resource
-	"AWS::EC2::IPAMPoolCidr":                                      r242.#Resource
-	"AWS::EC2::IPAMPrefixListResolver":                            r243.#Resource
-	"AWS::EC2::IPAMPrefixListResolverTarget":                      r244.#Resource
-	"AWS::EC2::IPAMResourceDiscovery":                             r245.#Resource
-	"AWS::EC2::IPAMResourceDiscoveryAssociation":                  r246.#Resource
-	"AWS::EC2::IPAMScope":                                         r247.#Resource
-	"AWS::EC2::Instance":                                          r248.#Resource
-	"AWS::EC2::InstanceConnectEndpoint":                           r249.#Resource
-	"AWS::EC2::InternetGateway":                                   r250.#Resource
-	"AWS::EC2::IpPoolRouteTableAssociation":                       r251.#Resource
-	"AWS::EC2::KeyPair":                                           r252.#Resource
-	"AWS::EC2::LaunchTemplate":                                    r253.#Resource
-	"AWS::EC2::NatGateway":                                        r254.#Resource
-	"AWS::EC2::NetworkAcl":                                        r255.#Resource
-	"AWS::EC2::NetworkAclEntry":                                   r256.#Resource
-	"AWS::EC2::NetworkInterface":                                  r257.#Resource
-	"AWS::EC2::NetworkInterfaceAttachment":                        r258.#Resource
-	"AWS::EC2::NetworkInterfacePermission":                        r259.#Resource
-	"AWS::EC2::PlacementGroup":                                    r260.#Resource
-	"AWS::EC2::PrefixList":                                        r261.#Resource
-	"AWS::EC2::Route":                                             r262.#Resource
-	"AWS::EC2::RouteTable":                                        r263.#Resource
-	"AWS::EC2::SecurityGroup":                                     r264.#Resource
-	"AWS::EC2::SecurityGroupEgress":                               r265.#Resource
-	"AWS::EC2::SecurityGroupIngress":                              r266.#Resource
-	"AWS::EC2::SecurityGroupVpcAssociation":                       r267.#Resource
-	"AWS::EC2::SnapshotBlockPublicAccess":                         r268.#Resource
-	"AWS::EC2::SpotFleet":                                         r269.#Resource
-	"AWS::EC2::SqlHaStandbyDetectedInstance":                      r270.#Resource
-	"AWS::EC2::Subnet":                                            r271.#Resource
-	"AWS::EC2::SubnetCidrBlock":                                   r272.#Resource
-	"AWS::EC2::SubnetNetworkAclAssociation":                       r273.#Resource
-	"AWS::EC2::SubnetRouteTableAssociation":                       r274.#Resource
-	"AWS::EC2::TrafficMirrorFilter":                               r275.#Resource
-	"AWS::EC2::TrafficMirrorFilterRule":                           r276.#Resource
-	"AWS::EC2::TrafficMirrorSession":                              r277.#Resource
-	"AWS::EC2::TrafficMirrorTarget":                               r278.#Resource
-	"AWS::EC2::TransitGateway":                                    r279.#Resource
-	"AWS::EC2::TransitGatewayAttachment":                          r280.#Resource
-	"AWS::EC2::TransitGatewayConnect":                             r281.#Resource
-	"AWS::EC2::TransitGatewayConnectPeer":                         r282.#Resource
-	"AWS::EC2::TransitGatewayMeteringPolicy":                      r283.#Resource
-	"AWS::EC2::TransitGatewayMeteringPolicyEntry":                 r284.#Resource
-	"AWS::EC2::TransitGatewayMulticastDomain":                     r285.#Resource
-	"AWS::EC2::TransitGatewayMulticastDomainAssociation":          r286.#Resource
-	"AWS::EC2::TransitGatewayMulticastGroupMember":                r287.#Resource
-	"AWS::EC2::TransitGatewayMulticastGroupSource":                r288.#Resource
-	"AWS::EC2::TransitGatewayPeeringAttachment":                   r289.#Resource
-	"AWS::EC2::TransitGatewayPolicyTable":                         r290.#Resource
-	"AWS::EC2::TransitGatewayPolicyTableAssociation":              r291.#Resource
-	"AWS::EC2::TransitGatewayPolicyTableEntry":                    r292.#Resource
-	"AWS::EC2::TransitGatewayRoute":                               r293.#Resource
-	"AWS::EC2::TransitGatewayRouteTable":                          r294.#Resource
-	"AWS::EC2::TransitGatewayRouteTableAssociation":               r295.#Resource
-	"AWS::EC2::TransitGatewayRouteTablePropagation":               r296.#Resource
-	"AWS::EC2::TransitGatewayVpcAttachment":                       r297.#Resource
-	"AWS::EC2::VPC":                                               r298.#Resource
-	"AWS::EC2::VPCBlockPublicAccessExclusion":                     r299.#Resource
-	"AWS::EC2::VPCBlockPublicAccessOptions":                       r300.#Resource
-	"AWS::EC2::VPCCidrBlock":                                      r301.#Resource
-	"AWS::EC2::VPCDHCPOptionsAssociation":                         r302.#Resource
-	"AWS::EC2::VPCEndpoint":                                       r303.#Resource
-	"AWS::EC2::VPCEndpointConnectionNotification":                 r304.#Resource
-	"AWS::EC2::VPCEndpointService":                                r305.#Resource
-	"AWS::EC2::VPCEndpointServicePermissions":                     r306.#Resource
-	"AWS::EC2::VPCGatewayAttachment":                              r307.#Resource
-	"AWS::EC2::VPCPeeringConnection":                              r308.#Resource
-	"AWS::EC2::VPNConnection":                                     r309.#Resource
-	"AWS::EC2::VPNConnectionRoute":                                r310.#Resource
-	"AWS::EC2::VPNGateway":                                        r311.#Resource
-	"AWS::EC2::VPNGatewayRoutePropagation":                        r312.#Resource
-	"AWS::EC2::Volume":                                            r313.#Resource
-	"AWS::EC2::VolumeAttachment":                                  r314.#Resource
-	"AWS::ECR::PullThroughCacheRule":                              r315.#Resource
-	"AWS::ECR::PullTimeUpdateExclusion":                           r316.#Resource
-	"AWS::ECR::RegistryPolicy":                                    r317.#Resource
-	"AWS::ECR::RegistryScanningConfiguration":                     r318.#Resource
-	"AWS::ECR::ReplicationConfiguration":                          r319.#Resource
-	"AWS::ECR::Repository":                                        r320.#Resource
-	"AWS::ECR::RepositoryCreationTemplate":                        r321.#Resource
-	"AWS::ECS::CapacityProvider":                                  r322.#Resource
-	"AWS::ECS::Cluster":                                           r323.#Resource
-	"AWS::ECS::ClusterCapacityProviderAssociations":               r324.#Resource
-	"AWS::ECS::ExpressGatewayService":                             r325.#Resource
-	"AWS::ECS::PrimaryTaskSet":                                    r326.#Resource
-	"AWS::ECS::Service":                                           r327.#Resource
-	"AWS::ECS::TaskDefinition":                                    r328.#Resource
-	"AWS::ECS::TaskSet":                                           r329.#Resource
-	"AWS::EFS::AccessPoint":                                       r330.#Resource
-	"AWS::EFS::FileSystem":                                        r331.#Resource
-	"AWS::EFS::MountTarget":                                       r332.#Resource
-	"AWS::EKS::AccessEntry":                                       r333.#Resource
-	"AWS::EKS::Addon":                                             r334.#Resource
-	"AWS::EKS::Capability":                                        r335.#Resource
-	"AWS::EKS::Cluster":                                           r336.#Resource
-	"AWS::EKS::FargateProfile":                                    r337.#Resource
-	"AWS::EKS::IdentityProviderConfig":                            r338.#Resource
-	"AWS::EKS::Nodegroup":                                         r339.#Resource
-	"AWS::EKS::PodIdentityAssociation":                            r340.#Resource
-	"AWS::EMR::Cluster":                                           r341.#Resource
-	"AWS::EMR::InstanceFleetConfig":                               r342.#Resource
-	"AWS::EMR::InstanceGroupConfig":                               r343.#Resource
-	"AWS::EMR::SecurityConfiguration":                             r344.#Resource
-	"AWS::EMR::Step":                                              r345.#Resource
-	"AWS::EMR::Studio":                                            r346.#Resource
-	"AWS::EMR::StudioSessionMapping":                              r347.#Resource
-	"AWS::EMRContainers::VirtualCluster":                          r348.#Resource
-	"AWS::EMRServerless::Application":                             r349.#Resource
-	"AWS::ElastiCache::CacheCluster":                              r350.#Resource
-	"AWS::ElastiCache::GlobalReplicationGroup":                    r351.#Resource
-	"AWS::ElastiCache::ParameterGroup":                            r352.#Resource
-	"AWS::ElastiCache::ReplicationGroup":                          r353.#Resource
-	"AWS::ElastiCache::SecurityGroup":                             r354.#Resource
-	"AWS::ElastiCache::SecurityGroupIngress":                      r355.#Resource
-	"AWS::ElastiCache::ServerlessCache":                           r356.#Resource
-	"AWS::ElastiCache::SubnetGroup":                               r357.#Resource
-	"AWS::ElastiCache::User":                                      r358.#Resource
-	"AWS::ElastiCache::UserGroup":                                 r359.#Resource
-	"AWS::ElasticBeanstalk::Application":                          r360.#Resource
-	"AWS::ElasticBeanstalk::ApplicationVersion":                   r361.#Resource
-	"AWS::ElasticBeanstalk::ConfigurationTemplate":                r362.#Resource
-	"AWS::ElasticBeanstalk::Environment":                          r363.#Resource
-	"AWS::ElasticLoadBalancing::LoadBalancer":                     r364.#Resource
-	"AWS::ElasticLoadBalancingV2::Listener":                       r365.#Resource
-	"AWS::ElasticLoadBalancingV2::ListenerCertificate":            r366.#Resource
-	"AWS::ElasticLoadBalancingV2::ListenerRule":                   r367.#Resource
-	"AWS::ElasticLoadBalancingV2::LoadBalancer":                   r368.#Resource
-	"AWS::ElasticLoadBalancingV2::TargetGroup":                    r369.#Resource
-	"AWS::ElasticLoadBalancingV2::TrustStore":                     r370.#Resource
-	"AWS::ElasticLoadBalancingV2::TrustStoreRevocation":           r371.#Resource
-	"AWS::Elasticsearch::Domain":                                  r372.#Resource
-	"AWS::EventSchemas::Discoverer":                               r373.#Resource
-	"AWS::EventSchemas::Registry":                                 r374.#Resource
-	"AWS::EventSchemas::RegistryPolicy":                           r375.#Resource
-	"AWS::EventSchemas::Schema":                                   r376.#Resource
-	"AWS::Events::ApiDestination":                                 r377.#Resource
-	"AWS::Events::Archive":                                        r378.#Resource
-	"AWS::Events::Connection":                                     r379.#Resource
-	"AWS::Events::EventBus":                                       r380.#Resource
-	"AWS::Events::EventBusPolicy":                                 r381.#Resource
-	"AWS::Events::Rule":                                           r382.#Resource
-	"AWS::FMS::NotificationChannel":                               r383.#Resource
-	"AWS::FMS::Policy":                                            r384.#Resource
-	"AWS::FMS::ResourceSet":                                       r385.#Resource
-	"AWS::FSx::DataRepositoryAssociation":                         r386.#Resource
-	"AWS::FSx::FileSystem":                                        r387.#Resource
-	"AWS::FSx::S3AccessPointAttachment":                           r388.#Resource
-	"AWS::FSx::Snapshot":                                          r389.#Resource
-	"AWS::FSx::StorageVirtualMachine":                             r390.#Resource
-	"AWS::FSx::Volume":                                            r391.#Resource
-	"AWS::FraudDetector::List":                                    r392.#Resource
-	"AWS::GameLift::Alias":                                        r393.#Resource
-	"AWS::GameLift::Build":                                        r394.#Resource
-	"AWS::GameLift::Fleet":                                        r395.#Resource
-	"AWS::GameLift::GameServerGroup":                              r396.#Resource
-	"AWS::GameLift::GameSessionQueue":                             r397.#Resource
-	"AWS::GameLift::MatchmakingConfiguration":                     r398.#Resource
-	"AWS::GameLift::MatchmakingRuleSet":                           r399.#Resource
-	"AWS::GameLift::Script":                                       r400.#Resource
-	"AWS::Glue::Classifier":                                       r401.#Resource
-	"AWS::Glue::Connection":                                       r402.#Resource
-	"AWS::Glue::Crawler":                                          r403.#Resource
-	"AWS::Glue::CustomEntityType":                                 r404.#Resource
-	"AWS::Glue::DataCatalogEncryptionSettings":                    r405.#Resource
-	"AWS::Glue::DataQualityRuleset":                               r406.#Resource
-	"AWS::Glue::Database":                                         r407.#Resource
-	"AWS::Glue::DevEndpoint":                                      r408.#Resource
-	"AWS::Glue::Job":                                              r409.#Resource
-	"AWS::Glue::MLTransform":                                      r410.#Resource
-	"AWS::Glue::Partition":                                        r411.#Resource
-	"AWS::Glue::Registry":                                         r412.#Resource
-	"AWS::Glue::Schema":                                           r413.#Resource
-	"AWS::Glue::SchemaVersion":                                    r414.#Resource
-	"AWS::Glue::SchemaVersionMetadata":                            r415.#Resource
-	"AWS::Glue::SecurityConfiguration":                            r416.#Resource
-	"AWS::Glue::Table":                                            r417.#Resource
-	"AWS::Glue::Trigger":                                          r418.#Resource
-	"AWS::Glue::Workflow":                                         r419.#Resource
-	"AWS::GuardDuty::CustomDetectionRuleAssociation":              r420.#Resource
-	"AWS::GuardDuty::Detector":                                    r421.#Resource
-	"AWS::GuardDuty::Filter":                                      r422.#Resource
-	"AWS::GuardDuty::IPSet":                                       r423.#Resource
-	"AWS::GuardDuty::MalwareProtectionPlan":                       r424.#Resource
-	"AWS::GuardDuty::Master":                                      r425.#Resource
-	"AWS::GuardDuty::Member":                                      r426.#Resource
-	"AWS::GuardDuty::PublishingDestination":                       r427.#Resource
-	"AWS::GuardDuty::ThreatIntelSet":                              r428.#Resource
-	"AWS::IAM::AccessKey":                                         r429.#Resource
-	"AWS::IAM::Group":                                             r430.#Resource
-	"AWS::IAM::GroupPolicy":                                       r431.#Resource
-	"AWS::IAM::InstanceProfile":                                   r432.#Resource
-	"AWS::IAM::ManagedPolicy":                                     r433.#Resource
-	"AWS::IAM::OIDCProvider":                                      r434.#Resource
-	"AWS::IAM::Policy":                                            r435.#Resource
-	"AWS::IAM::Role":                                              r436.#Resource
-	"AWS::IAM::RolePolicy":                                        r437.#Resource
-	"AWS::IAM::SAMLProvider":                                      r438.#Resource
-	"AWS::IAM::ServerCertificate":                                 r439.#Resource
-	"AWS::IAM::ServiceLinkedRole":                                 r440.#Resource
-	"AWS::IAM::User":                                              r441.#Resource
-	"AWS::IAM::UserPolicy":                                        r442.#Resource
-	"AWS::IAM::UserToGroupAddition":                               r443.#Resource
-	"AWS::IAM::VirtualMFADevice":                                  r444.#Resource
-	"AWS::IdentityStore::Group":                                   r445.#Resource
-	"AWS::IdentityStore::GroupMembership":                         r446.#Resource
-	"AWS::ImageBuilder::Component":                                r447.#Resource
-	"AWS::ImageBuilder::ContainerRecipe":                          r448.#Resource
-	"AWS::ImageBuilder::DistributionConfiguration":                r449.#Resource
-	"AWS::ImageBuilder::Image":                                    r450.#Resource
-	"AWS::ImageBuilder::ImagePipeline":                            r451.#Resource
-	"AWS::ImageBuilder::ImageRecipe":                              r452.#Resource
-	"AWS::ImageBuilder::InfrastructureConfiguration":              r453.#Resource
-	"AWS::ImageBuilder::LifecyclePolicy":                          r454.#Resource
-	"AWS::ImageBuilder::Workflow":                                 r455.#Resource
-	"AWS::IoT::AccountAuditConfiguration":                         r456.#Resource
-	"AWS::IoT::Authorizer":                                        r457.#Resource
-	"AWS::IoT::BillingGroup":                                      r458.#Resource
-	"AWS::IoT::CACertificate":                                     r459.#Resource
-	"AWS::IoT::Certificate":                                       r460.#Resource
-	"AWS::IoT::CertificateProvider":                               r461.#Resource
-	"AWS::IoT::Command":                                           r462.#Resource
-	"AWS::IoT::CustomMetric":                                      r463.#Resource
-	"AWS::IoT::Dimension":                                         r464.#Resource
-	"AWS::IoT::DomainConfiguration":                               r465.#Resource
-	"AWS::IoT::EncryptionConfiguration":                           r466.#Resource
-	"AWS::IoT::FleetMetric":                                       r467.#Resource
-	"AWS::IoT::JobTemplate":                                       r468.#Resource
-	"AWS::IoT::Logging":                                           r469.#Resource
-	"AWS::IoT::MitigationAction":                                  r470.#Resource
-	"AWS::IoT::Policy":                                            r471.#Resource
-	"AWS::IoT::PolicyPrincipalAttachment":                         r472.#Resource
-	"AWS::IoT::ProvisioningTemplate":                              r473.#Resource
-	"AWS::IoT::ResourceSpecificLogging":                           r474.#Resource
-	"AWS::IoT::RoleAlias":                                         r475.#Resource
-	"AWS::IoT::ScheduledAudit":                                    r476.#Resource
-	"AWS::IoT::SecurityProfile":                                   r477.#Resource
-	"AWS::IoT::SoftwarePackage":                                   r478.#Resource
-	"AWS::IoT::SoftwarePackageVersion":                            r479.#Resource
-	"AWS::IoT::Thing":                                             r480.#Resource
-	"AWS::IoT::ThingGroup":                                        r481.#Resource
-	"AWS::IoT::ThingPrincipalAttachment":                          r482.#Resource
-	"AWS::IoT::ThingType":                                         r483.#Resource
-	"AWS::IoT::TopicRule":                                         r484.#Resource
-	"AWS::IoT::TopicRuleDestination":                              r485.#Resource
-	"AWS::KMS::Alias":                                             r486.#Resource
-	"AWS::KMS::Key":                                               r487.#Resource
-	"AWS::KMS::ReplicaKey":                                        r488.#Resource
-	"AWS::KafkaConnect::Connector":                                r489.#Resource
-	"AWS::KafkaConnect::CustomPlugin":                             r490.#Resource
-	"AWS::KafkaConnect::WorkerConfiguration":                      r491.#Resource
-	"AWS::Kinesis::Channel":                                       r492.#Resource
-	"AWS::Kinesis::ResourcePolicy":                                r493.#Resource
-	"AWS::Kinesis::Stream":                                        r494.#Resource
-	"AWS::Kinesis::StreamConsumer":                                r495.#Resource
-	"AWS::KinesisAnalytics::Application":                          r496.#Resource
-	"AWS::KinesisAnalytics::ApplicationOutput":                    r497.#Resource
-	"AWS::KinesisAnalytics::ApplicationReferenceDataSource":       r498.#Resource
-	"AWS::KinesisAnalyticsV2::Application":                        r499.#Resource
-	"AWS::KinesisAnalyticsV2::ApplicationCloudWatchLoggingOption": r500.#Resource
-	"AWS::KinesisAnalyticsV2::ApplicationOutput":                  r501.#Resource
-	"AWS::KinesisAnalyticsV2::ApplicationReferenceDataSource":     r502.#Resource
-	"AWS::KinesisFirehose::DeliveryStream":                        r503.#Resource
-	"AWS::LakeFormation::DataCellsFilter":                         r504.#Resource
-	"AWS::LakeFormation::DataLakeSettings":                        r505.#Resource
-	"AWS::LakeFormation::Permissions":                             r506.#Resource
-	"AWS::LakeFormation::PrincipalPermissions":                    r507.#Resource
-	"AWS::LakeFormation::Resource":                                r508.#Resource
-	"AWS::LakeFormation::Tag":                                     r509.#Resource
-	"AWS::LakeFormation::TagAssociation":                          r510.#Resource
-	"AWS::Lambda::Alias":                                          r511.#Resource
-	"AWS::Lambda::EventInvokeConfig":                              r512.#Resource
-	"AWS::Lambda::EventSourceMapping":                             r513.#Resource
-	"AWS::Lambda::Function":                                       r514.#Resource
-	"AWS::Lambda::LayerVersion":                                   r515.#Resource
-	"AWS::Lambda::LayerVersionPermission":                         r516.#Resource
-	"AWS::Lambda::Permission":                                     r517.#Resource
-	"AWS::Lambda::Version":                                        r518.#Resource
-	"AWS::LaunchWizard::Deployment":                               r519.#Resource
-	"AWS::Logs::AccountPolicy":                                    r520.#Resource
-	"AWS::Logs::Delivery":                                         r521.#Resource
-	"AWS::Logs::DeliveryDestination":                              r522.#Resource
-	"AWS::Logs::DeliverySource":                                   r523.#Resource
-	"AWS::Logs::Destination":                                      r524.#Resource
-	"AWS::Logs::LogGroup":                                         r525.#Resource
-	"AWS::Logs::LogStream":                                        r526.#Resource
-	"AWS::Logs::MetricFilter":                                     r527.#Resource
-	"AWS::Logs::QueryDefinition":                                  r528.#Resource
-	"AWS::Logs::ResourcePolicy":                                   r529.#Resource
-	"AWS::Logs::SubscriptionFilter":                               r530.#Resource
-	"AWS::Logs::Transformer":                                      r531.#Resource
-	"AWS::MSK::BatchScramSecret":                                  r532.#Resource
-	"AWS::MSK::Channel":                                           r533.#Resource
-	"AWS::MSK::Cluster":                                           r534.#Resource
-	"AWS::MSK::ClusterPolicy":                                     r535.#Resource
-	"AWS::MSK::Configuration":                                     r536.#Resource
-	"AWS::MSK::Replicator":                                        r537.#Resource
-	"AWS::MSK::ServerlessCluster":                                 r538.#Resource
-	"AWS::MSK::Topic":                                             r539.#Resource
-	"AWS::MSK::VpcConnection":                                     r540.#Resource
-	"AWS::MWAA::Environment":                                      r541.#Resource
-	"AWS::MediaConvert::JobTemplate":                              r542.#Resource
-	"AWS::MediaConvert::Preset":                                   r543.#Resource
-	"AWS::MediaConvert::Queue":                                    r544.#Resource
-	"AWS::MemoryDB::ACL":                                          r545.#Resource
-	"AWS::MemoryDB::Cluster":                                      r546.#Resource
-	"AWS::MemoryDB::ParameterGroup":                               r547.#Resource
-	"AWS::MemoryDB::SubnetGroup":                                  r548.#Resource
-	"AWS::MemoryDB::User":                                         r549.#Resource
-	"AWS::Neptune::DBCluster":                                     r550.#Resource
-	"AWS::Neptune::DBClusterParameterGroup":                       r551.#Resource
-	"AWS::Neptune::DBInstance":                                    r552.#Resource
-	"AWS::Neptune::DBParameterGroup":                              r553.#Resource
-	"AWS::Neptune::DBSubnetGroup":                                 r554.#Resource
-	"AWS::Neptune::EventSubscription":                             r555.#Resource
-	"AWS::NetworkFirewall::Firewall":                              r556.#Resource
-	"AWS::NetworkFirewall::FirewallPolicy":                        r557.#Resource
-	"AWS::NetworkFirewall::LoggingConfiguration":                  r558.#Resource
-	"AWS::NetworkFirewall::RuleGroup":                             r559.#Resource
-	"AWS::NetworkFirewall::TLSInspectionConfiguration":            r560.#Resource
-	"AWS::NetworkFirewall::VpcEndpointAssociation":                r561.#Resource
-	"AWS::Oam::Link":                                              r562.#Resource
-	"AWS::Oam::Sink":                                              r563.#Resource
-	"AWS::OpenSearchService::Domain":                              r564.#Resource
-	"AWS::Organizations::Account":                                 r565.#Resource
-	"AWS::Organizations::Organization":                            r566.#Resource
-	"AWS::Organizations::OrganizationalUnit":                      r567.#Resource
-	"AWS::Organizations::Policy":                                  r568.#Resource
-	"AWS::Organizations::ResourcePolicy":                          r569.#Resource
-	"AWS::Pipes::Pipe":                                            r570.#Resource
-	"AWS::RAM::Permission":                                        r571.#Resource
-	"AWS::RAM::PermissionAssociation":                             r572.#Resource
-	"AWS::RAM::PrincipalAssociation":                              r573.#Resource
-	"AWS::RAM::ResourceAssociation":                               r574.#Resource
-	"AWS::RAM::ResourceShare":                                     r575.#Resource
-	"AWS::RAM::SourceAssociation":                                 r576.#Resource
-	"AWS::RDS::DBCluster":                                         r577.#Resource
-	"AWS::RDS::DBClusterParameterGroup":                           r578.#Resource
-	"AWS::RDS::DBInstance":                                        r579.#Resource
-	"AWS::RDS::DBParameterGroup":                                  r580.#Resource
-	"AWS::RDS::DBProxy":                                           r581.#Resource
-	"AWS::RDS::DBProxyEndpoint":                                   r582.#Resource
-	"AWS::RDS::DBProxyTargetGroup":                                r583.#Resource
-	"AWS::RDS::DBSecurityGroup":                                   r584.#Resource
-	"AWS::RDS::DBSecurityGroupIngress":                            r585.#Resource
-	"AWS::RDS::DBShardGroup":                                      r586.#Resource
-	"AWS::RDS::DBSubnetGroup":                                     r587.#Resource
-	"AWS::RDS::EventSubscription":                                 r588.#Resource
-	"AWS::RDS::GlobalCluster":                                     r589.#Resource
-	"AWS::RDS::Integration":                                       r590.#Resource
-	"AWS::RDS::OptionGroup":                                       r591.#Resource
-	"AWS::Rbin::Rule":                                             r592.#Resource
-	"AWS::Redshift::Cluster":                                      r593.#Resource
-	"AWS::Redshift::ClusterParameterGroup":                        r594.#Resource
-	"AWS::Redshift::ClusterSecurityGroup":                         r595.#Resource
-	"AWS::Redshift::ClusterSecurityGroupIngress":                  r596.#Resource
-	"AWS::Redshift::ClusterSubnetGroup":                           r597.#Resource
-	"AWS::Redshift::EndpointAccess":                               r598.#Resource
-	"AWS::Redshift::EndpointAuthorization":                        r599.#Resource
-	"AWS::Redshift::EventSubscription":                            r600.#Resource
-	"AWS::Redshift::Integration":                                  r601.#Resource
-	"AWS::Redshift::ScheduledAction":                              r602.#Resource
-	"AWS::RedshiftServerless::Namespace":                          r603.#Resource
-	"AWS::RedshiftServerless::Snapshot":                           r604.#Resource
-	"AWS::RedshiftServerless::Workgroup":                          r605.#Resource
-	"AWS::ResourceExplorer2::DefaultViewAssociation":              r606.#Resource
-	"AWS::ResourceExplorer2::Index":                               r607.#Resource
-	"AWS::ResourceExplorer2::View":                                r608.#Resource
-	"AWS::ResourceGroups::Group":                                  r609.#Resource
-	"AWS::RolesAnywhere::CRL":                                     r610.#Resource
-	"AWS::RolesAnywhere::Profile":                                 r611.#Resource
-	"AWS::RolesAnywhere::TrustAnchor":                             r612.#Resource
-	"AWS::Route53::CidrCollection":                                r613.#Resource
-	"AWS::Route53::HealthCheck":                                   r614.#Resource
-	"AWS::Route53::HostedZone":                                    r615.#Resource
-	"AWS::Route53::RecordSet":                                     r616.#Resource
-	"AWS::Route53::RecordSetGroup":                                r617.#Resource
-	"AWS::Route53Profiles::Profile":                               r618.#Resource
-	"AWS::Route53Profiles::ProfileAssociation":                    r619.#Resource
-	"AWS::Route53Profiles::ProfileResourceAssociation":            r620.#Resource
-	"AWS::Route53Resolver::FirewallDomainList":                    r621.#Resource
-	"AWS::Route53Resolver::FirewallRuleGroup":                     r622.#Resource
-	"AWS::Route53Resolver::FirewallRuleGroupAssociation":          r623.#Resource
-	"AWS::Route53Resolver::ResolverConfig":                        r624.#Resource
-	"AWS::Route53Resolver::ResolverDNSSECConfig":                  r625.#Resource
-	"AWS::Route53Resolver::ResolverEndpoint":                      r626.#Resource
-	"AWS::Route53Resolver::ResolverQueryLoggingConfig":            r627.#Resource
-	"AWS::Route53Resolver::ResolverQueryLoggingConfigAssociation": r628.#Resource
-	"AWS::Route53Resolver::ResolverRule":                          r629.#Resource
-	"AWS::Route53Resolver::ResolverRuleAssociation":               r630.#Resource
-	"AWS::S3::AccessGrant":                                        r631.#Resource
-	"AWS::S3::AccessGrantsInstance":                               r632.#Resource
-	"AWS::S3::AccessGrantsLocation":                               r633.#Resource
-	"AWS::S3::AccessPoint":                                        r634.#Resource
-	"AWS::S3::Bucket":                                             r635.#Resource
-	"AWS::S3::BucketPolicy":                                       r636.#Resource
-	"AWS::S3::StorageLens":                                        r637.#Resource
-	"AWS::S3::StorageLensGroup":                                   r638.#Resource
-	"AWS::S3Files::AccessPoint":                                   r639.#Resource
-	"AWS::S3Files::FileSystem":                                    r640.#Resource
-	"AWS::S3Files::FileSystemPolicy":                              r641.#Resource
-	"AWS::S3Files::MountTarget":                                   r642.#Resource
-	"AWS::S3ObjectLambda::AccessPoint":                            r643.#Resource
-	"AWS::S3ObjectLambda::AccessPointPolicy":                      r644.#Resource
-	"AWS::S3Tables::Namespace":                                    r645.#Resource
-	"AWS::S3Tables::Table":                                        r646.#Resource
-	"AWS::S3Tables::TableBucket":                                  r647.#Resource
-	"AWS::S3Tables::TableBucketPolicy":                            r648.#Resource
-	"AWS::S3Tables::TablePolicy":                                  r649.#Resource
-	"AWS::S3Vectors::Index":                                       r650.#Resource
-	"AWS::S3Vectors::VectorBucket":                                r651.#Resource
-	"AWS::S3Vectors::VectorBucketPolicy":                          r652.#Resource
-	"AWS::SDB::Domain":                                            r653.#Resource
-	"AWS::SNS::Subscription":                                      r654.#Resource
-	"AWS::SNS::Topic":                                             r655.#Resource
-	"AWS::SNS::TopicInlinePolicy":                                 r656.#Resource
-	"AWS::SNS::TopicPolicy":                                       r657.#Resource
-	"AWS::SQS::Queue":                                             r658.#Resource
-	"AWS::SQS::QueueInlinePolicy":                                 r659.#Resource
-	"AWS::SQS::QueuePolicy":                                       r660.#Resource
-	"AWS::SSM::Association":                                       r661.#Resource
-	"AWS::SSM::Document":                                          r662.#Resource
-	"AWS::SSM::MaintenanceWindow":                                 r663.#Resource
-	"AWS::SSM::MaintenanceWindowTarget":                           r664.#Resource
-	"AWS::SSM::MaintenanceWindowTask":                             r665.#Resource
-	"AWS::SSM::Parameter":                                         r666.#Resource
-	"AWS::SSM::PatchBaseline":                                     r667.#Resource
-	"AWS::SSM::ResourceDataSync":                                  r668.#Resource
-	"AWS::SSO::Application":                                       r669.#Resource
-	"AWS::SSO::ApplicationAssignment":                             r670.#Resource
-	"AWS::SSO::Assignment":                                        r671.#Resource
-	"AWS::SSO::Instance":                                          r672.#Resource
-	"AWS::SSO::InstanceAccessControlAttributeConfiguration":       r673.#Resource
-	"AWS::SSO::PermissionSet":                                     r674.#Resource
-	"AWS::SageMaker::App":                                         r675.#Resource
-	"AWS::SageMaker::AppImageConfig":                              r676.#Resource
-	"AWS::SageMaker::CodeRepository":                              r677.#Resource
-	"AWS::SageMaker::Domain":                                      r678.#Resource
-	"AWS::SageMaker::Endpoint":                                    r679.#Resource
-	"AWS::SageMaker::EndpointConfig":                              r680.#Resource
-	"AWS::SageMaker::FeatureGroup":                                r681.#Resource
-	"AWS::SageMaker::Image":                                       r682.#Resource
-	"AWS::SageMaker::ImageVersion":                                r683.#Resource
-	"AWS::SageMaker::Model":                                       r684.#Resource
-	"AWS::SageMaker::ModelCard":                                   r685.#Resource
-	"AWS::SageMaker::ModelPackage":                                r686.#Resource
-	"AWS::SageMaker::MonitoringSchedule":                          r687.#Resource
-	"AWS::SageMaker::NotebookInstance":                            r688.#Resource
-	"AWS::SageMaker::NotebookInstanceLifecycleConfig":             r689.#Resource
-	"AWS::SageMaker::Pipeline":                                    r690.#Resource
-	"AWS::SageMaker::ProcessingJob":                               r691.#Resource
-	"AWS::SageMaker::Project":                                     r692.#Resource
-	"AWS::SageMaker::StudioLifecycleConfig":                       r693.#Resource
-	"AWS::SageMaker::UserProfile":                                 r694.#Resource
-	"AWS::SageMaker::Workteam":                                    r695.#Resource
-	"AWS::Scheduler::Schedule":                                    r696.#Resource
-	"AWS::Scheduler::ScheduleGroup":                               r697.#Resource
-	"AWS::SecretsManager::ResourcePolicy":                         r698.#Resource
-	"AWS::SecretsManager::RotationSchedule":                       r699.#Resource
-	"AWS::SecretsManager::Secret":                                 r700.#Resource
-	"AWS::SecretsManager::SecretTargetAttachment":                 r701.#Resource
-	"AWS::SecurityHub::AggregatorV2":                              r702.#Resource
-	"AWS::SecurityHub::AutomationRule":                            r703.#Resource
-	"AWS::SecurityHub::AutomationRuleV2":                          r704.#Resource
-	"AWS::SecurityHub::ConfigurationPolicy":                       r705.#Resource
-	"AWS::SecurityHub::DelegatedAdmin":                            r706.#Resource
-	"AWS::SecurityHub::FindingAggregator":                         r707.#Resource
-	"AWS::SecurityHub::Hub":                                       r708.#Resource
-	"AWS::SecurityHub::HubV2":                                     r709.#Resource
-	"AWS::SecurityHub::Insight":                                   r710.#Resource
-	"AWS::SecurityHub::OrganizationConfiguration":                 r711.#Resource
-	"AWS::SecurityHub::PolicyAssociation":                         r712.#Resource
-	"AWS::SecurityHub::ProductSubscription":                       r713.#Resource
-	"AWS::SecurityHub::SecurityControl":                           r714.#Resource
-	"AWS::SecurityHub::Standard":                                  r715.#Resource
-	"AWS::ServiceCatalog::AcceptedPortfolioShare":                 r716.#Resource
-	"AWS::ServiceCatalog::CloudFormationProduct":                  r717.#Resource
-	"AWS::ServiceCatalog::CloudFormationProvisionedProduct":       r718.#Resource
-	"AWS::ServiceCatalog::LaunchNotificationConstraint":           r719.#Resource
-	"AWS::ServiceCatalog::LaunchRoleConstraint":                   r720.#Resource
-	"AWS::ServiceCatalog::LaunchTemplateConstraint":               r721.#Resource
-	"AWS::ServiceCatalog::Portfolio":                              r722.#Resource
-	"AWS::ServiceCatalog::PortfolioPrincipalAssociation":          r723.#Resource
-	"AWS::ServiceCatalog::PortfolioProductAssociation":            r724.#Resource
-	"AWS::ServiceCatalog::PortfolioShare":                         r725.#Resource
-	"AWS::ServiceCatalog::ResourceUpdateConstraint":               r726.#Resource
-	"AWS::ServiceCatalog::ServiceAction":                          r727.#Resource
-	"AWS::ServiceCatalog::ServiceActionAssociation":               r728.#Resource
-	"AWS::ServiceCatalog::StackSetConstraint":                     r729.#Resource
-	"AWS::ServiceCatalog::TagOption":                              r730.#Resource
-	"AWS::ServiceCatalog::TagOptionAssociation":                   r731.#Resource
-	"AWS::ServiceDiscovery::HttpNamespace":                        r732.#Resource
-	"AWS::ServiceDiscovery::Instance":                             r733.#Resource
-	"AWS::ServiceDiscovery::PrivateDnsNamespace":                  r734.#Resource
-	"AWS::ServiceDiscovery::PublicDnsNamespace":                   r735.#Resource
-	"AWS::ServiceDiscovery::Service":                              r736.#Resource
-	"AWS::StepFunctions::Activity":                                r737.#Resource
-	"AWS::StepFunctions::StateMachine":                            r738.#Resource
-	"AWS::StepFunctions::StateMachineAlias":                       r739.#Resource
-	"AWS::StepFunctions::StateMachineVersion":                     r740.#Resource
-	"AWS::Synthetics::Canary":                                     r741.#Resource
-	"AWS::Timestream::InfluxDBCluster":                            r742.#Resource
-	"AWS::Timestream::InfluxDBInstance":                           r743.#Resource
-	"AWS::Transfer::Agreement":                                    r744.#Resource
-	"AWS::Transfer::Certificate":                                  r745.#Resource
-	"AWS::Transfer::Connector":                                    r746.#Resource
-	"AWS::Transfer::Profile":                                      r747.#Resource
-	"AWS::Transfer::Server":                                       r748.#Resource
-	"AWS::Transfer::User":                                         r749.#Resource
-	"AWS::Transfer::WebApp":                                       r750.#Resource
-	"AWS::Transfer::Workflow":                                     r751.#Resource
-	"AWS::VerifiedPermissions::Policy":                            r752.#Resource
-	"AWS::VerifiedPermissions::PolicyStore":                       r753.#Resource
-	"AWS::VerifiedPermissions::PolicyStoreAlias":                  r754.#Resource
-	"AWS::VerifiedPermissions::PolicyTemplate":                    r755.#Resource
-	"AWS::WAF::ByteMatchSet":                                      r756.#Resource
-	"AWS::WAF::IPSet":                                             r757.#Resource
-	"AWS::WAF::Rule":                                              r758.#Resource
-	"AWS::WAF::SizeConstraintSet":                                 r759.#Resource
-	"AWS::WAF::SqlInjectionMatchSet":                              r760.#Resource
-	"AWS::WAF::WebACL":                                            r761.#Resource
-	"AWS::WAF::XssMatchSet":                                       r762.#Resource
-	"AWS::WAFRegional::ByteMatchSet":                              r763.#Resource
-	"AWS::WAFRegional::GeoMatchSet":                               r764.#Resource
-	"AWS::WAFRegional::IPSet":                                     r765.#Resource
-	"AWS::WAFRegional::RateBasedRule":                             r766.#Resource
-	"AWS::WAFRegional::RegexPatternSet":                           r767.#Resource
-	"AWS::WAFRegional::Rule":                                      r768.#Resource
-	"AWS::WAFRegional::SizeConstraintSet":                         r769.#Resource
-	"AWS::WAFRegional::SqlInjectionMatchSet":                      r770.#Resource
-	"AWS::WAFRegional::WebACL":                                    r771.#Resource
-	"AWS::WAFRegional::WebACLAssociation":                         r772.#Resource
-	"AWS::WAFRegional::XssMatchSet":                               r773.#Resource
-	"AWS::WAFv2::IPSet":                                           r774.#Resource
-	"AWS::WAFv2::LoggingConfiguration":                            r775.#Resource
-	"AWS::WAFv2::RegexPatternSet":                                 r776.#Resource
-	"AWS::WAFv2::RuleGroup":                                       r777.#Resource
-	"AWS::WAFv2::WebACL":                                          r778.#Resource
-	"AWS::WAFv2::WebACLAssociation":                               r779.#Resource
-	"AWS::WorkSpaces::Workspace":                                  r780.#Resource
-	"AWS::XRay::Group":                                            r781.#Resource
-	"AWS::XRay::ResourcePolicy":                                   r782.#Resource
-	"AWS::XRay::SamplingRule":                                     r783.#Resource
+	"AWS::ACMPCA::Certificate":                    AWS_ACMPCA_Certificate.#Resource
+	"AWS::ACMPCA::CertificateAuthority":           AWS_ACMPCA_CertificateAuthority.#Resource
+	"AWS::ACMPCA::CertificateAuthorityActivation": AWS_ACMPCA_CertificateAuthorityActivation.#Resource
+	"AWS::ACMPCA::Permission":                     AWS_ACMPCA_Permission.#Resource
+	"AWS::ARCZonalShift::AutoshiftObserverNotificationStatus":
+		AWS_ARCZonalShift_AutoshiftObserverNotificationStatus.#Resource
+	"AWS::ARCZonalShift::ZonalAutoshiftConfiguration":     AWS_ARCZonalShift_ZonalAutoshiftConfiguration.#Resource
+	"AWS::AccessAnalyzer::Analyzer":                       AWS_AccessAnalyzer_Analyzer.#Resource
+	"AWS::AmazonMQ::Broker":                               AWS_AmazonMQ_Broker.#Resource
+	"AWS::AmazonMQ::Configuration":                        AWS_AmazonMQ_Configuration.#Resource
+	"AWS::AmazonMQ::ConfigurationAssociation":             AWS_AmazonMQ_ConfigurationAssociation.#Resource
+	"AWS::ApiGateway::Account":                            AWS_ApiGateway_Account.#Resource
+	"AWS::ApiGateway::ApiKey":                             AWS_ApiGateway_ApiKey.#Resource
+	"AWS::ApiGateway::Authorizer":                         AWS_ApiGateway_Authorizer.#Resource
+	"AWS::ApiGateway::BasePathMapping":                    AWS_ApiGateway_BasePathMapping.#Resource
+	"AWS::ApiGateway::BasePathMappingV2":                  AWS_ApiGateway_BasePathMappingV2.#Resource
+	"AWS::ApiGateway::ClientCertificate":                  AWS_ApiGateway_ClientCertificate.#Resource
+	"AWS::ApiGateway::Deployment":                         AWS_ApiGateway_Deployment.#Resource
+	"AWS::ApiGateway::DocumentationPart":                  AWS_ApiGateway_DocumentationPart.#Resource
+	"AWS::ApiGateway::DocumentationVersion":               AWS_ApiGateway_DocumentationVersion.#Resource
+	"AWS::ApiGateway::DomainName":                         AWS_ApiGateway_DomainName.#Resource
+	"AWS::ApiGateway::DomainNameAccessAssociation":        AWS_ApiGateway_DomainNameAccessAssociation.#Resource
+	"AWS::ApiGateway::DomainNameV2":                       AWS_ApiGateway_DomainNameV2.#Resource
+	"AWS::ApiGateway::GatewayResponse":                    AWS_ApiGateway_GatewayResponse.#Resource
+	"AWS::ApiGateway::Method":                             AWS_ApiGateway_Method.#Resource
+	"AWS::ApiGateway::Model":                              AWS_ApiGateway_Model.#Resource
+	"AWS::ApiGateway::RequestValidator":                   AWS_ApiGateway_RequestValidator.#Resource
+	"AWS::ApiGateway::Resource":                           AWS_ApiGateway_Resource.#Resource
+	"AWS::ApiGateway::RestApi":                            AWS_ApiGateway_RestApi.#Resource
+	"AWS::ApiGateway::Stage":                              AWS_ApiGateway_Stage.#Resource
+	"AWS::ApiGateway::UsagePlan":                          AWS_ApiGateway_UsagePlan.#Resource
+	"AWS::ApiGateway::UsagePlanKey":                       AWS_ApiGateway_UsagePlanKey.#Resource
+	"AWS::ApiGateway::VpcLink":                            AWS_ApiGateway_VpcLink.#Resource
+	"AWS::ApiGatewayV2::Api":                              AWS_ApiGatewayV2_Api.#Resource
+	"AWS::ApiGatewayV2::ApiGatewayManagedOverrides":       AWS_ApiGatewayV2_ApiGatewayManagedOverrides.#Resource
+	"AWS::ApiGatewayV2::ApiMapping":                       AWS_ApiGatewayV2_ApiMapping.#Resource
+	"AWS::ApiGatewayV2::Authorizer":                       AWS_ApiGatewayV2_Authorizer.#Resource
+	"AWS::ApiGatewayV2::Deployment":                       AWS_ApiGatewayV2_Deployment.#Resource
+	"AWS::ApiGatewayV2::DomainName":                       AWS_ApiGatewayV2_DomainName.#Resource
+	"AWS::ApiGatewayV2::Integration":                      AWS_ApiGatewayV2_Integration.#Resource
+	"AWS::ApiGatewayV2::IntegrationResponse":              AWS_ApiGatewayV2_IntegrationResponse.#Resource
+	"AWS::ApiGatewayV2::Model":                            AWS_ApiGatewayV2_Model.#Resource
+	"AWS::ApiGatewayV2::Route":                            AWS_ApiGatewayV2_Route.#Resource
+	"AWS::ApiGatewayV2::RouteResponse":                    AWS_ApiGatewayV2_RouteResponse.#Resource
+	"AWS::ApiGatewayV2::RoutingRule":                      AWS_ApiGatewayV2_RoutingRule.#Resource
+	"AWS::ApiGatewayV2::Stage":                            AWS_ApiGatewayV2_Stage.#Resource
+	"AWS::ApiGatewayV2::VpcLink":                          AWS_ApiGatewayV2_VpcLink.#Resource
+	"AWS::AppConfig::Application":                         AWS_AppConfig_Application.#Resource
+	"AWS::AppConfig::ConfigurationProfile":                AWS_AppConfig_ConfigurationProfile.#Resource
+	"AWS::AppConfig::Deployment":                          AWS_AppConfig_Deployment.#Resource
+	"AWS::AppConfig::DeploymentStrategy":                  AWS_AppConfig_DeploymentStrategy.#Resource
+	"AWS::AppConfig::Environment":                         AWS_AppConfig_Environment.#Resource
+	"AWS::AppConfig::ExperimentDefinition":                AWS_AppConfig_ExperimentDefinition.#Resource
+	"AWS::AppConfig::ExperimentRun":                       AWS_AppConfig_ExperimentRun.#Resource
+	"AWS::AppConfig::Extension":                           AWS_AppConfig_Extension.#Resource
+	"AWS::AppConfig::ExtensionAssociation":                AWS_AppConfig_ExtensionAssociation.#Resource
+	"AWS::AppConfig::HostedConfigurationVersion":          AWS_AppConfig_HostedConfigurationVersion.#Resource
+	"AWS::AppMesh::GatewayRoute":                          AWS_AppMesh_GatewayRoute.#Resource
+	"AWS::AppMesh::Mesh":                                  AWS_AppMesh_Mesh.#Resource
+	"AWS::AppMesh::Route":                                 AWS_AppMesh_Route.#Resource
+	"AWS::AppMesh::VirtualGateway":                        AWS_AppMesh_VirtualGateway.#Resource
+	"AWS::AppMesh::VirtualNode":                           AWS_AppMesh_VirtualNode.#Resource
+	"AWS::AppMesh::VirtualRouter":                         AWS_AppMesh_VirtualRouter.#Resource
+	"AWS::AppMesh::VirtualService":                        AWS_AppMesh_VirtualService.#Resource
+	"AWS::AppStream::DirectoryConfig":                     AWS_AppStream_DirectoryConfig.#Resource
+	"AWS::AppStream::Fleet":                               AWS_AppStream_Fleet.#Resource
+	"AWS::AppStream::ImageBuilder":                        AWS_AppStream_ImageBuilder.#Resource
+	"AWS::AppStream::Stack":                               AWS_AppStream_Stack.#Resource
+	"AWS::AppStream::StackFleetAssociation":               AWS_AppStream_StackFleetAssociation.#Resource
+	"AWS::AppStream::StackUserAssociation":                AWS_AppStream_StackUserAssociation.#Resource
+	"AWS::AppStream::User":                                AWS_AppStream_User.#Resource
+	"AWS::AppSync::Api":                                   AWS_AppSync_Api.#Resource
+	"AWS::AppSync::ApiCache":                              AWS_AppSync_ApiCache.#Resource
+	"AWS::AppSync::ApiKey":                                AWS_AppSync_ApiKey.#Resource
+	"AWS::AppSync::ChannelNamespace":                      AWS_AppSync_ChannelNamespace.#Resource
+	"AWS::AppSync::DataSource":                            AWS_AppSync_DataSource.#Resource
+	"AWS::AppSync::FunctionConfiguration":                 AWS_AppSync_FunctionConfiguration.#Resource
+	"AWS::AppSync::GraphQLApi":                            AWS_AppSync_GraphQLApi.#Resource
+	"AWS::AppSync::GraphQLSchema":                         AWS_AppSync_GraphQLSchema.#Resource
+	"AWS::AppSync::Resolver":                              AWS_AppSync_Resolver.#Resource
+	"AWS::AppSync::SourceApiAssociation":                  AWS_AppSync_SourceApiAssociation.#Resource
+	"AWS::ApplicationAutoScaling::ScalableTarget":         AWS_ApplicationAutoScaling_ScalableTarget.#Resource
+	"AWS::ApplicationAutoScaling::ScalingPolicy":          AWS_ApplicationAutoScaling_ScalingPolicy.#Resource
+	"AWS::ApplicationInsights::Application":               AWS_ApplicationInsights_Application.#Resource
+	"AWS::ApplicationSignals::Discovery":                  AWS_ApplicationSignals_Discovery.#Resource
+	"AWS::ApplicationSignals::GroupingConfiguration":      AWS_ApplicationSignals_GroupingConfiguration.#Resource
+	"AWS::ApplicationSignals::ServiceLevelObjective":      AWS_ApplicationSignals_ServiceLevelObjective.#Resource
+	"AWS::Athena::DataCatalog":                            AWS_Athena_DataCatalog.#Resource
+	"AWS::Athena::NamedQuery":                             AWS_Athena_NamedQuery.#Resource
+	"AWS::Athena::PreparedStatement":                      AWS_Athena_PreparedStatement.#Resource
+	"AWS::Athena::WorkGroup":                              AWS_Athena_WorkGroup.#Resource
+	"AWS::AutoScaling::AutoScalingGroup":                  AWS_AutoScaling_AutoScalingGroup.#Resource
+	"AWS::AutoScaling::LaunchConfiguration":               AWS_AutoScaling_LaunchConfiguration.#Resource
+	"AWS::AutoScaling::LifecycleHook":                     AWS_AutoScaling_LifecycleHook.#Resource
+	"AWS::AutoScaling::ScalingPolicy":                     AWS_AutoScaling_ScalingPolicy.#Resource
+	"AWS::AutoScaling::ScheduledAction":                   AWS_AutoScaling_ScheduledAction.#Resource
+	"AWS::AutoScaling::WarmPool":                          AWS_AutoScaling_WarmPool.#Resource
+	"AWS::AutoScalingPlans::ScalingPlan":                  AWS_AutoScalingPlans_ScalingPlan.#Resource
+	"AWS::Backup::BackupPlan":                             AWS_Backup_BackupPlan.#Resource
+	"AWS::Backup::BackupSelection":                        AWS_Backup_BackupSelection.#Resource
+	"AWS::Backup::BackupVault":                            AWS_Backup_BackupVault.#Resource
+	"AWS::Backup::TieringConfiguration":                   AWS_Backup_TieringConfiguration.#Resource
+	"AWS::Batch::ComputeEnvironment":                      AWS_Batch_ComputeEnvironment.#Resource
+	"AWS::Batch::ConsumableResource":                      AWS_Batch_ConsumableResource.#Resource
+	"AWS::Batch::JobDefinition":                           AWS_Batch_JobDefinition.#Resource
+	"AWS::Batch::JobQueue":                                AWS_Batch_JobQueue.#Resource
+	"AWS::Batch::QuotaShare":                              AWS_Batch_QuotaShare.#Resource
+	"AWS::Batch::SchedulingPolicy":                        AWS_Batch_SchedulingPolicy.#Resource
+	"AWS::Batch::ServiceEnvironment":                      AWS_Batch_ServiceEnvironment.#Resource
+	"AWS::BedrockAgentCore::BrowserCustom":                AWS_BedrockAgentCore_BrowserCustom.#Resource
+	"AWS::BedrockAgentCore::BrowserProfile":               AWS_BedrockAgentCore_BrowserProfile.#Resource
+	"AWS::BedrockAgentCore::CodeInterpreterCustom":        AWS_BedrockAgentCore_CodeInterpreterCustom.#Resource
+	"AWS::BedrockAgentCore::Gateway":                      AWS_BedrockAgentCore_Gateway.#Resource
+	"AWS::BedrockAgentCore::GatewayRateLimit":             AWS_BedrockAgentCore_GatewayRateLimit.#Resource
+	"AWS::BedrockAgentCore::GatewayTarget":                AWS_BedrockAgentCore_GatewayTarget.#Resource
+	"AWS::BedrockAgentCore::Runtime":                      AWS_BedrockAgentCore_Runtime.#Resource
+	"AWS::BedrockAgentCore::RuntimeEndpoint":              AWS_BedrockAgentCore_RuntimeEndpoint.#Resource
+	"AWS::BedrockAgentCore::WorkloadIdentity":             AWS_BedrockAgentCore_WorkloadIdentity.#Resource
+	"AWS::Budgets::Budget":                                AWS_Budgets_Budget.#Resource
+	"AWS::Budgets::BudgetsAction":                         AWS_Budgets_BudgetsAction.#Resource
+	"AWS::CDK::Metadata":                                  AWS_CDK_Metadata.#Resource
+	"AWS::CE::AnomalyMonitor":                             AWS_CE_AnomalyMonitor.#Resource
+	"AWS::CE::AnomalySubscription":                        AWS_CE_AnomalySubscription.#Resource
+	"AWS::CE::CostCategory":                               AWS_CE_CostCategory.#Resource
+	"AWS::CUR::ReportDefinition":                          AWS_CUR_ReportDefinition.#Resource
+	"AWS::Cassandra::Keyspace":                            AWS_Cassandra_Keyspace.#Resource
+	"AWS::Cassandra::Table":                               AWS_Cassandra_Table.#Resource
+	"AWS::Cassandra::Type":                                AWS_Cassandra_Type.#Resource
+	"AWS::CertificateManager::Account":                    AWS_CertificateManager_Account.#Resource
+	"AWS::CertificateManager::Certificate":                AWS_CertificateManager_Certificate.#Resource
+	"AWS::Cloud9::EnvironmentEC2":                         AWS_Cloud9_EnvironmentEC2.#Resource
+	"AWS::CloudFormation::CustomResource":                 AWS_CloudFormation_CustomResource.#Resource
+	"AWS::CloudFormation::HookDefaultVersion":             AWS_CloudFormation_HookDefaultVersion.#Resource
+	"AWS::CloudFormation::HookTypeConfig":                 AWS_CloudFormation_HookTypeConfig.#Resource
+	"AWS::CloudFormation::HookVersion":                    AWS_CloudFormation_HookVersion.#Resource
+	"AWS::CloudFormation::Macro":                          AWS_CloudFormation_Macro.#Resource
+	"AWS::CloudFormation::ModuleDefaultVersion":           AWS_CloudFormation_ModuleDefaultVersion.#Resource
+	"AWS::CloudFormation::ModuleVersion":                  AWS_CloudFormation_ModuleVersion.#Resource
+	"AWS::CloudFormation::ResourceDefaultVersion":         AWS_CloudFormation_ResourceDefaultVersion.#Resource
+	"AWS::CloudFormation::ResourceVersion":                AWS_CloudFormation_ResourceVersion.#Resource
+	"AWS::CloudFormation::Stack":                          AWS_CloudFormation_Stack.#Resource
+	"AWS::CloudFormation::StackSet":                       AWS_CloudFormation_StackSet.#Resource
+	"AWS::CloudFormation::WaitCondition":                  AWS_CloudFormation_WaitCondition.#Resource
+	"AWS::CloudFormation::WaitConditionHandle":            AWS_CloudFormation_WaitConditionHandle.#Resource
+	"AWS::CloudFront::CachePolicy":                        AWS_CloudFront_CachePolicy.#Resource
+	"AWS::CloudFront::CloudFrontOriginAccessIdentity":     AWS_CloudFront_CloudFrontOriginAccessIdentity.#Resource
+	"AWS::CloudFront::Distribution":                       AWS_CloudFront_Distribution.#Resource
+	"AWS::CloudFront::KeyGroup":                           AWS_CloudFront_KeyGroup.#Resource
+	"AWS::CloudFront::OriginRequestPolicy":                AWS_CloudFront_OriginRequestPolicy.#Resource
+	"AWS::CloudFront::PublicKey":                          AWS_CloudFront_PublicKey.#Resource
+	"AWS::CloudFront::RealtimeLogConfig":                  AWS_CloudFront_RealtimeLogConfig.#Resource
+	"AWS::CloudFront::ResponseHeadersPolicy":              AWS_CloudFront_ResponseHeadersPolicy.#Resource
+	"AWS::CloudFront::StreamingDistribution":              AWS_CloudFront_StreamingDistribution.#Resource
+	"AWS::CloudTrail::Trail":                              AWS_CloudTrail_Trail.#Resource
+	"AWS::CloudWatch::Alarm":                              AWS_CloudWatch_Alarm.#Resource
+	"AWS::CloudWatch::AlarmMuteRule":                      AWS_CloudWatch_AlarmMuteRule.#Resource
+	"AWS::CloudWatch::AnomalyDetector":                    AWS_CloudWatch_AnomalyDetector.#Resource
+	"AWS::CloudWatch::CompositeAlarm":                     AWS_CloudWatch_CompositeAlarm.#Resource
+	"AWS::CloudWatch::Dashboard":                          AWS_CloudWatch_Dashboard.#Resource
+	"AWS::CloudWatch::InsightRule":                        AWS_CloudWatch_InsightRule.#Resource
+	"AWS::CloudWatch::MetricStream":                       AWS_CloudWatch_MetricStream.#Resource
+	"AWS::CodeBuild::Project":                             AWS_CodeBuild_Project.#Resource
+	"AWS::CodeBuild::ReportGroup":                         AWS_CodeBuild_ReportGroup.#Resource
+	"AWS::CodeBuild::SourceCredential":                    AWS_CodeBuild_SourceCredential.#Resource
+	"AWS::CodeCommit::Repository":                         AWS_CodeCommit_Repository.#Resource
+	"AWS::CodeDeploy::Application":                        AWS_CodeDeploy_Application.#Resource
+	"AWS::CodeDeploy::DeploymentConfig":                   AWS_CodeDeploy_DeploymentConfig.#Resource
+	"AWS::CodeDeploy::DeploymentGroup":                    AWS_CodeDeploy_DeploymentGroup.#Resource
+	"AWS::CodePipeline::CustomActionType":                 AWS_CodePipeline_CustomActionType.#Resource
+	"AWS::CodePipeline::Pipeline":                         AWS_CodePipeline_Pipeline.#Resource
+	"AWS::CodePipeline::Webhook":                          AWS_CodePipeline_Webhook.#Resource
+	"AWS::Config::AggregationAuthorization":               AWS_Config_AggregationAuthorization.#Resource
+	"AWS::Config::ConfigRule":                             AWS_Config_ConfigRule.#Resource
+	"AWS::Config::ConfigurationAggregator":                AWS_Config_ConfigurationAggregator.#Resource
+	"AWS::Config::ConfigurationRecorder":                  AWS_Config_ConfigurationRecorder.#Resource
+	"AWS::Config::ConformancePack":                        AWS_Config_ConformancePack.#Resource
+	"AWS::Config::DeliveryChannel":                        AWS_Config_DeliveryChannel.#Resource
+	"AWS::Config::OrganizationConfigRule":                 AWS_Config_OrganizationConfigRule.#Resource
+	"AWS::Config::OrganizationConformancePack":            AWS_Config_OrganizationConformancePack.#Resource
+	"AWS::Config::RemediationConfiguration":               AWS_Config_RemediationConfiguration.#Resource
+	"AWS::Config::StoredQuery":                            AWS_Config_StoredQuery.#Resource
+	"AWS::DAX::Cluster":                                   AWS_DAX_Cluster.#Resource
+	"AWS::DAX::ParameterGroup":                            AWS_DAX_ParameterGroup.#Resource
+	"AWS::DAX::SubnetGroup":                               AWS_DAX_SubnetGroup.#Resource
+	"AWS::DLM::LifecyclePolicy":                           AWS_DLM_LifecyclePolicy.#Resource
+	"AWS::DMS::Certificate":                               AWS_DMS_Certificate.#Resource
+	"AWS::DMS::DataProvider":                              AWS_DMS_DataProvider.#Resource
+	"AWS::DMS::Endpoint":                                  AWS_DMS_Endpoint.#Resource
+	"AWS::DMS::EventSubscription":                         AWS_DMS_EventSubscription.#Resource
+	"AWS::DMS::InstanceProfile":                           AWS_DMS_InstanceProfile.#Resource
+	"AWS::DMS::MigrationProject":                          AWS_DMS_MigrationProject.#Resource
+	"AWS::DMS::ReplicationConfig":                         AWS_DMS_ReplicationConfig.#Resource
+	"AWS::DMS::ReplicationInstance":                       AWS_DMS_ReplicationInstance.#Resource
+	"AWS::DMS::ReplicationSubnetGroup":                    AWS_DMS_ReplicationSubnetGroup.#Resource
+	"AWS::DMS::ReplicationTask":                           AWS_DMS_ReplicationTask.#Resource
+	"AWS::DataBrew::Dataset":                              AWS_DataBrew_Dataset.#Resource
+	"AWS::DataBrew::Job":                                  AWS_DataBrew_Job.#Resource
+	"AWS::DataBrew::Project":                              AWS_DataBrew_Project.#Resource
+	"AWS::DataBrew::Recipe":                               AWS_DataBrew_Recipe.#Resource
+	"AWS::DataBrew::Ruleset":                              AWS_DataBrew_Ruleset.#Resource
+	"AWS::DataBrew::Schedule":                             AWS_DataBrew_Schedule.#Resource
+	"AWS::DataPipeline::Pipeline":                         AWS_DataPipeline_Pipeline.#Resource
+	"AWS::DataSync::Agent":                                AWS_DataSync_Agent.#Resource
+	"AWS::DataSync::LocationAzureBlob":                    AWS_DataSync_LocationAzureBlob.#Resource
+	"AWS::DataSync::LocationEFS":                          AWS_DataSync_LocationEFS.#Resource
+	"AWS::DataSync::LocationFSxLustre":                    AWS_DataSync_LocationFSxLustre.#Resource
+	"AWS::DataSync::LocationFSxWindows":                   AWS_DataSync_LocationFSxWindows.#Resource
+	"AWS::DataSync::LocationHDFS":                         AWS_DataSync_LocationHDFS.#Resource
+	"AWS::DataSync::LocationNFS":                          AWS_DataSync_LocationNFS.#Resource
+	"AWS::DataSync::LocationObjectStorage":                AWS_DataSync_LocationObjectStorage.#Resource
+	"AWS::DataSync::LocationS3":                           AWS_DataSync_LocationS3.#Resource
+	"AWS::DataSync::LocationSMB":                          AWS_DataSync_LocationSMB.#Resource
+	"AWS::DataSync::Task":                                 AWS_DataSync_Task.#Resource
+	"AWS::DirectConnect::Connection":                      AWS_DirectConnect_Connection.#Resource
+	"AWS::DirectConnect::DirectConnectGateway":            AWS_DirectConnect_DirectConnectGateway.#Resource
+	"AWS::DirectConnect::DirectConnectGatewayAssociation": AWS_DirectConnect_DirectConnectGatewayAssociation.#Resource
+	"AWS::DirectConnect::Lag":                             AWS_DirectConnect_Lag.#Resource
+	"AWS::DirectConnect::PrivateVirtualInterface":         AWS_DirectConnect_PrivateVirtualInterface.#Resource
+	"AWS::DirectConnect::PublicVirtualInterface":          AWS_DirectConnect_PublicVirtualInterface.#Resource
+	"AWS::DirectConnect::TransitVirtualInterface":         AWS_DirectConnect_TransitVirtualInterface.#Resource
+	"AWS::DirectoryService::MicrosoftAD":                  AWS_DirectoryService_MicrosoftAD.#Resource
+	"AWS::DirectoryService::SimpleAD":                     AWS_DirectoryService_SimpleAD.#Resource
+	"AWS::DocDB::DBCluster":                               AWS_DocDB_DBCluster.#Resource
+	"AWS::DocDB::DBClusterParameterGroup":                 AWS_DocDB_DBClusterParameterGroup.#Resource
+	"AWS::DocDB::DBInstance":                              AWS_DocDB_DBInstance.#Resource
+	"AWS::DocDB::DBSubnetGroup":                           AWS_DocDB_DBSubnetGroup.#Resource
+	"AWS::DocDB::EventSubscription":                       AWS_DocDB_EventSubscription.#Resource
+	"AWS::DynamoDB::GlobalTable":                          AWS_DynamoDB_GlobalTable.#Resource
+	"AWS::DynamoDB::Table":                                AWS_DynamoDB_Table.#Resource
+	"AWS::EC2::CapacityReservation":                       AWS_EC2_CapacityReservation.#Resource
+	"AWS::EC2::CapacityReservationFleet":                  AWS_EC2_CapacityReservationFleet.#Resource
+	"AWS::EC2::CustomerGateway":                           AWS_EC2_CustomerGateway.#Resource
+	"AWS::EC2::DHCPOptions":                               AWS_EC2_DHCPOptions.#Resource
+	"AWS::EC2::EC2Fleet":                                  AWS_EC2_EC2Fleet.#Resource
+	"AWS::EC2::EIP":                                       AWS_EC2_EIP.#Resource
+	"AWS::EC2::EIPAssociation":                            AWS_EC2_EIPAssociation.#Resource
+	"AWS::EC2::EgressOnlyInternetGateway":                 AWS_EC2_EgressOnlyInternetGateway.#Resource
+	"AWS::EC2::FlowLog":                                   AWS_EC2_FlowLog.#Resource
+	"AWS::EC2::GatewayRouteTableAssociation":              AWS_EC2_GatewayRouteTableAssociation.#Resource
+	"AWS::EC2::Host":                                      AWS_EC2_Host.#Resource
+	"AWS::EC2::IPAM":                                      AWS_EC2_IPAM.#Resource
+	"AWS::EC2::IPAMAllocation":                            AWS_EC2_IPAMAllocation.#Resource
+	"AWS::EC2::IPAMPool":                                  AWS_EC2_IPAMPool.#Resource
+	"AWS::EC2::IPAMPoolCidr":                              AWS_EC2_IPAMPoolCidr.#Resource
+	"AWS::EC2::IPAMPrefixListResolver":                    AWS_EC2_IPAMPrefixListResolver.#Resource
+	"AWS::EC2::IPAMPrefixListResolverTarget":              AWS_EC2_IPAMPrefixListResolverTarget.#Resource
+	"AWS::EC2::IPAMResourceDiscovery":                     AWS_EC2_IPAMResourceDiscovery.#Resource
+	"AWS::EC2::IPAMResourceDiscoveryAssociation":          AWS_EC2_IPAMResourceDiscoveryAssociation.#Resource
+	"AWS::EC2::IPAMScope":                                 AWS_EC2_IPAMScope.#Resource
+	"AWS::EC2::Instance":                                  AWS_EC2_Instance.#Resource
+	"AWS::EC2::InstanceConnectEndpoint":                   AWS_EC2_InstanceConnectEndpoint.#Resource
+	"AWS::EC2::InternetGateway":                           AWS_EC2_InternetGateway.#Resource
+	"AWS::EC2::IpPoolRouteTableAssociation":               AWS_EC2_IpPoolRouteTableAssociation.#Resource
+	"AWS::EC2::KeyPair":                                   AWS_EC2_KeyPair.#Resource
+	"AWS::EC2::LaunchTemplate":                            AWS_EC2_LaunchTemplate.#Resource
+	"AWS::EC2::NatGateway":                                AWS_EC2_NatGateway.#Resource
+	"AWS::EC2::NetworkAcl":                                AWS_EC2_NetworkAcl.#Resource
+	"AWS::EC2::NetworkAclEntry":                           AWS_EC2_NetworkAclEntry.#Resource
+	"AWS::EC2::NetworkInterface":                          AWS_EC2_NetworkInterface.#Resource
+	"AWS::EC2::NetworkInterfaceAttachment":                AWS_EC2_NetworkInterfaceAttachment.#Resource
+	"AWS::EC2::NetworkInterfacePermission":                AWS_EC2_NetworkInterfacePermission.#Resource
+	"AWS::EC2::PlacementGroup":                            AWS_EC2_PlacementGroup.#Resource
+	"AWS::EC2::PrefixList":                                AWS_EC2_PrefixList.#Resource
+	"AWS::EC2::Route":                                     AWS_EC2_Route.#Resource
+	"AWS::EC2::RouteTable":                                AWS_EC2_RouteTable.#Resource
+	"AWS::EC2::SecurityGroup":                             AWS_EC2_SecurityGroup.#Resource
+	"AWS::EC2::SecurityGroupEgress":                       AWS_EC2_SecurityGroupEgress.#Resource
+	"AWS::EC2::SecurityGroupIngress":                      AWS_EC2_SecurityGroupIngress.#Resource
+	"AWS::EC2::SecurityGroupVpcAssociation":               AWS_EC2_SecurityGroupVpcAssociation.#Resource
+	"AWS::EC2::SnapshotBlockPublicAccess":                 AWS_EC2_SnapshotBlockPublicAccess.#Resource
+	"AWS::EC2::SpotFleet":                                 AWS_EC2_SpotFleet.#Resource
+	"AWS::EC2::SqlHaStandbyDetectedInstance":              AWS_EC2_SqlHaStandbyDetectedInstance.#Resource
+	"AWS::EC2::Subnet":                                    AWS_EC2_Subnet.#Resource
+	"AWS::EC2::SubnetCidrBlock":                           AWS_EC2_SubnetCidrBlock.#Resource
+	"AWS::EC2::SubnetNetworkAclAssociation":               AWS_EC2_SubnetNetworkAclAssociation.#Resource
+	"AWS::EC2::SubnetRouteTableAssociation":               AWS_EC2_SubnetRouteTableAssociation.#Resource
+	"AWS::EC2::TrafficMirrorFilter":                       AWS_EC2_TrafficMirrorFilter.#Resource
+	"AWS::EC2::TrafficMirrorFilterRule":                   AWS_EC2_TrafficMirrorFilterRule.#Resource
+	"AWS::EC2::TrafficMirrorSession":                      AWS_EC2_TrafficMirrorSession.#Resource
+	"AWS::EC2::TrafficMirrorTarget":                       AWS_EC2_TrafficMirrorTarget.#Resource
+	"AWS::EC2::TransitGateway":                            AWS_EC2_TransitGateway.#Resource
+	"AWS::EC2::TransitGatewayAttachment":                  AWS_EC2_TransitGatewayAttachment.#Resource
+	"AWS::EC2::TransitGatewayConnect":                     AWS_EC2_TransitGatewayConnect.#Resource
+	"AWS::EC2::TransitGatewayConnectPeer":                 AWS_EC2_TransitGatewayConnectPeer.#Resource
+	"AWS::EC2::TransitGatewayMeteringPolicy":              AWS_EC2_TransitGatewayMeteringPolicy.#Resource
+	"AWS::EC2::TransitGatewayMeteringPolicyEntry":         AWS_EC2_TransitGatewayMeteringPolicyEntry.#Resource
+	"AWS::EC2::TransitGatewayMulticastDomain":             AWS_EC2_TransitGatewayMulticastDomain.#Resource
+	"AWS::EC2::TransitGatewayMulticastDomainAssociation":  AWS_EC2_TransitGatewayMulticastDomainAssociation.#Resource
+	"AWS::EC2::TransitGatewayMulticastGroupMember":        AWS_EC2_TransitGatewayMulticastGroupMember.#Resource
+	"AWS::EC2::TransitGatewayMulticastGroupSource":        AWS_EC2_TransitGatewayMulticastGroupSource.#Resource
+	"AWS::EC2::TransitGatewayPeeringAttachment":           AWS_EC2_TransitGatewayPeeringAttachment.#Resource
+	"AWS::EC2::TransitGatewayPolicyTable":                 AWS_EC2_TransitGatewayPolicyTable.#Resource
+	"AWS::EC2::TransitGatewayPolicyTableAssociation":      AWS_EC2_TransitGatewayPolicyTableAssociation.#Resource
+	"AWS::EC2::TransitGatewayPolicyTableEntry":            AWS_EC2_TransitGatewayPolicyTableEntry.#Resource
+	"AWS::EC2::TransitGatewayRoute":                       AWS_EC2_TransitGatewayRoute.#Resource
+	"AWS::EC2::TransitGatewayRouteTable":                  AWS_EC2_TransitGatewayRouteTable.#Resource
+	"AWS::EC2::TransitGatewayRouteTableAssociation":       AWS_EC2_TransitGatewayRouteTableAssociation.#Resource
+	"AWS::EC2::TransitGatewayRouteTablePropagation":       AWS_EC2_TransitGatewayRouteTablePropagation.#Resource
+	"AWS::EC2::TransitGatewayVpcAttachment":               AWS_EC2_TransitGatewayVpcAttachment.#Resource
+	"AWS::EC2::VPC":                                       AWS_EC2_VPC.#Resource
+	"AWS::EC2::VPCBlockPublicAccessExclusion":             AWS_EC2_VPCBlockPublicAccessExclusion.#Resource
+	"AWS::EC2::VPCBlockPublicAccessOptions":               AWS_EC2_VPCBlockPublicAccessOptions.#Resource
+	"AWS::EC2::VPCCidrBlock":                              AWS_EC2_VPCCidrBlock.#Resource
+	"AWS::EC2::VPCDHCPOptionsAssociation":                 AWS_EC2_VPCDHCPOptionsAssociation.#Resource
+	"AWS::EC2::VPCEndpoint":                               AWS_EC2_VPCEndpoint.#Resource
+	"AWS::EC2::VPCEndpointConnectionNotification":         AWS_EC2_VPCEndpointConnectionNotification.#Resource
+	"AWS::EC2::VPCEndpointService":                        AWS_EC2_VPCEndpointService.#Resource
+	"AWS::EC2::VPCEndpointServicePermissions":             AWS_EC2_VPCEndpointServicePermissions.#Resource
+	"AWS::EC2::VPCGatewayAttachment":                      AWS_EC2_VPCGatewayAttachment.#Resource
+	"AWS::EC2::VPCPeeringConnection":                      AWS_EC2_VPCPeeringConnection.#Resource
+	"AWS::EC2::VPNConnection":                             AWS_EC2_VPNConnection.#Resource
+	"AWS::EC2::VPNConnectionRoute":                        AWS_EC2_VPNConnectionRoute.#Resource
+	"AWS::EC2::VPNGateway":                                AWS_EC2_VPNGateway.#Resource
+	"AWS::EC2::VPNGatewayRoutePropagation":                AWS_EC2_VPNGatewayRoutePropagation.#Resource
+	"AWS::EC2::Volume":                                    AWS_EC2_Volume.#Resource
+	"AWS::EC2::VolumeAttachment":                          AWS_EC2_VolumeAttachment.#Resource
+	"AWS::ECR::PullThroughCacheRule":                      AWS_ECR_PullThroughCacheRule.#Resource
+	"AWS::ECR::PullTimeUpdateExclusion":                   AWS_ECR_PullTimeUpdateExclusion.#Resource
+	"AWS::ECR::RegistryPolicy":                            AWS_ECR_RegistryPolicy.#Resource
+	"AWS::ECR::RegistryScanningConfiguration":             AWS_ECR_RegistryScanningConfiguration.#Resource
+	"AWS::ECR::ReplicationConfiguration":                  AWS_ECR_ReplicationConfiguration.#Resource
+	"AWS::ECR::Repository":                                AWS_ECR_Repository.#Resource
+	"AWS::ECR::RepositoryCreationTemplate":                AWS_ECR_RepositoryCreationTemplate.#Resource
+	"AWS::ECS::CapacityProvider":                          AWS_ECS_CapacityProvider.#Resource
+	"AWS::ECS::Cluster":                                   AWS_ECS_Cluster.#Resource
+	"AWS::ECS::ClusterCapacityProviderAssociations":       AWS_ECS_ClusterCapacityProviderAssociations.#Resource
+	"AWS::ECS::ExpressGatewayService":                     AWS_ECS_ExpressGatewayService.#Resource
+	"AWS::ECS::PrimaryTaskSet":                            AWS_ECS_PrimaryTaskSet.#Resource
+	"AWS::ECS::Service":                                   AWS_ECS_Service.#Resource
+	"AWS::ECS::TaskDefinition":                            AWS_ECS_TaskDefinition.#Resource
+	"AWS::ECS::TaskSet":                                   AWS_ECS_TaskSet.#Resource
+	"AWS::EFS::AccessPoint":                               AWS_EFS_AccessPoint.#Resource
+	"AWS::EFS::FileSystem":                                AWS_EFS_FileSystem.#Resource
+	"AWS::EFS::MountTarget":                               AWS_EFS_MountTarget.#Resource
+	"AWS::EKS::AccessEntry":                               AWS_EKS_AccessEntry.#Resource
+	"AWS::EKS::Addon":                                     AWS_EKS_Addon.#Resource
+	"AWS::EKS::Capability":                                AWS_EKS_Capability.#Resource
+	"AWS::EKS::Cluster":                                   AWS_EKS_Cluster.#Resource
+	"AWS::EKS::FargateProfile":                            AWS_EKS_FargateProfile.#Resource
+	"AWS::EKS::IdentityProviderConfig":                    AWS_EKS_IdentityProviderConfig.#Resource
+	"AWS::EKS::Nodegroup":                                 AWS_EKS_Nodegroup.#Resource
+	"AWS::EKS::PodIdentityAssociation":                    AWS_EKS_PodIdentityAssociation.#Resource
+	"AWS::EMR::Cluster":                                   AWS_EMR_Cluster.#Resource
+	"AWS::EMR::InstanceFleetConfig":                       AWS_EMR_InstanceFleetConfig.#Resource
+	"AWS::EMR::InstanceGroupConfig":                       AWS_EMR_InstanceGroupConfig.#Resource
+	"AWS::EMR::SecurityConfiguration":                     AWS_EMR_SecurityConfiguration.#Resource
+	"AWS::EMR::Step":                                      AWS_EMR_Step.#Resource
+	"AWS::EMR::Studio":                                    AWS_EMR_Studio.#Resource
+	"AWS::EMR::StudioSessionMapping":                      AWS_EMR_StudioSessionMapping.#Resource
+	"AWS::EMRContainers::VirtualCluster":                  AWS_EMRContainers_VirtualCluster.#Resource
+	"AWS::EMRServerless::Application":                     AWS_EMRServerless_Application.#Resource
+	"AWS::ElastiCache::CacheCluster":                      AWS_ElastiCache_CacheCluster.#Resource
+	"AWS::ElastiCache::GlobalReplicationGroup":            AWS_ElastiCache_GlobalReplicationGroup.#Resource
+	"AWS::ElastiCache::ParameterGroup":                    AWS_ElastiCache_ParameterGroup.#Resource
+	"AWS::ElastiCache::ReplicationGroup":                  AWS_ElastiCache_ReplicationGroup.#Resource
+	"AWS::ElastiCache::SecurityGroup":                     AWS_ElastiCache_SecurityGroup.#Resource
+	"AWS::ElastiCache::SecurityGroupIngress":              AWS_ElastiCache_SecurityGroupIngress.#Resource
+	"AWS::ElastiCache::ServerlessCache":                   AWS_ElastiCache_ServerlessCache.#Resource
+	"AWS::ElastiCache::SubnetGroup":                       AWS_ElastiCache_SubnetGroup.#Resource
+	"AWS::ElastiCache::User":                              AWS_ElastiCache_User.#Resource
+	"AWS::ElastiCache::UserGroup":                         AWS_ElastiCache_UserGroup.#Resource
+	"AWS::ElasticBeanstalk::Application":                  AWS_ElasticBeanstalk_Application.#Resource
+	"AWS::ElasticBeanstalk::ApplicationVersion":           AWS_ElasticBeanstalk_ApplicationVersion.#Resource
+	"AWS::ElasticBeanstalk::ConfigurationTemplate":        AWS_ElasticBeanstalk_ConfigurationTemplate.#Resource
+	"AWS::ElasticBeanstalk::Environment":                  AWS_ElasticBeanstalk_Environment.#Resource
+	"AWS::ElasticLoadBalancing::LoadBalancer":             AWS_ElasticLoadBalancing_LoadBalancer.#Resource
+	"AWS::ElasticLoadBalancingV2::Listener":               AWS_ElasticLoadBalancingV2_Listener.#Resource
+	"AWS::ElasticLoadBalancingV2::ListenerCertificate":    AWS_ElasticLoadBalancingV2_ListenerCertificate.#Resource
+	"AWS::ElasticLoadBalancingV2::ListenerRule":           AWS_ElasticLoadBalancingV2_ListenerRule.#Resource
+	"AWS::ElasticLoadBalancingV2::LoadBalancer":           AWS_ElasticLoadBalancingV2_LoadBalancer.#Resource
+	"AWS::ElasticLoadBalancingV2::TargetGroup":            AWS_ElasticLoadBalancingV2_TargetGroup.#Resource
+	"AWS::ElasticLoadBalancingV2::TrustStore":             AWS_ElasticLoadBalancingV2_TrustStore.#Resource
+	"AWS::ElasticLoadBalancingV2::TrustStoreRevocation":   AWS_ElasticLoadBalancingV2_TrustStoreRevocation.#Resource
+	"AWS::Elasticsearch::Domain":                          AWS_Elasticsearch_Domain.#Resource
+	"AWS::EventSchemas::Discoverer":                       AWS_EventSchemas_Discoverer.#Resource
+	"AWS::EventSchemas::Registry":                         AWS_EventSchemas_Registry.#Resource
+	"AWS::EventSchemas::RegistryPolicy":                   AWS_EventSchemas_RegistryPolicy.#Resource
+	"AWS::EventSchemas::Schema":                           AWS_EventSchemas_Schema.#Resource
+	"AWS::Events::ApiDestination":                         AWS_Events_ApiDestination.#Resource
+	"AWS::Events::Archive":                                AWS_Events_Archive.#Resource
+	"AWS::Events::Connection":                             AWS_Events_Connection.#Resource
+	"AWS::Events::EventBus":                               AWS_Events_EventBus.#Resource
+	"AWS::Events::EventBusPolicy":                         AWS_Events_EventBusPolicy.#Resource
+	"AWS::Events::Rule":                                   AWS_Events_Rule.#Resource
+	"AWS::FMS::NotificationChannel":                       AWS_FMS_NotificationChannel.#Resource
+	"AWS::FMS::Policy":                                    AWS_FMS_Policy.#Resource
+	"AWS::FMS::ResourceSet":                               AWS_FMS_ResourceSet.#Resource
+	"AWS::FSx::DataRepositoryAssociation":                 AWS_FSx_DataRepositoryAssociation.#Resource
+	"AWS::FSx::FileSystem":                                AWS_FSx_FileSystem.#Resource
+	"AWS::FSx::S3AccessPointAttachment":                   AWS_FSx_S3AccessPointAttachment.#Resource
+	"AWS::FSx::Snapshot":                                  AWS_FSx_Snapshot.#Resource
+	"AWS::FSx::StorageVirtualMachine":                     AWS_FSx_StorageVirtualMachine.#Resource
+	"AWS::FSx::Volume":                                    AWS_FSx_Volume.#Resource
+	"AWS::FraudDetector::List":                            AWS_FraudDetector_List.#Resource
+	"AWS::GameLift::Alias":                                AWS_GameLift_Alias.#Resource
+	"AWS::GameLift::Build":                                AWS_GameLift_Build.#Resource
+	"AWS::GameLift::Fleet":                                AWS_GameLift_Fleet.#Resource
+	"AWS::GameLift::GameServerGroup":                      AWS_GameLift_GameServerGroup.#Resource
+	"AWS::GameLift::GameSessionQueue":                     AWS_GameLift_GameSessionQueue.#Resource
+	"AWS::GameLift::MatchmakingConfiguration":             AWS_GameLift_MatchmakingConfiguration.#Resource
+	"AWS::GameLift::MatchmakingRuleSet":                   AWS_GameLift_MatchmakingRuleSet.#Resource
+	"AWS::GameLift::Script":                               AWS_GameLift_Script.#Resource
+	"AWS::Glue::Classifier":                               AWS_Glue_Classifier.#Resource
+	"AWS::Glue::Connection":                               AWS_Glue_Connection.#Resource
+	"AWS::Glue::Crawler":                                  AWS_Glue_Crawler.#Resource
+	"AWS::Glue::CustomEntityType":                         AWS_Glue_CustomEntityType.#Resource
+	"AWS::Glue::DataCatalogEncryptionSettings":            AWS_Glue_DataCatalogEncryptionSettings.#Resource
+	"AWS::Glue::DataQualityRuleset":                       AWS_Glue_DataQualityRuleset.#Resource
+	"AWS::Glue::Database":                                 AWS_Glue_Database.#Resource
+	"AWS::Glue::DevEndpoint":                              AWS_Glue_DevEndpoint.#Resource
+	"AWS::Glue::Job":                                      AWS_Glue_Job.#Resource
+	"AWS::Glue::MLTransform":                              AWS_Glue_MLTransform.#Resource
+	"AWS::Glue::Partition":                                AWS_Glue_Partition.#Resource
+	"AWS::Glue::Registry":                                 AWS_Glue_Registry.#Resource
+	"AWS::Glue::Schema":                                   AWS_Glue_Schema.#Resource
+	"AWS::Glue::SchemaVersion":                            AWS_Glue_SchemaVersion.#Resource
+	"AWS::Glue::SchemaVersionMetadata":                    AWS_Glue_SchemaVersionMetadata.#Resource
+	"AWS::Glue::SecurityConfiguration":                    AWS_Glue_SecurityConfiguration.#Resource
+	"AWS::Glue::Table":                                    AWS_Glue_Table.#Resource
+	"AWS::Glue::Trigger":                                  AWS_Glue_Trigger.#Resource
+	"AWS::Glue::Workflow":                                 AWS_Glue_Workflow.#Resource
+	"AWS::GuardDuty::CustomDetectionRuleAssociation":      AWS_GuardDuty_CustomDetectionRuleAssociation.#Resource
+	"AWS::GuardDuty::Detector":                            AWS_GuardDuty_Detector.#Resource
+	"AWS::GuardDuty::Filter":                              AWS_GuardDuty_Filter.#Resource
+	"AWS::GuardDuty::IPSet":                               AWS_GuardDuty_IPSet.#Resource
+	"AWS::GuardDuty::MalwareProtectionPlan":               AWS_GuardDuty_MalwareProtectionPlan.#Resource
+	"AWS::GuardDuty::Master":                              AWS_GuardDuty_Master.#Resource
+	"AWS::GuardDuty::Member":                              AWS_GuardDuty_Member.#Resource
+	"AWS::GuardDuty::PublishingDestination":               AWS_GuardDuty_PublishingDestination.#Resource
+	"AWS::GuardDuty::ThreatIntelSet":                      AWS_GuardDuty_ThreatIntelSet.#Resource
+	"AWS::IAM::AccessKey":                                 AWS_IAM_AccessKey.#Resource
+	"AWS::IAM::Group":                                     AWS_IAM_Group.#Resource
+	"AWS::IAM::GroupPolicy":                               AWS_IAM_GroupPolicy.#Resource
+	"AWS::IAM::InstanceProfile":                           AWS_IAM_InstanceProfile.#Resource
+	"AWS::IAM::ManagedPolicy":                             AWS_IAM_ManagedPolicy.#Resource
+	"AWS::IAM::OIDCProvider":                              AWS_IAM_OIDCProvider.#Resource
+	"AWS::IAM::Policy":                                    AWS_IAM_Policy.#Resource
+	"AWS::IAM::Role":                                      AWS_IAM_Role.#Resource
+	"AWS::IAM::RolePolicy":                                AWS_IAM_RolePolicy.#Resource
+	"AWS::IAM::SAMLProvider":                              AWS_IAM_SAMLProvider.#Resource
+	"AWS::IAM::ServerCertificate":                         AWS_IAM_ServerCertificate.#Resource
+	"AWS::IAM::ServiceLinkedRole":                         AWS_IAM_ServiceLinkedRole.#Resource
+	"AWS::IAM::User":                                      AWS_IAM_User.#Resource
+	"AWS::IAM::UserPolicy":                                AWS_IAM_UserPolicy.#Resource
+	"AWS::IAM::UserToGroupAddition":                       AWS_IAM_UserToGroupAddition.#Resource
+	"AWS::IAM::VirtualMFADevice":                          AWS_IAM_VirtualMFADevice.#Resource
+	"AWS::IdentityStore::Group":                           AWS_IdentityStore_Group.#Resource
+	"AWS::IdentityStore::GroupMembership":                 AWS_IdentityStore_GroupMembership.#Resource
+	"AWS::ImageBuilder::Component":                        AWS_ImageBuilder_Component.#Resource
+	"AWS::ImageBuilder::ContainerRecipe":                  AWS_ImageBuilder_ContainerRecipe.#Resource
+	"AWS::ImageBuilder::DistributionConfiguration":        AWS_ImageBuilder_DistributionConfiguration.#Resource
+	"AWS::ImageBuilder::Image":                            AWS_ImageBuilder_Image.#Resource
+	"AWS::ImageBuilder::ImagePipeline":                    AWS_ImageBuilder_ImagePipeline.#Resource
+	"AWS::ImageBuilder::ImageRecipe":                      AWS_ImageBuilder_ImageRecipe.#Resource
+	"AWS::ImageBuilder::InfrastructureConfiguration":      AWS_ImageBuilder_InfrastructureConfiguration.#Resource
+	"AWS::ImageBuilder::LifecyclePolicy":                  AWS_ImageBuilder_LifecyclePolicy.#Resource
+	"AWS::ImageBuilder::Workflow":                         AWS_ImageBuilder_Workflow.#Resource
+	"AWS::IoT::AccountAuditConfiguration":                 AWS_IoT_AccountAuditConfiguration.#Resource
+	"AWS::IoT::Authorizer":                                AWS_IoT_Authorizer.#Resource
+	"AWS::IoT::BillingGroup":                              AWS_IoT_BillingGroup.#Resource
+	"AWS::IoT::CACertificate":                             AWS_IoT_CACertificate.#Resource
+	"AWS::IoT::Certificate":                               AWS_IoT_Certificate.#Resource
+	"AWS::IoT::CertificateProvider":                       AWS_IoT_CertificateProvider.#Resource
+	"AWS::IoT::Command":                                   AWS_IoT_Command.#Resource
+	"AWS::IoT::CustomMetric":                              AWS_IoT_CustomMetric.#Resource
+	"AWS::IoT::Dimension":                                 AWS_IoT_Dimension.#Resource
+	"AWS::IoT::DomainConfiguration":                       AWS_IoT_DomainConfiguration.#Resource
+	"AWS::IoT::EncryptionConfiguration":                   AWS_IoT_EncryptionConfiguration.#Resource
+	"AWS::IoT::FleetMetric":                               AWS_IoT_FleetMetric.#Resource
+	"AWS::IoT::JobTemplate":                               AWS_IoT_JobTemplate.#Resource
+	"AWS::IoT::Logging":                                   AWS_IoT_Logging.#Resource
+	"AWS::IoT::MitigationAction":                          AWS_IoT_MitigationAction.#Resource
+	"AWS::IoT::Policy":                                    AWS_IoT_Policy.#Resource
+	"AWS::IoT::PolicyPrincipalAttachment":                 AWS_IoT_PolicyPrincipalAttachment.#Resource
+	"AWS::IoT::ProvisioningTemplate":                      AWS_IoT_ProvisioningTemplate.#Resource
+	"AWS::IoT::ResourceSpecificLogging":                   AWS_IoT_ResourceSpecificLogging.#Resource
+	"AWS::IoT::RoleAlias":                                 AWS_IoT_RoleAlias.#Resource
+	"AWS::IoT::ScheduledAudit":                            AWS_IoT_ScheduledAudit.#Resource
+	"AWS::IoT::SecurityProfile":                           AWS_IoT_SecurityProfile.#Resource
+	"AWS::IoT::SoftwarePackage":                           AWS_IoT_SoftwarePackage.#Resource
+	"AWS::IoT::SoftwarePackageVersion":                    AWS_IoT_SoftwarePackageVersion.#Resource
+	"AWS::IoT::Thing":                                     AWS_IoT_Thing.#Resource
+	"AWS::IoT::ThingGroup":                                AWS_IoT_ThingGroup.#Resource
+	"AWS::IoT::ThingPrincipalAttachment":                  AWS_IoT_ThingPrincipalAttachment.#Resource
+	"AWS::IoT::ThingType":                                 AWS_IoT_ThingType.#Resource
+	"AWS::IoT::TopicRule":                                 AWS_IoT_TopicRule.#Resource
+	"AWS::IoT::TopicRuleDestination":                      AWS_IoT_TopicRuleDestination.#Resource
+	"AWS::KMS::Alias":                                     AWS_KMS_Alias.#Resource
+	"AWS::KMS::Key":                                       AWS_KMS_Key.#Resource
+	"AWS::KMS::ReplicaKey":                                AWS_KMS_ReplicaKey.#Resource
+	"AWS::KafkaConnect::Connector":                        AWS_KafkaConnect_Connector.#Resource
+	"AWS::KafkaConnect::CustomPlugin":                     AWS_KafkaConnect_CustomPlugin.#Resource
+	"AWS::KafkaConnect::WorkerConfiguration":              AWS_KafkaConnect_WorkerConfiguration.#Resource
+	"AWS::Kinesis::Channel":                               AWS_Kinesis_Channel.#Resource
+	"AWS::Kinesis::ResourcePolicy":                        AWS_Kinesis_ResourcePolicy.#Resource
+	"AWS::Kinesis::Stream":                                AWS_Kinesis_Stream.#Resource
+	"AWS::Kinesis::StreamConsumer":                        AWS_Kinesis_StreamConsumer.#Resource
+	"AWS::KinesisAnalytics::Application":                  AWS_KinesisAnalytics_Application.#Resource
+	"AWS::KinesisAnalytics::ApplicationOutput":            AWS_KinesisAnalytics_ApplicationOutput.#Resource
+	"AWS::KinesisAnalytics::ApplicationReferenceDataSource":
+		AWS_KinesisAnalytics_ApplicationReferenceDataSource.#Resource
+	"AWS::KinesisAnalyticsV2::Application": AWS_KinesisAnalyticsV2_Application.#Resource
+	"AWS::KinesisAnalyticsV2::ApplicationCloudWatchLoggingOption":
+		AWS_KinesisAnalyticsV2_ApplicationCloudWatchLoggingOption.#Resource
+	"AWS::KinesisAnalyticsV2::ApplicationOutput": AWS_KinesisAnalyticsV2_ApplicationOutput.#Resource
+	"AWS::KinesisAnalyticsV2::ApplicationReferenceDataSource":
+		AWS_KinesisAnalyticsV2_ApplicationReferenceDataSource.#Resource
+	"AWS::KinesisFirehose::DeliveryStream":               AWS_KinesisFirehose_DeliveryStream.#Resource
+	"AWS::LakeFormation::DataCellsFilter":                AWS_LakeFormation_DataCellsFilter.#Resource
+	"AWS::LakeFormation::DataLakeSettings":               AWS_LakeFormation_DataLakeSettings.#Resource
+	"AWS::LakeFormation::Permissions":                    AWS_LakeFormation_Permissions.#Resource
+	"AWS::LakeFormation::PrincipalPermissions":           AWS_LakeFormation_PrincipalPermissions.#Resource
+	"AWS::LakeFormation::Resource":                       AWS_LakeFormation_Resource.#Resource
+	"AWS::LakeFormation::Tag":                            AWS_LakeFormation_Tag.#Resource
+	"AWS::LakeFormation::TagAssociation":                 AWS_LakeFormation_TagAssociation.#Resource
+	"AWS::Lambda::Alias":                                 AWS_Lambda_Alias.#Resource
+	"AWS::Lambda::EventInvokeConfig":                     AWS_Lambda_EventInvokeConfig.#Resource
+	"AWS::Lambda::EventSourceMapping":                    AWS_Lambda_EventSourceMapping.#Resource
+	"AWS::Lambda::Function":                              AWS_Lambda_Function.#Resource
+	"AWS::Lambda::LayerVersion":                          AWS_Lambda_LayerVersion.#Resource
+	"AWS::Lambda::LayerVersionPermission":                AWS_Lambda_LayerVersionPermission.#Resource
+	"AWS::Lambda::Permission":                            AWS_Lambda_Permission.#Resource
+	"AWS::Lambda::Version":                               AWS_Lambda_Version.#Resource
+	"AWS::LaunchWizard::Deployment":                      AWS_LaunchWizard_Deployment.#Resource
+	"AWS::Logs::AccountPolicy":                           AWS_Logs_AccountPolicy.#Resource
+	"AWS::Logs::Delivery":                                AWS_Logs_Delivery.#Resource
+	"AWS::Logs::DeliveryDestination":                     AWS_Logs_DeliveryDestination.#Resource
+	"AWS::Logs::DeliverySource":                          AWS_Logs_DeliverySource.#Resource
+	"AWS::Logs::Destination":                             AWS_Logs_Destination.#Resource
+	"AWS::Logs::LogGroup":                                AWS_Logs_LogGroup.#Resource
+	"AWS::Logs::LogStream":                               AWS_Logs_LogStream.#Resource
+	"AWS::Logs::MetricFilter":                            AWS_Logs_MetricFilter.#Resource
+	"AWS::Logs::QueryDefinition":                         AWS_Logs_QueryDefinition.#Resource
+	"AWS::Logs::ResourcePolicy":                          AWS_Logs_ResourcePolicy.#Resource
+	"AWS::Logs::SubscriptionFilter":                      AWS_Logs_SubscriptionFilter.#Resource
+	"AWS::Logs::Transformer":                             AWS_Logs_Transformer.#Resource
+	"AWS::MSK::BatchScramSecret":                         AWS_MSK_BatchScramSecret.#Resource
+	"AWS::MSK::Channel":                                  AWS_MSK_Channel.#Resource
+	"AWS::MSK::Cluster":                                  AWS_MSK_Cluster.#Resource
+	"AWS::MSK::ClusterPolicy":                            AWS_MSK_ClusterPolicy.#Resource
+	"AWS::MSK::Configuration":                            AWS_MSK_Configuration.#Resource
+	"AWS::MSK::Replicator":                               AWS_MSK_Replicator.#Resource
+	"AWS::MSK::ServerlessCluster":                        AWS_MSK_ServerlessCluster.#Resource
+	"AWS::MSK::Topic":                                    AWS_MSK_Topic.#Resource
+	"AWS::MSK::VpcConnection":                            AWS_MSK_VpcConnection.#Resource
+	"AWS::MWAA::Environment":                             AWS_MWAA_Environment.#Resource
+	"AWS::MediaConvert::JobTemplate":                     AWS_MediaConvert_JobTemplate.#Resource
+	"AWS::MediaConvert::Preset":                          AWS_MediaConvert_Preset.#Resource
+	"AWS::MediaConvert::Queue":                           AWS_MediaConvert_Queue.#Resource
+	"AWS::MemoryDB::ACL":                                 AWS_MemoryDB_ACL.#Resource
+	"AWS::MemoryDB::Cluster":                             AWS_MemoryDB_Cluster.#Resource
+	"AWS::MemoryDB::ParameterGroup":                      AWS_MemoryDB_ParameterGroup.#Resource
+	"AWS::MemoryDB::SubnetGroup":                         AWS_MemoryDB_SubnetGroup.#Resource
+	"AWS::MemoryDB::User":                                AWS_MemoryDB_User.#Resource
+	"AWS::Neptune::DBCluster":                            AWS_Neptune_DBCluster.#Resource
+	"AWS::Neptune::DBClusterParameterGroup":              AWS_Neptune_DBClusterParameterGroup.#Resource
+	"AWS::Neptune::DBInstance":                           AWS_Neptune_DBInstance.#Resource
+	"AWS::Neptune::DBParameterGroup":                     AWS_Neptune_DBParameterGroup.#Resource
+	"AWS::Neptune::DBSubnetGroup":                        AWS_Neptune_DBSubnetGroup.#Resource
+	"AWS::Neptune::EventSubscription":                    AWS_Neptune_EventSubscription.#Resource
+	"AWS::NetworkFirewall::Firewall":                     AWS_NetworkFirewall_Firewall.#Resource
+	"AWS::NetworkFirewall::FirewallPolicy":               AWS_NetworkFirewall_FirewallPolicy.#Resource
+	"AWS::NetworkFirewall::LoggingConfiguration":         AWS_NetworkFirewall_LoggingConfiguration.#Resource
+	"AWS::NetworkFirewall::RuleGroup":                    AWS_NetworkFirewall_RuleGroup.#Resource
+	"AWS::NetworkFirewall::TLSInspectionConfiguration":   AWS_NetworkFirewall_TLSInspectionConfiguration.#Resource
+	"AWS::NetworkFirewall::VpcEndpointAssociation":       AWS_NetworkFirewall_VpcEndpointAssociation.#Resource
+	"AWS::Oam::Link":                                     AWS_Oam_Link.#Resource
+	"AWS::Oam::Sink":                                     AWS_Oam_Sink.#Resource
+	"AWS::OpenSearchService::Domain":                     AWS_OpenSearchService_Domain.#Resource
+	"AWS::Organizations::Account":                        AWS_Organizations_Account.#Resource
+	"AWS::Organizations::Organization":                   AWS_Organizations_Organization.#Resource
+	"AWS::Organizations::OrganizationalUnit":             AWS_Organizations_OrganizationalUnit.#Resource
+	"AWS::Organizations::Policy":                         AWS_Organizations_Policy.#Resource
+	"AWS::Organizations::ResourcePolicy":                 AWS_Organizations_ResourcePolicy.#Resource
+	"AWS::Pipes::Pipe":                                   AWS_Pipes_Pipe.#Resource
+	"AWS::RAM::Permission":                               AWS_RAM_Permission.#Resource
+	"AWS::RAM::PermissionAssociation":                    AWS_RAM_PermissionAssociation.#Resource
+	"AWS::RAM::PrincipalAssociation":                     AWS_RAM_PrincipalAssociation.#Resource
+	"AWS::RAM::ResourceAssociation":                      AWS_RAM_ResourceAssociation.#Resource
+	"AWS::RAM::ResourceShare":                            AWS_RAM_ResourceShare.#Resource
+	"AWS::RAM::SourceAssociation":                        AWS_RAM_SourceAssociation.#Resource
+	"AWS::RDS::DBCluster":                                AWS_RDS_DBCluster.#Resource
+	"AWS::RDS::DBClusterParameterGroup":                  AWS_RDS_DBClusterParameterGroup.#Resource
+	"AWS::RDS::DBInstance":                               AWS_RDS_DBInstance.#Resource
+	"AWS::RDS::DBParameterGroup":                         AWS_RDS_DBParameterGroup.#Resource
+	"AWS::RDS::DBProxy":                                  AWS_RDS_DBProxy.#Resource
+	"AWS::RDS::DBProxyEndpoint":                          AWS_RDS_DBProxyEndpoint.#Resource
+	"AWS::RDS::DBProxyTargetGroup":                       AWS_RDS_DBProxyTargetGroup.#Resource
+	"AWS::RDS::DBSecurityGroup":                          AWS_RDS_DBSecurityGroup.#Resource
+	"AWS::RDS::DBSecurityGroupIngress":                   AWS_RDS_DBSecurityGroupIngress.#Resource
+	"AWS::RDS::DBShardGroup":                             AWS_RDS_DBShardGroup.#Resource
+	"AWS::RDS::DBSubnetGroup":                            AWS_RDS_DBSubnetGroup.#Resource
+	"AWS::RDS::EventSubscription":                        AWS_RDS_EventSubscription.#Resource
+	"AWS::RDS::GlobalCluster":                            AWS_RDS_GlobalCluster.#Resource
+	"AWS::RDS::Integration":                              AWS_RDS_Integration.#Resource
+	"AWS::RDS::OptionGroup":                              AWS_RDS_OptionGroup.#Resource
+	"AWS::Rbin::Rule":                                    AWS_Rbin_Rule.#Resource
+	"AWS::Redshift::Cluster":                             AWS_Redshift_Cluster.#Resource
+	"AWS::Redshift::ClusterParameterGroup":               AWS_Redshift_ClusterParameterGroup.#Resource
+	"AWS::Redshift::ClusterSecurityGroup":                AWS_Redshift_ClusterSecurityGroup.#Resource
+	"AWS::Redshift::ClusterSecurityGroupIngress":         AWS_Redshift_ClusterSecurityGroupIngress.#Resource
+	"AWS::Redshift::ClusterSubnetGroup":                  AWS_Redshift_ClusterSubnetGroup.#Resource
+	"AWS::Redshift::EndpointAccess":                      AWS_Redshift_EndpointAccess.#Resource
+	"AWS::Redshift::EndpointAuthorization":               AWS_Redshift_EndpointAuthorization.#Resource
+	"AWS::Redshift::EventSubscription":                   AWS_Redshift_EventSubscription.#Resource
+	"AWS::Redshift::Integration":                         AWS_Redshift_Integration.#Resource
+	"AWS::Redshift::ScheduledAction":                     AWS_Redshift_ScheduledAction.#Resource
+	"AWS::RedshiftServerless::Namespace":                 AWS_RedshiftServerless_Namespace.#Resource
+	"AWS::RedshiftServerless::Snapshot":                  AWS_RedshiftServerless_Snapshot.#Resource
+	"AWS::RedshiftServerless::Workgroup":                 AWS_RedshiftServerless_Workgroup.#Resource
+	"AWS::ResourceExplorer2::DefaultViewAssociation":     AWS_ResourceExplorer2_DefaultViewAssociation.#Resource
+	"AWS::ResourceExplorer2::Index":                      AWS_ResourceExplorer2_Index.#Resource
+	"AWS::ResourceExplorer2::View":                       AWS_ResourceExplorer2_View.#Resource
+	"AWS::ResourceGroups::Group":                         AWS_ResourceGroups_Group.#Resource
+	"AWS::RolesAnywhere::CRL":                            AWS_RolesAnywhere_CRL.#Resource
+	"AWS::RolesAnywhere::Profile":                        AWS_RolesAnywhere_Profile.#Resource
+	"AWS::RolesAnywhere::TrustAnchor":                    AWS_RolesAnywhere_TrustAnchor.#Resource
+	"AWS::Route53::CidrCollection":                       AWS_Route53_CidrCollection.#Resource
+	"AWS::Route53::HealthCheck":                          AWS_Route53_HealthCheck.#Resource
+	"AWS::Route53::HostedZone":                           AWS_Route53_HostedZone.#Resource
+	"AWS::Route53::RecordSet":                            AWS_Route53_RecordSet.#Resource
+	"AWS::Route53::RecordSetGroup":                       AWS_Route53_RecordSetGroup.#Resource
+	"AWS::Route53Profiles::Profile":                      AWS_Route53Profiles_Profile.#Resource
+	"AWS::Route53Profiles::ProfileAssociation":           AWS_Route53Profiles_ProfileAssociation.#Resource
+	"AWS::Route53Profiles::ProfileResourceAssociation":   AWS_Route53Profiles_ProfileResourceAssociation.#Resource
+	"AWS::Route53Resolver::FirewallDomainList":           AWS_Route53Resolver_FirewallDomainList.#Resource
+	"AWS::Route53Resolver::FirewallRuleGroup":            AWS_Route53Resolver_FirewallRuleGroup.#Resource
+	"AWS::Route53Resolver::FirewallRuleGroupAssociation": AWS_Route53Resolver_FirewallRuleGroupAssociation.#Resource
+	"AWS::Route53Resolver::ResolverConfig":               AWS_Route53Resolver_ResolverConfig.#Resource
+	"AWS::Route53Resolver::ResolverDNSSECConfig":         AWS_Route53Resolver_ResolverDNSSECConfig.#Resource
+	"AWS::Route53Resolver::ResolverEndpoint":             AWS_Route53Resolver_ResolverEndpoint.#Resource
+	"AWS::Route53Resolver::ResolverQueryLoggingConfig":   AWS_Route53Resolver_ResolverQueryLoggingConfig.#Resource
+	"AWS::Route53Resolver::ResolverQueryLoggingConfigAssociation":
+		AWS_Route53Resolver_ResolverQueryLoggingConfigAssociation.#Resource
+	"AWS::Route53Resolver::ResolverRule":            AWS_Route53Resolver_ResolverRule.#Resource
+	"AWS::Route53Resolver::ResolverRuleAssociation": AWS_Route53Resolver_ResolverRuleAssociation.#Resource
+	"AWS::S3::AccessGrant":                          AWS_S3_AccessGrant.#Resource
+	"AWS::S3::AccessGrantsInstance":                 AWS_S3_AccessGrantsInstance.#Resource
+	"AWS::S3::AccessGrantsLocation":                 AWS_S3_AccessGrantsLocation.#Resource
+	"AWS::S3::AccessPoint":                          AWS_S3_AccessPoint.#Resource
+	"AWS::S3::Bucket":                               AWS_S3_Bucket.#Resource
+	"AWS::S3::BucketPolicy":                         AWS_S3_BucketPolicy.#Resource
+	"AWS::S3::StorageLens":                          AWS_S3_StorageLens.#Resource
+	"AWS::S3::StorageLensGroup":                     AWS_S3_StorageLensGroup.#Resource
+	"AWS::S3Files::AccessPoint":                     AWS_S3Files_AccessPoint.#Resource
+	"AWS::S3Files::FileSystem":                      AWS_S3Files_FileSystem.#Resource
+	"AWS::S3Files::FileSystemPolicy":                AWS_S3Files_FileSystemPolicy.#Resource
+	"AWS::S3Files::MountTarget":                     AWS_S3Files_MountTarget.#Resource
+	"AWS::S3ObjectLambda::AccessPoint":              AWS_S3ObjectLambda_AccessPoint.#Resource
+	"AWS::S3ObjectLambda::AccessPointPolicy":        AWS_S3ObjectLambda_AccessPointPolicy.#Resource
+	"AWS::S3Tables::Namespace":                      AWS_S3Tables_Namespace.#Resource
+	"AWS::S3Tables::Table":                          AWS_S3Tables_Table.#Resource
+	"AWS::S3Tables::TableBucket":                    AWS_S3Tables_TableBucket.#Resource
+	"AWS::S3Tables::TableBucketPolicy":              AWS_S3Tables_TableBucketPolicy.#Resource
+	"AWS::S3Tables::TablePolicy":                    AWS_S3Tables_TablePolicy.#Resource
+	"AWS::S3Vectors::Index":                         AWS_S3Vectors_Index.#Resource
+	"AWS::S3Vectors::VectorBucket":                  AWS_S3Vectors_VectorBucket.#Resource
+	"AWS::S3Vectors::VectorBucketPolicy":            AWS_S3Vectors_VectorBucketPolicy.#Resource
+	"AWS::SDB::Domain":                              AWS_SDB_Domain.#Resource
+	"AWS::SNS::Subscription":                        AWS_SNS_Subscription.#Resource
+	"AWS::SNS::Topic":                               AWS_SNS_Topic.#Resource
+	"AWS::SNS::TopicInlinePolicy":                   AWS_SNS_TopicInlinePolicy.#Resource
+	"AWS::SNS::TopicPolicy":                         AWS_SNS_TopicPolicy.#Resource
+	"AWS::SQS::Queue":                               AWS_SQS_Queue.#Resource
+	"AWS::SQS::QueueInlinePolicy":                   AWS_SQS_QueueInlinePolicy.#Resource
+	"AWS::SQS::QueuePolicy":                         AWS_SQS_QueuePolicy.#Resource
+	"AWS::SSM::Association":                         AWS_SSM_Association.#Resource
+	"AWS::SSM::Document":                            AWS_SSM_Document.#Resource
+	"AWS::SSM::MaintenanceWindow":                   AWS_SSM_MaintenanceWindow.#Resource
+	"AWS::SSM::MaintenanceWindowTarget":             AWS_SSM_MaintenanceWindowTarget.#Resource
+	"AWS::SSM::MaintenanceWindowTask":               AWS_SSM_MaintenanceWindowTask.#Resource
+	"AWS::SSM::Parameter":                           AWS_SSM_Parameter.#Resource
+	"AWS::SSM::PatchBaseline":                       AWS_SSM_PatchBaseline.#Resource
+	"AWS::SSM::ResourceDataSync":                    AWS_SSM_ResourceDataSync.#Resource
+	"AWS::SSO::Application":                         AWS_SSO_Application.#Resource
+	"AWS::SSO::ApplicationAssignment":               AWS_SSO_ApplicationAssignment.#Resource
+	"AWS::SSO::Assignment":                          AWS_SSO_Assignment.#Resource
+	"AWS::SSO::Instance":                            AWS_SSO_Instance.#Resource
+	"AWS::SSO::InstanceAccessControlAttributeConfiguration":
+		AWS_SSO_InstanceAccessControlAttributeConfiguration.#Resource
+	"AWS::SSO::PermissionSet":                         AWS_SSO_PermissionSet.#Resource
+	"AWS::SageMaker::App":                             AWS_SageMaker_App.#Resource
+	"AWS::SageMaker::AppImageConfig":                  AWS_SageMaker_AppImageConfig.#Resource
+	"AWS::SageMaker::CodeRepository":                  AWS_SageMaker_CodeRepository.#Resource
+	"AWS::SageMaker::Domain":                          AWS_SageMaker_Domain.#Resource
+	"AWS::SageMaker::Endpoint":                        AWS_SageMaker_Endpoint.#Resource
+	"AWS::SageMaker::EndpointConfig":                  AWS_SageMaker_EndpointConfig.#Resource
+	"AWS::SageMaker::FeatureGroup":                    AWS_SageMaker_FeatureGroup.#Resource
+	"AWS::SageMaker::Image":                           AWS_SageMaker_Image.#Resource
+	"AWS::SageMaker::ImageVersion":                    AWS_SageMaker_ImageVersion.#Resource
+	"AWS::SageMaker::Model":                           AWS_SageMaker_Model.#Resource
+	"AWS::SageMaker::ModelCard":                       AWS_SageMaker_ModelCard.#Resource
+	"AWS::SageMaker::ModelPackage":                    AWS_SageMaker_ModelPackage.#Resource
+	"AWS::SageMaker::MonitoringSchedule":              AWS_SageMaker_MonitoringSchedule.#Resource
+	"AWS::SageMaker::NotebookInstance":                AWS_SageMaker_NotebookInstance.#Resource
+	"AWS::SageMaker::NotebookInstanceLifecycleConfig": AWS_SageMaker_NotebookInstanceLifecycleConfig.#Resource
+	"AWS::SageMaker::Pipeline":                        AWS_SageMaker_Pipeline.#Resource
+	"AWS::SageMaker::ProcessingJob":                   AWS_SageMaker_ProcessingJob.#Resource
+	"AWS::SageMaker::Project":                         AWS_SageMaker_Project.#Resource
+	"AWS::SageMaker::StudioLifecycleConfig":           AWS_SageMaker_StudioLifecycleConfig.#Resource
+	"AWS::SageMaker::UserProfile":                     AWS_SageMaker_UserProfile.#Resource
+	"AWS::SageMaker::Workteam":                        AWS_SageMaker_Workteam.#Resource
+	"AWS::Scheduler::Schedule":                        AWS_Scheduler_Schedule.#Resource
+	"AWS::Scheduler::ScheduleGroup":                   AWS_Scheduler_ScheduleGroup.#Resource
+	"AWS::SecretsManager::ResourcePolicy":             AWS_SecretsManager_ResourcePolicy.#Resource
+	"AWS::SecretsManager::RotationSchedule":           AWS_SecretsManager_RotationSchedule.#Resource
+	"AWS::SecretsManager::Secret":                     AWS_SecretsManager_Secret.#Resource
+	"AWS::SecretsManager::SecretTargetAttachment":     AWS_SecretsManager_SecretTargetAttachment.#Resource
+	"AWS::SecurityHub::AggregatorV2":                  AWS_SecurityHub_AggregatorV2.#Resource
+	"AWS::SecurityHub::AutomationRule":                AWS_SecurityHub_AutomationRule.#Resource
+	"AWS::SecurityHub::AutomationRuleV2":              AWS_SecurityHub_AutomationRuleV2.#Resource
+	"AWS::SecurityHub::ConfigurationPolicy":           AWS_SecurityHub_ConfigurationPolicy.#Resource
+	"AWS::SecurityHub::DelegatedAdmin":                AWS_SecurityHub_DelegatedAdmin.#Resource
+	"AWS::SecurityHub::FindingAggregator":             AWS_SecurityHub_FindingAggregator.#Resource
+	"AWS::SecurityHub::Hub":                           AWS_SecurityHub_Hub.#Resource
+	"AWS::SecurityHub::HubV2":                         AWS_SecurityHub_HubV2.#Resource
+	"AWS::SecurityHub::Insight":                       AWS_SecurityHub_Insight.#Resource
+	"AWS::SecurityHub::OrganizationConfiguration":     AWS_SecurityHub_OrganizationConfiguration.#Resource
+	"AWS::SecurityHub::PolicyAssociation":             AWS_SecurityHub_PolicyAssociation.#Resource
+	"AWS::SecurityHub::ProductSubscription":           AWS_SecurityHub_ProductSubscription.#Resource
+	"AWS::SecurityHub::SecurityControl":               AWS_SecurityHub_SecurityControl.#Resource
+	"AWS::SecurityHub::Standard":                      AWS_SecurityHub_Standard.#Resource
+	"AWS::ServiceCatalog::AcceptedPortfolioShare":     AWS_ServiceCatalog_AcceptedPortfolioShare.#Resource
+	"AWS::ServiceCatalog::CloudFormationProduct":      AWS_ServiceCatalog_CloudFormationProduct.#Resource
+	"AWS::ServiceCatalog::CloudFormationProvisionedProduct":
+		AWS_ServiceCatalog_CloudFormationProvisionedProduct.#Resource
+	"AWS::ServiceCatalog::LaunchNotificationConstraint":  AWS_ServiceCatalog_LaunchNotificationConstraint.#Resource
+	"AWS::ServiceCatalog::LaunchRoleConstraint":          AWS_ServiceCatalog_LaunchRoleConstraint.#Resource
+	"AWS::ServiceCatalog::LaunchTemplateConstraint":      AWS_ServiceCatalog_LaunchTemplateConstraint.#Resource
+	"AWS::ServiceCatalog::Portfolio":                     AWS_ServiceCatalog_Portfolio.#Resource
+	"AWS::ServiceCatalog::PortfolioPrincipalAssociation": AWS_ServiceCatalog_PortfolioPrincipalAssociation.#Resource
+	"AWS::ServiceCatalog::PortfolioProductAssociation":   AWS_ServiceCatalog_PortfolioProductAssociation.#Resource
+	"AWS::ServiceCatalog::PortfolioShare":                AWS_ServiceCatalog_PortfolioShare.#Resource
+	"AWS::ServiceCatalog::ResourceUpdateConstraint":      AWS_ServiceCatalog_ResourceUpdateConstraint.#Resource
+	"AWS::ServiceCatalog::ServiceAction":                 AWS_ServiceCatalog_ServiceAction.#Resource
+	"AWS::ServiceCatalog::ServiceActionAssociation":      AWS_ServiceCatalog_ServiceActionAssociation.#Resource
+	"AWS::ServiceCatalog::StackSetConstraint":            AWS_ServiceCatalog_StackSetConstraint.#Resource
+	"AWS::ServiceCatalog::TagOption":                     AWS_ServiceCatalog_TagOption.#Resource
+	"AWS::ServiceCatalog::TagOptionAssociation":          AWS_ServiceCatalog_TagOptionAssociation.#Resource
+	"AWS::ServiceDiscovery::HttpNamespace":               AWS_ServiceDiscovery_HttpNamespace.#Resource
+	"AWS::ServiceDiscovery::Instance":                    AWS_ServiceDiscovery_Instance.#Resource
+	"AWS::ServiceDiscovery::PrivateDnsNamespace":         AWS_ServiceDiscovery_PrivateDnsNamespace.#Resource
+	"AWS::ServiceDiscovery::PublicDnsNamespace":          AWS_ServiceDiscovery_PublicDnsNamespace.#Resource
+	"AWS::ServiceDiscovery::Service":                     AWS_ServiceDiscovery_Service.#Resource
+	"AWS::StepFunctions::Activity":                       AWS_StepFunctions_Activity.#Resource
+	"AWS::StepFunctions::StateMachine":                   AWS_StepFunctions_StateMachine.#Resource
+	"AWS::StepFunctions::StateMachineAlias":              AWS_StepFunctions_StateMachineAlias.#Resource
+	"AWS::StepFunctions::StateMachineVersion":            AWS_StepFunctions_StateMachineVersion.#Resource
+	"AWS::Synthetics::Canary":                            AWS_Synthetics_Canary.#Resource
+	"AWS::Timestream::InfluxDBCluster":                   AWS_Timestream_InfluxDBCluster.#Resource
+	"AWS::Timestream::InfluxDBInstance":                  AWS_Timestream_InfluxDBInstance.#Resource
+	"AWS::Transfer::Agreement":                           AWS_Transfer_Agreement.#Resource
+	"AWS::Transfer::Certificate":                         AWS_Transfer_Certificate.#Resource
+	"AWS::Transfer::Connector":                           AWS_Transfer_Connector.#Resource
+	"AWS::Transfer::Profile":                             AWS_Transfer_Profile.#Resource
+	"AWS::Transfer::Server":                              AWS_Transfer_Server.#Resource
+	"AWS::Transfer::User":                                AWS_Transfer_User.#Resource
+	"AWS::Transfer::WebApp":                              AWS_Transfer_WebApp.#Resource
+	"AWS::Transfer::Workflow":                            AWS_Transfer_Workflow.#Resource
+	"AWS::VerifiedPermissions::Policy":                   AWS_VerifiedPermissions_Policy.#Resource
+	"AWS::VerifiedPermissions::PolicyStore":              AWS_VerifiedPermissions_PolicyStore.#Resource
+	"AWS::VerifiedPermissions::PolicyStoreAlias":         AWS_VerifiedPermissions_PolicyStoreAlias.#Resource
+	"AWS::VerifiedPermissions::PolicyTemplate":           AWS_VerifiedPermissions_PolicyTemplate.#Resource
+	"AWS::WAF::ByteMatchSet":                             AWS_WAF_ByteMatchSet.#Resource
+	"AWS::WAF::IPSet":                                    AWS_WAF_IPSet.#Resource
+	"AWS::WAF::Rule":                                     AWS_WAF_Rule.#Resource
+	"AWS::WAF::SizeConstraintSet":                        AWS_WAF_SizeConstraintSet.#Resource
+	"AWS::WAF::SqlInjectionMatchSet":                     AWS_WAF_SqlInjectionMatchSet.#Resource
+	"AWS::WAF::WebACL":                                   AWS_WAF_WebACL.#Resource
+	"AWS::WAF::XssMatchSet":                              AWS_WAF_XssMatchSet.#Resource
+	"AWS::WAFRegional::ByteMatchSet":                     AWS_WAFRegional_ByteMatchSet.#Resource
+	"AWS::WAFRegional::GeoMatchSet":                      AWS_WAFRegional_GeoMatchSet.#Resource
+	"AWS::WAFRegional::IPSet":                            AWS_WAFRegional_IPSet.#Resource
+	"AWS::WAFRegional::RateBasedRule":                    AWS_WAFRegional_RateBasedRule.#Resource
+	"AWS::WAFRegional::RegexPatternSet":                  AWS_WAFRegional_RegexPatternSet.#Resource
+	"AWS::WAFRegional::Rule":                             AWS_WAFRegional_Rule.#Resource
+	"AWS::WAFRegional::SizeConstraintSet":                AWS_WAFRegional_SizeConstraintSet.#Resource
+	"AWS::WAFRegional::SqlInjectionMatchSet":             AWS_WAFRegional_SqlInjectionMatchSet.#Resource
+	"AWS::WAFRegional::WebACL":                           AWS_WAFRegional_WebACL.#Resource
+	"AWS::WAFRegional::WebACLAssociation":                AWS_WAFRegional_WebACLAssociation.#Resource
+	"AWS::WAFRegional::XssMatchSet":                      AWS_WAFRegional_XssMatchSet.#Resource
+	"AWS::WAFv2::IPSet":                                  AWS_WAFv2_IPSet.#Resource
+	"AWS::WAFv2::LoggingConfiguration":                   AWS_WAFv2_LoggingConfiguration.#Resource
+	"AWS::WAFv2::RegexPatternSet":                        AWS_WAFv2_RegexPatternSet.#Resource
+	"AWS::WAFv2::RuleGroup":                              AWS_WAFv2_RuleGroup.#Resource
+	"AWS::WAFv2::WebACL":                                 AWS_WAFv2_WebACL.#Resource
+	"AWS::WAFv2::WebACLAssociation":                      AWS_WAFv2_WebACLAssociation.#Resource
+	"AWS::WorkSpaces::Workspace":                         AWS_WorkSpaces_Workspace.#Resource
+	"AWS::XRay::Group":                                   AWS_XRay_Group.#Resource
+	"AWS::XRay::ResourcePolicy":                          AWS_XRay_ResourcePolicy.#Resource
+	"AWS::XRay::SamplingRule":                            AWS_XRay_SamplingRule.#Resource
 }
-#Resource: r0.#Resource |
-	r1.#Resource |
-	r2.#Resource |
-	r3.#Resource |
-	r4.#Resource |
-	r5.#Resource |
-	r6.#Resource |
-	r7.#Resource |
-	r8.#Resource |
-	r9.#Resource |
-	r10.#Resource |
-	r11.#Resource |
-	r12.#Resource |
-	r13.#Resource |
-	r14.#Resource |
-	r15.#Resource |
-	r16.#Resource |
-	r17.#Resource |
-	r18.#Resource |
-	r19.#Resource |
-	r20.#Resource |
-	r21.#Resource |
-	r22.#Resource |
-	r23.#Resource |
-	r24.#Resource |
-	r25.#Resource |
-	r26.#Resource |
-	r27.#Resource |
-	r28.#Resource |
-	r29.#Resource |
-	r30.#Resource |
-	r31.#Resource |
-	r32.#Resource |
-	r33.#Resource |
-	r34.#Resource |
-	r35.#Resource |
-	r36.#Resource |
-	r37.#Resource |
-	r38.#Resource |
-	r39.#Resource |
-	r40.#Resource |
-	r41.#Resource |
-	r42.#Resource |
-	r43.#Resource |
-	r44.#Resource |
-	r45.#Resource |
-	r46.#Resource |
-	r47.#Resource |
-	r48.#Resource |
-	r49.#Resource |
-	r50.#Resource |
-	r51.#Resource |
-	r52.#Resource |
-	r53.#Resource |
-	r54.#Resource |
-	r55.#Resource |
-	r56.#Resource |
-	r57.#Resource |
-	r58.#Resource |
-	r59.#Resource |
-	r60.#Resource |
-	r61.#Resource |
-	r62.#Resource |
-	r63.#Resource |
-	r64.#Resource |
-	r65.#Resource |
-	r66.#Resource |
-	r67.#Resource |
-	r68.#Resource |
-	r69.#Resource |
-	r70.#Resource |
-	r71.#Resource |
-	r72.#Resource |
-	r73.#Resource |
-	r74.#Resource |
-	r75.#Resource |
-	r76.#Resource |
-	r77.#Resource |
-	r78.#Resource |
-	r79.#Resource |
-	r80.#Resource |
-	r81.#Resource |
-	r82.#Resource |
-	r83.#Resource |
-	r84.#Resource |
-	r85.#Resource |
-	r86.#Resource |
-	r87.#Resource |
-	r88.#Resource |
-	r89.#Resource |
-	r90.#Resource |
-	r91.#Resource |
-	r92.#Resource |
-	r93.#Resource |
-	r94.#Resource |
-	r95.#Resource |
-	r96.#Resource |
-	r97.#Resource |
-	r98.#Resource |
-	r99.#Resource |
-	r100.#Resource |
-	r101.#Resource |
-	r102.#Resource |
-	r103.#Resource |
-	r104.#Resource |
-	r105.#Resource |
-	r106.#Resource |
-	r107.#Resource |
-	r108.#Resource |
-	r109.#Resource |
-	r110.#Resource |
-	r111.#Resource |
-	r112.#Resource |
-	r113.#Resource |
-	r114.#Resource |
-	r115.#Resource |
-	r116.#Resource |
-	r117.#Resource |
-	r118.#Resource |
-	r119.#Resource |
-	r120.#Resource |
-	r121.#Resource |
-	r122.#Resource |
-	r123.#Resource |
-	r124.#Resource |
-	r125.#Resource |
-	r126.#Resource |
-	r127.#Resource |
-	r128.#Resource |
-	r129.#Resource |
-	r130.#Resource |
-	r131.#Resource |
-	r132.#Resource |
-	r133.#Resource |
-	r134.#Resource |
-	r135.#Resource |
-	r136.#Resource |
-	r137.#Resource |
-	r138.#Resource |
-	r139.#Resource |
-	r140.#Resource |
-	r141.#Resource |
-	r142.#Resource |
-	r143.#Resource |
-	r144.#Resource |
-	r145.#Resource |
-	r146.#Resource |
-	r147.#Resource |
-	r148.#Resource |
-	r149.#Resource |
-	r150.#Resource |
-	r151.#Resource |
-	r152.#Resource |
-	r153.#Resource |
-	r154.#Resource |
-	r155.#Resource |
-	r156.#Resource |
-	r157.#Resource |
-	r158.#Resource |
-	r159.#Resource |
-	r160.#Resource |
-	r161.#Resource |
-	r162.#Resource |
-	r163.#Resource |
-	r164.#Resource |
-	r165.#Resource |
-	r166.#Resource |
-	r167.#Resource |
-	r168.#Resource |
-	r169.#Resource |
-	r170.#Resource |
-	r171.#Resource |
-	r172.#Resource |
-	r173.#Resource |
-	r174.#Resource |
-	r175.#Resource |
-	r176.#Resource |
-	r177.#Resource |
-	r178.#Resource |
-	r179.#Resource |
-	r180.#Resource |
-	r181.#Resource |
-	r182.#Resource |
-	r183.#Resource |
-	r184.#Resource |
-	r185.#Resource |
-	r186.#Resource |
-	r187.#Resource |
-	r188.#Resource |
-	r189.#Resource |
-	r190.#Resource |
-	r191.#Resource |
-	r192.#Resource |
-	r193.#Resource |
-	r194.#Resource |
-	r195.#Resource |
-	r196.#Resource |
-	r197.#Resource |
-	r198.#Resource |
-	r199.#Resource |
-	r200.#Resource |
-	r201.#Resource |
-	r202.#Resource |
-	r203.#Resource |
-	r204.#Resource |
-	r205.#Resource |
-	r206.#Resource |
-	r207.#Resource |
-	r208.#Resource |
-	r209.#Resource |
-	r210.#Resource |
-	r211.#Resource |
-	r212.#Resource |
-	r213.#Resource |
-	r214.#Resource |
-	r215.#Resource |
-	r216.#Resource |
-	r217.#Resource |
-	r218.#Resource |
-	r219.#Resource |
-	r220.#Resource |
-	r221.#Resource |
-	r222.#Resource |
-	r223.#Resource |
-	r224.#Resource |
-	r225.#Resource |
-	r226.#Resource |
-	r227.#Resource |
-	r228.#Resource |
-	r229.#Resource |
-	r230.#Resource |
-	r231.#Resource |
-	r232.#Resource |
-	r233.#Resource |
-	r234.#Resource |
-	r235.#Resource |
-	r236.#Resource |
-	r237.#Resource |
-	r238.#Resource |
-	r239.#Resource |
-	r240.#Resource |
-	r241.#Resource |
-	r242.#Resource |
-	r243.#Resource |
-	r244.#Resource |
-	r245.#Resource |
-	r246.#Resource |
-	r247.#Resource |
-	r248.#Resource |
-	r249.#Resource |
-	r250.#Resource |
-	r251.#Resource |
-	r252.#Resource |
-	r253.#Resource |
-	r254.#Resource |
-	r255.#Resource |
-	r256.#Resource |
-	r257.#Resource |
-	r258.#Resource |
-	r259.#Resource |
-	r260.#Resource |
-	r261.#Resource |
-	r262.#Resource |
-	r263.#Resource |
-	r264.#Resource |
-	r265.#Resource |
-	r266.#Resource |
-	r267.#Resource |
-	r268.#Resource |
-	r269.#Resource |
-	r270.#Resource |
-	r271.#Resource |
-	r272.#Resource |
-	r273.#Resource |
-	r274.#Resource |
-	r275.#Resource |
-	r276.#Resource |
-	r277.#Resource |
-	r278.#Resource |
-	r279.#Resource |
-	r280.#Resource |
-	r281.#Resource |
-	r282.#Resource |
-	r283.#Resource |
-	r284.#Resource |
-	r285.#Resource |
-	r286.#Resource |
-	r287.#Resource |
-	r288.#Resource |
-	r289.#Resource |
-	r290.#Resource |
-	r291.#Resource |
-	r292.#Resource |
-	r293.#Resource |
-	r294.#Resource |
-	r295.#Resource |
-	r296.#Resource |
-	r297.#Resource |
-	r298.#Resource |
-	r299.#Resource |
-	r300.#Resource |
-	r301.#Resource |
-	r302.#Resource |
-	r303.#Resource |
-	r304.#Resource |
-	r305.#Resource |
-	r306.#Resource |
-	r307.#Resource |
-	r308.#Resource |
-	r309.#Resource |
-	r310.#Resource |
-	r311.#Resource |
-	r312.#Resource |
-	r313.#Resource |
-	r314.#Resource |
-	r315.#Resource |
-	r316.#Resource |
-	r317.#Resource |
-	r318.#Resource |
-	r319.#Resource |
-	r320.#Resource |
-	r321.#Resource |
-	r322.#Resource |
-	r323.#Resource |
-	r324.#Resource |
-	r325.#Resource |
-	r326.#Resource |
-	r327.#Resource |
-	r328.#Resource |
-	r329.#Resource |
-	r330.#Resource |
-	r331.#Resource |
-	r332.#Resource |
-	r333.#Resource |
-	r334.#Resource |
-	r335.#Resource |
-	r336.#Resource |
-	r337.#Resource |
-	r338.#Resource |
-	r339.#Resource |
-	r340.#Resource |
-	r341.#Resource |
-	r342.#Resource |
-	r343.#Resource |
-	r344.#Resource |
-	r345.#Resource |
-	r346.#Resource |
-	r347.#Resource |
-	r348.#Resource |
-	r349.#Resource |
-	r350.#Resource |
-	r351.#Resource |
-	r352.#Resource |
-	r353.#Resource |
-	r354.#Resource |
-	r355.#Resource |
-	r356.#Resource |
-	r357.#Resource |
-	r358.#Resource |
-	r359.#Resource |
-	r360.#Resource |
-	r361.#Resource |
-	r362.#Resource |
-	r363.#Resource |
-	r364.#Resource |
-	r365.#Resource |
-	r366.#Resource |
-	r367.#Resource |
-	r368.#Resource |
-	r369.#Resource |
-	r370.#Resource |
-	r371.#Resource |
-	r372.#Resource |
-	r373.#Resource |
-	r374.#Resource |
-	r375.#Resource |
-	r376.#Resource |
-	r377.#Resource |
-	r378.#Resource |
-	r379.#Resource |
-	r380.#Resource |
-	r381.#Resource |
-	r382.#Resource |
-	r383.#Resource |
-	r384.#Resource |
-	r385.#Resource |
-	r386.#Resource |
-	r387.#Resource |
-	r388.#Resource |
-	r389.#Resource |
-	r390.#Resource |
-	r391.#Resource |
-	r392.#Resource |
-	r393.#Resource |
-	r394.#Resource |
-	r395.#Resource |
-	r396.#Resource |
-	r397.#Resource |
-	r398.#Resource |
-	r399.#Resource |
-	r400.#Resource |
-	r401.#Resource |
-	r402.#Resource |
-	r403.#Resource |
-	r404.#Resource |
-	r405.#Resource |
-	r406.#Resource |
-	r407.#Resource |
-	r408.#Resource |
-	r409.#Resource |
-	r410.#Resource |
-	r411.#Resource |
-	r412.#Resource |
-	r413.#Resource |
-	r414.#Resource |
-	r415.#Resource |
-	r416.#Resource |
-	r417.#Resource |
-	r418.#Resource |
-	r419.#Resource |
-	r420.#Resource |
-	r421.#Resource |
-	r422.#Resource |
-	r423.#Resource |
-	r424.#Resource |
-	r425.#Resource |
-	r426.#Resource |
-	r427.#Resource |
-	r428.#Resource |
-	r429.#Resource |
-	r430.#Resource |
-	r431.#Resource |
-	r432.#Resource |
-	r433.#Resource |
-	r434.#Resource |
-	r435.#Resource |
-	r436.#Resource |
-	r437.#Resource |
-	r438.#Resource |
-	r439.#Resource |
-	r440.#Resource |
-	r441.#Resource |
-	r442.#Resource |
-	r443.#Resource |
-	r444.#Resource |
-	r445.#Resource |
-	r446.#Resource |
-	r447.#Resource |
-	r448.#Resource |
-	r449.#Resource |
-	r450.#Resource |
-	r451.#Resource |
-	r452.#Resource |
-	r453.#Resource |
-	r454.#Resource |
-	r455.#Resource |
-	r456.#Resource |
-	r457.#Resource |
-	r458.#Resource |
-	r459.#Resource |
-	r460.#Resource |
-	r461.#Resource |
-	r462.#Resource |
-	r463.#Resource |
-	r464.#Resource |
-	r465.#Resource |
-	r466.#Resource |
-	r467.#Resource |
-	r468.#Resource |
-	r469.#Resource |
-	r470.#Resource |
-	r471.#Resource |
-	r472.#Resource |
-	r473.#Resource |
-	r474.#Resource |
-	r475.#Resource |
-	r476.#Resource |
-	r477.#Resource |
-	r478.#Resource |
-	r479.#Resource |
-	r480.#Resource |
-	r481.#Resource |
-	r482.#Resource |
-	r483.#Resource |
-	r484.#Resource |
-	r485.#Resource |
-	r486.#Resource |
-	r487.#Resource |
-	r488.#Resource |
-	r489.#Resource |
-	r490.#Resource |
-	r491.#Resource |
-	r492.#Resource |
-	r493.#Resource |
-	r494.#Resource |
-	r495.#Resource |
-	r496.#Resource |
-	r497.#Resource |
-	r498.#Resource |
-	r499.#Resource |
-	r500.#Resource |
-	r501.#Resource |
-	r502.#Resource |
-	r503.#Resource |
-	r504.#Resource |
-	r505.#Resource |
-	r506.#Resource |
-	r507.#Resource |
-	r508.#Resource |
-	r509.#Resource |
-	r510.#Resource |
-	r511.#Resource |
-	r512.#Resource |
-	r513.#Resource |
-	r514.#Resource |
-	r515.#Resource |
-	r516.#Resource |
-	r517.#Resource |
-	r518.#Resource |
-	r519.#Resource |
-	r520.#Resource |
-	r521.#Resource |
-	r522.#Resource |
-	r523.#Resource |
-	r524.#Resource |
-	r525.#Resource |
-	r526.#Resource |
-	r527.#Resource |
-	r528.#Resource |
-	r529.#Resource |
-	r530.#Resource |
-	r531.#Resource |
-	r532.#Resource |
-	r533.#Resource |
-	r534.#Resource |
-	r535.#Resource |
-	r536.#Resource |
-	r537.#Resource |
-	r538.#Resource |
-	r539.#Resource |
-	r540.#Resource |
-	r541.#Resource |
-	r542.#Resource |
-	r543.#Resource |
-	r544.#Resource |
-	r545.#Resource |
-	r546.#Resource |
-	r547.#Resource |
-	r548.#Resource |
-	r549.#Resource |
-	r550.#Resource |
-	r551.#Resource |
-	r552.#Resource |
-	r553.#Resource |
-	r554.#Resource |
-	r555.#Resource |
-	r556.#Resource |
-	r557.#Resource |
-	r558.#Resource |
-	r559.#Resource |
-	r560.#Resource |
-	r561.#Resource |
-	r562.#Resource |
-	r563.#Resource |
-	r564.#Resource |
-	r565.#Resource |
-	r566.#Resource |
-	r567.#Resource |
-	r568.#Resource |
-	r569.#Resource |
-	r570.#Resource |
-	r571.#Resource |
-	r572.#Resource |
-	r573.#Resource |
-	r574.#Resource |
-	r575.#Resource |
-	r576.#Resource |
-	r577.#Resource |
-	r578.#Resource |
-	r579.#Resource |
-	r580.#Resource |
-	r581.#Resource |
-	r582.#Resource |
-	r583.#Resource |
-	r584.#Resource |
-	r585.#Resource |
-	r586.#Resource |
-	r587.#Resource |
-	r588.#Resource |
-	r589.#Resource |
-	r590.#Resource |
-	r591.#Resource |
-	r592.#Resource |
-	r593.#Resource |
-	r594.#Resource |
-	r595.#Resource |
-	r596.#Resource |
-	r597.#Resource |
-	r598.#Resource |
-	r599.#Resource |
-	r600.#Resource |
-	r601.#Resource |
-	r602.#Resource |
-	r603.#Resource |
-	r604.#Resource |
-	r605.#Resource |
-	r606.#Resource |
-	r607.#Resource |
-	r608.#Resource |
-	r609.#Resource |
-	r610.#Resource |
-	r611.#Resource |
-	r612.#Resource |
-	r613.#Resource |
-	r614.#Resource |
-	r615.#Resource |
-	r616.#Resource |
-	r617.#Resource |
-	r618.#Resource |
-	r619.#Resource |
-	r620.#Resource |
-	r621.#Resource |
-	r622.#Resource |
-	r623.#Resource |
-	r624.#Resource |
-	r625.#Resource |
-	r626.#Resource |
-	r627.#Resource |
-	r628.#Resource |
-	r629.#Resource |
-	r630.#Resource |
-	r631.#Resource |
-	r632.#Resource |
-	r633.#Resource |
-	r634.#Resource |
-	r635.#Resource |
-	r636.#Resource |
-	r637.#Resource |
-	r638.#Resource |
-	r639.#Resource |
-	r640.#Resource |
-	r641.#Resource |
-	r642.#Resource |
-	r643.#Resource |
-	r644.#Resource |
-	r645.#Resource |
-	r646.#Resource |
-	r647.#Resource |
-	r648.#Resource |
-	r649.#Resource |
-	r650.#Resource |
-	r651.#Resource |
-	r652.#Resource |
-	r653.#Resource |
-	r654.#Resource |
-	r655.#Resource |
-	r656.#Resource |
-	r657.#Resource |
-	r658.#Resource |
-	r659.#Resource |
-	r660.#Resource |
-	r661.#Resource |
-	r662.#Resource |
-	r663.#Resource |
-	r664.#Resource |
-	r665.#Resource |
-	r666.#Resource |
-	r667.#Resource |
-	r668.#Resource |
-	r669.#Resource |
-	r670.#Resource |
-	r671.#Resource |
-	r672.#Resource |
-	r673.#Resource |
-	r674.#Resource |
-	r675.#Resource |
-	r676.#Resource |
-	r677.#Resource |
-	r678.#Resource |
-	r679.#Resource |
-	r680.#Resource |
-	r681.#Resource |
-	r682.#Resource |
-	r683.#Resource |
-	r684.#Resource |
-	r685.#Resource |
-	r686.#Resource |
-	r687.#Resource |
-	r688.#Resource |
-	r689.#Resource |
-	r690.#Resource |
-	r691.#Resource |
-	r692.#Resource |
-	r693.#Resource |
-	r694.#Resource |
-	r695.#Resource |
-	r696.#Resource |
-	r697.#Resource |
-	r698.#Resource |
-	r699.#Resource |
-	r700.#Resource |
-	r701.#Resource |
-	r702.#Resource |
-	r703.#Resource |
-	r704.#Resource |
-	r705.#Resource |
-	r706.#Resource |
-	r707.#Resource |
-	r708.#Resource |
-	r709.#Resource |
-	r710.#Resource |
-	r711.#Resource |
-	r712.#Resource |
-	r713.#Resource |
-	r714.#Resource |
-	r715.#Resource |
-	r716.#Resource |
-	r717.#Resource |
-	r718.#Resource |
-	r719.#Resource |
-	r720.#Resource |
-	r721.#Resource |
-	r722.#Resource |
-	r723.#Resource |
-	r724.#Resource |
-	r725.#Resource |
-	r726.#Resource |
-	r727.#Resource |
-	r728.#Resource |
-	r729.#Resource |
-	r730.#Resource |
-	r731.#Resource |
-	r732.#Resource |
-	r733.#Resource |
-	r734.#Resource |
-	r735.#Resource |
-	r736.#Resource |
-	r737.#Resource |
-	r738.#Resource |
-	r739.#Resource |
-	r740.#Resource |
-	r741.#Resource |
-	r742.#Resource |
-	r743.#Resource |
-	r744.#Resource |
-	r745.#Resource |
-	r746.#Resource |
-	r747.#Resource |
-	r748.#Resource |
-	r749.#Resource |
-	r750.#Resource |
-	r751.#Resource |
-	r752.#Resource |
-	r753.#Resource |
-	r754.#Resource |
-	r755.#Resource |
-	r756.#Resource |
-	r757.#Resource |
-	r758.#Resource |
-	r759.#Resource |
-	r760.#Resource |
-	r761.#Resource |
-	r762.#Resource |
-	r763.#Resource |
-	r764.#Resource |
-	r765.#Resource |
-	r766.#Resource |
-	r767.#Resource |
-	r768.#Resource |
-	r769.#Resource |
-	r770.#Resource |
-	r771.#Resource |
-	r772.#Resource |
-	r773.#Resource |
-	r774.#Resource |
-	r775.#Resource |
-	r776.#Resource |
-	r777.#Resource |
-	r778.#Resource |
-	r779.#Resource |
-	r780.#Resource |
-	r781.#Resource |
-	r782.#Resource |
-	r783.#Resource
+#Resource: AWS_ACMPCA_Certificate.#Resource |
+	AWS_ACMPCA_CertificateAuthority.#Resource |
+	AWS_ACMPCA_CertificateAuthorityActivation.#Resource |
+	AWS_ACMPCA_Permission.#Resource |
+	AWS_ARCZonalShift_AutoshiftObserverNotificationStatus.#Resource |
+	AWS_ARCZonalShift_ZonalAutoshiftConfiguration.#Resource |
+	AWS_AccessAnalyzer_Analyzer.#Resource |
+	AWS_AmazonMQ_Broker.#Resource |
+	AWS_AmazonMQ_Configuration.#Resource |
+	AWS_AmazonMQ_ConfigurationAssociation.#Resource |
+	AWS_ApiGateway_Account.#Resource |
+	AWS_ApiGateway_ApiKey.#Resource |
+	AWS_ApiGateway_Authorizer.#Resource |
+	AWS_ApiGateway_BasePathMapping.#Resource |
+	AWS_ApiGateway_BasePathMappingV2.#Resource |
+	AWS_ApiGateway_ClientCertificate.#Resource |
+	AWS_ApiGateway_Deployment.#Resource |
+	AWS_ApiGateway_DocumentationPart.#Resource |
+	AWS_ApiGateway_DocumentationVersion.#Resource |
+	AWS_ApiGateway_DomainName.#Resource |
+	AWS_ApiGateway_DomainNameAccessAssociation.#Resource |
+	AWS_ApiGateway_DomainNameV2.#Resource |
+	AWS_ApiGateway_GatewayResponse.#Resource |
+	AWS_ApiGateway_Method.#Resource |
+	AWS_ApiGateway_Model.#Resource |
+	AWS_ApiGateway_RequestValidator.#Resource |
+	AWS_ApiGateway_Resource.#Resource |
+	AWS_ApiGateway_RestApi.#Resource |
+	AWS_ApiGateway_Stage.#Resource |
+	AWS_ApiGateway_UsagePlan.#Resource |
+	AWS_ApiGateway_UsagePlanKey.#Resource |
+	AWS_ApiGateway_VpcLink.#Resource |
+	AWS_ApiGatewayV2_Api.#Resource |
+	AWS_ApiGatewayV2_ApiGatewayManagedOverrides.#Resource |
+	AWS_ApiGatewayV2_ApiMapping.#Resource |
+	AWS_ApiGatewayV2_Authorizer.#Resource |
+	AWS_ApiGatewayV2_Deployment.#Resource |
+	AWS_ApiGatewayV2_DomainName.#Resource |
+	AWS_ApiGatewayV2_Integration.#Resource |
+	AWS_ApiGatewayV2_IntegrationResponse.#Resource |
+	AWS_ApiGatewayV2_Model.#Resource |
+	AWS_ApiGatewayV2_Route.#Resource |
+	AWS_ApiGatewayV2_RouteResponse.#Resource |
+	AWS_ApiGatewayV2_RoutingRule.#Resource |
+	AWS_ApiGatewayV2_Stage.#Resource |
+	AWS_ApiGatewayV2_VpcLink.#Resource |
+	AWS_AppConfig_Application.#Resource |
+	AWS_AppConfig_ConfigurationProfile.#Resource |
+	AWS_AppConfig_Deployment.#Resource |
+	AWS_AppConfig_DeploymentStrategy.#Resource |
+	AWS_AppConfig_Environment.#Resource |
+	AWS_AppConfig_ExperimentDefinition.#Resource |
+	AWS_AppConfig_ExperimentRun.#Resource |
+	AWS_AppConfig_Extension.#Resource |
+	AWS_AppConfig_ExtensionAssociation.#Resource |
+	AWS_AppConfig_HostedConfigurationVersion.#Resource |
+	AWS_AppMesh_GatewayRoute.#Resource |
+	AWS_AppMesh_Mesh.#Resource |
+	AWS_AppMesh_Route.#Resource |
+	AWS_AppMesh_VirtualGateway.#Resource |
+	AWS_AppMesh_VirtualNode.#Resource |
+	AWS_AppMesh_VirtualRouter.#Resource |
+	AWS_AppMesh_VirtualService.#Resource |
+	AWS_AppStream_DirectoryConfig.#Resource |
+	AWS_AppStream_Fleet.#Resource |
+	AWS_AppStream_ImageBuilder.#Resource |
+	AWS_AppStream_Stack.#Resource |
+	AWS_AppStream_StackFleetAssociation.#Resource |
+	AWS_AppStream_StackUserAssociation.#Resource |
+	AWS_AppStream_User.#Resource |
+	AWS_AppSync_Api.#Resource |
+	AWS_AppSync_ApiCache.#Resource |
+	AWS_AppSync_ApiKey.#Resource |
+	AWS_AppSync_ChannelNamespace.#Resource |
+	AWS_AppSync_DataSource.#Resource |
+	AWS_AppSync_FunctionConfiguration.#Resource |
+	AWS_AppSync_GraphQLApi.#Resource |
+	AWS_AppSync_GraphQLSchema.#Resource |
+	AWS_AppSync_Resolver.#Resource |
+	AWS_AppSync_SourceApiAssociation.#Resource |
+	AWS_ApplicationAutoScaling_ScalableTarget.#Resource |
+	AWS_ApplicationAutoScaling_ScalingPolicy.#Resource |
+	AWS_ApplicationInsights_Application.#Resource |
+	AWS_ApplicationSignals_Discovery.#Resource |
+	AWS_ApplicationSignals_GroupingConfiguration.#Resource |
+	AWS_ApplicationSignals_ServiceLevelObjective.#Resource |
+	AWS_Athena_DataCatalog.#Resource |
+	AWS_Athena_NamedQuery.#Resource |
+	AWS_Athena_PreparedStatement.#Resource |
+	AWS_Athena_WorkGroup.#Resource |
+	AWS_AutoScaling_AutoScalingGroup.#Resource |
+	AWS_AutoScaling_LaunchConfiguration.#Resource |
+	AWS_AutoScaling_LifecycleHook.#Resource |
+	AWS_AutoScaling_ScalingPolicy.#Resource |
+	AWS_AutoScaling_ScheduledAction.#Resource |
+	AWS_AutoScaling_WarmPool.#Resource |
+	AWS_AutoScalingPlans_ScalingPlan.#Resource |
+	AWS_Backup_BackupPlan.#Resource |
+	AWS_Backup_BackupSelection.#Resource |
+	AWS_Backup_BackupVault.#Resource |
+	AWS_Backup_TieringConfiguration.#Resource |
+	AWS_Batch_ComputeEnvironment.#Resource |
+	AWS_Batch_ConsumableResource.#Resource |
+	AWS_Batch_JobDefinition.#Resource |
+	AWS_Batch_JobQueue.#Resource |
+	AWS_Batch_QuotaShare.#Resource |
+	AWS_Batch_SchedulingPolicy.#Resource |
+	AWS_Batch_ServiceEnvironment.#Resource |
+	AWS_BedrockAgentCore_BrowserCustom.#Resource |
+	AWS_BedrockAgentCore_BrowserProfile.#Resource |
+	AWS_BedrockAgentCore_CodeInterpreterCustom.#Resource |
+	AWS_BedrockAgentCore_Gateway.#Resource |
+	AWS_BedrockAgentCore_GatewayRateLimit.#Resource |
+	AWS_BedrockAgentCore_GatewayTarget.#Resource |
+	AWS_BedrockAgentCore_Runtime.#Resource |
+	AWS_BedrockAgentCore_RuntimeEndpoint.#Resource |
+	AWS_BedrockAgentCore_WorkloadIdentity.#Resource |
+	AWS_Budgets_Budget.#Resource |
+	AWS_Budgets_BudgetsAction.#Resource |
+	AWS_CDK_Metadata.#Resource |
+	AWS_CE_AnomalyMonitor.#Resource |
+	AWS_CE_AnomalySubscription.#Resource |
+	AWS_CE_CostCategory.#Resource |
+	AWS_CUR_ReportDefinition.#Resource |
+	AWS_Cassandra_Keyspace.#Resource |
+	AWS_Cassandra_Table.#Resource |
+	AWS_Cassandra_Type.#Resource |
+	AWS_CertificateManager_Account.#Resource |
+	AWS_CertificateManager_Certificate.#Resource |
+	AWS_Cloud9_EnvironmentEC2.#Resource |
+	AWS_CloudFormation_CustomResource.#Resource |
+	AWS_CloudFormation_HookDefaultVersion.#Resource |
+	AWS_CloudFormation_HookTypeConfig.#Resource |
+	AWS_CloudFormation_HookVersion.#Resource |
+	AWS_CloudFormation_Macro.#Resource |
+	AWS_CloudFormation_ModuleDefaultVersion.#Resource |
+	AWS_CloudFormation_ModuleVersion.#Resource |
+	AWS_CloudFormation_ResourceDefaultVersion.#Resource |
+	AWS_CloudFormation_ResourceVersion.#Resource |
+	AWS_CloudFormation_Stack.#Resource |
+	AWS_CloudFormation_StackSet.#Resource |
+	AWS_CloudFormation_WaitCondition.#Resource |
+	AWS_CloudFormation_WaitConditionHandle.#Resource |
+	AWS_CloudFront_CachePolicy.#Resource |
+	AWS_CloudFront_CloudFrontOriginAccessIdentity.#Resource |
+	AWS_CloudFront_Distribution.#Resource |
+	AWS_CloudFront_KeyGroup.#Resource |
+	AWS_CloudFront_OriginRequestPolicy.#Resource |
+	AWS_CloudFront_PublicKey.#Resource |
+	AWS_CloudFront_RealtimeLogConfig.#Resource |
+	AWS_CloudFront_ResponseHeadersPolicy.#Resource |
+	AWS_CloudFront_StreamingDistribution.#Resource |
+	AWS_CloudTrail_Trail.#Resource |
+	AWS_CloudWatch_Alarm.#Resource |
+	AWS_CloudWatch_AlarmMuteRule.#Resource |
+	AWS_CloudWatch_AnomalyDetector.#Resource |
+	AWS_CloudWatch_CompositeAlarm.#Resource |
+	AWS_CloudWatch_Dashboard.#Resource |
+	AWS_CloudWatch_InsightRule.#Resource |
+	AWS_CloudWatch_MetricStream.#Resource |
+	AWS_CodeBuild_Project.#Resource |
+	AWS_CodeBuild_ReportGroup.#Resource |
+	AWS_CodeBuild_SourceCredential.#Resource |
+	AWS_CodeCommit_Repository.#Resource |
+	AWS_CodeDeploy_Application.#Resource |
+	AWS_CodeDeploy_DeploymentConfig.#Resource |
+	AWS_CodeDeploy_DeploymentGroup.#Resource |
+	AWS_CodePipeline_CustomActionType.#Resource |
+	AWS_CodePipeline_Pipeline.#Resource |
+	AWS_CodePipeline_Webhook.#Resource |
+	AWS_Config_AggregationAuthorization.#Resource |
+	AWS_Config_ConfigRule.#Resource |
+	AWS_Config_ConfigurationAggregator.#Resource |
+	AWS_Config_ConfigurationRecorder.#Resource |
+	AWS_Config_ConformancePack.#Resource |
+	AWS_Config_DeliveryChannel.#Resource |
+	AWS_Config_OrganizationConfigRule.#Resource |
+	AWS_Config_OrganizationConformancePack.#Resource |
+	AWS_Config_RemediationConfiguration.#Resource |
+	AWS_Config_StoredQuery.#Resource |
+	AWS_DAX_Cluster.#Resource |
+	AWS_DAX_ParameterGroup.#Resource |
+	AWS_DAX_SubnetGroup.#Resource |
+	AWS_DLM_LifecyclePolicy.#Resource |
+	AWS_DMS_Certificate.#Resource |
+	AWS_DMS_DataProvider.#Resource |
+	AWS_DMS_Endpoint.#Resource |
+	AWS_DMS_EventSubscription.#Resource |
+	AWS_DMS_InstanceProfile.#Resource |
+	AWS_DMS_MigrationProject.#Resource |
+	AWS_DMS_ReplicationConfig.#Resource |
+	AWS_DMS_ReplicationInstance.#Resource |
+	AWS_DMS_ReplicationSubnetGroup.#Resource |
+	AWS_DMS_ReplicationTask.#Resource |
+	AWS_DataBrew_Dataset.#Resource |
+	AWS_DataBrew_Job.#Resource |
+	AWS_DataBrew_Project.#Resource |
+	AWS_DataBrew_Recipe.#Resource |
+	AWS_DataBrew_Ruleset.#Resource |
+	AWS_DataBrew_Schedule.#Resource |
+	AWS_DataPipeline_Pipeline.#Resource |
+	AWS_DataSync_Agent.#Resource |
+	AWS_DataSync_LocationAzureBlob.#Resource |
+	AWS_DataSync_LocationEFS.#Resource |
+	AWS_DataSync_LocationFSxLustre.#Resource |
+	AWS_DataSync_LocationFSxWindows.#Resource |
+	AWS_DataSync_LocationHDFS.#Resource |
+	AWS_DataSync_LocationNFS.#Resource |
+	AWS_DataSync_LocationObjectStorage.#Resource |
+	AWS_DataSync_LocationS3.#Resource |
+	AWS_DataSync_LocationSMB.#Resource |
+	AWS_DataSync_Task.#Resource |
+	AWS_DirectConnect_Connection.#Resource |
+	AWS_DirectConnect_DirectConnectGateway.#Resource |
+	AWS_DirectConnect_DirectConnectGatewayAssociation.#Resource |
+	AWS_DirectConnect_Lag.#Resource |
+	AWS_DirectConnect_PrivateVirtualInterface.#Resource |
+	AWS_DirectConnect_PublicVirtualInterface.#Resource |
+	AWS_DirectConnect_TransitVirtualInterface.#Resource |
+	AWS_DirectoryService_MicrosoftAD.#Resource |
+	AWS_DirectoryService_SimpleAD.#Resource |
+	AWS_DocDB_DBCluster.#Resource |
+	AWS_DocDB_DBClusterParameterGroup.#Resource |
+	AWS_DocDB_DBInstance.#Resource |
+	AWS_DocDB_DBSubnetGroup.#Resource |
+	AWS_DocDB_EventSubscription.#Resource |
+	AWS_DynamoDB_GlobalTable.#Resource |
+	AWS_DynamoDB_Table.#Resource |
+	AWS_EC2_CapacityReservation.#Resource |
+	AWS_EC2_CapacityReservationFleet.#Resource |
+	AWS_EC2_CustomerGateway.#Resource |
+	AWS_EC2_DHCPOptions.#Resource |
+	AWS_EC2_EC2Fleet.#Resource |
+	AWS_EC2_EIP.#Resource |
+	AWS_EC2_EIPAssociation.#Resource |
+	AWS_EC2_EgressOnlyInternetGateway.#Resource |
+	AWS_EC2_FlowLog.#Resource |
+	AWS_EC2_GatewayRouteTableAssociation.#Resource |
+	AWS_EC2_Host.#Resource |
+	AWS_EC2_IPAM.#Resource |
+	AWS_EC2_IPAMAllocation.#Resource |
+	AWS_EC2_IPAMPool.#Resource |
+	AWS_EC2_IPAMPoolCidr.#Resource |
+	AWS_EC2_IPAMPrefixListResolver.#Resource |
+	AWS_EC2_IPAMPrefixListResolverTarget.#Resource |
+	AWS_EC2_IPAMResourceDiscovery.#Resource |
+	AWS_EC2_IPAMResourceDiscoveryAssociation.#Resource |
+	AWS_EC2_IPAMScope.#Resource |
+	AWS_EC2_Instance.#Resource |
+	AWS_EC2_InstanceConnectEndpoint.#Resource |
+	AWS_EC2_InternetGateway.#Resource |
+	AWS_EC2_IpPoolRouteTableAssociation.#Resource |
+	AWS_EC2_KeyPair.#Resource |
+	AWS_EC2_LaunchTemplate.#Resource |
+	AWS_EC2_NatGateway.#Resource |
+	AWS_EC2_NetworkAcl.#Resource |
+	AWS_EC2_NetworkAclEntry.#Resource |
+	AWS_EC2_NetworkInterface.#Resource |
+	AWS_EC2_NetworkInterfaceAttachment.#Resource |
+	AWS_EC2_NetworkInterfacePermission.#Resource |
+	AWS_EC2_PlacementGroup.#Resource |
+	AWS_EC2_PrefixList.#Resource |
+	AWS_EC2_Route.#Resource |
+	AWS_EC2_RouteTable.#Resource |
+	AWS_EC2_SecurityGroup.#Resource |
+	AWS_EC2_SecurityGroupEgress.#Resource |
+	AWS_EC2_SecurityGroupIngress.#Resource |
+	AWS_EC2_SecurityGroupVpcAssociation.#Resource |
+	AWS_EC2_SnapshotBlockPublicAccess.#Resource |
+	AWS_EC2_SpotFleet.#Resource |
+	AWS_EC2_SqlHaStandbyDetectedInstance.#Resource |
+	AWS_EC2_Subnet.#Resource |
+	AWS_EC2_SubnetCidrBlock.#Resource |
+	AWS_EC2_SubnetNetworkAclAssociation.#Resource |
+	AWS_EC2_SubnetRouteTableAssociation.#Resource |
+	AWS_EC2_TrafficMirrorFilter.#Resource |
+	AWS_EC2_TrafficMirrorFilterRule.#Resource |
+	AWS_EC2_TrafficMirrorSession.#Resource |
+	AWS_EC2_TrafficMirrorTarget.#Resource |
+	AWS_EC2_TransitGateway.#Resource |
+	AWS_EC2_TransitGatewayAttachment.#Resource |
+	AWS_EC2_TransitGatewayConnect.#Resource |
+	AWS_EC2_TransitGatewayConnectPeer.#Resource |
+	AWS_EC2_TransitGatewayMeteringPolicy.#Resource |
+	AWS_EC2_TransitGatewayMeteringPolicyEntry.#Resource |
+	AWS_EC2_TransitGatewayMulticastDomain.#Resource |
+	AWS_EC2_TransitGatewayMulticastDomainAssociation.#Resource |
+	AWS_EC2_TransitGatewayMulticastGroupMember.#Resource |
+	AWS_EC2_TransitGatewayMulticastGroupSource.#Resource |
+	AWS_EC2_TransitGatewayPeeringAttachment.#Resource |
+	AWS_EC2_TransitGatewayPolicyTable.#Resource |
+	AWS_EC2_TransitGatewayPolicyTableAssociation.#Resource |
+	AWS_EC2_TransitGatewayPolicyTableEntry.#Resource |
+	AWS_EC2_TransitGatewayRoute.#Resource |
+	AWS_EC2_TransitGatewayRouteTable.#Resource |
+	AWS_EC2_TransitGatewayRouteTableAssociation.#Resource |
+	AWS_EC2_TransitGatewayRouteTablePropagation.#Resource |
+	AWS_EC2_TransitGatewayVpcAttachment.#Resource |
+	AWS_EC2_VPC.#Resource |
+	AWS_EC2_VPCBlockPublicAccessExclusion.#Resource |
+	AWS_EC2_VPCBlockPublicAccessOptions.#Resource |
+	AWS_EC2_VPCCidrBlock.#Resource |
+	AWS_EC2_VPCDHCPOptionsAssociation.#Resource |
+	AWS_EC2_VPCEndpoint.#Resource |
+	AWS_EC2_VPCEndpointConnectionNotification.#Resource |
+	AWS_EC2_VPCEndpointService.#Resource |
+	AWS_EC2_VPCEndpointServicePermissions.#Resource |
+	AWS_EC2_VPCGatewayAttachment.#Resource |
+	AWS_EC2_VPCPeeringConnection.#Resource |
+	AWS_EC2_VPNConnection.#Resource |
+	AWS_EC2_VPNConnectionRoute.#Resource |
+	AWS_EC2_VPNGateway.#Resource |
+	AWS_EC2_VPNGatewayRoutePropagation.#Resource |
+	AWS_EC2_Volume.#Resource |
+	AWS_EC2_VolumeAttachment.#Resource |
+	AWS_ECR_PullThroughCacheRule.#Resource |
+	AWS_ECR_PullTimeUpdateExclusion.#Resource |
+	AWS_ECR_RegistryPolicy.#Resource |
+	AWS_ECR_RegistryScanningConfiguration.#Resource |
+	AWS_ECR_ReplicationConfiguration.#Resource |
+	AWS_ECR_Repository.#Resource |
+	AWS_ECR_RepositoryCreationTemplate.#Resource |
+	AWS_ECS_CapacityProvider.#Resource |
+	AWS_ECS_Cluster.#Resource |
+	AWS_ECS_ClusterCapacityProviderAssociations.#Resource |
+	AWS_ECS_ExpressGatewayService.#Resource |
+	AWS_ECS_PrimaryTaskSet.#Resource |
+	AWS_ECS_Service.#Resource |
+	AWS_ECS_TaskDefinition.#Resource |
+	AWS_ECS_TaskSet.#Resource |
+	AWS_EFS_AccessPoint.#Resource |
+	AWS_EFS_FileSystem.#Resource |
+	AWS_EFS_MountTarget.#Resource |
+	AWS_EKS_AccessEntry.#Resource |
+	AWS_EKS_Addon.#Resource |
+	AWS_EKS_Capability.#Resource |
+	AWS_EKS_Cluster.#Resource |
+	AWS_EKS_FargateProfile.#Resource |
+	AWS_EKS_IdentityProviderConfig.#Resource |
+	AWS_EKS_Nodegroup.#Resource |
+	AWS_EKS_PodIdentityAssociation.#Resource |
+	AWS_EMR_Cluster.#Resource |
+	AWS_EMR_InstanceFleetConfig.#Resource |
+	AWS_EMR_InstanceGroupConfig.#Resource |
+	AWS_EMR_SecurityConfiguration.#Resource |
+	AWS_EMR_Step.#Resource |
+	AWS_EMR_Studio.#Resource |
+	AWS_EMR_StudioSessionMapping.#Resource |
+	AWS_EMRContainers_VirtualCluster.#Resource |
+	AWS_EMRServerless_Application.#Resource |
+	AWS_ElastiCache_CacheCluster.#Resource |
+	AWS_ElastiCache_GlobalReplicationGroup.#Resource |
+	AWS_ElastiCache_ParameterGroup.#Resource |
+	AWS_ElastiCache_ReplicationGroup.#Resource |
+	AWS_ElastiCache_SecurityGroup.#Resource |
+	AWS_ElastiCache_SecurityGroupIngress.#Resource |
+	AWS_ElastiCache_ServerlessCache.#Resource |
+	AWS_ElastiCache_SubnetGroup.#Resource |
+	AWS_ElastiCache_User.#Resource |
+	AWS_ElastiCache_UserGroup.#Resource |
+	AWS_ElasticBeanstalk_Application.#Resource |
+	AWS_ElasticBeanstalk_ApplicationVersion.#Resource |
+	AWS_ElasticBeanstalk_ConfigurationTemplate.#Resource |
+	AWS_ElasticBeanstalk_Environment.#Resource |
+	AWS_ElasticLoadBalancing_LoadBalancer.#Resource |
+	AWS_ElasticLoadBalancingV2_Listener.#Resource |
+	AWS_ElasticLoadBalancingV2_ListenerCertificate.#Resource |
+	AWS_ElasticLoadBalancingV2_ListenerRule.#Resource |
+	AWS_ElasticLoadBalancingV2_LoadBalancer.#Resource |
+	AWS_ElasticLoadBalancingV2_TargetGroup.#Resource |
+	AWS_ElasticLoadBalancingV2_TrustStore.#Resource |
+	AWS_ElasticLoadBalancingV2_TrustStoreRevocation.#Resource |
+	AWS_Elasticsearch_Domain.#Resource |
+	AWS_EventSchemas_Discoverer.#Resource |
+	AWS_EventSchemas_Registry.#Resource |
+	AWS_EventSchemas_RegistryPolicy.#Resource |
+	AWS_EventSchemas_Schema.#Resource |
+	AWS_Events_ApiDestination.#Resource |
+	AWS_Events_Archive.#Resource |
+	AWS_Events_Connection.#Resource |
+	AWS_Events_EventBus.#Resource |
+	AWS_Events_EventBusPolicy.#Resource |
+	AWS_Events_Rule.#Resource |
+	AWS_FMS_NotificationChannel.#Resource |
+	AWS_FMS_Policy.#Resource |
+	AWS_FMS_ResourceSet.#Resource |
+	AWS_FSx_DataRepositoryAssociation.#Resource |
+	AWS_FSx_FileSystem.#Resource |
+	AWS_FSx_S3AccessPointAttachment.#Resource |
+	AWS_FSx_Snapshot.#Resource |
+	AWS_FSx_StorageVirtualMachine.#Resource |
+	AWS_FSx_Volume.#Resource |
+	AWS_FraudDetector_List.#Resource |
+	AWS_GameLift_Alias.#Resource |
+	AWS_GameLift_Build.#Resource |
+	AWS_GameLift_Fleet.#Resource |
+	AWS_GameLift_GameServerGroup.#Resource |
+	AWS_GameLift_GameSessionQueue.#Resource |
+	AWS_GameLift_MatchmakingConfiguration.#Resource |
+	AWS_GameLift_MatchmakingRuleSet.#Resource |
+	AWS_GameLift_Script.#Resource |
+	AWS_Glue_Classifier.#Resource |
+	AWS_Glue_Connection.#Resource |
+	AWS_Glue_Crawler.#Resource |
+	AWS_Glue_CustomEntityType.#Resource |
+	AWS_Glue_DataCatalogEncryptionSettings.#Resource |
+	AWS_Glue_DataQualityRuleset.#Resource |
+	AWS_Glue_Database.#Resource |
+	AWS_Glue_DevEndpoint.#Resource |
+	AWS_Glue_Job.#Resource |
+	AWS_Glue_MLTransform.#Resource |
+	AWS_Glue_Partition.#Resource |
+	AWS_Glue_Registry.#Resource |
+	AWS_Glue_Schema.#Resource |
+	AWS_Glue_SchemaVersion.#Resource |
+	AWS_Glue_SchemaVersionMetadata.#Resource |
+	AWS_Glue_SecurityConfiguration.#Resource |
+	AWS_Glue_Table.#Resource |
+	AWS_Glue_Trigger.#Resource |
+	AWS_Glue_Workflow.#Resource |
+	AWS_GuardDuty_CustomDetectionRuleAssociation.#Resource |
+	AWS_GuardDuty_Detector.#Resource |
+	AWS_GuardDuty_Filter.#Resource |
+	AWS_GuardDuty_IPSet.#Resource |
+	AWS_GuardDuty_MalwareProtectionPlan.#Resource |
+	AWS_GuardDuty_Master.#Resource |
+	AWS_GuardDuty_Member.#Resource |
+	AWS_GuardDuty_PublishingDestination.#Resource |
+	AWS_GuardDuty_ThreatIntelSet.#Resource |
+	AWS_IAM_AccessKey.#Resource |
+	AWS_IAM_Group.#Resource |
+	AWS_IAM_GroupPolicy.#Resource |
+	AWS_IAM_InstanceProfile.#Resource |
+	AWS_IAM_ManagedPolicy.#Resource |
+	AWS_IAM_OIDCProvider.#Resource |
+	AWS_IAM_Policy.#Resource |
+	AWS_IAM_Role.#Resource |
+	AWS_IAM_RolePolicy.#Resource |
+	AWS_IAM_SAMLProvider.#Resource |
+	AWS_IAM_ServerCertificate.#Resource |
+	AWS_IAM_ServiceLinkedRole.#Resource |
+	AWS_IAM_User.#Resource |
+	AWS_IAM_UserPolicy.#Resource |
+	AWS_IAM_UserToGroupAddition.#Resource |
+	AWS_IAM_VirtualMFADevice.#Resource |
+	AWS_IdentityStore_Group.#Resource |
+	AWS_IdentityStore_GroupMembership.#Resource |
+	AWS_ImageBuilder_Component.#Resource |
+	AWS_ImageBuilder_ContainerRecipe.#Resource |
+	AWS_ImageBuilder_DistributionConfiguration.#Resource |
+	AWS_ImageBuilder_Image.#Resource |
+	AWS_ImageBuilder_ImagePipeline.#Resource |
+	AWS_ImageBuilder_ImageRecipe.#Resource |
+	AWS_ImageBuilder_InfrastructureConfiguration.#Resource |
+	AWS_ImageBuilder_LifecyclePolicy.#Resource |
+	AWS_ImageBuilder_Workflow.#Resource |
+	AWS_IoT_AccountAuditConfiguration.#Resource |
+	AWS_IoT_Authorizer.#Resource |
+	AWS_IoT_BillingGroup.#Resource |
+	AWS_IoT_CACertificate.#Resource |
+	AWS_IoT_Certificate.#Resource |
+	AWS_IoT_CertificateProvider.#Resource |
+	AWS_IoT_Command.#Resource |
+	AWS_IoT_CustomMetric.#Resource |
+	AWS_IoT_Dimension.#Resource |
+	AWS_IoT_DomainConfiguration.#Resource |
+	AWS_IoT_EncryptionConfiguration.#Resource |
+	AWS_IoT_FleetMetric.#Resource |
+	AWS_IoT_JobTemplate.#Resource |
+	AWS_IoT_Logging.#Resource |
+	AWS_IoT_MitigationAction.#Resource |
+	AWS_IoT_Policy.#Resource |
+	AWS_IoT_PolicyPrincipalAttachment.#Resource |
+	AWS_IoT_ProvisioningTemplate.#Resource |
+	AWS_IoT_ResourceSpecificLogging.#Resource |
+	AWS_IoT_RoleAlias.#Resource |
+	AWS_IoT_ScheduledAudit.#Resource |
+	AWS_IoT_SecurityProfile.#Resource |
+	AWS_IoT_SoftwarePackage.#Resource |
+	AWS_IoT_SoftwarePackageVersion.#Resource |
+	AWS_IoT_Thing.#Resource |
+	AWS_IoT_ThingGroup.#Resource |
+	AWS_IoT_ThingPrincipalAttachment.#Resource |
+	AWS_IoT_ThingType.#Resource |
+	AWS_IoT_TopicRule.#Resource |
+	AWS_IoT_TopicRuleDestination.#Resource |
+	AWS_KMS_Alias.#Resource |
+	AWS_KMS_Key.#Resource |
+	AWS_KMS_ReplicaKey.#Resource |
+	AWS_KafkaConnect_Connector.#Resource |
+	AWS_KafkaConnect_CustomPlugin.#Resource |
+	AWS_KafkaConnect_WorkerConfiguration.#Resource |
+	AWS_Kinesis_Channel.#Resource |
+	AWS_Kinesis_ResourcePolicy.#Resource |
+	AWS_Kinesis_Stream.#Resource |
+	AWS_Kinesis_StreamConsumer.#Resource |
+	AWS_KinesisAnalytics_Application.#Resource |
+	AWS_KinesisAnalytics_ApplicationOutput.#Resource |
+	AWS_KinesisAnalytics_ApplicationReferenceDataSource.#Resource |
+	AWS_KinesisAnalyticsV2_Application.#Resource |
+	AWS_KinesisAnalyticsV2_ApplicationCloudWatchLoggingOption.#Resource |
+	AWS_KinesisAnalyticsV2_ApplicationOutput.#Resource |
+	AWS_KinesisAnalyticsV2_ApplicationReferenceDataSource.#Resource |
+	AWS_KinesisFirehose_DeliveryStream.#Resource |
+	AWS_LakeFormation_DataCellsFilter.#Resource |
+	AWS_LakeFormation_DataLakeSettings.#Resource |
+	AWS_LakeFormation_Permissions.#Resource |
+	AWS_LakeFormation_PrincipalPermissions.#Resource |
+	AWS_LakeFormation_Resource.#Resource |
+	AWS_LakeFormation_Tag.#Resource |
+	AWS_LakeFormation_TagAssociation.#Resource |
+	AWS_Lambda_Alias.#Resource |
+	AWS_Lambda_EventInvokeConfig.#Resource |
+	AWS_Lambda_EventSourceMapping.#Resource |
+	AWS_Lambda_Function.#Resource |
+	AWS_Lambda_LayerVersion.#Resource |
+	AWS_Lambda_LayerVersionPermission.#Resource |
+	AWS_Lambda_Permission.#Resource |
+	AWS_Lambda_Version.#Resource |
+	AWS_LaunchWizard_Deployment.#Resource |
+	AWS_Logs_AccountPolicy.#Resource |
+	AWS_Logs_Delivery.#Resource |
+	AWS_Logs_DeliveryDestination.#Resource |
+	AWS_Logs_DeliverySource.#Resource |
+	AWS_Logs_Destination.#Resource |
+	AWS_Logs_LogGroup.#Resource |
+	AWS_Logs_LogStream.#Resource |
+	AWS_Logs_MetricFilter.#Resource |
+	AWS_Logs_QueryDefinition.#Resource |
+	AWS_Logs_ResourcePolicy.#Resource |
+	AWS_Logs_SubscriptionFilter.#Resource |
+	AWS_Logs_Transformer.#Resource |
+	AWS_MSK_BatchScramSecret.#Resource |
+	AWS_MSK_Channel.#Resource |
+	AWS_MSK_Cluster.#Resource |
+	AWS_MSK_ClusterPolicy.#Resource |
+	AWS_MSK_Configuration.#Resource |
+	AWS_MSK_Replicator.#Resource |
+	AWS_MSK_ServerlessCluster.#Resource |
+	AWS_MSK_Topic.#Resource |
+	AWS_MSK_VpcConnection.#Resource |
+	AWS_MWAA_Environment.#Resource |
+	AWS_MediaConvert_JobTemplate.#Resource |
+	AWS_MediaConvert_Preset.#Resource |
+	AWS_MediaConvert_Queue.#Resource |
+	AWS_MemoryDB_ACL.#Resource |
+	AWS_MemoryDB_Cluster.#Resource |
+	AWS_MemoryDB_ParameterGroup.#Resource |
+	AWS_MemoryDB_SubnetGroup.#Resource |
+	AWS_MemoryDB_User.#Resource |
+	AWS_Neptune_DBCluster.#Resource |
+	AWS_Neptune_DBClusterParameterGroup.#Resource |
+	AWS_Neptune_DBInstance.#Resource |
+	AWS_Neptune_DBParameterGroup.#Resource |
+	AWS_Neptune_DBSubnetGroup.#Resource |
+	AWS_Neptune_EventSubscription.#Resource |
+	AWS_NetworkFirewall_Firewall.#Resource |
+	AWS_NetworkFirewall_FirewallPolicy.#Resource |
+	AWS_NetworkFirewall_LoggingConfiguration.#Resource |
+	AWS_NetworkFirewall_RuleGroup.#Resource |
+	AWS_NetworkFirewall_TLSInspectionConfiguration.#Resource |
+	AWS_NetworkFirewall_VpcEndpointAssociation.#Resource |
+	AWS_Oam_Link.#Resource |
+	AWS_Oam_Sink.#Resource |
+	AWS_OpenSearchService_Domain.#Resource |
+	AWS_Organizations_Account.#Resource |
+	AWS_Organizations_Organization.#Resource |
+	AWS_Organizations_OrganizationalUnit.#Resource |
+	AWS_Organizations_Policy.#Resource |
+	AWS_Organizations_ResourcePolicy.#Resource |
+	AWS_Pipes_Pipe.#Resource |
+	AWS_RAM_Permission.#Resource |
+	AWS_RAM_PermissionAssociation.#Resource |
+	AWS_RAM_PrincipalAssociation.#Resource |
+	AWS_RAM_ResourceAssociation.#Resource |
+	AWS_RAM_ResourceShare.#Resource |
+	AWS_RAM_SourceAssociation.#Resource |
+	AWS_RDS_DBCluster.#Resource |
+	AWS_RDS_DBClusterParameterGroup.#Resource |
+	AWS_RDS_DBInstance.#Resource |
+	AWS_RDS_DBParameterGroup.#Resource |
+	AWS_RDS_DBProxy.#Resource |
+	AWS_RDS_DBProxyEndpoint.#Resource |
+	AWS_RDS_DBProxyTargetGroup.#Resource |
+	AWS_RDS_DBSecurityGroup.#Resource |
+	AWS_RDS_DBSecurityGroupIngress.#Resource |
+	AWS_RDS_DBShardGroup.#Resource |
+	AWS_RDS_DBSubnetGroup.#Resource |
+	AWS_RDS_EventSubscription.#Resource |
+	AWS_RDS_GlobalCluster.#Resource |
+	AWS_RDS_Integration.#Resource |
+	AWS_RDS_OptionGroup.#Resource |
+	AWS_Rbin_Rule.#Resource |
+	AWS_Redshift_Cluster.#Resource |
+	AWS_Redshift_ClusterParameterGroup.#Resource |
+	AWS_Redshift_ClusterSecurityGroup.#Resource |
+	AWS_Redshift_ClusterSecurityGroupIngress.#Resource |
+	AWS_Redshift_ClusterSubnetGroup.#Resource |
+	AWS_Redshift_EndpointAccess.#Resource |
+	AWS_Redshift_EndpointAuthorization.#Resource |
+	AWS_Redshift_EventSubscription.#Resource |
+	AWS_Redshift_Integration.#Resource |
+	AWS_Redshift_ScheduledAction.#Resource |
+	AWS_RedshiftServerless_Namespace.#Resource |
+	AWS_RedshiftServerless_Snapshot.#Resource |
+	AWS_RedshiftServerless_Workgroup.#Resource |
+	AWS_ResourceExplorer2_DefaultViewAssociation.#Resource |
+	AWS_ResourceExplorer2_Index.#Resource |
+	AWS_ResourceExplorer2_View.#Resource |
+	AWS_ResourceGroups_Group.#Resource |
+	AWS_RolesAnywhere_CRL.#Resource |
+	AWS_RolesAnywhere_Profile.#Resource |
+	AWS_RolesAnywhere_TrustAnchor.#Resource |
+	AWS_Route53_CidrCollection.#Resource |
+	AWS_Route53_HealthCheck.#Resource |
+	AWS_Route53_HostedZone.#Resource |
+	AWS_Route53_RecordSet.#Resource |
+	AWS_Route53_RecordSetGroup.#Resource |
+	AWS_Route53Profiles_Profile.#Resource |
+	AWS_Route53Profiles_ProfileAssociation.#Resource |
+	AWS_Route53Profiles_ProfileResourceAssociation.#Resource |
+	AWS_Route53Resolver_FirewallDomainList.#Resource |
+	AWS_Route53Resolver_FirewallRuleGroup.#Resource |
+	AWS_Route53Resolver_FirewallRuleGroupAssociation.#Resource |
+	AWS_Route53Resolver_ResolverConfig.#Resource |
+	AWS_Route53Resolver_ResolverDNSSECConfig.#Resource |
+	AWS_Route53Resolver_ResolverEndpoint.#Resource |
+	AWS_Route53Resolver_ResolverQueryLoggingConfig.#Resource |
+	AWS_Route53Resolver_ResolverQueryLoggingConfigAssociation.#Resource |
+	AWS_Route53Resolver_ResolverRule.#Resource |
+	AWS_Route53Resolver_ResolverRuleAssociation.#Resource |
+	AWS_S3_AccessGrant.#Resource |
+	AWS_S3_AccessGrantsInstance.#Resource |
+	AWS_S3_AccessGrantsLocation.#Resource |
+	AWS_S3_AccessPoint.#Resource |
+	AWS_S3_Bucket.#Resource |
+	AWS_S3_BucketPolicy.#Resource |
+	AWS_S3_StorageLens.#Resource |
+	AWS_S3_StorageLensGroup.#Resource |
+	AWS_S3Files_AccessPoint.#Resource |
+	AWS_S3Files_FileSystem.#Resource |
+	AWS_S3Files_FileSystemPolicy.#Resource |
+	AWS_S3Files_MountTarget.#Resource |
+	AWS_S3ObjectLambda_AccessPoint.#Resource |
+	AWS_S3ObjectLambda_AccessPointPolicy.#Resource |
+	AWS_S3Tables_Namespace.#Resource |
+	AWS_S3Tables_Table.#Resource |
+	AWS_S3Tables_TableBucket.#Resource |
+	AWS_S3Tables_TableBucketPolicy.#Resource |
+	AWS_S3Tables_TablePolicy.#Resource |
+	AWS_S3Vectors_Index.#Resource |
+	AWS_S3Vectors_VectorBucket.#Resource |
+	AWS_S3Vectors_VectorBucketPolicy.#Resource |
+	AWS_SDB_Domain.#Resource |
+	AWS_SNS_Subscription.#Resource |
+	AWS_SNS_Topic.#Resource |
+	AWS_SNS_TopicInlinePolicy.#Resource |
+	AWS_SNS_TopicPolicy.#Resource |
+	AWS_SQS_Queue.#Resource |
+	AWS_SQS_QueueInlinePolicy.#Resource |
+	AWS_SQS_QueuePolicy.#Resource |
+	AWS_SSM_Association.#Resource |
+	AWS_SSM_Document.#Resource |
+	AWS_SSM_MaintenanceWindow.#Resource |
+	AWS_SSM_MaintenanceWindowTarget.#Resource |
+	AWS_SSM_MaintenanceWindowTask.#Resource |
+	AWS_SSM_Parameter.#Resource |
+	AWS_SSM_PatchBaseline.#Resource |
+	AWS_SSM_ResourceDataSync.#Resource |
+	AWS_SSO_Application.#Resource |
+	AWS_SSO_ApplicationAssignment.#Resource |
+	AWS_SSO_Assignment.#Resource |
+	AWS_SSO_Instance.#Resource |
+	AWS_SSO_InstanceAccessControlAttributeConfiguration.#Resource |
+	AWS_SSO_PermissionSet.#Resource |
+	AWS_SageMaker_App.#Resource |
+	AWS_SageMaker_AppImageConfig.#Resource |
+	AWS_SageMaker_CodeRepository.#Resource |
+	AWS_SageMaker_Domain.#Resource |
+	AWS_SageMaker_Endpoint.#Resource |
+	AWS_SageMaker_EndpointConfig.#Resource |
+	AWS_SageMaker_FeatureGroup.#Resource |
+	AWS_SageMaker_Image.#Resource |
+	AWS_SageMaker_ImageVersion.#Resource |
+	AWS_SageMaker_Model.#Resource |
+	AWS_SageMaker_ModelCard.#Resource |
+	AWS_SageMaker_ModelPackage.#Resource |
+	AWS_SageMaker_MonitoringSchedule.#Resource |
+	AWS_SageMaker_NotebookInstance.#Resource |
+	AWS_SageMaker_NotebookInstanceLifecycleConfig.#Resource |
+	AWS_SageMaker_Pipeline.#Resource |
+	AWS_SageMaker_ProcessingJob.#Resource |
+	AWS_SageMaker_Project.#Resource |
+	AWS_SageMaker_StudioLifecycleConfig.#Resource |
+	AWS_SageMaker_UserProfile.#Resource |
+	AWS_SageMaker_Workteam.#Resource |
+	AWS_Scheduler_Schedule.#Resource |
+	AWS_Scheduler_ScheduleGroup.#Resource |
+	AWS_SecretsManager_ResourcePolicy.#Resource |
+	AWS_SecretsManager_RotationSchedule.#Resource |
+	AWS_SecretsManager_Secret.#Resource |
+	AWS_SecretsManager_SecretTargetAttachment.#Resource |
+	AWS_SecurityHub_AggregatorV2.#Resource |
+	AWS_SecurityHub_AutomationRule.#Resource |
+	AWS_SecurityHub_AutomationRuleV2.#Resource |
+	AWS_SecurityHub_ConfigurationPolicy.#Resource |
+	AWS_SecurityHub_DelegatedAdmin.#Resource |
+	AWS_SecurityHub_FindingAggregator.#Resource |
+	AWS_SecurityHub_Hub.#Resource |
+	AWS_SecurityHub_HubV2.#Resource |
+	AWS_SecurityHub_Insight.#Resource |
+	AWS_SecurityHub_OrganizationConfiguration.#Resource |
+	AWS_SecurityHub_PolicyAssociation.#Resource |
+	AWS_SecurityHub_ProductSubscription.#Resource |
+	AWS_SecurityHub_SecurityControl.#Resource |
+	AWS_SecurityHub_Standard.#Resource |
+	AWS_ServiceCatalog_AcceptedPortfolioShare.#Resource |
+	AWS_ServiceCatalog_CloudFormationProduct.#Resource |
+	AWS_ServiceCatalog_CloudFormationProvisionedProduct.#Resource |
+	AWS_ServiceCatalog_LaunchNotificationConstraint.#Resource |
+	AWS_ServiceCatalog_LaunchRoleConstraint.#Resource |
+	AWS_ServiceCatalog_LaunchTemplateConstraint.#Resource |
+	AWS_ServiceCatalog_Portfolio.#Resource |
+	AWS_ServiceCatalog_PortfolioPrincipalAssociation.#Resource |
+	AWS_ServiceCatalog_PortfolioProductAssociation.#Resource |
+	AWS_ServiceCatalog_PortfolioShare.#Resource |
+	AWS_ServiceCatalog_ResourceUpdateConstraint.#Resource |
+	AWS_ServiceCatalog_ServiceAction.#Resource |
+	AWS_ServiceCatalog_ServiceActionAssociation.#Resource |
+	AWS_ServiceCatalog_StackSetConstraint.#Resource |
+	AWS_ServiceCatalog_TagOption.#Resource |
+	AWS_ServiceCatalog_TagOptionAssociation.#Resource |
+	AWS_ServiceDiscovery_HttpNamespace.#Resource |
+	AWS_ServiceDiscovery_Instance.#Resource |
+	AWS_ServiceDiscovery_PrivateDnsNamespace.#Resource |
+	AWS_ServiceDiscovery_PublicDnsNamespace.#Resource |
+	AWS_ServiceDiscovery_Service.#Resource |
+	AWS_StepFunctions_Activity.#Resource |
+	AWS_StepFunctions_StateMachine.#Resource |
+	AWS_StepFunctions_StateMachineAlias.#Resource |
+	AWS_StepFunctions_StateMachineVersion.#Resource |
+	AWS_Synthetics_Canary.#Resource |
+	AWS_Timestream_InfluxDBCluster.#Resource |
+	AWS_Timestream_InfluxDBInstance.#Resource |
+	AWS_Transfer_Agreement.#Resource |
+	AWS_Transfer_Certificate.#Resource |
+	AWS_Transfer_Connector.#Resource |
+	AWS_Transfer_Profile.#Resource |
+	AWS_Transfer_Server.#Resource |
+	AWS_Transfer_User.#Resource |
+	AWS_Transfer_WebApp.#Resource |
+	AWS_Transfer_Workflow.#Resource |
+	AWS_VerifiedPermissions_Policy.#Resource |
+	AWS_VerifiedPermissions_PolicyStore.#Resource |
+	AWS_VerifiedPermissions_PolicyStoreAlias.#Resource |
+	AWS_VerifiedPermissions_PolicyTemplate.#Resource |
+	AWS_WAF_ByteMatchSet.#Resource |
+	AWS_WAF_IPSet.#Resource |
+	AWS_WAF_Rule.#Resource |
+	AWS_WAF_SizeConstraintSet.#Resource |
+	AWS_WAF_SqlInjectionMatchSet.#Resource |
+	AWS_WAF_WebACL.#Resource |
+	AWS_WAF_XssMatchSet.#Resource |
+	AWS_WAFRegional_ByteMatchSet.#Resource |
+	AWS_WAFRegional_GeoMatchSet.#Resource |
+	AWS_WAFRegional_IPSet.#Resource |
+	AWS_WAFRegional_RateBasedRule.#Resource |
+	AWS_WAFRegional_RegexPatternSet.#Resource |
+	AWS_WAFRegional_Rule.#Resource |
+	AWS_WAFRegional_SizeConstraintSet.#Resource |
+	AWS_WAFRegional_SqlInjectionMatchSet.#Resource |
+	AWS_WAFRegional_WebACL.#Resource |
+	AWS_WAFRegional_WebACLAssociation.#Resource |
+	AWS_WAFRegional_XssMatchSet.#Resource |
+	AWS_WAFv2_IPSet.#Resource |
+	AWS_WAFv2_LoggingConfiguration.#Resource |
+	AWS_WAFv2_RegexPatternSet.#Resource |
+	AWS_WAFv2_RuleGroup.#Resource |
+	AWS_WAFv2_WebACL.#Resource |
+	AWS_WAFv2_WebACLAssociation.#Resource |
+	AWS_WorkSpaces_Workspace.#Resource |
+	AWS_XRay_Group.#Resource |
+	AWS_XRay_ResourcePolicy.#Resource |
+	AWS_XRay_SamplingRule.#Resource
 #Resources: [base.#LogicalID]: #Resource
 #Template: base.#Template & {Resources!: #Resources}

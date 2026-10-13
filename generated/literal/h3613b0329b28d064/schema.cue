@@ -26,8 +26,11 @@ import (
 	MembershipIdentifier!: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-	Name!:    strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$"
-	RoleArn!: strings.MaxRunes(512) & strings.MinRunes(32) & =~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$"
+	Name!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(32) &
+	=~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$"
 
 	// An arbitrary set of tags (key-value pairs) for this cleanrooms collaboration.
 	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]

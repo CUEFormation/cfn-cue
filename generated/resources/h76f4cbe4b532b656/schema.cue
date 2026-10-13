@@ -40,17 +40,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ValueExpression
 	...
 }) & close({
-	AccountGrouping!:       _#defs."/$defs/Properties/definitions/AccountGrouping" | fn.#ObjectExpression
-	ComputationPreference!: _#defs."/$defs/Properties/definitions/ComputationPreference" | fn.#ObjectExpression
+	AccountGrouping!:       _#defs."/$defs/Properties/definitions/AccountGrouping"
+	ComputationPreference!: _#defs."/$defs/Properties/definitions/ComputationPreference"
 	Description?:           strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
 	PrimaryAccountId?: =~"[0-9]{12}" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccountGrouping": close({
-	AutoAssociate?: bool | fn.#BooleanExpression
+	AutoAssociate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LinkedAccountIds?: list.MaxItems(30) & list.MinItems(1) & list.UniqueItems() & [
 		...=~"[0-9]{12}" | fn.#StringExpression
 	] |

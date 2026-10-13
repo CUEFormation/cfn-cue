@@ -21,7 +21,10 @@ import (
 	DeviceName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.-]+"
 
 	// AWS KMS key ID that Kinesis Video Streams uses to encrypt stream data.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(1) & =~".+"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~".+"
 
 	// The media type of the stream. Consumers of the stream can use this
 	// information when processing the stream.

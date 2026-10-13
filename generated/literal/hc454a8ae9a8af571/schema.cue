@@ -20,7 +20,8 @@ import (
 	BaseImageVersion!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$"
 
 	// ARN of the IAM build role.
-	BuildRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
+	BuildRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
 	// Code artifact for the active MicroVM image.
 	CodeArtifact!:      _#defs."/$defs/Properties/definitions/CodeArtifact"

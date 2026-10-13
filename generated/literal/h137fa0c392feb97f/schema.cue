@@ -63,7 +63,7 @@ import (
 	// array with one of the valid values (arm64 or x86_64). The default value is
 	// ``x86_64``.
 	Architectures?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [..."x86_64" | "arm64"]
-	Arn?:           string
+	Arn?:           =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
 
 	// Configuration for the capacity provider that manages compute resources for Lambda functions.
 	CapacityProviderConfig?: _#defs."/$defs/Properties/definitions/CapacityProviderConfig"
@@ -168,7 +168,10 @@ import (
 	// key](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-owned-cmk)
 	// or an
 	// [](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-managed-cmk).
-	KmsKeyArn?: strings.MaxRunes(10000) & strings.MinRunes(0) & =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(10000) &
+	strings.MinRunes(0) &
+	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
 
 	// A list of [function
 	// layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html)
@@ -418,7 +421,10 @@ _#defs: "/$defs/Properties/definitions/DurableConfig": close({
 	// The ARN of the KMSlong (KMS) customer managed key that is used to encrypt
 	// your durable execution's payload data, including input, output, and error
 	// payloads.
-	KMSKeyArn?: strings.MaxRunes(10000) & strings.MinRunes(0) & =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
+	KMSKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(10000) &
+	strings.MinRunes(0) &
+	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
 
 	// The number of days to retain execution history after a durable execution
 	// completes. After this period, execution history is no longer available
@@ -657,7 +663,10 @@ _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 
 	// A list of VPC security group IDs.
 	SecurityGroupIds?: list.MaxItems(5) & [...] & [
-		...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^sg-[0-9a-zA-Z]*$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(0) &
+		=~"^sg-[0-9a-zA-Z]*$"
 	]
 
 	// A list of VPC subnet IDs.

@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,17 +17,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	BackupId?:              string | fn.#StringExpression
 	FileSystemType!:        string | fn.#StringExpression
 	FileSystemTypeVersion?: string | fn.#StringExpression
-	KmsKeyId?:              string | string | string | fn.#StringExpression
-	LustreConfiguration?:   _#defs."/$defs/Properties/definitions/LustreConfiguration" | fn.#ObjectExpression
-	NetworkType?:           string | fn.#StringExpression
-	OntapConfiguration?:    _#defs."/$defs/Properties/definitions/OntapConfiguration" | fn.#ObjectExpression
-	OpenZFSConfiguration?:  _#defs."/$defs/Properties/definitions/OpenZFSConfiguration" | fn.#ObjectExpression
-	SecurityGroupIds?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	StorageCapacity?:       int | fn.#NumberExpression
-	StorageType?:           string | fn.#StringExpression
-	SubnetIds!:             [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	WindowsConfiguration?:  _#defs."/$defs/Properties/definitions/WindowsConfiguration" | fn.#ObjectExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	LustreConfiguration?:  _#defs."/$defs/Properties/definitions/LustreConfiguration"
+	NetworkType?:          string | fn.#StringExpression
+	OntapConfiguration?:   _#defs."/$defs/Properties/definitions/OntapConfiguration"
+	OpenZFSConfiguration?: _#defs."/$defs/Properties/definitions/OpenZFSConfiguration"
+	SecurityGroupIds?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	StorageCapacity?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StorageType?:          string | fn.#StringExpression
+	SubnetIds!:            [...string | fn.#StringExpression] | fn.#ListExpression
+	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	WindowsConfiguration?: _#defs."/$defs/Properties/definitions/WindowsConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/AuditLogConfiguration": close({
@@ -40,20 +63,46 @@ _#defs: "/$defs/Properties/definitions/ClientConfigurations": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataReadCacheConfiguration": close({
-	SizeGiB?:    int | fn.#NumberExpression
+	SizeGiB?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SizingMode?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DiskIopsConfiguration": close({
-	Iops?: int | fn.#NumberExpression
+	Iops?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Mode?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FsrmConfiguration": close({
 	EventLogDestination?: string | fn.#StringExpression
-	FsrmServiceEnabled!:  bool | fn.#BooleanExpression
+	FsrmServiceEnabled!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -64,89 +113,255 @@ _#defs: "/$defs/Properties/definitions/LogConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LustreConfiguration": close({
-	AutoImportPolicy?:              string | fn.#StringExpression
-	AutomaticBackupRetentionDays?:  int | fn.#NumberExpression
-	CopyTagsToBackups?:             bool | fn.#BooleanExpression
+	AutoImportPolicy?: string | fn.#StringExpression
+	AutomaticBackupRetentionDays?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CopyTagsToBackups?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DailyAutomaticBackupStartTime?: string | fn.#StringExpression
 	DataCompressionType?:           string | fn.#StringExpression
-	DataReadCacheConfiguration?: _#defs."/$defs/Properties/definitions/DataReadCacheConfiguration" |
-		fn.#ObjectExpression
-	DeploymentType?:             string | fn.#StringExpression
-	DriveCacheType?:             string | fn.#StringExpression
-	EfaEnabled?:                 bool | fn.#BooleanExpression
-	ExportPath?:                 string | fn.#StringExpression
-	ImportPath?:                 string | fn.#StringExpression
-	ImportedFileChunkSize?:      int | fn.#NumberExpression
-	LogConfiguration?:           _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
-	MetadataConfiguration?:      _#defs."/$defs/Properties/definitions/MetadataConfiguration" | fn.#ObjectExpression
-	PerUnitStorageThroughput?:   int | fn.#NumberExpression
-	ThroughputCapacity?:         int | fn.#NumberExpression
+	DataReadCacheConfiguration?:    _#defs."/$defs/Properties/definitions/DataReadCacheConfiguration"
+	DeploymentType?:                string | fn.#StringExpression
+	DriveCacheType?:                string | fn.#StringExpression
+	EfaEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExportPath?: string | fn.#StringExpression
+	ImportPath?: string | fn.#StringExpression
+	ImportedFileChunkSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LogConfiguration?:      _#defs."/$defs/Properties/definitions/LogConfiguration"
+	MetadataConfiguration?: _#defs."/$defs/Properties/definitions/MetadataConfiguration"
+	PerUnitStorageThroughput?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ThroughputCapacity?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	WeeklyMaintenanceStartTime?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetadataConfiguration": close({
-	Iops?: int | fn.#NumberExpression
+	Iops?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Mode?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NfsExports": close({
-	ClientConfigurations?: [..._#defs."/$defs/Properties/definitions/ClientConfigurations" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/NfsExports": close(
+	{ClientConfigurations?: [..._#defs."/$defs/Properties/definitions/ClientConfigurations"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OntapConfiguration": close({
-	AutomaticBackupRetentionDays?:  int | fn.#NumberExpression
+	AutomaticBackupRetentionDays?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	DailyAutomaticBackupStartTime?: string | fn.#StringExpression
 	DeploymentType!:                string | fn.#StringExpression
-	DiskIopsConfiguration?:         _#defs."/$defs/Properties/definitions/DiskIopsConfiguration" | fn.#ObjectExpression
+	DiskIopsConfiguration?:         _#defs."/$defs/Properties/definitions/DiskIopsConfiguration"
 	EndpointIpAddressRange?:        string | fn.#StringExpression
 	EndpointIpv6AddressRange?:      string | fn.#StringExpression
 	FsxAdminPassword?:              string | fn.#StringExpression
-	HAPairs?:                       int | fn.#NumberExpression
-	PreferredSubnetId?:             string | fn.#StringExpression
-	RouteTableIds?:                 [...string | fn.#StringExpression] | fn.#ListExpression
-	ThroughputCapacity?:            int | fn.#NumberExpression
-	ThroughputCapacityPerHAPair?:   int | fn.#NumberExpression
-	WeeklyMaintenanceStartTime?:    string | fn.#StringExpression
+	HAPairs?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PreferredSubnetId?: string | fn.#StringExpression
+	RouteTableIds?:     [...string | fn.#StringExpression] | fn.#ListExpression
+	ThroughputCapacity?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ThroughputCapacityPerHAPair?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	WeeklyMaintenanceStartTime?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OpenZFSConfiguration": close({
-	AutomaticBackupRetentionDays?:  int | fn.#NumberExpression
-	CopyTagsToBackups?:             bool | fn.#BooleanExpression
-	CopyTagsToVolumes?:             bool | fn.#BooleanExpression
+	AutomaticBackupRetentionDays?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CopyTagsToBackups?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CopyTagsToVolumes?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DailyAutomaticBackupStartTime?: string | fn.#StringExpression
 	DeploymentType!:                string | fn.#StringExpression
-	DiskIopsConfiguration?:         _#defs."/$defs/Properties/definitions/DiskIopsConfiguration" | fn.#ObjectExpression
+	DiskIopsConfiguration?:         _#defs."/$defs/Properties/definitions/DiskIopsConfiguration"
 	EndpointIpAddressRange?:        string | fn.#StringExpression
 	EndpointIpv6AddressRange?:      string | fn.#StringExpression
 	Options?:                       [...string | fn.#StringExpression] | fn.#ListExpression
 	PreferredSubnetId?:             string | fn.#StringExpression
-	ReadCacheConfiguration?:        _#defs."/$defs/Properties/definitions/ReadCacheConfiguration" | fn.#ObjectExpression
-	RootVolumeConfiguration?:    _#defs."/$defs/Properties/definitions/RootVolumeConfiguration" | fn.#ObjectExpression
-	RouteTableIds?:              [...string | fn.#StringExpression] | fn.#ListExpression
-	ThroughputCapacity?:         int | fn.#NumberExpression
+	ReadCacheConfiguration?:        _#defs."/$defs/Properties/definitions/ReadCacheConfiguration"
+	RootVolumeConfiguration?:       _#defs."/$defs/Properties/definitions/RootVolumeConfiguration"
+	RouteTableIds?:                 [...string | fn.#StringExpression] | fn.#ListExpression
+	ThroughputCapacity?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	WeeklyMaintenanceStartTime?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReadCacheConfiguration": close({
-	SizeGiB?:    int | fn.#NumberExpression
+	SizeGiB?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SizingMode?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RootVolumeConfiguration": close({
-	CopyTagsToSnapshots?: bool | fn.#BooleanExpression
+	CopyTagsToSnapshots?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DataCompressionType?: string | fn.#StringExpression
-	NfsExports?:    [..._#defs."/$defs/Properties/definitions/NfsExports" | fn.#ObjectExpression] | fn.#ListExpression
-	ReadOnly?:      bool | fn.#BooleanExpression
-	RecordSizeKiB?: int | fn.#NumberExpression
-	UserAndGroupQuotas?: [..._#defs."/$defs/Properties/definitions/UserAndGroupQuotas" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	NfsExports?:          [..._#defs."/$defs/Properties/definitions/NfsExports"] | fn.#ListExpression
+	ReadOnly?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RecordSizeKiB?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UserAndGroupQuotas?: [..._#defs."/$defs/Properties/definitions/UserAndGroupQuotas"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -168,26 +383,78 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UserAndGroupQuotas": close({
-	Id?:                      int | fn.#NumberExpression
-	StorageCapacityQuotaGiB?: int | fn.#NumberExpression
-	Type?:                    string | fn.#StringExpression
+	Id?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StorageCapacityQuotaGiB?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WindowsConfiguration": close({
-	ActiveDirectoryId?:             string | fn.#StringExpression
-	Aliases?:                       [...string | fn.#StringExpression] | fn.#ListExpression
-	AuditLogConfiguration?:         _#defs."/$defs/Properties/definitions/AuditLogConfiguration" | fn.#ObjectExpression
-	AutomaticBackupRetentionDays?:  int | fn.#NumberExpression
-	CopyTagsToBackups?:             bool | fn.#BooleanExpression
+	ActiveDirectoryId?:     string | fn.#StringExpression
+	Aliases?:               [...string | fn.#StringExpression] | fn.#ListExpression
+	AuditLogConfiguration?: _#defs."/$defs/Properties/definitions/AuditLogConfiguration"
+	AutomaticBackupRetentionDays?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CopyTagsToBackups?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DailyAutomaticBackupStartTime?: string | fn.#StringExpression
 	DeploymentType?:                string | fn.#StringExpression
-	DiskIopsConfiguration?:         _#defs."/$defs/Properties/definitions/DiskIopsConfiguration" | fn.#ObjectExpression
-	FsrmConfiguration?:             _#defs."/$defs/Properties/definitions/FsrmConfiguration" | fn.#ObjectExpression
+	DiskIopsConfiguration?:         _#defs."/$defs/Properties/definitions/DiskIopsConfiguration"
+	FsrmConfiguration?:             _#defs."/$defs/Properties/definitions/FsrmConfiguration"
 	PreferredSubnetId?:             string | fn.#StringExpression
-	SelfManagedActiveDirectoryConfiguration?: _#defs."/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration" |
-		fn.#ObjectExpression
-	ThroughputCapacity!:         int | fn.#NumberExpression
+	SelfManagedActiveDirectoryConfiguration?:
+		_#defs."/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration"
+	ThroughputCapacity!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	WeeklyMaintenanceStartTime?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

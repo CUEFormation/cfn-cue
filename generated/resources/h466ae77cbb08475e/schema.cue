@@ -13,21 +13,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Glue::DataCatalogEncryptionSettings
 #Properties: close({
-	CatalogId!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DataCatalogEncryptionSettings!: _#defs."/$defs/Properties/definitions/DataCatalogEncryptionSettings" |
-		fn.#ObjectExpression
+	CatalogId!:                     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	DataCatalogEncryptionSettings!: _#defs."/$defs/Properties/definitions/DataCatalogEncryptionSettings"
 })
 
 _#defs: "/$defs/Properties/definitions/ConnectionPasswordEncryption": close({
-	KmsKeyId?:                          string | string | string | fn.#StringExpression
-	ReturnConnectionPasswordEncrypted?: bool | fn.#BooleanExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	ReturnConnectionPasswordEncrypted?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataCatalogEncryptionSettings": close({
-	ConnectionPasswordEncryption?: _#defs."/$defs/Properties/definitions/ConnectionPasswordEncryption" |
-		fn.#ObjectExpression
-	EncryptionAtRest?: _#defs."/$defs/Properties/definitions/EncryptionAtRest" | fn.#ObjectExpression
+	ConnectionPasswordEncryption?: _#defs."/$defs/Properties/definitions/ConnectionPasswordEncryption"
+	EncryptionAtRest?:             _#defs."/$defs/Properties/definitions/EncryptionAtRest"
 }) |
 fn.#ObjectExpression
 

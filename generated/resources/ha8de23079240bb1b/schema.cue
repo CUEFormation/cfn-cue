@@ -9,41 +9,61 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::GatewayRule
 #Properties: close({
-	Actions!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Action" | fn.#ValueExpression
-	] |
+	Actions!: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Action"] |
 		fn.#ListExpression
-	Conditions?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/Condition" | fn.#ValueExpression] |
-		fn.#ListExpression
-	Description?:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Conditions?:  list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/Condition"] | fn.#ListExpression
+	Description?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	GatewayIdentifier?: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
-	Priority!:          <=1000000 & >=1 | fn.#NumberExpression
+	Priority!: <=1000000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1000000 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Action": matchN(1, [close(
-	{ConfigurationBundle!: _#defs."/$defs/Properties/definitions/ConfigurationBundleAction" | fn.#ValueExpression},
+	{ConfigurationBundle!: _#defs."/$defs/Properties/definitions/ConfigurationBundleAction"},
 ), close(
-	{RouteToTarget!: _#defs."/$defs/Properties/definitions/RouteToTargetAction" | fn.#ValueExpression},
+	{RouteToTarget!: _#defs."/$defs/Properties/definitions/RouteToTargetAction"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/Condition": matchN(1, [close(
-	{MatchPrincipals!: _#defs."/$defs/Properties/definitions/MatchPrincipals" | fn.#ObjectExpression},
+	{MatchPrincipals!: _#defs."/$defs/Properties/definitions/MatchPrincipals"},
 ), close(
-	{MatchPaths!: _#defs."/$defs/Properties/definitions/MatchPaths" | fn.#ObjectExpression},
+	{MatchPaths!: _#defs."/$defs/Properties/definitions/MatchPaths"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/ConfigurationBundleAction": matchN(1, [close(
-	{StaticOverride!: _#defs."/$defs/Properties/definitions/StaticOverride" | fn.#ObjectExpression},
+	{StaticOverride!: _#defs."/$defs/Properties/definitions/StaticOverride"},
 ), close(
-	{WeightedOverride!: _#defs."/$defs/Properties/definitions/WeightedOverride" | fn.#ObjectExpression},
+	{WeightedOverride!: _#defs."/$defs/Properties/definitions/WeightedOverride"},
 )]) |
 fn.#ValueExpression
 
@@ -64,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/IamPrincipal": close({
 	Arn!: strings.MaxRunes(2048) &
 	=~"^(arn:aws[a-zA-Z-]*:iam::(\\d{12}|\\*):(user|role)/[\\w+=,.@*?/-]+|arn:aws[a-zA-Z-]*:sts::(\\d{12}|\\*):assumed-role/[\\w+=,.@*?/-]+)$" |
 	fn.#StringExpression
-	Operator?: _#defs."/$defs/Properties/definitions/PrincipalMatchOperator" | fn.#StringExpression
+	Operator?: _#defs."/$defs/Properties/definitions/PrincipalMatchOperator"
 }) |
 fn.#ObjectExpression
 
@@ -77,14 +97,12 @@ _#defs: "/$defs/Properties/definitions/MatchPaths": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MatchPrincipalEntry": close(
-	{IamPrincipal!: _#defs."/$defs/Properties/definitions/IamPrincipal" | fn.#ObjectExpression},
+	{IamPrincipal!: _#defs."/$defs/Properties/definitions/IamPrincipal"},
 ) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/MatchPrincipals": close({
-	AnyOf!: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MatchPrincipalEntry" | fn.#ValueExpression
-	] |
+	AnyOf!: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/MatchPrincipalEntry"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -92,9 +110,9 @@ _#defs: "/$defs/Properties/definitions/MatchPrincipals": close({
 _#defs: "/$defs/Properties/definitions/PrincipalMatchOperator": "StringEquals" | "StringLike" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RouteToTargetAction": matchN(1, [close(
-	{StaticRoute!: _#defs."/$defs/Properties/definitions/StaticRoute" | fn.#ObjectExpression},
+	{StaticRoute!: _#defs."/$defs/Properties/definitions/StaticRoute"},
 ), close(
-	{WeightedRoute!: _#defs."/$defs/Properties/definitions/WeightedRoute" | fn.#ObjectExpression},
+	{WeightedRoute!: _#defs."/$defs/Properties/definitions/WeightedRoute"},
 )]) |
 fn.#ValueExpression
 
@@ -115,21 +133,59 @@ _#defs: "/$defs/Properties/definitions/SystemManagedBlock": close({ManagedBy!: s
 
 _#defs: "/$defs/Properties/definitions/TargetTrafficSplitEntry": close({
 	Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	Metadata?:    _#defs."/$defs/Properties/definitions/TrafficSplitMetadataMap" | fn.#ObjectExpression
+	Metadata?:    _#defs."/$defs/Properties/definitions/TrafficSplitMetadataMap"
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9-]{0,62}[a-zA-Z0-9])?$" |
 	fn.#StringExpression
 	TargetName!: =~"^([0-9a-zA-Z][-]?){1,100}$" | fn.#StringExpression
-	Weight!:     <=99 & >=1 | fn.#NumberExpression
+	Weight!: <=99 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=99 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TrafficSplitEntry": close({
-	ConfigurationBundle!: _#defs."/$defs/Properties/definitions/ConfigurationBundleReference" | fn.#ObjectExpression
+	ConfigurationBundle!: _#defs."/$defs/Properties/definitions/ConfigurationBundleReference"
 	Description?:         strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	Metadata?:            _#defs."/$defs/Properties/definitions/TrafficSplitMetadataMap" | fn.#ObjectExpression
+	Metadata?:            _#defs."/$defs/Properties/definitions/TrafficSplitMetadataMap"
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9-]{0,62}[a-zA-Z0-9])?$" |
 	fn.#StringExpression
-	Weight!: <=99 & >=1 | fn.#NumberExpression
+	Weight!: <=99 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=99 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -139,16 +195,14 @@ _#defs: "/$defs/Properties/definitions/TrafficSplitMetadataMap": struct.MaxField
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WeightedOverride": close({
-	TrafficSplit!: list.MaxItems(2) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/TrafficSplitEntry" | fn.#ObjectExpression
-	] |
+	TrafficSplit!: list.MaxItems(2) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/TrafficSplitEntry"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WeightedRoute": close({
 	TrafficSplit!: list.MaxItems(2) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/TargetTrafficSplitEntry" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/TargetTrafficSplitEntry"
 	] |
 		fn.#ListExpression
 }) |

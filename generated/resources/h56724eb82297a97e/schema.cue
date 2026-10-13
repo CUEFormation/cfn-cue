@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	[...] |
 	close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/RoleMapping" | fn.#ObjectExpression}}) |
+		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/RoleMapping"}}) |
 	fn.#ValueExpression
 	Roles?: null |
 	bool |
@@ -34,21 +34,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 _#defs: "/$defs/Properties/definitions/MappingRule": close({
 	Claim!:     string | fn.#StringExpression
 	MatchType!: string | fn.#StringExpression
-	RoleARN!:   string | fn.#StringExpression
-	Value!:     string | fn.#StringExpression
+	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RoleMapping": close({
 	AmbiguousRoleResolution?: string | fn.#StringExpression
 	IdentityProvider?:        string | fn.#StringExpression
-	RulesConfiguration?:      _#defs."/$defs/Properties/definitions/RulesConfigurationType" | fn.#ObjectExpression
+	RulesConfiguration?:      _#defs."/$defs/Properties/definitions/RulesConfigurationType"
 	Type!:                    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RulesConfigurationType": close(
-	{Rules!: [..._#defs."/$defs/Properties/definitions/MappingRule" | fn.#ObjectExpression] | fn.#ListExpression},
+	{Rules!: [..._#defs."/$defs/Properties/definitions/MappingRule"] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

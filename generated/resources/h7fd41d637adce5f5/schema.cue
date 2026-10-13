@@ -13,11 +13,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::ElasticBeanstalk::ConfigurationTemplate
 #Properties: close({
-	ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:     strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-	EnvironmentId?:   string | fn.#StringExpression
-	OptionSettings?: [..._#defs."/$defs/Properties/definitions/ConfigurationOptionSetting" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ApplicationName!:     strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	Description?:         strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+	EnvironmentId?:       string | fn.#StringExpression
+	OptionSettings?:      [..._#defs."/$defs/Properties/definitions/ConfigurationOptionSetting"] | fn.#ListExpression
 	PlatformArn?:         string | fn.#StringExpression
 	SolutionStackName?:   string | fn.#StringExpression
 	SourceConfiguration?: _#defs."/$defs/Properties/definitions/SourceConfiguration" | fn.#ObjectExpression

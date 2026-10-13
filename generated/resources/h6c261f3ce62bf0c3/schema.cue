@@ -8,20 +8,22 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::IntelligentPromptRouter Resource Type
 #Properties: close({
-	Description?:   strings.MaxRunes(200) & strings.MinRunes(1) & =~"^([0-9a-zA-Z:.][ _-]?)+$" | fn.#StringExpression
-	FallbackModel!: _#defs."/$defs/Properties/definitions/PromptRouterTargetModel" | fn.#ObjectExpression
-	Models!: [..._#defs."/$defs/Properties/definitions/PromptRouterTargetModel" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Description?:      strings.MaxRunes(200) & strings.MinRunes(1) & =~"^([0-9a-zA-Z:.][ _-]?)+$" | fn.#StringExpression
+	FallbackModel!:    _#defs."/$defs/Properties/definitions/PromptRouterTargetModel"
+	Models!:           [..._#defs."/$defs/Properties/definitions/PromptRouterTargetModel"] | fn.#ListExpression
 	PromptRouterName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][ _-]?)+$" | fn.#StringExpression
-	RoutingCriteria!:  _#defs."/$defs/Properties/definitions/RoutingCriteria" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	RoutingCriteria!:  _#defs."/$defs/Properties/definitions/RoutingCriteria"
+	Tags?:             list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/PromptRouterStatus": "AVAILABLE" | fn.#StringExpression
@@ -36,9 +38,28 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PromptRouterType": "custom" | "default" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingCriteria": close(
-	{ResponseQualityDifference!: <=100 & >=0 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/RoutingCriteria": close({
+	ResponseQualityDifference!: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

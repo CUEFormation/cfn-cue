@@ -26,11 +26,13 @@ import (
 	GlobalParameters?: close({
 
 		{[=~".+"]: string}})
-	ManageAccessRoleArn?:        =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$"
+	ManageAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$"
 	ProvisioningConfigurations?: [..._#defs."/$defs/Properties/definitions/ProvisioningConfiguration"]
-	ProvisioningRoleArn?:        =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$"
-	RegionalParameters?:         list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RegionalParameter"]
-	UpdatedAt?:                  time.Time
+	ProvisioningRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$"
+	RegionalParameters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RegionalParameter"]
+	UpdatedAt?:          time.Time
 })
 
 _#defs: "/$defs/Properties/definitions/LakeFormationConfiguration": close({

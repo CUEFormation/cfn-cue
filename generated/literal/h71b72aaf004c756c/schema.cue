@@ -65,7 +65,7 @@ import (
 
 	// The ARNs of the resource shares to be associated with the broker.
 	ResourceShareArns?: list.UniqueItems() & [...=~"^arn:.*"]
-	SecurityGroups?:    list.MaxItems(5) & list.MinItems(1) & [...string]
+	SecurityGroups?:    list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	StompEndpoints?:    [...string]
 
 	// The broker's storage size in GB.
@@ -95,7 +95,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionOptions": close({
 	// will use a default CMK to encrypt your data.
 	// The Key ARN is recommended so that drift can be detected,
 	// but a key ID or key alias will also be accepted for API compatibility reasons.
-	KmsKeyId?:       string | string | string
+	KmsKeyId?:       =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 	UseAwsOwnedKey!: bool
 })
 

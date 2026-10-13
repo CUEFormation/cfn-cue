@@ -423,7 +423,7 @@ import (
 	// in the destination AWS Region. This KMS key is used to encrypt the read
 	// replica in that AWS Region.
 	// Valid for: Aurora DB clusters and Multi-AZ DB clusters
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// Specifies whether to manage the master user password with AWS Secrets Manager.
 	// For more information, see [Password management with Secrets
@@ -498,7 +498,7 @@ import (
 	// If ``MonitoringInterval`` is set to a value other than ``0``, supply a
 	// ``MonitoringRoleArn`` value.
 	// Valid for Cluster Type: Aurora DB clusters and Multi-AZ DB clusters
-	MonitoringRoleArn?: string
+	MonitoringRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The network type of the DB cluster.
 	// Valid values:
@@ -754,7 +754,7 @@ import (
 	// A list of EC2 VPC security groups to associate with this DB cluster.
 	// If you plan to update the resource, don't specify VPC security groups in a shared VPC.
 	// Valid for: Aurora DB clusters and Multi-AZ DB clusters
-	VpcSecurityGroupIds?: list.UniqueItems() & [...string]
+	VpcSecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 })
 
 // Describes an AWS Identity and Access Management (IAM) role that is associated with a DB cluster.
@@ -769,7 +769,10 @@ _#defs: "/$defs/Properties/definitions/DBClusterRole": close({
 	FeatureName?: string
 
 	// The Amazon Resource Name (ARN) of the IAM role that is associated with the DB cluster.
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[a-z-]*:iam::[0-9]*:role/.*$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:aws[a-z-]*:iam::[0-9]*:role/.*$"
 })
 
 // The ``Endpoint`` return value specifies the connection endpoint for the
@@ -791,7 +794,7 @@ _#defs: "/$defs/Properties/definitions/Endpoint": close({
 // in the *Amazon Aurora User Guide.*
 _#defs: "/$defs/Properties/definitions/MasterUserSecret": close({
 	// The AWS KMS key identifier that is used to encrypt the secret.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The Amazon Resource Name (ARN) of the secret. This parameter is a return
 	// value that you can retrieve using the ``Fn::GetAtt`` intrinsic function. For

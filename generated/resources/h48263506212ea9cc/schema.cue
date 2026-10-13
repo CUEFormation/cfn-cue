@@ -12,19 +12,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Classifier
-#Properties: ({
+#Properties: matchN(>=1, [{
 	XMLClassifier!: _
 	...
-} | {
+}, {
 	CsvClassifier!: _
 	...
-} | {
+}, {
 	GrokClassifier!: _
 	...
-} | {
+}, {
 	JsonClassifier!: _
 	...
-}) & close({
+}]) & close({
 	CsvClassifier?:  _#defs."/$defs/Properties/definitions/CsvClassifier" | fn.#ObjectExpression
 	GrokClassifier?: _#defs."/$defs/Properties/definitions/GrokClassifier" | fn.#ObjectExpression
 	JsonClassifier?: _#defs."/$defs/Properties/definitions/JsonClassifier" | fn.#ObjectExpression
@@ -32,12 +32,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/CsvClassifier": close({
-	AllowSingleColumn?:        bool | fn.#BooleanExpression
+	AllowSingleColumn?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ContainsCustomDatatype?:   [...string | fn.#StringExpression] | fn.#ListExpression
 	ContainsHeader?:           "ABSENT" | "PRESENT" | "UNKNOWN" | fn.#StringExpression
-	CustomDatatypeConfigured?: bool | fn.#BooleanExpression
+	CustomDatatypeConfigured?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Delimiter?:                strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[^\\r\\n]$" | fn.#StringExpression
-	DisableValueTrimming?:     bool | fn.#BooleanExpression
+	DisableValueTrimming?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Header?:      [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	Name?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	QuoteSymbol?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[^\\r\\n]$" | fn.#StringExpression

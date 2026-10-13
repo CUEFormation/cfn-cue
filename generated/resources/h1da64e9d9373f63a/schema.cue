@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -32,9 +36,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DataSourceName?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
 	FieldName!:      strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
 	Kind?:           "PIPELINE" | "UNIT" | fn.#StringExpression
-	MaxBatchSize?:   int & <=2000 & >=0 | fn.#NumberExpression
-	MetricsConfig?:  "ENABLED" | "DISABLED" | fn.#StringExpression
-	PipelineConfig?: _#defs."/$defs/Properties/definitions/PipelineConfig" | fn.#ObjectExpression
+	MaxBatchSize?: int & <=2000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MetricsConfig?:                     "ENABLED" | "DISABLED" | fn.#StringExpression
+	PipelineConfig?:                    _#defs."/$defs/Properties/definitions/PipelineConfig" | fn.#ObjectExpression
 	RequestMappingTemplate?:            strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
 	RequestMappingTemplateS3Location?:  string | fn.#StringExpression
 	ResponseMappingTemplate?:           strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
@@ -52,7 +71,25 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CachingConfig": close({
 	CachingKeys?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Ttl!:         number | fn.#NumberExpression
+	Ttl!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

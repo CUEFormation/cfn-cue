@@ -43,7 +43,7 @@ import (
 
 	// The Key Management Service (KMS) key ID of the encryption key that was used
 	// to encrypt data in the cluster from which the snapshot was taken.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The name of the maintenance track for the snapshot.
 	MaintenanceTrackName?: string
@@ -92,7 +92,7 @@ import (
 	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
 
 	// The VPC identifier of the cluster if the snapshot is from a cluster in a VPC.
-	VpcId?: string
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 // A key-value pair to associate with a resource.

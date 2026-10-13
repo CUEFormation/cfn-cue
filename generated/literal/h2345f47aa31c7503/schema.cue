@@ -7,13 +7,13 @@ import "strings"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Vectors::VectorBucketPolicy
-#Properties: ({
+#Properties: matchN(>=1, [{
 	VectorBucketName!: _
 	...
-} | {
+}, {
 	VectorBucketArn!: _
 	...
-}) & close({
+}]) & close({
 	Policy!:           _#defs."/$defs/Properties/definitions/Policy"
 	VectorBucketArn?:  _#defs."/$defs/Properties/definitions/VectorBucketArn"
 	VectorBucketName?: _#defs."/$defs/Properties/definitions/VectorBucketName"

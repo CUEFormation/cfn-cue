@@ -4,32 +4,88 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Config::RemediationConfiguration
 #Properties: close({
-	Automatic?:                bool | fn.#BooleanExpression
-	ConfigRuleName!:           string | fn.#StringExpression
-	ExecutionControls?:        _#defs."/$defs/Properties/definitions/ExecutionControls" | fn.#ObjectExpression
-	MaximumAutomaticAttempts?: int | fn.#NumberExpression
-	Parameters?:               string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	ResourceType?:             string | fn.#StringExpression
-	RetryAttemptSeconds?:      int | fn.#NumberExpression
-	TargetId!:                 string | fn.#StringExpression
-	TargetType!:               string | fn.#StringExpression
-	TargetVersion?:            string | fn.#StringExpression
+	Automatic?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ConfigRuleName!:    string | fn.#StringExpression
+	ExecutionControls?: _#defs."/$defs/Properties/definitions/ExecutionControls"
+	MaximumAutomaticAttempts?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Parameters?:   fn.#Object & {...} | string | fn.#StringObjectExpression
+	ResourceType?: string | fn.#StringExpression
+	RetryAttemptSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TargetId!:      string | fn.#StringExpression
+	TargetType!:    string | fn.#StringExpression
+	TargetVersion?: string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ExecutionControls": close(
-	{SsmControls?: _#defs."/$defs/Properties/definitions/SsmControls" | fn.#ObjectExpression},
+	{SsmControls?: _#defs."/$defs/Properties/definitions/SsmControls"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SsmControls": close({
-	ConcurrentExecutionRatePercentage?: int | fn.#NumberExpression
-	ErrorPercentage?:                   int | fn.#NumberExpression
+	ConcurrentExecutionRatePercentage?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ErrorPercentage?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -51,7 +51,7 @@ import (
 	Preprocessor?: _#defs."/$defs/Properties/definitions/CommandPreprocessor"
 
 	// The customer role associated with the command.
-	RoleArn?: strings.MaxRunes(2028) & strings.MinRunes(20)
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2028) & strings.MinRunes(20))
 
 	// The tags to be associated with the command.
 	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]

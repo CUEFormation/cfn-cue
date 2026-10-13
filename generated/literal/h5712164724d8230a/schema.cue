@@ -88,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/TableOptimizerConfiguration": close({
 
 	// A role passed by the caller which gives the service permission to update the
 	// resources associated with the optimizer on the caller's behalf.
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 	// An object that describes the VPC configuration for a table optimizer. This
 	// configuration is necessary to perform optimization on tables that are in a

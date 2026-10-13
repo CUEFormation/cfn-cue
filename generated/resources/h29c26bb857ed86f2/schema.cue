@@ -8,20 +8,36 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RTBFabric::RequesterGateway Resource Type.
 #Properties: close({
-	Description?:      _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	SecurityGroupIds!: _#defs."/$defs/Properties/definitions/SecurityGroupIds" | fn.#ListExpression
-	SubnetIds!:        _#defs."/$defs/Properties/definitions/SubnetIds" | fn.#ListExpression
-	Tags?:             _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
-	VpcId!:            _#defs."/$defs/Properties/definitions/VpcId" | fn.#StringExpression
+	Description?:      _#defs."/$defs/Properties/definitions/Description"
+	SecurityGroupIds!: _#defs."/$defs/Properties/definitions/SecurityGroupIds"
+	SubnetIds!:        _#defs."/$defs/Properties/definitions/SubnetIds"
+	Tags?:             _#defs."/$defs/Properties/definitions/Tags"
+	VpcId!:            _#defs."/$defs/Properties/definitions/VpcId"
 })
 
-_#defs: "/$defs/Properties/definitions/ActiveLinksCount": int | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/ActiveLinksCount": int |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
 strings.MinRunes(20) &
@@ -50,7 +66,12 @@ _#defs: "/$defs/Properties/definitions/RequesterGatewayStatus": "PENDING_CREATIO
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SecurityGroupIds": list.MinItems(1) & list.UniqueItems() & [
-	...(string | string) & strings.MaxRunes(43) & strings.MinRunes(11) & =~"^sg-[0-9a-f]{8,40}$" | fn.#StringExpression
+	...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	string &
+	strings.MaxRunes(43) &
+	strings.MinRunes(11) &
+	=~"^sg-[0-9a-f]{8,40}$" |
+	fn.#StringExpression
 ] |
 fn.#ListExpression
 
@@ -67,15 +88,30 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/TotalLinksCount": int | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/TotalLinksCount": int |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/UpdatedTimestamp": string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VpcId": strings.MaxRunes(50) & strings.MinRunes(5) & =~"^vpc-[a-f0-9]{8,17}$" |
+_#defs: "/$defs/Properties/definitions/VpcId": =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(50) &
+strings.MinRunes(5) &
+=~"^vpc-[a-f0-9]{8,17}$" |
 fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::RTBFabric::RequesterGateway"

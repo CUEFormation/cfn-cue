@@ -134,12 +134,16 @@ _#defs: "/$defs/Properties/definitions/ReplicationStatus": close({
 
 _#defs: "/$defs/Properties/definitions/ReplicationStatusType": close({
 	// The ARN of the AWS KMS key that protects the replica in this region.
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[^:]+)?:kms:[a-z0-9-]{1,20}:[0-9]{12}:key/[a-zA-Z0-9-]+$"
 
 	// The AWS KMS key requested for this region, when replication failed before its ARN was known.
-	KmsKeyId?:      (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/_-]+$"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9:/_-]+$"
 	Status!:        _#defs."/$defs/Properties/definitions/KeyReplicationState"
 	StatusMessage?: string
 })

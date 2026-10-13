@@ -27,15 +27,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"METRICS" |
 		fn.#StringExpression
 	EncryptionConfig?: close({
-		KmsKeyArn?: _#defs."/$defs/Properties/definitions/KmsKeyArn" | fn.#StringExpression
-		RoleArn?:   _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
+		KmsKeyArn?: _#defs."/$defs/Properties/definitions/KmsKeyArn"
+		RoleArn?:   _#defs."/$defs/Properties/definitions/RoleArn"
 	}) |
 	fn.#ObjectExpression
-	Schema!: close({Attributes?: _#defs."/$defs/Properties/definitions/Attributes" | fn.#ListExpression}) |
-		fn.#ObjectExpression
+	Schema!: close({Attributes?: _#defs."/$defs/Properties/definitions/Attributes"}) | fn.#ObjectExpression
 	Tags?: list.MaxItems(200) & [...] & [...close({
-		Key!:   _#defs."/$defs/Properties/definitions/Key" | fn.#StringExpression
-		Value!: _#defs."/$defs/Properties/definitions/Value" | fn.#StringExpression
+		Key!:   _#defs."/$defs/Properties/definitions/Key"
+		Value!: _#defs."/$defs/Properties/definitions/Value"
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
@@ -53,12 +52,14 @@ strings.MinRunes(1) &
 =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKeyArn": strings.MaxRunes(256) &
+_#defs: "/$defs/Properties/definitions/KmsKeyArn": =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"arn:aws[-a-z]*:kms:.*:key/.*" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(256) &
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$" |
 fn.#StringExpression

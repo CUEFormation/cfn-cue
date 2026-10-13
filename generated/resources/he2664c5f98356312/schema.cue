@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"time"
 	"strings"
 )
@@ -15,16 +15,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::S3Vectors::VectorBucket
 #Properties: close({
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	VectorBucketName?: _#defs."/$defs/Properties/definitions/VectorBucketName" | fn.#StringExpression
+	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VectorBucketName?:        _#defs."/$defs/Properties/definitions/VectorBucketName"
 })
 
 _#defs: "/$defs/Properties/definitions/CreationTime": time.Time | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	KmsKeyArn?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(arn:aws[-a-z0-9]*:kms:[-a-z0-9]*:[0-9]{12}:key/.+)$" |
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^(arn:aws[-a-z0-9]*:kms:[-a-z0-9]*:[0-9]{12}:key/.+)$" |
 	fn.#StringExpression
 	SseType?: "AES256" | "aws:kms" | fn.#StringExpression
 }) |

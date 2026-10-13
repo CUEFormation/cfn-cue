@@ -14,9 +14,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SES::Template
 #Properties: close({
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Template?: _#defs."/$defs/Properties/definitions/Template" | fn.#ObjectExpression
+	Tags?:     list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Template?: _#defs."/$defs/Properties/definitions/Template"
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

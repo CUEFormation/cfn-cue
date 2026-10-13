@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,36 +18,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AppSync Api
 #Properties: close({
-	EventConfig?:  _#defs."/$defs/Properties/definitions/EventConfig" | fn.#ObjectExpression
-	Name!:         _#defs."/$defs/Properties/definitions/ApiName" | fn.#StringExpression
-	OwnerContact?: _#defs."/$defs/Properties/definitions/OwnerContact" | fn.#StringExpression
-	Tags?:         _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	EventConfig?:  _#defs."/$defs/Properties/definitions/EventConfig"
+	Name!:         _#defs."/$defs/Properties/definitions/ApiName"
+	OwnerContact?: _#defs."/$defs/Properties/definitions/OwnerContact"
+	Tags?:         _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/ApiName": strings.MaxRunes(50) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\-\\ ]+" |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AuthMode": close(
-	{AuthType?: _#defs."/$defs/Properties/definitions/AuthenticationType" | fn.#StringExpression},
+	{AuthType?: _#defs."/$defs/Properties/definitions/AuthenticationType"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthModes": [
-	..._#defs."/$defs/Properties/definitions/AuthMode" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/AuthModes": [..._#defs."/$defs/Properties/definitions/AuthMode"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/AuthProvider": close({
-	AuthType!:               _#defs."/$defs/Properties/definitions/AuthenticationType" | fn.#StringExpression
-	CognitoConfig?:          _#defs."/$defs/Properties/definitions/CognitoConfig" | fn.#ObjectExpression
-	LambdaAuthorizerConfig?: _#defs."/$defs/Properties/definitions/LambdaAuthorizerConfig" | fn.#ObjectExpression
-	OpenIDConnectConfig?:    _#defs."/$defs/Properties/definitions/OpenIDConnectConfig" | fn.#ObjectExpression
+	AuthType!:               _#defs."/$defs/Properties/definitions/AuthenticationType"
+	CognitoConfig?:          _#defs."/$defs/Properties/definitions/CognitoConfig"
+	LambdaAuthorizerConfig?: _#defs."/$defs/Properties/definitions/LambdaAuthorizerConfig"
+	OpenIDConnectConfig?:    _#defs."/$defs/Properties/definitions/OpenIDConnectConfig"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthProviders": [
-	..._#defs."/$defs/Properties/definitions/AuthProvider" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/AuthProviders": [..._#defs."/$defs/Properties/definitions/AuthProvider"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/AuthenticationType": "AMAZON_COGNITO_USER_POOLS" |
@@ -67,17 +67,18 @@ _#defs: "/$defs/Properties/definitions/DnsMap": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EventConfig": close({
-	AuthProviders!:             _#defs."/$defs/Properties/definitions/AuthProviders" | fn.#ListExpression
-	ConnectionAuthModes!:       _#defs."/$defs/Properties/definitions/AuthModes" | fn.#ListExpression
-	DefaultPublishAuthModes!:   _#defs."/$defs/Properties/definitions/AuthModes" | fn.#ListExpression
-	DefaultSubscribeAuthModes!: _#defs."/$defs/Properties/definitions/AuthModes" | fn.#ListExpression
-	LogConfig?:                 _#defs."/$defs/Properties/definitions/EventLogConfig" | fn.#ObjectExpression
+	AuthProviders!:             _#defs."/$defs/Properties/definitions/AuthProviders"
+	ConnectionAuthModes!:       _#defs."/$defs/Properties/definitions/AuthModes"
+	DefaultPublishAuthModes!:   _#defs."/$defs/Properties/definitions/AuthModes"
+	DefaultSubscribeAuthModes!: _#defs."/$defs/Properties/definitions/AuthModes"
+	LogConfig?:                 _#defs."/$defs/Properties/definitions/EventLogConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EventLogConfig": close({
-	CloudWatchLogsRoleArn!: string | fn.#StringExpression
-	LogLevel!:              _#defs."/$defs/Properties/definitions/EventLogLevel" | fn.#StringExpression
+	CloudWatchLogsRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	LogLevel!: _#defs."/$defs/Properties/definitions/EventLogLevel"
 }) |
 fn.#ObjectExpression
 
@@ -89,17 +90,68 @@ _#defs: "/$defs/Properties/definitions/EventLogLevel": "NONE" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LambdaAuthorizerConfig": close({
-	AuthorizerResultTtlInSeconds?: int & <=3600 & >=0 | fn.#NumberExpression
+	AuthorizerResultTtlInSeconds?: int & <=3600 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=3600 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	AuthorizerUri!:                string | fn.#StringExpression
 	IdentityValidationExpression?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OpenIDConnectConfig": close({
-	AuthTTL?:  number | fn.#NumberExpression
+	AuthTTL?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ClientId?: string | fn.#StringExpression
-	IatTTL?:   number | fn.#NumberExpression
-	Issuer!:   string | fn.#StringExpression
+	IatTTL?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Issuer!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -114,9 +166,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::AppSync::Api"

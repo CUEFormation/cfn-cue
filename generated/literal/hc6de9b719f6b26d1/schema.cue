@@ -19,7 +19,10 @@ import (
 	Id?:                strings.MaxRunes(22) & strings.MinRunes(22) & =~"^snva-[0-9a-z]{17}$"
 	PrivateDnsEnabled?: bool
 	SecurityGroupIds?: list.UniqueItems() & [
-		...strings.MaxRunes(200) & strings.MinRunes(0) & =~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(200) &
+		strings.MinRunes(0) &
+		=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$"
 	]
 	ServiceNetworkArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -35,8 +38,11 @@ import (
 		"DELETE_IN_PROGRESS" |
 		"CREATE_FAILED" |
 		"DELETE_FAILED"
-	Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	VpcId?:         strings.MaxRunes(2048) & strings.MinRunes(5) & =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(5) &
+	=~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$"
 	VpcIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(5) & =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$"
 })
 

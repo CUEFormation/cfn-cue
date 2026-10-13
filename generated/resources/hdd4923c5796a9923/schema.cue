@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,9 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^(?:arn:aws(?:-[a-z]+)*:iam::[0-9]{12}:role/)?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
 	Name!: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-	PolicyDetails!: list.MaxItems(3) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/PolicyDetail" | fn.#ObjectExpression
-	] |
+	PolicyDetails!: list.MaxItems(3) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/PolicyDetail"] |
 		fn.#ListExpression
 	ResourceSelection!: _#defs."/$defs/Properties/definitions/ResourceSelection" | fn.#ObjectExpression
 	ResourceType!:      "AMI_IMAGE" | "CONTAINER_IMAGE" | fn.#StringExpression
@@ -34,13 +36,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/Action": close({
-	IncludeResources?: _#defs."/$defs/Properties/definitions/IncludeResources" | fn.#ObjectExpression
+	IncludeResources?: _#defs."/$defs/Properties/definitions/IncludeResources"
 	Type!:             "DELETE" | "DEPRECATE" | "DISABLE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AmiExclusionRules": close({
-	IsPublic?:     bool | fn.#BooleanExpression
+	IsPublic?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LastLaunched?: _#defs."/$defs/Properties/definitions/LastLaunched" | fn.#ObjectExpression
 	Regions?:      [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	SharedAccounts?: list.MaxItems(1536) & list.MinItems(1) & [...=~"^[0-9]{12}$" | fn.#StringExpression] |
@@ -53,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/AmiExclusionRules": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExclusionRules": close({
-	Amis?: _#defs."/$defs/Properties/definitions/AmiExclusionRules" | fn.#ObjectExpression
+	Amis?: _#defs."/$defs/Properties/definitions/AmiExclusionRules"
 	TagMap?: close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
@@ -62,30 +64,75 @@ _#defs: "/$defs/Properties/definitions/ExclusionRules": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Filter": close({
-	RetainAtLeast?: int & <=10 & >=1 | fn.#NumberExpression
-	Type!:          "AGE" | "COUNT" | fn.#StringExpression
-	Unit?:          _#defs."/$defs/Properties/definitions/TimeUnit" | fn.#StringExpression
-	Value!:         int & <=1000 & >=1 | fn.#NumberExpression
+	RetainAtLeast?: int & <=10 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type!: "AGE" | "COUNT" | fn.#StringExpression
+	Unit?: _#defs."/$defs/Properties/definitions/TimeUnit" | fn.#StringExpression
+	Value!: int & <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IncludeResources": close({
-	Amis?:       bool | fn.#BooleanExpression
-	Containers?: bool | fn.#BooleanExpression
-	Snapshots?:  bool | fn.#BooleanExpression
+	Amis?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Containers?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Snapshots?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LastLaunched": close({
-	Unit!:  _#defs."/$defs/Properties/definitions/TimeUnit" | fn.#StringExpression
-	Value!: int & <=365 & >=1 | fn.#NumberExpression
+	Unit!: _#defs."/$defs/Properties/definitions/TimeUnit" | fn.#StringExpression
+	Value!: int & <=365 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=365 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PolicyDetail": close({
-	Action!:         _#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression
-	ExclusionRules?: _#defs."/$defs/Properties/definitions/ExclusionRules" | fn.#ObjectExpression
-	Filter!:         _#defs."/$defs/Properties/definitions/Filter" | fn.#ObjectExpression
+	Action!:         _#defs."/$defs/Properties/definitions/Action"
+	ExclusionRules?: _#defs."/$defs/Properties/definitions/ExclusionRules"
+	Filter!:         _#defs."/$defs/Properties/definitions/Filter"
 }) |
 fn.#ObjectExpression
 
@@ -96,9 +143,7 @@ _#defs: "/$defs/Properties/definitions/RecipeSelection": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceSelection": close({
-	Recipes?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RecipeSelection" | fn.#ObjectExpression
-	] |
+	Recipes?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RecipeSelection"] |
 		fn.#ListExpression
 	TagMap?: close({
 

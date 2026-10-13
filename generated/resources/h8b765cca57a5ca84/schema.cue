@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // This schema provides construct and validation rules for AWS-XRay Resource
 // Policy resource parameters.
 #Properties: close({
-	BypassPolicyLockoutCheck?: bool | fn.#BooleanExpression
+	BypassPolicyLockoutCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PolicyDocument!:           strings.MaxRunes(5120) & strings.MinRunes(1) | fn.#StringExpression
 	PolicyName!:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
 })

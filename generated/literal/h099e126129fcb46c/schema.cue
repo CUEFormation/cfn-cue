@@ -41,7 +41,8 @@ import (
 	EvaluatorType?: _#defs."/$defs/Properties/definitions/EvaluatorType"
 
 	// The ARN of the KMS key used to encrypt evaluator data.
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]+:[0-9]{12}:key/[a-zA-Z0-9-]{36}$"
 
@@ -160,7 +161,7 @@ _#defs: "/$defs/Properties/definitions/InferenceConfiguration": close({
 // The Lambda function configuration for code-based evaluation.
 _#defs: "/$defs/Properties/definitions/LambdaEvaluatorConfig": close({
 	// The ARN of the Lambda function used for evaluation.
-	LambdaArn!:
+	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 		=~"^arn:(aws[a-zA-Z-]*)?:lambda:([a-z]{2}(-gov)?-[a-z]+-\\d{1}):(\\d{12}):function:([a-zA-Z0-9-_.]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$"
 
 	// The timeout in seconds for the Lambda function invocation.

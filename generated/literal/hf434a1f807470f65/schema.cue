@@ -49,7 +49,7 @@ import (
 	EngineVersion?: string
 
 	// The ID of the KMS key used to encrypt the snapshot.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// A list of the cache nodes in the source cluster.
 	NodeSnapshots?: [..._#defs."/$defs/Properties/definitions/NodeSnapshot"]
@@ -99,11 +99,11 @@ import (
 
 	// The Amazon Resource Name (ARN) for the topic used by the source cluster for
 	// publishing notifications.
-	TopicArn?: string
+	TopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 
 	// The Amazon Virtual Private Cloud identifier (VPC ID) of the cache subnet
 	// group for the source cluster.
-	VpcId?: string
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/NodeSnapshot": close({

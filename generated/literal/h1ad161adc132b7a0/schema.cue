@@ -51,7 +51,8 @@ import (
 	// The ARN of the IAM role that the channel assumes to read from the source
 	// stream, deliver records to the destination, and (when enabled) write
 	// CloudWatch Logs.
-	ServiceExecutionRoleARN!: strings.MaxRunes(512) &
+	ServiceExecutionRoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[-a-z0-9]*:iam::\\d{12}:role/[a-zA-Z_0-9+=,.@\\-_/]+$"
 

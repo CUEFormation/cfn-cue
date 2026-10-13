@@ -22,7 +22,7 @@ import "strings"
 	EventConfigurations?: [..._#defs."/$defs/Properties/definitions/EventConfiguration"]
 
 	// The ARN of the role that allows IoT to write to Cloudwatch logs.
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
 // Configuration for event-based logging that specifies which event types to log

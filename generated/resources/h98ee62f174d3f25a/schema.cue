@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,41 +19,144 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // measurements that Internet Monitor publishes information about for an
 // application
 #Properties: close({
-	HealthEventsConfig?:    _#defs."/$defs/Properties/definitions/HealthEventsConfig" | fn.#ObjectExpression
-	IncludeLinkedAccounts?: bool | fn.#BooleanExpression
-	InternetMeasurementsLogDelivery?: _#defs."/$defs/Properties/definitions/InternetMeasurementsLogDelivery" |
-		fn.#ObjectExpression
-	LinkedAccountId?:          strings.MaxRunes(12) & strings.MinRunes(12) & =~"^(\\d{12})$" | fn.#StringExpression
-	MaxCityNetworksToMonitor?: int & <=500000 & >=1 | fn.#NumberExpression
+	HealthEventsConfig?:    _#defs."/$defs/Properties/definitions/HealthEventsConfig"
+	IncludeLinkedAccounts?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InternetMeasurementsLogDelivery?: _#defs."/$defs/Properties/definitions/InternetMeasurementsLogDelivery"
+	LinkedAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^(\\d{12})$" | fn.#StringExpression
+	MaxCityNetworksToMonitor?: int & <=500000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=500000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	MonitorName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
 	Resources?: [...strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*" | fn.#StringExpression] |
 	fn.#ListExpression
 	ResourcesToAdd?:    [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] | fn.#ListExpression
 	ResourcesToRemove?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] | fn.#ListExpression
-	Status?:            _#defs."/$defs/Properties/definitions/MonitorConfigState" | fn.#StringExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	TrafficPercentageToMonitor?: int & <=100 & >=1 | fn.#NumberExpression
+	Status?:            _#defs."/$defs/Properties/definitions/MonitorConfigState"
+	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TrafficPercentageToMonitor?: int & <=100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 
 _#defs: "/$defs/Properties/definitions/HealthEventsConfig": close({
-	AvailabilityLocalHealthEventsConfig?: _#defs."/$defs/Properties/definitions/LocalHealthEventsConfig" |
-		fn.#ObjectExpression
-	AvailabilityScoreThreshold?: <=100 & >=0 | fn.#NumberExpression
-	PerformanceLocalHealthEventsConfig?: _#defs."/$defs/Properties/definitions/LocalHealthEventsConfig" |
-		fn.#ObjectExpression
-	PerformanceScoreThreshold?: <=100 & >=0 | fn.#NumberExpression
+	AvailabilityLocalHealthEventsConfig?: _#defs."/$defs/Properties/definitions/LocalHealthEventsConfig"
+	AvailabilityScoreThreshold?: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PerformanceLocalHealthEventsConfig?: _#defs."/$defs/Properties/definitions/LocalHealthEventsConfig"
+	PerformanceScoreThreshold?: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InternetMeasurementsLogDelivery": close(
-	{S3Config?: _#defs."/$defs/Properties/definitions/S3Config" | fn.#ObjectExpression},
+	{S3Config?: _#defs."/$defs/Properties/definitions/S3Config"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LocalHealthEventsConfig": close({
-	HealthScoreThreshold?: <=100 & >=0 | fn.#NumberExpression
-	MinTrafficImpact?:     <=100 & >=0 | fn.#NumberExpression
-	Status?:               "ENABLED" | "DISABLED" | fn.#StringExpression
+	HealthScoreThreshold?: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinTrafficImpact?: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Status?: "ENABLED" | "DISABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

@@ -8,16 +8,35 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticLoadBalancingV2::TargetGroup
 #Properties: close({
-	HealthCheckEnabled?:         bool | fn.#BooleanExpression
-	HealthCheckIntervalSeconds?: int & <=300 & >=5 | fn.#NumberExpression
-	HealthCheckPath?:            strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	HealthCheckPort?:            string | fn.#StringExpression
+	HealthCheckEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	HealthCheckIntervalSeconds?: int & <=300 & >=5 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=300 &
+							>=5,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	HealthCheckPath?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	HealthCheckPort?: string | fn.#StringExpression
 	HealthCheckProtocol?: "GENEVE" |
 		"HTTP" |
 		"HTTPS" |
@@ -28,12 +47,57 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"TLS" |
 		"UDP" |
 		fn.#StringExpression
-	HealthCheckTimeoutSeconds?: int & <=120 & >=2 | fn.#NumberExpression
-	HealthyThresholdCount?:     int & <=10 & >=2 | fn.#NumberExpression
-	IpAddressType?:             "ipv4" | "ipv6" | fn.#StringExpression
-	Matcher?:                   _#defs."/$defs/Properties/definitions/Matcher" | fn.#ObjectExpression
-	Name?:                      string | fn.#StringExpression
-	Port?:                      int & <=65535 & >=1 | fn.#NumberExpression
+	HealthCheckTimeoutSeconds?: int & <=120 & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=120 &
+							>=2,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	HealthyThresholdCount?: int & <=10 & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10 &
+							>=2,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IpAddressType?: "ipv4" | "ipv6" | fn.#StringExpression
+	Matcher?:       _#defs."/$defs/Properties/definitions/Matcher" | fn.#ObjectExpression
+	Name?:          string | fn.#StringExpression
+	Port?: int & <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Protocol?: "GENEVE" |
 		"HTTP" |
 		"HTTPS" |
@@ -44,18 +108,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"TLS" |
 		"UDP" |
 		fn.#StringExpression
-	ProtocolVersion?:   string | fn.#StringExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	TargetControlPort?: int & <=65535 & >=1 | fn.#NumberExpression
-	TargetGroupAttributes?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TargetGroupAttribute" | fn.#ObjectExpression
-	] |
+	ProtocolVersion?: string | fn.#StringExpression
+	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TargetControlPort?: int & <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TargetGroupAttributes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroupAttribute"] |
 		fn.#ListExpression
 	TargetType?: "alb" | "instance" | "ip" | "lambda" | fn.#StringExpression
-	Targets?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetDescription" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	UnhealthyThresholdCount?: int & <=10 & >=2 | fn.#NumberExpression
-	VpcId?:                   string | fn.#StringExpression
+	Targets?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetDescription"] | fn.#ListExpression
+	UnhealthyThresholdCount?: int & <=10 & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10 &
+							>=2,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Matcher": close({
@@ -73,8 +165,23 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/TargetDescription": close({
 	AvailabilityZone?: string | fn.#StringExpression
 	Id!:               string | fn.#StringExpression
-	Port?:             int & <=65535 & >=1 | fn.#NumberExpression
-	QuicServerId?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Port?: int & <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	QuicServerId?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

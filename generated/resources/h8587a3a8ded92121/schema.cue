@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,17 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::S3Tables::TablePolicy
 #Properties: close({
-	ResourcePolicy!: _#defs."/$defs/Properties/definitions/ResourcePolicy" | fn.#ObjectExpression | fn.#StringExpression
-	TableARN!:       _#defs."/$defs/Properties/definitions/TableARN" | fn.#StringExpression
+	ResourcePolicy!: _#defs."/$defs/Properties/definitions/ResourcePolicy"
+	TableARN!:       _#defs."/$defs/Properties/definitions/TableARN"
 })
 
 _#defs: "/$defs/Properties/definitions/Namespace": strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourcePolicy": strings.MaxRunes(20480) & strings.MinRunes(1) |
-{[string]: fn.#Value} |
-fn.#ObjectExpression |
-fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/ResourcePolicy": fn.#Object & {...} |
+strings.MaxRunes(20480) & strings.MinRunes(1) |
+fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableARN": string | fn.#StringExpression
 

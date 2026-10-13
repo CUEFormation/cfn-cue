@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,41 +22,135 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // via AWS::EC2::ApplicationStatusCheckInstanceAssociation or
 // AWS::EC2::ApplicationStatusCheckTagAssociation.
 #Properties: close({
-	Aggregation?:      "included" | "excluded" | fn.#StringExpression
-	DeviceIndex?:      int | fn.#NumberExpression
-	FailureThreshold?: int | fn.#NumberExpression
-	HealthCheckPaths?: [..._#defs."/$defs/Properties/definitions/HealthCheckPath" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	InitializationGracePeriodSeconds?: int & <=600 & >=-1 | fn.#NumberExpression
-	Interval?:                         int | fn.#NumberExpression
-	IpScope?:                          "private" | fn.#StringExpression
-	IpVersion?:                        "ipv4" | "ipv6" | fn.#StringExpression
-	Path?:                             string | fn.#StringExpression
-	Port!:                             int & <=65535 & >=1 | fn.#NumberExpression
-	Protocol!:                         "http" | "https" | fn.#StringExpression
-	StatusCodeMatcher?:                string | fn.#StringExpression
-	SuccessThreshold?:                 int | fn.#NumberExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Timeout?: int | fn.#NumberExpression
+	Aggregation?: "included" | "excluded" | fn.#StringExpression
+	DeviceIndex?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FailureThreshold?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	HealthCheckPaths?: [..._#defs."/$defs/Properties/definitions/HealthCheckPath"] | fn.#ListExpression
+	InitializationGracePeriodSeconds?: int & <=600 & >=-1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=600 &
+							>=-1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Interval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IpScope?:   "private" | fn.#StringExpression
+	IpVersion?: "ipv4" | "ipv6" | fn.#StringExpression
+	Path?:      string | fn.#StringExpression
+	Port!: int & <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Protocol!:          "http" | "https" | fn.#StringExpression
+	StatusCodeMatcher?: string | fn.#StringExpression
+	SuccessThreshold?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Timeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 
 _#defs: "/$defs/Properties/definitions/HealthCheckPath": close({
-	Destinations?: [..._#defs."/$defs/Properties/definitions/HealthCheckPathDestination" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Source?: _#defs."/$defs/Properties/definitions/HealthCheckPathSource" | fn.#ObjectExpression
+	Destinations?: [..._#defs."/$defs/Properties/definitions/HealthCheckPathDestination"] | fn.#ListExpression
+	Source?:       _#defs."/$defs/Properties/definitions/HealthCheckPathSource"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HealthCheckPathDestination": close({
-	SecurityGroupId?: string | fn.#StringExpression
-	SubnetId?:        string | fn.#StringExpression
+	SecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	SubnetId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HealthCheckPathSource": close({
-	SecurityGroupId?: string | fn.#StringExpression
-	SubnetId?:        string | fn.#StringExpression
+	SecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	SubnetId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

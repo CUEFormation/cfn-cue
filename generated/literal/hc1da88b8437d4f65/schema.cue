@@ -33,7 +33,7 @@ _#defs: "/$defs/Properties/definitions/BucketOwner": =~"^[0-9]{12}$"
 // The ARN of a AWS KMS key that is used to encrypt data while it is being
 // processed by the service. This key must exist in the same AWS Region as the
 // node you start an RDP connection to.
-_#defs: "/$defs/Properties/definitions/KMSKeyArn": strings.MaxRunes(2048) & strings.MinRunes(1)
+_#defs: "/$defs/Properties/definitions/KMSKeyArn": =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 // Determines where recordings of RDP connections are stored.
 _#defs: "/$defs/Properties/definitions/RecordingDestinations": close(

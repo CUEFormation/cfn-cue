@@ -8,35 +8,66 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a feed that receives media for inference processing
 #Properties: close({
-	AccessRoleArn?: strings.MaxRunes(255) & strings.MinRunes(32) & =~"^arn:aws[a-z\\-]*:iam::[0-9]{12}:role/.+$" |
+	AccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(255) &
+	strings.MinRunes(32) &
+	=~"^arn:aws[a-z\\-]*:iam::[0-9]{12}:role/.+$" |
 	fn.#StringExpression
 	Name!:    =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" | fn.#StringExpression
-	Outputs!: [..._#defs."/$defs/Properties/definitions/GetOutput" | fn.#ObjectExpression] | fn.#ListExpression
-	Tags?:    _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
+	Outputs!: [..._#defs."/$defs/Properties/definitions/GetOutput"] | fn.#ListExpression
+	Tags?:    _#defs."/$defs/Properties/definitions/TagMap"
 })
 
 _#defs: "/$defs/Properties/definitions/AspectRatio": close({
-	Height!: int | fn.#NumberExpression
-	Width!:  int | fn.#NumberExpression
+	Height!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Width!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClippingConfig": close({
 	CallbackMetadata?:        strings.MaxRunes(1024) & =~"^[\\w \\-\\.',@:;]*$" | fn.#StringExpression
-	DataSourceConfiguration?: _#defs."/$defs/Properties/definitions/DataSourceConfiguration" | fn.#ObjectExpression
+	DataSourceConfiguration?: _#defs."/$defs/Properties/definitions/DataSourceConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CroppingConfig": close({
-	TemplateGroups?: list.MaxItems(4) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TemplateGroup" | fn.#ObjectExpression
-	] |
+	TemplateGroups?: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TemplateGroup"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -49,17 +80,17 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/GetOutput": close({
 	Description?:  strings.MaxRunes(1024) & =~"^[\\w \\-\\.',@:;]*$" | fn.#StringExpression
 	Name!:         =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" | fn.#StringExpression
-	OutputConfig!: _#defs."/$defs/Properties/definitions/OutputConfig" | fn.#ValueExpression
-	Status!:       _#defs."/$defs/Properties/definitions/OutputStatus" | fn.#StringExpression
+	OutputConfig!: _#defs."/$defs/Properties/definitions/OutputConfig"
+	Status!:       _#defs."/$defs/Properties/definitions/OutputStatus"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OutputConfig": matchN(1, [close(
-	{Cropping!: _#defs."/$defs/Properties/definitions/CroppingConfig" | fn.#ObjectExpression},
+	{Cropping!: _#defs."/$defs/Properties/definitions/CroppingConfig"},
 ), close(
-	{Clipping!: _#defs."/$defs/Properties/definitions/ClippingConfig" | fn.#ObjectExpression},
+	{Clipping!: _#defs."/$defs/Properties/definitions/ClippingConfig"},
 ), close(
-	{Subtitling!: _#defs."/$defs/Properties/definitions/SubtitlingConfig" | fn.#ObjectExpression},
+	{Subtitling!: _#defs."/$defs/Properties/definitions/SubtitlingConfig"},
 )]) |
 fn.#ValueExpression
 
@@ -68,10 +99,10 @@ _#defs: "/$defs/Properties/definitions/OutputStatus": "ENABLED" | "DISABLED" | f
 _#defs: "/$defs/Properties/definitions/ProfanityFilterMode": "DISABLED" | "CENSOR" | "DROP" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SubtitlingConfig": close({
-	AspectRatio?:     _#defs."/$defs/Properties/definitions/AspectRatio" | fn.#ObjectExpression
+	AspectRatio?:     _#defs."/$defs/Properties/definitions/AspectRatio"
 	Dictionary?:      strings.MaxRunes(19) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	Language!:        _#defs."/$defs/Properties/definitions/TranscriptionLanguage" | fn.#StringExpression
-	ProfanityFilter?: _#defs."/$defs/Properties/definitions/ProfanityFilterMode" | fn.#StringExpression
+	Language!:        _#defs."/$defs/Properties/definitions/TranscriptionLanguage"
+	ProfanityFilter?: _#defs."/$defs/Properties/definitions/ProfanityFilterMode"
 }) |
 fn.#ObjectExpression
 

@@ -15,20 +15,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Config::OrganizationConformancePack.
 #Properties: close({
 	ConformancePackInputParameters?: list.MaxItems(60) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ConformancePackInputParameter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ConformancePackInputParameter"
 	] |
 		fn.#ListExpression
 	DeliveryS3Bucket?:    strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
 	DeliveryS3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ExcludedAccounts?: list.MaxItems(1000) & [...] & [
-		..._#defs."/$defs/Properties/definitions/AccountId" | fn.#StringExpression
-	] |
+	ExcludedAccounts?: list.MaxItems(1000) & [...] & [..._#defs."/$defs/Properties/definitions/AccountId"] |
 		fn.#ListExpression
 	OrganizationConformancePackName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z][-a-zA-Z0-9]*" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	TemplateBody?:  strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
 	TemplateS3Uri?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"s3://.*" | fn.#StringExpression
@@ -37,8 +33,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 _#defs: "/$defs/Properties/definitions/AccountId": =~"^\\d{12}$" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ConformancePackInputParameter": {
-	ParameterName!:  _#defs."/$defs/Properties/definitions/ParameterName" | fn.#StringExpression
-	ParameterValue!: _#defs."/$defs/Properties/definitions/ParameterValue" | fn.#StringExpression
+	ParameterName!:  _#defs."/$defs/Properties/definitions/ParameterName"
+	ParameterValue!: _#defs."/$defs/Properties/definitions/ParameterValue"
 	...
 } | fn.#ObjectExpression
 

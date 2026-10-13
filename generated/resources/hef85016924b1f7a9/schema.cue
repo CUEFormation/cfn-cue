@@ -7,24 +7,148 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for a Device Farm Network Profile
 #Properties: close({
-	Description?:           strings.MaxRunes(16384) & strings.MinRunes(1) | fn.#StringExpression
-	DownlinkBandwidthBits?: int & <=104857600 & >=0 | fn.#NumberExpression
-	DownlinkDelayMs?:       int & <=2000 & >=0 | fn.#NumberExpression
-	DownlinkJitterMs?:      int & <=2000 & >=0 | fn.#NumberExpression
-	DownlinkLossPercent?:   int & <=100 & >=0 | fn.#NumberExpression
-	Name!:                  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ProjectArn!:            strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+" | fn.#StringExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	UplinkBandwidthBits?:   int & <=104857600 & >=0 | fn.#NumberExpression
-	UplinkDelayMs?:         int & <=2000 & >=0 | fn.#NumberExpression
-	UplinkJitterMs?:        int & <=2000 & >=0 | fn.#NumberExpression
-	UplinkLossPercent?:     int & <=100 & >=0 | fn.#NumberExpression
+	Description?: strings.MaxRunes(16384) & strings.MinRunes(1) | fn.#StringExpression
+	DownlinkBandwidthBits?: int & <=104857600 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=104857600 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DownlinkDelayMs?: int & <=2000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DownlinkJitterMs?: int & <=2000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DownlinkLossPercent?: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name!:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	ProjectArn!: strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+" | fn.#StringExpression
+	Tags?:       [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UplinkBandwidthBits?: int & <=104857600 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=104857600 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UplinkDelayMs?: int & <=2000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UplinkJitterMs?: int & <=2000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UplinkLossPercent?: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

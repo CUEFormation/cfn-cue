@@ -13,8 +13,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Category?:     string | fn.#StringExpression
 	Description?:  string | fn.#StringExpression
 	Name?:         string | fn.#StringExpression
-	SettingsJson!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	Tags?:         string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	SettingsJson!: fn.#Object & {...} | string | fn.#StringObjectExpression
+	Tags?:         fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::MediaConvert::Preset"

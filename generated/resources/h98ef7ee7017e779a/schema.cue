@@ -15,15 +15,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Amazon OpenSearchServerless collection resource
 #Properties: close({
 	CollectionGroupName?: strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]+$" | fn.#StringExpression
-	DeletionProtection?:  _#defs."/$defs/Properties/definitions/DeletionProtection" | fn.#StringExpression
+	DeletionProtection?:  _#defs."/$defs/Properties/definitions/DeletionProtection"
 	Description?:         strings.MaxRunes(1000) | fn.#StringExpression
-	EncryptionConfig?:    _#defs."/$defs/Properties/definitions/EncryptionConfig" | fn.#ObjectExpression
+	EncryptionConfig?:    _#defs."/$defs/Properties/definitions/EncryptionConfig"
 	Name!:                strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,63}$" | fn.#StringExpression
-	StandbyReplicas?:     _#defs."/$defs/Properties/definitions/StandbyReplicas" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Type?:          _#defs."/$defs/Properties/definitions/CollectionType" | fn.#StringExpression
-	VectorOptions?: _#defs."/$defs/Properties/definitions/VectorOptions" | fn.#ObjectExpression
+	StandbyReplicas?:     _#defs."/$defs/Properties/definitions/StandbyReplicas"
+	Tags?:          list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Type?:          _#defs."/$defs/Properties/definitions/CollectionType"
+	VectorOptions?: _#defs."/$defs/Properties/definitions/VectorOptions"
 })
 
 _#defs: "/$defs/Properties/definitions/CollectionType": "SEARCH" | "TIMESERIES" | "VECTORSEARCH" | fn.#StringExpression
@@ -31,8 +30,9 @@ _#defs: "/$defs/Properties/definitions/CollectionType": "SEARCH" | "TIMESERIES" 
 _#defs: "/$defs/Properties/definitions/DeletionProtection": "ENABLED" | "DISABLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfig": close({
-	AWSOwnedKey?: bool | fn.#BooleanExpression
-	KmsKeyArn?:   string | fn.#StringExpression
+	AWSOwnedKey?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -55,10 +55,9 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VectorOptions": close({
-	ServerlessVectorAcceleration?: _#defs."/$defs/Properties/definitions/ServerlessVectorAcceleration" |
-		fn.#StringExpression
-}) |
+_#defs: "/$defs/Properties/definitions/VectorOptions": close(
+	{ServerlessVectorAcceleration?: _#defs."/$defs/Properties/definitions/ServerlessVectorAcceleration"},
+) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::OpenSearchServerless::Collection"

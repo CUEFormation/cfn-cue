@@ -14,20 +14,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::EC2::VerifiedAccessTrustProvider type describes a verified access trust provider
 #Properties: close({
-	Description?:             string | fn.#StringExpression
-	DeviceOptions?:           _#defs."/$defs/Properties/definitions/DeviceOptions" | fn.#ObjectExpression
-	DeviceTrustProviderType?: "crowdstrike" | "jamf" | "jumpcloud" | fn.#StringExpression
-	NativeApplicationOidcOptions?: _#defs."/$defs/Properties/definitions/NativeApplicationOidcOptions" |
-		fn.#ObjectExpression
-	OidcOptions?:         _#defs."/$defs/Properties/definitions/OidcOptions" | fn.#ObjectExpression
-	PolicyReferenceName!: string | fn.#StringExpression
+	Description?:                  string | fn.#StringExpression
+	DeviceOptions?:                _#defs."/$defs/Properties/definitions/DeviceOptions"
+	DeviceTrustProviderType?:      "crowdstrike" | "jamf" | "jumpcloud" | fn.#StringExpression
+	NativeApplicationOidcOptions?: _#defs."/$defs/Properties/definitions/NativeApplicationOidcOptions"
+	OidcOptions?:                  _#defs."/$defs/Properties/definitions/OidcOptions"
+	PolicyReferenceName!:          string | fn.#StringExpression
 	SseSpecification?: close({
-		CustomerManagedKeyEnabled?: bool | fn.#BooleanExpression
-		KmsKeyArn?:                 string | fn.#StringExpression
+		CustomerManagedKeyEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TrustProviderType!:     "device" | "user" | fn.#StringExpression
 	UserTrustProviderType?: "iam-identity-center" | "oidc" | fn.#StringExpression
 })

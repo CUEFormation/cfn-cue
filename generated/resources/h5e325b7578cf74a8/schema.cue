@@ -23,12 +23,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
 		...
 	} | fn.#ObjectExpression
-	ChefConfiguration?:         _#defs."/$defs/Properties/definitions/ChefConfiguration" | fn.#ObjectExpression
+	ChefConfiguration?:         _#defs."/$defs/Properties/definitions/ChefConfiguration"
 	CloneAppIds?:               list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	ClonePermissions?:          bool | fn.#BooleanExpression
-	ConfigurationManager?:      _#defs."/$defs/Properties/definitions/StackConfigurationManager" | fn.#ObjectExpression
-	CustomCookbooksSource?:     _#defs."/$defs/Properties/definitions/Source" | fn.#ObjectExpression
-	CustomJson?:                string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	ClonePermissions?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ConfigurationManager?:      _#defs."/$defs/Properties/definitions/StackConfigurationManager"
+	CustomCookbooksSource?:     _#defs."/$defs/Properties/definitions/Source"
+	CustomJson?:                fn.#Object & {...} | string | fn.#StringObjectExpression
 	DefaultAvailabilityZone?:   string | fn.#StringExpression
 	DefaultInstanceProfileArn!: string | fn.#StringExpression
 	DefaultOs?:                 string | fn.#StringExpression
@@ -36,25 +36,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DefaultSshKeyName?:         string | fn.#StringExpression
 	DefaultSubnetId?:           string | fn.#StringExpression
 	EcsClusterArn?:             string | fn.#StringExpression
-	ElasticIps?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ElasticIp" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	HostnameTheme?: string | fn.#StringExpression
-	Name!:          string | fn.#StringExpression
-	RdsDbInstances?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/RdsDbInstance" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	ServiceRoleArn!:     string | fn.#StringExpression
-	SourceStackId?:      string | fn.#StringExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	UseCustomCookbooks?: bool | fn.#BooleanExpression
-	UseOpsworksSecurityGroups?: bool | fn.#BooleanExpression
-	"VpcId"?:                   string | fn.#StringExpression
+	ElasticIps?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ElasticIp"] | fn.#ListExpression
+	HostnameTheme?:  string | fn.#StringExpression
+	Name!:           string | fn.#StringExpression
+	RdsDbInstances?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RdsDbInstance"] | fn.#ListExpression
+	ServiceRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	SourceStackId?:             string | fn.#StringExpression
+	Tags?:                      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UseCustomCookbooks?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UseOpsworksSecurityGroups?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	"VpcId"?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ChefConfiguration": close({
 	BerkshelfVersion?: string | fn.#StringExpression
-	ManageBerkshelf?:  bool | fn.#BooleanExpression
+	ManageBerkshelf?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 

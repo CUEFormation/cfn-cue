@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,12 +17,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AccelerationSettings?: _#defs."/$defs/Properties/definitions/AccelerationSettings" | fn.#ObjectExpression
 	Category?:             string | fn.#StringExpression
 	Description?:          string | fn.#StringExpression
-	HopDestinations?: [..._#defs."/$defs/Properties/definitions/HopDestination" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Name?:         string | fn.#StringExpression
-	Priority?:     int & <=50 & >=-50 | fn.#NumberExpression
+	HopDestinations?:      [..._#defs."/$defs/Properties/definitions/HopDestination"] | fn.#ListExpression
+	Name?:                 string | fn.#StringExpression
+	Priority?: int & <=50 & >=-50 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=50 &
+							>=-50,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Queue?:        string | fn.#StringExpression
-	SettingsJson!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	SettingsJson!: fn.#Object & {...} | string | fn.#StringObjectExpression
 	StatusUpdateInterval?: "SECONDS_10" |
 		"SECONDS_12" |
 		"SECONDS_120" |
@@ -35,7 +53,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"SECONDS_60" |
 		"SECONDS_600" |
 		fn.#StringExpression
-	Tags?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccelerationSettings": close(
@@ -44,9 +62,39 @@ _#defs: "/$defs/Properties/definitions/AccelerationSettings": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HopDestination": close({
-	Priority?:    int & <=50 & >=-50 | fn.#NumberExpression
-	Queue?:       string | fn.#StringExpression
-	WaitMinutes?: int & <=4320 & >=1 | fn.#NumberExpression
+	Priority?: int & <=50 & >=-50 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=50 &
+							>=-50,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Queue?: string | fn.#StringExpression
+	WaitMinutes?: int & <=4320 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=4320 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

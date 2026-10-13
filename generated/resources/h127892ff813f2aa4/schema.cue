@@ -16,7 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DatasetName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
 	Description?: strings.MaxRunes(200) | fn.#StringExpression
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
 	fn.#StringExpression
@@ -24,22 +25,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"AGENTCORE_EVALUATION_SIMULATED_V1" |
 		"GENERIC_EVALUATION_PREDEFINED_V1" |
 		fn.#StringExpression
-	Source?: _#defs."/$defs/Properties/definitions/DataSourceType" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Source?: _#defs."/$defs/Properties/definitions/DataSourceType"
+	Tags?:   list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DataSourceType": close({
-	InlineExamples?: _#defs."/$defs/Properties/definitions/InlineExamplesSource" | fn.#ObjectExpression
-	S3Source?:       _#defs."/$defs/Properties/definitions/S3Source" | fn.#ObjectExpression
+	InlineExamples?: _#defs."/$defs/Properties/definitions/InlineExamplesSource"
+	S3Source?:       _#defs."/$defs/Properties/definitions/S3Source"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InlineExamplesSource": close({
-	Examples!: list.MaxItems(1000) & list.MinItems(1) & [...{[string]: fn.#Value} | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Examples!: list.MaxItems(1000) & list.MinItems(1) & [...fn.#Object & {...} | fn.#ObjectExpression] |
+	fn.#ListExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3Source": close({S3Uri!: string | fn.#StringExpression}) | fn.#ObjectExpression
 

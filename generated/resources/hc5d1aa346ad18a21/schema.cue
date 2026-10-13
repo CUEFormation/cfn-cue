@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,37 +19,129 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::GlobalAccelerator::EndpointGroup
 #Properties: close({
 	EndpointConfigurations?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/EndpointConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/EndpointConfiguration"
 	] |
 		fn.#ListExpression
-	EndpointGroupRegion!:        strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	HealthCheckIntervalSeconds?: int & <=30 & >=10 | fn.#NumberExpression
+	EndpointGroupRegion!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	HealthCheckIntervalSeconds?: int & <=30 & >=10 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=30 &
+							>=10,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	HealthCheckPath?: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^/[-a-zA-Z0-9@:%_\\\\+.~#?&/=]*$" |
 	fn.#StringExpression
-	HealthCheckPort?:     int & <=65535 & >=-1 | fn.#NumberExpression
+	HealthCheckPort?: int & <=65535 & >=-1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=-1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	HealthCheckProtocol?: "TCP" | "HTTP" | "HTTPS" | fn.#StringExpression
 	ListenerArn!:         strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	PortOverrides?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PortOverride" | fn.#ObjectExpression
-	] |
+	PortOverrides?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/PortOverride"] |
 		fn.#ListExpression
-	ThresholdCount?:        int & <=10 & >=1 | fn.#NumberExpression
-	TrafficDialPercentage?: <=100 & >=0 | fn.#NumberExpression
+	ThresholdCount?: int & <=10 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TrafficDialPercentage?: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EndpointConfiguration": close({
 	AttachmentArn?:               strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	ClientIPPreservationEnabled?: bool | fn.#BooleanExpression
+	ClientIPPreservationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EndpointId!:                  strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	Weight?:                      int & <=255 & >=0 | fn.#NumberExpression
+	Weight?: int & <=255 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=255 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=65535 &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/PortOverride": close({
-	EndpointPort!: _#defs."/$defs/Properties/definitions/Port" | fn.#NumberExpression
-	ListenerPort!: _#defs."/$defs/Properties/definitions/Port" | fn.#NumberExpression
+	EndpointPort!: _#defs."/$defs/Properties/definitions/Port"
+	ListenerPort!: _#defs."/$defs/Properties/definitions/Port"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

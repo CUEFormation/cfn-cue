@@ -18,11 +18,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	AlgorithmName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 	fn.#StringExpression
-	CertifyForMarketplace?:  bool | fn.#BooleanExpression
-	InferenceSpecification?: _#defs."/$defs/Properties/definitions/InferenceSpecification" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TrainingSpecification!: _#defs."/$defs/Properties/definitions/TrainingSpecification" | fn.#ObjectExpression
+	CertifyForMarketplace?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InferenceSpecification?: _#defs."/$defs/Properties/definitions/InferenceSpecification"
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TrainingSpecification!: _#defs."/$defs/Properties/definitions/TrainingSpecification"
 })
 
 _#defs: "/$defs/Properties/definitions/CategoricalParameterRangeSpecification": close({
@@ -36,7 +35,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ChannelSpecification": close({
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" |
 	fn.#StringExpression
-	IsRequired?: bool | fn.#BooleanExpression
+	IsRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!:       strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\.\\-_]+$" | fn.#StringExpression
 	SupportedCompressionTypes?: [..."None" | "Gzip" | fn.#StringExpression] | fn.#ListExpression
 	SupportedContentTypes!: [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
@@ -55,11 +54,11 @@ _#defs: "/$defs/Properties/definitions/HyperParameterSpecification": close({
 	DefaultValue?: strings.MaxRunes(2500) & strings.MinRunes(0) | fn.#StringExpression
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" |
 	fn.#StringExpression
-	IsRequired?: bool | fn.#BooleanExpression
-	IsTunable?:  bool | fn.#BooleanExpression
+	IsRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IsTunable?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" |
 	fn.#StringExpression
-	Range?: _#defs."/$defs/Properties/definitions/ParameterRange" | fn.#ObjectExpression
+	Range?: _#defs."/$defs/Properties/definitions/ParameterRange"
 	Type!:  "Integer" | "Continuous" | "Categorical" | "FreeText" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -72,7 +71,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceSpecification": close({
 	Containers!: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ModelPackageContainerDefinition" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ModelPackageContainerDefinition"
 	] |
 		fn.#ListExpression
 	SupportedContentTypes?: [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
@@ -512,19 +511,17 @@ _#defs: "/$defs/Properties/definitions/ModelPackageContainerDefinition": close({
 	Image!:            strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$" | fn.#StringExpression
 	ImageDigest?: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$" |
 	fn.#StringExpression
-	IsCheckpoint?:     bool | fn.#BooleanExpression
-	ModelInput?:       _#defs."/$defs/Properties/definitions/ModelInput" | fn.#ObjectExpression
+	IsCheckpoint?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ModelInput?:       _#defs."/$defs/Properties/definitions/ModelInput"
 	NearestModelName?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParameterRange": close({
-	CategoricalParameterRangeSpecification?: _#defs."/$defs/Properties/definitions/CategoricalParameterRangeSpecification" |
-		fn.#ObjectExpression
-	ContinuousParameterRangeSpecification?: _#defs."/$defs/Properties/definitions/ContinuousParameterRangeSpecification" |
-		fn.#ObjectExpression
-	IntegerParameterRangeSpecification?: _#defs."/$defs/Properties/definitions/IntegerParameterRangeSpecification" |
-		fn.#ObjectExpression
+	CategoricalParameterRangeSpecification?:
+		_#defs."/$defs/Properties/definitions/CategoricalParameterRangeSpecification"
+	ContinuousParameterRangeSpecification?: _#defs."/$defs/Properties/definitions/ContinuousParameterRangeSpecification"
+	IntegerParameterRangeSpecification?:    _#defs."/$defs/Properties/definitions/IntegerParameterRangeSpecification"
 }) |
 fn.#ObjectExpression
 
@@ -535,12 +532,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TrainingSpecification": close({
-	MetricDefinitions?: list.MaxItems(40) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MetricDefinition" | fn.#ObjectExpression
-	] |
+	MetricDefinitions?: list.MaxItems(40) & [...] & [..._#defs."/$defs/Properties/definitions/MetricDefinition"] |
 		fn.#ListExpression
 	SupportedHyperParameters?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/HyperParameterSpecification" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/HyperParameterSpecification"
 	] |
 		fn.#ListExpression
 	SupportedTrainingInstanceTypes!: [
@@ -772,13 +767,11 @@ _#defs: "/$defs/Properties/definitions/TrainingSpecification": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	SupportedTuningJobObjectiveMetrics?: [
-		..._#defs."/$defs/Properties/definitions/HyperParameterTuningJobObjective" | fn.#ObjectExpression
-	] |
+	SupportedTuningJobObjectiveMetrics?: [..._#defs."/$defs/Properties/definitions/HyperParameterTuningJobObjective"] |
 		fn.#ListExpression
-	SupportsDistributedTraining?: bool | fn.#BooleanExpression
+	SupportsDistributedTraining?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TrainingChannels!: list.MaxItems(8) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ChannelSpecification" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ChannelSpecification"
 	] |
 		fn.#ListExpression
 	TrainingImage!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$" | fn.#StringExpression

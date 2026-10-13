@@ -49,7 +49,7 @@ import "strings"
 
 	// The AWS Identity and Access Management service role ARN for the data source.
 	// The system assumes this role when accessing the data source.
-	ServiceRoleArn?: string
+	ServiceRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The type of the data source.
 	Type!: "AMAZON_BEDROCK_RUNTIME" |

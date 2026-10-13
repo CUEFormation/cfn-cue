@@ -108,13 +108,15 @@ _#defs: "/$defs/Properties/definitions/CodeInterpreterSummary": close({
 _#defs: "/$defs/Properties/definitions/Description": string
 
 // The ARN of the IAM role.
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):iam::[0-9]{12}:role/.+$"
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	=~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):iam::[0-9]{12}:role/.+$"
 
 // The name of the sandbox.
 _#defs: "/$defs/Properties/definitions/SandboxName": string
 
 // Security group id
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-[0-9a-zA-Z]{8,17}$"
+_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	=~"^sg-[0-9a-zA-Z]{8,17}$"
 
 // Security groups for VPC
 _#defs: "/$defs/Properties/definitions/SecurityGroups": list.MaxItems(16) & list.MinItems(1) & [

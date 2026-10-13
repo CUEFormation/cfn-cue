@@ -35,7 +35,8 @@ import (
 	Severity?: ("ERROR" | "INFO") & (strings.MaxRunes(2147483647) & strings.MinRunes(0))
 
 	// The Amazon Resource Name (ARN) of the Amazon SNS topic used to transmit the event notifications.
-	SnsTopicArn?: strings.MaxRunes(2147483647) & strings.MinRunes(0)
+	SnsTopicArn?:
+		=~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0))
 
 	// A list of one or more identifiers of Amazon Redshift source objects.
 	SourceIds?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0)]

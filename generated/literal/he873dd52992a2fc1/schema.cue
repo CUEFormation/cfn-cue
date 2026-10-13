@@ -50,7 +50,7 @@ import (
 	// The Amazon Resource Name (ARN) for CodePipeline to use to either perform
 	// actions with no actionRoleArn, or to use to assume roles for actions with an
 	// actionRoleArn
-	RoleArn!: =~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*"
 
 	// Represents information about a stage and its definition.
 	Stages!: list.MinItems(2) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StageDeclaration"]
@@ -98,7 +98,7 @@ _#defs: "/$defs/Properties/definitions/ActionDeclaration": close({
 
 	// The ARN of the IAM service role that performs the declared action. This is
 	// assumed through the roleArn for the pipeline.
-	RoleArn?: =~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*"
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*"
 
 	// The order in which actions are run.
 	RunOrder?: int
@@ -329,7 +329,7 @@ _#defs: "/$defs/Properties/definitions/RuleDeclaration": close({
 
 	// The ARN of the IAM service role that performs the declared rule. This is
 	// assumed through the roleArn for the pipeline.
-	RoleArn?:    =~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*"
+	RoleArn?:    =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*"
 	RuleTypeId?: _#defs."/$defs/Properties/definitions/RuleTypeId"
 })
 

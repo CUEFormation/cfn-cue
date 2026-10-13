@@ -8,30 +8,44 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::NetworkFirewall::RuleGroup
 #Properties: close({
-	Capacity!:      int | fn.#NumberExpression
+	Capacity!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Description?:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	RuleGroup?:     _#defs."/$defs/Properties/definitions/RuleGroup" | fn.#ObjectExpression
+	RuleGroup?:     _#defs."/$defs/Properties/definitions/RuleGroup"
 	RuleGroupName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	SummaryConfiguration?: close({
-		RuleOptions?: [..._#defs."/$defs/Properties/definitions/SummaryRuleOption" | fn.#StringExpression] |
-			fn.#ListExpression
-	}) |
+	SummaryConfiguration?: close(
+		{RuleOptions?: [..._#defs."/$defs/Properties/definitions/SummaryRuleOption"] | fn.#ListExpression},
+	) |
 		fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	Type!: "STATELESS" | "STATEFUL" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ActionDefinition": close(
-	{PublishMetricAction?: _#defs."/$defs/Properties/definitions/PublishMetricAction" | fn.#ObjectExpression},
+	{PublishMetricAction?: _#defs."/$defs/Properties/definitions/PublishMetricAction"},
 ) |
 	fn.#ObjectExpression
 
@@ -42,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/Address": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomAction": close({
-	ActionDefinition!: _#defs."/$defs/Properties/definitions/ActionDefinition" | fn.#ObjectExpression
+	ActionDefinition!: _#defs."/$defs/Properties/definitions/ActionDefinition"
 	ActionName!:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -60,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/GeneratedRulesType": "ALLOWLIST" |
 
 _#defs: "/$defs/Properties/definitions/Header": close({
 	Destination!:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	DestinationPort!: _#defs."/$defs/Properties/definitions/Port" | fn.#StringExpression
+	DestinationPort!: _#defs."/$defs/Properties/definitions/Port"
 	Direction!:       "FORWARD" | "ANY" | fn.#StringExpression
 	Protocol!: "IP" |
 		"TCP" |
@@ -83,28 +97,27 @@ _#defs: "/$defs/Properties/definitions/Header": close({
 		"DHCP" |
 		fn.#StringExpression
 	Source!:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	SourcePort!: _#defs."/$defs/Properties/definitions/Port" | fn.#StringExpression
+	SourcePort!: _#defs."/$defs/Properties/definitions/Port"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IPSet": close({
-	Definition?: [..._#defs."/$defs/Properties/definitions/VariableDefinition" | fn.#StringExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/IPSet": close(
+	{Definition?: [..._#defs."/$defs/Properties/definitions/VariableDefinition"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IPSetReference": close(
-	{ReferenceArn?: _#defs."/$defs/Properties/definitions/ResourceArn" | fn.#StringExpression},
+	{ReferenceArn?: _#defs."/$defs/Properties/definitions/ResourceArn"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MatchAttributes": close({
-	DestinationPorts?: [..._#defs."/$defs/Properties/definitions/PortRange" | fn.#ObjectExpression] | fn.#ListExpression
-	Destinations?:     [..._#defs."/$defs/Properties/definitions/Address" | fn.#ObjectExpression] | fn.#ListExpression
-	Protocols?:   [..._#defs."/$defs/Properties/definitions/ProtocolNumber" | fn.#NumberExpression] | fn.#ListExpression
-	SourcePorts?: [..._#defs."/$defs/Properties/definitions/PortRange" | fn.#ObjectExpression] | fn.#ListExpression
-	Sources?:     [..._#defs."/$defs/Properties/definitions/Address" | fn.#ObjectExpression] | fn.#ListExpression
-	TCPFlags?:    [..._#defs."/$defs/Properties/definitions/TCPFlagField" | fn.#ObjectExpression] | fn.#ListExpression
+	DestinationPorts?: [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
+	Destinations?:     [..._#defs."/$defs/Properties/definitions/Address"] | fn.#ListExpression
+	Protocols?:        [..._#defs."/$defs/Properties/definitions/ProtocolNumber"] | fn.#ListExpression
+	SourcePorts?:      [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
+	Sources?:          [..._#defs."/$defs/Properties/definitions/Address"] | fn.#ListExpression
+	TCPFlags?:         [..._#defs."/$defs/Properties/definitions/TCPFlagField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -112,25 +125,52 @@ _#defs: "/$defs/Properties/definitions/Port": strings.MaxRunes(1024) & strings.M
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PortRange": close({
-	FromPort!: _#defs."/$defs/Properties/definitions/PortRangeBound" | fn.#NumberExpression
-	ToPort!:   _#defs."/$defs/Properties/definitions/PortRangeBound" | fn.#NumberExpression
+	FromPort!: _#defs."/$defs/Properties/definitions/PortRangeBound"
+	ToPort!:   _#defs."/$defs/Properties/definitions/PortRangeBound"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PortRangeBound": int & <=65535 & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/PortRangeBound": int & <=65535 & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=65535 &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/PortSet": close({
-	Definition?: [..._#defs."/$defs/Properties/definitions/VariableDefinition" | fn.#StringExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/PortSet": close(
+	{Definition?: [..._#defs."/$defs/Properties/definitions/VariableDefinition"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProtocolNumber": int & <=255 & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/ProtocolNumber": int & <=255 & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=255 &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/PublishMetricAction": close({
-	Dimensions!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Dimension" | fn.#ObjectExpression
-	] |
+	Dimensions!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Dimension"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -138,7 +178,7 @@ _#defs: "/$defs/Properties/definitions/PublishMetricAction": close({
 _#defs: "/$defs/Properties/definitions/ReferenceSets": close({
 	IPSetReferences?: close({
 
-		{[=~"^[A-Za-z0-9_]{1,32}$"]: _#defs."/$defs/Properties/definitions/IPSetReference" | fn.#ObjectExpression}}) |
+		{[=~"^[A-Za-z0-9_]{1,32}$"]: _#defs."/$defs/Properties/definitions/IPSetReference"}}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -148,21 +188,21 @@ fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RuleDefinition": close({
 	Actions!:         [...string | fn.#StringExpression] | fn.#ListExpression
-	MatchAttributes!: _#defs."/$defs/Properties/definitions/MatchAttributes" | fn.#ObjectExpression
+	MatchAttributes!: _#defs."/$defs/Properties/definitions/MatchAttributes"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RuleGroup": close({
-	ReferenceSets?:       _#defs."/$defs/Properties/definitions/ReferenceSets" | fn.#ObjectExpression
-	RuleVariables?:       _#defs."/$defs/Properties/definitions/RuleVariables" | fn.#ObjectExpression
-	RulesSource!:         _#defs."/$defs/Properties/definitions/RulesSource" | fn.#ObjectExpression
-	StatefulRuleOptions?: _#defs."/$defs/Properties/definitions/StatefulRuleOptions" | fn.#ObjectExpression
+	ReferenceSets?:       _#defs."/$defs/Properties/definitions/ReferenceSets"
+	RuleVariables?:       _#defs."/$defs/Properties/definitions/RuleVariables"
+	RulesSource!:         _#defs."/$defs/Properties/definitions/RulesSource"
+	StatefulRuleOptions?: _#defs."/$defs/Properties/definitions/StatefulRuleOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RuleOption": close({
 	Keyword!:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	Settings?: [..._#defs."/$defs/Properties/definitions/Setting" | fn.#StringExpression] | fn.#ListExpression
+	Settings?: [..._#defs."/$defs/Properties/definitions/Setting"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -171,28 +211,27 @@ _#defs: "/$defs/Properties/definitions/RuleOrder": "DEFAULT_ACTION_ORDER" | "STR
 _#defs: "/$defs/Properties/definitions/RuleVariables": close({
 	IPSets?: close({
 
-		{[=~"^[A-Za-z0-9_]{1,32}$"]: _#defs."/$defs/Properties/definitions/IPSet" | fn.#ObjectExpression}}) |
+		{[=~"^[A-Za-z0-9_]{1,32}$"]: _#defs."/$defs/Properties/definitions/IPSet"}}) |
 	fn.#ObjectExpression
 	PortSets?: close({
 
-		{[=~"^[A-Za-z0-9_]{1,32}$"]: _#defs."/$defs/Properties/definitions/PortSet" | fn.#ObjectExpression}}) |
+		{[=~"^[A-Za-z0-9_]{1,32}$"]: _#defs."/$defs/Properties/definitions/PortSet"}}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RulesSource": close({
-	RulesSourceList?: _#defs."/$defs/Properties/definitions/RulesSourceList" | fn.#ObjectExpression
-	RulesString?:     _#defs."/$defs/Properties/definitions/RulesString" | fn.#StringExpression
-	StatefulRules?: [..._#defs."/$defs/Properties/definitions/StatefulRule" | fn.#ObjectExpression] | fn.#ListExpression
-	StatelessRulesAndCustomActions?: _#defs."/$defs/Properties/definitions/StatelessRulesAndCustomActions" |
-		fn.#ObjectExpression
+	RulesSourceList?:                _#defs."/$defs/Properties/definitions/RulesSourceList"
+	RulesString?:                    _#defs."/$defs/Properties/definitions/RulesString"
+	StatefulRules?:                  [..._#defs."/$defs/Properties/definitions/StatefulRule"] | fn.#ListExpression
+	StatelessRulesAndCustomActions?: _#defs."/$defs/Properties/definitions/StatelessRulesAndCustomActions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RulesSourceList": close({
-	GeneratedRulesType!: _#defs."/$defs/Properties/definitions/GeneratedRulesType" | fn.#StringExpression
-	TargetTypes!: [..._#defs."/$defs/Properties/definitions/TargetType" | fn.#StringExpression] | fn.#ListExpression
-	Targets!:     [...string | fn.#StringExpression] | fn.#ListExpression
+	GeneratedRulesType!: _#defs."/$defs/Properties/definitions/GeneratedRulesType"
+	TargetTypes!:        [..._#defs."/$defs/Properties/definitions/TargetType"] | fn.#ListExpression
+	Targets!:            [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -204,26 +243,40 @@ fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/StatefulRule": close({
 	Action!:      "PASS" | "DROP" | "ALERT" | "REJECT" | fn.#StringExpression
-	Header!:      _#defs."/$defs/Properties/definitions/Header" | fn.#ObjectExpression
-	RuleOptions!: [..._#defs."/$defs/Properties/definitions/RuleOption" | fn.#ObjectExpression] | fn.#ListExpression
+	Header!:      _#defs."/$defs/Properties/definitions/Header"
+	RuleOptions!: [..._#defs."/$defs/Properties/definitions/RuleOption"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StatefulRuleOptions": close(
-	{RuleOrder?: _#defs."/$defs/Properties/definitions/RuleOrder" | fn.#StringExpression},
+	{RuleOrder?: _#defs."/$defs/Properties/definitions/RuleOrder"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StatelessRule": close({
-	Priority!:       int & <=65535 & >=1 | fn.#NumberExpression
-	RuleDefinition!: _#defs."/$defs/Properties/definitions/RuleDefinition" | fn.#ObjectExpression
+	Priority!: int & <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RuleDefinition!: _#defs."/$defs/Properties/definitions/RuleDefinition"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StatelessRulesAndCustomActions": close({
-	CustomActions?: [..._#defs."/$defs/Properties/definitions/CustomAction" | fn.#ObjectExpression] | fn.#ListExpression
-	StatelessRules!: [..._#defs."/$defs/Properties/definitions/StatelessRule" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	CustomActions?:  [..._#defs."/$defs/Properties/definitions/CustomAction"] | fn.#ListExpression
+	StatelessRules!: [..._#defs."/$defs/Properties/definitions/StatelessRule"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -240,8 +293,8 @@ _#defs: "/$defs/Properties/definitions/TCPFlag": "FIN" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TCPFlagField": close({
-	Flags!: [..._#defs."/$defs/Properties/definitions/TCPFlag" | fn.#StringExpression] | fn.#ListExpression
-	Masks?: [..._#defs."/$defs/Properties/definitions/TCPFlag" | fn.#StringExpression] | fn.#ListExpression
+	Flags!: [..._#defs."/$defs/Properties/definitions/TCPFlag"] | fn.#ListExpression
+	Masks?: [..._#defs."/$defs/Properties/definitions/TCPFlag"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

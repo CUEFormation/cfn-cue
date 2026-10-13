@@ -62,19 +62,19 @@ _#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
 // Specifies lifecycle rules for an Amazon S3Outposts bucket. You must specify
 // at least one of the following: AbortIncompleteMultipartUpload,
 // ExpirationDate, ExpirationInDays.
-_#defs: "/$defs/Properties/definitions/Rule": ({
+_#defs: "/$defs/Properties/definitions/Rule": matchN(>=1, [{
 	Status!:                         _
 	AbortIncompleteMultipartUpload!: _
 	...
-} | {
+}, {
 	Status!:         _
 	ExpirationDate!: _
 	...
-} | {
+}, {
 	Status!:           _
 	ExpirationInDays!: _
 	...
-}) & close({
+}]) & close({
 	// Specifies a lifecycle rule that stops incomplete multipart uploads to an
 	// Amazon S3Outposts bucket.
 	AbortIncompleteMultipartUpload?: _#defs."/$defs/Properties/definitions/AbortIncompleteMultipartUpload"

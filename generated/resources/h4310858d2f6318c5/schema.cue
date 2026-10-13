@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,62 +20,206 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CategoryName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
 	InputType?:    "REAL_TIME" | "POST_CALL" | fn.#StringExpression
-	Rules!: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Rule" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Rules!: list.MaxItems(20) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression
+	Tags?:  list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AbsoluteTimeRange": close({
-	EndTime?:   int & <=14400000 & >=0 | fn.#NumberExpression
-	First?:     int & <=14400000 & >=0 | fn.#NumberExpression
-	Last?:      int & <=14400000 & >=0 | fn.#NumberExpression
-	StartTime?: int & <=14400000 & >=0 | fn.#NumberExpression
+	EndTime?: int & <=14400000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=14400000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	First?: int & <=14400000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=14400000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Last?: int & <=14400000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=14400000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StartTime?: int & <=14400000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=14400000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InterruptionFilter": close({
-	AbsoluteTimeRange?: _#defs."/$defs/Properties/definitions/AbsoluteTimeRange" | fn.#ObjectExpression
-	Negate?:            bool | fn.#BooleanExpression
+	AbsoluteTimeRange?: _#defs."/$defs/Properties/definitions/AbsoluteTimeRange"
+	Negate?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ParticipantRole?:   "AGENT" | "CUSTOMER" | fn.#StringExpression
-	RelativeTimeRange?: _#defs."/$defs/Properties/definitions/RelativeTimeRange" | fn.#ObjectExpression
-	Threshold?:         int & <=14400000 & >=0 | fn.#NumberExpression
+	RelativeTimeRange?: _#defs."/$defs/Properties/definitions/RelativeTimeRange"
+	Threshold?: int & <=14400000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=14400000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NonTalkTimeFilter": close({
-	AbsoluteTimeRange?: _#defs."/$defs/Properties/definitions/AbsoluteTimeRange" | fn.#ObjectExpression
-	Negate?:            bool | fn.#BooleanExpression
-	RelativeTimeRange?: _#defs."/$defs/Properties/definitions/RelativeTimeRange" | fn.#ObjectExpression
-	Threshold?:         int & <=14400000 & >=0 | fn.#NumberExpression
+	AbsoluteTimeRange?: _#defs."/$defs/Properties/definitions/AbsoluteTimeRange"
+	Negate?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RelativeTimeRange?: _#defs."/$defs/Properties/definitions/RelativeTimeRange"
+	Threshold?: int & <=14400000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=14400000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RelativeTimeRange": close({
-	EndPercentage?:   int & <=100 & >=0 | fn.#NumberExpression
-	First?:           int & <=100 & >=0 | fn.#NumberExpression
-	Last?:            int & <=100 & >=0 | fn.#NumberExpression
-	StartPercentage?: int & <=100 & >=0 | fn.#NumberExpression
+	EndPercentage?: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	First?: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Last?: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StartPercentage?: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Rule": close({
-	InterruptionFilter?: _#defs."/$defs/Properties/definitions/InterruptionFilter" | fn.#ObjectExpression
-	NonTalkTimeFilter?:  _#defs."/$defs/Properties/definitions/NonTalkTimeFilter" | fn.#ObjectExpression
-	SentimentFilter?:    _#defs."/$defs/Properties/definitions/SentimentFilter" | fn.#ObjectExpression
-	TranscriptFilter?:   _#defs."/$defs/Properties/definitions/TranscriptFilter" | fn.#ObjectExpression
+	InterruptionFilter?: _#defs."/$defs/Properties/definitions/InterruptionFilter"
+	NonTalkTimeFilter?:  _#defs."/$defs/Properties/definitions/NonTalkTimeFilter"
+	SentimentFilter?:    _#defs."/$defs/Properties/definitions/SentimentFilter"
+	TranscriptFilter?:   _#defs."/$defs/Properties/definitions/TranscriptFilter"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SentimentFilter": close({
-	AbsoluteTimeRange?: _#defs."/$defs/Properties/definitions/AbsoluteTimeRange" | fn.#ObjectExpression
-	Negate?:            bool | fn.#BooleanExpression
+	AbsoluteTimeRange?: _#defs."/$defs/Properties/definitions/AbsoluteTimeRange"
+	Negate?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ParticipantRole?:   "AGENT" | "CUSTOMER" | fn.#StringExpression
-	RelativeTimeRange?: _#defs."/$defs/Properties/definitions/RelativeTimeRange" | fn.#ObjectExpression
+	RelativeTimeRange?: _#defs."/$defs/Properties/definitions/RelativeTimeRange"
 	Sentiments!: list.MaxItems(1) & list.MinItems(1) & [
 		..."POSITIVE" | "NEGATIVE" | "NEUTRAL" | "MIXED" | fn.#StringExpression
 	] |
@@ -86,10 +234,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TranscriptFilter": close({
-	AbsoluteTimeRange?: _#defs."/$defs/Properties/definitions/AbsoluteTimeRange" | fn.#ObjectExpression
-	Negate?:            bool | fn.#BooleanExpression
+	AbsoluteTimeRange?: _#defs."/$defs/Properties/definitions/AbsoluteTimeRange"
+	Negate?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ParticipantRole?:   "AGENT" | "CUSTOMER" | fn.#StringExpression
-	RelativeTimeRange?: _#defs."/$defs/Properties/definitions/RelativeTimeRange" | fn.#ObjectExpression
+	RelativeTimeRange?: _#defs."/$defs/Properties/definitions/RelativeTimeRange"
 	Targets!: list.MinItems(1) & [...strings.MaxRunes(2000) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
 	TranscriptFilterType!: "EXACT" | fn.#StringExpression

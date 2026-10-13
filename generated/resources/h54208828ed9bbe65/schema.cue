@@ -3,9 +3,13 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -13,79 +17,125 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::MSK::Cluster
 #Properties: close({
-	BrokerNodeGroupInfo!:  _#defs."/$defs/Properties/definitions/BrokerNodeGroupInfo" | fn.#ObjectExpression
-	ClientAuthentication?: _#defs."/$defs/Properties/definitions/ClientAuthentication" | fn.#ObjectExpression
+	BrokerNodeGroupInfo!:  _#defs."/$defs/Properties/definitions/BrokerNodeGroupInfo"
+	ClientAuthentication?: _#defs."/$defs/Properties/definitions/ClientAuthentication"
 	ClusterName!:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	ConfigurationInfo?:    _#defs."/$defs/Properties/definitions/ConfigurationInfo" | fn.#ObjectExpression
-	EncryptionInfo?:       _#defs."/$defs/Properties/definitions/EncryptionInfo" | fn.#ObjectExpression
+	ConfigurationInfo?:    _#defs."/$defs/Properties/definitions/ConfigurationInfo"
+	EncryptionInfo?:       _#defs."/$defs/Properties/definitions/EncryptionInfo"
 	EnhancedMonitoring?: ("DEFAULT" | "PER_BROKER" | "PER_TOPIC_PER_BROKER" | "PER_TOPIC_PER_PARTITION") & (strings.MaxRunes(23) & strings.MinRunes(7)) |
 	fn.#StringExpression
-	KafkaVersion!:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	LoggingInfo?:         _#defs."/$defs/Properties/definitions/LoggingInfo" | fn.#ObjectExpression
-	NumberOfBrokerNodes!: int & >=1 | fn.#NumberExpression
-	OpenMonitoring?:      _#defs."/$defs/Properties/definitions/OpenMonitoring" | fn.#ObjectExpression
-	Rebalancing?:         _#defs."/$defs/Properties/definitions/Rebalancing" | fn.#ObjectExpression
-	StorageMode?:         ("LOCAL" | "TIERED") & (strings.MaxRunes(6) & strings.MinRunes(5)) | fn.#StringExpression
+	KafkaVersion!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	LoggingInfo?:  _#defs."/$defs/Properties/definitions/LoggingInfo"
+	NumberOfBrokerNodes!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	OpenMonitoring?: _#defs."/$defs/Properties/definitions/OpenMonitoring"
+	Rebalancing?:    _#defs."/$defs/Properties/definitions/Rebalancing"
+	StorageMode?:    ("LOCAL" | "TIERED") & (strings.MaxRunes(6) & strings.MinRunes(5)) | fn.#StringExpression
 	Tags?: close({
 
 		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	ZookeeperAccess?: _#defs."/$defs/Properties/definitions/ZookeeperAccess" | fn.#ObjectExpression
+	ZookeeperAccess?: _#defs."/$defs/Properties/definitions/ZookeeperAccess"
 })
 
 _#defs: "/$defs/Properties/definitions/AuthorizerLogs": close({
-	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogs" | fn.#ObjectExpression
-	Firehose?:       _#defs."/$defs/Properties/definitions/Firehose" | fn.#ObjectExpression
-	S3?:             _#defs."/$defs/Properties/definitions/S3" | fn.#ObjectExpression
+	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogs"
+	Firehose?:       _#defs."/$defs/Properties/definitions/Firehose"
+	S3?:             _#defs."/$defs/Properties/definitions/S3"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BrokerLogs": close({
-	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogs" | fn.#ObjectExpression
-	Firehose?:       _#defs."/$defs/Properties/definitions/Firehose" | fn.#ObjectExpression
-	S3?:             _#defs."/$defs/Properties/definitions/S3" | fn.#ObjectExpression
+	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogs"
+	Firehose?:       _#defs."/$defs/Properties/definitions/Firehose"
+	S3?:             _#defs."/$defs/Properties/definitions/S3"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BrokerNodeGroupInfo": close({
 	BrokerAZDistribution?: "DEFAULT" & (strings.MaxRunes(9) & strings.MinRunes(6)) | fn.#StringExpression
 	ClientSubnets!:        [...string | fn.#StringExpression] | fn.#ListExpression
-	ConnectivityInfo?:     _#defs."/$defs/Properties/definitions/ConnectivityInfo" | fn.#ObjectExpression
+	ConnectivityInfo?:     _#defs."/$defs/Properties/definitions/ConnectivityInfo"
 	InstanceType!:         strings.MaxRunes(32) & strings.MinRunes(5) | fn.#StringExpression
-	SecurityGroups?:       [...string | fn.#StringExpression] | fn.#ListExpression
-	StorageInfo?:          _#defs."/$defs/Properties/definitions/StorageInfo" | fn.#ObjectExpression
+	SecurityGroups?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	StorageInfo?: _#defs."/$defs/Properties/definitions/StorageInfo"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClientAuthentication": close({
-	Sasl?:            _#defs."/$defs/Properties/definitions/Sasl" | fn.#ObjectExpression
-	Tls?:             _#defs."/$defs/Properties/definitions/Tls" | fn.#ObjectExpression
-	Unauthenticated?: _#defs."/$defs/Properties/definitions/Unauthenticated" | fn.#ObjectExpression
+	Sasl?:            _#defs."/$defs/Properties/definitions/Sasl"
+	Tls?:             _#defs."/$defs/Properties/definitions/Tls"
+	Unauthenticated?: _#defs."/$defs/Properties/definitions/Unauthenticated"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CloudWatchLogs": close({
-	Enabled!:  bool | fn.#BooleanExpression
+	Enabled!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LogGroup?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfigurationInfo": close({
-	Arn!:      string | fn.#StringExpression
-	Revision!: int | fn.#NumberExpression
+	Arn!: string | fn.#StringExpression
+	Revision!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConnectivityInfo": close({
-	NetworkType?:     _#defs."/$defs/Properties/definitions/NetworkType" | fn.#StringExpression
-	PublicAccess?:    _#defs."/$defs/Properties/definitions/PublicAccess" | fn.#ObjectExpression
-	VpcConnectivity?: _#defs."/$defs/Properties/definitions/VpcConnectivity" | fn.#ObjectExpression
+	NetworkType?:     _#defs."/$defs/Properties/definitions/NetworkType"
+	PublicAccess?:    _#defs."/$defs/Properties/definitions/PublicAccess"
+	VpcConnectivity?: _#defs."/$defs/Properties/definitions/VpcConnectivity"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EBSStorageInfo": close({
-	ProvisionedThroughput?: _#defs."/$defs/Properties/definitions/ProvisionedThroughput" | fn.#ObjectExpression
-	VolumeSize?:            int & <=16384 & >=1 | fn.#NumberExpression
+	ProvisionedThroughput?: _#defs."/$defs/Properties/definitions/ProvisionedThroughput"
+	VolumeSize?: int & <=16384 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=16384 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -94,52 +144,72 @@ _#defs: "/$defs/Properties/definitions/EncryptionAtRest": close({DataVolumeKMSKe
 
 _#defs: "/$defs/Properties/definitions/EncryptionInTransit": close({
 	ClientBroker?: "TLS" | "TLS_PLAINTEXT" | "PLAINTEXT" | fn.#StringExpression
-	InCluster?:    bool | fn.#BooleanExpression
+	InCluster?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionInfo": close({
-	EncryptionAtRest?:    _#defs."/$defs/Properties/definitions/EncryptionAtRest" | fn.#ObjectExpression
-	EncryptionInTransit?: _#defs."/$defs/Properties/definitions/EncryptionInTransit" | fn.#ObjectExpression
+	EncryptionAtRest?:    _#defs."/$defs/Properties/definitions/EncryptionAtRest"
+	EncryptionInTransit?: _#defs."/$defs/Properties/definitions/EncryptionInTransit"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Firehose": close({
 	DeliveryStream?: string | fn.#StringExpression
-	Enabled!:        bool | fn.#BooleanExpression
+	Enabled!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Iam": close({Enabled!: bool | fn.#BooleanExpression}) | fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/Iam": close(
+	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
+	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JmxExporter": close({EnabledInBroker!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/JmxExporter": close(
+	{EnabledInBroker!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoggingInfo": close({
-	AuthorizerLogs?: _#defs."/$defs/Properties/definitions/AuthorizerLogs" | fn.#ObjectExpression
-	BrokerLogs?:     _#defs."/$defs/Properties/definitions/BrokerLogs" | fn.#ObjectExpression
+	AuthorizerLogs?: _#defs."/$defs/Properties/definitions/AuthorizerLogs"
+	BrokerLogs?:     _#defs."/$defs/Properties/definitions/BrokerLogs"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkType": "IPV4" | "DUAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NodeExporter": close({EnabledInBroker!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/NodeExporter": close(
+	{EnabledInBroker!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OpenMonitoring": close(
-	{Prometheus!: _#defs."/$defs/Properties/definitions/Prometheus" | fn.#ObjectExpression},
+	{Prometheus!: _#defs."/$defs/Properties/definitions/Prometheus"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Prometheus": close({
-	JmxExporter?:  _#defs."/$defs/Properties/definitions/JmxExporter" | fn.#ObjectExpression
-	NodeExporter?: _#defs."/$defs/Properties/definitions/NodeExporter" | fn.#ObjectExpression
+	JmxExporter?:  _#defs."/$defs/Properties/definitions/JmxExporter"
+	NodeExporter?: _#defs."/$defs/Properties/definitions/NodeExporter"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ProvisionedThroughput": close({
-	Enabled?:          bool | fn.#BooleanExpression
-	VolumeThroughput?: int | fn.#NumberExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	VolumeThroughput?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -153,61 +223,73 @@ _#defs: "/$defs/Properties/definitions/Rebalancing": close({Status!: "PAUSED" | 
 
 _#defs: "/$defs/Properties/definitions/S3": close({
 	Bucket?:  string | fn.#StringExpression
-	Enabled!: bool | fn.#BooleanExpression
+	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Prefix?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Sasl": close({
-	Iam?:   _#defs."/$defs/Properties/definitions/Iam" | fn.#ObjectExpression
-	Scram?: _#defs."/$defs/Properties/definitions/Scram" | fn.#ObjectExpression
+	Iam?:   _#defs."/$defs/Properties/definitions/Iam"
+	Scram?: _#defs."/$defs/Properties/definitions/Scram"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Scram": close({Enabled!: bool | fn.#BooleanExpression}) | fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/Scram": close(
+	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
+	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StorageInfo": close(
-	{EBSStorageInfo?: _#defs."/$defs/Properties/definitions/EBSStorageInfo" | fn.#ObjectExpression},
+	{EBSStorageInfo?: _#defs."/$defs/Properties/definitions/EBSStorageInfo"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tls": close({
 	CertificateAuthorityArnList?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Enabled?:                     bool | fn.#BooleanExpression
+	Enabled?:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Unauthenticated": close({Enabled!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/Unauthenticated": close(
+	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConnectivity": close({
-	ClientAuthentication?: _#defs."/$defs/Properties/definitions/VpcConnectivityClientAuthentication" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/VpcConnectivity": close(
+	{ClientAuthentication?: _#defs."/$defs/Properties/definitions/VpcConnectivityClientAuthentication"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConnectivityClientAuthentication": close({
-	Sasl?: _#defs."/$defs/Properties/definitions/VpcConnectivitySasl" | fn.#ObjectExpression
-	Tls?:  _#defs."/$defs/Properties/definitions/VpcConnectivityTls" | fn.#ObjectExpression
+	Sasl?: _#defs."/$defs/Properties/definitions/VpcConnectivitySasl"
+	Tls?:  _#defs."/$defs/Properties/definitions/VpcConnectivityTls"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConnectivityIam": close({Enabled!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/VpcConnectivityIam": close(
+	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConnectivitySasl": close({
-	Iam?:   _#defs."/$defs/Properties/definitions/VpcConnectivityIam" | fn.#ObjectExpression
-	Scram?: _#defs."/$defs/Properties/definitions/VpcConnectivityScram" | fn.#ObjectExpression
+	Iam?:   _#defs."/$defs/Properties/definitions/VpcConnectivityIam"
+	Scram?: _#defs."/$defs/Properties/definitions/VpcConnectivityScram"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConnectivityScram": close({Enabled!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/VpcConnectivityScram": close(
+	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConnectivityTls": close({Enabled!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/VpcConnectivityTls": close(
+	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ZookeeperAccess": close({Enabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/ZookeeperAccess": close(
+	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::MSK::Cluster"

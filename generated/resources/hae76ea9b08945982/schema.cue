@@ -20,11 +20,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ChangeSetType?:  "CREATE" | "UPDATE" | "IMPORT" | fn.#StringExpression
 	DeploymentMode?: "REVERT_DRIFT" | fn.#StringExpression
 	Description?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	ImportExistingResources?: bool | fn.#BooleanExpression
-	IncludeNestedStacks?:     bool | fn.#BooleanExpression
+	ImportExistingResources?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeNestedStacks?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NotificationARNs?:        list.MaxItems(5) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 	OnStackFailure?:          "DO_NOTHING" | "ROLLBACK" | "DELETE" | fn.#StringExpression
-	RoleARN?:                 strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 	StackName!: strings.MinRunes(1) &
 	=~"^([a-zA-Z][-a-zA-Z0-9]*)|(arn:\\b(aws|aws-us-gov|aws-cn)\\b:[-a-zA-Z0-9:/._+]*)$" |
 	fn.#StringExpression
@@ -36,7 +37,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	TemplateBody?:        strings.MinRunes(1) | fn.#StringExpression
 	TemplateURL?:         strings.MaxRunes(5120) & strings.MinRunes(1) | fn.#StringExpression
-	UsePreviousTemplate?: bool | fn.#BooleanExpression
+	UsePreviousTemplate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::CloudFormation::ChangeSet"

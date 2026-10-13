@@ -406,7 +406,8 @@ _#defs: "/$defs/Properties/definitions/SemanticChunkingConfiguration": close({
 // Contains details about the server-side encryption for the data source.
 _#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close({
 	// The ARN of the AWS KMS key used to encrypt the resource.
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$"
 })
@@ -481,7 +482,8 @@ _#defs: "/$defs/Properties/definitions/TransformationFunction": close(
 // A Lambda function that processes documents.
 _#defs: "/$defs/Properties/definitions/TransformationLambdaConfiguration": close({
 	// The function's ARN identifier.
-	LambdaArn!: strings.MaxRunes(2048) &
+	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9-_\\.]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$"
 })

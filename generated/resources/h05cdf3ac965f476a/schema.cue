@@ -15,8 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::IAM::OIDCProvider
 #Properties: close({
 	ClientIdList?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:         list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	ThumbprintList?: list.MaxItems(5) & [
 		...strings.MaxRunes(40) & strings.MinRunes(40) & =~"[0-9A-Fa-f]{40}" | fn.#StringExpression
 	] |

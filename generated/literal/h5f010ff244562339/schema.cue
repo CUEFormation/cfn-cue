@@ -18,7 +18,7 @@ import (
 
 	// The ARN of the AWS KMS key used for KMS_BASED_ENCRYPTION. Required when
 	// EncryptionConfiguration.EncryptionType is KMS_BASED_ENCRYPTION.
-	KmsKeyId?: (string | string | string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:[0-9]{12}:key/.+$"

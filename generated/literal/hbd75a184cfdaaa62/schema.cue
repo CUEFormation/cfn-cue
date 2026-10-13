@@ -23,7 +23,7 @@ import (
 
 	// The identifier of the AWS Key Management Service (AWS KMS) customer master
 	// key (CMK) to use for Amazon EBS encryption
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(128) & strings.MinRunes(0))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(128) & strings.MinRunes(0))
 
 	// The size of the volume, in GiBs
 	SizeInGB?: int & >=0

@@ -16,13 +16,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // connection between Security Agent and a third-party provider for code review
 // and remediation.
 #Properties: close({
-	DisplayName!:           string | fn.#StringExpression
-	KmsKeyId?:              string | string | string | fn.#StringExpression
+	DisplayName!: string | fn.#StringExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
 	PrivateConnectionName?: string | fn.#StringExpression
 	Provider!:              "GITHUB" | "GITLAB" | "BITBUCKET" | "CONFLUENCE" | fn.#StringExpression
-	ProviderInput?:         _#defs."/$defs/Properties/definitions/ProviderInput" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ProviderInput?:         _#defs."/$defs/Properties/definitions/ProviderInput"
+	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/BitbucketInput": close({
@@ -59,10 +60,10 @@ _#defs: "/$defs/Properties/definitions/GitLabInput": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ProviderInput": close({
-	Bitbucket?:  _#defs."/$defs/Properties/definitions/BitbucketInput" | fn.#ObjectExpression
-	Confluence?: _#defs."/$defs/Properties/definitions/ConfluenceInput" | fn.#ObjectExpression
-	Github?:     _#defs."/$defs/Properties/definitions/GitHubInput" | fn.#ObjectExpression
-	Gitlab?:     _#defs."/$defs/Properties/definitions/GitLabInput" | fn.#ObjectExpression
+	Bitbucket?:  _#defs."/$defs/Properties/definitions/BitbucketInput"
+	Confluence?: _#defs."/$defs/Properties/definitions/ConfluenceInput"
+	Github?:     _#defs."/$defs/Properties/definitions/GitHubInput"
+	Gitlab?:     _#defs."/$defs/Properties/definitions/GitLabInput"
 }) |
 fn.#ObjectExpression
 

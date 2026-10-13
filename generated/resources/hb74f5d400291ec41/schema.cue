@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -21,12 +25,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ChannelGroupName!:         strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	ChannelName!:              strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	Description?:              strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	InputSwitchConfiguration?: _#defs."/$defs/Properties/definitions/InputSwitchConfiguration" | fn.#ObjectExpression
-	InputType?:                _#defs."/$defs/Properties/definitions/InputType" | fn.#StringExpression
-	MultiviewConfiguration?:   _#defs."/$defs/Properties/definitions/MultiviewConfiguration" | fn.#ObjectExpression
-	OutputHeaderConfiguration?: _#defs."/$defs/Properties/definitions/OutputHeaderConfiguration" | fn.#ObjectExpression
-	OutputLockingMode?:         _#defs."/$defs/Properties/definitions/OutputLockingMode" | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	InputSwitchConfiguration?: _#defs."/$defs/Properties/definitions/InputSwitchConfiguration"
+	InputType?:                _#defs."/$defs/Properties/definitions/InputType"
+	MultiviewConfiguration?:   _#defs."/$defs/Properties/definitions/MultiviewConfiguration"
+	OutputHeaderConfiguration?: _#defs."/$defs/Properties/definitions/OutputHeaderConfiguration"
+	OutputLockingMode?:         _#defs."/$defs/Properties/definitions/OutputLockingMode"
+	Tags?:                      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/IngestEndpoint": close({
@@ -36,8 +40,23 @@ _#defs: "/$defs/Properties/definitions/IngestEndpoint": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InputSwitchConfiguration": close({
-	MQCSInputSwitching?: bool | fn.#BooleanExpression
-	PreferredInput?:     int & <=2 & >=1 | fn.#NumberExpression
+	MQCSInputSwitching?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PreferredInput?: int & <=2 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -45,7 +64,7 @@ _#defs: "/$defs/Properties/definitions/InputType": "HLS" | "CMAF" | "MULTIVIEW" 
 
 _#defs: "/$defs/Properties/definitions/MultiviewConfiguration": close({
 	AvailableLayouts!: list.MaxItems(6) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MultiviewLayoutType" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/MultiviewLayoutType"
 	] |
 		fn.#ListExpression
 	AvailableSources!: list.MaxItems(10) & list.MinItems(1) & [
@@ -63,7 +82,9 @@ _#defs: "/$defs/Properties/definitions/MultiviewLayoutType": "LAYOUT_2EH" |
 	"LAYOUT_4PL" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OutputHeaderConfiguration": close({PublishMQCS?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/OutputHeaderConfiguration": close(
+	{PublishMQCS?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OutputLockingMode": "EPOCH_LOCKED" | "NON_EPOCH_LOCKED" | fn.#StringExpression

@@ -19,7 +19,7 @@ package schema
 	DnsServers?:                    [...string]
 	EndpointIpAddressType?:         string
 	Id?:                            string
-	SecurityGroupIds?:              [...string]
+	SecurityGroupIds?:              [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SelfServicePortal?:             string
 	ServerCertificateArn!:          string
 	SessionTimeoutHours?:           int
@@ -28,7 +28,7 @@ package schema
 	TrafficIpAddressType?:          string
 	TransitGatewayConfiguration?:   _#defs."/$defs/Properties/definitions/TransitGatewayConfiguration"
 	TransportProtocol?:             string
-	VpcId?:                         string
+	VpcId?:                         =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 	VpnPort?:                       int
 })
 
@@ -51,7 +51,7 @@ _#defs: "/$defs/Properties/definitions/ClientAuthenticationRequest": close({
 
 _#defs: "/$defs/Properties/definitions/ClientConnectOptions": close({
 	Enabled!:           bool
-	LambdaFunctionArn?: string
+	LambdaFunctionArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/ClientLoginBannerOptions": close({

@@ -17,16 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: strings.MaxRunes(255) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
 	fn.#StringExpression
-	InputReferenceConfig!: _#defs."/$defs/Properties/definitions/IdMappingTableInputReferenceConfig" |
-		fn.#ObjectExpression
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	InputReferenceConfig!: _#defs."/$defs/Properties/definitions/IdMappingTableInputReferenceConfig"
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(4) &
 	=~"^arn:aws:kms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:key/[a-zA-Z0-9-]+$" |
 	fn.#StringExpression
-	MembershipIdentifier!: _#defs."/$defs/Properties/definitions/UUID" | fn.#StringExpression
+	MembershipIdentifier!: _#defs."/$defs/Properties/definitions/UUID"
 	Name!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/IdMappingTableInputReferenceConfig": close({
@@ -34,13 +33,13 @@ _#defs: "/$defs/Properties/definitions/IdMappingTableInputReferenceConfig": clos
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(idmappingworkflow/.*)$" |
 	fn.#StringExpression
-	ManageResourcePolicies!: bool | fn.#BooleanExpression
+	ManageResourcePolicies!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IdMappingTableInputReferenceProperties": close({
 	IdMappingTableInputSource!: list.MaxItems(2) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/IdMappingTableInputSource" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/IdMappingTableInputSource"
 	] |
 		fn.#ListExpression
 }) |

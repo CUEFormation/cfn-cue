@@ -48,7 +48,7 @@ import (
 	=~"^(?:arn:aws(?:-[a-z]+)*:iam::[0-9]{12}:role/)?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
 	// The AMI ID of the EC2 AMI in current region.
-	ImageId?: string
+	ImageId?: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$"
 
 	// The image pipeline execution settings of the image.
 	ImagePipelineExecutionSettings?: _#defs."/$defs/Properties/definitions/ImagePipelineExecutionSettings" & {

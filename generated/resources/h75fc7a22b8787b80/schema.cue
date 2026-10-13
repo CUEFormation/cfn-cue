@@ -10,11 +10,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::LakeFormation::Resource
 #Properties: close({
-	HybridAccessEnabled?:  bool | fn.#BooleanExpression
-	ResourceArn!:          string | fn.#StringExpression
-	RoleArn?:              string | fn.#StringExpression
-	UseServiceLinkedRole!: bool | fn.#BooleanExpression
-	WithFederation?:       bool | fn.#BooleanExpression
+	HybridAccessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ResourceArn!:         string | fn.#StringExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	UseServiceLinkedRole!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	WithFederation?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::LakeFormation::Resource"

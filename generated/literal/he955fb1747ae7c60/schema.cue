@@ -44,7 +44,7 @@ _#defs: "/$defs/Properties/definitions/ComputeResources": close({
 	DesiredvCpus?:             int
 	Ec2Configuration?:         [..._#defs."/$defs/Properties/definitions/Ec2ConfigurationObject"]
 	Ec2KeyPair?:               string
-	ImageId?:                  string
+	ImageId?:                  =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$"
 	InstanceRole?:             string
 	InstanceTypes?:            [...string]
 	LaunchTemplate?:           _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification"
@@ -53,7 +53,7 @@ _#defs: "/$defs/Properties/definitions/ComputeResources": close({
 	MinvCpus?:                 int
 	PlacementGroup?:           string
 	ScalingPolicy?:            _#defs."/$defs/Properties/definitions/ComputeScalingPolicy"
-	SecurityGroupIds?:         [...string]
+	SecurityGroupIds?:         [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SpotIamFleetRole?:         string
 	Subnets?:                  [...string]
 
@@ -140,13 +140,13 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateSpecificationOverride": clo
 _#defs: "/$defs/Properties/definitions/ManagedInstancesLocalStorageConfiguration": close({UseLocalStorage?: bool})
 
 _#defs: "/$defs/Properties/definitions/ManagedInstancesNetworkConfiguration": close({
-	SecurityGroups!: [...string]
+	SecurityGroups!: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	Subnets!:        [...string]
 })
 
 _#defs: "/$defs/Properties/definitions/ManagedInstancesProvider": close({
 	InfrastructureOptimization?: _#defs."/$defs/Properties/definitions/InfrastructureOptimization"
-	InfrastructureRoleArn!:      string
+	InfrastructureRoleArn!:      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	InstanceLaunchTemplate!:     _#defs."/$defs/Properties/definitions/InstanceLaunchTemplate"
 	PropagateTags?:              "CAPACITY_PROVIDER" | "NONE"
 })

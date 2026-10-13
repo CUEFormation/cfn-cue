@@ -4,13 +4,17 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Batch::ServiceEnvironment
 #Properties: close({
-	CapacityLimits!:         _#defs."/$defs/Properties/definitions/CapacityLimits" | fn.#ListExpression
+	CapacityLimits!:         _#defs."/$defs/Properties/definitions/CapacityLimits"
 	ServiceEnvironmentName?: string | fn.#StringExpression
 	ServiceEnvironmentType!: =~"(?i)^(?:sagemaker_training)$" | fn.#StringExpression
 	State?:                  string | fn.#StringExpression
@@ -22,13 +26,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 _#defs: "/$defs/Properties/definitions/CapacityLimit": close({
 	CapacityUnit?: string | fn.#StringExpression
-	MaxCapacity?:  int | fn.#NumberExpression
+	MaxCapacity?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityLimits": [
-	..._#defs."/$defs/Properties/definitions/CapacityLimit" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/CapacityLimits": [..._#defs."/$defs/Properties/definitions/CapacityLimit"] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Batch::ServiceEnvironment"

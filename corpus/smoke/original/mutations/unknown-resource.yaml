@@ -1,0 +1,3 @@
+Resources:
+  Thing:
+    Type: AWS::DoesNotExist::Thing

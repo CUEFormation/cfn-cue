@@ -64,5 +64,5 @@ _#defs: "/$defs/Properties/definitions/VpcSettings": close({
 	SubnetIds!: list.UniqueItems() & [...=~"^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17})$"]
 
 	// The identifier of the VPC in which to create the directory.
-	VpcId!: =~"^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17})$"
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17})$"
 })

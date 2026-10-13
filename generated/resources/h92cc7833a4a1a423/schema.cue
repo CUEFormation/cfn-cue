@@ -11,7 +11,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::PCAConnectorAD::DirectoryRegistration Resource Type
 #Properties: close({
 	DirectoryId!: =~"^d-[0-9a-f]{10}$" | fn.#StringExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	Tags?:        _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/Tags": close({

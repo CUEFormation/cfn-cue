@@ -16,14 +16,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(256) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]*)$" | fn.#StringExpression
 	Name!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" | fn.#StringExpression
-	ResourceTypeList!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ResourceType" | fn.#StringExpression
-	] |
+	ResourceTypeList!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ResourceType"] |
 		fn.#ListExpression
-	Resources?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Resource" | fn.#StringExpression] |
-		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Resources?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Resource"] | fn.#ListExpression
+	Tags?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Base62Id": strings.MaxRunes(22) & strings.MinRunes(22) & =~"^([a-z0-9A-Z]*)$" |

@@ -55,7 +55,7 @@ import (
 	IpDiscovery?: error("disallowed")
 
 	// The ID of the KMS key used to encrypt the cluster.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// Specifies the weekly time range during which maintenance on the cluster is
 	// performed. It is specified as a range in the format ddd:hh24:mi-ddd:hh24:mi
@@ -88,7 +88,7 @@ import (
 	Port?: int
 
 	// One or more Amazon VPC security groups associated with this cluster.
-	SecurityGroupIds?: [...string]
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// A list of Amazon Resource Names (ARN) that uniquely identify the RDB snapshot
 	// files stored in Amazon S3. The snapshot files are used to populate the new
@@ -110,7 +110,7 @@ import (
 
 	// The Amazon Resource Name (ARN) of the Amazon Simple Notification Service
 	// (SNS) topic to which notifications are sent.
-	SnsTopicArn?: string
+	SnsTopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 
 	// The status of the Amazon SNS notification topic. Notifications are sent only
 	// if the status is enabled.

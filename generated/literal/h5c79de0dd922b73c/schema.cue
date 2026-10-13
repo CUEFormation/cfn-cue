@@ -19,7 +19,7 @@ package schema
 	EngineVersion?:                    "3.6.0" | "4.0" | "4.0.0" | "5.0.0" | "5.0.1" | "8.0.0" | "8.0.1"
 	GlobalClusterIdentifier?:          string
 	Id?:                               string
-	KmsKeyId?:                         string | string | string
+	KmsKeyId?:                         =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 	ManageMasterUserPassword?:         bool
 	MasterUserPassword?:               string
 	MasterUserSecretKmsKeyId?:         string
@@ -39,7 +39,7 @@ package schema
 	StorageType?:                      string
 	Tags?:                             [..._#defs."/$defs/Properties/definitions/Tag"]
 	UseLatestRestorableTime?:          bool
-	VpcSecurityGroupIds?:              [...string]
+	VpcSecurityGroupIds?:              [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 })
 
 _#defs: "/$defs/Properties/definitions/ServerlessV2ScalingConfiguration": close({

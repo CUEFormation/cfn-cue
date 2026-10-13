@@ -20,15 +20,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 	IntegrationName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z](?:-?[a-zA-Z0-9]+)*$" |
 	fn.#StringExpression
-	KMSKeyId?: string | string | string | fn.#StringExpression
+	KMSKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
 	SourceArn!: strings.MaxRunes(255) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-z\\-]*:rds(-[a-z]*)?:[a-z0-9\\-]*:[0-9]*:(cluster|db):[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 })
 
@@ -44,7 +43,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {

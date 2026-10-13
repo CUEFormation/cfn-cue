@@ -31,6 +31,6 @@ _#defs: "/$defs/Properties/definitions/Iam": close({Enabled!: bool})
 _#defs: "/$defs/Properties/definitions/Sasl": close({Iam!: _#defs."/$defs/Properties/definitions/Iam"})
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroups?: list.UniqueItems() & [...string]
+	SecurityGroups?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SubnetIds!:      list.UniqueItems() & [...string]
 })

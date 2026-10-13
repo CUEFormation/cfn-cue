@@ -15,9 +15,10 @@ import (
 	ArchiveId?:    strings.MaxRunes(66) & strings.MinRunes(1)
 	ArchiveName?:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*[a-zA-Z0-9]$"
 	ArchiveState?: _#defs."/$defs/Properties/definitions/ArchiveState"
-	KmsKeyArn?:    =~"^arn:aws(|-cn|-us-gov|-eusc):kms:[a-z0-9-]{1,20}:[0-9]{12}:(key|alias)/.+$"
-	Retention?:    _#defs."/$defs/Properties/definitions/ArchiveRetention"
-	Tags?:         list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		=~"^arn:aws(|-cn|-us-gov|-eusc):kms:[a-z0-9-]{1,20}:[0-9]{12}:(key|alias)/.+$"
+	Retention?: _#defs."/$defs/Properties/definitions/ArchiveRetention"
+	Tags?:      list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
 })
 
 _#defs: "/$defs/Properties/definitions/ArchiveRetention": close(

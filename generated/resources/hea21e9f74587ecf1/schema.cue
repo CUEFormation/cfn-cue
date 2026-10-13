@@ -24,8 +24,8 @@ _#defs: "/$defs/Properties/definitions/DomainUnitGroupProperties": close({GroupI
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DomainUnitOwnerProperties": close({
-	Group?: _#defs."/$defs/Properties/definitions/DomainUnitGroupProperties" | fn.#ObjectExpression
-	User?:  _#defs."/$defs/Properties/definitions/DomainUnitUserProperties" | fn.#ObjectExpression
+	Group?: _#defs."/$defs/Properties/definitions/DomainUnitGroupProperties"
+	User?:  _#defs."/$defs/Properties/definitions/DomainUnitUserProperties"
 }) |
 fn.#ObjectExpression
 

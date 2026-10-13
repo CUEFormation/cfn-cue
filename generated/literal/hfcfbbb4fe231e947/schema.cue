@@ -30,7 +30,7 @@ import (
 		MqttTopic!: strings.MaxRunes(512) & strings.MinRunes(1)
 
 		// The ARN of the role that grants permission to publish to mqtt topic.
-		RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20)
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 	})
 
 	// The ARN (Amazon resource name) of the created security profile.
@@ -55,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/AlertTarget": close({
 	AlertTargetArn!: strings.MaxRunes(2048)
 
 	// The ARN of the role that grants permission to send alerts to the notification target.
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
 // A security profile behavior.

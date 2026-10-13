@@ -21,7 +21,7 @@ import "strings"
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// The KMS key identifier used to encrypt the workflow.
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(1024) & strings.MinRunes(1))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(1024) & strings.MinRunes(1))
 
 	// The latest version references of the workflow.
 	LatestVersion?: _#defs."/$defs/Properties/definitions/LatestVersion"

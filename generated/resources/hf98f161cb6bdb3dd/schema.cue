@@ -10,9 +10,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::WAFRegional::GeoMatchSet
 #Properties: close({
-	GeoMatchConstraints?: [..._#defs."/$defs/Properties/definitions/GeoMatchConstraint" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Name!: string | fn.#StringExpression
+	GeoMatchConstraints?: [..._#defs."/$defs/Properties/definitions/GeoMatchConstraint"] | fn.#ListExpression
+	Name!:                string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/GeoMatchConstraint": close({

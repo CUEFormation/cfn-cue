@@ -15,7 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 	DataSetId?:    string | fn.#StringExpression
-	Schedule?:     _#defs."/$defs/Properties/definitions/RefreshScheduleMap" | fn.#ObjectExpression
+	Schedule?:     _#defs."/$defs/Properties/definitions/RefreshScheduleMap"
 })
 
 _#defs: "/$defs/Properties/definitions/RefreshScheduleMap": close({

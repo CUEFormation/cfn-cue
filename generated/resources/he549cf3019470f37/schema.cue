@@ -13,8 +13,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::Detective::Graph
 #Properties: close({
-	AutoEnableMembers?: bool | fn.#BooleanExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	AutoEnableMembers?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

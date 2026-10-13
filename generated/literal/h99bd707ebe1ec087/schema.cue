@@ -37,7 +37,7 @@ import (
 
 	// The name of your Security Lake subscriber account.
 	SubscriberName!:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\\\\\w\\s\\-_:/,.@=+]*$"
-	SubscriberRoleArn?: string
+	SubscriberRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// An array of objects, one for each tag to associate with the subscriber. For
 	// each tag, you must specify both a tag key and a tag value. A tag value

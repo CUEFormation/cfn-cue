@@ -1,0 +1,11 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "ImageId": "ami-12345678",
+        "InstanceType": "t3.micro"
+      },
+      "Type": "AWS::EC2::Instance"
+    }
+  }
+}

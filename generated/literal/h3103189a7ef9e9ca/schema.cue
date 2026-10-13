@@ -21,7 +21,8 @@ import (
 	// The IAM role ARN for the Amazon Redshift IAM Identity Center application
 	// instance. It has the required permissions to be assumed and invoke the IDC
 	// Identity Center API.
-	IamRoleArn!: strings.MaxRunes(2147483647) &
+	IamRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2147483647) &
 	strings.MinRunes(0) &
 	=~"^arn:aws[a-zA-Z-]*:[a-zA-Z0-9-]+:[a-z0-9-]*:[0-9]*:.+$"
 

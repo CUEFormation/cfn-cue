@@ -14,7 +14,7 @@ package schema
 #Properties: close({
 	// The allocation ID. This is required.
 	AllocationId?: string
-	EIP?:          string | string
+	EIP?:          string & string
 	Id?:           string
 
 	// The ID of the instance. The instance must have exactly one attached network

@@ -41,7 +41,8 @@ strings.MinRunes(1) &
 
 // The Amazon Resource Name (ARN) of an IAM role that enables Amazon SageMaker
 // to perform tasks on behalf of the customer.
-_#defs: "/$defs/Properties/definitions/ImageRoleArn": strings.MaxRunes(256) &
+_#defs: "/$defs/Properties/definitions/ImageRoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*$"
 

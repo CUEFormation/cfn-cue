@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,11 +24,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	MultiRegionClusterNameSuffix?:  =~"[a-z][a-z0-9\\-]*" | fn.#StringExpression
 	MultiRegionParameterGroupName?: string | fn.#StringExpression
 	NodeType!:                      string | fn.#StringExpression
-	NumShards?:                     int | fn.#NumberExpression
-	TLSEnabled?:                    bool | fn.#BooleanExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	NumShards?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TLSEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	UpdateStrategy?: "COORDINATED" | "UNCOORDINATED" | fn.#StringExpression
 })

@@ -7,6 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,15 +18,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::AppRunner::Service resource specifies an AppRunner Service.
 #Properties: close({
 	AutoScalingConfigurationArn?: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
-	EncryptionConfiguration?:     _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
-	HealthCheckConfiguration?:    _#defs."/$defs/Properties/definitions/HealthCheckConfiguration" | fn.#ObjectExpression
-	InstanceConfiguration?:       _#defs."/$defs/Properties/definitions/InstanceConfiguration" | fn.#ObjectExpression
-	NetworkConfiguration?:        _#defs."/$defs/Properties/definitions/NetworkConfiguration" | fn.#ObjectExpression
-	ObservabilityConfiguration?: _#defs."/$defs/Properties/definitions/ServiceObservabilityConfiguration" |
-		fn.#ObjectExpression
+	EncryptionConfiguration?:     _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	HealthCheckConfiguration?:    _#defs."/$defs/Properties/definitions/HealthCheckConfiguration"
+	InstanceConfiguration?:       _#defs."/$defs/Properties/definitions/InstanceConfiguration"
+	NetworkConfiguration?:        _#defs."/$defs/Properties/definitions/NetworkConfiguration"
+	ObservabilityConfiguration?:  _#defs."/$defs/Properties/definitions/ServiceObservabilityConfiguration"
 	ServiceName?: strings.MaxRunes(40) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9-_]{3,39}" | fn.#StringExpression
-	SourceConfiguration!: _#defs."/$defs/Properties/definitions/SourceConfiguration" | fn.#ObjectExpression
-	Tags?:                [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	SourceConfiguration!: _#defs."/$defs/Properties/definitions/SourceConfiguration"
+	Tags?:                [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
@@ -32,7 +35,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CodeConfiguration": close({
-	CodeConfigurationValues?: _#defs."/$defs/Properties/definitions/CodeConfigurationValues" | fn.#ObjectExpression
+	CodeConfigurationValues?: _#defs."/$defs/Properties/definitions/CodeConfigurationValues"
 	ConfigurationSource!:     "REPOSITORY" | "API" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -54,18 +57,16 @@ _#defs: "/$defs/Properties/definitions/CodeConfigurationValues": close({
 		"NODEJS_18" |
 		"NODEJS_22" |
 		fn.#StringExpression
-	RuntimeEnvironmentSecrets?: [..._#defs."/$defs/Properties/definitions/KeyValuePair" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	RuntimeEnvironmentVariables?: [..._#defs."/$defs/Properties/definitions/KeyValuePair" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	StartCommand?: =~"^[^\\x0a\\x0d]+$" | fn.#StringExpression
+	RuntimeEnvironmentSecrets?:   [..._#defs."/$defs/Properties/definitions/KeyValuePair"] | fn.#ListExpression
+	RuntimeEnvironmentVariables?: [..._#defs."/$defs/Properties/definitions/KeyValuePair"] | fn.#ListExpression
+	StartCommand?:                =~"^[^\\x0a\\x0d]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CodeRepository": close({
-	CodeConfiguration?: _#defs."/$defs/Properties/definitions/CodeConfiguration" | fn.#ObjectExpression
+	CodeConfiguration?: _#defs."/$defs/Properties/definitions/CodeConfiguration"
 	RepositoryUrl!:     strings.MaxRunes(51200) & strings.MinRunes(0) | fn.#StringExpression
-	SourceCodeVersion!: _#defs."/$defs/Properties/definitions/SourceCodeVersion" | fn.#ObjectExpression
+	SourceCodeVersion!: _#defs."/$defs/Properties/definitions/SourceCodeVersion"
 	SourceDirectory?:   strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[^\\x00]+" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -85,27 +86,85 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HealthCheckConfiguration": close({
-	HealthyThreshold?:   int & <=20 & >=1 | fn.#NumberExpression
-	Interval?:           int & <=20 & >=1 | fn.#NumberExpression
-	Path?:               strings.MinRunes(1) | fn.#StringExpression
-	Protocol?:           "TCP" | "HTTP" | fn.#StringExpression
-	Timeout?:            int & <=20 & >=1 | fn.#NumberExpression
-	UnhealthyThreshold?: int & <=20 & >=1 | fn.#NumberExpression
+	HealthyThreshold?: int & <=20 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=20 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Interval?: int & <=20 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=20 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Path?:     strings.MinRunes(1) | fn.#StringExpression
+	Protocol?: "TCP" | "HTTP" | fn.#StringExpression
+	Timeout?: int & <=20 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=20 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UnhealthyThreshold?: int & <=20 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=20 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ImageConfiguration": close({
-	Port?: strings.MaxRunes(51200) & strings.MinRunes(0) | fn.#StringExpression
-	RuntimeEnvironmentSecrets?: [..._#defs."/$defs/Properties/definitions/KeyValuePair" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	RuntimeEnvironmentVariables?: [..._#defs."/$defs/Properties/definitions/KeyValuePair" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	StartCommand?: =~"^[^\\x0a\\x0d]+$" | fn.#StringExpression
+	Port?:                        strings.MaxRunes(51200) & strings.MinRunes(0) | fn.#StringExpression
+	RuntimeEnvironmentSecrets?:   [..._#defs."/$defs/Properties/definitions/KeyValuePair"] | fn.#ListExpression
+	RuntimeEnvironmentVariables?: [..._#defs."/$defs/Properties/definitions/KeyValuePair"] | fn.#ListExpression
+	StartCommand?:                =~"^[^\\x0a\\x0d]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ImageRepository": close({
-	ImageConfiguration?: _#defs."/$defs/Properties/definitions/ImageConfiguration" | fn.#ObjectExpression
+	ImageConfiguration?: _#defs."/$defs/Properties/definitions/ImageConfiguration"
 	ImageIdentifier!: strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
 	=~"([0-9]{12}.dkr.ecr.[a-z\\-]+-[0-9]{1}.amazonaws.com\\/.*)|(^public\\.ecr\\.aws\\/.+\\/.+)" |
@@ -115,7 +174,7 @@ _#defs: "/$defs/Properties/definitions/ImageRepository": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IngressConfiguration": close(
-	{IsPubliclyAccessible!: bool | fn.#BooleanExpression},
+	{IsPubliclyAccessible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
@@ -137,20 +196,21 @@ _#defs: "/$defs/Properties/definitions/KeyValuePair": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
-	EgressConfiguration?:  _#defs."/$defs/Properties/definitions/EgressConfiguration" | fn.#ObjectExpression
-	IngressConfiguration?: _#defs."/$defs/Properties/definitions/IngressConfiguration" | fn.#ObjectExpression
+	EgressConfiguration?:  _#defs."/$defs/Properties/definitions/EgressConfiguration"
+	IngressConfiguration?: _#defs."/$defs/Properties/definitions/IngressConfiguration"
 	IpAddressType?:        "IPV4" | "DUAL_STACK" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(1024) &
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(1024) &
 strings.MinRunes(29) &
 =~"arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::[0-9]{12}:role/[\\w+=,.@-]{1,64}" |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceObservabilityConfiguration": close({
 	ObservabilityConfigurationArn?: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
-	ObservabilityEnabled!:          bool | fn.#BooleanExpression
+	ObservabilityEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -161,11 +221,10 @@ _#defs: "/$defs/Properties/definitions/SourceCodeVersion": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SourceConfiguration": close({
-	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/AuthenticationConfiguration" |
-		fn.#ObjectExpression
-	AutoDeploymentsEnabled?: bool | fn.#BooleanExpression
-	CodeRepository?:         _#defs."/$defs/Properties/definitions/CodeRepository" | fn.#ObjectExpression
-	ImageRepository?:        _#defs."/$defs/Properties/definitions/ImageRepository" | fn.#ObjectExpression
+	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/AuthenticationConfiguration"
+	AutoDeploymentsEnabled?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CodeRepository?:              _#defs."/$defs/Properties/definitions/CodeRepository"
+	ImageRepository?:             _#defs."/$defs/Properties/definitions/ImageRepository"
 }) |
 fn.#ObjectExpression
 

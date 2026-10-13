@@ -7,6 +7,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,21 +21,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EndDate?:               string | fn.#StringExpression
 	InstanceMatchCriteria?: "open" | fn.#StringExpression
 	InstanceTypeSpecifications?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/InstanceTypeSpecification" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/InstanceTypeSpecification"
 	] |
 		fn.#ListExpression
-	NoRemoveEndDate?: bool | fn.#BooleanExpression
-	RemoveEndDate?:   bool | fn.#BooleanExpression
-	TagSpecifications?: [..._#defs."/$defs/Properties/definitions/TagSpecification" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tenancy?:             "default" | fn.#StringExpression
-	TotalTargetCapacity?: int & <=25000 & >=1 | fn.#NumberExpression
+	NoRemoveEndDate?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RemoveEndDate?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	TagSpecifications?: [..._#defs."/$defs/Properties/definitions/TagSpecification"] | fn.#ListExpression
+	Tenancy?:           "default" | fn.#StringExpression
+	TotalTargetCapacity?: int & <=25000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=25000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 
 _#defs: "/$defs/Properties/definitions/InstanceTypeSpecification": close({
 	AvailabilityZone?:   string | fn.#StringExpression
 	AvailabilityZoneId?: string | fn.#StringExpression
-	EbsOptimized?:       bool | fn.#BooleanExpression
+	EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InstancePlatform?: "Linux with SQL Server Enterprise" |
 		"Linux with SQL Server Standard" |
 		"Linux with SQL Server Web" |
@@ -52,8 +70,42 @@ _#defs: "/$defs/Properties/definitions/InstanceTypeSpecification": close({
 		"Windows with SQL Server Web" |
 		fn.#StringExpression
 	InstanceType?: string | fn.#StringExpression
-	Priority?:     int & <=999 & >=0 | fn.#NumberExpression
-	Weight?:       <=99.999 & >=0.001 | fn.#NumberExpression
+	Priority?: int & <=999 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=999 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Weight?: <=99.999 & >=0.001 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=99.999 &
+							>=0.001,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -177,7 +229,7 @@ _#defs: "/$defs/Properties/definitions/TagSpecification": close({
 		"vpn-connection-device-type" |
 		"vpn-gateway" |
 		fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

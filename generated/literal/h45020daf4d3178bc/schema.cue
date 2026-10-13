@@ -44,8 +44,11 @@ import (
 	OutpostId!: =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$"
 
 	// The ID of the security group to use with the endpoint.
-	SecurityGroupId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^sg-([0-9a-f]{8}|[0-9a-f]{17})$"
-	Status?:          "Available" | "Pending" | "Deleting" | "Create_Failed" | "Delete_Failed"
+	SecurityGroupId!: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(100) &
+	strings.MinRunes(1) &
+	=~"^sg-([0-9a-f]{8}|[0-9a-f]{17})$"
+	Status?: "Available" | "Pending" | "Deleting" | "Create_Failed" | "Delete_Failed"
 
 	// The ID of the subnet in the selected VPC. The subnet must belong to the Outpost.
 	SubnetId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^subnet-([0-9a-f]{8}|[0-9a-f]{17})$"

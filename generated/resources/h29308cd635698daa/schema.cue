@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"struct"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
 )
@@ -18,14 +18,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // integration. V1 supports AWS_CONFIG_SLREC, AWS_INTEGRATION, and
 // EXTERNAL_AGENT.
 #Properties: close({
-	Credential?: _#defs."/$defs/Properties/definitions/IntegrationCredential" | fn.#ObjectExpression
+	Credential?: _#defs."/$defs/Properties/definitions/IntegrationCredential"
 	IntegrationAttributes?: struct.MaxFields(50) & close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
 	IntegrationType!: "AWS_CONFIG_SLREC" | "AWS_INTEGRATION" | "EXTERNAL_AGENT" | fn.#StringExpression
 	Name!:            strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	RoleArn?:         strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	fn.#StringExpression
 	Tags?: list.MaxItems(50) & list.UniqueItems() & [...close({
 		Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 		Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression

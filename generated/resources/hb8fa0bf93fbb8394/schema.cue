@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -15,13 +15,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::Textract::Adapter resource creates an Amazon Textract adapter, which
 // can be fine-tuned for enhanced performance on user-provided documents.
 #Properties: close({
-	AdapterName!: _#defs."/$defs/Properties/definitions/AdapterName" | fn.#StringExpression
-	AutoUpdate?:  _#defs."/$defs/Properties/definitions/AutoUpdate" | fn.#StringExpression
-	Description?: _#defs."/$defs/Properties/definitions/AdapterDescription" | fn.#StringExpression
-	FeatureTypes!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/FeatureType" | fn.#StringExpression] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	AdapterName!:  _#defs."/$defs/Properties/definitions/AdapterName"
+	AutoUpdate?:   _#defs."/$defs/Properties/definitions/AutoUpdate"
+	Description?:  _#defs."/$defs/Properties/definitions/AdapterDescription"
+	FeatureTypes!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/FeatureType"] | fn.#ListExpression
+	Tags?:         list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AdapterDescription": strings.MaxRunes(256) &

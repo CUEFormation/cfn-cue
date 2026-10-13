@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,15 +21,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // configurations, enabling server-side ad insertion for a channel.
 #Properties: close({
 	MediaTailorPlaybackConfigurations!: list.MaxItems(3) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MediaTailorPlaybackConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MediaTailorPlaybackConfiguration"
 	] |
 		fn.#ListExpression
 	Name?:                  strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
-	PostRollConfiguration?: _#defs."/$defs/Properties/definitions/PostRollConfiguration" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	PostRollConfiguration?: _#defs."/$defs/Properties/definitions/PostRollConfiguration"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/MediaTailorPlaybackConfiguration": close({
@@ -37,8 +38,23 @@ _#defs: "/$defs/Properties/definitions/MediaTailorPlaybackConfiguration": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PostRollConfiguration": close({
-	DurationSeconds!: int & <=300 & >=1 | fn.#NumberExpression
-	Enabled!:         bool | fn.#BooleanExpression
+	DurationSeconds!: int & <=300 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=300 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 

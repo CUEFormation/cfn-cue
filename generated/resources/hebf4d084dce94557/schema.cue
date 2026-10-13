@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,19 +20,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // configuration that can be used by an Auto Scaling group to configure Amazon
 // EC2 instances.
 #Properties: close({
-	AssociatePublicIpAddress?: bool | fn.#BooleanExpression
-	BlockDeviceMappings?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/BlockDeviceMapping" | fn.#ObjectExpression
-	] |
+	AssociatePublicIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	BlockDeviceMappings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"] |
 		fn.#ListExpression
 	ClassicLinkVPCId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	ClassicLinkVPCSecurityGroups?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
-	EbsOptimized?:            bool | fn.#BooleanExpression
-	IamInstanceProfile?:      strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-	ImageId!:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IamInstanceProfile?: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+	ImageId!: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+	fn.#StringExpression
 	InstanceId?:              strings.MaxRunes(19) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceMonitoring?:      bool | fn.#BooleanExpression
+	InstanceMonitoring?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InstanceType!:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	KernelId?:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	KeyName?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
@@ -36,19 +39,69 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	MetadataOptions?:         _#defs."/$defs/Properties/definitions/MetadataOptions" | fn.#ObjectExpression
 	PlacementTenancy?:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	RamDiskId?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	SecurityGroups?:          ([...] | [...]) & [...string | string | fn.#StringExpression] | fn.#ListExpression
-	SpotPrice?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	UserData?:                strings.MaxRunes(21847) & strings.MinRunes(0) | fn.#StringExpression
+	SecurityGroups?: [...] & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	SpotPrice?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	UserData?:  strings.MaxRunes(21847) & strings.MinRunes(0) | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/BlockDevice": close({
-	DeleteOnTermination?: bool | fn.#BooleanExpression
-	Encrypted?:           bool | fn.#BooleanExpression
-	Iops?:                int & <=20000 & >=100 | fn.#NumberExpression
-	SnapshotId?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Throughput?:          int & <=1000 & >=125 | fn.#NumberExpression
-	VolumeSize?:          int & <=16384 & >=1 | fn.#NumberExpression
-	VolumeType?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Encrypted?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Iops?: int & <=20000 & >=100 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=20000 &
+							>=100,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SnapshotId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Throughput?: int & <=1000 & >=125 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=125,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VolumeSize?: int & <=16384 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=16384 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VolumeType?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -64,15 +117,30 @@ _#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
 }]) & close({
 	DeviceName!:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Ebs?:         _#defs."/$defs/Properties/definitions/BlockDevice" | fn.#ObjectExpression
-	NoDevice?:    bool | fn.#BooleanExpression
+	NoDevice?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VirtualName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetadataOptions": close({
-	HttpEndpoint?:            "disabled" | "enabled" | fn.#StringExpression
-	HttpPutResponseHopLimit?: int & <=64 & >=1 | fn.#NumberExpression
-	HttpTokens?:              "optional" | "required" | fn.#StringExpression
+	HttpEndpoint?: "disabled" | "enabled" | fn.#StringExpression
+	HttpPutResponseHopLimit?: int & <=64 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=64 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	HttpTokens?: "optional" | "required" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

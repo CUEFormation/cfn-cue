@@ -16,8 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	VpcConfig?:   _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
+	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VpcConfig?:   _#defs."/$defs/Properties/definitions/VpcConfig"
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
@@ -28,14 +28,22 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(4096) &
+		strings.MinRunes(1) &
+		=~".*\\S.*" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SubnetIds!: list.MaxItems(8) & list.MinItems(1) & [
 		...strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	VpcId!: strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(4096) &
+	strings.MinRunes(1) &
+	=~".*\\S.*" |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

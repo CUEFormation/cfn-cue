@@ -17,11 +17,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // invoke, allowing the underlying version to be updated without changing how
 // the agent is invoked.
 #Properties: close({
-	Description?:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	EndpointName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
-	HarnessId!:    =~"^[a-zA-Z][a-zA-Z0-9_]{0,39}-[a-zA-Z0-9]{10}$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Description?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	EndpointName!:  =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
+	HarnessId!:     =~"^[a-zA-Z][a-zA-Z0-9_]{0,39}-[a-zA-Z0-9]{10}$" | fn.#StringExpression
+	Tags?:          list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetVersion?: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^([1-9][0-9]{0,4})$" | fn.#StringExpression
 })
 

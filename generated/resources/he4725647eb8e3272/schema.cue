@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,12 +20,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	HomeDirectory?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|/.*)$" | fn.#StringExpression
 	HomeDirectoryMappings?: list.MaxItems(50000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/HomeDirectoryMapEntry" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/HomeDirectoryMapEntry"
 	] |
 		fn.#ListExpression
-	HomeDirectoryType?: _#defs."/$defs/Properties/definitions/HomeDirectoryType" | fn.#StringExpression
+	HomeDirectoryType?: _#defs."/$defs/Properties/definitions/HomeDirectoryType"
 	Policy?:            strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	PosixProfile?:      _#defs."/$defs/Properties/definitions/PosixProfile" | fn.#ObjectExpression
+	PosixProfile?:      _#defs."/$defs/Properties/definitions/PosixProfile"
 	Role!:              strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$" | fn.#StringExpression
 	ServerId!:          strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" | fn.#StringExpression
 	SshPublicKeys?: [
@@ -31,15 +35,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	UserName!: strings.MaxRunes(100) & strings.MinRunes(3) & =~"^[\\w][\\w@.-]{2,99}$" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/HomeDirectoryMapEntry": close({
 	Entry!:  strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^/.*$" | fn.#StringExpression
 	Target!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^/.*$" | fn.#StringExpression
-	Type?:   _#defs."/$defs/Properties/definitions/MapType" | fn.#StringExpression
+	Type?:   _#defs."/$defs/Properties/definitions/MapType"
 }) |
 fn.#ObjectExpression
 
@@ -48,9 +51,69 @@ _#defs: "/$defs/Properties/definitions/HomeDirectoryType": "PATH" | "LOGICAL" | 
 _#defs: "/$defs/Properties/definitions/MapType": "FILE" | "DIRECTORY" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PosixProfile": close({
-	Gid!:           <=4294967295 & >=0 | fn.#NumberExpression
-	SecondaryGids?: list.MaxItems(16) & [...] & [...<=4294967295 & >=0 | fn.#NumberExpression] | fn.#ListExpression
-	Uid!:           <=4294967295 & >=0 | fn.#NumberExpression
+	Gid!: <=4294967295 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=4294967295 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SecondaryGids?: list.MaxItems(16) & [...] & [
+		...<=4294967295 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=4294967295 &
+								>=0,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	Uid!: <=4294967295 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=4294967295 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

@@ -15,8 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // hosts Access Grants and their associated locations
 #Properties: close({
 	IdentityCenterArn?: _#defs."/$defs/Properties/definitions/IdentityCenterArn" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccessGrantsInstanceArn": string | fn.#StringExpression

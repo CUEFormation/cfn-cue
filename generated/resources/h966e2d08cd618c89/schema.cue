@@ -4,22 +4,39 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAFRegional::RateBasedRule
 #Properties: close({
-	MatchPredicates?: [..._#defs."/$defs/Properties/definitions/Predicate" | fn.#ObjectExpression] | fn.#ListExpression
+	MatchPredicates?: [..._#defs."/$defs/Properties/definitions/Predicate"] | fn.#ListExpression
 	MetricName!:      string | fn.#StringExpression
 	Name!:            string | fn.#StringExpression
 	RateKey!:         string | fn.#StringExpression
-	RateLimit!:       int | fn.#NumberExpression
+	RateLimit!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Predicate": close({
 	DataId!:  string | fn.#StringExpression
-	Negated!: bool | fn.#BooleanExpression
+	Negated!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Type!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

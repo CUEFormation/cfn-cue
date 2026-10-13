@@ -28,8 +28,11 @@ import "strings"
 
 	// Metadata that you can assign to help organize the frameworks that you create.
 	// Each tag is a key-value pair.
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"]
-	VpcId!:     strings.MaxRunes(21) & strings.MinRunes(12) & =~"^vpc-[-a-f0-9]{8}([-a-f0-9]{9})?$"
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(21) &
+	strings.MinRunes(12) &
+	=~"^vpc-[-a-f0-9]{8}([-a-f0-9]{9})?$"
 	VpcLinkId?: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[a-z0-9]{10}$"
 })
 

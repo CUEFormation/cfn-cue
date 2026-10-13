@@ -15,11 +15,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Schema describing various properties for AWS Proton Environment
 // Account Connections resources.
 #Properties: close({
-	CodebuildRoleArn?: strings.MaxRunes(200) &
+	CodebuildRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(200) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws|aws-cn|aws-us-gov):iam::\\d{12}:role/([\\w+=,.@-]{1,512}[/:])*([\\w+=,.@-]{1,64})$" |
 	fn.#StringExpression
-	ComponentRoleArn?: strings.MaxRunes(200) &
+	ComponentRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(200) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws|aws-cn|aws-us-gov):iam::\\d{12}:role/([\\w+=,.@-]{1,512}[/:])*([\\w+=,.@-]{1,64})$" |
 	fn.#StringExpression
@@ -27,13 +29,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EnvironmentName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+[0-9A-Za-z_\\-]*$" |
 	fn.#StringExpression
 	ManagementAccountId?: =~"^\\d{12}$" | fn.#StringExpression
-	RoleArn?: strings.MaxRunes(200) &
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(200) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws|aws-cn|aws-us-gov):iam::\\d{12}:role/([\\w+=,.@-]{1,512}[/:])*([\\w+=,.@-]{1,64})$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

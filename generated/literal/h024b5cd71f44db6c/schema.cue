@@ -32,7 +32,7 @@ import (
 	FilterPattern?:       strings.MaxRunes(1024) & strings.MinRunes(0) & =~""
 
 	// The Amazon Resource Name (ARN) of the CMK to use when encrypting log data.
-	KmsKeyId?: (string | string | string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
 	strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^arn:aws[a-z\\-]*:kms:[-a-z0-9]*:[0-9]*:key/[-a-z0-9]*$"

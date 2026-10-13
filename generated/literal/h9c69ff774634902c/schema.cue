@@ -47,13 +47,13 @@ import (
 _#defs: "/$defs/Properties/definitions/ComputeConfig": close({
 	AvailabilityZone?:           string
 	DnsNameServers?:             string
-	KmsKeyId?:                   string | string | string
+	KmsKeyId?:                   =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 	MaxCapacityUnits!:           int
 	MinCapacityUnits?:           int
 	MultiAZ?:                    bool
 	PreferredMaintenanceWindow?: string
 	ReplicationSubnetGroupId?:   string
-	VpcSecurityGroupIds?:        [...string]
+	VpcSecurityGroupIds?:        [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 })
 
 // <p>The key or keys of the key-value pairs for the resource tag or tags assigned to the

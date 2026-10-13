@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Fleet?:             strings.MaxRunes(1224) & strings.MinRunes(1) | fn.#StringExpression
 	GreengrassGroupId!: strings.MaxRunes(1224) & strings.MinRunes(1) | fn.#StringExpression
 	Name?:              strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:              _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	Tags?:              _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" |

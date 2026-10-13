@@ -9,35 +9,73 @@ import (
 	"time"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a budget to set spending thresholds for your rendering activity.
 #Properties: close({
-	Actions!: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/BudgetActionToAdd" | fn.#ObjectExpression
-	] |
+	Actions!: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/BudgetActionToAdd"] |
 		fn.#ListExpression
-	ApproximateDollarLimit!: >=0.01 | fn.#NumberExpression
-	Description?:            strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	DisplayName!:            strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	FarmId!:                 =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
-	Schedule!:               _#defs."/$defs/Properties/definitions/BudgetSchedule" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	UsageTrackingResource!: _#defs."/$defs/Properties/definitions/UsageTrackingResource" | fn.#ObjectExpression
+	ApproximateDollarLimit!: >=0.01 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0.01,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Description?:           strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+	DisplayName!:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	FarmId!:                =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
+	Schedule!:              _#defs."/$defs/Properties/definitions/BudgetSchedule"
+	Tags?:                  list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UsageTrackingResource!: _#defs."/$defs/Properties/definitions/UsageTrackingResource"
 })
 
 _#defs: "/$defs/Properties/definitions/BudgetActionToAdd": close({
-	Description?:         strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	ThresholdPercentage!: <=100 & >=0 | fn.#NumberExpression
+	Description?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+	ThresholdPercentage!: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Type!: "STOP_SCHEDULING_AND_COMPLETE_TASKS" | "STOP_SCHEDULING_AND_CANCEL_TASKS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BudgetSchedule": close(
-	{Fixed!: _#defs."/$defs/Properties/definitions/FixedBudgetSchedule" | fn.#ObjectExpression},
+	{Fixed!: _#defs."/$defs/Properties/definitions/FixedBudgetSchedule"},
 ) |
 	fn.#ObjectExpression
 

@@ -19,14 +19,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]{1,256}$" | fn.#StringExpression
-	Permit!:         _#defs."/$defs/Properties/definitions/Permit" | fn.#ObjectExpression
-	SigningKeyInfo!: _#defs."/$defs/Properties/definitions/SigningKeyInfo" | fn.#ObjectExpression
+	Permit!:         _#defs."/$defs/Properties/definitions/Permit"
+	SigningKeyInfo!: _#defs."/$defs/Properties/definitions/SigningKeyInfo"
 	SupportCaseDisplayId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/-]{1,512}$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ActionSet": close({
@@ -45,10 +42,9 @@ _#defs: "/$defs/Properties/definitions/Condition": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Permit": close({
-	Actions!: _#defs."/$defs/Properties/definitions/ActionSet" | fn.#ObjectExpression
-	Conditions?: list.MaxItems(2) & [..._#defs."/$defs/Properties/definitions/Condition" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Resources!: _#defs."/$defs/Properties/definitions/ResourceSet" | fn.#ObjectExpression
+	Actions!:    _#defs."/$defs/Properties/definitions/ActionSet"
+	Conditions?: list.MaxItems(2) & [..._#defs."/$defs/Properties/definitions/Condition"] | fn.#ListExpression
+	Resources!:  _#defs."/$defs/Properties/definitions/ResourceSet"
 }) |
 fn.#ObjectExpression
 

@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -23,29 +27,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // process](https://docs.aws.amazon.com/general/latest/gr/sigv4-signed-request-examples.html)
 // in the *General Reference*.
 #Properties: close({
-	ArchivePolicy?:             string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	ContentBasedDeduplication?: bool | fn.#BooleanExpression
-	DataProtectionPolicy?:      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	DeliveryStatusLogging?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/LoggingConfig" | fn.#ObjectExpression
-	] |
+	ArchivePolicy?:             fn.#Object & {...} | string | fn.#StringObjectExpression
+	ContentBasedDeduplication?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DataProtectionPolicy?:      fn.#Object & {...} | string | fn.#StringObjectExpression
+	DeliveryStatusLogging?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LoggingConfig"] |
 		fn.#ListExpression
 	DisplayName?:         string | fn.#StringExpression
 	FifoThroughputScope?: string | fn.#StringExpression
-	FifoTopic?:           bool | fn.#BooleanExpression
-	KmsMasterKeyId?:      string | string | string | fn.#StringExpression
-	MaximumMessageSize?:  int & <=1048576 & >=1024 | fn.#NumberExpression
-	SignatureVersion?:    string | fn.#StringExpression
-	Subscription?:  [..._#defs."/$defs/Properties/definitions/Subscription" | fn.#ObjectExpression] | fn.#ListExpression
-	Tags?:          [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	TopicName?:     strings.MaxRunes(256) | fn.#StringExpression
-	TracingConfig?: string | fn.#StringExpression
+	FifoTopic?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KmsMasterKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	MaximumMessageSize?: int & <=1048576 & >=1024 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1048576 &
+							>=1024,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SignatureVersion?: string | fn.#StringExpression
+	Subscription?:     [..._#defs."/$defs/Properties/definitions/Subscription"] | fn.#ListExpression
+	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TopicName?:        strings.MaxRunes(256) | fn.#StringExpression
+	TracingConfig?:    string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/LoggingConfig": close({
-	FailureFeedbackRoleArn?:    string | fn.#StringExpression
-	Protocol!:                  "http/s" | "sqs" | "lambda" | "firehose" | "application" | fn.#StringExpression
-	SuccessFeedbackRoleArn?:    string | fn.#StringExpression
+	FailureFeedbackRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Protocol!: "http/s" | "sqs" | "lambda" | "firehose" | "application" | fn.#StringExpression
+	SuccessFeedbackRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	SuccessFeedbackSampleRate?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

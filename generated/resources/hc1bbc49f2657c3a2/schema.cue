@@ -19,14 +19,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:                           strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 	Engine!:        strings.MaxRunes(35) & strings.MinRunes(1) & =~"^[A-Za-z0-9-]{1,35}$" | fn.#StringExpression
 	EngineVersion!: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-z0-9_.-]{1,60}$" | fn.#StringExpression
-	ImageId?:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	KMSKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_:\\-\\/]+$" |
+	ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+	fn.#StringExpression
+	KMSKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9_:\\-\\/]+$" |
 	fn.#StringExpression
 	Manifest?: strings.MaxRunes(51000) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	SourceCustomDbEngineVersionIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Status?: "available" | "inactive" | "inactive-except-restore" | "pending-validation" | fn.#StringExpression
-	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	UseAwsProvidedLatestImage?: bool | fn.#BooleanExpression
+	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UseAwsProvidedLatestImage?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

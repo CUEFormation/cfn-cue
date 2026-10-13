@@ -16,7 +16,7 @@ import (
 	CreationTime?:             number
 	Description?:              strings.MaxRunes(1024) & strings.MinRunes(0)
 	DestinationConfiguration?: _#defs."/$defs/Properties/definitions/DestinationConfiguration"
-	ExecutionRoleArn!:         strings.MinRunes(1)
+	ExecutionRoleArn!:         =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1)
 	LastExecutionStatus?:      "Pending" | "InvalidQuery" | "Complete" | "Failed" | "Timeout"
 	LastTriggeredTime?:        number
 	LastUpdatedTime?:          number
@@ -47,7 +47,7 @@ _#defs: "/$defs/Properties/definitions/S3Configuration": close({
 	DestinationIdentifier!: strings.MaxRunes(1024) &
 	strings.MinRunes(0) &
 	=~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?"
-	RoleArn!: strings.MinRunes(1)
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1)
 })
 
 _#defs: "/$defs/Properties/definitions/ScheduledQueryState": "ENABLED" | "DISABLED"

@@ -52,12 +52,14 @@ strings.MinRunes(1) &
 =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
 // KMS key used to encrypt the Dataset data
-_#defs: "/$defs/Properties/definitions/KmsKeyArn": strings.MaxRunes(256) &
+_#defs: "/$defs/Properties/definitions/KmsKeyArn": =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"arn:aws[-a-z]*:kms:.*:key/.*"
 
 // The ARN of the IAM role that Amazon Forecast can assume to access the AWS KMS key.
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(256) &
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$"
 

@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,18 +20,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	BundleId!:              string | fn.#StringExpression
 	CacheBehaviorSettings?: _#defs."/$defs/Properties/definitions/CacheSettings" | fn.#ObjectExpression
-	CacheBehaviors?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/CacheBehaviorPerPath" | fn.#ObjectExpression
-	] |
+	CacheBehaviors?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CacheBehaviorPerPath"] |
 		fn.#ListExpression
 	CertificateName?:      =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
 	DefaultCacheBehavior!: _#defs."/$defs/Properties/definitions/CacheBehavior" | fn.#ObjectExpression
 	DistributionName!:     =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
 	IpAddressType?:        "dualstack" | "ipv4" | "ipv6" | fn.#StringExpression
-	IsEnabled?:            bool | fn.#BooleanExpression
+	IsEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Origin!:               _#defs."/$defs/Properties/definitions/InputOrigin" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:                 list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CacheBehavior": close({Behavior?: "cache" | "dont-cache" | fn.#StringExpression}) |
@@ -40,14 +41,53 @@ _#defs: "/$defs/Properties/definitions/CacheBehaviorPerPath": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CacheSettings": close({
-	AllowedHTTPMethods?:    =~"\\S" | fn.#StringExpression
-	CachedHTTPMethods?:     =~"\\S" | fn.#StringExpression
-	DefaultTTL?:            int | fn.#NumberExpression
+	AllowedHTTPMethods?: =~"\\S" | fn.#StringExpression
+	CachedHTTPMethods?:  =~"\\S" | fn.#StringExpression
+	DefaultTTL?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ForwardedCookies?:      _#defs."/$defs/Properties/definitions/CookieObject" | fn.#ObjectExpression
 	ForwardedHeaders?:      _#defs."/$defs/Properties/definitions/HeaderObject" | fn.#ObjectExpression
 	ForwardedQueryStrings?: _#defs."/$defs/Properties/definitions/QueryStringObject" | fn.#ObjectExpression
-	MaximumTTL?:            int | fn.#NumberExpression
-	MinimumTTL?:            int | fn.#NumberExpression
+	MaximumTTL?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinimumTTL?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -91,7 +131,7 @@ _#defs: "/$defs/Properties/definitions/InputOrigin": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/QueryStringObject": close({
-	Option?:                bool | fn.#BooleanExpression
+	Option?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	QueryStringsAllowList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression

@@ -15,29 +15,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Config::ConfigurationAggregator
 #Properties: close({
 	AccountAggregationSources?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/AccountAggregationSource" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/AccountAggregationSource"
 	] |
 		fn.#ListExpression
-	ConfigurationAggregatorName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\w\\-]+" | fn.#StringExpression
-	OrganizationAggregationSource?: _#defs."/$defs/Properties/definitions/OrganizationAggregationSource" |
-		fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	ConfigurationAggregatorName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\w\\-]+" | fn.#StringExpression
+	OrganizationAggregationSource?: _#defs."/$defs/Properties/definitions/OrganizationAggregationSource"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccountAggregationSource": close({
 	AccountIds!:    list.MinItems(1) & [...=~"^\\d{12}$" | fn.#StringExpression] | fn.#ListExpression
-	AllAwsRegions?: bool | fn.#BooleanExpression
+	AllAwsRegions?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AwsRegions?:    list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OrganizationAggregationSource": close({
-	AllAwsRegions?: bool | fn.#BooleanExpression
+	AllAwsRegions?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AwsRegions?:    list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	RoleArn!:       string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

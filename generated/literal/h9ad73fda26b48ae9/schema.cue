@@ -31,7 +31,8 @@ import (
 	InstanceProfileName?: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// The property describes kms key arn for the instance profile.
-	KmsKeyArn?: strings.MaxRunes(255) & strings.MinRunes(1)
+	KmsKeyArn?:
+		=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1))
 
 	// The property describes a network type for the instance profile.
 	NetworkType?: "IPV4" | "DUAL"

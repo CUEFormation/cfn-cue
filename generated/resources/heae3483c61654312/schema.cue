@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,8 +21,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DomainId!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^d-(-*[a-z0-9]){1,61}$" | fn.#StringExpression
 	SingleSignOnUserIdentifier?: =~"UserName" | fn.#StringExpression
 	SingleSignOnUserValue?:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	UserProfileName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 	fn.#StringExpression
 	UserSettings?: _#defs."/$defs/Properties/definitions/UserSettings" &
@@ -206,7 +209,7 @@ _#defs: "/$defs/Properties/definitions/AppInstanceType": "system" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AppLifecycleManagement": close(
-	{IdleSettings?: _#defs."/$defs/Properties/definitions/IdleSettings" | fn.#ObjectExpression},
+	{IdleSettings?: _#defs."/$defs/Properties/definitions/IdleSettings"},
 ) |
 	fn.#ObjectExpression
 
@@ -224,13 +227,11 @@ _#defs: "/$defs/Properties/definitions/CodeEditorAppSettings": close({
 	strings.MinRunes(0) &
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" |
 	fn.#StringExpression
-	CustomImages?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomImage" | fn.#ObjectExpression
-	] |
+	CustomImages?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/CustomImage"] |
 		fn.#ListExpression
 	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec" | fn.#ObjectExpression
 	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
 	] |
 		fn.#ListExpression
 }) |
@@ -242,22 +243,66 @@ _#defs: "/$defs/Properties/definitions/CodeRepository": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomFileSystemConfig": close({
-	EFSFileSystemConfig?:       _#defs."/$defs/Properties/definitions/EFSFileSystemConfig" | fn.#ObjectExpression
-	FSxLustreFileSystemConfig?: _#defs."/$defs/Properties/definitions/FSxLustreFileSystemConfig" | fn.#ObjectExpression
-	S3FileSystemConfig?:        _#defs."/$defs/Properties/definitions/S3FileSystemConfig" | fn.#ObjectExpression
+	EFSFileSystemConfig?:       _#defs."/$defs/Properties/definitions/EFSFileSystemConfig"
+	FSxLustreFileSystemConfig?: _#defs."/$defs/Properties/definitions/FSxLustreFileSystemConfig"
+	S3FileSystemConfig?:        _#defs."/$defs/Properties/definitions/S3FileSystemConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomImage": close({
 	AppImageConfigName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" | fn.#StringExpression
 	ImageName!:          strings.MaxRunes(63) & =~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
-	ImageVersionNumber?: int & >=0 | fn.#NumberExpression
+	ImageVersionNumber?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomPosixUserConfig": close({
-	Gid!: int & <=4000000 & >=1001 | fn.#NumberExpression
-	Uid!: int & <=4000000 & >=10000 | fn.#NumberExpression
+	Gid!: int & <=4000000 & >=1001 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=4000000 &
+							>=1001,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Uid!: int & <=4000000 & >=10000 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=4000000 &
+							>=10000,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -267,9 +312,9 @@ _#defs: "/$defs/Properties/definitions/DefaultEbsStorageSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultSpaceStorageSettings": close({
-	DefaultEbsStorageSettings?: _#defs."/$defs/Properties/definitions/DefaultEbsStorageSettings" | fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/DefaultSpaceStorageSettings": close(
+	{DefaultEbsStorageSettings?: _#defs."/$defs/Properties/definitions/DefaultEbsStorageSettings"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EFSFileSystemConfig": close({
@@ -312,54 +357,63 @@ _#defs: "/$defs/Properties/definitions/HiddenSageMakerImage": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IdleSettings": close({
-	IdleTimeoutInMinutes?:    _#defs."/$defs/Properties/definitions/IdleTimeoutInMinutes" | fn.#NumberExpression
-	LifecycleManagement?:     _#defs."/$defs/Properties/definitions/LifecycleManagement" | fn.#StringExpression
-	MaxIdleTimeoutInMinutes?: _#defs."/$defs/Properties/definitions/MaxIdleTimeoutInMinutes" | fn.#NumberExpression
-	MinIdleTimeoutInMinutes?: _#defs."/$defs/Properties/definitions/MinIdleTimeoutInMinutes" | fn.#NumberExpression
+	IdleTimeoutInMinutes?:    _#defs."/$defs/Properties/definitions/IdleTimeoutInMinutes"
+	LifecycleManagement?:     _#defs."/$defs/Properties/definitions/LifecycleManagement"
+	MaxIdleTimeoutInMinutes?: _#defs."/$defs/Properties/definitions/MaxIdleTimeoutInMinutes"
+	MinIdleTimeoutInMinutes?: _#defs."/$defs/Properties/definitions/MinIdleTimeoutInMinutes"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdleTimeoutInMinutes": int & <=525600 & >=60 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/IdleTimeoutInMinutes": int & <=525600 & >=60 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=525600 &
+						>=60,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/JupyterLabAppSettings": close({
 	BuiltInLifecycleConfigArn?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" |
 	fn.#StringExpression
-	CodeRepositories?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CodeRepository" | fn.#ObjectExpression
-	] |
+	CodeRepositories?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/CodeRepository"] |
 		fn.#ListExpression
-	CustomImages?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomImage" | fn.#ObjectExpression
-	] |
+	CustomImages?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/CustomImage"] |
 		fn.#ListExpression
 	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec" | fn.#ObjectExpression
 	EmrSettings?:         _#defs."/$defs/Properties/definitions/EmrSettings" | fn.#ObjectExpression
 	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
 	] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/JupyterServerAppSettings": close({
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec" | fn.#ObjectExpression
+	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"
 	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
 	] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KernelGatewayAppSettings": close({
-	CustomImages?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomImage" | fn.#ObjectExpression
-	] |
+	CustomImages?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/CustomImage"] |
 		fn.#ListExpression
 	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec" | fn.#ObjectExpression
 	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
 	] |
 		fn.#ListExpression
 }) |
@@ -367,9 +421,39 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LifecycleManagement": "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MaxIdleTimeoutInMinutes": int & <=525600 & >=60 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/MaxIdleTimeoutInMinutes": int & <=525600 & >=60 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=525600 &
+						>=60,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MinIdleTimeoutInMinutes": int & <=525600 & >=60 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/MinIdleTimeoutInMinutes": int & <=525600 & >=60 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=525600 &
+						>=60,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/MlTools": "DataWrangler" |
 	"FeatureStore" |
@@ -400,7 +484,7 @@ _#defs: "/$defs/Properties/definitions/RStudioServerProAppSettings": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceSpec": close({
-	InstanceType?: _#defs."/$defs/Properties/definitions/AppInstanceType" | fn.#StringExpression
+	InstanceType?: _#defs."/$defs/Properties/definitions/AppInstanceType"
 	LifecycleConfigArn?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" |
@@ -434,7 +518,22 @@ _#defs: "/$defs/Properties/definitions/SharingSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpaceEbsVolumeSizeInGb": int & <=16384 & >=5 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/SpaceEbsVolumeSizeInGb": int & <=16384 & >=5 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=16384 &
+						>=5,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/StudioLifecycleConfigArn": strings.MaxRunes(256) &
 strings.MinRunes(0) &
@@ -442,20 +541,14 @@ strings.MinRunes(0) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/StudioWebPortalSettings": close({
-	HiddenAppTypes?: list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/AppType" | fn.#StringExpression
-	] |
+	HiddenAppTypes?: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/AppType"] |
 		fn.#ListExpression
-	HiddenInstanceTypes?: list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/AppInstanceType" | fn.#StringExpression
-	] |
+	HiddenInstanceTypes?: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/AppInstanceType"] |
 		fn.#ListExpression
-	HiddenMlTools?: list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/MlTools" | fn.#StringExpression
-	] |
+	HiddenMlTools?: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/MlTools"] |
 		fn.#ListExpression
 	HiddenSageMakerImageVersionAliases?: list.MaxItems(5) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/HiddenSageMakerImage" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/HiddenSageMakerImage"
 	] |
 		fn.#ListExpression
 }) |
@@ -469,30 +562,33 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UserSettings": close({
 	AutoMountHomeEFS?:      "Enabled" | "Disabled" | "DefaultAsDomain" | fn.#StringExpression
-	CodeEditorAppSettings?: _#defs."/$defs/Properties/definitions/CodeEditorAppSettings" | fn.#ObjectExpression
+	CodeEditorAppSettings?: _#defs."/$defs/Properties/definitions/CodeEditorAppSettings"
 	CustomFileSystemConfigs?: list.MaxItems(10) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomFileSystemConfig" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/CustomFileSystemConfig"
 	] |
 		fn.#ListExpression
-	CustomPosixUserConfig?: _#defs."/$defs/Properties/definitions/CustomPosixUserConfig" | fn.#ObjectExpression
+	CustomPosixUserConfig?: _#defs."/$defs/Properties/definitions/CustomPosixUserConfig"
 	DefaultLandingUri?:     strings.MaxRunes(1023) & strings.MinRunes(0) | fn.#StringExpression
 	ExecutionRole?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
-	JupyterLabAppSettings?:    _#defs."/$defs/Properties/definitions/JupyterLabAppSettings" | fn.#ObjectExpression
-	JupyterServerAppSettings?: _#defs."/$defs/Properties/definitions/JupyterServerAppSettings" | fn.#ObjectExpression
-	KernelGatewayAppSettings?: _#defs."/$defs/Properties/definitions/KernelGatewayAppSettings" | fn.#ObjectExpression
-	RStudioServerProAppSettings?: _#defs."/$defs/Properties/definitions/RStudioServerProAppSettings" |
-		fn.#ObjectExpression
+	JupyterLabAppSettings?:       _#defs."/$defs/Properties/definitions/JupyterLabAppSettings"
+	JupyterServerAppSettings?:    _#defs."/$defs/Properties/definitions/JupyterServerAppSettings" | fn.#ObjectExpression
+	KernelGatewayAppSettings?:    _#defs."/$defs/Properties/definitions/KernelGatewayAppSettings" | fn.#ObjectExpression
+	RStudioServerProAppSettings?: _#defs."/$defs/Properties/definitions/RStudioServerProAppSettings"
 	SecurityGroups?: list.MaxItems(5) & [...] & [
-		...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SharingSettings?:         _#defs."/$defs/Properties/definitions/SharingSettings" | fn.#ObjectExpression
-	SpaceStorageSettings?:    _#defs."/$defs/Properties/definitions/DefaultSpaceStorageSettings" | fn.#ObjectExpression
+	SpaceStorageSettings?:    _#defs."/$defs/Properties/definitions/DefaultSpaceStorageSettings"
 	StudioWebPortal?:         "ENABLED" | "DISABLED" | fn.#StringExpression
-	StudioWebPortalSettings?: _#defs."/$defs/Properties/definitions/StudioWebPortalSettings" | fn.#ObjectExpression
+	StudioWebPortalSettings?: _#defs."/$defs/Properties/definitions/StudioWebPortalSettings"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

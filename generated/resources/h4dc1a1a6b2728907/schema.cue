@@ -27,9 +27,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DBClusterParameterGroupName?: strings.MinRunes(1) & =~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9])*$" | fn.#StringExpression
 	Description!:                 string | fn.#StringExpression
 	Family!:                      string | fn.#StringExpression
-	Parameters!:                  string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Parameters!:                  fn.#Object & {...} | string | fn.#StringObjectExpression
+	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

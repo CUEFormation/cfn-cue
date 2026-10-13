@@ -25,7 +25,7 @@ import (
 
 	// Identifier of the KMS key used to encrypt data. Can be a key ID, key ARN,
 	// alias name, or alias ARN. If not specified, an AWS managed key is used.
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 	// Name of the agent space
 	Name!: string

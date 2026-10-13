@@ -25,7 +25,8 @@ import (
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N}\\p{P}\\p{S}\\p{Z}]+$"
 
 	// The ARN of the KMS key to use for encryption.
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
 
@@ -46,7 +47,7 @@ import (
 
 _#defs: "/$defs/Properties/definitions/IamAuthConfiguration": close({
 	CreatedAt?:          time.Time
-	OperatorAppRoleArn!: string
+	OperatorAppRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	UpdatedAt?:          time.Time
 })
 
@@ -54,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/IdcAuthConfiguration": close({
 	CreatedAt?:          time.Time
 	IdcApplicationArn?:  string
 	IdcInstanceArn!:     string
-	OperatorAppRoleArn!: string
+	OperatorAppRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	UpdatedAt?:          time.Time
 })
 
@@ -73,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/IdpAuthConfiguration": close({
 	IssuerUrl!: =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$"
 
 	// The IAM role that Operator App users assume to access DevOps Agent APIs.
-	OperatorAppRoleArn!: string
+	OperatorAppRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The external identity provider type.
 	Provider!:  "okta" | "entra"

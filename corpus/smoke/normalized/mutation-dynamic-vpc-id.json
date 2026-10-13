@@ -1,0 +1,11 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/24",
+        "VpcId": "{{resolve:ssm:VpcId:1}}"
+      },
+      "Type": "AWS::EC2::Subnet"
+    }
+  }
+}

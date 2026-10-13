@@ -15,7 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

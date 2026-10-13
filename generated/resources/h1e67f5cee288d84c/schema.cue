@@ -7,20 +7,39 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // VPC Route Server Peer
 #Properties: close({
-	BgpOptions!:            _#defs."/$defs/Properties/definitions/BgpOptions" | fn.#ObjectExpression
+	BgpOptions!:            _#defs."/$defs/Properties/definitions/BgpOptions"
 	PeerAddress!:           string | fn.#StringExpression
 	RouteServerEndpointId!: string | fn.#StringExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/BgpOptions": close({
-	PeerAsn?:               int & <=4294967294 & >=1 | fn.#NumberExpression
+	PeerAsn?: int & <=4294967294 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=4294967294 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	PeerLivenessDetection?: "bfd" | "bgp-keepalive" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

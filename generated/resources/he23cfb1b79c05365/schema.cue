@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -37,41 +41,95 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // attribute](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html).
 // If you set a deletion policy that creates a snapshot, all tags on the volume
 // are included in the snapshot.
-#Properties: ({
+#Properties: matchN(>=1, [{
 	AvailabilityZone!: _
 	Size!:             _
 	...
-} | {
+}, {
 	AvailabilityZone!: _
 	SnapshotId!:       _
 	...
-} | {
+}, {
 	AvailabilityZoneId!: _
 	Size!:               _
 	...
-} | {
+}, {
 	AvailabilityZoneId!: _
 	SnapshotId!:         _
 	...
-} | {
+}, {
 	SourceVolumeId!: _
 	...
-}) & close({
-	AutoEnableIO?:       bool | fn.#BooleanExpression
+}]) & close({
+	AutoEnableIO?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AvailabilityZone?:   string | fn.#StringExpression
 	AvailabilityZoneId?: string | fn.#StringExpression
-	Encrypted?:          bool | fn.#BooleanExpression
-	Iops?:               int | fn.#NumberExpression
-	KmsKeyId?:           string | string | string | fn.#StringExpression
-	MultiAttachEnabled?: bool | fn.#BooleanExpression
+	Encrypted?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Iops?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	MultiAttachEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	OutpostArn?:         string | fn.#StringExpression
-	Size?:               int | fn.#NumberExpression
-	SnapshotId?:         string | fn.#StringExpression
-	SourceVolumeId?:     string | fn.#StringExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	Throughput?:         int | fn.#NumberExpression
-	VolumeInitializationRate?: int | fn.#NumberExpression
-	VolumeType?:               =~"(?i)^(?:gp2|gp3|io1|io2|sc1|st1|standard)$" | fn.#StringExpression
+	Size?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SnapshotId?:     string | fn.#StringExpression
+	SourceVolumeId?: string | fn.#StringExpression
+	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Throughput?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VolumeInitializationRate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VolumeType?: =~"(?i)^(?:gp2|gp3|io1|io2|sc1|st1|standard)$" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

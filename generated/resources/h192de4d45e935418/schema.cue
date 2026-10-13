@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Lambda::Url
 #Properties: close({
 	AuthType!:          "AWS_IAM" | "NONE" | fn.#StringExpression
-	Cors?:              _#defs."/$defs/Properties/definitions/Cors" | fn.#ObjectExpression
+	Cors?:              _#defs."/$defs/Properties/definitions/Cors"
 	InvokeMode?:        "BUFFERED" | "RESPONSE_STREAM" | fn.#StringExpression
 	Qualifier?:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	TargetFunctionArn!: string | fn.#StringExpression
@@ -38,12 +42,27 @@ _#defs: "/$defs/Properties/definitions/AllowOrigins": list.MaxItems(100) & list.
 fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/Cors": close({
-	AllowCredentials?: bool | fn.#BooleanExpression
+	AllowCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AllowHeaders?:     _#defs."/$defs/Properties/definitions/AllowHeaders" | fn.#ListExpression
 	AllowMethods?:     _#defs."/$defs/Properties/definitions/AllowMethods" | fn.#ListExpression
 	AllowOrigins?:     _#defs."/$defs/Properties/definitions/AllowOrigins" | fn.#ListExpression
 	ExposeHeaders?:    _#defs."/$defs/Properties/definitions/ExposeHeaders" | fn.#ListExpression
-	MaxAge?:           int & <=86400 & >=0 | fn.#NumberExpression
+	MaxAge?: int & <=86400 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=86400 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

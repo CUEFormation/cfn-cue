@@ -10,10 +10,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::MediaLive::Network.
 #Properties: close({
-	IpPools!: [..._#defs."/$defs/Properties/definitions/IpPool" | fn.#ObjectExpression] | fn.#ListExpression
+	IpPools!: [..._#defs."/$defs/Properties/definitions/IpPool"] | fn.#ListExpression
 	Name!:    string | fn.#StringExpression
-	Routes?:  [..._#defs."/$defs/Properties/definitions/Route" | fn.#ObjectExpression] | fn.#ListExpression
-	Tags?:    [..._#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression] | fn.#ListExpression
+	Routes?:  [..._#defs."/$defs/Properties/definitions/Route"] | fn.#ListExpression
+	Tags?:    [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/IpPool": close({Cidr?: string | fn.#StringExpression}) | fn.#ObjectExpression

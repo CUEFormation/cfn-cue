@@ -7,33 +7,37 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS Ground Station config resource type for CloudFormation.
 #Properties: close({
-	ConfigData!: _#defs."/$defs/Properties/definitions/ConfigData" | fn.#ObjectExpression
+	ConfigData!: _#defs."/$defs/Properties/definitions/ConfigData"
 	Name!:       =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
-	Tags?:       [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:       [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AntennaDownlinkConfig": close(
-	{SpectrumConfig?: _#defs."/$defs/Properties/definitions/SpectrumConfig" | fn.#ObjectExpression},
+	{SpectrumConfig?: _#defs."/$defs/Properties/definitions/SpectrumConfig"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AntennaDownlinkDemodDecodeConfig": close({
-	DecodeConfig?:       _#defs."/$defs/Properties/definitions/DecodeConfig" | fn.#ObjectExpression
-	DemodulationConfig?: _#defs."/$defs/Properties/definitions/DemodulationConfig" | fn.#ObjectExpression
-	SpectrumConfig?:     _#defs."/$defs/Properties/definitions/SpectrumConfig" | fn.#ObjectExpression
+	DecodeConfig?:       _#defs."/$defs/Properties/definitions/DecodeConfig"
+	DemodulationConfig?: _#defs."/$defs/Properties/definitions/DemodulationConfig"
+	SpectrumConfig?:     _#defs."/$defs/Properties/definitions/SpectrumConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AntennaUplinkConfig": close({
-	SpectrumConfig?:   _#defs."/$defs/Properties/definitions/UplinkSpectrumConfig" | fn.#ObjectExpression
-	TargetEirp?:       _#defs."/$defs/Properties/definitions/Eirp" | fn.#ObjectExpression
-	TransmitDisabled?: bool | fn.#BooleanExpression
+	SpectrumConfig?:   _#defs."/$defs/Properties/definitions/UplinkSpectrumConfig"
+	TargetEirp?:       _#defs."/$defs/Properties/definitions/Eirp"
+	TransmitDisabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -43,15 +47,14 @@ _#defs: "/$defs/Properties/definitions/BucketArn": =~"^arn:aws[A-Za-z0-9-]{0,64}
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ConfigData": struct.MaxFields(1) & struct.MinFields(1) & close({
-	AntennaDownlinkConfig?: _#defs."/$defs/Properties/definitions/AntennaDownlinkConfig" | fn.#ObjectExpression
-	AntennaDownlinkDemodDecodeConfig?: _#defs."/$defs/Properties/definitions/AntennaDownlinkDemodDecodeConfig" |
-		fn.#ObjectExpression
-	AntennaUplinkConfig?:    _#defs."/$defs/Properties/definitions/AntennaUplinkConfig" | fn.#ObjectExpression
-	DataflowEndpointConfig?: _#defs."/$defs/Properties/definitions/DataflowEndpointConfig" | fn.#ObjectExpression
-	S3RecordingConfig?:      _#defs."/$defs/Properties/definitions/S3RecordingConfig" | fn.#ObjectExpression
-	TelemetrySinkConfig?:    _#defs."/$defs/Properties/definitions/TelemetrySinkConfig" | fn.#ObjectExpression
-	TrackingConfig?:         _#defs."/$defs/Properties/definitions/TrackingConfig" | fn.#ObjectExpression
-	UplinkEchoConfig?:       _#defs."/$defs/Properties/definitions/UplinkEchoConfig" | fn.#ObjectExpression
+	AntennaDownlinkConfig?:            _#defs."/$defs/Properties/definitions/AntennaDownlinkConfig"
+	AntennaDownlinkDemodDecodeConfig?: _#defs."/$defs/Properties/definitions/AntennaDownlinkDemodDecodeConfig"
+	AntennaUplinkConfig?:              _#defs."/$defs/Properties/definitions/AntennaUplinkConfig"
+	DataflowEndpointConfig?:           _#defs."/$defs/Properties/definitions/DataflowEndpointConfig"
+	S3RecordingConfig?:                _#defs."/$defs/Properties/definitions/S3RecordingConfig"
+	TelemetrySinkConfig?:              _#defs."/$defs/Properties/definitions/TelemetrySinkConfig"
+	TrackingConfig?:                   _#defs."/$defs/Properties/definitions/TrackingConfig"
+	UplinkEchoConfig?:                 _#defs."/$defs/Properties/definitions/UplinkEchoConfig"
 }) |
 fn.#ObjectExpression
 
@@ -62,32 +65,86 @@ _#defs: "/$defs/Properties/definitions/DataflowEndpointConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DecodeConfig": close(
-	{UnvalidatedJSON?: _#defs."/$defs/Properties/definitions/JsonString" | fn.#StringExpression},
+	{UnvalidatedJSON?: _#defs."/$defs/Properties/definitions/JsonString"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DemodulationConfig": close(
-	{UnvalidatedJSON?: _#defs."/$defs/Properties/definitions/JsonString" | fn.#StringExpression},
+	{UnvalidatedJSON?: _#defs."/$defs/Properties/definitions/JsonString"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Eirp": close({
-	Units?: _#defs."/$defs/Properties/definitions/EirpUnits" | fn.#StringExpression
-	Value?: number | fn.#NumberExpression
+	Units?: _#defs."/$defs/Properties/definitions/EirpUnits"
+	Value?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EirpUnits": "dBW" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Frequency": close({
-	Units?: _#defs."/$defs/Properties/definitions/FrequencyUnits" | fn.#StringExpression
-	Value?: number | fn.#NumberExpression
+	Units?: _#defs."/$defs/Properties/definitions/FrequencyUnits"
+	Value?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FrequencyBandwidth": close({
-	Units?: _#defs."/$defs/Properties/definitions/BandwidthUnits" | fn.#StringExpression
-	Value?: number | fn.#NumberExpression
+	Units?: _#defs."/$defs/Properties/definitions/BandwidthUnits"
+	Value?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -99,29 +156,31 @@ _#defs: "/$defs/Properties/definitions/KinesisDataStreamArn": =~"^arn:[a-z0-9-.]
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/KinesisDataStreamData": close({
-	KinesisDataStreamArn!: _#defs."/$defs/Properties/definitions/KinesisDataStreamArn" | fn.#StringExpression
-	KinesisRoleArn!:       _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
+	KinesisDataStreamArn!: _#defs."/$defs/Properties/definitions/KinesisDataStreamArn"
+	KinesisRoleArn!:       _#defs."/$defs/Properties/definitions/RoleArn"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Polarization": "LEFT_HAND" | "RIGHT_HAND" | "NONE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:[^:\\n]+:iam::[^:\\n]+:role\\/.+$" | fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	=~"^arn:[^:\\n]+:iam::[^:\\n]+:role\\/.+$" |
+	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/S3KeyPrefix": =~"^([a-zA-Z0-9_\\-=/]|\\{satellite_id\\}|\\{config\\-name}|\\{s3\\-config-id}|\\{year\\}|\\{month\\}|\\{day\\}){1,900}$" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/S3RecordingConfig": close({
-	BucketArn?: _#defs."/$defs/Properties/definitions/BucketArn" | fn.#StringExpression
-	Prefix?:    _#defs."/$defs/Properties/definitions/S3KeyPrefix" | fn.#StringExpression
-	RoleArn?:   _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
+	BucketArn?: _#defs."/$defs/Properties/definitions/BucketArn"
+	Prefix?:    _#defs."/$defs/Properties/definitions/S3KeyPrefix"
+	RoleArn?:   _#defs."/$defs/Properties/definitions/RoleArn"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SpectrumConfig": close({
-	Bandwidth?:       _#defs."/$defs/Properties/definitions/FrequencyBandwidth" | fn.#ObjectExpression
-	CenterFrequency?: _#defs."/$defs/Properties/definitions/Frequency" | fn.#ObjectExpression
-	Polarization?:    _#defs."/$defs/Properties/definitions/Polarization" | fn.#StringExpression
+	Bandwidth?:       _#defs."/$defs/Properties/definitions/FrequencyBandwidth"
+	CenterFrequency?: _#defs."/$defs/Properties/definitions/Frequency"
+	Polarization?:    _#defs."/$defs/Properties/definitions/Polarization"
 }) |
 fn.#ObjectExpression
 
@@ -132,15 +191,15 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TelemetrySinkConfig": close({
-	TelemetrySinkData!: _#defs."/$defs/Properties/definitions/TelemetrySinkData" | fn.#ObjectExpression
-	TelemetrySinkType!: _#defs."/$defs/Properties/definitions/TelemetrySinkType" | fn.#StringExpression
+	TelemetrySinkData!: _#defs."/$defs/Properties/definitions/TelemetrySinkData"
+	TelemetrySinkType!: _#defs."/$defs/Properties/definitions/TelemetrySinkType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TelemetrySinkData": {
 	KinesisDataStreamData!: _
 	...
-} & close({KinesisDataStreamData?: _#defs."/$defs/Properties/definitions/KinesisDataStreamData" | fn.#ObjectExpression}) |
+} & close({KinesisDataStreamData?: _#defs."/$defs/Properties/definitions/KinesisDataStreamData"}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TelemetrySinkType": "KINESIS_DATA_STREAM" | fn.#StringExpression
@@ -152,13 +211,13 @@ _#defs: "/$defs/Properties/definitions/TrackingConfig": close(
 
 _#defs: "/$defs/Properties/definitions/UplinkEchoConfig": close({
 	AntennaUplinkConfigArn?: =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" | fn.#StringExpression
-	Enabled?:                bool | fn.#BooleanExpression
+	Enabled?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UplinkSpectrumConfig": close({
-	CenterFrequency?: _#defs."/$defs/Properties/definitions/Frequency" | fn.#ObjectExpression
-	Polarization?:    _#defs."/$defs/Properties/definitions/Polarization" | fn.#StringExpression
+	CenterFrequency?: _#defs."/$defs/Properties/definitions/Frequency"
+	Polarization?:    _#defs."/$defs/Properties/definitions/Polarization"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

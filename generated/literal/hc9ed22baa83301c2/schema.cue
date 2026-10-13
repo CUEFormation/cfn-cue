@@ -51,7 +51,10 @@ import (
 
 	// A list of security group IDs to associate with the workgroup.
 	SecurityGroupIds?: list.MaxItems(32) & list.MinItems(1) & [
-		...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^sg-[0-9a-fA-F]{8,}$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(0) &
+		=~"^sg-[0-9a-fA-F]{8,}$"
 	]
 
 	// The Amazon Resource Name (ARN) of the snapshot to restore the namespace from.
@@ -129,7 +132,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 _#defs: "/$defs/Properties/definitions/VpcEndpoint": close({
 	NetworkInterfaces?: [..._#defs."/$defs/Properties/definitions/NetworkInterface"]
 	VpcEndpointId?:     string
-	VpcId?:             string
+	VpcId?:             =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/Workgroup": close({
@@ -142,13 +145,18 @@ _#defs: "/$defs/Properties/definitions/Workgroup": close({
 	NamespaceName?:          strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$"
 	PricePerformanceTarget?: _#defs."/$defs/Properties/definitions/PerformanceTarget"
 	PubliclyAccessible?:     bool
-	SecurityGroupIds?:       [...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^sg-[0-9a-fA-F]{8,}$"]
-	Status?:                 _#defs."/$defs/Properties/definitions/WorkgroupStatus"
-	SubnetIds?:              [...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^subnet-[0-9a-fA-F]{8,}$"]
-	TrackName?:              strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$"
-	WorkgroupArn?:           string
-	WorkgroupId?:            string
-	WorkgroupName?:          strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]*$"
+	SecurityGroupIds?: [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(0) &
+		=~"^sg-[0-9a-fA-F]{8,}$"
+	]
+	Status?:        _#defs."/$defs/Properties/definitions/WorkgroupStatus"
+	SubnetIds?:     [...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^subnet-[0-9a-fA-F]{8,}$"]
+	TrackName?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$"
+	WorkgroupArn?:  string
+	WorkgroupId?:   string
+	WorkgroupName?: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]*$"
 })
 
 _#defs: "/$defs/Properties/definitions/WorkgroupStatus": "CREATING" | "AVAILABLE" | "MODIFYING" | "DELETING"

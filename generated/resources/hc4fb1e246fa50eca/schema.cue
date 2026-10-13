@@ -14,19 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SES::Tenant
 #Properties: close({
-	ReputationEntity?: _#defs."/$defs/Properties/definitions/ReputationEntity" | fn.#ObjectExpression
-	ResourceAssociations?: [...] & [
-		..._#defs."/$defs/Properties/definitions/ResourceAssociation" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	ReputationEntity?:      _#defs."/$defs/Properties/definitions/ReputationEntity" | fn.#ObjectExpression
+	ResourceAssociations?:  [...] & [..._#defs."/$defs/Properties/definitions/ResourceAssociation"] | fn.#ListExpression
 	SuppressionAttributes?: _#defs."/$defs/Properties/definitions/TenantSuppressionAttributes" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:       list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TenantName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-_]+$" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ReputationEntity": close(
-	{Policy!: _#defs."/$defs/Properties/definitions/ReputationPolicy" | fn.#ObjectExpression},
+	{Policy!: _#defs."/$defs/Properties/definitions/ReputationPolicy"},
 ) |
 	fn.#ObjectExpression
 

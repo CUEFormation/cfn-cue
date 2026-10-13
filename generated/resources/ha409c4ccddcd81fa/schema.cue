@@ -14,29 +14,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SMSVOICE::Pool
 #Properties: close({
-	DeletionProtectionEnabled?: bool | fn.#BooleanExpression
+	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MandatoryKeywords!: close({
-		HELP!: _#defs."/$defs/Properties/definitions/MandatoryKeyword" | fn.#ObjectExpression
-		STOP!: _#defs."/$defs/Properties/definitions/MandatoryKeyword" | fn.#ObjectExpression
+		HELP!: _#defs."/$defs/Properties/definitions/MandatoryKeyword"
+		STOP!: _#defs."/$defs/Properties/definitions/MandatoryKeyword"
 	}) |
 	fn.#ObjectExpression
 	OptOutListName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" | fn.#StringExpression
-	OptionalKeywords?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/OptionalKeyword" | fn.#ObjectExpression
-	] |
+	OptionalKeywords?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/OptionalKeyword"] |
 		fn.#ListExpression
 	OriginationIdentities!: list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(256) & strings.MinRunes(20) & =~"^arn:\\S+" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	SelfManagedOptOutsEnabled?: bool | fn.#BooleanExpression
-	SharedRoutesEnabled?:       bool | fn.#BooleanExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	SelfManagedOptOutsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SharedRoutesEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TwoWay?: close({
 		ChannelArn?:  =~"^[ \\S]+" | fn.#StringExpression
 		ChannelRole?: =~"^arn:\\S+$" | fn.#StringExpression
-		Enabled!:     bool | fn.#BooleanExpression
+		Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	}) |
 	fn.#ObjectExpression
 })

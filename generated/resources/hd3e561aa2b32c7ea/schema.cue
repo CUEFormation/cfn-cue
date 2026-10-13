@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,14 +20,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Authentication!:              "GITHUB_HMAC" | "IP" | "UNAUTHENTICATED" | fn.#StringExpression
 	AuthenticationConfiguration!: _#defs."/$defs/Properties/definitions/WebhookAuthConfiguration" | fn.#ObjectExpression
-	Filters!: [..._#defs."/$defs/Properties/definitions/WebhookFilterRule" | fn.#ObjectExpression] | fn.#ListExpression
-	Name?:    strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" | fn.#StringExpression
-	RegisterWithThirdParty?: bool | fn.#BooleanExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TargetAction!:          strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" | fn.#StringExpression
-	TargetPipeline!:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" | fn.#StringExpression
-	TargetPipelineVersion?: int | fn.#NumberExpression
+	Filters!:                     [..._#defs."/$defs/Properties/definitions/WebhookFilterRule"] | fn.#ListExpression
+	Name?:                   strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" | fn.#StringExpression
+	RegisterWithThirdParty?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TargetAction!:           strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" | fn.#StringExpression
+	TargetPipeline!:         strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" | fn.#StringExpression
+	TargetPipelineVersion?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

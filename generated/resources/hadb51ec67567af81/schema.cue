@@ -13,9 +13,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::HealthImaging::Datastore Resource Type
 #Properties: close({
-	DatastoreName?: _#defs."/$defs/Properties/definitions/DatastoreName" | fn.#StringExpression
-	KmsKeyArn?:     _#defs."/$defs/Properties/definitions/KmsKeyArn" | fn.#StringExpression
-	Tags?:          _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	DatastoreName?: _#defs."/$defs/Properties/definitions/DatastoreName"
+	KmsKeyArn?:     _#defs."/$defs/Properties/definitions/KmsKeyArn"
+	Tags?:          _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/CreatedAt": string | fn.#StringExpression
@@ -40,7 +40,8 @@ _#defs: "/$defs/Properties/definitions/DatastoreStatus": ("CREATING" |
 	"DELETED") & (strings.MaxRunes(127) & strings.MinRunes(1)) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKeyArn": strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/KmsKeyArn": =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(512) & strings.MinRunes(1)) |
+fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": close({
 

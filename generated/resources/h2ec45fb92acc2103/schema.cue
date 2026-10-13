@@ -8,34 +8,37 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An entity that defines the scope of audit evidence collected by AWS Audit Manager.
 #Properties: close({
-	AssessmentReportsDestination?: _#defs."/$defs/Properties/definitions/AssessmentReportsDestination" |
-		fn.#ObjectExpression
-	AwsAccount?:  _#defs."/$defs/Properties/definitions/AWSAccount" | fn.#ObjectExpression
-	Delegations?: [..._#defs."/$defs/Properties/definitions/Delegation" | fn.#ObjectExpression] | fn.#ListExpression
-	Description?: _#defs."/$defs/Properties/definitions/AssessmentDescription" | fn.#StringExpression
-	FrameworkId?: _#defs."/$defs/Properties/definitions/FrameworkId" | fn.#StringExpression
-	Name?:        _#defs."/$defs/Properties/definitions/AssessmentName" | fn.#StringExpression
-	Roles?:       [..._#defs."/$defs/Properties/definitions/Role" | fn.#ObjectExpression] | fn.#ListExpression
-	Scope?:       _#defs."/$defs/Properties/definitions/Scope" | fn.#ObjectExpression
-	Status?:      _#defs."/$defs/Properties/definitions/AssessmentStatus" | fn.#StringExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	AssessmentReportsDestination?: _#defs."/$defs/Properties/definitions/AssessmentReportsDestination"
+	AwsAccount?:                   _#defs."/$defs/Properties/definitions/AWSAccount"
+	Delegations?:                  [..._#defs."/$defs/Properties/definitions/Delegation"] | fn.#ListExpression
+	Description?:                  _#defs."/$defs/Properties/definitions/AssessmentDescription"
+	FrameworkId?:                  _#defs."/$defs/Properties/definitions/FrameworkId"
+	Name?:                         _#defs."/$defs/Properties/definitions/AssessmentName"
+	Roles?:                        [..._#defs."/$defs/Properties/definitions/Role"] | fn.#ListExpression
+	Scope?:                        _#defs."/$defs/Properties/definitions/Scope"
+	Status?:                       _#defs."/$defs/Properties/definitions/AssessmentStatus"
+	Tags?:                         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AWSAccount": close({
-	EmailAddress?: _#defs."/$defs/Properties/definitions/EmailAddress" | fn.#StringExpression
-	Id?:           _#defs."/$defs/Properties/definitions/AccountId" | fn.#StringExpression
-	Name?:         _#defs."/$defs/Properties/definitions/AccountName" | fn.#StringExpression
+	EmailAddress?: _#defs."/$defs/Properties/definitions/EmailAddress"
+	Id?:           _#defs."/$defs/Properties/definitions/AccountId"
+	Name?:         _#defs."/$defs/Properties/definitions/AccountName"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AWSService": close(
-	{ServiceName?: _#defs."/$defs/Properties/definitions/AWSServiceName" | fn.#StringExpression},
+	{ServiceName?: _#defs."/$defs/Properties/definitions/AWSServiceName"},
 ) |
 	fn.#ObjectExpression
 
@@ -70,8 +73,8 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/AssessmentReportDestinationType": "S3" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AssessmentReportsDestination": close({
-	Destination?:     _#defs."/$defs/Properties/definitions/S3Url" | fn.#StringExpression
-	DestinationType?: _#defs."/$defs/Properties/definitions/AssessmentReportDestinationType" | fn.#StringExpression
+	Destination?:     _#defs."/$defs/Properties/definitions/S3Url"
+	DestinationType?: _#defs."/$defs/Properties/definitions/AssessmentReportDestinationType"
 }) |
 fn.#ObjectExpression
 
@@ -86,17 +89,17 @@ _#defs: "/$defs/Properties/definitions/CreatedBy": strings.MaxRunes(2048) & stri
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Delegation": close({
-	AssessmentId?:   _#defs."/$defs/Properties/definitions/UUID" | fn.#StringExpression
-	AssessmentName?: _#defs."/$defs/Properties/definitions/AssessmentName" | fn.#StringExpression
-	Comment?:        _#defs."/$defs/Properties/definitions/DelegationComment" | fn.#StringExpression
-	ControlSetId?:   _#defs."/$defs/Properties/definitions/ControlSetId" | fn.#StringExpression
-	CreatedBy?:      _#defs."/$defs/Properties/definitions/CreatedBy" | fn.#StringExpression
-	CreationTime?:   _#defs."/$defs/Properties/definitions/Timestamp" | fn.#NumberExpression
-	Id?:             _#defs."/$defs/Properties/definitions/UUID" | fn.#StringExpression
-	LastUpdated?:    _#defs."/$defs/Properties/definitions/Timestamp" | fn.#NumberExpression
-	RoleArn?:        _#defs."/$defs/Properties/definitions/IamArn" | fn.#StringExpression
-	RoleType?:       _#defs."/$defs/Properties/definitions/RoleType" | fn.#StringExpression
-	Status?:         _#defs."/$defs/Properties/definitions/DelegationStatus" | fn.#StringExpression
+	AssessmentId?:   _#defs."/$defs/Properties/definitions/UUID"
+	AssessmentName?: _#defs."/$defs/Properties/definitions/AssessmentName"
+	Comment?:        _#defs."/$defs/Properties/definitions/DelegationComment"
+	ControlSetId?:   _#defs."/$defs/Properties/definitions/ControlSetId"
+	CreatedBy?:      _#defs."/$defs/Properties/definitions/CreatedBy"
+	CreationTime?:   _#defs."/$defs/Properties/definitions/Timestamp"
+	Id?:             _#defs."/$defs/Properties/definitions/UUID"
+	LastUpdated?:    _#defs."/$defs/Properties/definitions/Timestamp"
+	RoleArn?:        _#defs."/$defs/Properties/definitions/IamArn"
+	RoleType?:       _#defs."/$defs/Properties/definitions/RoleType"
+	Status?:         _#defs."/$defs/Properties/definitions/DelegationStatus"
 }) |
 fn.#ObjectExpression
 
@@ -116,12 +119,15 @@ strings.MinRunes(32) &
 =~"^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|.*\\S.*)$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IamArn": strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*:iam:.*" |
+_#defs: "/$defs/Properties/definitions/IamArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(2048) &
+strings.MinRunes(20) &
+=~"^arn:.*:iam:.*" |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Role": close({
-	RoleArn?:  _#defs."/$defs/Properties/definitions/IamArn" | fn.#StringExpression
-	RoleType?: _#defs."/$defs/Properties/definitions/RoleType" | fn.#StringExpression
+	RoleArn?:  _#defs."/$defs/Properties/definitions/IamArn"
+	RoleType?: _#defs."/$defs/Properties/definitions/RoleType"
 }) |
 fn.#ObjectExpression
 
@@ -133,11 +139,9 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Scope": close({
-	AwsAccounts?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AWSAccount" | fn.#ObjectExpression
-	] |
+	AwsAccounts?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AWSAccount"] |
 		fn.#ListExpression
-	AwsServices?: [..._#defs."/$defs/Properties/definitions/AWSService" | fn.#ObjectExpression] | fn.#ListExpression
+	AwsServices?: [..._#defs."/$defs/Properties/definitions/AWSService"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -147,7 +151,25 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Timestamp": number | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Timestamp": number |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						number,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/UUID": strings.MaxRunes(36) &
 strings.MinRunes(36) &

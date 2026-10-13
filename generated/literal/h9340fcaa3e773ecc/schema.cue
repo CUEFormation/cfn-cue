@@ -266,7 +266,8 @@ import (
 	// more information, see [Service-linked
 	// roles](https://docs.aws.amazon.com/autoscaling/ec2/userguide/autoscaling-service-linked-role.html)
 	// in the *Amazon EC2 Auto Scaling User Guide*.
-	ServiceLinkedRoleARN?:     strings.MaxRunes(1600) & strings.MinRunes(1)
+	ServiceLinkedRoleARN?:
+		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1600) & strings.MinRunes(1))
 	SkipZonalShiftValidation?: bool
 
 	// One or more tags. You can tag your Auto Scaling group and propagate the tags
@@ -934,7 +935,10 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateOverrides": close({
 	// + All overrides in the ``MixedInstancesPolicy`` must specify an ImageId
 	// + The AMI must contain only a single root volume
 	// + Root volume replacement doesn't support multi-volume AMIs
-	ImageId?: strings.MaxRunes(21) & strings.MinRunes(5) & =~"^ami-[a-z0-9]{1,17}$"
+	ImageId?: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" &
+	strings.MaxRunes(21) &
+	strings.MinRunes(5) &
+	=~"^ami-[a-z0-9]{1,17}$"
 
 	// The instance requirements. Amazon EC2 Auto Scaling uses your specified
 	// requirements to identify instance types. Then, it uses your On-Demand and
@@ -1089,7 +1093,7 @@ _#defs: "/$defs/Properties/definitions/LifecycleHookSpecification": close({
 	// group](https://docs.aws.amazon.com/autoscaling/ec2/userguide/prepare-for-lifecycle-notifications.html)
 	// in the *Amazon EC2 Auto Scaling User Guide*.
 	// Valid only if the notification target is an Amazon SNS topic or an Amazon SQS queue.
-	RoleARN?: strings.MaxRunes(255) & strings.MinRunes(1)
+	RoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1))
 })
 
 // ``MemoryGiBPerVCpuRequest`` is a property of the ``InstanceRequirements``
@@ -1251,7 +1255,7 @@ _#defs: "/$defs/Properties/definitions/NotificationConfiguration": close({
 	NotificationTypes?: [...string]
 
 	// The Amazon Resource Name (ARN) of the Amazon SNS topic.
-	TopicARN!: string | [...string]
+	TopicARN!: string | [...=~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"]
 })
 
 // Specify an instance family to use as the baseline reference for CPU

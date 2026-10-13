@@ -29,7 +29,7 @@ _#defs: "/$defs/Properties/definitions/Input": close({
 
 _#defs: "/$defs/Properties/definitions/InputLambdaProcessor": close({
 	ResourceARN!: string
-	RoleARN!:     string
+	RoleARN!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/InputParallelism": close({Count?: int})
@@ -48,12 +48,12 @@ _#defs: "/$defs/Properties/definitions/JSONMappingParameters": close({RecordRowP
 
 _#defs: "/$defs/Properties/definitions/KinesisFirehoseInput": close({
 	ResourceARN!: string
-	RoleARN!:     string
+	RoleARN!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/KinesisStreamsInput": close({
 	ResourceARN!: string
-	RoleARN!:     string
+	RoleARN!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/MappingParameters": close({

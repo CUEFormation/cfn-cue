@@ -17,11 +17,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Customizations?:            _#defs."/$defs/Properties/definitions/Customizations" | fn.#ObjectExpression
 	DistributionId!:            string | fn.#StringExpression
 	Domains!:                   [...string | fn.#StringExpression] | fn.#ListExpression
-	Enabled?:                   bool | fn.#BooleanExpression
+	Enabled?:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ManagedCertificateRequest?: _#defs."/$defs/Properties/definitions/ManagedCertificateRequest" | fn.#ObjectExpression
 	Name!:                      string | fn.#StringExpression
-	Parameters?: [..._#defs."/$defs/Properties/definitions/Parameter" | fn.#ObjectExpression] | fn.#ListExpression
-	Tags?:       [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Parameters?:                [..._#defs."/$defs/Properties/definitions/Parameter"] | fn.#ListExpression
+	Tags?:                      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Certificate": close({Arn?: string | fn.#StringExpression}) | fn.#ObjectExpression

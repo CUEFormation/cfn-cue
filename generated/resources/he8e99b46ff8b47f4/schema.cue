@@ -15,7 +15,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates a custom vocabulary filter that you can use to mask, delete, or flag
 // specific words from your transcript.
 #Properties: close({
-	DataAccessRoleArn?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	DataAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 	LanguageCode!: "ab-GE" |
 		"af-ZA" |
 		"am-ET" |
@@ -134,10 +135,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"zh-TW" |
 		"zu-ZA" |
 		fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VocabularyFilterFileUri?: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^(s3://|http(s*)://).+$" |
 	fn.#StringExpression
 	VocabularyFilterName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression

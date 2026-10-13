@@ -8,15 +8,39 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for AWS::KinesisVideo::Stream
 #Properties: close({
-	DataRetentionInHours?: int & <=87600 & >=0 | fn.#NumberExpression
-	DeviceName?:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.-]+" | fn.#StringExpression
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(1) & =~".+" | fn.#StringExpression
+	DataRetentionInHours?: int & <=87600 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=87600 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DeviceName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.-]+" | fn.#StringExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~".+" |
+	fn.#StringExpression
 	MediaType?: strings.MaxRunes(128) &
 	strings.MinRunes(1) &
 	=~"[\\w\\-\\.\\+]+/[\\w\\-\\.\\+]+(,[\\w\\-\\.\\+]+/[\\w\\-\\.\\+]+)*" |
@@ -24,8 +48,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.-]+" | fn.#StringExpression
 	StreamStorageConfiguration?: _#defs."/$defs/Properties/definitions/StreamStorageConfiguration" |
 		fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/StreamStorageConfiguration": close(

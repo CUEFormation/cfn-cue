@@ -16,22 +16,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AppId?:           string | fn.#StringExpression
 	EnvironmentName?: string | fn.#StringExpression
 	Name?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Overrides?: [..._#defs."/$defs/Properties/definitions/ThemeValues" | fn.#ObjectExpression] | fn.#ListExpression
-	Tags?:      _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
-	Values?:    [..._#defs."/$defs/Properties/definitions/ThemeValues" | fn.#ObjectExpression] | fn.#ListExpression
+	Overrides?:       [..._#defs."/$defs/Properties/definitions/ThemeValues"] | fn.#ListExpression
+	Tags?:            _#defs."/$defs/Properties/definitions/Tags"
+	Values?:          [..._#defs."/$defs/Properties/definitions/ThemeValues"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tags": {...} | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ThemeValue": close({
-	Children?: [..._#defs."/$defs/Properties/definitions/ThemeValues" | fn.#ObjectExpression] | fn.#ListExpression
+	Children?: [..._#defs."/$defs/Properties/definitions/ThemeValues"] | fn.#ListExpression
 	Value?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ThemeValues": close({
 	Key?:   string | fn.#StringExpression
-	Value?: _#defs."/$defs/Properties/definitions/ThemeValue" | fn.#ObjectExpression
+	Value?: _#defs."/$defs/Properties/definitions/ThemeValue"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

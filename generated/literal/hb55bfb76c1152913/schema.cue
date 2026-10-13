@@ -243,7 +243,10 @@ import (
 	// The Amazon Resource Name (ARN) of a AWS Key Management Service key that
 	// SageMaker AI uses to encrypt data on the storage volume attached to your
 	// notebook instance. The KMS key you provide must be enabled.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9:/_-]*$"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~"^[a-zA-Z0-9:/_-]*$"
 
 	// The name of a lifecycle configuration to associate with the notebook instance.
 	LifecycleConfigName?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
@@ -267,7 +270,8 @@ import (
 	// (sagemaker.amazonaws.com) permissions to assume this role. To be able to
 	// pass this role to SageMaker AI, the caller of this API must have the
 	// iam:PassRole permission.
-	RoleArn!: strings.MaxRunes(2048) &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
@@ -280,7 +284,12 @@ import (
 
 	// The VPC security group IDs, in the form sg-xxxxxxxx. The security groups must
 	// be for the same VPC as specified in the subnet.
-	SecurityGroupIds?: list.MaxItems(5) & [...] & [...strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[-0-9a-zA-Z]+$"]
+	SecurityGroupIds?: list.MaxItems(5) & [...] & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"^[-0-9a-zA-Z]+$"
+	]
 
 	// The ID of the subnet in a VPC to which you would like to have a connectivity
 	// from your ML compute instance.

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,9 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource schema represents the ResourceCollection resource in the Amazon DevOps Guru.
-#Properties: close(
-	{ResourceCollectionFilter!: _#defs."/$defs/Properties/definitions/ResourceCollectionFilter" | fn.#ObjectExpression},
-)
+#Properties: close({ResourceCollectionFilter!: _#defs."/$defs/Properties/definitions/ResourceCollectionFilter"})
 
 _#defs: "/$defs/Properties/definitions/CloudFormationCollectionFilter": close({
 	StackNames?: list.MaxItems(1000) & list.MinItems(1) & [
@@ -26,8 +24,8 @@ _#defs: "/$defs/Properties/definitions/CloudFormationCollectionFilter": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceCollectionFilter": close({
-	CloudFormation?: _#defs."/$defs/Properties/definitions/CloudFormationCollectionFilter" | fn.#ObjectExpression
-	Tags?:           _#defs."/$defs/Properties/definitions/TagCollections" | fn.#ListExpression
+	CloudFormation?: _#defs."/$defs/Properties/definitions/CloudFormationCollectionFilter"
+	Tags?:           _#defs."/$defs/Properties/definitions/TagCollections"
 }) |
 fn.#ObjectExpression
 
@@ -40,9 +38,7 @@ _#defs: "/$defs/Properties/definitions/TagCollection": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagCollections": [
-	..._#defs."/$defs/Properties/definitions/TagCollection" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/TagCollections": [..._#defs."/$defs/Properties/definitions/TagCollection"] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::DevOpsGuru::ResourceCollection"

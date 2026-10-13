@@ -47,7 +47,8 @@ import (
 
 	// The Amazon Resource Name (ARN) of the AWS Key Management Service key used to
 	// encrypt the environment.
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[0-9]{0,12}:key\\/[a-zA-Z0-9-]+$"
 

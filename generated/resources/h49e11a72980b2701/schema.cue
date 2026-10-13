@@ -10,19 +10,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::CodeStar::GitHubRepository
 #Properties: close({
-	Code?:                  _#defs."/$defs/Properties/definitions/Code" | fn.#ObjectExpression
+	Code?:                  _#defs."/$defs/Properties/definitions/Code"
 	ConnectionArn?:         string | fn.#StringExpression
-	EnableIssues?:          bool | fn.#BooleanExpression
-	IsPrivate?:             bool | fn.#BooleanExpression
+	EnableIssues?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IsPrivate?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RepositoryAccessToken?: string | fn.#StringExpression
 	RepositoryDescription?: string | fn.#StringExpression
 	RepositoryName!:        string | fn.#StringExpression
 	RepositoryOwner!:       string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Code": close(
-	{S3!: _#defs."/$defs/Properties/definitions/S3" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/Code": close({S3!: _#defs."/$defs/Properties/definitions/S3"}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3": close({

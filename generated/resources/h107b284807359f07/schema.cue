@@ -8,33 +8,54 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RolesAnywhere::Profile Resource Type
 #Properties: close({
-	AcceptRoleSessionName?: bool | fn.#BooleanExpression
-	AttributeMappings?: [..._#defs."/$defs/Properties/definitions/AttributeMapping" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	DurationSeconds?:   <=43200 & >=900 | fn.#NumberExpression
-	Enabled?:           bool | fn.#BooleanExpression
+	AcceptRoleSessionName?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AttributeMappings?:     [..._#defs."/$defs/Properties/definitions/AttributeMapping"] | fn.#ListExpression
+	DurationSeconds?: <=43200 & >=900 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=43200 &
+							>=900,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Enabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ManagedPolicyArns?: list.MaxItems(50) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 	Name!:              strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9-_]*$" | fn.#StringExpression
-	RequireInstanceProperties?: bool | fn.#BooleanExpression
+	RequireInstanceProperties?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RoleArns!: list.MaxItems(250) & [...] & [
 		...strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:aws(-[^:]+)?:iam(:.*){2}(:role.*)$" |
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SessionPolicy?: string | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:          list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AttributeMapping": close({
-	CertificateField!: _#defs."/$defs/Properties/definitions/CertificateField" | fn.#StringExpression
-	MappingRules!: [..._#defs."/$defs/Properties/definitions/MappingRule" | fn.#ObjectExpression] | fn.#ListExpression
+	CertificateField!: _#defs."/$defs/Properties/definitions/CertificateField"
+	MappingRules!:     [..._#defs."/$defs/Properties/definitions/MappingRule"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

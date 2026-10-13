@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CommandId!:           strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	CreatedAt?:           string | fn.#StringExpression
-	Deprecated?:          bool | fn.#BooleanExpression
+	Deprecated?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Description?:         strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" | fn.#StringExpression
 	DisplayName?:         strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" | fn.#StringExpression
 	LastUpdatedAt?:       string | fn.#StringExpression
@@ -24,24 +28,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Namespace?:           "AWS-IoT" | "AWS-IoT-FleetWise" | fn.#StringExpression
 	Payload?:             _#defs."/$defs/Properties/definitions/CommandPayload" | fn.#ObjectExpression
 	PayloadTemplate?:     strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
-	PendingDeletion?:     bool | fn.#BooleanExpression
+	PendingDeletion?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Preprocessor?:        _#defs."/$defs/Properties/definitions/CommandPreprocessor" | fn.#ObjectExpression
-	RoleArn?:             strings.MaxRunes(2028) & strings.MinRunes(20) | fn.#StringExpression
-	Tags?:                [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2028) & strings.MinRunes(20)) |
+	fn.#StringExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AwsJsonSubstitutionCommandPreprocessorConfig": close(
-	{OutputFormat!: _#defs."/$defs/Properties/definitions/OutputFormat" | fn.#StringExpression},
+	{OutputFormat!: _#defs."/$defs/Properties/definitions/OutputFormat"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CommandParameter": close({
-	DefaultValue?:    _#defs."/$defs/Properties/definitions/CommandParameterValue" | fn.#ObjectExpression
-	Description?:     _#defs."/$defs/Properties/definitions/CommandParameterDescription" | fn.#StringExpression
-	Name!:            _#defs."/$defs/Properties/definitions/CommandParameterName" | fn.#StringExpression
-	Type?:            _#defs."/$defs/Properties/definitions/CommandParameterType" | fn.#StringExpression
-	Value?:           _#defs."/$defs/Properties/definitions/CommandParameterValue" | fn.#ObjectExpression
-	ValueConditions?: _#defs."/$defs/Properties/definitions/CommandParameterValueConditionList" | fn.#ListExpression
+	DefaultValue?:    _#defs."/$defs/Properties/definitions/CommandParameterValue"
+	Description?:     _#defs."/$defs/Properties/definitions/CommandParameterDescription"
+	Name!:            _#defs."/$defs/Properties/definitions/CommandParameterName"
+	Type?:            _#defs."/$defs/Properties/definitions/CommandParameterType"
+	Value?:           _#defs."/$defs/Properties/definitions/CommandParameterValue"
+	ValueConditions?: _#defs."/$defs/Properties/definitions/CommandParameterValueConditionList"
 }) |
 fn.#ObjectExpression
 
@@ -51,7 +56,7 @@ strings.MinRunes(0) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CommandParameterList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/CommandParameter" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/CommandParameter"
 ] |
 	fn.#ListExpression
 
@@ -70,22 +75,53 @@ _#defs: "/$defs/Properties/definitions/CommandParameterType": "STRING" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CommandParameterValue": close({
-	B?:   bool | fn.#BooleanExpression
+	B?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	BIN?: strings.MinRunes(1) | fn.#StringExpression
-	D?:   number | fn.#NumberExpression
-	I?:   int | fn.#NumberExpression
-	L?:   strings.MaxRunes(19) & =~"^-?\\d+$" | fn.#StringExpression
-	S?:   strings.MinRunes(1) | fn.#StringExpression
-	UL?:  strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[0-9]*$" | fn.#StringExpression
+	D?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	I?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	L?:  strings.MaxRunes(19) & =~"^-?\\d+$" | fn.#StringExpression
+	S?:  strings.MinRunes(1) | fn.#StringExpression
+	UL?: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[0-9]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CommandParameterValueComparisonOperand": close({
 	Number?:      strings.MinRunes(1) | fn.#StringExpression
-	NumberRange?: _#defs."/$defs/Properties/definitions/CommandParameterValueNumberRange" | fn.#ObjectExpression
-	Numbers?:     _#defs."/$defs/Properties/definitions/CommandParameterValueStringList" | fn.#ListExpression
+	NumberRange?: _#defs."/$defs/Properties/definitions/CommandParameterValueNumberRange"
+	Numbers?:     _#defs."/$defs/Properties/definitions/CommandParameterValueStringList"
 	String?:      strings.MinRunes(1) | fn.#StringExpression
-	Strings?:     _#defs."/$defs/Properties/definitions/CommandParameterValueStringList" | fn.#ListExpression
+	Strings?:     _#defs."/$defs/Properties/definitions/CommandParameterValueStringList"
 }) |
 fn.#ObjectExpression
 
@@ -102,14 +138,13 @@ _#defs: "/$defs/Properties/definitions/CommandParameterValueComparisonOperator":
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CommandParameterValueCondition": close({
-	ComparisonOperator!: _#defs."/$defs/Properties/definitions/CommandParameterValueComparisonOperator" |
-		fn.#StringExpression
-	Operand!: _#defs."/$defs/Properties/definitions/CommandParameterValueComparisonOperand" | fn.#ObjectExpression
+	ComparisonOperator!: _#defs."/$defs/Properties/definitions/CommandParameterValueComparisonOperator"
+	Operand!:            _#defs."/$defs/Properties/definitions/CommandParameterValueComparisonOperand"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CommandParameterValueConditionList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/CommandParameterValueCondition" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/CommandParameterValueCondition"
 ] |
 	fn.#ListExpression
 
@@ -125,17 +160,16 @@ _#defs: "/$defs/Properties/definitions/CommandParameterValueStringList": list.Ma
 fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/CommandPayload": close({
-	Content?:     _#defs."/$defs/Properties/definitions/CommandPayloadContent" | fn.#StringExpression
-	ContentType?: _#defs."/$defs/Properties/definitions/MimeType" | fn.#StringExpression
+	Content?:     _#defs."/$defs/Properties/definitions/CommandPayloadContent"
+	ContentType?: _#defs."/$defs/Properties/definitions/MimeType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CommandPayloadContent": string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CommandPreprocessor": close({
-	AwsJsonSubstitution?: _#defs."/$defs/Properties/definitions/AwsJsonSubstitutionCommandPreprocessorConfig" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/CommandPreprocessor": close(
+	{AwsJsonSubstitution?: _#defs."/$defs/Properties/definitions/AwsJsonSubstitutionCommandPreprocessorConfig"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MimeType": strings.MinRunes(1) | fn.#StringExpression

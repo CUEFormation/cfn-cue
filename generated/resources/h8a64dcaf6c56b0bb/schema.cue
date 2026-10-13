@@ -11,7 +11,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource type definition for the AWS::EC2::SecurityGroupVpcAssociation resource
 #Properties: close({
 	GroupId!: string | fn.#StringExpression
-	VpcId!:   string | fn.#StringExpression
+	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/SecurityGroupVpcAssociationState": "associating" |

@@ -8,6 +8,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -22,21 +26,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	] |
 	fn.#ListExpression
 	Name!:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]*$" | fn.#StringExpression
-	Recurrence!: _#defs."/$defs/Properties/definitions/RecurrenceSettings" | fn.#ObjectExpression
+	Recurrence!: _#defs."/$defs/Properties/definitions/RecurrenceSettings"
 	StartTime!:  =~"^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:       list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TimeZoneId!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[:a-zA-Z0-9_\\-\\s\\.\\\\/]*$" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CoverageTime": close({
-	EndTime!:   _#defs."/$defs/Properties/definitions/HandOffTime" | fn.#StringExpression
-	StartTime!: _#defs."/$defs/Properties/definitions/HandOffTime" | fn.#StringExpression
+	EndTime!:   _#defs."/$defs/Properties/definitions/HandOffTime"
+	StartTime!: _#defs."/$defs/Properties/definitions/HandOffTime"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DailySetting": close(
-	{HandOffTime!: _#defs."/$defs/Properties/definitions/HandOffTime" | fn.#StringExpression},
+	{HandOffTime!: _#defs."/$defs/Properties/definitions/HandOffTime"},
 ) |
 	fn.#ObjectExpression
 
@@ -53,8 +56,23 @@ _#defs: "/$defs/Properties/definitions/HandOffTime": =~"^([0-9]|0[0-9]|1[0-9]|2[
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/MonthlySetting": close({
-	DayOfMonth!:  int & <=31 & >=1 | fn.#NumberExpression
-	HandOffTime!: _#defs."/$defs/Properties/definitions/HandOffTime" | fn.#StringExpression
+	DayOfMonth!: int & <=31 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=31 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	HandOffTime!: _#defs."/$defs/Properties/definitions/HandOffTime"
 }) |
 fn.#ObjectExpression
 
@@ -74,21 +92,47 @@ _#defs: "/$defs/Properties/definitions/RecurrenceSettings": matchN(1, [{
 	DailySettings!:        _
 	...
 }]) & close({
-	DailySettings?: [..._#defs."/$defs/Properties/definitions/HandOffTime" | fn.#StringExpression] | fn.#ListExpression
-	MonthlySettings?: [..._#defs."/$defs/Properties/definitions/MonthlySetting" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	NumberOfOnCalls?:      int & >=1 | fn.#NumberExpression
-	RecurrenceMultiplier?: int & <=100 & >=1 | fn.#NumberExpression
-	ShiftCoverages?: [..._#defs."/$defs/Properties/definitions/ShiftCoverage" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	WeeklySettings?: [..._#defs."/$defs/Properties/definitions/WeeklySetting" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	DailySettings?:   [..._#defs."/$defs/Properties/definitions/HandOffTime"] | fn.#ListExpression
+	MonthlySettings?: [..._#defs."/$defs/Properties/definitions/MonthlySetting"] | fn.#ListExpression
+	NumberOfOnCalls?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RecurrenceMultiplier?: int & <=100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ShiftCoverages?: [..._#defs."/$defs/Properties/definitions/ShiftCoverage"] | fn.#ListExpression
+	WeeklySettings?: [..._#defs."/$defs/Properties/definitions/WeeklySetting"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ShiftCoverage": close({
-	CoverageTimes!: [..._#defs."/$defs/Properties/definitions/CoverageTime" | fn.#ObjectExpression] | fn.#ListExpression
-	DayOfWeek!:     _#defs."/$defs/Properties/definitions/DayOfWeek" | fn.#StringExpression
+	CoverageTimes!: [..._#defs."/$defs/Properties/definitions/CoverageTime"] | fn.#ListExpression
+	DayOfWeek!:     _#defs."/$defs/Properties/definitions/DayOfWeek"
 }) |
 fn.#ObjectExpression
 
@@ -99,8 +143,8 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WeeklySetting": close({
-	DayOfWeek!:   _#defs."/$defs/Properties/definitions/DayOfWeek" | fn.#StringExpression
-	HandOffTime!: _#defs."/$defs/Properties/definitions/HandOffTime" | fn.#StringExpression
+	DayOfWeek!:   _#defs."/$defs/Properties/definitions/DayOfWeek"
+	HandOffTime!: _#defs."/$defs/Properties/definitions/HandOffTime"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

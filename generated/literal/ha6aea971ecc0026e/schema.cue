@@ -52,7 +52,7 @@ import (
 	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
 
 	// VpcId
-	VpcId!: strings.MaxRunes(64) & strings.MinRunes(1)
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(64) & strings.MinRunes(1))
 })
 
 // A key-value pair to associate with a resource.

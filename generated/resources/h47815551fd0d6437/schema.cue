@@ -8,6 +8,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,19 +22,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...strings.MaxRunes(128) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	AnalysisMethod!: _#defs."/$defs/Properties/definitions/AnalysisMethod" | fn.#StringExpression
-	AnalysisRules?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AnalysisRule" | fn.#ObjectExpression
-	] |
+	AnalysisMethod!: _#defs."/$defs/Properties/definitions/AnalysisMethod"
+	AnalysisRules?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AnalysisRule"] |
 		fn.#ListExpression
 	Description?: strings.MaxRunes(255) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
 	fn.#StringExpression
 	Name!:                    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	SelectedAnalysisMethods?: _#defs."/$defs/Properties/definitions/SelectedAnalysisMethods" | fn.#ListExpression
-	TableReference!:          _#defs."/$defs/Properties/definitions/TableReference" | fn.#ValueExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	SelectedAnalysisMethods?: _#defs."/$defs/Properties/definitions/SelectedAnalysisMethods"
+	TableReference!:          _#defs."/$defs/Properties/definitions/TableReference"
+	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AdditionalAnalyses": "ALLOWED" |
@@ -39,11 +40,9 @@ _#defs: "/$defs/Properties/definitions/AdditionalAnalyses": "ALLOWED" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AggregateColumn": close({
-	ColumnNames!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName" | fn.#StringExpression
-	] |
+	ColumnNames!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"] |
 		fn.#ListExpression
-	Function!: _#defs."/$defs/Properties/definitions/AggregateFunctionName" | fn.#StringExpression
+	Function!: _#defs."/$defs/Properties/definitions/AggregateFunctionName"
 }) |
 fn.#ObjectExpression
 
@@ -55,23 +54,55 @@ _#defs: "/$defs/Properties/definitions/AggregateFunctionName": "SUM" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AggregationConstraint": close({
-	ColumnName!: _#defs."/$defs/Properties/definitions/AnalysisRuleColumnName" | fn.#StringExpression
-	Minimum!:    <=100000 & >=2 | fn.#NumberExpression
-	Type!:       _#defs."/$defs/Properties/definitions/AggregationType" | fn.#StringExpression
+	ColumnName!: _#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"
+	Minimum!: <=100000 & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100000 &
+							>=2,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type!: _#defs."/$defs/Properties/definitions/AggregationType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AggregationThreshold": close({
-	AllowedAggregateExpressionType!: _#defs."/$defs/Properties/definitions/AllowedAggregateExpressionType" |
-		fn.#StringExpression
+	AllowedAggregateExpressionType!: _#defs."/$defs/Properties/definitions/AllowedAggregateExpressionType"
 	IdentityColumns!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"
 	] |
 		fn.#ListExpression
-	MinimumIdentityCount!: int & <=100000 & >=2 | fn.#NumberExpression
-	OutputColumnThresholds?: [..._#defs."/$defs/Properties/definitions/OutputColumnThreshold" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Type!: _#defs."/$defs/Properties/definitions/AggregationThresholdType" | fn.#StringExpression
+	MinimumIdentityCount!: int & <=100000 & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100000 &
+							>=2,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	OutputColumnThresholds?: [..._#defs."/$defs/Properties/definitions/OutputColumnThreshold"] | fn.#ListExpression
+	Type!:                   _#defs."/$defs/Properties/definitions/AggregationThresholdType"
 }) |
 fn.#ObjectExpression
 
@@ -84,7 +115,7 @@ _#defs: "/$defs/Properties/definitions/AllowedAggregateExpressionType": "COLUMNS
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AllowedAnalyses": [...] & [
-	..._#defs."/$defs/Properties/definitions/AllowedAnalysis" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/AllowedAnalysis"
 ] |
 	fn.#ListExpression
 
@@ -97,7 +128,7 @@ _#defs: "/$defs/Properties/definitions/AllowedAnalysisProvider": strings.MaxRune
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AllowedAnalysisProviders": [...] & [
-	..._#defs."/$defs/Properties/definitions/AllowedAnalysisProvider" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/AllowedAnalysisProvider"
 ] |
 	fn.#ListExpression
 
@@ -107,32 +138,23 @@ _#defs: "/$defs/Properties/definitions/AnalysisMethod": "DIRECT_QUERY" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AnalysisRule": close({
-	Policy!: _#defs."/$defs/Properties/definitions/ConfiguredTableAnalysisRulePolicy" | fn.#ObjectExpression
-	Type!:   _#defs."/$defs/Properties/definitions/ConfiguredTableAnalysisRuleType" | fn.#StringExpression
+	Policy!: _#defs."/$defs/Properties/definitions/ConfiguredTableAnalysisRulePolicy"
+	Type!:   _#defs."/$defs/Properties/definitions/ConfiguredTableAnalysisRuleType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AnalysisRuleAggregation": close({
-	AdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AdditionalAnalyses" | fn.#StringExpression
-	AggregateColumns!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AggregateColumn" | fn.#ObjectExpression
-	] |
+	AdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AdditionalAnalyses"
+	AggregateColumns!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AggregateColumn"] |
 		fn.#ListExpression
-	AllowedJoinOperators?: list.MaxItems(2) & [
-		..._#defs."/$defs/Properties/definitions/JoinOperator" | fn.#StringExpression
-	] |
+	AllowedJoinOperators?: list.MaxItems(2) & [..._#defs."/$defs/Properties/definitions/JoinOperator"] |
 		fn.#ListExpression
-	DimensionColumns!: [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName" | fn.#StringExpression] |
+	DimensionColumns!: [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"] | fn.#ListExpression
+	JoinColumns!:      [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"] | fn.#ListExpression
+	JoinRequired?:     _#defs."/$defs/Properties/definitions/JoinRequiredOption"
+	OutputConstraints!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AggregationConstraint"] |
 		fn.#ListExpression
-	JoinColumns!: [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName" | fn.#StringExpression] |
-		fn.#ListExpression
-	JoinRequired?: _#defs."/$defs/Properties/definitions/JoinRequiredOption" | fn.#StringExpression
-	OutputConstraints!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AggregationConstraint" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	ScalarFunctions!: [..._#defs."/$defs/Properties/definitions/ScalarFunctions" | fn.#StringExpression] |
-		fn.#ListExpression
+	ScalarFunctions!: [..._#defs."/$defs/Properties/definitions/ScalarFunctions"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -142,31 +164,26 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AnalysisRuleCustom": close({
-	AdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AdditionalAnalyses" | fn.#StringExpression
+	AdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AdditionalAnalyses"
 	AggregationThresholds?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AggregationThreshold" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/AggregationThreshold"
 	] |
 		fn.#ListExpression
-	AllowedAnalyses!:          _#defs."/$defs/Properties/definitions/AllowedAnalyses" | fn.#ListExpression
-	AllowedAnalysisProviders?: _#defs."/$defs/Properties/definitions/AllowedAnalysisProviders" | fn.#ListExpression
-	ComparisonControls?:       _#defs."/$defs/Properties/definitions/ComparisonControls" | fn.#ObjectExpression
-	DifferentialPrivacy?:      _#defs."/$defs/Properties/definitions/DifferentialPrivacy" | fn.#ObjectExpression
-	DisallowedOutputColumns?:  _#defs."/$defs/Properties/definitions/DisallowedOutputColumns" | fn.#ListExpression
+	AllowedAnalyses!:          _#defs."/$defs/Properties/definitions/AllowedAnalyses"
+	AllowedAnalysisProviders?: _#defs."/$defs/Properties/definitions/AllowedAnalysisProviders"
+	ComparisonControls?:       _#defs."/$defs/Properties/definitions/ComparisonControls"
+	DifferentialPrivacy?:      _#defs."/$defs/Properties/definitions/DifferentialPrivacy"
+	DisallowedOutputColumns?:  _#defs."/$defs/Properties/definitions/DisallowedOutputColumns"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AnalysisRuleList": close({
-	AdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AdditionalAnalyses" | fn.#StringExpression
-	AllowedJoinOperators?: list.MaxItems(2) & [
-		..._#defs."/$defs/Properties/definitions/JoinOperator" | fn.#StringExpression
-	] |
+	AdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AdditionalAnalyses"
+	AllowedJoinOperators?: list.MaxItems(2) & [..._#defs."/$defs/Properties/definitions/JoinOperator"] |
 		fn.#ListExpression
-	JoinColumns!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName" | fn.#StringExpression
-	] |
+	JoinColumns!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"] |
 		fn.#ListExpression
-	ListColumns!: [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName" | fn.#StringExpression] |
-		fn.#ListExpression
+	ListColumns!: [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -174,7 +191,7 @@ _#defs: "/$defs/Properties/definitions/AthenaTableReference": close({
 	CatalogName?:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	DatabaseName!:   strings.MaxRunes(128) | fn.#StringExpression
 	OutputLocation?: strings.MaxRunes(1024) & strings.MinRunes(8) | fn.#StringExpression
-	Region?:         _#defs."/$defs/Properties/definitions/CommercialRegion" | fn.#StringExpression
+	Region?:         _#defs."/$defs/Properties/definitions/CommercialRegion"
 	TableName!:      strings.MaxRunes(128) | fn.#StringExpression
 	WorkGroup!:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
@@ -215,28 +232,24 @@ _#defs: "/$defs/Properties/definitions/CommercialRegion": "us-west-1" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ComparisonControls": close({
-	AllowedColumnComparisonColumns!: [
-		..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName" | fn.#StringExpression
-	] |
+	AllowedColumnComparisonColumns!: [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"] |
 		fn.#ListExpression
-	AllowedLiteralComparisonColumns!: [
-		..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName" | fn.#StringExpression
-	] |
+	AllowedLiteralComparisonColumns!: [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfiguredTableAnalysisRulePolicy": close(
-	{V1!: _#defs."/$defs/Properties/definitions/ConfiguredTableAnalysisRulePolicyV1" | fn.#ValueExpression},
+	{V1!: _#defs."/$defs/Properties/definitions/ConfiguredTableAnalysisRulePolicyV1"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfiguredTableAnalysisRulePolicyV1": matchN(1, [close(
-	{List!: _#defs."/$defs/Properties/definitions/AnalysisRuleList" | fn.#ObjectExpression},
+	{List!: _#defs."/$defs/Properties/definitions/AnalysisRuleList"},
 ), close(
-	{Aggregation!: _#defs."/$defs/Properties/definitions/AnalysisRuleAggregation" | fn.#ObjectExpression},
+	{Aggregation!: _#defs."/$defs/Properties/definitions/AnalysisRuleAggregation"},
 ), close(
-	{Custom!: _#defs."/$defs/Properties/definitions/AnalysisRuleCustom" | fn.#ObjectExpression},
+	{Custom!: _#defs."/$defs/Properties/definitions/AnalysisRuleCustom"},
 )]) |
 fn.#ValueExpression
 
@@ -246,9 +259,7 @@ _#defs: "/$defs/Properties/definitions/ConfiguredTableAnalysisRuleType": "AGGREG
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DifferentialPrivacy": close({
-	Columns!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DifferentialPrivacyColumn" | fn.#ObjectExpression
-	] |
+	Columns!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DifferentialPrivacyColumn"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -257,14 +268,14 @@ _#defs: "/$defs/Properties/definitions/DifferentialPrivacyColumn": close({Name!:
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DisallowedOutputColumns": [...] & [
-	..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/GlueTableReference": close({
 	DatabaseName!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" |
 	fn.#StringExpression
-	Region?:    _#defs."/$defs/Properties/definitions/CommercialRegion" | fn.#StringExpression
+	Region?:    _#defs."/$defs/Properties/definitions/CommercialRegion"
 	TableName!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -274,8 +285,23 @@ _#defs: "/$defs/Properties/definitions/JoinOperator": "OR" | "AND" | fn.#StringE
 _#defs: "/$defs/Properties/definitions/JoinRequiredOption": "QUERY_RUNNER" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/OutputColumnThreshold": close({
-	MinimumIdentityCount!: int & <=100000 & >=0 | fn.#NumberExpression
-	OutputColumnName!:     _#defs."/$defs/Properties/definitions/AnalysisRuleColumnName" | fn.#StringExpression
+	MinimumIdentityCount!: int & <=100000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	OutputColumnName!: _#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"
 }) |
 fn.#ObjectExpression
 
@@ -308,7 +334,7 @@ _#defs: "/$defs/Properties/definitions/ScalarFunctions": "TRUNC" |
 _#defs: "/$defs/Properties/definitions/SelectedAnalysisMethod": "DIRECT_QUERY" | "DIRECT_JOB" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SelectedAnalysisMethods": [
-	..._#defs."/$defs/Properties/definitions/SelectedAnalysisMethod" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/SelectedAnalysisMethod"
 ] |
 	fn.#ListExpression
 
@@ -318,14 +344,12 @@ _#defs: "/$defs/Properties/definitions/SnowflakeTableReference": close({
 	SchemaName!:        strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	SecretArn!:         strings.MaxRunes(256) | fn.#StringExpression
 	TableName!:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	TableSchema!:       _#defs."/$defs/Properties/definitions/SnowflakeTableSchema" | fn.#ValueExpression
+	TableSchema!:       _#defs."/$defs/Properties/definitions/SnowflakeTableSchema"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SnowflakeTableSchema": close({
-	V1!: list.MaxItems(250) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/SnowflakeTableSchemaV1" | fn.#ObjectExpression
-	] |
+	V1!: list.MaxItems(250) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SnowflakeTableSchemaV1"] |
 		fn.#ListExpression
 }) |
 	fn.#ValueExpression
@@ -337,11 +361,11 @@ _#defs: "/$defs/Properties/definitions/SnowflakeTableSchemaV1": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableReference": matchN(1, [close(
-	{Glue!: _#defs."/$defs/Properties/definitions/GlueTableReference" | fn.#ObjectExpression},
+	{Glue!: _#defs."/$defs/Properties/definitions/GlueTableReference"},
 ), close(
-	{Snowflake!: _#defs."/$defs/Properties/definitions/SnowflakeTableReference" | fn.#ObjectExpression},
+	{Snowflake!: _#defs."/$defs/Properties/definitions/SnowflakeTableReference"},
 ), close(
-	{Athena!: _#defs."/$defs/Properties/definitions/AthenaTableReference" | fn.#ObjectExpression},
+	{Athena!: _#defs."/$defs/Properties/definitions/AthenaTableReference"},
 )]) |
 fn.#ValueExpression
 

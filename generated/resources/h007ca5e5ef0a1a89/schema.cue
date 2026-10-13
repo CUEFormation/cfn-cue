@@ -19,15 +19,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/AccessPolicyIdentity": close({
-	IamRole?: _#defs."/$defs/Properties/definitions/IamRole" | fn.#ObjectExpression
-	IamUser?: _#defs."/$defs/Properties/definitions/IamUser" | fn.#ObjectExpression
-	User?:    _#defs."/$defs/Properties/definitions/User" | fn.#ObjectExpression
+	IamRole?: _#defs."/$defs/Properties/definitions/IamRole"
+	IamUser?: _#defs."/$defs/Properties/definitions/IamUser"
+	User?:    _#defs."/$defs/Properties/definitions/User"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AccessPolicyResource": close({
-	Portal?:  _#defs."/$defs/Properties/definitions/Portal" | fn.#ObjectExpression
-	Project?: _#defs."/$defs/Properties/definitions/Project" | fn.#ObjectExpression
+	Portal?:  _#defs."/$defs/Properties/definitions/Portal"
+	Project?: _#defs."/$defs/Properties/definitions/Project"
 }) |
 fn.#ObjectExpression
 

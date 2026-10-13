@@ -54,7 +54,7 @@ import (
 	SQScheduleConfiguration?: string
 
 	// The ARN for the IAM role that Timestream will assume when running the scheduled query.
-	SQScheduledQueryExecutionRoleArn?: string
+	SQScheduledQueryExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Configuration of target store where scheduled query results are written to.
 	SQTargetConfiguration?:          string
@@ -123,7 +123,8 @@ _#defs: "/$defs/Properties/definitions/Key": strings.MaxRunes(128) & strings.Min
 // prefix the name with alias/. If ErrorReportConfiguration uses SSE_KMS as
 // encryption type, the same KmsKeyId is used to encrypt the error report at
 // rest.
-_#defs: "/$defs/Properties/definitions/KmsKeyId": (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
+_#defs: "/$defs/Properties/definitions/KmsKeyId": (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 // Name of the measure name column from the query result.
 _#defs: "/$defs/Properties/definitions/MeasureNameColumn": string
@@ -235,7 +236,7 @@ _#defs: "/$defs/Properties/definitions/ScheduleConfiguration": close(
 _#defs: "/$defs/Properties/definitions/ScheduleExpression": strings.MaxRunes(256) & strings.MinRunes(1)
 
 // The ARN for the IAM role that Timestream will assume when running the scheduled query.
-_#defs: "/$defs/Properties/definitions/ScheduledQueryExecutionRoleArn": strings.MaxRunes(2048) & strings.MinRunes(1)
+_#defs: "/$defs/Properties/definitions/ScheduledQueryExecutionRoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 // The name of the scheduled query. Scheduled query names must be unique within each Region.
 _#defs: "/$defs/Properties/definitions/ScheduledQueryName": strings.MaxRunes(64) &
@@ -291,7 +292,7 @@ _#defs: "/$defs/Properties/definitions/TimestreamConfiguration": close({
 })
 
 // SNS topic ARN that the scheduled query status notifications will be sent to.
-_#defs: "/$defs/Properties/definitions/TopicArn": strings.MaxRunes(2048) & strings.MinRunes(1)
+_#defs: "/$defs/Properties/definitions/TopicArn": =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 // The value for the tag. You can specify a value that is 0 to 256 Unicode
 // characters in length and cannot be prefixed with aws:. You can use any of

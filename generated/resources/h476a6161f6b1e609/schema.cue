@@ -7,6 +7,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,48 +21,142 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
 		...
 	} | fn.#ObjectExpression
-	AutoAssignElasticIps!:     bool | fn.#BooleanExpression
-	AutoAssignPublicIps!:      bool | fn.#BooleanExpression
+	AutoAssignElasticIps!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AutoAssignPublicIps!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CustomInstanceProfileArn?: string | fn.#StringExpression
-	CustomJson?:               string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	CustomRecipes?:            _#defs."/$defs/Properties/definitions/Recipes" | fn.#ObjectExpression
-	CustomSecurityGroupIds?:   [...string | fn.#StringExpression] | fn.#ListExpression
-	EnableAutoHealing!:        bool | fn.#BooleanExpression
-	InstallUpdatesOnBoot?:     bool | fn.#BooleanExpression
-	LifecycleEventConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleEventConfiguration" |
-		fn.#ObjectExpression
-	LoadBasedAutoScaling?: _#defs."/$defs/Properties/definitions/LoadBasedAutoScaling" | fn.#ObjectExpression
-	Name!:                 string | fn.#StringExpression
-	Packages?:             [...string | fn.#StringExpression] | fn.#ListExpression
-	Shortname!:            string | fn.#StringExpression
-	StackId!:              string | fn.#StringExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	Type!:                 string | fn.#StringExpression
-	UseEbsOptimizedInstances?: bool | fn.#BooleanExpression
-	VolumeConfigurations?: [..._#defs."/$defs/Properties/definitions/VolumeConfiguration" | fn.#ObjectExpression] |
+	CustomJson?:               fn.#Object & {...} | string | fn.#StringObjectExpression
+	CustomRecipes?:            _#defs."/$defs/Properties/definitions/Recipes"
+	CustomSecurityGroupIds?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
 		fn.#ListExpression
+	EnableAutoHealing!:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InstallUpdatesOnBoot?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	LifecycleEventConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleEventConfiguration"
+	LoadBasedAutoScaling?:        _#defs."/$defs/Properties/definitions/LoadBasedAutoScaling"
+	Name!:                        string | fn.#StringExpression
+	Packages?:                    [...string | fn.#StringExpression] | fn.#ListExpression
+	Shortname!:                   string | fn.#StringExpression
+	StackId!:                     string | fn.#StringExpression
+	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Type!:                        string | fn.#StringExpression
+	UseEbsOptimizedInstances?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	VolumeConfigurations?:        [..._#defs."/$defs/Properties/definitions/VolumeConfiguration"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AutoScalingThresholds": close({
-	CpuThreshold?:       number | fn.#NumberExpression
-	IgnoreMetricsTime?:  int | fn.#NumberExpression
-	InstanceCount?:      int | fn.#NumberExpression
-	LoadThreshold?:      number | fn.#NumberExpression
-	MemoryThreshold?:    number | fn.#NumberExpression
-	ThresholdsWaitTime?: int | fn.#NumberExpression
+	CpuThreshold?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IgnoreMetricsTime?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	InstanceCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LoadThreshold?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MemoryThreshold?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ThresholdsWaitTime?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LifecycleEventConfiguration": close({
-	ShutdownEventConfiguration?: _#defs."/$defs/Properties/definitions/ShutdownEventConfiguration" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/LifecycleEventConfiguration": close(
+	{ShutdownEventConfiguration?: _#defs."/$defs/Properties/definitions/ShutdownEventConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoadBasedAutoScaling": close({
-	DownScaling?: _#defs."/$defs/Properties/definitions/AutoScalingThresholds" | fn.#ObjectExpression
-	Enable?:      bool | fn.#BooleanExpression
-	UpScaling?:   _#defs."/$defs/Properties/definitions/AutoScalingThresholds" | fn.#ObjectExpression
+	DownScaling?: _#defs."/$defs/Properties/definitions/AutoScalingThresholds"
+	Enable?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UpScaling?:   _#defs."/$defs/Properties/definitions/AutoScalingThresholds"
 }) |
 fn.#ObjectExpression
 
@@ -72,8 +170,28 @@ _#defs: "/$defs/Properties/definitions/Recipes": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ShutdownEventConfiguration": close({
-	DelayUntilElbConnectionsDrained?: bool | fn.#BooleanExpression
-	ExecutionTimeout?:                int | fn.#NumberExpression
+	DelayUntilElbConnectionsDrained?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	ExecutionTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -84,13 +202,65 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VolumeConfiguration": close({
-	Encrypted?:     bool | fn.#BooleanExpression
-	Iops?:          int | fn.#NumberExpression
-	MountPoint?:    string | fn.#StringExpression
-	NumberOfDisks?: int | fn.#NumberExpression
-	RaidLevel?:     int | fn.#NumberExpression
-	Size?:          int | fn.#NumberExpression
-	VolumeType?:    string | fn.#StringExpression
+	Encrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Iops?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MountPoint?: string | fn.#StringExpression
+	NumberOfDisks?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RaidLevel?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Size?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VolumeType?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

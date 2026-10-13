@@ -354,7 +354,7 @@ _#defs: "/$defs/Properties/definitions/AdvancedConfiguration": close({
 
 	// The Amazon Resource Name (ARN) of the IAM role that grants Amazon ECS
 	// permission to call the Elastic Load Balancing APIs for you.
-	RoleArn?: string
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The Amazon Resource Name (ARN) that identifies ) that identifies the test
 	// listener rule (in the case of an Application Load Balancer) or listener (in
@@ -376,7 +376,7 @@ _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
 	// don't specify a security group, the default security group for the VPC is
 	// used. There's a limit of 5 security groups that can be specified.
 	// All specified security groups must be from the same VPC.
-	SecurityGroups?: [...string]
+	SecurityGroups?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// The IDs of the subnets associated with the task or service. There's a limit
 	// of 16 subnets that can be specified.
@@ -907,7 +907,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentLifecycleHook": close({
 	// Amazon ECS blue/green
 	// deployments](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/blue-green-permissions.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
-	RoleArn?: string
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The type of action the lifecycle hook performs. Valid values are:
 	// + ``AWS_LAMBDA`` - Invokes a Lambda function at the specified lifecycle
@@ -1573,7 +1573,7 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectTlsConfiguration": close({
 	KmsKey?: string
 
 	// The Amazon Resource Name (ARN) of the IAM role that's associated with the Service Connect TLS.
-	RoleArn?: string
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 // The configuration for the Amazon EBS volume that Amazon ECS creates and
@@ -1634,7 +1634,7 @@ _#defs: "/$defs/Properties/definitions/ServiceManagedEBSVolumeConfiguration": cl
 	// AWS authenticates the AWS Key Management Service key asynchronously.
 	// Therefore, if you specify an ID, alias, or ARN that is invalid, the action
 	// can appear to complete, but eventually fails.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The ARN of the IAM role to associate with this volume. This is the Amazon ECS
 	// infrastructure IAM role that is used to manage your AWS infrastructure. We
@@ -1643,7 +1643,7 @@ _#defs: "/$defs/Properties/definitions/ServiceManagedEBSVolumeConfiguration": cl
 	// For more information, see [Amazon ECS infrastructure IAM
 	// role](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/infrastructure_IAM_role.html)
 	// in the *Amazon ECS Developer Guide*.
-	RoleArn!: string
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The size of the volume in GiB. You must specify either a volume size or a
 	// snapshot ID. If you specify a snapshot ID, the snapshot size is used for the
@@ -1859,7 +1859,7 @@ _#defs: "/$defs/Properties/definitions/VpcLatticeConfiguration": close({
 	// The ARN of the IAM role to associate with this VPC Lattice configuration.
 	// This is the Amazon ECS infrastructure IAM role that is used to manage your
 	// VPC Lattice infrastructure.
-	RoleArn!: string
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The full Amazon Resource Name (ARN) of the target group or groups associated
 	// with the VPC Lattice configuration that the Amazon ECS tasks will be

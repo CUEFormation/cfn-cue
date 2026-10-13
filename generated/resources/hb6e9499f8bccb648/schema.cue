@@ -19,9 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 	Priority?:    _#defs."/$defs/Properties/definitions/Priority" | fn.#StringExpression
 	Recipients?:  _#defs."/$defs/Properties/definitions/RecipientList" | fn.#ListExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
@@ -33,24 +31,24 @@ _#defs: "/$defs/Properties/definitions/InstanceArn": =~"^arn:aws[-a-z0-9]*:conne
 _#defs: "/$defs/Properties/definitions/LocalizedString": =~"^.{0,500}$" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/NotificationContent": close({
-	DeDE?: _#defs."/$defs/Properties/definitions/LocalizedString" | fn.#StringExpression
-	EnUS?: _#defs."/$defs/Properties/definitions/LocalizedString" | fn.#StringExpression
-	EsES?: _#defs."/$defs/Properties/definitions/LocalizedString" | fn.#StringExpression
-	FrFR?: _#defs."/$defs/Properties/definitions/LocalizedString" | fn.#StringExpression
-	IdID?: _#defs."/$defs/Properties/definitions/LocalizedString" | fn.#StringExpression
-	ItIT?: _#defs."/$defs/Properties/definitions/LocalizedString" | fn.#StringExpression
-	JaJP?: _#defs."/$defs/Properties/definitions/LocalizedString" | fn.#StringExpression
-	KoKR?: _#defs."/$defs/Properties/definitions/LocalizedString" | fn.#StringExpression
-	PtBR?: _#defs."/$defs/Properties/definitions/LocalizedString" | fn.#StringExpression
-	ZhCN?: _#defs."/$defs/Properties/definitions/LocalizedString" | fn.#StringExpression
-	ZhTW?: _#defs."/$defs/Properties/definitions/LocalizedString" | fn.#StringExpression
+	DeDE?: _#defs."/$defs/Properties/definitions/LocalizedString"
+	EnUS?: _#defs."/$defs/Properties/definitions/LocalizedString"
+	EsES?: _#defs."/$defs/Properties/definitions/LocalizedString"
+	FrFR?: _#defs."/$defs/Properties/definitions/LocalizedString"
+	IdID?: _#defs."/$defs/Properties/definitions/LocalizedString"
+	ItIT?: _#defs."/$defs/Properties/definitions/LocalizedString"
+	JaJP?: _#defs."/$defs/Properties/definitions/LocalizedString"
+	KoKR?: _#defs."/$defs/Properties/definitions/LocalizedString"
+	PtBR?: _#defs."/$defs/Properties/definitions/LocalizedString"
+	ZhCN?: _#defs."/$defs/Properties/definitions/LocalizedString"
+	ZhTW?: _#defs."/$defs/Properties/definitions/LocalizedString"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Priority": "HIGH" | "LOW" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RecipientList": list.MaxItems(200) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/Arn"
 ] |
 	fn.#ListExpression
 

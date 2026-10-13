@@ -14,9 +14,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource type definition for AWS::RAM::Permission
 #Properties: close({
 	Name!:           strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[\\w.-]*$" | fn.#StringExpression
-	PolicyTemplate!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	PolicyTemplate!: fn.#Object & {...} | string | fn.#StringObjectExpression
 	ResourceType!:   string | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/PermissionTemplateParameterDeclaration": close({

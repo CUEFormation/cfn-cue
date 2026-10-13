@@ -16,7 +16,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // identifies custom entity types in text, created via an asynchronous training
 // job.
 #Properties: close({
-	DataAccessRoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" |
+	DataAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" |
 	fn.#StringExpression
 	InputDataConfig!: _#defs."/$defs/Properties/definitions/EntityRecognizerInputDataConfig" | fn.#ObjectExpression
 	LanguageCode!: "en" |
@@ -39,8 +42,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	RecognizerName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
 	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VersionName?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
 	VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^\\p{ASCII}+$" | fn.#StringExpression
 	VpcConfig?:      _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
@@ -90,14 +92,12 @@ _#defs: "/$defs/Properties/definitions/EntityRecognizerEntityList": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EntityRecognizerInputDataConfig": close({
-	Annotations?: _#defs."/$defs/Properties/definitions/EntityRecognizerAnnotations" | fn.#ObjectExpression
-	AugmentedManifests?: [..._#defs."/$defs/Properties/definitions/AugmentedManifestsListItem" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	DataFormat?: "COMPREHEND_CSV" | "AUGMENTED_MANIFEST" | fn.#StringExpression
-	Documents?:  _#defs."/$defs/Properties/definitions/EntityRecognizerDocuments" | fn.#ObjectExpression
-	EntityList?: _#defs."/$defs/Properties/definitions/EntityRecognizerEntityList" | fn.#ObjectExpression
-	EntityTypes!: [..._#defs."/$defs/Properties/definitions/EntityTypesListItem" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Annotations?:        _#defs."/$defs/Properties/definitions/EntityRecognizerAnnotations" | fn.#ObjectExpression
+	AugmentedManifests?: [..._#defs."/$defs/Properties/definitions/AugmentedManifestsListItem"] | fn.#ListExpression
+	DataFormat?:         "COMPREHEND_CSV" | "AUGMENTED_MANIFEST" | fn.#StringExpression
+	Documents?:          _#defs."/$defs/Properties/definitions/EntityRecognizerDocuments" | fn.#ObjectExpression
+	EntityList?:         _#defs."/$defs/Properties/definitions/EntityRecognizerEntityList" | fn.#ObjectExpression
+	EntityTypes!:        [..._#defs."/$defs/Properties/definitions/EntityTypesListItem"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -114,7 +114,11 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[-0-9a-zA-Z]+$" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(1) &
+		=~"^[-0-9a-zA-Z]+$" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	Subnets!: list.MaxItems(16) & list.MinItems(1) & [

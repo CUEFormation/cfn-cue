@@ -112,7 +112,8 @@ _#defs: "/$defs/Properties/definitions/SSMContact": strings.MaxRunes(1000) &
 =~"^arn:aws(-(cn|us-gov))?:ssm-contacts:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
 
 // The ARN of the Chatbot SNS topic.
-_#defs: "/$defs/Properties/definitions/SnsArn": strings.MaxRunes(1000) &
+_#defs: "/$defs/Properties/definitions/SnsArn": =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
+strings.MaxRunes(1000) &
 =~"^arn:aws(-(cn|us-gov))?:sns:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
 
 // The configuration to use when starting the SSM automation document.
@@ -134,7 +135,9 @@ _#defs: "/$defs/Properties/definitions/SsmAutomation": close({
 	]
 
 	// The role ARN to use when starting the SSM automation document.
-	RoleArn!: strings.MaxRunes(1000) & =~"^arn:aws(-(cn|us-gov))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1000) &
+	=~"^arn:aws(-(cn|us-gov))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
 
 	// The account type to use when starting the SSM automation document.
 	TargetAccount?: "IMPACTED_ACCOUNT" | "RESPONSE_PLAN_OWNER_ACCOUNT"

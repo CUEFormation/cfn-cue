@@ -9,6 +9,10 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,21 +20,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Represents a plan that specifies Regions, IAM roles, and workflows of logic
 // required to perform the desired change to your multi-Region application
 #Properties: close({
-	AssociatedAlarms?: _#defs."/$defs/Properties/definitions/AssociatedAlarmMap" | fn.#ObjectExpression
+	AssociatedAlarms?: _#defs."/$defs/Properties/definitions/AssociatedAlarmMap"
 	Description?:      string | fn.#StringExpression
 	ExecutionRole!:    =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
 	Name!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,30}[a-zA-Z0-9])?$" |
 	fn.#StringExpression
-	PrimaryRegion?:                =~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression
-	RecoveryApproach!:             _#defs."/$defs/Properties/definitions/RecoveryApproach" | fn.#StringExpression
-	RecoveryTimeObjectiveMinutes?: <=10080 & >=1 | fn.#NumberExpression
+	PrimaryRegion?:    =~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression
+	RecoveryApproach!: _#defs."/$defs/Properties/definitions/RecoveryApproach"
+	RecoveryTimeObjectiveMinutes?: <=10080 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=10080 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Regions!: list.MaxItems(2) & list.MinItems(2) & [...=~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression] |
 		fn.#ListExpression
-	ReportConfiguration?:       _#defs."/$defs/Properties/definitions/ReportConfiguration" | fn.#ObjectExpression
-	ServiceQuotaChecksEnabled?: bool | fn.#BooleanExpression
-	Tags?:                      _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
-	Triggers?:  [..._#defs."/$defs/Properties/definitions/Trigger" | fn.#ObjectExpression] | fn.#ListExpression
-	Workflows!: [..._#defs."/$defs/Properties/definitions/Workflow" | fn.#ObjectExpression] | fn.#ListExpression
+	ReportConfiguration?:       _#defs."/$defs/Properties/definitions/ReportConfiguration"
+	ServiceQuotaChecksEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?:                      _#defs."/$defs/Properties/definitions/Tags"
+	Triggers?:                  [..._#defs."/$defs/Properties/definitions/Trigger"] | fn.#ListExpression
+	Workflows!:                 [..._#defs."/$defs/Properties/definitions/Workflow"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AlarmCondition": "red" | "green" | fn.#StringExpression
@@ -40,14 +63,32 @@ _#defs: "/$defs/Properties/definitions/AlarmType": "applicationHealth" | "trigge
 _#defs: "/$defs/Properties/definitions/ArcRoutingControlConfiguration": close({
 	CrossAccountRole?:         =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
 	ExternalId?:               string | fn.#StringExpression
-	RegionAndRoutingControls!: _#defs."/$defs/Properties/definitions/RegionAndRoutingControls" | fn.#ObjectExpression
-	TimeoutMinutes?:           >=1 | fn.#NumberExpression
+	RegionAndRoutingControls!: _#defs."/$defs/Properties/definitions/RegionAndRoutingControls"
+	TimeoutMinutes?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ArcRoutingControlState": close({
 	RoutingControlArn!: string | fn.#StringExpression
-	State!:             _#defs."/$defs/Properties/definitions/RoutingControlStateChange" | fn.#StringExpression
+	State!:             _#defs."/$defs/Properties/definitions/RoutingControlStateChange"
 }) |
 fn.#ObjectExpression
 
@@ -60,7 +101,7 @@ _#defs: "/$defs/Properties/definitions/Asg": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AssociatedAlarm": close({
-	AlarmType!:          _#defs."/$defs/Properties/definitions/AlarmType" | fn.#StringExpression
+	AlarmType!:          _#defs."/$defs/Properties/definitions/AlarmType"
 	CrossAccountRole?:   =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
 	ExternalId?:         string | fn.#StringExpression
 	ResourceIdentifier!: string | fn.#StringExpression
@@ -69,7 +110,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AssociatedAlarmMap": close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/AssociatedAlarm" | fn.#ObjectExpression}}) |
+	{[=~".+"]: _#defs."/$defs/Properties/definitions/AssociatedAlarm"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AuroraProvisionedScalingConfiguration": close({
@@ -77,9 +118,27 @@ _#defs: "/$defs/Properties/definitions/AuroraProvisionedScalingConfiguration": c
 	ExternalId?:       string | fn.#StringExpression
 	GlobalClusterIdentifier!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-:._]*$" |
 	fn.#StringExpression
-	InstanceArns!:              _#defs."/$defs/Properties/definitions/RegionAuroraInstanceArnMap" | fn.#ObjectExpression
-	RegionDatabaseClusterArns!: _#defs."/$defs/Properties/definitions/RegionAuroraClusterMap" | fn.#ObjectExpression
-	TimeoutMinutes?:            >=1 | fn.#NumberExpression
+	InstanceArns!:              _#defs."/$defs/Properties/definitions/RegionAuroraInstanceArnMap"
+	RegionDatabaseClusterArns!: _#defs."/$defs/Properties/definitions/RegionAuroraClusterMap"
+	TimeoutMinutes?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -88,21 +147,91 @@ _#defs: "/$defs/Properties/definitions/AuroraServerlessScalingConfiguration": cl
 	ExternalId?:       string | fn.#StringExpression
 	GlobalClusterIdentifier!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-:._]*$" |
 	fn.#StringExpression
-	RegionDatabaseClusterArns!: _#defs."/$defs/Properties/definitions/RegionAuroraClusterMap" | fn.#ObjectExpression
-	TargetPercent?:             number | fn.#NumberExpression
-	TimeoutMinutes?:            >=1 | fn.#NumberExpression
+	RegionDatabaseClusterArns!: _#defs."/$defs/Properties/definitions/RegionAuroraClusterMap"
+	TargetPercent?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TimeoutMinutes?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomActionLambdaConfiguration": close({
-	Lambdas!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Lambdas" | fn.#ObjectExpression
-	] |
+	Lambdas!: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Lambdas"] |
 		fn.#ListExpression
-	RegionToRun!:          _#defs."/$defs/Properties/definitions/RegionToRunIn" | fn.#StringExpression
-	RetryIntervalMinutes!: number | fn.#NumberExpression
-	TimeoutMinutes?:       >=1 | fn.#NumberExpression
-	Ungraceful?:           _#defs."/$defs/Properties/definitions/LambdaUngraceful" | fn.#ObjectExpression
+	RegionToRun!: _#defs."/$defs/Properties/definitions/RegionToRunIn"
+	RetryIntervalMinutes!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TimeoutMinutes?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ungraceful?: _#defs."/$defs/Properties/definitions/LambdaUngraceful"
 }) |
 fn.#ObjectExpression
 
@@ -115,29 +244,82 @@ _#defs: "/$defs/Properties/definitions/DocumentDbConfiguration": close({
 		fn.#ListExpression
 	ExternalId?:              string | fn.#StringExpression
 	GlobalClusterIdentifier!: =~"^[A-Za-z][0-9A-Za-z-:._]*$" | fn.#StringExpression
-	TimeoutMinutes?:          >=1 | fn.#NumberExpression
-	Ungraceful?:              _#defs."/$defs/Properties/definitions/DocumentDbUngraceful" | fn.#ObjectExpression
+	TimeoutMinutes?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ungraceful?: _#defs."/$defs/Properties/definitions/DocumentDbUngraceful"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DocumentDbDefaultBehavior": "switchoverOnly" | "failover" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DocumentDbUngraceful": close(
-	{Ungraceful?: _#defs."/$defs/Properties/definitions/DocumentDbUngracefulBehavior" | fn.#StringExpression},
+	{Ungraceful?: _#defs."/$defs/Properties/definitions/DocumentDbUngracefulBehavior"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DocumentDbUngracefulBehavior": "failover" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Ec2AsgCapacityIncreaseConfiguration": close({
-	Asgs!: list.MaxItems(2) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/Asg" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Asgs!: list.MaxItems(2) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/Asg"] | fn.#ListExpression
 	CapacityMonitoringApproach?: _#defs."/$defs/Properties/definitions/Ec2AsgCapacityMonitoringApproach" |
 		fn.#ValueExpression
-	TargetPercent?:             number | fn.#NumberExpression
-	TimeoutMinutes?:            >=1 | fn.#NumberExpression
-	Ungraceful?:                _#defs."/$defs/Properties/definitions/Ec2Ungraceful" | fn.#ObjectExpression
-	WaitELBTargetGroupHealthy?: _#defs."/$defs/Properties/definitions/WaitELBTargetGroupHealthy" | fn.#StringExpression
+	TargetPercent?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TimeoutMinutes?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ungraceful?:                _#defs."/$defs/Properties/definitions/Ec2Ungraceful"
+	WaitELBTargetGroupHealthy?: _#defs."/$defs/Properties/definitions/WaitELBTargetGroupHealthy"
 }) |
 fn.#ObjectExpression
 
@@ -145,22 +327,75 @@ _#defs: "/$defs/Properties/definitions/Ec2AsgCapacityMonitoringApproach": "sampl
 	"autoscalingMaxInLast24Hours" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Ec2Ungraceful": close(
-	{MinimumSuccessPercentage!: <=99 & >=0 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/Ec2Ungraceful": close({
+	MinimumSuccessPercentage!: <=99 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=99 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EcsCapacityIncreaseConfiguration": close({
 	CapacityMonitoringApproach?: _#defs."/$defs/Properties/definitions/EcsCapacityMonitoringApproach" |
 		fn.#ValueExpression
-	Services!: list.MaxItems(2) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/Service" | fn.#ObjectExpression
-	] |
+	Services!: list.MaxItems(2) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/Service"] |
 		fn.#ListExpression
-	TargetPercent?:             number | fn.#NumberExpression
-	TimeoutMinutes?:            >=1 | fn.#NumberExpression
-	Ungraceful?:                _#defs."/$defs/Properties/definitions/EcsUngraceful" | fn.#ObjectExpression
-	WaitELBTargetGroupHealthy?: _#defs."/$defs/Properties/definitions/WaitELBTargetGroupHealthy" | fn.#StringExpression
+	TargetPercent?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TimeoutMinutes?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ungraceful?:                _#defs."/$defs/Properties/definitions/EcsUngraceful"
+	WaitELBTargetGroupHealthy?: _#defs."/$defs/Properties/definitions/WaitELBTargetGroupHealthy"
 }) |
 fn.#ObjectExpression
 
@@ -168,9 +403,28 @@ _#defs: "/$defs/Properties/definitions/EcsCapacityMonitoringApproach": "sampledM
 	"containerInsightsMaxInLast24Hours" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EcsUngraceful": close(
-	{MinimumSuccessPercentage!: <=99 & >=0 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/EcsUngraceful": close({
+	MinimumSuccessPercentage!: <=99 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=99 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EksCapacityMonitoringApproach": "sampledMaxInLast24Hours" | fn.#StringExpression
@@ -186,22 +440,74 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/EksResourceScalingConfiguration": close({
 	CapacityMonitoringApproach?: _#defs."/$defs/Properties/definitions/EksCapacityMonitoringApproach" |
 		fn.#ValueExpression
-	EksClusters?: list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/EksCluster" | fn.#ObjectExpression] |
+	EksClusters?: list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/EksCluster"] | fn.#ListExpression
+	KubernetesResourceType!: _#defs."/$defs/Properties/definitions/KubernetesResourceType"
+	ScalingResources?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/KubernetesScalingApplication"] |
 		fn.#ListExpression
-	KubernetesResourceType!: _#defs."/$defs/Properties/definitions/KubernetesResourceType" | fn.#ObjectExpression
-	ScalingResources?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/KubernetesScalingApplication" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	TargetPercent?:  >=1 | fn.#NumberExpression
-	TimeoutMinutes?: >=1 | fn.#NumberExpression
-	Ungraceful?:     _#defs."/$defs/Properties/definitions/EksResourceScalingUngraceful" | fn.#ObjectExpression
+	TargetPercent?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TimeoutMinutes?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ungraceful?: _#defs."/$defs/Properties/definitions/EksResourceScalingUngraceful"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksResourceScalingUngraceful": close(
-	{MinimumSuccessPercentage!: <=99 & >=0 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/EksResourceScalingUngraceful": close({
+	MinimumSuccessPercentage!: <=99 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=99 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EventSourceMapping": close({
@@ -213,62 +519,67 @@ _#defs: "/$defs/Properties/definitions/EventSourceMapping": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExecutionApprovalConfiguration": close({
-	ApprovalRole!:   string | fn.#StringExpression
-	TimeoutMinutes?: >=1 | fn.#NumberExpression
+	ApprovalRole!: string | fn.#StringExpression
+	TimeoutMinutes?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExecutionBlockConfiguration": matchN(1, [close({
-	CustomActionLambdaConfig!: _#defs."/$defs/Properties/definitions/CustomActionLambdaConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	Ec2AsgCapacityIncreaseConfig!: _#defs."/$defs/Properties/definitions/Ec2AsgCapacityIncreaseConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	ExecutionApprovalConfig!: _#defs."/$defs/Properties/definitions/ExecutionApprovalConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	ArcRoutingControlConfig!: _#defs."/$defs/Properties/definitions/ArcRoutingControlConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	AuroraProvisionedScalingConfig!: _#defs."/$defs/Properties/definitions/AuroraProvisionedScalingConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	AuroraServerlessScalingConfig!: _#defs."/$defs/Properties/definitions/AuroraServerlessScalingConfiguration" |
-		fn.#ObjectExpression
-}), close(
-	{GlobalAuroraConfig!: _#defs."/$defs/Properties/definitions/GlobalAuroraConfiguration" | fn.#ObjectExpression},
+_#defs: "/$defs/Properties/definitions/ExecutionBlockConfiguration": matchN(1, [close(
+	{CustomActionLambdaConfig!: _#defs."/$defs/Properties/definitions/CustomActionLambdaConfiguration"},
 ), close(
-	{ParallelConfig!: _#defs."/$defs/Properties/definitions/ParallelExecutionBlockConfiguration" | fn.#ObjectExpression},
+	{Ec2AsgCapacityIncreaseConfig!: _#defs."/$defs/Properties/definitions/Ec2AsgCapacityIncreaseConfiguration"},
+), close(
+	{ExecutionApprovalConfig!: _#defs."/$defs/Properties/definitions/ExecutionApprovalConfiguration"},
+), close(
+	{ArcRoutingControlConfig!: _#defs."/$defs/Properties/definitions/ArcRoutingControlConfiguration"},
+), close(
+	{AuroraProvisionedScalingConfig!: _#defs."/$defs/Properties/definitions/AuroraProvisionedScalingConfiguration"},
+), close(
+	{AuroraServerlessScalingConfig!: _#defs."/$defs/Properties/definitions/AuroraServerlessScalingConfiguration"},
+), close(
+	{GlobalAuroraConfig!: _#defs."/$defs/Properties/definitions/GlobalAuroraConfiguration"},
+), close(
+	{ParallelConfig!: _#defs."/$defs/Properties/definitions/ParallelExecutionBlockConfiguration"},
+), close(
+	{RegionSwitchPlanConfig!: _#defs."/$defs/Properties/definitions/RegionSwitchPlanConfiguration"},
+), close(
+	{EcsCapacityIncreaseConfig!: _#defs."/$defs/Properties/definitions/EcsCapacityIncreaseConfiguration"},
+), close(
+	{EksResourceScalingConfig!: _#defs."/$defs/Properties/definitions/EksResourceScalingConfiguration"},
+), close(
+	{Route53HealthCheckConfig!: _#defs."/$defs/Properties/definitions/Route53HealthCheckConfiguration"},
+), close(
+	{DocumentDbConfig!: _#defs."/$defs/Properties/definitions/DocumentDbConfiguration"},
+), close(
+	{RdsPromoteReadReplicaConfig!: _#defs."/$defs/Properties/definitions/RdsPromoteReadReplicaConfiguration"},
 ), close({
-	RegionSwitchPlanConfig!: _#defs."/$defs/Properties/definitions/RegionSwitchPlanConfiguration" | fn.#ObjectExpression
-}), close({
-	EcsCapacityIncreaseConfig!: _#defs."/$defs/Properties/definitions/EcsCapacityIncreaseConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	EksResourceScalingConfig!: _#defs."/$defs/Properties/definitions/EksResourceScalingConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	Route53HealthCheckConfig!: _#defs."/$defs/Properties/definitions/Route53HealthCheckConfiguration" |
-		fn.#ObjectExpression
+	RdsCreateCrossRegionReadReplicaConfig!:
+		_#defs."/$defs/Properties/definitions/RdsCreateCrossRegionReplicaConfiguration"
 }), close(
-	{DocumentDbConfig!: _#defs."/$defs/Properties/definitions/DocumentDbConfiguration" | fn.#ObjectExpression},
-), close({
-	RdsPromoteReadReplicaConfig!: _#defs."/$defs/Properties/definitions/RdsPromoteReadReplicaConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	RdsCreateCrossRegionReadReplicaConfig!: _#defs."/$defs/Properties/definitions/RdsCreateCrossRegionReplicaConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	LambdaEventSourceMappingConfig!: _#defs."/$defs/Properties/definitions/LambdaEventSourceMappingConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	NeptuneGlobalDatabaseConfig!: _#defs."/$defs/Properties/definitions/NeptuneGlobalDatabaseConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	RdsSwitchoverReadReplicaConfig!: _#defs."/$defs/Properties/definitions/RdsSwitchoverReadReplicaConfiguration" |
-		fn.#ObjectExpression
-})]) |
+	{LambdaEventSourceMappingConfig!: _#defs."/$defs/Properties/definitions/LambdaEventSourceMappingConfiguration"},
+), close(
+	{NeptuneGlobalDatabaseConfig!: _#defs."/$defs/Properties/definitions/NeptuneGlobalDatabaseConfiguration"},
+), close(
+	{RdsSwitchoverReadReplicaConfig!: _#defs."/$defs/Properties/definitions/RdsSwitchoverReadReplicaConfiguration"},
+)]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/ExecutionBlockType": "ARCRegionSwitchPlan" |
@@ -297,8 +608,26 @@ _#defs: "/$defs/Properties/definitions/GlobalAuroraConfiguration": close({
 	DatabaseClusterArns!:     [...string | fn.#StringExpression] | fn.#ListExpression
 	ExternalId?:              string | fn.#StringExpression
 	GlobalClusterIdentifier!: string | fn.#StringExpression
-	TimeoutMinutes?:          >=1 | fn.#NumberExpression
-	Ungraceful?:              _#defs."/$defs/Properties/definitions/GlobalAuroraUngraceful" | fn.#ObjectExpression
+	TimeoutMinutes?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ungraceful?: _#defs."/$defs/Properties/definitions/GlobalAuroraUngraceful"
 }) |
 fn.#ObjectExpression
 
@@ -307,7 +636,7 @@ _#defs: "/$defs/Properties/definitions/GlobalAuroraDefaultBehavior": "switchover
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/GlobalAuroraUngraceful": close(
-	{Ungraceful?: _#defs."/$defs/Properties/definitions/GlobalAuroraUngracefulBehavior" | fn.#StringExpression},
+	{Ungraceful?: _#defs."/$defs/Properties/definitions/GlobalAuroraUngracefulBehavior"},
 ) |
 	fn.#ObjectExpression
 
@@ -326,7 +655,7 @@ _#defs: "/$defs/Properties/definitions/HealthCheckState": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HealthChecks": list.MaxItems(2) & list.MinItems(2) & [
-	..._#defs."/$defs/Properties/definitions/HealthCheckState" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/HealthCheckState"
 ] |
 	fn.#ListExpression
 
@@ -340,7 +669,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KubernetesScalingApplication": close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/RegionalScalingResource" | fn.#ObjectExpression}}) |
+	{[=~".+"]: _#defs."/$defs/Properties/definitions/RegionalScalingResource"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KubernetesScalingResource": close({
@@ -351,11 +680,28 @@ _#defs: "/$defs/Properties/definitions/KubernetesScalingResource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LambdaEventSourceMappingConfiguration": close({
-	Action!: "enable" | "disable" | fn.#StringExpression
-	RegionEventSourceMappings!: _#defs."/$defs/Properties/definitions/RegionEventSourceMappingMap" |
-		fn.#ObjectExpression
-	TimeoutMinutes?: >=1 | fn.#NumberExpression
-	Ungraceful?:     _#defs."/$defs/Properties/definitions/LambdaEventSourceMappingUngraceful" | fn.#ObjectExpression
+	Action!:                    "enable" | "disable" | fn.#StringExpression
+	RegionEventSourceMappings!: _#defs."/$defs/Properties/definitions/RegionEventSourceMappingMap"
+	TimeoutMinutes?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ungraceful?: _#defs."/$defs/Properties/definitions/LambdaEventSourceMappingUngraceful"
 }) |
 fn.#ObjectExpression
 
@@ -386,29 +732,65 @@ _#defs: "/$defs/Properties/definitions/NeptuneGlobalDatabaseConfiguration": clos
 	ExternalId?:       string | fn.#StringExpression
 	GlobalClusterIdentifier!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-]*$" |
 	fn.#StringExpression
-	RegionDatabaseClusterArns!: _#defs."/$defs/Properties/definitions/RegionNeptuneClusterArnMap" | fn.#ObjectExpression
-	TimeoutMinutes?:            >=1 | fn.#NumberExpression
-	Ungraceful?:                _#defs."/$defs/Properties/definitions/NeptuneUngraceful" | fn.#ObjectExpression
+	RegionDatabaseClusterArns!: _#defs."/$defs/Properties/definitions/RegionNeptuneClusterArnMap"
+	TimeoutMinutes?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ungraceful?: _#defs."/$defs/Properties/definitions/NeptuneUngraceful"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NeptuneUngraceful": close(
-	{Ungraceful?: _#defs."/$defs/Properties/definitions/NeptuneUngracefulBehavior" | fn.#StringExpression},
+	{Ungraceful?: _#defs."/$defs/Properties/definitions/NeptuneUngracefulBehavior"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NeptuneUngracefulBehavior": "failover" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ParallelExecutionBlockConfiguration": close(
-	{Steps!: [..._#defs."/$defs/Properties/definitions/Step" | fn.#ObjectExpression] | fn.#ListExpression},
+	{Steps!: [..._#defs."/$defs/Properties/definitions/Step"] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RdsCreateCrossRegionReplicaConfiguration": close({
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	DbInstanceArnMap!: _#defs."/$defs/Properties/definitions/RdsDbInstanceArnMap" | fn.#ObjectExpression
+	DbInstanceArnMap!: _#defs."/$defs/Properties/definitions/RdsDbInstanceArnMap"
 	ExternalId?:       string | fn.#StringExpression
-	TimeoutMinutes?:   >=1 | fn.#NumberExpression
+	TimeoutMinutes?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -420,23 +802,59 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RdsPromoteReadReplicaConfiguration": close({
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	DbInstanceArnMap!: _#defs."/$defs/Properties/definitions/RdsDbInstanceArnMap" | fn.#ObjectExpression
+	DbInstanceArnMap!: _#defs."/$defs/Properties/definitions/RdsDbInstanceArnMap"
 	ExternalId?:       string | fn.#StringExpression
-	TimeoutMinutes?:   >=1 | fn.#NumberExpression
+	TimeoutMinutes?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RdsSwitchoverReadReplicaConfiguration": close({
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	DbInstanceArnMap!: _#defs."/$defs/Properties/definitions/RdsDbInstanceArnMap" | fn.#ObjectExpression
+	DbInstanceArnMap!: _#defs."/$defs/Properties/definitions/RdsDbInstanceArnMap"
 	ExternalId?:       string | fn.#StringExpression
-	TimeoutMinutes?:   >=1 | fn.#NumberExpression
-	Ungraceful?:       _#defs."/$defs/Properties/definitions/RdsUngraceful" | fn.#ObjectExpression
+	TimeoutMinutes?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ungraceful?: _#defs."/$defs/Properties/definitions/RdsUngraceful"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RdsUngraceful": close(
-	{Ungraceful?: _#defs."/$defs/Properties/definitions/RdsUngracefulBehavior" | fn.#StringExpression},
+	{Ungraceful?: _#defs."/$defs/Properties/definitions/RdsUngracefulBehavior"},
 ) |
 	fn.#ObjectExpression
 
@@ -446,8 +864,7 @@ _#defs: "/$defs/Properties/definitions/RecoveryApproach": "activeActive" | "acti
 
 _#defs: "/$defs/Properties/definitions/RegionAndRoutingControls": close({
 
-	{[=~".+"]: [..._#defs."/$defs/Properties/definitions/ArcRoutingControlState" | fn.#ObjectExpression] |
-		fn.#ListExpression}}) |
+	{[=~".+"]: [..._#defs."/$defs/Properties/definitions/ArcRoutingControlState"] | fn.#ListExpression}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RegionAuroraClusterMap": struct.MaxFields(2) & struct.MinFields(2) & close({
@@ -464,7 +881,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RegionEventSourceMappingMap": close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/EventSourceMapping" | fn.#ObjectExpression}}) |
+	{[=~".+"]: _#defs."/$defs/Properties/definitions/EventSourceMapping"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RegionNeptuneClusterArnMap": struct.MaxFields(2) & struct.MinFields(2) & close({
@@ -489,20 +906,19 @@ _#defs: "/$defs/Properties/definitions/RegionToRunIn": "activatingRegion" |
 
 _#defs: "/$defs/Properties/definitions/RegionalScalingResource": close({
 
-	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: _#defs."/$defs/Properties/definitions/KubernetesScalingResource" |
-		fn.#ObjectExpression}}) |
+	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: _#defs."/$defs/Properties/definitions/KubernetesScalingResource"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReportConfiguration": close({
 	ReportOutput?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ReportOutputConfiguration" | fn.#ValueExpression
+		..._#defs."/$defs/Properties/definitions/ReportOutputConfiguration"
 	] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReportOutputConfiguration": close(
-	{S3Configuration!: _#defs."/$defs/Properties/definitions/S3ReportOutputConfiguration" | fn.#ObjectExpression},
+	{S3Configuration!: _#defs."/$defs/Properties/definitions/S3ReportOutputConfiguration"},
 ) |
 	fn.#ValueExpression
 
@@ -511,9 +927,26 @@ _#defs: "/$defs/Properties/definitions/Route53HealthCheckConfiguration": close({
 	ExternalId?:       string | fn.#StringExpression
 	HostedZoneId!:     strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 	RecordName!:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	RecordSets?: [..._#defs."/$defs/Properties/definitions/Route53ResourceRecordSet" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TimeoutMinutes?: >=1 | fn.#NumberExpression
+	RecordSets?:       [..._#defs."/$defs/Properties/definitions/Route53ResourceRecordSet"] | fn.#ListExpression
+	TimeoutMinutes?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -544,11 +977,10 @@ _#defs: "/$defs/Properties/definitions/Service": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Step": close({
-	Description?: string | fn.#StringExpression
-	ExecutionBlockConfiguration!: _#defs."/$defs/Properties/definitions/ExecutionBlockConfiguration" |
-		fn.#ValueExpression
-	ExecutionBlockType!: _#defs."/$defs/Properties/definitions/ExecutionBlockType" | fn.#StringExpression
-	Name!:               string | fn.#StringExpression
+	Description?:                 string | fn.#StringExpression
+	ExecutionBlockConfiguration!: _#defs."/$defs/Properties/definitions/ExecutionBlockConfiguration"
+	ExecutionBlockType!:          _#defs."/$defs/Properties/definitions/ExecutionBlockType"
+	Name!:                        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -558,29 +990,45 @@ _#defs: "/$defs/Properties/definitions/Tags": struct.MaxFields(200) & struct.Min
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Trigger": close({
-	Action!: _#defs."/$defs/Properties/definitions/WorkflowTargetAction" | fn.#StringExpression
-	Conditions!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TriggerCondition" | fn.#ObjectExpression
-	] |
+	Action!: _#defs."/$defs/Properties/definitions/WorkflowTargetAction"
+	Conditions!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TriggerCondition"] |
 		fn.#ListExpression
-	Description?:                      string | fn.#StringExpression
-	MinDelayMinutesBetweenExecutions!: number | fn.#NumberExpression
-	TargetRegion!:                     =~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression
+	Description?: string | fn.#StringExpression
+	MinDelayMinutesBetweenExecutions!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TargetRegion!: =~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TriggerCondition": close({
 	AssociatedAlarmName!: string | fn.#StringExpression
-	Condition!:           _#defs."/$defs/Properties/definitions/AlarmCondition" | fn.#StringExpression
+	Condition!:           _#defs."/$defs/Properties/definitions/AlarmCondition"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WaitELBTargetGroupHealthy": "enabled" | "disabled" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Workflow": close({
-	Steps?:                [..._#defs."/$defs/Properties/definitions/Step" | fn.#ObjectExpression] | fn.#ListExpression
+	Steps?:                [..._#defs."/$defs/Properties/definitions/Step"] | fn.#ListExpression
 	WorkflowDescription?:  string | fn.#StringExpression
-	WorkflowTargetAction!: _#defs."/$defs/Properties/definitions/WorkflowTargetAction" | fn.#StringExpression
+	WorkflowTargetAction!: _#defs."/$defs/Properties/definitions/WorkflowTargetAction"
 	WorkflowTargetRegion?: =~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

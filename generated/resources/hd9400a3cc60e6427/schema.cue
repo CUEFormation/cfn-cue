@@ -15,12 +15,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Transfer::Profile
 #Properties: close({
 	As2Id!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{007E}\\s]*$" | fn.#StringExpression
-	CertificateIds?: [..._#defs."/$defs/Properties/definitions/CertificateId" | fn.#StringExpression] |
-		fn.#ListExpression
-	ProfileType!: "LOCAL" | "PARTNER" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	CertificateIds?: [..._#defs."/$defs/Properties/definitions/CertificateId"] | fn.#ListExpression
+	ProfileType!:    "LOCAL" | "PARTNER" | fn.#StringExpression
+	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

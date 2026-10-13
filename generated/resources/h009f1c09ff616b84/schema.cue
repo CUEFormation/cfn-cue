@@ -26,9 +26,13 @@ _#defs: "/$defs/Properties/definitions/ConnectorProvisioningConfig": close(
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaConnectorProvisioningConfig": close(
-	{LambdaArn!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"arn:*:.*:.*:[0-9]+:.*" | fn.#StringExpression},
-) |
+_#defs: "/$defs/Properties/definitions/LambdaConnectorProvisioningConfig": close({
+	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(0) &
+	=~"arn:*:.*:.*:[0-9]+:.*" |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::AppFlow::Connector"

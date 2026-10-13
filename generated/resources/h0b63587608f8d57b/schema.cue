@@ -9,6 +9,10 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -30,7 +34,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	RequestHeaderConfiguration?: _#defs."/$defs/Properties/definitions/RequestHeaderConfiguration" |
 		fn.#ObjectExpression
 	RoleArn!: _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
-	Tags?:    _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
+	Tags?:    _#defs."/$defs/Properties/definitions/TagsMap"
 })
 
 _#defs: "/$defs/Properties/definitions/AgentManagedRuntimeType": "PYTHON_3_10" |
@@ -46,8 +50,8 @@ _#defs: "/$defs/Properties/definitions/AgentRuntimeArn": strings.MaxRunes(2048) 
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AgentRuntimeArtifact": close({
-	CodeConfiguration?:      _#defs."/$defs/Properties/definitions/CodeConfiguration" | fn.#ObjectExpression
-	ContainerConfiguration?: _#defs."/$defs/Properties/definitions/ContainerConfiguration" | fn.#ObjectExpression
+	CodeConfiguration?:      _#defs."/$defs/Properties/definitions/CodeConfiguration"
+	ContainerConfiguration?: _#defs."/$defs/Properties/definitions/ContainerConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -73,38 +77,38 @@ _#defs: "/$defs/Properties/definitions/AgentStatus": "CREATING" |
 _#defs: "/$defs/Properties/definitions/AllowedAudience": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AllowedAudienceList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AllowedAudience" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/AllowedAudience"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/AllowedClient": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AllowedClientsList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AllowedClient" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/AllowedClient"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/AllowedScope": =~"[\\x21\\x23-\\x5B\\x5D-\\x7E]+" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AllowedScopesList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AllowedScope" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/AllowedScope"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/AllowedWorkloadConfiguration": close({
-	HostingEnvironments?: _#defs."/$defs/Properties/definitions/HostingEnvironmentsList" | fn.#ListExpression
-	WorkloadIdentities?:  _#defs."/$defs/Properties/definitions/WorkloadIdentitiesList" | fn.#ListExpression
+	HostingEnvironments?: _#defs."/$defs/Properties/definitions/HostingEnvironmentsList"
+	WorkloadIdentities?:  _#defs."/$defs/Properties/definitions/WorkloadIdentitiesList"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close({
-	CustomJWTAuthorizer?: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration" | fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close(
+	{CustomJWTAuthorizer?: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AuthorizingClaimMatchValueType": close({
-	ClaimMatchOperator!: _#defs."/$defs/Properties/definitions/ClaimMatchOperator" | fn.#StringExpression
-	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType" | fn.#ObjectExpression
+	ClaimMatchOperator!: _#defs."/$defs/Properties/definitions/ClaimMatchOperator"
+	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType"
 }) |
 fn.#ObjectExpression
 
@@ -113,13 +117,13 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderArn": strings.MaxRunes(20
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CapacityProviderConfiguration": close(
-	{CapacityProviderArn!: _#defs."/$defs/Properties/definitions/CapacityProviderArn" | fn.#StringExpression},
+	{CapacityProviderArn!: _#defs."/$defs/Properties/definitions/CapacityProviderArn"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CapacityProviderVolumeConfiguration": close({
-	MountPath!:  _#defs."/$defs/Properties/definitions/MountPath" | fn.#StringExpression
-	VolumeName!: _#defs."/$defs/Properties/definitions/CapacityProviderVolumeName" | fn.#StringExpression
+	MountPath!:  _#defs."/$defs/Properties/definitions/MountPath"
+	VolumeName!: _#defs."/$defs/Properties/definitions/CapacityProviderVolumeName"
 }) |
 fn.#ObjectExpression
 
@@ -134,57 +138,52 @@ _#defs: "/$defs/Properties/definitions/ClaimMatchOperator": "EQUALS" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ClaimMatchValueType": close({
-	MatchValueString?:     _#defs."/$defs/Properties/definitions/MatchValueString" | fn.#StringExpression
-	MatchValueStringList?: _#defs."/$defs/Properties/definitions/MatchValueStringList" | fn.#ListExpression
+	MatchValueString?:     _#defs."/$defs/Properties/definitions/MatchValueString"
+	MatchValueStringList?: _#defs."/$defs/Properties/definitions/MatchValueStringList"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClientToken": strings.MaxRunes(256) & strings.MinRunes(33) & =~"^[a-zA-Z0-9-_]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Code": close(
-	{S3?: _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/Code": close({S3?: _#defs."/$defs/Properties/definitions/S3Location"}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CodeConfiguration": close({
-	Code!:       _#defs."/$defs/Properties/definitions/Code" | fn.#ObjectExpression
-	EntryPoint!: _#defs."/$defs/Properties/definitions/EntryPoints" | fn.#ListExpression
-	Runtime!:    _#defs."/$defs/Properties/definitions/AgentManagedRuntimeType" | fn.#StringExpression
+	Code!:       _#defs."/$defs/Properties/definitions/Code"
+	EntryPoint!: _#defs."/$defs/Properties/definitions/EntryPoints"
+	Runtime!:    _#defs."/$defs/Properties/definitions/AgentManagedRuntimeType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ContainerConfiguration": close(
-	{ContainerUri!: _#defs."/$defs/Properties/definitions/RuntimeContainerUri" | fn.#StringExpression},
+	{ContainerUri!: _#defs."/$defs/Properties/definitions/RuntimeContainerUri"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CreatedAt": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CustomClaimValidationType": close({
-	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType" |
-		fn.#ObjectExpression
-	InboundTokenClaimName!: _#defs."/$defs/Properties/definitions/InboundTokenClaimName" | fn.#StringExpression
-	InboundTokenClaimValueType!: _#defs."/$defs/Properties/definitions/InboundTokenClaimValueType" |
-		fn.#StringExpression
+	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType"
+	InboundTokenClaimName!:      _#defs."/$defs/Properties/definitions/InboundTokenClaimName"
+	InboundTokenClaimValueType!: _#defs."/$defs/Properties/definitions/InboundTokenClaimValueType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomClaimsList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/CustomClaimValidationType" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/CustomClaimValidationType"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close({
-	AllowedAudience?: _#defs."/$defs/Properties/definitions/AllowedAudienceList" | fn.#ListExpression
-	AllowedClients?:  _#defs."/$defs/Properties/definitions/AllowedClientsList" | fn.#ListExpression
-	AllowedScopes?:   _#defs."/$defs/Properties/definitions/AllowedScopesList" | fn.#ListExpression
-	AllowedWorkloadConfiguration?: _#defs."/$defs/Properties/definitions/AllowedWorkloadConfiguration" |
-		fn.#ObjectExpression
-	CustomClaims?:             _#defs."/$defs/Properties/definitions/CustomClaimsList" | fn.#ListExpression
-	DiscoveryUrl!:             _#defs."/$defs/Properties/definitions/DiscoveryUrl" | fn.#StringExpression
-	PrivateEndpoint?:          _#defs."/$defs/Properties/definitions/PrivateEndpoint" | fn.#ObjectExpression
-	PrivateEndpointOverrides?: _#defs."/$defs/Properties/definitions/PrivateEndpointOverridesList" | fn.#ListExpression
+	AllowedAudience?:              _#defs."/$defs/Properties/definitions/AllowedAudienceList"
+	AllowedClients?:               _#defs."/$defs/Properties/definitions/AllowedClientsList"
+	AllowedScopes?:                _#defs."/$defs/Properties/definitions/AllowedScopesList"
+	AllowedWorkloadConfiguration?: _#defs."/$defs/Properties/definitions/AllowedWorkloadConfiguration"
+	CustomClaims?:                 _#defs."/$defs/Properties/definitions/CustomClaimsList"
+	DiscoveryUrl!:                 _#defs."/$defs/Properties/definitions/DiscoveryUrl"
+	PrivateEndpoint?:              _#defs."/$defs/Properties/definitions/PrivateEndpoint"
+	PrivateEndpointOverrides?:     _#defs."/$defs/Properties/definitions/PrivateEndpointOverridesList"
 }) |
 fn.#ObjectExpression
 
@@ -197,8 +196,8 @@ _#defs: "/$defs/Properties/definitions/EfsAccessPointArn": strings.MaxRunes(128)
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/EfsAccessPointConfiguration": close({
-	AccessPointArn!: _#defs."/$defs/Properties/definitions/EfsAccessPointArn" | fn.#StringExpression
-	MountPath!:      _#defs."/$defs/Properties/definitions/MountPath" | fn.#StringExpression
+	AccessPointArn!: _#defs."/$defs/Properties/definitions/EfsAccessPointArn"
+	MountPath!:      _#defs."/$defs/Properties/definitions/MountPath"
 }) |
 fn.#ObjectExpression
 
@@ -220,16 +219,15 @@ _#defs: "/$defs/Properties/definitions/EnvironmentVariablesMap": struct.MaxField
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilesystemConfiguration": close({
-	CapacityProviderVolume?: _#defs."/$defs/Properties/definitions/CapacityProviderVolumeConfiguration" |
-		fn.#ObjectExpression
-	EfsAccessPoint?:     _#defs."/$defs/Properties/definitions/EfsAccessPointConfiguration" | fn.#ObjectExpression
-	S3FilesAccessPoint?: _#defs."/$defs/Properties/definitions/S3FilesAccessPointConfiguration" | fn.#ObjectExpression
-	SessionStorage?:     _#defs."/$defs/Properties/definitions/SessionStorageConfiguration" | fn.#ObjectExpression
+	CapacityProviderVolume?: _#defs."/$defs/Properties/definitions/CapacityProviderVolumeConfiguration"
+	EfsAccessPoint?:         _#defs."/$defs/Properties/definitions/EfsAccessPointConfiguration"
+	S3FilesAccessPoint?:     _#defs."/$defs/Properties/definitions/S3FilesAccessPointConfiguration"
+	SessionStorage?:         _#defs."/$defs/Properties/definitions/SessionStorageConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilesystemConfigurations": list.MaxItems(5) & [...] & [
-	..._#defs."/$defs/Properties/definitions/FilesystemConfiguration" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/FilesystemConfiguration"
 ] |
 	fn.#ListExpression
 
@@ -244,7 +242,7 @@ _#defs: "/$defs/Properties/definitions/HostingEnvironment": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HostingEnvironmentsList": list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/HostingEnvironment" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/HostingEnvironment"
 ] |
 	fn.#ListExpression
 
@@ -255,16 +253,50 @@ _#defs: "/$defs/Properties/definitions/InboundTokenClaimValueType": "STRING" | "
 _#defs: "/$defs/Properties/definitions/LastUpdatedAt": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
-	IdleRuntimeSessionTimeout?: int & <=1209600 & >=60 | fn.#NumberExpression
-	MaxLifetime?:               int & <=1209600 & >=60 | fn.#NumberExpression
+	IdleRuntimeSessionTimeout?: int & <=1209600 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1209600 &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxLifetime?: int & <=1209600 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1209600 &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
 	EndpointIpAddressType!: "IPV4" | "IPV6" | fn.#StringExpression
 	RoutingDomain?:         string | fn.#StringExpression
-	SecurityGroupIds?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	SubnetIds!:             list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	SubnetIds!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	Tags?: close({
 
 		{[=~"^[\\s\\S]+$"]: string | fn.#StringExpression}}) |
@@ -276,7 +308,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/MatchValueString": =~"[A-Za-z0-9_.-]+" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/MatchValueStringList": list.MaxItems(255) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/MatchValueString" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/MatchValueString"
 ] |
 	fn.#ListExpression
 
@@ -286,8 +318,8 @@ strings.MinRunes(6) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
-	NetworkMode!:       _#defs."/$defs/Properties/definitions/NetworkMode" | fn.#StringExpression
-	NetworkModeConfig?: _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
+	NetworkMode!:       _#defs."/$defs/Properties/definitions/NetworkMode"
+	NetworkModeConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
 }) |
 fn.#ObjectExpression
 
@@ -296,38 +328,39 @@ _#defs: "/$defs/Properties/definitions/NetworkMode": "PUBLIC" | "VPC" | fn.#Stri
 _#defs: "/$defs/Properties/definitions/PlatformVersion": strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[^\\s]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateEndpoint": matchN(1, [close({
-	SelfManagedLatticeResource!: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource" |
-		fn.#ObjectExpression
-}), close(
-	{ManagedVpcResource!: _#defs."/$defs/Properties/definitions/ManagedVpcResource" | fn.#ObjectExpression},
-)]) & {[string]: fn.#Value} |
+_#defs: "/$defs/Properties/definitions/PrivateEndpoint": fn.#Object & {...} & matchN(1, [close(
+	{SelfManagedLatticeResource!: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource"},
+), close(
+	{ManagedVpcResource!: _#defs."/$defs/Properties/definitions/ManagedVpcResource"},
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateEndpointOverride": close({
 	Domain!:          strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
-	PrivateEndpoint!: _#defs."/$defs/Properties/definitions/PrivateEndpoint" | fn.#ObjectExpression
+	PrivateEndpoint!: _#defs."/$defs/Properties/definitions/PrivateEndpoint"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateEndpointOverridesList": list.MaxItems(5) & [...] & [
-	..._#defs."/$defs/Properties/definitions/PrivateEndpointOverride" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/PrivateEndpointOverride"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ProtocolConfiguration": "MCP" | "HTTP" | "A2A" | "AGUI" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RequestHeaderAllowlist": list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/HeaderName" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/HeaderName"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/RequestHeaderConfiguration": close(
-	{RequestHeaderAllowlist?: _#defs."/$defs/Properties/definitions/RequestHeaderAllowlist" | fn.#ListExpression},
+	{RequestHeaderAllowlist?: _#defs."/$defs/Properties/definitions/RequestHeaderAllowlist"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+" | fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	=~"arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+" |
+	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RuntimeContainerUri": strings.MaxRunes(1024) &
 strings.MinRunes(1) &
@@ -339,8 +372,8 @@ _#defs: "/$defs/Properties/definitions/S3FilesAccessPointArn": strings.MaxRunes(
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/S3FilesAccessPointConfiguration": close({
-	AccessPointArn!: _#defs."/$defs/Properties/definitions/S3FilesAccessPointArn" | fn.#StringExpression
-	MountPath!:      _#defs."/$defs/Properties/definitions/MountPath" | fn.#StringExpression
+	AccessPointArn!: _#defs."/$defs/Properties/definitions/S3FilesAccessPointArn"
+	MountPath!:      _#defs."/$defs/Properties/definitions/MountPath"
 }) |
 fn.#ObjectExpression
 
@@ -351,10 +384,12 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	=~"^sg-[0-9a-zA-Z]{8,17}$" |
+	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SecurityGroups": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SecurityGroupId" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/SecurityGroupId"
 ] |
 	fn.#ListExpression
 
@@ -364,14 +399,14 @@ _#defs: "/$defs/Properties/definitions/SelfManagedLatticeResource": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SessionStorageConfiguration": close(
-	{MountPath!: _#defs."/$defs/Properties/definitions/MountPath" | fn.#StringExpression},
+	{MountPath!: _#defs."/$defs/Properties/definitions/MountPath"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SubnetId": =~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Subnets": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SubnetId" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/SubnetId"
 ] |
 	fn.#ListExpression
 
@@ -382,8 +417,8 @@ _#defs: "/$defs/Properties/definitions/TagsMap": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroups!: _#defs."/$defs/Properties/definitions/SecurityGroups" | fn.#ListExpression
-	Subnets!:        _#defs."/$defs/Properties/definitions/Subnets" | fn.#ListExpression
+	SecurityGroups!: _#defs."/$defs/Properties/definitions/SecurityGroups"
+	Subnets!:        _#defs."/$defs/Properties/definitions/Subnets"
 }) |
 fn.#ObjectExpression
 
@@ -396,7 +431,7 @@ _#defs: "/$defs/Properties/definitions/WorkloadIdentityArn": strings.MaxRunes(10
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/WorkloadIdentityDetails": close(
-	{WorkloadIdentityArn!: _#defs."/$defs/Properties/definitions/WorkloadIdentityArn" | fn.#StringExpression},
+	{WorkloadIdentityArn!: _#defs."/$defs/Properties/definitions/WorkloadIdentityArn"},
 ) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

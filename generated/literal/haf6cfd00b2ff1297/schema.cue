@@ -13,7 +13,7 @@ package schema
 	ClusterEndpointEncryptionType?: string
 	ClusterName?:                   string
 	Description?:                   string
-	IAMRoleARN!:                    string
+	IAMRoleARN!:                    =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Id?:                            string
 	NetworkType?:                   string
 	NodeType!:                      string
@@ -22,7 +22,7 @@ package schema
 	PreferredMaintenanceWindow?:    string
 	ReplicationFactor!:             int
 	SSESpecification?:              _#defs."/$defs/Properties/definitions/SSESpecification"
-	SecurityGroupIds?:              [...string]
+	SecurityGroupIds?:              [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SubnetGroupName?:               string
 	Tags?:                          string | {...}
 })

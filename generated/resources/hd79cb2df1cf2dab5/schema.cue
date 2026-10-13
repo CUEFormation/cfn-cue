@@ -17,10 +17,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:        string | fn.#StringExpression
 	Family!:             string | fn.#StringExpression
 	ParameterGroupName!: string | fn.#StringExpression
-	Parameters?:         string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Parameters?:         fn.#Object & {...} | string | fn.#StringObjectExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

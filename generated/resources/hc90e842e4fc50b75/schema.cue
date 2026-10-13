@@ -8,80 +8,99 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::User
 #Properties: close({
-	AfterContactWorkConfigs?: [
-		..._#defs."/$defs/Properties/definitions/AfterContactWorkConfigPerChannel" | fn.#ObjectExpression
-	] |
+	AfterContactWorkConfigs?: [..._#defs."/$defs/Properties/definitions/AfterContactWorkConfigPerChannel"] |
 		fn.#ListExpression
-	AutoAcceptConfigs?: [..._#defs."/$defs/Properties/definitions/AutoAcceptConfig" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	DirectoryUserId?: string | fn.#StringExpression
+	AutoAcceptConfigs?: [..._#defs."/$defs/Properties/definitions/AutoAcceptConfig"] | fn.#ListExpression
+	DirectoryUserId?:   string | fn.#StringExpression
 	HierarchyGroupArn?: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent-group/[-a-zA-Z0-9]*$" |
 		fn.#StringExpression
 	IdentityInfo?: _#defs."/$defs/Properties/definitions/UserIdentityInfo" | fn.#ObjectExpression
 	InstanceArn!:  =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 	Password?:     string | fn.#StringExpression
-	PersistentConnectionConfigs?: [
-		..._#defs."/$defs/Properties/definitions/PersistentConnectionConfig" | fn.#ObjectExpression
-	] |
+	PersistentConnectionConfigs?: [..._#defs."/$defs/Properties/definitions/PersistentConnectionConfig"] |
 		fn.#ListExpression
-	PhoneConfig?: _#defs."/$defs/Properties/definitions/UserPhoneConfig" | fn.#ObjectExpression
-	PhoneNumberConfigs?: [..._#defs."/$defs/Properties/definitions/PhoneNumberConfig" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	PhoneConfig?:        _#defs."/$defs/Properties/definitions/UserPhoneConfig" | fn.#ObjectExpression
+	PhoneNumberConfigs?: [..._#defs."/$defs/Properties/definitions/PhoneNumberConfig"] | fn.#ListExpression
 	RoutingProfileArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/routing-profile/[-a-zA-Z0-9]*$" |
 		fn.#StringExpression
 	SecurityProfileArns!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SecurityProfileArn" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/SecurityProfileArn"
 	] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	UserProficiencies?: [..._#defs."/$defs/Properties/definitions/UserProficiency" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Username!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\_\\-\\.\\@]+" | fn.#StringExpression
-	VoiceEnhancementConfigs?: [..._#defs."/$defs/Properties/definitions/VoiceEnhancementConfig" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UserProficiencies?: [..._#defs."/$defs/Properties/definitions/UserProficiency"] | fn.#ListExpression
+	Username!:          strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\_\\-\\.\\@]+" | fn.#StringExpression
+	VoiceEnhancementConfigs?: [..._#defs."/$defs/Properties/definitions/VoiceEnhancementConfig"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AfterContactWorkConfig": close({
-	AfterContactWorkMode?:      _#defs."/$defs/Properties/definitions/AfterContactWorkMode" | fn.#StringExpression
-	AfterContactWorkTimeLimit?: _#defs."/$defs/Properties/definitions/AfterContactWorkTimeLimit" | fn.#NumberExpression
+	AfterContactWorkMode?:      _#defs."/$defs/Properties/definitions/AfterContactWorkMode"
+	AfterContactWorkTimeLimit?: _#defs."/$defs/Properties/definitions/AfterContactWorkTimeLimit"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AfterContactWorkConfigPerChannel": close({
-	AfterContactWorkConfig!: _#defs."/$defs/Properties/definitions/AfterContactWorkConfig" | fn.#ObjectExpression
-	AgentFirstCallbackAfterContactWorkConfig?: _#defs."/$defs/Properties/definitions/AfterContactWorkConfig" |
-		fn.#ObjectExpression
-	Channel!: _#defs."/$defs/Properties/definitions/Channel" | fn.#StringExpression
+	AfterContactWorkConfig!:                   _#defs."/$defs/Properties/definitions/AfterContactWorkConfig"
+	AgentFirstCallbackAfterContactWorkConfig?: _#defs."/$defs/Properties/definitions/AfterContactWorkConfig"
+	Channel!:                                  _#defs."/$defs/Properties/definitions/Channel"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AfterContactWorkMode": "ON" | "OFF" | "ON_DEMAND" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AfterContactWorkTimeLimit": int & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/AfterContactWorkTimeLimit": int & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/AgentFirstCallbackAutoAccept": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/AgentFirstCallbackAutoAccept": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/AttributeName": strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AttributeValue": strings.MaxRunes(64) & strings.MinRunes(1) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AutoAccept": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/AutoAccept": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/AutoAcceptConfig": close({
-	AgentFirstCallbackAutoAccept?: _#defs."/$defs/Properties/definitions/AgentFirstCallbackAutoAccept" |
-		fn.#BooleanExpression
-	AutoAccept!: _#defs."/$defs/Properties/definitions/AutoAccept" | fn.#BooleanExpression
-	Channel!:    _#defs."/$defs/Properties/definitions/Channel" | fn.#StringExpression
+	AgentFirstCallbackAutoAccept?: _#defs."/$defs/Properties/definitions/AgentFirstCallbackAutoAccept"
+	AutoAccept!:                   _#defs."/$defs/Properties/definitions/AutoAccept"
+	Channel!:                      _#defs."/$defs/Properties/definitions/Channel"
 }) |
 fn.#ObjectExpression
 
@@ -95,22 +114,48 @@ _#defs: "/$defs/Properties/definitions/FirstName": strings.MaxRunes(255) & strin
 
 _#defs: "/$defs/Properties/definitions/LastName": strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Level": <=10 & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Level": <=10 & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						<=10 &
+						>=0,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Mobile": =~"^\\+[1-9]\\d{1,14}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PersistentConnection": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/PersistentConnection": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/PersistentConnectionConfig": close({
-	Channel!:              _#defs."/$defs/Properties/definitions/Channel" | fn.#StringExpression
-	PersistentConnection!: _#defs."/$defs/Properties/definitions/PersistentConnection" | fn.#BooleanExpression
+	Channel!:              _#defs."/$defs/Properties/definitions/Channel"
+	PersistentConnection!: _#defs."/$defs/Properties/definitions/PersistentConnection"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PhoneNumberConfig": close({
-	Channel!:     _#defs."/$defs/Properties/definitions/Channel" | fn.#StringExpression
-	PhoneNumber?: _#defs."/$defs/Properties/definitions/DeskPhoneNumber" | fn.#StringExpression
-	PhoneType!:   _#defs."/$defs/Properties/definitions/PhoneType" | fn.#StringExpression
+	Channel!:     _#defs."/$defs/Properties/definitions/Channel"
+	PhoneNumber?: _#defs."/$defs/Properties/definitions/DeskPhoneNumber"
+	PhoneType!:   _#defs."/$defs/Properties/definitions/PhoneType"
 }) |
 fn.#ObjectExpression
 
@@ -128,33 +173,33 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UserIdentityInfo": close({
-	Email?:          _#defs."/$defs/Properties/definitions/Email" | fn.#StringExpression
-	FirstName?:      _#defs."/$defs/Properties/definitions/FirstName" | fn.#StringExpression
-	LastName?:       _#defs."/$defs/Properties/definitions/LastName" | fn.#StringExpression
-	Mobile?:         _#defs."/$defs/Properties/definitions/Mobile" | fn.#StringExpression
-	SecondaryEmail?: _#defs."/$defs/Properties/definitions/SecondaryEmail" | fn.#StringExpression
+	Email?:          _#defs."/$defs/Properties/definitions/Email"
+	FirstName?:      _#defs."/$defs/Properties/definitions/FirstName"
+	LastName?:       _#defs."/$defs/Properties/definitions/LastName"
+	Mobile?:         _#defs."/$defs/Properties/definitions/Mobile"
+	SecondaryEmail?: _#defs."/$defs/Properties/definitions/SecondaryEmail"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UserPhoneConfig": close({
-	AfterContactWorkTimeLimit?: _#defs."/$defs/Properties/definitions/AfterContactWorkTimeLimit" | fn.#NumberExpression
-	AutoAccept?:                _#defs."/$defs/Properties/definitions/AutoAccept" | fn.#BooleanExpression
-	DeskPhoneNumber?:           _#defs."/$defs/Properties/definitions/DeskPhoneNumber" | fn.#StringExpression
-	PersistentConnection?:      _#defs."/$defs/Properties/definitions/PersistentConnection" | fn.#BooleanExpression
-	PhoneType?:                 _#defs."/$defs/Properties/definitions/PhoneType" | fn.#StringExpression
+	AfterContactWorkTimeLimit?: _#defs."/$defs/Properties/definitions/AfterContactWorkTimeLimit"
+	AutoAccept?:                _#defs."/$defs/Properties/definitions/AutoAccept"
+	DeskPhoneNumber?:           _#defs."/$defs/Properties/definitions/DeskPhoneNumber"
+	PersistentConnection?:      _#defs."/$defs/Properties/definitions/PersistentConnection"
+	PhoneType?:                 _#defs."/$defs/Properties/definitions/PhoneType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UserProficiency": close({
-	AttributeName!:  _#defs."/$defs/Properties/definitions/AttributeName" | fn.#StringExpression
-	AttributeValue!: _#defs."/$defs/Properties/definitions/AttributeValue" | fn.#StringExpression
-	Level!:          _#defs."/$defs/Properties/definitions/Level" | fn.#NumberExpression
+	AttributeName!:  _#defs."/$defs/Properties/definitions/AttributeName"
+	AttributeValue!: _#defs."/$defs/Properties/definitions/AttributeValue"
+	Level!:          _#defs."/$defs/Properties/definitions/Level"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VoiceEnhancementConfig": close({
-	Channel!:              _#defs."/$defs/Properties/definitions/Channel" | fn.#StringExpression
-	VoiceEnhancementMode!: _#defs."/$defs/Properties/definitions/VoiceEnhancementMode" | fn.#StringExpression
+	Channel!:              _#defs."/$defs/Properties/definitions/Channel"
+	VoiceEnhancementMode!: _#defs."/$defs/Properties/definitions/VoiceEnhancementMode"
 }) |
 fn.#ObjectExpression
 

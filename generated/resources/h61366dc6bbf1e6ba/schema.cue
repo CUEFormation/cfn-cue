@@ -18,15 +18,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AgentId!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.+]+$" | fn.#StringExpression
 	AgentLifecycle?:    "PREVIEW" | "PUBLISHED" | fn.#StringExpression
 	AwsAccountId!:      strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	CustomPromptInput?: _#defs."/$defs/Properties/definitions/CustomPromptInput" | fn.#ObjectExpression
+	CustomPromptInput?: _#defs."/$defs/Properties/definitions/CustomPromptInput"
 	Description?:       strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
 	IconId?:            strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:              strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 	Spaces?:            list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 	StarterPrompts?: list.MaxItems(3) & [...] & [...strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression] |
 	fn.#ListExpression
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/AgentTag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:           list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/AgentTag"] | fn.#ListExpression
 	WelcomeMessage?: strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
 })
 
@@ -43,8 +42,8 @@ _#defs: "/$defs/Properties/definitions/CustomPromptInput": matchN(1, [{
 	NewPrompt!: _
 	...
 }]) & close({
-	ExistingPrompt?: _#defs."/$defs/Properties/definitions/CustomPromptProfile" | fn.#ObjectExpression
-	NewPrompt?:      _#defs."/$defs/Properties/definitions/CustomPromptInputParameters" | fn.#ObjectExpression
+	ExistingPrompt?: _#defs."/$defs/Properties/definitions/CustomPromptProfile"
+	NewPrompt?:      _#defs."/$defs/Properties/definitions/CustomPromptInputParameters"
 }) |
 fn.#ObjectExpression
 

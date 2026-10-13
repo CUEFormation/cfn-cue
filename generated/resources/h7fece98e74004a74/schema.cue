@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,10 +14,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource type definition for AWS::IVSChat::LoggingConfiguration.
 #Properties: close({
-	DestinationConfiguration!: _#defs."/$defs/Properties/definitions/DestinationConfiguration" | fn.#ObjectExpression
+	DestinationConfiguration!: _#defs."/$defs/Properties/definitions/DestinationConfiguration"
 	Name?:                     strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CloudWatchLogsDestinationConfiguration": close(
@@ -26,10 +25,9 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogsDestinationConfiguration": 
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DestinationConfiguration": close({
-	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogsDestinationConfiguration" |
-		fn.#ObjectExpression
-	Firehose?: _#defs."/$defs/Properties/definitions/FirehoseDestinationConfiguration" | fn.#ObjectExpression
-	S3?:       _#defs."/$defs/Properties/definitions/S3DestinationConfiguration" | fn.#ObjectExpression
+	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogsDestinationConfiguration"
+	Firehose?:       _#defs."/$defs/Properties/definitions/FirehoseDestinationConfiguration"
+	S3?:             _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
 }) |
 fn.#ObjectExpression
 

@@ -6,26 +6,26 @@ package schema
 
 // Resource Type definition for AWS::DMS::ReplicationInstance
 #Properties: close({
-	AllocatedStorage?:                      int
-	AllowMajorVersionUpgrade?:              bool
-	AutoMinorVersionUpgrade?:               bool
-	AvailabilityZone?:                      string
-	DnsNameServers?:                        string
-	EngineVersion?:                         string
-	Id?:                                    string
-	KmsKeyId?:                              string | string | string
-	MultiAZ?:                               bool
-	NetworkType?:                           string
-	PreferredMaintenanceWindow?:            string
-	PubliclyAccessible?:                    bool
-	ReplicationInstanceClass!:              string
-	ReplicationInstanceIdentifier?:         string
+	AllocatedStorage?:              int
+	AllowMajorVersionUpgrade?:      bool
+	AutoMinorVersionUpgrade?:       bool
+	AvailabilityZone?:              string
+	DnsNameServers?:                string
+	EngineVersion?:                 string
+	Id?:                            string
+	KmsKeyId?:                      =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	MultiAZ?:                       bool
+	NetworkType?:                   string
+	PreferredMaintenanceWindow?:    string
+	PubliclyAccessible?:            bool
+	ReplicationInstanceClass!:      string
+	ReplicationInstanceIdentifier?: string
 	ReplicationInstancePrivateIpAddresses?: string
 	ReplicationInstancePublicIpAddresses?:  string
 	ReplicationSubnetGroupIdentifier?:      string
 	ResourceIdentifier?:                    string
 	Tags?:                                  [..._#defs."/$defs/Properties/definitions/Tag"]
-	VpcSecurityGroupIds?:                   [...string]
+	VpcSecurityGroupIds?:                   [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

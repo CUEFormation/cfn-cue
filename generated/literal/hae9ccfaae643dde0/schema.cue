@@ -50,7 +50,7 @@ import (
 	Iops?: int
 
 	// If Encrypted is true, the AWS KMS key identifier for the encrypted DB snapshot.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// License model information for the restored DB instance.
 	LicenseModel?: string
@@ -86,7 +86,7 @@ import (
 	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
 
 	// The VPC ID associated with the DB snapshot.
-	VpcId?: string
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

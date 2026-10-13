@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,7 +21,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DefaultVariation?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
 	Description?:      strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
 	EntityOverrides?: list.MaxItems(2500) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/EntityOverride" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/EntityOverride"
 	] |
 		fn.#ListExpression
 	EvaluationStrategy?: "ALL_RULES" | "DEFAULT_VARIATION" | fn.#StringExpression
@@ -26,10 +30,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(0) &
 	=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*)" |
 	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Variations!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/VariationObject" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/VariationObject"
 	] |
 		fn.#ListExpression
 })
@@ -63,9 +66,45 @@ _#defs: "/$defs/Properties/definitions/VariationObject": matchN(1, [{
 	DoubleValue!:   _
 	...
 }]) & close({
-	BooleanValue?:  bool | fn.#BooleanExpression
-	DoubleValue?:   number | fn.#NumberExpression
-	LongValue?:     number | fn.#NumberExpression
+	BooleanValue?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DoubleValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LongValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	StringValue?:   strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
 	VariationName?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
 }) |

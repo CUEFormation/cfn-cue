@@ -15,10 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource type definition for AWS::NetworkFirewall::LoggingConfiguration
 #Properties: close({
-	EnableMonitoringDashboard?: bool | fn.#BooleanExpression
-	FirewallArn!:               _#defs."/$defs/Properties/definitions/ResourceArn" | fn.#StringExpression
+	EnableMonitoringDashboard?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	FirewallArn!:               _#defs."/$defs/Properties/definitions/ResourceArn"
 	FirewallName?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	LoggingConfiguration!:      _#defs."/$defs/Properties/definitions/LoggingConfiguration" | fn.#ObjectExpression
+	LoggingConfiguration!:      _#defs."/$defs/Properties/definitions/LoggingConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/LogDestinationConfig": close({
@@ -32,9 +32,7 @@ _#defs: "/$defs/Properties/definitions/LogDestinationConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoggingConfiguration": close({
-	LogDestinationConfigs!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/LogDestinationConfig" | fn.#ObjectExpression
-	] |
+	LogDestinationConfigs!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LogDestinationConfig"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression

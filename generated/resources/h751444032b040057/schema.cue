@@ -11,13 +11,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Greengrass::ConnectorDefinitionVersion
 #Properties: close({
 	ConnectorDefinitionId!: string | fn.#StringExpression
-	Connectors!: [..._#defs."/$defs/Properties/definitions/Connector" | fn.#ObjectExpression] | fn.#ListExpression
+	Connectors!:            [..._#defs."/$defs/Properties/definitions/Connector"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Connector": close({
 	ConnectorArn!: string | fn.#StringExpression
 	Id!:           string | fn.#StringExpression
-	Parameters?:   string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Parameters?:   fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

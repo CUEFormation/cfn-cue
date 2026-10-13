@@ -18,16 +18,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AgentId!:        =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
 	Description?:    strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 	RoutingConfiguration?: list.MaxItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AgentAliasRoutingConfigurationListItem" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/AgentAliasRoutingConfigurationListItem"
 	] |
 		fn.#ListExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
+	Tags?: _#defs."/$defs/Properties/definitions/TagsMap"
 })
 
 _#defs: "/$defs/Properties/definitions/AgentAliasHistoryEvent": close({
 	EndDate?: string | fn.#StringExpression
 	RoutingConfiguration?: list.MaxItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AgentAliasRoutingConfigurationListItem" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/AgentAliasRoutingConfigurationListItem"
 	] |
 		fn.#ListExpression
 	StartDate?: string | fn.#StringExpression

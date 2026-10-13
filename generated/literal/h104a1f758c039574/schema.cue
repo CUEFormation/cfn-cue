@@ -33,7 +33,7 @@ import (
 				EncryptionOption!: string
 
 				// Must be provided if SSE_KMS is specified as the encryption option
-				KmsKeyId?: string | string | string
+				KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 				// String used to prefix all data in the bucket.
 				ObjectKeyPrefix?: string

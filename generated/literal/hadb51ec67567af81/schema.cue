@@ -41,7 +41,7 @@ _#defs: "/$defs/Properties/definitions/DatastoreStatus": ("CREATING" |
 	"DELETED") & (strings.MaxRunes(127) & strings.MinRunes(1))
 
 // ARN referencing a KMS key or KMS key alias.
-_#defs: "/$defs/Properties/definitions/KmsKeyArn": strings.MaxRunes(512) & strings.MinRunes(1)
+_#defs: "/$defs/Properties/definitions/KmsKeyArn": =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & (strings.MaxRunes(512) & strings.MinRunes(1))
 
 // A Map of key value pairs for Tags.
 _#defs: "/$defs/Properties/definitions/Tags": close({

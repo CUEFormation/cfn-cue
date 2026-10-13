@@ -17,8 +17,8 @@ import (
 	InclusiveStartTime!:   string
 	KinesisConfiguration!: _#defs."/$defs/Properties/definitions/KinesisConfiguration"
 	LedgerName!:           string
-	RoleArn!:              _#defs."/$defs/Properties/definitions/Arn"
-	StreamName!:           string
+	RoleArn!:    _#defs."/$defs/Properties/definitions/Arn" & =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
+	StreamName!: string
 
 	// An array of key-value pairs to apply to this resource.
 	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]

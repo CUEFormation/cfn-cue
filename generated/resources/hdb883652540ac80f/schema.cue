@@ -14,25 +14,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Lightsail::Database
 #Properties: close({
-	AvailabilityZone?:              strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	BackupRetention?:               bool | fn.#BooleanExpression
-	CaCertificateIdentifier?:       string | fn.#StringExpression
-	MasterDatabaseName!:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	MasterUserPassword?:            strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	MasterUsername!:                strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	PreferredBackupWindow?:         string | fn.#StringExpression
-	PreferredMaintenanceWindow?:    string | fn.#StringExpression
-	PubliclyAccessible?:            bool | fn.#BooleanExpression
+	AvailabilityZone?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	BackupRetention?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CaCertificateIdentifier?:    string | fn.#StringExpression
+	MasterDatabaseName!:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	MasterUserPassword?:         strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
+	MasterUsername!:             strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
+	PreferredBackupWindow?:      string | fn.#StringExpression
+	PreferredMaintenanceWindow?: string | fn.#StringExpression
+	PubliclyAccessible?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RelationalDatabaseBlueprintId!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	RelationalDatabaseBundleId!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	RelationalDatabaseName!: strings.MaxRunes(255) & strings.MinRunes(2) & =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
 	RelationalDatabaseParameters?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/RelationalDatabaseParameter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/RelationalDatabaseParameter"
 	] |
 		fn.#ListExpression
-	RotateMasterUserPassword?: bool | fn.#BooleanExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	RotateMasterUserPassword?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/RelationalDatabaseParameter": close({
@@ -41,7 +40,7 @@ _#defs: "/$defs/Properties/definitions/RelationalDatabaseParameter": close({
 	ApplyType?:      string | fn.#StringExpression
 	DataType?:       string | fn.#StringExpression
 	Description?:    string | fn.#StringExpression
-	IsModifiable?:   bool | fn.#BooleanExpression
+	IsModifiable?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ParameterName?:  string | fn.#StringExpression
 	ParameterValue?: string | fn.#StringExpression
 }) |

@@ -17,7 +17,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EndpointName!:      string | fn.#StringExpression
 	ResourceOwner?:     strings.MaxRunes(2147483647) & strings.MinRunes(0) & =~"^\\d{12}$" | fn.#StringExpression
 	SubnetGroupName!:   string | fn.#StringExpression
-	VpcSecurityGroupIds!: [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] |
+	VpcSecurityGroupIds!: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+		fn.#StringExpression
+	] |
 	fn.#ListExpression
 })
 
@@ -30,8 +33,9 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcSecurityGroup": close({
-	Status?:             string | fn.#StringExpression
-	VpcSecurityGroupId?: string | fn.#StringExpression
+	Status?: string | fn.#StringExpression
+	VpcSecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

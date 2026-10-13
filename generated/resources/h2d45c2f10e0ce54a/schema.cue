@@ -15,7 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // authentication, and Amazon S3 authorization for EMRFS.
 #Properties: close({
 	Name?:                  strings.MaxRunes(10280) & strings.MinRunes(0) | fn.#StringExpression
-	SecurityConfiguration!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	SecurityConfiguration!: fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EMR::SecurityConfiguration"

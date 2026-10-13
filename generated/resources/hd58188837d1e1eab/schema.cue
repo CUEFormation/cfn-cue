@@ -14,30 +14,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // VpcLattice ResourceConfiguration CFN resource
 #Properties: close({
-	AllowAssociationToSharableServiceNetwork?: bool | fn.#BooleanExpression
-	CustomDomainName?:                         strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
+	AllowAssociationToSharableServiceNetwork?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	CustomDomainName?:     strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
 	DomainVerificationId?: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^dv-[a-fA-F0-9]{17}$" | fn.#StringExpression
 	GroupDomain?:          strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
 	Name!:                 strings.MaxRunes(40) & strings.MinRunes(3) | fn.#StringExpression
-	PortRanges?:   [..._#defs."/$defs/Properties/definitions/PortRange" | fn.#StringExpression] | fn.#ListExpression
-	ProtocolType?: "TCP" | fn.#StringExpression
+	PortRanges?:           [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
+	ProtocolType?:         "TCP" | fn.#StringExpression
 	ResourceConfigurationAuthType?: "NONE" | "AWS_IAM" | fn.#StringExpression
-	ResourceConfigurationDefinition?: matchN(1, [close(
-		{IpResource!: _#defs."/$defs/Properties/definitions/IpResource" | fn.#StringExpression},
+	ResourceConfigurationDefinition?: fn.#Object & {...} & matchN(1, [close(
+		{IpResource!: _#defs."/$defs/Properties/definitions/IpResource"},
 	), close(
-		{ArnResource!: _#defs."/$defs/Properties/definitions/ArnResource" | fn.#StringExpression},
+		{ArnResource!: _#defs."/$defs/Properties/definitions/ArnResource"},
 	), close(
-		{DnsResource!: _#defs."/$defs/Properties/definitions/DnsResource" | fn.#ObjectExpression},
+		{DnsResource!: _#defs."/$defs/Properties/definitions/DnsResource"},
 	), close(
-		{CidrResource!: _#defs."/$defs/Properties/definitions/CidrResource" | fn.#ObjectExpression},
-	)]) & {[string]: fn.#Value} |
+		{CidrResource!: _#defs."/$defs/Properties/definitions/CidrResource"},
+	)]) |
 	fn.#ObjectExpression
-	ResourceConfigurationGroupId?: _#defs."/$defs/Properties/definitions/Id" | fn.#StringExpression
+	ResourceConfigurationGroupId?: _#defs."/$defs/Properties/definitions/Id"
 	ResourceConfigurationType!:    "GROUP" | "CHILD" | "SINGLE" | "ARN" | "CIDR" | fn.#StringExpression
 	ResourceGatewayId?:            string | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

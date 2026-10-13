@@ -25,7 +25,10 @@ import (
 
 	// The ARN of the IAM role that the service assumes to forward telemetry to the
 	// customer's CloudWatch dataset. The role must live in the caller's account.
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+$"
 
 	// An array of key-value pairs to apply to this resource.
 	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]

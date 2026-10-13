@@ -26,10 +26,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
-	BlockPublicAcls?:       bool | fn.#BooleanExpression
-	BlockPublicPolicy?:     bool | fn.#BooleanExpression
-	IgnorePublicAcls?:      bool | fn.#BooleanExpression
-	RestrictPublicBuckets?: bool | fn.#BooleanExpression
+	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	BlockPublicPolicy?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IgnorePublicAcls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RestrictPublicBuckets?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 

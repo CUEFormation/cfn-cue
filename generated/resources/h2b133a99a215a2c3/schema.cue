@@ -8,21 +8,39 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::LoadBalancer
 #Properties: close({
-	AttachedInstances?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	HealthCheckPath?:          string | fn.#StringExpression
-	InstancePort!:             int & <=65535 & >=-1 | fn.#NumberExpression
+	AttachedInstances?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	HealthCheckPath?:   string | fn.#StringExpression
+	InstancePort!: int & <=65535 & >=-1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=-1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	IpAddressType?:            "dualstack" | "ipv4" | "ipv6" | fn.#StringExpression
 	LoadBalancerName!:         =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
-	SessionStickinessEnabled?: bool | fn.#BooleanExpression
+	SessionStickinessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SessionStickinessLBCookieDurationSeconds?: string | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TlsPolicyName?: string | fn.#StringExpression
 })
 

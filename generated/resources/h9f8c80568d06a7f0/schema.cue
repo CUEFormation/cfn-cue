@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,19 +23,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DataMigrationSettings?:      _#defs."/$defs/Properties/definitions/DataMigrationSettings" | fn.#ObjectExpression
 	DataMigrationType!:          "full-load" | "cdc" | "full-load-and-cdc" | fn.#StringExpression
 	MigrationProjectIdentifier!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	ServiceAccessRoleArn!:       strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-	SourceDataSettings?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SourceDataSettings" | fn.#ObjectExpression
-	] |
+	ServiceAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(300) & strings.MinRunes(1)) |
+	fn.#StringExpression
+	SourceDataSettings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SourceDataSettings"] |
 		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DataMigrationSettings": close({
-	CloudwatchLogsEnabled?: bool | fn.#BooleanExpression
-	NumberOfJobs?:          int & <=50 & >=1 | fn.#NumberExpression
-	SelectionRules?:        string | fn.#StringExpression
+	CloudwatchLogsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NumberOfJobs?: int & <=50 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=50 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SelectionRules?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

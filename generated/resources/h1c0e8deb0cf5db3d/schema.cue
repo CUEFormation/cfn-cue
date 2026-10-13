@@ -20,16 +20,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	KmsKeyIdentifier?:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	LocationUri!:             strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	RetrievalRoleArn?: strings.MaxRunes(2048) &
+	RetrievalRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((arn):(aws|aws-cn|aws-iso|aws-iso-[a-z]{1}|aws-us-gov|aws-eusc):(iam)::\\d{12}:role[/].*)$" |
 	fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression] | fn.#ListExpression
-	Type?: =~"^[a-zA-Z\\.]+" | fn.#StringExpression
-	Validators?: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/Validators" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?:       [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
+	Type?:       =~"^[a-zA-Z\\.]+" | fn.#StringExpression
+	Validators?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/Validators"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tags": close({

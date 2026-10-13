@@ -29,7 +29,7 @@ package schema
 _#defs: "/$defs/Properties/definitions/MappingRule": close({
 	Claim!:     string
 	MatchType!: string
-	RoleARN!:   string
+	RoleARN!:   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Value!:     string
 })
 

@@ -33,26 +33,26 @@ package schema
 // attribute](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html).
 // If you set a deletion policy that creates a snapshot, all tags on the volume
 // are included in the snapshot.
-#Properties: ({
+#Properties: matchN(>=1, [{
 	AvailabilityZone!: _
 	Size!:             _
 	...
-} | {
+}, {
 	AvailabilityZone!: _
 	SnapshotId!:       _
 	...
-} | {
+}, {
 	AvailabilityZoneId!: _
 	Size!:               _
 	...
-} | {
+}, {
 	AvailabilityZoneId!: _
 	SnapshotId!:         _
 	...
-} | {
+}, {
 	SourceVolumeId!: _
 	...
-}) & close({
+}]) & close({
 	// Indicates whether the volume is auto-enabled for I/O operations. By default,
 	// EBS disables I/O to the volume from attached EC2 instances when it
 	// determines that a volume's data is potentially inconsistent. If the
@@ -117,7 +117,7 @@ package schema
 	// If you are creating a volume copy, omit this parameter. The volume is
 	// automatically encrypted with the same KMS key as the source volume. You
 	// can't copy unencrypted volumes.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// Indicates whether Amazon EBS Multi-Attach is enabled.
 	// CFNlong does not currently support updating a single-attach volume to be

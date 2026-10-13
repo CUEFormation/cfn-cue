@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,20 +24,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description!: strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 	ManualAssignmentQueueConfigs?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RoutingProfileManualAssignmentQueueConfig" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/RoutingProfileManualAssignmentQueueConfig"
 	] |
 		fn.#ListExpression
-	MediaConcurrencies!: [..._#defs."/$defs/Properties/definitions/MediaConcurrency" | fn.#ObjectExpression] |
+	MediaConcurrencies!: [..._#defs."/$defs/Properties/definitions/MediaConcurrency"] | fn.#ListExpression
+	Name!:               strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	QueueConfigs?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RoutingProfileQueueConfig"] |
 		fn.#ListExpression
-	Name!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	QueueConfigs?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RoutingProfileQueueConfig" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/BehaviorType": "ROUTE_CURRENT_CHANNEL_ONLY" |
@@ -42,42 +40,87 @@ _#defs: "/$defs/Properties/definitions/BehaviorType": "ROUTE_CURRENT_CHANNEL_ONL
 
 _#defs: "/$defs/Properties/definitions/Channel": "VOICE" | "CHAT" | "TASK" | "EMAIL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Concurrency": int & <=10 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Concurrency": int & <=10 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=10 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/CrossChannelBehavior": close(
-	{BehaviorType!: _#defs."/$defs/Properties/definitions/BehaviorType" | fn.#StringExpression},
+	{BehaviorType!: _#defs."/$defs/Properties/definitions/BehaviorType"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Delay": int & <=9999 & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Delay": int & <=9999 & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=9999 &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/MediaConcurrency": close({
-	Channel!:              _#defs."/$defs/Properties/definitions/Channel" | fn.#StringExpression
-	Concurrency!:          _#defs."/$defs/Properties/definitions/Concurrency" | fn.#NumberExpression
-	CrossChannelBehavior?: _#defs."/$defs/Properties/definitions/CrossChannelBehavior" | fn.#ObjectExpression
+	Channel!:              _#defs."/$defs/Properties/definitions/Channel"
+	Concurrency!:          _#defs."/$defs/Properties/definitions/Concurrency"
+	CrossChannelBehavior?: _#defs."/$defs/Properties/definitions/CrossChannelBehavior"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Priority": int & <=99 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Priority": int & <=99 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=99 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/QueueArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RoutingProfileManualAssignmentQueueConfig": close(
-	{QueueReference!: _#defs."/$defs/Properties/definitions/RoutingProfileQueueReference" | fn.#ObjectExpression},
+	{QueueReference!: _#defs."/$defs/Properties/definitions/RoutingProfileQueueReference"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RoutingProfileQueueConfig": close({
-	Delay!:          _#defs."/$defs/Properties/definitions/Delay" | fn.#NumberExpression
-	Priority!:       _#defs."/$defs/Properties/definitions/Priority" | fn.#NumberExpression
-	QueueReference!: _#defs."/$defs/Properties/definitions/RoutingProfileQueueReference" | fn.#ObjectExpression
+	Delay!:          _#defs."/$defs/Properties/definitions/Delay"
+	Priority!:       _#defs."/$defs/Properties/definitions/Priority"
+	QueueReference!: _#defs."/$defs/Properties/definitions/RoutingProfileQueueReference"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RoutingProfileQueueReference": close({
-	Channel!:  _#defs."/$defs/Properties/definitions/Channel" | fn.#StringExpression
-	QueueArn!: _#defs."/$defs/Properties/definitions/QueueArn" | fn.#StringExpression
+	Channel!:  _#defs."/$defs/Properties/definitions/Channel"
+	QueueArn!: _#defs."/$defs/Properties/definitions/QueueArn"
 }) |
 fn.#ObjectExpression
 

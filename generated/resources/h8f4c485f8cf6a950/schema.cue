@@ -17,15 +17,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // private workforce that you can use to label your training data using Amazon
 // SageMaker Ground Truth.
 #Properties: close({
-	CognitoConfig?:  _#defs."/$defs/Properties/definitions/CognitoConfig" | fn.#ObjectExpression
+	CognitoConfig?:  _#defs."/$defs/Properties/definitions/CognitoConfig"
 	IpAddressType?:  "ipv4" | "dualstack" | fn.#StringExpression
-	OidcConfig?:     _#defs."/$defs/Properties/definitions/OidcConfig" | fn.#ObjectExpression
-	SourceIpConfig?: _#defs."/$defs/Properties/definitions/SourceIpConfig" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	OidcConfig?:     _#defs."/$defs/Properties/definitions/OidcConfig"
+	SourceIpConfig?: _#defs."/$defs/Properties/definitions/SourceIpConfig"
+	Tags?:           list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	WorkforceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9\\-]){0,62}$" |
 	fn.#StringExpression
-	WorkforceVpcConfig?: _#defs."/$defs/Properties/definitions/WorkforceVpcConfigRequest" | fn.#ObjectExpression
+	WorkforceVpcConfig?: _#defs."/$defs/Properties/definitions/WorkforceVpcConfigRequest"
 })
 
 _#defs: "/$defs/Properties/definitions/CognitoConfig": close({
@@ -71,14 +70,22 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WorkforceVpcConfigRequest": close({
 	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(0) & =~"^sg-[0-9a-z]*$" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"^sg-[0-9a-z]*$" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	Subnets?: list.MaxItems(16) & list.MinItems(1) & [
 		...strings.MaxRunes(32) & strings.MinRunes(0) & =~"^subnet-[0-9a-z]*$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	VpcId?: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^vpc-[0-9a-z]*$" | fn.#StringExpression
+	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"^vpc-[0-9a-z]*$" |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,17 +21,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // ancillary data that is transported using the SMPTE 2110 JPEG XS or CDI
 // protocol.
 #Properties: close({
-	Attributes?:  _#defs."/$defs/Properties/definitions/MediaStreamAttributes" | fn.#ObjectExpression
-	ClockRate?:   int | fn.#NumberExpression
+	Attributes?: _#defs."/$defs/Properties/definitions/MediaStreamAttributes"
+	ClockRate?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Description?: string | fn.#StringExpression
 	FlowArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 		fn.#StringExpression
-	MediaStreamId!:   int | fn.#NumberExpression
+	MediaStreamId!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	MediaStreamName!: string | fn.#StringExpression
 	MediaStreamType!: "video" | "audio" | "ancillary-data" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	VideoFormat?: string | fn.#StringExpression
+	Tags?:            list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VideoFormat?:     string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Fmtp": close({
@@ -51,7 +80,7 @@ _#defs: "/$defs/Properties/definitions/Fmtp": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MediaStreamAttributes": close({
-	Fmtp?: _#defs."/$defs/Properties/definitions/Fmtp" | fn.#ObjectExpression
+	Fmtp?: _#defs."/$defs/Properties/definitions/Fmtp"
 	Lang?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

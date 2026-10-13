@@ -29,7 +29,7 @@ import (
 
 	// An IAM role that gives Amazon Kendra permissions to access the thesaurus file
 	// specified in SourceS3Path.
-	RoleArn!:      strings.MaxRunes(1284) & strings.MinRunes(0)
+	RoleArn!:      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
 	SourceS3Path!: _#defs."/$defs/Properties/definitions/S3Path"
 
 	// A list of key-value pairs that identify or categorize the thesaurus.

@@ -18,8 +18,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ContentHandlingStrategy?:     string | fn.#StringExpression
 	IntegrationId!:               string | fn.#StringExpression
 	IntegrationResponseKey!:      string | fn.#StringExpression
-	ResponseParameters?:          string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	ResponseTemplates?:           string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	ResponseParameters?:          fn.#Object & {...} | string | fn.#StringObjectExpression
+	ResponseTemplates?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 	TemplateSelectionExpression?: string | fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {

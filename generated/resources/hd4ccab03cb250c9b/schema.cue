@@ -8,38 +8,41 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::ImageBuilder
-#Properties: ({
+#Properties: matchN(>=1, [{
 	ImageName!: _
 	...
-} | {
+}, {
 	ImageArn!: _
 	...
-}) & close({
-	AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AccessEndpoint" | fn.#ObjectExpression
-	] |
+}]) & close({
+	AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AccessEndpoint"] |
 		fn.#ListExpression
 	AppstreamAgentVersion?:       strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	Description?:                 strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	DisableIMDSV1?:               bool | fn.#BooleanExpression
+	DisableIMDSV1?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DisplayName?:                 strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	DomainJoinInfo?:              _#defs."/$defs/Properties/definitions/DomainJoinInfo" | fn.#ObjectExpression
-	EnableDefaultInternetAccess?: bool | fn.#BooleanExpression
-	IamRoleArn?:                  string | fn.#StringExpression
-	ImageArn?:                    string | fn.#StringExpression
-	ImageName?:                   strings.MinRunes(1) | fn.#StringExpression
-	InstanceType!:                strings.MinRunes(1) | fn.#StringExpression
-	Name!:                        strings.MinRunes(1) | fn.#StringExpression
-	RootVolumeConfig?:            _#defs."/$defs/Properties/definitions/VolumeConfig" | fn.#ObjectExpression
-	SoftwaresToInstall?:          [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	SoftwaresToUninstall?:        [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
+	DomainJoinInfo?:              _#defs."/$defs/Properties/definitions/DomainJoinInfo"
+	EnableDefaultInternetAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	ImageArn?:             string | fn.#StringExpression
+	ImageName?:            strings.MinRunes(1) | fn.#StringExpression
+	InstanceType!:         strings.MinRunes(1) | fn.#StringExpression
+	Name!:                 strings.MinRunes(1) | fn.#StringExpression
+	RootVolumeConfig?:     _#defs."/$defs/Properties/definitions/VolumeConfig"
+	SoftwaresToInstall?:   [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+	SoftwaresToUninstall?: [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VpcConfig?:            _#defs."/$defs/Properties/definitions/VpcConfig"
 })
 
 _#defs: "/$defs/Properties/definitions/AccessEndpoint": close({
@@ -60,12 +63,31 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VolumeConfig": close({VolumeSizeInGb?: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/VolumeConfig": close({
+	VolumeSizeInGb?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroupIds?: list.MaxItems(5) & [...] & [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	SubnetIds?:        [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds?: list.MaxItems(5) & [...] & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
+		fn.#StringExpression
+	] |
+	fn.#ListExpression
+	SubnetIds?: [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

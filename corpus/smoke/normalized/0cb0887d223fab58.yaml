@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "AWS CloudFormation sample template.  \nCreate an Amazon EC2 instance\
+  \ with cfn-init and cfn-signal.\n"
+Resources:
+  Instance:
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT5M
+    Metadata:
+      AWS::CloudFormation::Init:
+        config:
+          files:
+            /etc/cfn/cfn-hup.conf:
+              content:
+                Fn::Sub: '[main]
+
+                  stack=${AWS::StackId}
+
+                  region=${AWS::Region}
+
+                  '
+              group: root
+              mode: '000400'
+              owner: root
+            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
+              content:
+                Fn::Sub: '[cfn-auto-reloader-hook]
+
+                  triggers=post.update
+
+                  path=Resources.LaunchConfig.Metadata.AWS::CloudFormation::Init
+
+                  action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource
+                  Instance --region ${AWS::Region}
+
+                  runas=root'
+            /var/www/html/index.html:
+              content: "<body>\n  <h1>Congratulations, you have successfully launched\
+                \ the AWS CloudFormation sample.</h1>\n</body>\n"
+              group: root
+              mode: '000644'
+              owner: root
+          packages:
+            yum:
+              httpd: []
+          services:
+            sysvinit:
+              cfn-hup:
+                enabled: true
+                ensureRunning: true
+                files:
+                - /etc/cfn/cfn-hup.conf
+                - /etc/cfn/hooks.d/cfn-auto-reloader.conf
+              httpd:
+                enabled: true
+                ensureRunning: true
+      guard:
+        SuppressedRules:
+        - EC2_INSTANCES_IN_VPC
+    Properties:
+      BlockDeviceMappings:
+      - DeviceName: /dev/sda1
+        Ebs:
+          VolumeSize: 32
+      ImageId: '{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-arm64}}'
+      InstanceType: t4g.nano
+      KeyName: sample
+      UserData:
+        Fn::Base64:
+          Fn::Sub: '#!/bin/bash
+
+            /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Instance
+            --region ${AWS::Region}
+
+            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource Instance
+            --region ${AWS::Region}'
+    Type: AWS::EC2::Instance

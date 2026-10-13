@@ -29,7 +29,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" |
 	fn.#StringExpression
-	PolicyDocument!: struct.MinFields(1) & {[string]: fn.#Value} | fn.#ObjectExpression
+	PolicyDocument!: fn.#Object & {...} & struct.MinFields(1) | fn.#ObjectExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EventsV2::ResourcePolicy"

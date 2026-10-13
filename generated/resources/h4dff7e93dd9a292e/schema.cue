@@ -3,11 +3,15 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"struct"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -15,27 +19,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Omics::WorkflowVersion Resource Type.
 #Properties: close({
-	Accelerators?:         _#defs."/$defs/Properties/definitions/Accelerators" | fn.#StringExpression
-	ContainerRegistryMap?: _#defs."/$defs/Properties/definitions/ContainerRegistryMap" | fn.#ObjectExpression
+	Accelerators?:         _#defs."/$defs/Properties/definitions/Accelerators"
+	ContainerRegistryMap?: _#defs."/$defs/Properties/definitions/ContainerRegistryMap"
 	ContainerRegistryMapUri?: strings.MaxRunes(750) &
 	strings.MinRunes(1) &
 	=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
 	fn.#StringExpression
-	DefinitionRepository?: _#defs."/$defs/Properties/definitions/DefinitionRepository" | fn.#ObjectExpression
+	DefinitionRepository?: _#defs."/$defs/Properties/definitions/DefinitionRepository"
 	DefinitionUri?: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
 	fn.#StringExpression
 	Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
 	fn.#StringExpression
-	Engine?: _#defs."/$defs/Properties/definitions/WorkflowEngine" | fn.#StringExpression
+	Engine?: _#defs."/$defs/Properties/definitions/WorkflowEngine"
 	Main?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
 	fn.#StringExpression
-	ParameterTemplate?:     _#defs."/$defs/Properties/definitions/WorkflowParameterTemplate" | fn.#ObjectExpression
+	ParameterTemplate?:     _#defs."/$defs/Properties/definitions/WorkflowParameterTemplate"
 	ParameterTemplatePath?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S]+$" | fn.#StringExpression
-	StorageCapacity?:       <=100000 & >=0 | fn.#NumberExpression
-	StorageType?:           _#defs."/$defs/Properties/definitions/StorageType" | fn.#StringExpression
-	Tags?:                  _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
+	StorageCapacity?: <=100000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100000 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StorageType?: _#defs."/$defs/Properties/definitions/StorageType"
+	Tags?:        _#defs."/$defs/Properties/definitions/TagMap"
 	VersionName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9\\-\\._]*$" |
 	fn.#StringExpression
 	WorkflowBucketOwnerId?: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9]{12}$" | fn.#StringExpression
@@ -50,9 +73,8 @@ _#defs: "/$defs/Properties/definitions/Accelerators": "GPU" & (strings.MaxRunes(
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ContainerRegistryMap": close({
-	ImageMappings?: [..._#defs."/$defs/Properties/definitions/ImageMapping" | fn.#ObjectExpression] | fn.#ListExpression
-	RegistryMappings?: [..._#defs."/$defs/Properties/definitions/RegistryMapping" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ImageMappings?:    [..._#defs."/$defs/Properties/definitions/ImageMapping"] | fn.#ListExpression
+	RegistryMappings?: [..._#defs."/$defs/Properties/definitions/RegistryMapping"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -61,7 +83,7 @@ _#defs: "/$defs/Properties/definitions/DefinitionRepository": {
 	fn.#StringExpression
 	excludeFilePatterns?: list.MaxItems(50) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	fullRepositoryId?:    =~".+/.+" | fn.#StringExpression
-	sourceReference?:     _#defs."/$defs/Properties/definitions/SourceReference" | fn.#ObjectExpression
+	sourceReference?:     _#defs."/$defs/Properties/definitions/SourceReference"
 	...
 } | fn.#ObjectExpression
 
@@ -112,14 +134,13 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/WorkflowParameter": close({
 	Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
 	fn.#StringExpression
-	Optional?: bool | fn.#BooleanExpression
+	Optional?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WorkflowParameterTemplate": struct.MaxFields(1000) & struct.MinFields(1) & close({
 
-	{[=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"]: _#defs."/$defs/Properties/definitions/WorkflowParameter" |
-		fn.#ObjectExpression}}) |
+	{[=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"]: _#defs."/$defs/Properties/definitions/WorkflowParameter"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WorkflowStatus": ("CREATING" |

@@ -68,14 +68,16 @@ _#defs: "/$defs/Properties/definitions/AdminCreateUserConfig": close({
 _#defs: "/$defs/Properties/definitions/AdvancedSecurityAdditionalFlows": close({CustomAuthMode?: "AUDIT" | "ENFORCED"})
 
 _#defs: "/$defs/Properties/definitions/CustomEmailSender": close({
-	LambdaArn?: strings.MaxRunes(2048) &
+	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
 	LambdaVersion?: "V1_0"
 })
 
 _#defs: "/$defs/Properties/definitions/CustomSMSSender": close({
-	LambdaArn?: strings.MaxRunes(2048) &
+	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
 	LambdaVersion?: "V1_0"
@@ -96,7 +98,8 @@ _#defs: "/$defs/Properties/definitions/EmailConfiguration": close({
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
 })
 
-_#defs: "/$defs/Properties/definitions/EncryptionKeyArnType": strings.MaxRunes(2048) &
+_#defs: "/$defs/Properties/definitions/EncryptionKeyArnType": =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?"
 
@@ -115,7 +118,8 @@ _#defs: "/$defs/Properties/definitions/EumsSmsConfiguration": close({
 })
 
 _#defs: "/$defs/Properties/definitions/InboundFederation": close({
-	LambdaArn?: strings.MaxRunes(2048) &
+	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
 	LambdaVersion?: "V1_0"
@@ -195,7 +199,8 @@ _#defs: "/$defs/Properties/definitions/Policies": close({
 })
 
 _#defs: "/$defs/Properties/definitions/PreTokenGenerationConfig": close({
-	LambdaArn?: strings.MaxRunes(2048) &
+	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
 	LambdaVersion?: "V1_0" | "V2_0" | "V3_0"

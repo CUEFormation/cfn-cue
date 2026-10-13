@@ -21,7 +21,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PosixUser?:     _#defs."/$defs/Properties/definitions/PosixUser" | fn.#ObjectExpression
 	RootDirectory?: _#defs."/$defs/Properties/definitions/RootDirectory" | fn.#ObjectExpression
 	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AccessPointTag" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/AccessPointTag"
 	] |
 		fn.#ListExpression
 })

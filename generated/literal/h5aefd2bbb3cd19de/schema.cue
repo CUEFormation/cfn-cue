@@ -24,5 +24,5 @@ package schema
 	ResolverRuleId!: string
 
 	// The ID of the VPC that you associated the Resolver rule with.
-	VPCId!: string
+	VPCId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })

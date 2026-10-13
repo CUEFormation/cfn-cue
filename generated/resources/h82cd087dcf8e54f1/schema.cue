@@ -8,18 +8,38 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a resource gateway for a service.
 #Properties: close({
-	IpAddressType?:               "IPV4" | "IPV6" | "DUALSTACK" | fn.#StringExpression
-	Ipv4AddressesPerEni?:         int & <=62 & >=1 | fn.#NumberExpression
+	IpAddressType?: "IPV4" | "IPV6" | "DUALSTACK" | fn.#StringExpression
+	Ipv4AddressesPerEni?: int & <=62 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=62 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Name!:                        strings.MaxRunes(40) & strings.MinRunes(3) | fn.#StringExpression
 	ResourceConfigDnsResolution?: "IN_VPC" | "PUBLIC" | fn.#StringExpression
 	SecurityGroupIds?: list.UniqueItems() & [
-		...(string | string | string) &
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		string &
 		strings.MaxRunes(200) &
 		strings.MinRunes(5) &
 		=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
@@ -28,9 +48,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	SubnetIds!: list.UniqueItems() & [...strings.MaxRunes(200) & strings.MinRunes(5) | fn.#StringExpression] |
 	fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	VpcIdentifier!: strings.MaxRunes(50) & strings.MinRunes(5) & =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
 	fn.#StringExpression

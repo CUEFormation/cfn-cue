@@ -46,7 +46,8 @@ _#defs: "/$defs/Properties/definitions/Alias": close({
 })
 
 _#defs: "/$defs/Properties/definitions/AwsLambda": close({
-	FunctionArn!:     strings.MaxRunes(2048) & strings.MinRunes(1)
+	FunctionArn!:
+		=~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
 	FunctionPayload?: string
 })
 

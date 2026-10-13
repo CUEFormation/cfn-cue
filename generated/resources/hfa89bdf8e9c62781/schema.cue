@@ -9,6 +9,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -21,18 +25,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	InputArtifacts?: struct.MaxFields(60) & close({
 
-		{[=~".{1,128}"]: _#defs."/$defs/Properties/definitions/TrialComponentArtifact" | fn.#ObjectExpression}}) |
+		{[=~".{1,128}"]: _#defs."/$defs/Properties/definitions/TrialComponentArtifact"}}) |
 	fn.#ObjectExpression
-	MetadataProperties?: _#defs."/$defs/Properties/definitions/MetadataProperties" | fn.#ObjectExpression
+	MetadataProperties?: _#defs."/$defs/Properties/definitions/MetadataProperties"
 	OutputArtifacts?: struct.MaxFields(60) & close({
 
-		{[=~".{1,128}"]: _#defs."/$defs/Properties/definitions/TrialComponentArtifact" | fn.#ObjectExpression}}) |
+		{[=~".{1,128}"]: _#defs."/$defs/Properties/definitions/TrialComponentArtifact"}}) |
 	fn.#ObjectExpression
 	Parameters?: struct.MaxFields(300) & close({
 
-		{[=~".{1,320}"]: _#defs."/$defs/Properties/definitions/TrialComponentParameterValue" | fn.#ObjectExpression}}) |
+		{[=~".{1,320}"]: _#defs."/$defs/Properties/definitions/TrialComponentParameterValue"}}) |
 	fn.#ObjectExpression
-	Status?: _#defs."/$defs/Properties/definitions/TrialComponentStatus" | fn.#ObjectExpression
+	Status?: _#defs."/$defs/Properties/definitions/TrialComponentStatus"
 	Tags?: list.MaxItems(50) & [...] & [...close({
 		Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
 		fn.#StringExpression
@@ -60,7 +64,25 @@ _#defs: "/$defs/Properties/definitions/TrialComponentArtifact": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TrialComponentParameterValue": close({
-	NumberValue?: number | fn.#NumberExpression
+	NumberValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	StringValue?: strings.MaxRunes(2500) | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -33,9 +33,11 @@ _#defs: "/$defs/Properties/definitions/EventDestination": close({
 
 _#defs: "/$defs/Properties/definitions/KinesisFirehoseDestination": close({
 	DeliveryStreamArn!: string
-	IamRoleArn!:        string
+	IamRoleArn!:        =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/PinpointDestination": close({ApplicationArn?: string})
 
-_#defs: "/$defs/Properties/definitions/SnsDestination": close({TopicArn!: string})
+_#defs: "/$defs/Properties/definitions/SnsDestination": close(
+	{TopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"},
+)

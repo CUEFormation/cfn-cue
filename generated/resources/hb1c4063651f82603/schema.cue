@@ -20,19 +20,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon ECR Public User Guide*.
 #Properties: close({
 	RepositoryCatalogData?: close({
-		AboutText?:             _#defs."/$defs/Properties/definitions/AboutText" | fn.#StringExpression
-		Architectures?:         _#defs."/$defs/Properties/definitions/ArchitectureList" | fn.#ListExpression
-		OperatingSystems?:      _#defs."/$defs/Properties/definitions/OperatingSystemList" | fn.#ListExpression
-		RepositoryDescription?: _#defs."/$defs/Properties/definitions/RepositoryDescription" | fn.#StringExpression
-		UsageText?:             _#defs."/$defs/Properties/definitions/UsageText" | fn.#StringExpression
+		AboutText?:             _#defs."/$defs/Properties/definitions/AboutText"
+		Architectures?:         _#defs."/$defs/Properties/definitions/ArchitectureList"
+		OperatingSystems?:      _#defs."/$defs/Properties/definitions/OperatingSystemList"
+		RepositoryDescription?: _#defs."/$defs/Properties/definitions/RepositoryDescription"
+		UsageText?:             _#defs."/$defs/Properties/definitions/UsageText"
 	}) |
 	fn.#ObjectExpression
 	RepositoryName?:       strings.MaxRunes(256) & strings.MinRunes(2) | fn.#StringExpression
-	RepositoryPolicyText?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	RepositoryPolicyText?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AboutText": strings.MaxRunes(10240) | fn.#StringExpression
@@ -40,7 +37,7 @@ _#defs: "/$defs/Properties/definitions/AboutText": strings.MaxRunes(10240) | fn.
 _#defs: "/$defs/Properties/definitions/Architecture": strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ArchitectureList": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Architecture" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/Architecture"
 ] |
 	fn.#ListExpression
 
@@ -48,7 +45,7 @@ _#defs: "/$defs/Properties/definitions/OperatingSystem": strings.MaxRunes(50) & 
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/OperatingSystemList": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/OperatingSystem" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/OperatingSystem"
 ] |
 	fn.#ListExpression
 

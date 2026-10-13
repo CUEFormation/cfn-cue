@@ -10,21 +10,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Greengrass::CoreDefinition
 #Properties: close({
-	InitialVersion?: _#defs."/$defs/Properties/definitions/CoreDefinitionVersion" | fn.#ObjectExpression
+	InitialVersion?: _#defs."/$defs/Properties/definitions/CoreDefinitionVersion"
 	Name!:           string | fn.#StringExpression
-	Tags?:           string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Core": close({
 	CertificateArn!: string | fn.#StringExpression
 	Id!:             string | fn.#StringExpression
-	SyncShadow?:     bool | fn.#BooleanExpression
+	SyncShadow?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ThingArn!:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CoreDefinitionVersion": close(
-	{Cores!: [..._#defs."/$defs/Properties/definitions/Core" | fn.#ObjectExpression] | fn.#ListExpression},
+	{Cores!: [..._#defs."/$defs/Properties/definitions/Core"] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

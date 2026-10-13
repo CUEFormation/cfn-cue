@@ -25,7 +25,7 @@ import "strings"
 	GuardrailPolicies?: [...string]
 
 	// The ARN of the IAM role that defines the permissions for AWS Chatbot
-	IamRoleArn!: string
+	IamRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Specifies the logging level for this configuration:ERROR,INFO or NONE. This
 	// property affects the log entries pushed to Amazon CloudWatch logs

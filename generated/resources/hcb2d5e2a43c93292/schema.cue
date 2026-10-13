@@ -15,10 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Cognito::Terms
 #Properties: close({
 	ClientId?:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+]+$" | fn.#StringExpression
-	Enforcement!: _#defs."/$defs/Properties/definitions/TermsEnforcementType" | fn.#StringExpression
-	Links!:       _#defs."/$defs/Properties/definitions/LinksType" | fn.#ObjectExpression
-	TermsName!:   _#defs."/$defs/Properties/definitions/TermsNameType" | fn.#StringExpression
-	TermsSource!: _#defs."/$defs/Properties/definitions/TermsSourceType" | fn.#StringExpression
+	Enforcement!: _#defs."/$defs/Properties/definitions/TermsEnforcementType"
+	Links!:       _#defs."/$defs/Properties/definitions/LinksType"
+	TermsName!:   _#defs."/$defs/Properties/definitions/TermsNameType"
+	TermsSource!: _#defs."/$defs/Properties/definitions/TermsSourceType"
 	UserPoolId!:  strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
 })
 

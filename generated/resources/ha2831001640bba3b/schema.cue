@@ -53,8 +53,8 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParametersInCacheKeyAndForwardedToOrigin": close({
 	CookiesConfig!:              _#defs."/$defs/Properties/definitions/CookiesConfig" | fn.#ObjectExpression
-	EnableAcceptEncodingBrotli?: bool | fn.#BooleanExpression
-	EnableAcceptEncodingGzip!:   bool | fn.#BooleanExpression
+	EnableAcceptEncodingBrotli?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableAcceptEncodingGzip!:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	HeadersConfig!:              _#defs."/$defs/Properties/definitions/HeadersConfig" | fn.#ObjectExpression
 	QueryStringsConfig!:         _#defs."/$defs/Properties/definitions/QueryStringsConfig" | fn.#ObjectExpression
 }) |

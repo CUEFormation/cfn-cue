@@ -10,7 +10,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SecurityLake::SubscriberNotification
 #Properties: close({
-	NotificationConfiguration!: _#defs."/$defs/Properties/definitions/NotificationConfiguration" | fn.#ObjectExpression
+	NotificationConfiguration!: _#defs."/$defs/Properties/definitions/NotificationConfiguration"
 	SubscriberArn!:             =~"^arn:.*$" | fn.#StringExpression
 })
 
@@ -19,7 +19,9 @@ _#defs: "/$defs/Properties/definitions/HttpsNotificationConfiguration": close({
 	AuthorizationApiKeyValue?: string | fn.#StringExpression
 	Endpoint!:                 =~"^https?://.+$" | fn.#StringExpression
 	HttpMethod?:               "POST" | "PUT" | fn.#StringExpression
-	TargetRoleArn!:            =~"^arn:.*$" | fn.#StringExpression
+	TargetRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -30,18 +32,14 @@ _#defs: "/$defs/Properties/definitions/NotificationConfiguration": matchN(1, [{
 	SqsNotificationConfiguration!: _
 	...
 }]) & close({
-	HttpsNotificationConfiguration?: _#defs."/$defs/Properties/definitions/HttpsNotificationConfiguration" |
-		fn.#ObjectExpression
-	SqsNotificationConfiguration?: _#defs."/$defs/Properties/definitions/SqsNotificationConfiguration" |
-		fn.#ObjectExpression |
-		fn.#StringExpression
+	HttpsNotificationConfiguration?: _#defs."/$defs/Properties/definitions/HttpsNotificationConfiguration"
+	SqsNotificationConfiguration?:   _#defs."/$defs/Properties/definitions/SqsNotificationConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SqsNotificationConfiguration": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/SqsNotificationConfiguration": fn.#Object & {...} |
+string |
+fn.#StringObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SecurityLake::SubscriberNotification"
 	Properties!: #Properties

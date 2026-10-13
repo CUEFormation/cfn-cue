@@ -8,13 +8,17 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::NeptuneGraph::Graph resource creates an Amazon NeptuneGraph Graph.
 #Properties: close({
-	DeletionProtection?: bool | fn.#BooleanExpression
+	DeletionProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	GraphName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" |
 	fn.#StringExpression
 	ImportTask?: _#defs."/$defs/Properties/definitions/ImportTask" | fn.#ObjectExpression
@@ -22,13 +26,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"arn:aws(|-cn|-us-gov|-iso|-iso-b|-iso-e|-iso-f|-eusc):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}" |
 	fn.#StringExpression
-	ProvisionedMemory!:  int & <=24576 & >=16 | fn.#NumberExpression
-	PublicConnectivity?: bool | fn.#BooleanExpression
-	ReplicaCount?:       int & <=2 & >=0 | fn.#NumberExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	ProvisionedMemory!: int & <=24576 & >=16 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=24576 &
+							>=16,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PublicConnectivity?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ReplicaCount?: int & <=2 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VectorSearchConfiguration?: _#defs."/$defs/Properties/definitions/VectorSearchConfiguration" | fn.#ObjectExpression
 })
 
@@ -38,14 +69,45 @@ _#defs: "/$defs/Properties/definitions/ImportOptions": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ImportTask": close({
-	BlankNodeHandling?:    "convertToIri" | fn.#StringExpression
-	FailOnError?:          bool | fn.#BooleanExpression
-	Format?:               "CSV" | "OPEN_CYPHER" | "PARQUET" | "NTRIPLES" | fn.#StringExpression
-	ImportOptions?:        _#defs."/$defs/Properties/definitions/ImportOptions" | fn.#ObjectExpression
-	MaxProvisionedMemory?: int & <=24576 & >=16 | fn.#NumberExpression
-	MinProvisionedMemory?: int & <=24576 & >=16 | fn.#NumberExpression
-	ParquetType?:          "COLUMNAR" | fn.#StringExpression
-	RoleArn!: strings.MaxRunes(1024) &
+	BlankNodeHandling?: "convertToIri" | fn.#StringExpression
+	FailOnError?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Format?:            "CSV" | "OPEN_CYPHER" | "PARQUET" | "NTRIPLES" | fn.#StringExpression
+	ImportOptions?:     _#defs."/$defs/Properties/definitions/ImportOptions" | fn.#ObjectExpression
+	MaxProvisionedMemory?: int & <=24576 & >=16 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=24576 &
+							>=16,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinProvisionedMemory?: int & <=24576 & >=16 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=24576 &
+							>=16,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ParquetType?: "COLUMNAR" | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
 	=~"arn:aws[^:]*:iam::[0-9]{12}:(role|role/service-role)(/[\\w+=,.@-]+)+" |
 	fn.#StringExpression
@@ -54,8 +116,8 @@ _#defs: "/$defs/Properties/definitions/ImportTask": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NeptuneImportOptions": close({
-	PreserveDefaultVertexLabels?: bool | fn.#BooleanExpression
-	PreserveEdgeIds?:             bool | fn.#BooleanExpression
+	PreserveDefaultVertexLabels?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PreserveEdgeIds?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	S3ExportKmsKeyId!:            strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	S3ExportPath!:                strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
@@ -67,9 +129,22 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VectorSearchConfiguration": close(
-	{VectorSearchDimension!: int | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/VectorSearchConfiguration": close({
+	VectorSearchDimension!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::NeptuneGraph::Graph"

@@ -134,7 +134,7 @@ _#defs: "/$defs/Properties/definitions/PresignedUrlConfig": close({
 
 	// The ARN of an IAM role that grants permission to download files from the S3
 	// bucket where the job data/updates are stored.
-	RoleArn?: strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
 // Allows you to define a criteria to initiate the increase in rate of rollout for a job.

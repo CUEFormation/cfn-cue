@@ -14,9 +14,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Route53::CidrCollection.
 #Properties: close({
-	Locations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Location" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\-]+$" | fn.#StringExpression
+	Locations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Location"] | fn.#ListExpression
+	Name!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\-]+$" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Location": close({

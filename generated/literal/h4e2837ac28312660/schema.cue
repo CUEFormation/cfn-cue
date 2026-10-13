@@ -101,7 +101,7 @@ import (
 	// A service role Amazon Resource Name (ARN) that grants CodeDeploy permission
 	// to make calls to AWS services on your behalf. For more information, see
 	// 'Create a Service Role for AWS CodeDeploy' in the AWS CodeDeploy User Guide.
-	ServiceRoleArn!: string
+	ServiceRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The metadata that you apply to CodeDeploy deployment groups to help you
 	// organize and categorize them. Each tag consists of a key and an optional

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -16,10 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Project. A project is a grouping of the resources needed to create and
 // manage Dataset and ProjectVersions.
 #Properties: close({
-	ProjectName!: _#defs."/$defs/Properties/definitions/ProjectName" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	ProjectName!: _#defs."/$defs/Properties/definitions/ProjectName"
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

@@ -36,12 +36,12 @@ import "list"
 	Id?:                        string
 	Name!:                      string
 	RdsDbInstances?:            list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RdsDbInstance"]
-	ServiceRoleArn!:            string
+	ServiceRoleArn!:            =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	SourceStackId?:             string
 	Tags?:                      [..._#defs."/$defs/Properties/definitions/Tag"]
 	UseCustomCookbooks?:        bool
 	UseOpsworksSecurityGroups?: bool
-	"VpcId"?:                   string
+	"VpcId"?:                   =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/ChefConfiguration": close({

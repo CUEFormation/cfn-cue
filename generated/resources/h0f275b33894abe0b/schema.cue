@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,12 +13,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The resource schema for AWSLogs ResourcePolicy
 #Properties: close({
-	PolicyDocument!: strings.MaxRunes(51200) &
-	strings.MinRunes(1) &
-	=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
-	{[string]: fn.#Value} |
-	fn.#StringExpression |
-	fn.#ObjectExpression
+	PolicyDocument!: fn.#Object & {...} |
+	strings.MaxRunes(51200) & strings.MinRunes(1) & =~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
+	fn.#StringObjectExpression
 	PolicyName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([^:*\\/]+\\/?)*[^:*\\/]+$" | fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {

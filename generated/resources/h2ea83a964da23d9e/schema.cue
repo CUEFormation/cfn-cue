@@ -9,6 +9,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -25,438 +29,360 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/AwsSecurityFindingFilters": close({
-	AwsAccountId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	AwsAccountId?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	AwsAccountName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	AwsAccountName?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	CompanyName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	CompanyName?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
 	ComplianceAssociatedStandardsId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ComplianceSecurityControlId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ComplianceSecurityControlParametersName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ComplianceSecurityControlParametersValue?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
-	ComplianceStatus?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	ComplianceStatus?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	Confidence?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NumberFilter" | fn.#ObjectExpression
-	] |
+	Confidence?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/NumberFilter"] |
 		fn.#ListExpression
-	CreatedAt?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DateFilter" | fn.#ObjectExpression
-	] |
+	CreatedAt?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DateFilter"] |
 		fn.#ListExpression
-	Criticality?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NumberFilter" | fn.#ObjectExpression
-	] |
+	Criticality?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/NumberFilter"] |
 		fn.#ListExpression
-	Description?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	Description?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
 	FindingProviderFieldsConfidence?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NumberFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/NumberFilter"
 	] |
 		fn.#ListExpression
 	FindingProviderFieldsCriticality?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NumberFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/NumberFilter"
 	] |
 		fn.#ListExpression
 	FindingProviderFieldsRelatedFindingsId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	FindingProviderFieldsRelatedFindingsProductArn?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	FindingProviderFieldsSeverityLabel?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	FindingProviderFieldsSeverityOriginal?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	FindingProviderFieldsTypes?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
-	FirstObservedAt?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DateFilter" | fn.#ObjectExpression
-	] |
+	FirstObservedAt?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DateFilter"] |
 		fn.#ListExpression
-	GeneratorId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	GeneratorId?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	Id?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	Id?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	Keyword?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/KeywordFilter" | fn.#ObjectExpression
-	] |
+	Keyword?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/KeywordFilter"] |
 		fn.#ListExpression
-	LastObservedAt?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DateFilter" | fn.#ObjectExpression
-	] |
+	LastObservedAt?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DateFilter"] |
 		fn.#ListExpression
-	MalwareName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	MalwareName?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	MalwarePath?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	MalwarePath?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	MalwareState?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	MalwareState?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	MalwareType?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	MalwareType?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
 	NetworkDestinationDomain?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	NetworkDestinationIpV4?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IpFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/IpFilter"
 	] |
 		fn.#ListExpression
 	NetworkDestinationIpV6?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IpFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/IpFilter"
 	] |
 		fn.#ListExpression
 	NetworkDestinationPort?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NumberFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/NumberFilter"
 	] |
 		fn.#ListExpression
-	NetworkDirection?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	NetworkDirection?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	NetworkProtocol?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	NetworkProtocol?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
 	NetworkSourceDomain?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
-	NetworkSourceIpV4?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IpFilter" | fn.#ObjectExpression
-	] |
+	NetworkSourceIpV4?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/IpFilter"] |
 		fn.#ListExpression
-	NetworkSourceIpV6?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IpFilter" | fn.#ObjectExpression
-	] |
+	NetworkSourceIpV6?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/IpFilter"] |
 		fn.#ListExpression
-	NetworkSourceMac?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	NetworkSourceMac?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
 	NetworkSourcePort?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NumberFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/NumberFilter"
 	] |
 		fn.#ListExpression
-	NoteText?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	NoteText?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	NoteUpdatedAt?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DateFilter" | fn.#ObjectExpression
-	] |
+	NoteUpdatedAt?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DateFilter"] |
 		fn.#ListExpression
-	NoteUpdatedBy?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	NoteUpdatedBy?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	ProcessLaunchedAt?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DateFilter" | fn.#ObjectExpression
-	] |
+	ProcessLaunchedAt?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DateFilter"] |
 		fn.#ListExpression
-	ProcessName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	ProcessName?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	ProcessParentPid?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NumberFilter" | fn.#ObjectExpression
-	] |
+	ProcessParentPid?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/NumberFilter"] |
 		fn.#ListExpression
-	ProcessPath?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	ProcessPath?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	ProcessPid?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NumberFilter" | fn.#ObjectExpression
-	] |
+	ProcessPid?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/NumberFilter"] |
 		fn.#ListExpression
 	ProcessTerminatedAt?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DateFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/DateFilter"
 	] |
 		fn.#ListExpression
-	ProductArn?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	ProductArn?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	ProductFields?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MapFilter" | fn.#ObjectExpression
-	] |
+	ProductFields?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MapFilter"] |
 		fn.#ListExpression
-	ProductName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	ProductName?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
 	RecommendationText?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
-	RecordState?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	RecordState?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	Region?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	Region?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
 	RelatedFindingsId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	RelatedFindingsProductArn?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceApplicationArn?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceApplicationName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceAwsEc2InstanceIamInstanceProfileArn?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceAwsEc2InstanceImageId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceAwsEc2InstanceIpV4Addresses?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IpFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/IpFilter"
 	] |
 		fn.#ListExpression
 	ResourceAwsEc2InstanceIpV6Addresses?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IpFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/IpFilter"
 	] |
 		fn.#ListExpression
 	ResourceAwsEc2InstanceKeyName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceAwsEc2InstanceLaunchedAt?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DateFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/DateFilter"
 	] |
 		fn.#ListExpression
 	ResourceAwsEc2InstanceSubnetId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceAwsEc2InstanceType?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceAwsEc2InstanceVpcId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceAwsIamAccessKeyCreatedAt?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DateFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/DateFilter"
 	] |
 		fn.#ListExpression
 	ResourceAwsIamAccessKeyPrincipalName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceAwsIamAccessKeyStatus?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceAwsIamAccessKeyUserName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceAwsIamUserUserName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceAwsS3BucketOwnerId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceAwsS3BucketOwnerName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceContainerImageId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceContainerImageName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceContainerLaunchedAt?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DateFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/DateFilter"
 	] |
 		fn.#ListExpression
 	ResourceContainerName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ResourceDetailsOther?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MapFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MapFilter"
 	] |
 		fn.#ListExpression
-	ResourceId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	ResourceId?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
 	ResourcePartition?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
-	ResourceRegion?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	ResourceRegion?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	ResourceTags?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MapFilter" | fn.#ObjectExpression
-	] |
+	ResourceTags?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MapFilter"] |
 		fn.#ListExpression
-	ResourceType?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	ResourceType?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	Sample?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/BooleanFilter" | fn.#ObjectExpression
-	] |
+	Sample?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BooleanFilter"] |
 		fn.#ListExpression
-	SeverityLabel?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	SeverityLabel?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
 	SeverityNormalized?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NumberFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/NumberFilter"
 	] |
 		fn.#ListExpression
-	SeverityProduct?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NumberFilter" | fn.#ObjectExpression
-	] |
+	SeverityProduct?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/NumberFilter"] |
 		fn.#ListExpression
-	SourceUrl?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	SourceUrl?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
 	ThreatIntelIndicatorCategory?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ThreatIntelIndicatorLastObservedAt?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DateFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/DateFilter"
 	] |
 		fn.#ListExpression
 	ThreatIntelIndicatorSource?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ThreatIntelIndicatorSourceUrl?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ThreatIntelIndicatorType?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	ThreatIntelIndicatorValue?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
-	Title?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	Title?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	Type?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	Type?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	UpdatedAt?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DateFilter" | fn.#ObjectExpression
-	] |
+	UpdatedAt?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DateFilter"] |
 		fn.#ListExpression
-	UserDefinedFields?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MapFilter" | fn.#ObjectExpression
-	] |
+	UserDefinedFields?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MapFilter"] |
 		fn.#ListExpression
 	VerificationState?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	VulnerabilitiesExploitAvailable?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
 	VulnerabilitiesFixAvailable?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/StringFilter"
 	] |
 		fn.#ListExpression
-	WorkflowState?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	WorkflowState?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
-	WorkflowStatus?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	] |
+	WorkflowStatus?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BooleanFilter": close({Value!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/BooleanFilter": close(
+	{Value!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DateFilter": close({
-	DateRange?: _#defs."/$defs/Properties/definitions/DateRange" | fn.#ObjectExpression
-	End?:       _#defs."/$defs/Properties/definitions/ISO8601DateString" | fn.#StringExpression
-	Start?:     _#defs."/$defs/Properties/definitions/ISO8601DateString" | fn.#StringExpression
+	DateRange?: _#defs."/$defs/Properties/definitions/DateRange"
+	End?:       _#defs."/$defs/Properties/definitions/ISO8601DateString"
+	Start?:     _#defs."/$defs/Properties/definitions/ISO8601DateString"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DateRange": close({
-	Unit!:  "DAYS" | fn.#StringExpression
-	Value!: number | fn.#NumberExpression
+	Unit!: "DAYS" | fn.#StringExpression
+	Value!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -474,23 +400,77 @@ _#defs: "/$defs/Properties/definitions/KeywordFilter": close(
 
 _#defs: "/$defs/Properties/definitions/MapFilter": close({
 	Comparison!: "EQUALS" | "NOT_EQUALS" | fn.#StringExpression
-	Key!:        _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
-	Value!:      _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
+	Key!:        _#defs."/$defs/Properties/definitions/NonEmptyString"
+	Value!:      _#defs."/$defs/Properties/definitions/NonEmptyString"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NonEmptyString": strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/NumberFilter": close({
-	Eq?:  number | fn.#NumberExpression
-	Gte?: number | fn.#NumberExpression
-	Lte?: number | fn.#NumberExpression
+	Eq?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Gte?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Lte?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StringFilter": close({
-	Comparison!: _#defs."/$defs/Properties/definitions/StringFilterComparison" | fn.#StringExpression
-	Value!:      _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
+	Comparison!: _#defs."/$defs/Properties/definitions/StringFilterComparison"
+	Value!:      _#defs."/$defs/Properties/definitions/NonEmptyString"
 }) |
 fn.#ObjectExpression
 

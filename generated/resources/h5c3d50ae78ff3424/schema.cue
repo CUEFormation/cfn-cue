@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -16,17 +20,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // capacity provider defines the compute resources (EC2) used to run Amazon
 // Bedrock AgentCore agent runtimes.
 #Properties: close({
-	ComputeConfiguration!: _#defs."/$defs/Properties/definitions/ComputeConfiguration" | fn.#ObjectExpression
+	ComputeConfiguration!: _#defs."/$defs/Properties/definitions/ComputeConfiguration"
 	Description?:          strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 	Name!: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
-	PermissionsConfiguration!: _#defs."/$defs/Properties/definitions/PermissionsConfiguration" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	PermissionsConfiguration!: _#defs."/$defs/Properties/definitions/PermissionsConfiguration"
+	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CapacityReservationSpecification": close({
 	CapacityReservationPreference?: "capacity-reservations-only" | "open" | "none" | fn.#StringExpression
-	CapacityReservationTarget?: _#defs."/$defs/Properties/definitions/CapacityReservationTarget" | fn.#ObjectExpression
+	CapacityReservationTarget?:     _#defs."/$defs/Properties/definitions/CapacityReservationTarget"
 }) |
 fn.#ObjectExpression
 
@@ -40,64 +43,213 @@ _#defs: "/$defs/Properties/definitions/CapacityReservationTarget": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComputeConfiguration": close(
-	{Ec2Configuration!: _#defs."/$defs/Properties/definitions/Ec2Configuration" | fn.#ObjectExpression},
+	{Ec2Configuration!: _#defs."/$defs/Properties/definitions/Ec2Configuration"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EbsVolumeConfiguration": close({
-	Encrypted?: bool | fn.#BooleanExpression
-	Iops?:      int & <=256000 & >=100 | fn.#NumberExpression
-	KmsKeyId?: (string | string | string) &
+	Encrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Iops?: int & <=256000 & >=100 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=256000 &
+							>=100,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[^:]+)?:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
 	fn.#StringExpression
-	Name!:       strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_-]{0,47}$" | fn.#StringExpression
-	SizeGiB!:    int & <=65536 & >=1 | fn.#NumberExpression
+	Name!: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_-]{0,47}$" | fn.#StringExpression
+	SizeGiB!: int & <=65536 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65536 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SnapshotId?: strings.MaxRunes(64) & strings.MinRunes(13) & =~"^snap-[a-f0-9]{8,17}$" | fn.#StringExpression
-	Throughput?: int & <=2000 & >=125 | fn.#NumberExpression
+	Throughput?: int & <=2000 & >=125 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2000 &
+							>=125,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	VolumeType?: "standard" | "io1" | "io2" | "gp2" | "sc1" | "st1" | "gp3" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Ec2Configuration": close({
-	LaunchTemplateSource!: _#defs."/$defs/Properties/definitions/LaunchTemplateSource" | fn.#ObjectExpression
-	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/InstanceLifecycleConfiguration" |
-		fn.#ObjectExpression
-	RootVolume?: _#defs."/$defs/Properties/definitions/RootVolumeConfiguration" | fn.#ObjectExpression
-	Volumes?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/VolumeConfiguration" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	VpcConfiguration!: _#defs."/$defs/Properties/definitions/VpcConfiguration" | fn.#ObjectExpression
+	LaunchTemplateSource!:   _#defs."/$defs/Properties/definitions/LaunchTemplateSource"
+	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/InstanceLifecycleConfiguration"
+	RootVolume?:             _#defs."/$defs/Properties/definitions/RootVolumeConfiguration"
+	Volumes?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/VolumeConfiguration"] | fn.#ListExpression
+	VpcConfiguration!: _#defs."/$defs/Properties/definitions/VpcConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EphemeralBlockDeviceMapping": close({
 	DeviceName?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/._-]+$" | fn.#StringExpression
-	Ebs?:         _#defs."/$defs/Properties/definitions/EphemeralEBSVolumeConfiguration" | fn.#ObjectExpression
+	Ebs?:         _#defs."/$defs/Properties/definitions/EphemeralEBSVolumeConfiguration"
 	VirtualName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^ephemeral[0-9]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EphemeralEBSVolumeConfiguration": close({
-	EbsCardIndex?: int & >=0 | fn.#NumberExpression
-	Encrypted?:    bool | fn.#BooleanExpression
-	Iops?:         int & <=256000 & >=100 | fn.#NumberExpression
-	KmsKeyId?: (string | string | string) &
+	EbsCardIndex?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Encrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Iops?: int & <=256000 & >=100 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=256000 &
+							>=100,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[^:]+)?:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
 	fn.#StringExpression
 	SnapshotId?: strings.MaxRunes(64) & strings.MinRunes(13) & =~"^snap-[a-f0-9]{8,17}$" | fn.#StringExpression
-	Throughput?: int & <=2000 & >=125 | fn.#NumberExpression
-	VolumeInitializationRate?: int & <=300 & >=100 | fn.#NumberExpression
-	VolumeSize?:               int & <=65536 & >=1 | fn.#NumberExpression
-	VolumeType?:               "standard" | "io1" | "io2" | "gp2" | "sc1" | "st1" | "gp3" | fn.#StringExpression
+	Throughput?: int & <=2000 & >=125 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2000 &
+							>=125,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VolumeInitializationRate?: int & <=300 & >=100 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=300 &
+							>=100,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VolumeSize?: int & <=65536 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65536 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VolumeType?: "standard" | "io1" | "io2" | "gp2" | "sc1" | "st1" | "gp3" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InstanceLifecycleConfiguration": close({
-	IdleInstanceTimeout?: int & <=1209600 & >=60 | fn.#NumberExpression
-	MaxLifetime?:         int & <=1209600 & >=60 | fn.#NumberExpression
+	IdleInstanceTimeout?: int & <=1209600 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1209600 &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxLifetime?: int & <=1209600 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1209600 &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -110,20 +262,15 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LaunchParameters": close({
-	CapacityReservationSpecification?: _#defs."/$defs/Properties/definitions/CapacityReservationSpecification" |
-		fn.#ObjectExpression
-	EphemeralVolumes?: list.MaxItems(5) & [
-		..._#defs."/$defs/Properties/definitions/EphemeralBlockDeviceMapping" | fn.#ObjectExpression
-	] |
+	CapacityReservationSpecification?: _#defs."/$defs/Properties/definitions/CapacityReservationSpecification"
+	EphemeralVolumes?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/EphemeralBlockDeviceMapping"] |
 		fn.#ListExpression
 	InstanceProfileArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:instance-profile/([!-~]{1,510}/)?([\\w+=,.@-]{1,128})$" |
 	fn.#StringExpression
-	InstanceRequirements!: _#defs."/$defs/Properties/definitions/InstanceRequirements" | fn.#ObjectExpression
-	LicenseSpecifications?: list.MaxItems(5) & [
-		..._#defs."/$defs/Properties/definitions/LicenseSpecification" | fn.#ObjectExpression
-	] |
+	InstanceRequirements!: _#defs."/$defs/Properties/definitions/InstanceRequirements"
+	LicenseSpecifications?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/LicenseSpecification"] |
 		fn.#ListExpression
 	Monitoring?:      "BASIC" | "DETAILED" | fn.#StringExpression
 	OperatingSystem!: "LINUX_X86_64" | "LINUX_ARM64" | fn.#StringExpression
@@ -136,7 +283,7 @@ _#defs: "/$defs/Properties/definitions/LaunchParameters": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LaunchTemplateSource": close(
-	{LaunchParameters!: _#defs."/$defs/Properties/definitions/LaunchParameters" | fn.#ObjectExpression},
+	{LaunchParameters!: _#defs."/$defs/Properties/definitions/LaunchParameters"},
 ) |
 	fn.#ObjectExpression
 
@@ -149,7 +296,8 @@ _#defs: "/$defs/Properties/definitions/LicenseSpecification": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PermissionsConfiguration": close({
-	CapacityProviderOperatorRoleArn!: strings.MaxRunes(2048) &
+	CapacityProviderOperatorRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
 	fn.#StringExpression
@@ -157,15 +305,61 @@ _#defs: "/$defs/Properties/definitions/PermissionsConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RootVolumeConfiguration": close({
-	Encrypted?:    bool | fn.#BooleanExpression
-	FreeSpaceGiB?: int & <=65000 & >=2 | fn.#NumberExpression
-	Iops?:         int & <=256000 & >=100 | fn.#NumberExpression
-	KmsKeyId?: (string | string | string) &
+	Encrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	FreeSpaceGiB?: int & <=65000 & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65000 &
+							>=2,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Iops?: int & <=256000 & >=100 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=256000 &
+							>=100,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[^:]+)?:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
 	fn.#StringExpression
-	Throughput?: int & <=2000 & >=125 | fn.#NumberExpression
+	Throughput?: int & <=2000 & >=125 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2000 &
+							>=125,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	VolumeType?: "standard" | "io1" | "io2" | "gp2" | "sc1" | "st1" | "gp3" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -177,12 +371,16 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VolumeConfiguration": close(
-	{EbsConfiguration!: _#defs."/$defs/Properties/definitions/EbsVolumeConfiguration" | fn.#ObjectExpression},
+	{EbsConfiguration!: _#defs."/$defs/Properties/definitions/EbsVolumeConfiguration"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
-	SecurityGroups!: list.MaxItems(16) & list.MinItems(1) & [...=~"^sg-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression] |
+	SecurityGroups!: list.MaxItems(16) & list.MinItems(1) & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^sg-[0-9a-zA-Z]{8,17}$" |
+			fn.#StringExpression
+	] |
 		fn.#ListExpression
 	Subnets!: list.MaxItems(16) & list.MinItems(1) & [...=~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression] |
 		fn.#ListExpression

@@ -147,7 +147,8 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 	// encrypt the registry's content. The key must be a symmetric encryption key
 	// in the same AWS account and Region as the registry. Multi-Region keys are
 	// not supported.
-	KmsKeyArn!: strings.MaxRunes(2048) &
+	KmsKeyArn!: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$"
 })

@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,19 +19,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::EC2::NetworkInsightsPath
 #Properties: close({
 	Destination?:         string | fn.#StringExpression
-	DestinationIp?:       _#defs."/$defs/Properties/definitions/IpAddress" | fn.#StringExpression
-	DestinationPort?:     _#defs."/$defs/Properties/definitions/Port" | fn.#NumberExpression
-	FilterAtDestination?: _#defs."/$defs/Properties/definitions/PathFilter" | fn.#ObjectExpression
-	FilterAtSource?:      _#defs."/$defs/Properties/definitions/PathFilter" | fn.#ObjectExpression
-	Protocol!:            _#defs."/$defs/Properties/definitions/Protocol" | fn.#StringExpression
+	DestinationIp?:       _#defs."/$defs/Properties/definitions/IpAddress"
+	DestinationPort?:     _#defs."/$defs/Properties/definitions/Port"
+	FilterAtDestination?: _#defs."/$defs/Properties/definitions/PathFilter"
+	FilterAtSource?:      _#defs."/$defs/Properties/definitions/PathFilter"
+	Protocol!:            _#defs."/$defs/Properties/definitions/Protocol"
 	Source!:              string | fn.#StringExpression
-	SourceIp?:            _#defs."/$defs/Properties/definitions/IpAddress" | fn.#StringExpression
-	Tags?:                [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	SourceIp?:            _#defs."/$defs/Properties/definitions/IpAddress"
+	Tags?:                [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/FilterPortRange": close({
-	FromPort?: int & <=65535 & >=0 | fn.#NumberExpression
-	ToPort?:   int & <=65535 & >=0 | fn.#NumberExpression
+	FromPort?: int & <=65535 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ToPort?: int & <=65535 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -37,14 +71,29 @@ strings.MinRunes(0) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PathFilter": close({
-	DestinationAddress?:   _#defs."/$defs/Properties/definitions/IpAddress" | fn.#StringExpression
-	DestinationPortRange?: _#defs."/$defs/Properties/definitions/FilterPortRange" | fn.#ObjectExpression
-	SourceAddress?:        _#defs."/$defs/Properties/definitions/IpAddress" | fn.#StringExpression
-	SourcePortRange?:      _#defs."/$defs/Properties/definitions/FilterPortRange" | fn.#ObjectExpression
+	DestinationAddress?:   _#defs."/$defs/Properties/definitions/IpAddress"
+	DestinationPortRange?: _#defs."/$defs/Properties/definitions/FilterPortRange"
+	SourceAddress?:        _#defs."/$defs/Properties/definitions/IpAddress"
+	SourcePortRange?:      _#defs."/$defs/Properties/definitions/FilterPortRange"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=65535 &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Protocol": "tcp" | "udp" | fn.#StringExpression
 
@@ -54,9 +103,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EC2::NetworkInsightsPath"

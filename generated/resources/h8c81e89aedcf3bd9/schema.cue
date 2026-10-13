@@ -15,15 +15,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CreateIntegrationDetails?: _#defs."/$defs/Properties/definitions/CreateDetails" | fn.#ObjectExpression
 	Name?: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" | fn.#StringExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
+	Tags?: _#defs."/$defs/Properties/definitions/TagMap"
 	Type?: _#defs."/$defs/Properties/definitions/IntegrationType" | fn.#StringExpression
 	UpdateIntegrationDetails?: _#defs."/$defs/Properties/definitions/UpdateDetails" | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CreateDetails": close({
-	gitlabSelfManaged!: _#defs."/$defs/Properties/definitions/CreateGitLabSelfManagedIntegrationDetail" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/CreateDetails": close(
+	{gitlabSelfManaged!: _#defs."/$defs/Properties/definitions/CreateGitLabSelfManagedIntegrationDetail"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CreateGitLabSelfManagedIntegrationDetail": close({
@@ -53,9 +52,8 @@ _#defs: "/$defs/Properties/definitions/UpdateDetails": matchN(1, [{
 	github!: _
 	...
 }]) & close({
-	github?: _#defs."/$defs/Properties/definitions/UpdateGitHubIntegrationDetail" | fn.#ObjectExpression
-	gitlabSelfManaged?: _#defs."/$defs/Properties/definitions/UpdateGitLabSelfManagedIntegrationDetail" |
-		fn.#ObjectExpression
+	github?:            _#defs."/$defs/Properties/definitions/UpdateGitHubIntegrationDetail"
+	gitlabSelfManaged?: _#defs."/$defs/Properties/definitions/UpdateGitLabSelfManagedIntegrationDetail"
 }) |
 fn.#ObjectExpression
 

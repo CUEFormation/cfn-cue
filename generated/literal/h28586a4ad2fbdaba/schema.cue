@@ -19,7 +19,7 @@ import (
 	DefaultEndpoint?:               strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$"
 	IdentityProviderConfiguration?: _#defs."/$defs/Properties/definitions/IdentityProviderConfiguration"
 	Origins?:                       list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Origin"]
-	RoleArn?:                       strings.MaxRunes(1284) & strings.MinRunes(0)
+	RoleArn?:                       =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
 	SamplePromptsControlMode?:      _#defs."/$defs/Properties/definitions/WebExperienceSamplePromptsControlMode"
 	Status?:                        _#defs."/$defs/Properties/definitions/WebExperienceStatus"
 	Subtitle?:                      strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$"

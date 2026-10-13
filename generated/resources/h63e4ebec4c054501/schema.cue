@@ -8,20 +8,21 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::NetworkFirewall::TLSInspectionConfiguration
 #Properties: close({
-	Description?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	TLSInspectionConfiguration!: _#defs."/$defs/Properties/definitions/TLSInspectionConfiguration" |
-		fn.#ObjectExpression
+	Description?:                strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+	TLSInspectionConfiguration!: _#defs."/$defs/Properties/definitions/TLSInspectionConfiguration"
 	TLSInspectionConfigurationName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
@@ -32,14 +33,44 @@ _#defs: "/$defs/Properties/definitions/Address": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PortRange": close({
-	FromPort!: _#defs."/$defs/Properties/definitions/PortRangeBound" | fn.#NumberExpression
-	ToPort!:   _#defs."/$defs/Properties/definitions/PortRangeBound" | fn.#NumberExpression
+	FromPort!: _#defs."/$defs/Properties/definitions/PortRangeBound"
+	ToPort!:   _#defs."/$defs/Properties/definitions/PortRangeBound"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PortRangeBound": int & <=65535 & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/PortRangeBound": int & <=65535 & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=65535 &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ProtocolNumber": int & <=255 & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/ProtocolNumber": int & <=255 & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=255 &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$" |
 fn.#StringExpression
@@ -47,39 +78,34 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/RevokedStatusAction": "PASS" | "DROP" | "REJECT" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ServerCertificate": close(
-	{ResourceArn?: _#defs."/$defs/Properties/definitions/ResourceArn" | fn.#StringExpression},
+	{ResourceArn?: _#defs."/$defs/Properties/definitions/ResourceArn"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServerCertificateConfiguration": close({
-	CertificateAuthorityArn?: _#defs."/$defs/Properties/definitions/ResourceArn" | fn.#StringExpression
+	CertificateAuthorityArn?: _#defs."/$defs/Properties/definitions/ResourceArn"
 	CheckCertificateRevocationStatus?: close({
-		RevokedStatusAction?: _#defs."/$defs/Properties/definitions/RevokedStatusAction" | fn.#StringExpression
-		UnknownStatusAction?: _#defs."/$defs/Properties/definitions/UnknownStatusAction" | fn.#StringExpression
+		RevokedStatusAction?: _#defs."/$defs/Properties/definitions/RevokedStatusAction"
+		UnknownStatusAction?: _#defs."/$defs/Properties/definitions/UnknownStatusAction"
 	}) |
 	fn.#ObjectExpression
-	Scopes?: [..._#defs."/$defs/Properties/definitions/ServerCertificateScope" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ServerCertificates?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ServerCertificate" | fn.#ObjectExpression
-	] |
+	Scopes?: [..._#defs."/$defs/Properties/definitions/ServerCertificateScope"] | fn.#ListExpression
+	ServerCertificates?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ServerCertificate"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServerCertificateScope": close({
-	DestinationPorts?: [..._#defs."/$defs/Properties/definitions/PortRange" | fn.#ObjectExpression] | fn.#ListExpression
-	Destinations?:     [..._#defs."/$defs/Properties/definitions/Address" | fn.#ObjectExpression] | fn.#ListExpression
-	Protocols?:   [..._#defs."/$defs/Properties/definitions/ProtocolNumber" | fn.#NumberExpression] | fn.#ListExpression
-	SourcePorts?: [..._#defs."/$defs/Properties/definitions/PortRange" | fn.#ObjectExpression] | fn.#ListExpression
-	Sources?:     [..._#defs."/$defs/Properties/definitions/Address" | fn.#ObjectExpression] | fn.#ListExpression
+	DestinationPorts?: [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
+	Destinations?:     [..._#defs."/$defs/Properties/definitions/Address"] | fn.#ListExpression
+	Protocols?:        [..._#defs."/$defs/Properties/definitions/ProtocolNumber"] | fn.#ListExpression
+	SourcePorts?:      [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
+	Sources?:          [..._#defs."/$defs/Properties/definitions/Address"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TLSInspectionConfiguration": close({
-	ServerCertificateConfigurations?: [
-		..._#defs."/$defs/Properties/definitions/ServerCertificateConfiguration" | fn.#ObjectExpression
-	] |
+	ServerCertificateConfigurations?: [..._#defs."/$defs/Properties/definitions/ServerCertificateConfiguration"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression

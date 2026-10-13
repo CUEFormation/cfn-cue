@@ -15,7 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::IoTManagedIntegrations::CredentialLocker
 #Properties: close({
 	Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
+	Tags?: _#defs."/$defs/Properties/definitions/TagsMap"
 })
 
 _#defs: "/$defs/Properties/definitions/TagsMap": struct.MaxFields(50) & struct.MinFields(0) & close({

@@ -14,12 +14,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::Cassandra::Keyspace
 #Properties: close({
-	ClientSideTimestampsEnabled?: bool | fn.#BooleanExpression
+	ClientSideTimestampsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KeyspaceName?:                =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
-	ReplicationSpecification?:    _#defs."/$defs/Properties/definitions/ReplicationSpecification" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	ReplicationSpecification?:    _#defs."/$defs/Properties/definitions/ReplicationSpecification"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
@@ -34,7 +32,7 @@ _#defs: "/$defs/Properties/definitions/ReplicationSpecification": close({
 		ReplicationStrategy!: _
 	}
 	{}
-	"RegionList"?:        _#defs."/$defs/Properties/definitions/RegionList" | fn.#ListExpression
+	"RegionList"?:        _#defs."/$defs/Properties/definitions/RegionList"
 	ReplicationStrategy?: "SINGLE_REGION" | "MULTI_REGION" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

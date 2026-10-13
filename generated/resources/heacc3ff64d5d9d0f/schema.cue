@@ -13,12 +13,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::AppStream::DirectoryConfig
 #Properties: close({
-	CertificateBasedAuthProperties?: _#defs."/$defs/Properties/definitions/CertificateBasedAuthProperties" |
-		fn.#ObjectExpression
-	DirectoryName!: string | fn.#StringExpression
+	CertificateBasedAuthProperties?: _#defs."/$defs/Properties/definitions/CertificateBasedAuthProperties"
+	DirectoryName!:                  string | fn.#StringExpression
 	OrganizationalUnitDistinguishedNames!: [...strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression] |
 	fn.#ListExpression
-	ServiceAccountCredentials!: _#defs."/$defs/Properties/definitions/ServiceAccountCredentials" | fn.#ObjectExpression
+	ServiceAccountCredentials!: _#defs."/$defs/Properties/definitions/ServiceAccountCredentials"
 })
 
 _#defs: "/$defs/Properties/definitions/CertificateBasedAuthProperties": close({

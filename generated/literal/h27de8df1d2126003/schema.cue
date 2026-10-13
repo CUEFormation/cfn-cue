@@ -21,10 +21,13 @@ import (
 	NetworkInterfaceId?: string
 	OwnerId?:            strings.MaxRunes(12) & =~"^((\\d{12})|(\\d{4}-\\d{4}-\\d{4}))$"
 	SecurityGroups?: list.MaxItems(100) & list.UniqueItems() & [
-		...strings.MaxRunes(43) & strings.MinRunes(11) & =~"^(sg-[0-9a-f]{8,40})$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(43) &
+		strings.MinRunes(11) &
+		=~"^(sg-[0-9a-f]{8,40})$"
 	]
 	Status?:        "available" | "creating" | "updating" | "deleting" | "deleted" | "error"
 	StatusMessage?: string
 	SubnetId!:      strings.MaxRunes(47) & strings.MinRunes(15) & =~"^subnet-[0-9a-f]{8,40}$"
-	VpcId?:         string
+	VpcId?:         =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })

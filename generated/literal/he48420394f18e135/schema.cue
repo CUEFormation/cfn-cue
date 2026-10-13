@@ -51,7 +51,7 @@ _#defs: "/$defs/Properties/definitions/SseSpecification": close({
 	CustomerManagedKeyEnabled?: bool
 
 	// KMS Key Arn used to encrypt the group policy
-	KmsKeyArn?: string
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 })
 
 // A key-value pair to associate with a resource.

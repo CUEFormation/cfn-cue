@@ -15,52 +15,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::AgentRegistry::RegistryRecord Resource Type
 #Properties: close({
 	Description?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	Descriptors!: _#defs."/$defs/Properties/definitions/Descriptors" | fn.#ObjectExpression
+	Descriptors!: _#defs."/$defs/Properties/definitions/Descriptors"
 	DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_\\-\\.\\/]*$" | fn.#StringExpression
-	RecordType!:    _#defs."/$defs/Properties/definitions/RecordType" | fn.#StringExpression
+	RecordType!:    _#defs."/$defs/Properties/definitions/RecordType"
 	RecordVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9.-]+$" | fn.#StringExpression
 	RegistryId?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^(arn:aws(-[^:]+)?:agent-registry:[a-z0-9-]+:[0-9]{12}:registry/)?[a-zA-Z0-9]{12,16}$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/A2aAgentCardDescriptor": close({
-	Data?:              _#defs."/$defs/Properties/definitions/DescriptorData" | fn.#StringExpression
+	Data?:              _#defs."/$defs/Properties/definitions/DescriptorData"
 	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Source?:            _#defs."/$defs/Properties/definitions/DescriptorSource" | fn.#ObjectExpression
+	Source?:            _#defs."/$defs/Properties/definitions/DescriptorSource"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AgUiDescriptor": close(
-	{Source?: _#defs."/$defs/Properties/definitions/SourceOnlyDescriptorSource" | fn.#ObjectExpression},
+	{Source?: _#defs."/$defs/Properties/definitions/SourceOnlyDescriptorSource"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AgentSkillsAdditionalData": close(
-	{SkillMd?: _#defs."/$defs/Properties/definitions/AgentSkillsMdDescriptor" | fn.#ObjectExpression},
+	{SkillMd?: _#defs."/$defs/Properties/definitions/AgentSkillsMdDescriptor"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AgentSkillsDefinitionDescriptor": close({
-	AdditionalData?:    _#defs."/$defs/Properties/definitions/AgentSkillsAdditionalData" | fn.#ObjectExpression
-	Data?:              _#defs."/$defs/Properties/definitions/DescriptorData" | fn.#StringExpression
+	AdditionalData?:    _#defs."/$defs/Properties/definitions/AgentSkillsAdditionalData"
+	Data?:              _#defs."/$defs/Properties/definitions/DescriptorData"
 	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AgentSkillsMdDescriptor": close({
-	Data?:              _#defs."/$defs/Properties/definitions/DescriptorData" | fn.#StringExpression
+	Data?:              _#defs."/$defs/Properties/definitions/DescriptorData"
 	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Source?:            _#defs."/$defs/Properties/definitions/SkillMdSource" | fn.#ObjectExpression
+	Source?:            _#defs."/$defs/Properties/definitions/SkillMdSource"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomDescriptor": close(
-	{Data?: _#defs."/$defs/Properties/definitions/DescriptorData" | fn.#StringExpression},
+	{Data?: _#defs."/$defs/Properties/definitions/DescriptorData"},
 ) |
 	fn.#ObjectExpression
 
@@ -68,13 +67,13 @@ _#defs: "/$defs/Properties/definitions/DescriptorData": strings.MaxRunes(102400)
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DescriptorSource": close(
-	{FromUrl?: _#defs."/$defs/Properties/definitions/DescriptorSourceFromUrl" | fn.#ObjectExpression},
+	{FromUrl?: _#defs."/$defs/Properties/definitions/DescriptorSourceFromUrl"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DescriptorSourceFromUrl": close({
 	CredentialProviderConfigurations?: list.MaxItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RegistryRecordCredentialProviderConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/RegistryRecordCredentialProviderConfiguration"
 	] |
 		fn.#ListExpression
 	Url!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" | fn.#StringExpression
@@ -82,36 +81,35 @@ _#defs: "/$defs/Properties/definitions/DescriptorSourceFromUrl": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Descriptors": close({
-	A2aAgentCard?: _#defs."/$defs/Properties/definitions/A2aAgentCardDescriptor" | fn.#ObjectExpression
-	AgentSkillsDefinition?: _#defs."/$defs/Properties/definitions/AgentSkillsDefinitionDescriptor" |
-		fn.#ObjectExpression
-	Agui?:      _#defs."/$defs/Properties/definitions/AgUiDescriptor" | fn.#ObjectExpression
-	Custom?:    _#defs."/$defs/Properties/definitions/CustomDescriptor" | fn.#ObjectExpression
-	Http?:      _#defs."/$defs/Properties/definitions/HttpDescriptor" | fn.#ObjectExpression
-	McpServer?: _#defs."/$defs/Properties/definitions/McpServerDescriptor" | fn.#ObjectExpression
+	A2aAgentCard?:          _#defs."/$defs/Properties/definitions/A2aAgentCardDescriptor"
+	AgentSkillsDefinition?: _#defs."/$defs/Properties/definitions/AgentSkillsDefinitionDescriptor"
+	Agui?:                  _#defs."/$defs/Properties/definitions/AgUiDescriptor"
+	Custom?:                _#defs."/$defs/Properties/definitions/CustomDescriptor"
+	Http?:                  _#defs."/$defs/Properties/definitions/HttpDescriptor"
+	McpServer?:             _#defs."/$defs/Properties/definitions/McpServerDescriptor"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HttpDescriptor": close(
-	{Source?: _#defs."/$defs/Properties/definitions/SourceOnlyDescriptorSource" | fn.#ObjectExpression},
+	{Source?: _#defs."/$defs/Properties/definitions/SourceOnlyDescriptorSource"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/McpServerAdditionalData": close(
-	{Tools?: _#defs."/$defs/Properties/definitions/McpToolsDescriptor" | fn.#ObjectExpression},
+	{Tools?: _#defs."/$defs/Properties/definitions/McpToolsDescriptor"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/McpServerDescriptor": close({
-	AdditionalData?:    _#defs."/$defs/Properties/definitions/McpServerAdditionalData" | fn.#ObjectExpression
-	Data?:              _#defs."/$defs/Properties/definitions/DescriptorData" | fn.#StringExpression
+	AdditionalData?:    _#defs."/$defs/Properties/definitions/McpServerAdditionalData"
+	Data?:              _#defs."/$defs/Properties/definitions/DescriptorData"
 	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Source?:            _#defs."/$defs/Properties/definitions/DescriptorSource" | fn.#ObjectExpression
+	Source?:            _#defs."/$defs/Properties/definitions/DescriptorSource"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/McpToolsDescriptor": close({
-	Data?:              _#defs."/$defs/Properties/definitions/DescriptorData" | fn.#StringExpression
+	Data?:              _#defs."/$defs/Properties/definitions/DescriptorData"
 	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -124,23 +122,23 @@ _#defs: "/$defs/Properties/definitions/RecordType": "MCP" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RegistryRecordCredentialProviderConfiguration": close({
-	CredentialProvider!: _#defs."/$defs/Properties/definitions/RegistryRecordCredentialProviderUnion" |
-		fn.#ObjectExpression
+	CredentialProvider!:     _#defs."/$defs/Properties/definitions/RegistryRecordCredentialProviderUnion"
 	CredentialProviderType!: "OAUTH" | "IAM" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RegistryRecordCredentialProviderUnion": close({
-	IamCredentialProvider?: _#defs."/$defs/Properties/definitions/RegistryRecordIamCredentialProvider" |
-		fn.#ObjectExpression
-	OauthCredentialProvider?: _#defs."/$defs/Properties/definitions/RegistryRecordOAuthCredentialProvider" |
-		fn.#ObjectExpression
+	IamCredentialProvider?:   _#defs."/$defs/Properties/definitions/RegistryRecordIamCredentialProvider"
+	OauthCredentialProvider?: _#defs."/$defs/Properties/definitions/RegistryRecordOAuthCredentialProvider"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RegistryRecordIamCredentialProvider": close({
 	Region?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z0-9-]+$" | fn.#StringExpression
-	RoleArn?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" |
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" |
 	fn.#StringExpression
 	Service?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 }) |
@@ -172,7 +170,7 @@ _#defs: "/$defs/Properties/definitions/RegistryRecordStatus": "DRAFT" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SkillMdSource": close(
-	{FromUrl?: _#defs."/$defs/Properties/definitions/SkillMdSourceFromUrl" | fn.#ObjectExpression},
+	{FromUrl?: _#defs."/$defs/Properties/definitions/SkillMdSourceFromUrl"},
 ) |
 	fn.#ObjectExpression
 
@@ -182,7 +180,7 @@ _#defs: "/$defs/Properties/definitions/SkillMdSourceFromUrl": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SourceOnlyDescriptorSource": close(
-	{FromUrl?: _#defs."/$defs/Properties/definitions/SourceOnlyDescriptorSourceFromUrl" | fn.#ObjectExpression},
+	{FromUrl?: _#defs."/$defs/Properties/definitions/SourceOnlyDescriptorSourceFromUrl"},
 ) |
 	fn.#ObjectExpression
 

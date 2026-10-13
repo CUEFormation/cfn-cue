@@ -3,9 +3,13 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -13,25 +17,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SageMaker::ImageVersion
 #Properties: close({
-	Alias?:           _#defs."/$defs/Properties/definitions/Alias" | fn.#StringExpression
-	Aliases?:         _#defs."/$defs/Properties/definitions/Aliases" | fn.#ListExpression
-	BaseImage!:       _#defs."/$defs/Properties/definitions/BaseImage" | fn.#StringExpression
-	Horovod?:         _#defs."/$defs/Properties/definitions/Horovod" | fn.#BooleanExpression
-	ImageName!:       _#defs."/$defs/Properties/definitions/ImageName" | fn.#StringExpression
-	JobType?:         _#defs."/$defs/Properties/definitions/JobType" | fn.#StringExpression
-	MLFramework?:     _#defs."/$defs/Properties/definitions/MLFramework" | fn.#StringExpression
-	Processor?:       _#defs."/$defs/Properties/definitions/Processor" | fn.#StringExpression
-	ProgrammingLang?: _#defs."/$defs/Properties/definitions/ProgrammingLang" | fn.#StringExpression
-	ReleaseNotes?:    _#defs."/$defs/Properties/definitions/ReleaseNotes" | fn.#StringExpression
-	VendorGuidance?:  _#defs."/$defs/Properties/definitions/VendorGuidance" | fn.#StringExpression
+	Alias?:           _#defs."/$defs/Properties/definitions/Alias"
+	Aliases?:         _#defs."/$defs/Properties/definitions/Aliases"
+	BaseImage!:       _#defs."/$defs/Properties/definitions/BaseImage"
+	Horovod?:         _#defs."/$defs/Properties/definitions/Horovod"
+	ImageName!:       _#defs."/$defs/Properties/definitions/ImageName"
+	JobType?:         _#defs."/$defs/Properties/definitions/JobType"
+	MLFramework?:     _#defs."/$defs/Properties/definitions/MLFramework"
+	Processor?:       _#defs."/$defs/Properties/definitions/Processor"
+	ProgrammingLang?: _#defs."/$defs/Properties/definitions/ProgrammingLang"
+	ReleaseNotes?:    _#defs."/$defs/Properties/definitions/ReleaseNotes"
+	VendorGuidance?:  _#defs."/$defs/Properties/definitions/VendorGuidance"
 })
 
 _#defs: "/$defs/Properties/definitions/Alias": strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Aliases": [
-	..._#defs."/$defs/Properties/definitions/Alias" | fn.#StringExpression
-] |
-	fn.#ListExpression
+_#defs: "/$defs/Properties/definitions/Aliases": [..._#defs."/$defs/Properties/definitions/Alias"] | fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/BaseImage": strings.MaxRunes(255) & strings.MinRunes(1) & =~".+" |
 fn.#StringExpression
@@ -39,7 +40,14 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/ContainerImage": strings.MaxRunes(255) & strings.MinRunes(1) & =~".+" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Horovod": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/Horovod": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/ImageArn": strings.MaxRunes(256) &
 strings.MinRunes(1) &
@@ -79,7 +87,21 @@ _#defs: "/$defs/Properties/definitions/VendorGuidance": "NOT_PROVIDED" |
 	"ARCHIVED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Version": int & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Version": int & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SageMaker::ImageVersion"
 	Properties!: #Properties

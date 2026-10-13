@@ -21,7 +21,10 @@ import (
 	Expiration?:                    _#defs."/$defs/Properties/definitions/Expiration"
 
 	// The IAM role ARN for cross-account access.
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$"
 
 	// Tags associated with the external account binding.
 	Tags?: list.MaxItems(50) & list.MinItems(1) & [...close({

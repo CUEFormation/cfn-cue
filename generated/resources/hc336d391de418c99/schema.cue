@@ -15,23 +15,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AppSync ChannelNamespace
 #Properties: close({
 	ApiId!:              string | fn.#StringExpression
-	CodeHandlers?:       _#defs."/$defs/Properties/definitions/Code" | fn.#StringExpression
+	CodeHandlers?:       _#defs."/$defs/Properties/definitions/Code"
 	CodeS3Location?:     string | fn.#StringExpression
-	HandlerConfigs?:     _#defs."/$defs/Properties/definitions/HandlerConfigs" | fn.#ObjectExpression
-	Name!:               _#defs."/$defs/Properties/definitions/Namespace" | fn.#StringExpression
+	HandlerConfigs?:     _#defs."/$defs/Properties/definitions/HandlerConfigs"
+	Name!:               _#defs."/$defs/Properties/definitions/Namespace"
 	PublishAuthModes?:   _#defs."/$defs/Properties/definitions/AuthModes" | fn.#ListExpression
 	SubscribeAuthModes?: _#defs."/$defs/Properties/definitions/AuthModes" | fn.#ListExpression
-	Tags?:               _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	Tags?:               _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/AuthMode": close(
-	{AuthType?: _#defs."/$defs/Properties/definitions/AuthenticationType" | fn.#StringExpression},
+	{AuthType?: _#defs."/$defs/Properties/definitions/AuthenticationType"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthModes": [
-	..._#defs."/$defs/Properties/definitions/AuthMode" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/AuthModes": [..._#defs."/$defs/Properties/definitions/AuthMode"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/AuthenticationType": "AMAZON_COGNITO_USER_POOLS" |
@@ -48,28 +46,28 @@ _#defs: "/$defs/Properties/definitions/Code": strings.MaxRunes(32768) & strings.
 _#defs: "/$defs/Properties/definitions/HandlerBehavior": "CODE" | "DIRECT" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/HandlerConfig": close({
-	Behavior!:    _#defs."/$defs/Properties/definitions/HandlerBehavior" | fn.#StringExpression
-	Integration!: _#defs."/$defs/Properties/definitions/Integration" | fn.#ObjectExpression
+	Behavior!:    _#defs."/$defs/Properties/definitions/HandlerBehavior"
+	Integration!: _#defs."/$defs/Properties/definitions/Integration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HandlerConfigs": close({
-	OnPublish?:   _#defs."/$defs/Properties/definitions/HandlerConfig" | fn.#ObjectExpression
-	OnSubscribe?: _#defs."/$defs/Properties/definitions/HandlerConfig" | fn.#ObjectExpression
+	OnPublish?:   _#defs."/$defs/Properties/definitions/HandlerConfig"
+	OnSubscribe?: _#defs."/$defs/Properties/definitions/HandlerConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Integration": close({
 	DataSourceName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"([_A-Za-z][_0-9A-Za-z]{0,511})?" |
 	fn.#StringExpression
-	LambdaConfig?: _#defs."/$defs/Properties/definitions/LambdaConfig" | fn.#ObjectExpression
+	LambdaConfig?: _#defs."/$defs/Properties/definitions/LambdaConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InvokeType": "REQUEST_RESPONSE" | "EVENT" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LambdaConfig": close(
-	{InvokeType!: _#defs."/$defs/Properties/definitions/InvokeType" | fn.#StringExpression},
+	{InvokeType!: _#defs."/$defs/Properties/definitions/InvokeType"},
 ) |
 	fn.#ObjectExpression
 
@@ -84,9 +82,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::AppSync::ChannelNamespace"

@@ -21,8 +21,9 @@ import (
 	// Center is in a different region than the monitor.
 	IdentityCenterRegion?: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^[a-z0-9-]+$"
 	MonitorId?:            =~"^monitor-[0-9a-f]{32}$"
-	RoleArn!:              =~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$"
-	Subdomain!:            =~"^[a-z0-9-]{1,100}$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$"
+	Subdomain!: =~"^[a-z0-9-]{1,100}$"
 
 	// An array of key-value pairs to apply to this resource.
 	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]

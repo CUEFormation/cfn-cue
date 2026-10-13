@@ -12,7 +12,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // the resource tags for telemetry feature in CloudWatch to enrich
 // infrastructure metrics with AWS resource tags. For more details:
 // https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/resource-tags-for-telemetry.html
-#Properties: close({Scope!: _#defs."/$defs/Properties/definitions/Scope" | fn.#StringExpression})
+#Properties: close({Scope!: _#defs."/$defs/Properties/definitions/Scope"})
 
 _#defs: "/$defs/Properties/definitions/Scope": "ACCOUNT" | fn.#StringExpression
 

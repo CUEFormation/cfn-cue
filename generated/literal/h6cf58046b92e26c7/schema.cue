@@ -54,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/DeviceRegistryEnrich": close({
 	Attribute!: strings.MaxRunes(256) & strings.MinRunes(1)
 	Name!:      strings.MaxRunes(128) & strings.MinRunes(1)
 	Next?:      strings.MaxRunes(128) & strings.MinRunes(1)
-	RoleArn!:   strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn!:   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 	ThingName!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
@@ -62,7 +62,7 @@ _#defs: "/$defs/Properties/definitions/DeviceShadowEnrich": close({
 	Attribute!: strings.MaxRunes(256) & strings.MinRunes(1)
 	Name!:      strings.MaxRunes(128) & strings.MinRunes(1)
 	Next?:      strings.MaxRunes(128) & strings.MinRunes(1)
-	RoleArn!:   strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn!:   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 	ThingName!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 

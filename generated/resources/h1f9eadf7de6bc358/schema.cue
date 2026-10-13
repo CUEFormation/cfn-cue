@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,28 +18,63 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Creates a resilience policy that defines availability and disaster recovery requirements.
 #Properties: close({
-	AvailabilitySlo?: _#defs."/$defs/Properties/definitions/AvailabilitySlo" | fn.#ObjectExpression
-	DataRecovery?:    _#defs."/$defs/Properties/definitions/DataRecoveryTargets" | fn.#ObjectExpression
+	AvailabilitySlo?: _#defs."/$defs/Properties/definitions/AvailabilitySlo"
+	DataRecovery?:    _#defs."/$defs/Properties/definitions/DataRecoveryTargets"
 	Description?:     strings.MaxRunes(615) | fn.#StringExpression
-	KmsKeyId?: (string | string | string) &
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^((arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:((key/[a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)))|([a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+))$" |
 	fn.#StringExpression
-	MultiAz?:        _#defs."/$defs/Properties/definitions/MultiAzTargets" | fn.#ObjectExpression
-	MultiRegion?:    _#defs."/$defs/Properties/definitions/MultiRegionTargets" | fn.#ObjectExpression
+	MultiAz?:        _#defs."/$defs/Properties/definitions/MultiAzTargets"
+	MultiRegion?:    _#defs."/$defs/Properties/definitions/MultiRegionTargets"
 	Name!:           =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-	SharingEnabled?: bool | fn.#BooleanExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	SharingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?:           list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AvailabilitySlo": close({Target?: <=100 & >=0 | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/AvailabilitySlo": close({
+	Target?: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataRecoveryTargets": close(
-	{TimeBetweenBackupsInMinutes?: int & >=0 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/DataRecoveryTargets": close({
+	TimeBetweenBackupsInMinutes?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MultiAzTargets": close({
@@ -45,8 +84,38 @@ _#defs: "/$defs/Properties/definitions/MultiAzTargets": close({
 		"PILOT_LIGHT" |
 		"BACKUP_AND_RESTORE" |
 		fn.#StringExpression
-	RpoInMinutes?: int & <=2147483647 & >=0 | fn.#NumberExpression
-	RtoInMinutes?: int & <=2147483647 & >=0 | fn.#NumberExpression
+	RpoInMinutes?: int & <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RtoInMinutes?: int & <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -57,8 +126,38 @@ _#defs: "/$defs/Properties/definitions/MultiRegionTargets": close({
 		"PILOT_LIGHT" |
 		"BACKUP_AND_RESTORE" |
 		fn.#StringExpression
-	RpoInMinutes?: int & <=2147483647 & >=0 | fn.#NumberExpression
-	RtoInMinutes?: int & <=2147483647 & >=0 | fn.#NumberExpression
+	RpoInMinutes?: int & <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RtoInMinutes?: int & <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

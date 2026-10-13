@@ -31,7 +31,8 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 })
 
 _#defs: "/$defs/Properties/definitions/ContainerAction": close({
-	ExecutionRoleArn!:      strings.MaxRunes(2048) & strings.MinRunes(20)
+	ExecutionRoleArn!:
+		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 	Image!:                 strings.MaxRunes(255)
 	ResourceConfiguration!: _#defs."/$defs/Properties/definitions/ResourceConfiguration"
 	Variables?:             list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Variable"]
@@ -69,7 +70,7 @@ _#defs: "/$defs/Properties/definitions/GlueConfiguration": close({
 
 _#defs: "/$defs/Properties/definitions/IotEventsDestinationConfiguration": close({
 	InputName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$"
-	RoleArn!:   strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn!:   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
 _#defs: "/$defs/Properties/definitions/LateDataRule": close({
@@ -102,7 +103,7 @@ _#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close({
 	Bucket!:            strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.\\-_]*$"
 	GlueConfiguration?: _#defs."/$defs/Properties/definitions/GlueConfiguration"
 	Key!:               strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/{}:-]*$"
-	RoleArn!:           strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn!:           =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
 _#defs: "/$defs/Properties/definitions/Schedule": close({ScheduleExpression!: string})

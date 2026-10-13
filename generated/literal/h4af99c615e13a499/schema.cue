@@ -45,10 +45,10 @@ import (
 	TargetRole?: "READ_WRITE" | "READ_ONLY"
 
 	// VPC ID to associate with the new DB proxy endpoint.
-	VpcId?: string
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 
 	// VPC security group IDs to associate with the new DB proxy endpoint.
-	VpcSecurityGroupIds?: list.MinItems(1) & [...string]
+	VpcSecurityGroupIds?: list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// VPC subnet IDs to associate with the new DB proxy endpoint.
 	VpcSubnetIds!: list.MinItems(2) & [...string]

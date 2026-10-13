@@ -49,7 +49,7 @@ _#defs: "/$defs/Properties/definitions/BrokerNodeGroupInfo": close({
 	ClientSubnets!:        [...string]
 	ConnectivityInfo?:     _#defs."/$defs/Properties/definitions/ConnectivityInfo"
 	InstanceType!:         strings.MaxRunes(32) & strings.MinRunes(5)
-	SecurityGroups?:       [...string]
+	SecurityGroups?:       [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	StorageInfo?:          _#defs."/$defs/Properties/definitions/StorageInfo"
 })
 

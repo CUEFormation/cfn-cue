@@ -25,12 +25,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:    strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:           strings.MaxRunes(50) & strings.MinRunes(2) | fn.#StringExpression
 	ScheduleConfig!: _#defs."/$defs/Properties/definitions/ScheduleConfig" | fn.#ObjectExpression
-	ScheduledReportExecutionRoleArn!: strings.MaxRunes(2048) &
+	ScheduledReportExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role/[a-zA-Z0-9+=,.@_/-]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:                    list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	WidgetDateRangeOverride?: _#defs."/$defs/Properties/definitions/DateTimeRange" | fn.#ObjectExpression
 	WidgetIds?:               list.MaxItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 })

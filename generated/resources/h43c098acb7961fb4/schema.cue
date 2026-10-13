@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	GatewayLoadBalancerEndpointId?: string | fn.#StringExpression
 	NetworkInterfaceId?:            string | fn.#StringExpression
 	NetworkLoadBalancerArn?:        string | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                          [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

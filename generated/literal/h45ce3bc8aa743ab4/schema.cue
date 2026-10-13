@@ -37,7 +37,7 @@ _#defs: "/$defs/Properties/definitions/Authorization": close({
 
 	// The Amazon Resource Name (ARN) for the IAM role that allows MediaPackage to
 	// communicate with AWS Secrets Manager.
-	SecretsRoleArn!: string
+	SecretsRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/LogConfiguration": close({

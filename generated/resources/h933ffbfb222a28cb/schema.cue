@@ -16,9 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A data source is used to import technical metadata of assets (data) from the
 // source databases or data warehouses into Amazon DataZone.
 #Properties: close({
-	AssetFormsInput?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FormInput" | fn.#ObjectExpression
-	] |
+	AssetFormsInput?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/FormInput"] |
 		fn.#ListExpression
 	Configuration?:         _#defs."/$defs/Properties/definitions/DataSourceConfigurationInput" | fn.#ValueExpression
 	ConnectionIdentifier?:  string | fn.#StringExpression
@@ -28,7 +26,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EnvironmentIdentifier?: string | fn.#StringExpression
 	Name!:                  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ProjectIdentifier!:     string | fn.#StringExpression
-	PublishOnImport?:       bool | fn.#BooleanExpression
+	PublishOnImport?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Recommendation?:        _#defs."/$defs/Properties/definitions/RecommendationConfiguration" | fn.#ObjectExpression
 	Schedule?:              _#defs."/$defs/Properties/definitions/ScheduleConfiguration" | fn.#ObjectExpression
 	Type!:                  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
@@ -41,14 +39,12 @@ _#defs: "/$defs/Properties/definitions/DataAccessRole": =~"^arn:aws[^:]*:iam::\\
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DataSourceConfigurationInput": matchN(1, [close(
-	{GlueRunConfiguration?: _#defs."/$defs/Properties/definitions/GlueRunConfigurationInput" | fn.#ObjectExpression},
-), close({
-	RedshiftRunConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftRunConfigurationInput" |
-		fn.#ObjectExpression
-}), close({
-	SageMakerRunConfiguration?: _#defs."/$defs/Properties/definitions/SageMakerRunConfigurationInput" |
-		fn.#ObjectExpression
-})]) |
+	{GlueRunConfiguration?: _#defs."/$defs/Properties/definitions/GlueRunConfigurationInput"},
+), close(
+	{RedshiftRunConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftRunConfigurationInput"},
+), close(
+	{SageMakerRunConfiguration?: _#defs."/$defs/Properties/definitions/SageMakerRunConfigurationInput"},
+)]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/DataSourceStatus": "CREATING" |
@@ -65,7 +61,7 @@ _#defs: "/$defs/Properties/definitions/EnableSetting": "ENABLED" | "DISABLED" | 
 
 _#defs: "/$defs/Properties/definitions/FilterExpression": close({
 	Expression!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Type!:       _#defs."/$defs/Properties/definitions/FilterExpressionType" | fn.#StringExpression
+	Type!:       _#defs."/$defs/Properties/definitions/FilterExpressionType"
 }) |
 fn.#ObjectExpression
 
@@ -82,19 +78,17 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/FormName": strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/GlueRunConfigurationInput": close({
-	AutoImportDataQualityResult?: bool | fn.#BooleanExpression
+	AutoImportDataQualityResult?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CatalogName?:                 strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	DataAccessRole?:              _#defs."/$defs/Properties/definitions/DataAccessRole" | fn.#StringExpression
-	RelationalFilterConfigurations!: [
-		..._#defs."/$defs/Properties/definitions/RelationalFilterConfiguration" | fn.#ObjectExpression
-	] |
+	RelationalFilterConfigurations!: [..._#defs."/$defs/Properties/definitions/RelationalFilterConfiguration"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecommendationConfiguration": close(
-	{EnableBusinessNameGeneration?: bool | fn.#BooleanExpression},
-) |
+_#defs: "/$defs/Properties/definitions/RecommendationConfiguration": close({
+	EnableBusinessNameGeneration?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftClusterStorage": close(
@@ -113,9 +107,8 @@ _#defs: "/$defs/Properties/definitions/RedshiftRunConfigurationInput": close({
 	DataAccessRole?: _#defs."/$defs/Properties/definitions/DataAccessRole" | fn.#StringExpression
 	RedshiftCredentialConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftCredentialConfiguration" |
 		fn.#ObjectExpression
-	RedshiftStorage?: _#defs."/$defs/Properties/definitions/RedshiftStorage" | fn.#ValueExpression
-	RelationalFilterConfigurations!: _#defs."/$defs/Properties/definitions/RelationalFilterConfigurations" |
-		fn.#ListExpression
+	RedshiftStorage?:                _#defs."/$defs/Properties/definitions/RedshiftStorage" | fn.#ValueExpression
+	RelationalFilterConfigurations!: _#defs."/$defs/Properties/definitions/RelationalFilterConfigurations"
 }) |
 fn.#ObjectExpression
 
@@ -125,9 +118,9 @@ _#defs: "/$defs/Properties/definitions/RedshiftServerlessStorage": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftStorage": matchN(1, [close(
-	{RedshiftClusterSource!: _#defs."/$defs/Properties/definitions/RedshiftClusterStorage" | fn.#ObjectExpression},
+	{RedshiftClusterSource!: _#defs."/$defs/Properties/definitions/RedshiftClusterStorage"},
 ), close(
-	{RedshiftServerlessSource!: _#defs."/$defs/Properties/definitions/RedshiftServerlessStorage" | fn.#ObjectExpression},
+	{RedshiftServerlessSource!: _#defs."/$defs/Properties/definitions/RedshiftServerlessStorage"},
 )]) |
 fn.#ValueExpression
 
@@ -137,15 +130,14 @@ strings.MinRunes(4) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RelationalFilterConfiguration": close({
-	DatabaseName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	FilterExpressions?: [..._#defs."/$defs/Properties/definitions/FilterExpression" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	SchemaName?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	DatabaseName!:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	FilterExpressions?: [..._#defs."/$defs/Properties/definitions/FilterExpression"] | fn.#ListExpression
+	SchemaName?:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RelationalFilterConfigurations": [
-	..._#defs."/$defs/Properties/definitions/RelationalFilterConfiguration" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/RelationalFilterConfiguration"
 ] |
 	fn.#ListExpression
 

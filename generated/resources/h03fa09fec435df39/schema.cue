@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SSM::ResourcePolicy
 #Properties: close({
-	Policy!:      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Policy!:      fn.#Object & {...} | string | fn.#StringObjectExpression
 	ResourceArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {

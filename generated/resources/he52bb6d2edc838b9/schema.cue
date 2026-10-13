@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource type definition for AWS::RAM::ResourceShare
 #Properties: close({
-	AllowExternalPrincipals?: bool | fn.#BooleanExpression
+	AllowExternalPrincipals?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!:                    string | fn.#StringExpression
 	PermissionArns?:          [...string | fn.#StringExpression] | fn.#ListExpression
 	Principals?:              [...string | fn.#StringExpression] | fn.#ListExpression
@@ -21,15 +21,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ResourceShareConfiguration?: _#defs."/$defs/Properties/definitions/ResourceShareConfiguration" |
 		fn.#ObjectExpression
 	Sources?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/PermissionArnTemplateParameters": close({
 	PermissionArn!: string | fn.#StringExpression
-	PermissionTemplateParameters?: [
-		..._#defs."/$defs/Properties/definitions/PermissionTemplateParameter" | fn.#ObjectExpression
-	] |
+	PermissionTemplateParameters?: [..._#defs."/$defs/Properties/definitions/PermissionTemplateParameter"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -41,8 +38,15 @@ _#defs: "/$defs/Properties/definitions/PermissionTemplateParameter": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceShareConfiguration": close({
-	ExclusiveAccountAccess?:                  bool | fn.#BooleanExpression
-	RetainSharingOnAccountLeaveOrganization?: bool | fn.#BooleanExpression
+	ExclusiveAccountAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RetainSharingOnAccountLeaveOrganization?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 

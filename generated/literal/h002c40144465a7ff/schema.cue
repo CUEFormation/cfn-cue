@@ -13,7 +13,8 @@ import "strings"
 // case-insensitively and preserves the casing from the template.
 #Properties: close({
 	// The ARN of the AWS Certificate Manager certificate to associate with the sender.
-	CertificateArn!: strings.MaxRunes(2048) &
+	CertificateArn!: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z0-9-]*:acm:[a-z0-9-]+:\\d{12}:certificate/[^\\s]+$"
 

@@ -68,7 +68,10 @@ _#defs: "/$defs/Properties/definitions/ServiceManagedMode": close({
 
 	// Security groups to attach to the service-managed Resource Gateway.
 	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(20) & strings.MinRunes(11) & =~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(20) &
+		strings.MinRunes(11) &
+		=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$"
 	]
 
 	// Subnets that the service-managed Resource Gateway will span.
@@ -77,7 +80,10 @@ _#defs: "/$defs/Properties/definitions/ServiceManagedMode": close({
 	]
 
 	// VPC to create the service-managed Resource Gateway in.
-	VpcId!: strings.MaxRunes(50) & strings.MinRunes(5) & =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$"
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(50) &
+	strings.MinRunes(5) &
+	=~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$"
 })
 
 // A key-value pair to associate with a resource.

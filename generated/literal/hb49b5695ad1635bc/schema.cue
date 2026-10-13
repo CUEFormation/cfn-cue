@@ -118,6 +118,6 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 _#defs: "/$defs/Properties/definitions/VpcConfiguration": {
 	// If this field is specified, this access point will only allow connections
 	// from the specified VPC ID.
-	VpcId?: strings.MaxRunes(1024) & strings.MinRunes(1)
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(1024) & strings.MinRunes(1))
 	...
 }

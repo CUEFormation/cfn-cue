@@ -7,6 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates a generated template from existing resources using the CloudFormation IaC Generator.
 #Properties: close({
 	GeneratedTemplateName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	TemplateConfiguration?: _#defs."/$defs/Properties/definitions/TemplateConfiguration" | fn.#ObjectExpression
+	TemplateConfiguration?: _#defs."/$defs/Properties/definitions/TemplateConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/TemplateConfiguration": close({
@@ -24,10 +28,62 @@ _#defs: "/$defs/Properties/definitions/TemplateConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TemplateProgress": close({
-	ResourcesFailed?:     int | fn.#NumberExpression
-	ResourcesPending?:    int | fn.#NumberExpression
-	ResourcesProcessing?: int | fn.#NumberExpression
-	ResourcesSucceeded?:  int | fn.#NumberExpression
+	ResourcesFailed?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ResourcesPending?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ResourcesProcessing?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ResourcesSucceeded?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

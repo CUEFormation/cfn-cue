@@ -8,7 +8,7 @@ package schema
 #Properties: close({
 	CIDRIP?:                  string
 	DBSecurityGroupName!:     string
-	EC2SecurityGroupId?:      string
+	EC2SecurityGroupId?:      =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 	EC2SecurityGroupName?:    string
 	EC2SecurityGroupOwnerId?: string
 	Id?:                      string

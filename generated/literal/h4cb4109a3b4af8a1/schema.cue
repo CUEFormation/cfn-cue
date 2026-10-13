@@ -27,10 +27,13 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	// A list of VPC security group IDs in your Amazon VPC.
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*\\S.*"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*\\S.*"
 	]
 
 	// A list of VPC subnet IDs in your Amazon VPC.
 	SubnetIds!: list.MaxItems(8) & list.MinItems(1) & [...strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*\\S.*"]
-	VpcId!:     strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*\\S.*"
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(4096) &
+	strings.MinRunes(1) &
+	=~".*\\S.*"
 })

@@ -35,7 +35,7 @@ _#defs: "/$defs/Properties/definitions/AccountAggregationSource": close({
 _#defs: "/$defs/Properties/definitions/OrganizationAggregationSource": close({
 	AllAwsRegions?: bool
 	AwsRegions?:    list.MinItems(1) & [...string]
-	RoleArn!:       string
+	RoleArn!:       =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 // A key-value pair to associate with a resource.

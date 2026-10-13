@@ -46,7 +46,8 @@ import (
 // The Amazon Resource Name (ARN) of the AWS IAM role that is used to access an Amazon S3 bucket.
 _#defs: "/$defs/Properties/definitions/S3Config": close({
 	// The ARN of the IAM role of the Amazon S3 bucket.
-	BucketAccessRoleArn!: strings.MaxRunes(2048) &
+	BucketAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*$"
 })

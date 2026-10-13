@@ -36,7 +36,7 @@ import "list"
 	EnablePrimaryIpv6?: bool
 
 	// A list of security group IDs associated with this network interface.
-	GroupSet?: [...string]
+	GroupSet?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// Network interface id.
 	Id?: string
@@ -133,7 +133,7 @@ import "list"
 	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
 
 	// The ID of the VPC
-	VpcId?: string
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecification": close({

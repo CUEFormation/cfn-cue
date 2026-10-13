@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -26,7 +30,20 @@ _#defs: "/$defs/Properties/definitions/IntegrationOverrides": close({
 	Description?:          string | fn.#StringExpression
 	IntegrationMethod?:    string | fn.#StringExpression
 	PayloadFormatVersion?: string | fn.#StringExpression
-	TimeoutInMillis?:      int | fn.#NumberExpression
+	TimeoutInMillis?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -40,19 +57,50 @@ _#defs: "/$defs/Properties/definitions/RouteOverrides": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RouteSettings": close({
-	DetailedMetricsEnabled?: bool | fn.#BooleanExpression
-	ThrottlingBurstLimit?:   int | fn.#NumberExpression
-	ThrottlingRateLimit?:    number | fn.#NumberExpression
+	DetailedMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ThrottlingBurstLimit?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ThrottlingRateLimit?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StageOverrides": close({
 	AccessLogSettings?:    _#defs."/$defs/Properties/definitions/AccessLogSettings" | fn.#ObjectExpression
-	AutoDeploy?:           bool | fn.#BooleanExpression
+	AutoDeploy?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DefaultRouteSettings?: _#defs."/$defs/Properties/definitions/RouteSettings" | fn.#ObjectExpression
 	Description?:          string | fn.#StringExpression
-	RouteSettings?:        string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	StageVariables?:       string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	RouteSettings?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+	StageVariables?:       fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

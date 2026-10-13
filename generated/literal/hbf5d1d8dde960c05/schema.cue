@@ -64,7 +64,10 @@ _#defs: "/$defs/Properties/definitions/KendraSourceDetail": close({
 	KnowledgeBaseArn!: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$"
 
 	// The roleARN details for the Kendra dataset source.
-	RoleArn!: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1600) &
+	strings.MinRunes(1) &
+	=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$"
 })
 
 _#defs: "/$defs/Properties/definitions/SessionConfig": close({

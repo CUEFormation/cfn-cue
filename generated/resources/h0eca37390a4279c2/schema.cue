@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,19 +19,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ContentType!: "JAR" | "ZIP" | fn.#StringExpression
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Location!:    _#defs."/$defs/Properties/definitions/CustomPluginLocation" | fn.#ObjectExpression
+	Location!:    _#defs."/$defs/Properties/definitions/CustomPluginLocation"
 	Name!:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CustomPluginFileDescription": close({
-	FileMd5?:  string | fn.#StringExpression
-	FileSize?: int | fn.#NumberExpression
+	FileMd5?: string | fn.#StringExpression
+	FileSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomPluginLocation": close(
-	{S3Location!: _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression},
+	{S3Location!: _#defs."/$defs/Properties/definitions/S3Location"},
 ) |
 	fn.#ObjectExpression
 

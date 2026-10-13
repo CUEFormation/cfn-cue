@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Actions?:           _#defs."/$defs/Properties/definitions/CFNActions" | fn.#ObjectExpression
 	ProtectedResource!: _#defs."/$defs/Properties/definitions/CFNProtectedResource" | fn.#ObjectExpression
 	Role!:              string | fn.#StringExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/TagItem" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:              [..._#defs."/$defs/Properties/definitions/TagItem"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CFNActions": close(

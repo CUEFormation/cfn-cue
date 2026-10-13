@@ -14,7 +14,8 @@ import (
 	CredentialDurationSeconds?: int & <=43200 & >=900
 	RoleAlias?:                 strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w=,@-]+"
 	RoleAliasArn?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w=,@-]+"
-	RoleArn!: strings.MaxRunes(2048) &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+"
 	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]

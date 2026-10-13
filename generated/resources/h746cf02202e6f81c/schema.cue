@@ -14,8 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A real-time log configuration.
 #Properties: close({
-	EndPoints!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EndPoint" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	EndPoints!:    list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EndPoint"] | fn.#ListExpression
 	Fields!:       list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	Name!:         string | fn.#StringExpression
 	SamplingRate!: math.MultipleOf(1) & <=100 & >=1 | fn.#NumberExpression
@@ -28,7 +27,8 @@ _#defs: "/$defs/Properties/definitions/EndPoint": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KinesisStreamConfig": close({
-	RoleArn!:   string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	StreamArn!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

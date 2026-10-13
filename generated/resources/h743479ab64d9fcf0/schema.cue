@@ -7,6 +7,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -24,42 +28,129 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...
 	}]) & {...}
 ]) & close({
-	ConnectionTrackingSpecification?: _#defs."/$defs/Properties/definitions/ConnectionTrackingSpecification" |
-		fn.#ObjectExpression
-	Description?:       string | fn.#StringExpression
-	EnablePrimaryIpv6?: bool | fn.#BooleanExpression
-	GroupSet?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	InterfaceType?:     string | fn.#StringExpression
-	Ipv4PrefixCount?:   int | fn.#NumberExpression
-	Ipv4Prefixes?: [..._#defs."/$defs/Properties/definitions/Ipv4PrefixSpecification" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Ipv6AddressCount?: int | fn.#NumberExpression
-	Ipv6Addresses?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/InstanceIpv6Address" | fn.#ObjectExpression
+	ConnectionTrackingSpecification?: _#defs."/$defs/Properties/definitions/ConnectionTrackingSpecification"
+	Description?:                     string | fn.#StringExpression
+	EnablePrimaryIpv6?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	GroupSet?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	Ipv6PrefixCount?: int | fn.#NumberExpression
-	Ipv6Prefixes?: [..._#defs."/$defs/Properties/definitions/Ipv6PrefixSpecification" | fn.#ObjectExpression] |
+	InterfaceType?: string | fn.#StringExpression
+	Ipv4PrefixCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ipv4Prefixes?: [..._#defs."/$defs/Properties/definitions/Ipv4PrefixSpecification"] | fn.#ListExpression
+	Ipv6AddressCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ipv6Addresses?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InstanceIpv6Address"] |
 		fn.#ListExpression
-	PrivateIpAddress?: string | fn.#StringExpression
-	PrivateIpAddresses?: [
-		..._#defs."/$defs/Properties/definitions/PrivateIpAddressSpecification" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Ipv6PrefixCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ipv6Prefixes?:       [..._#defs."/$defs/Properties/definitions/Ipv6PrefixSpecification"] | fn.#ListExpression
+	PrivateIpAddress?:   string | fn.#StringExpression
+	PrivateIpAddresses?: [..._#defs."/$defs/Properties/definitions/PrivateIpAddressSpecification"] | fn.#ListExpression
 	PublicIpDnsHostnameTypeSpecification?: "public-dual-stack-dns-name" |
 		"public-ipv4-dns-name" |
 		"public-ipv6-dns-name" |
 		fn.#StringExpression
-	SecondaryPrivateIpAddressCount?: int | fn.#NumberExpression
-	SourceDestCheck?:                bool | fn.#BooleanExpression
-	SubnetId!:                       string | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	SecondaryPrivateIpAddressCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SourceDestCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SubnetId!:        string | fn.#StringExpression
+	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecification": close({
-	TcpEstablishedTimeout?: int | fn.#NumberExpression
-	UdpStreamTimeout?:      int | fn.#NumberExpression
-	UdpTimeout?:            int | fn.#NumberExpression
+	TcpEstablishedTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UdpStreamTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UdpTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -73,7 +164,7 @@ _#defs: "/$defs/Properties/definitions/Ipv6PrefixSpecification": close({Ipv6Pref
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateIpAddressSpecification": close({
-	Primary!:          bool | fn.#BooleanExpression
+	Primary!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PrivateIpAddress!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

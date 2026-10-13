@@ -15,28 +15,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Chatbot::CustomAction Resource Type
 #Properties: close({
-	ActionName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,64}$" | fn.#StringExpression
-	AliasName?:  strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" | fn.#StringExpression
-	Attachments?: [..._#defs."/$defs/Properties/definitions/CustomActionAttachment" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Definition!: _#defs."/$defs/Properties/definitions/CustomActionDefinition" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ActionName!:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,64}$" | fn.#StringExpression
+	AliasName?:   strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" | fn.#StringExpression
+	Attachments?: [..._#defs."/$defs/Properties/definitions/CustomActionAttachment"] | fn.#ListExpression
+	Definition!:  _#defs."/$defs/Properties/definitions/CustomActionDefinition"
+	Tags?:        list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CustomActionAttachment": close({
 	ButtonText?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\S\\s]+$" | fn.#StringExpression
 	Criteria?: list.MaxItems(5) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/CustomActionAttachmentCriteria" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/CustomActionAttachmentCriteria"
 	] |
 		fn.#ListExpression
 	NotificationType?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	Variables?:        _#defs."/$defs/Properties/definitions/CustomActionAttachmentVariables" | fn.#ObjectExpression
+	Variables?:        _#defs."/$defs/Properties/definitions/CustomActionAttachmentVariables"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomActionAttachmentCriteria": close({
-	Operator!:     _#defs."/$defs/Properties/definitions/CustomActionAttachmentCriteriaOperator" | fn.#StringExpression
+	Operator!:     _#defs."/$defs/Properties/definitions/CustomActionAttachmentCriteriaOperator"
 	Value?:        strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	VariableName!: string | fn.#StringExpression
 }) |

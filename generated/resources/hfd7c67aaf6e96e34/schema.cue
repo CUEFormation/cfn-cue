@@ -15,13 +15,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A resource schema for a List in Amazon Fraud Detector.
 #Properties: close({
 	Description?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Elements?: list.MaxItems(100000) & [...] & [
-		..._#defs."/$defs/Properties/definitions/Element" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Elements?: list.MaxItems(100000) & [...] & [..._#defs."/$defs/Properties/definitions/Element"] | fn.#ListExpression
+	Name!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_]+$" | fn.#StringExpression
+	Tags?:     list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VariableType?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Z_]{1,64}$" | fn.#StringExpression
 })
 

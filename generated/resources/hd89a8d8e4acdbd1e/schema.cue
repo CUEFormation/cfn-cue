@@ -15,82 +15,74 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // include how audit notifications are sent and which audit checks are enabled
 // or disabled.
 #Properties: close({
-	AccountId!:                strings.MaxRunes(12) & strings.MinRunes(12) | fn.#StringExpression
-	AuditCheckConfigurations!: _#defs."/$defs/Properties/definitions/AuditCheckConfigurations" | fn.#ObjectExpression
-	AuditNotificationTargetConfigurations?: _#defs."/$defs/Properties/definitions/AuditNotificationTargetConfigurations" |
-		fn.#ObjectExpression
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	AccountId!:                             strings.MaxRunes(12) & strings.MinRunes(12) | fn.#StringExpression
+	AuditCheckConfigurations!:              _#defs."/$defs/Properties/definitions/AuditCheckConfigurations"
+	AuditNotificationTargetConfigurations?: _#defs."/$defs/Properties/definitions/AuditNotificationTargetConfigurations"
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AuditCheckConfiguration": close({Enabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/AuditCheckConfiguration": close(
+	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AuditCheckConfigurations": close({
-	AuthenticatedCognitoRoleOverlyPermissiveCheck?: _#defs."/$defs/Properties/definitions/AuditCheckConfiguration" |
-		fn.#ObjectExpression
-	CaCertificateExpiringCheck?:   _#defs."/$defs/Properties/definitions/AuditCheckConfiguration" | fn.#ObjectExpression
-	CaCertificateKeyQualityCheck?: _#defs."/$defs/Properties/definitions/AuditCheckConfiguration" | fn.#ObjectExpression
-	ConflictingClientIdsCheck?:    _#defs."/$defs/Properties/definitions/AuditCheckConfiguration" | fn.#ObjectExpression
-	DeviceCertificateAgeCheck?: _#defs."/$defs/Properties/definitions/DeviceCertAgeAuditCheckConfiguration" |
-		fn.#ObjectExpression
-	DeviceCertificateExpiringCheck?: _#defs."/$defs/Properties/definitions/DeviceCertExpirationAuditCheckConfiguration" |
-		fn.#ObjectExpression
-	DeviceCertificateKeyQualityCheck?: _#defs."/$defs/Properties/definitions/AuditCheckConfiguration" |
-		fn.#ObjectExpression
-	DeviceCertificateSharedCheck?: _#defs."/$defs/Properties/definitions/AuditCheckConfiguration" | fn.#ObjectExpression
-	IntermediateCaRevokedForActiveDeviceCertificatesCheck?: _#defs."/$defs/Properties/definitions/AuditCheckConfiguration" |
-		fn.#ObjectExpression
-	IoTPolicyPotentialMisConfigurationCheck?: _#defs."/$defs/Properties/definitions/AuditCheckConfiguration" |
-		fn.#ObjectExpression
-	IotPolicyOverlyPermissiveCheck?: _#defs."/$defs/Properties/definitions/AuditCheckConfiguration" |
-		fn.#ObjectExpression
-	IotRoleAliasAllowsAccessToUnusedServicesCheck?: _#defs."/$defs/Properties/definitions/AuditCheckConfiguration" |
-		fn.#ObjectExpression
-	IotRoleAliasOverlyPermissiveCheck?: _#defs."/$defs/Properties/definitions/AuditCheckConfiguration" |
-		fn.#ObjectExpression
-	LoggingDisabledCheck?: _#defs."/$defs/Properties/definitions/AuditCheckConfiguration" | fn.#ObjectExpression
-	RevokedCaCertificateStillActiveCheck?: _#defs."/$defs/Properties/definitions/AuditCheckConfiguration" |
-		fn.#ObjectExpression
-	RevokedDeviceCertificateStillActiveCheck?: _#defs."/$defs/Properties/definitions/AuditCheckConfiguration" |
-		fn.#ObjectExpression
-	UnauthenticatedCognitoRoleOverlyPermissiveCheck?: _#defs."/$defs/Properties/definitions/AuditCheckConfiguration" |
-		fn.#ObjectExpression
+	AuthenticatedCognitoRoleOverlyPermissiveCheck?: _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
+	CaCertificateExpiringCheck?:                    _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
+	CaCertificateKeyQualityCheck?:                  _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
+	ConflictingClientIdsCheck?:                     _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
+	DeviceCertificateAgeCheck?:                     _#defs."/$defs/Properties/definitions/DeviceCertAgeAuditCheckConfiguration"
+	DeviceCertificateExpiringCheck?:                _#defs."/$defs/Properties/definitions/DeviceCertExpirationAuditCheckConfiguration"
+	DeviceCertificateKeyQualityCheck?:              _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
+	DeviceCertificateSharedCheck?:                  _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
+	IntermediateCaRevokedForActiveDeviceCertificatesCheck?:
+		_#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
+	IoTPolicyPotentialMisConfigurationCheck?:         _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
+	IotPolicyOverlyPermissiveCheck?:                  _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
+	IotRoleAliasAllowsAccessToUnusedServicesCheck?:   _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
+	IotRoleAliasOverlyPermissiveCheck?:               _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
+	LoggingDisabledCheck?:                            _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
+	RevokedCaCertificateStillActiveCheck?:            _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
+	RevokedDeviceCertificateStillActiveCheck?:        _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
+	UnauthenticatedCognitoRoleOverlyPermissiveCheck?: _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AuditNotificationTarget": close({
-	Enabled?:   bool | fn.#BooleanExpression
-	RoleArn?:   strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 	TargetArn?: strings.MaxRunes(2048) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AuditNotificationTargetConfigurations": close(
-	{Sns?: _#defs."/$defs/Properties/definitions/AuditNotificationTarget" | fn.#ObjectExpression},
+	{Sns?: _#defs."/$defs/Properties/definitions/AuditNotificationTarget"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CertAgeCheckCustomConfiguration": close(
-	{CertAgeThresholdInDays?: _#defs."/$defs/Properties/definitions/ConfigValue" | fn.#StringExpression},
+	{CertAgeThresholdInDays?: _#defs."/$defs/Properties/definitions/ConfigValue"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CertExpirationCheckCustomConfiguration": close(
-	{CertExpirationThresholdInDays?: _#defs."/$defs/Properties/definitions/ConfigValue" | fn.#StringExpression},
+	{CertExpirationThresholdInDays?: _#defs."/$defs/Properties/definitions/ConfigValue"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfigValue": strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DeviceCertAgeAuditCheckConfiguration": close({
-	Configuration?: _#defs."/$defs/Properties/definitions/CertAgeCheckCustomConfiguration" | fn.#ObjectExpression
-	Enabled?:       bool | fn.#BooleanExpression
+	Configuration?: _#defs."/$defs/Properties/definitions/CertAgeCheckCustomConfiguration"
+	Enabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DeviceCertExpirationAuditCheckConfiguration": close({
-	Configuration?: _#defs."/$defs/Properties/definitions/CertExpirationCheckCustomConfiguration" | fn.#ObjectExpression
-	Enabled?:       bool | fn.#BooleanExpression
+	Configuration?: _#defs."/$defs/Properties/definitions/CertExpirationCheckCustomConfiguration"
+	Enabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

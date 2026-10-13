@@ -14,12 +14,13 @@ import (
 	Description?:         strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[^\\p{C}]*$"
 	Enabled?:             bool
 	PreProvisioningHook?: _#defs."/$defs/Properties/definitions/ProvisioningHook"
-	ProvisioningRoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20)
-	Tags?:                list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TemplateArn?:         string
-	TemplateBody!:        strings.MaxRunes(10240) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
-	TemplateName?:        strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$"
-	TemplateType?:        "FLEET_PROVISIONING" | "JITP"
+	ProvisioningRoleArn!:
+		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
+	Tags?:         list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	TemplateArn?:  string
+	TemplateBody!: strings.MaxRunes(10240) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
+	TemplateName?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$"
+	TemplateType?: "FLEET_PROVISIONING" | "JITP"
 })
 
 _#defs: "/$defs/Properties/definitions/ProvisioningHook": close({

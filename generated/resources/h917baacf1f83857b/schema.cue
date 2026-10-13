@@ -8,54 +8,64 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An object representing an Amazon EKS cluster.
 #Properties: close({
-	AccessConfig?:                 _#defs."/$defs/Properties/definitions/AccessConfig" | fn.#ObjectExpression
+	AccessConfig?:                 _#defs."/$defs/Properties/definitions/AccessConfig"
 	ActiveCertificateAuthorityId?: string | fn.#StringExpression
-	BootstrapSelfManagedAddons?:   bool | fn.#BooleanExpression
+	BootstrapSelfManagedAddons?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CertificateAuthority?:         close({Active?: close({}) | fn.#ObjectExpression}) | fn.#ObjectExpression
-	ComputeConfig?:                _#defs."/$defs/Properties/definitions/ComputeConfig" | fn.#ObjectExpression
-	ControlPlaneScalingConfig?: _#defs."/$defs/Properties/definitions/ControlPlaneScalingConfig" | fn.#ObjectExpression
-	DeletionProtection?:        bool | fn.#BooleanExpression
+	ComputeConfig?:                _#defs."/$defs/Properties/definitions/ComputeConfig"
+	ControlPlaneScalingConfig?:    _#defs."/$defs/Properties/definitions/ControlPlaneScalingConfig"
+	DeletionProtection?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EncryptionConfig?: list.MaxItems(1) & [...] & [
 		..._#defs."/$defs/Properties/definitions/EncryptionConfig" &
 		(null | bool | number | string | list.MaxItems(1) | {...}) |
 		fn.#ObjectExpression
 	] |
 	fn.#ListExpression
-	Force?:               bool | fn.#BooleanExpression
-	KubeApiServerConfig?: _#defs."/$defs/Properties/definitions/KubeApiServerConfig" | fn.#ObjectExpression
-	KubeControllerManagerConfig?: _#defs."/$defs/Properties/definitions/KubeControllerManagerConfig" |
-		fn.#ObjectExpression
-	KubeSchedulerConfig?: _#defs."/$defs/Properties/definitions/KubeSchedulerConfig" | fn.#ObjectExpression
+	Force?:                       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KubeApiServerConfig?:         _#defs."/$defs/Properties/definitions/KubeApiServerConfig"
+	KubeControllerManagerConfig?: _#defs."/$defs/Properties/definitions/KubeControllerManagerConfig"
+	KubeSchedulerConfig?:         _#defs."/$defs/Properties/definitions/KubeSchedulerConfig"
 	KubernetesNetworkConfig?: close({
 		ElasticLoadBalancing?: _#defs."/$defs/Properties/definitions/ElasticLoadBalancing" | fn.#ObjectExpression
 		IpFamily?:             "ipv4" | "ipv6" | fn.#StringExpression
 		ServiceIpv4Cidr?:      string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Logging?: _#defs."/$defs/Properties/definitions/Logging" | fn.#ObjectExpression
+	Logging?: _#defs."/$defs/Properties/definitions/Logging"
 	Name?:    strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*" | fn.#StringExpression
-	OutpostConfig?:       _#defs."/$defs/Properties/definitions/OutpostConfig" | fn.#ObjectExpression
-	RemoteNetworkConfig?: _#defs."/$defs/Properties/definitions/RemoteNetworkConfig" | fn.#ObjectExpression
-	ResourcesVpcConfig!:  _#defs."/$defs/Properties/definitions/ResourcesVpcConfig" | fn.#ObjectExpression
-	RoleArn!:             string | fn.#StringExpression
-	RollbackConfig?:      _#defs."/$defs/Properties/definitions/RollbackConfig" | fn.#ObjectExpression
-	StorageConfig?:       _#defs."/$defs/Properties/definitions/StorageConfig" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	UpgradePolicy?:    _#defs."/$defs/Properties/definitions/UpgradePolicy" | fn.#ObjectExpression
+	OutpostConfig?:       _#defs."/$defs/Properties/definitions/OutpostConfig"
+	RemoteNetworkConfig?: _#defs."/$defs/Properties/definitions/RemoteNetworkConfig"
+	ResourcesVpcConfig!:  _#defs."/$defs/Properties/definitions/ResourcesVpcConfig"
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	RollbackConfig?:   _#defs."/$defs/Properties/definitions/RollbackConfig"
+	StorageConfig?:    _#defs."/$defs/Properties/definitions/StorageConfig"
+	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UpgradePolicy?:    _#defs."/$defs/Properties/definitions/UpgradePolicy"
 	Version?:          =~"1\\.\\d\\d" | fn.#StringExpression
-	ZonalShiftConfig?: _#defs."/$defs/Properties/definitions/ZonalShiftConfig" | fn.#ObjectExpression
+	ZonalShiftConfig?: _#defs."/$defs/Properties/definitions/ZonalShiftConfig"
 })
 
 _#defs: "/$defs/Properties/definitions/AccessConfig": close({
-	AuthenticationMode?:                      "CONFIG_MAP" | "API_AND_CONFIG_MAP" | "API" | fn.#StringExpression
-	BootstrapClusterCreatorAdminPermissions?: bool | fn.#BooleanExpression
+	AuthenticationMode?: "CONFIG_MAP" | "API_AND_CONFIG_MAP" | "API" | fn.#StringExpression
+	BootstrapClusterCreatorAdminPermissions?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -65,24 +75,27 @@ _#defs: "/$defs/Properties/definitions/ActiveCertificateAuthority": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BlockStorage": close({Enabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/BlockStorage": close(
+	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CertificateAuthority": close({
-	Active?: _#defs."/$defs/Properties/definitions/ActiveCertificateAuthority" | fn.#ObjectExpression
+	Active?: _#defs."/$defs/Properties/definitions/ActiveCertificateAuthority"
 	Data?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClusterLogging": close(
-	{EnabledTypes?: _#defs."/$defs/Properties/definitions/EnabledTypes" | fn.#ListExpression},
+	{EnabledTypes?: _#defs."/$defs/Properties/definitions/EnabledTypes"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComputeConfig": close({
-	Enabled?:     bool | fn.#BooleanExpression
-	NodePools?:   [...string | fn.#StringExpression] | fn.#ListExpression
-	NodeRoleArn?: string | fn.#StringExpression
+	Enabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NodePools?: [...string | fn.#StringExpression] | fn.#ListExpression
+	NodeRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -97,14 +110,21 @@ _#defs: "/$defs/Properties/definitions/ControlPlaneScalingConfig": close(
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeletionProtection": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/DeletionProtection": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/ElasticLoadBalancing": close({Enabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/ElasticLoadBalancing": close(
+	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnabledTypes": [
-	..._#defs."/$defs/Properties/definitions/LoggingTypeConfig" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/EnabledTypes": [..._#defs."/$defs/Properties/definitions/LoggingTypeConfig"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfig": close({
@@ -123,19 +143,19 @@ _#defs: "/$defs/Properties/definitions/HorizontalPodAutoscalerControllerConfig":
 
 _#defs: "/$defs/Properties/definitions/KubeApiServerConfig": close({
 	EventTtl?:             string | fn.#StringExpression
-	ServiceNodePortRange?: _#defs."/$defs/Properties/definitions/ServiceNodePortRange" | fn.#ObjectExpression
+	ServiceNodePortRange?: _#defs."/$defs/Properties/definitions/ServiceNodePortRange"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KubeControllerManagerConfig": close({
-	HorizontalPodAutoscalerControllerConfig?: _#defs."/$defs/Properties/definitions/HorizontalPodAutoscalerControllerConfig" |
-		fn.#ObjectExpression
-	PodGcControllerConfig?: _#defs."/$defs/Properties/definitions/PodGcControllerConfig" | fn.#ObjectExpression
+	HorizontalPodAutoscalerControllerConfig?:
+		_#defs."/$defs/Properties/definitions/HorizontalPodAutoscalerControllerConfig"
+	PodGcControllerConfig?: _#defs."/$defs/Properties/definitions/PodGcControllerConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KubeSchedulerConfig": close(
-	{NodeResourcesFit?: _#defs."/$defs/Properties/definitions/NodeResourcesFitConfig" | fn.#ObjectExpression},
+	{NodeResourcesFit?: _#defs."/$defs/Properties/definitions/NodeResourcesFitConfig"},
 ) |
 	fn.#ObjectExpression
 
@@ -158,7 +178,7 @@ _#defs: "/$defs/Properties/definitions/LoggingTypeConfig": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NodeResourcesFitConfig": close(
-	{ScoringStrategy?: _#defs."/$defs/Properties/definitions/ScoringStrategy" | fn.#ObjectExpression},
+	{ScoringStrategy?: _#defs."/$defs/Properties/definitions/ScoringStrategy"},
 ) |
 	fn.#ObjectExpression
 
@@ -171,9 +191,24 @@ _#defs: "/$defs/Properties/definitions/OutpostConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PodGcControllerConfig": close(
-	{TerminatedPodGcThreshold?: int & <=1000000 & >=1 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/PodGcControllerConfig": close({
+	TerminatedPodGcThreshold?: int & <=1000000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Provider": close({KeyArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
@@ -190,7 +225,7 @@ _#defs: "/$defs/Properties/definitions/RemoteNodeNetwork": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RemoteNodeNetworks": list.MaxItems(1) & [...] & [
-	..._#defs."/$defs/Properties/definitions/RemoteNodeNetwork" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/RemoteNodeNetwork"
 ] |
 	fn.#ListExpression
 
@@ -200,43 +235,101 @@ _#defs: "/$defs/Properties/definitions/RemotePodNetwork": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RemotePodNetworks": list.MaxItems(1) & [...] & [
-	..._#defs."/$defs/Properties/definitions/RemotePodNetwork" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/RemotePodNetwork"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceWeight": close({
-	Name?:   strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
-	Weight?: int & <=100 & >=1 | fn.#NumberExpression
+	Name?: strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
+	Weight?: int & <=100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResourcesVpcConfig": close({
 	ControlPlaneEgressMode?: "AWS_MANAGED" | "CUSTOMER_ISOLATED" | "CUSTOMER_ROUTED" | fn.#StringExpression
-	EndpointPrivateAccess?:  bool | fn.#BooleanExpression
-	EndpointPublicAccess?:   bool | fn.#BooleanExpression
+	EndpointPrivateAccess?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EndpointPublicAccess?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PublicAccessCidrs?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	SecurityGroupIds?:       [...string | fn.#StringExpression] | fn.#ListExpression
-	SubnetIds!:              [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	SubnetIds!: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RollbackConfig": close(
-	{TimeoutMinutes?: int & <=10080 & >=120 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/RollbackConfig": close({
+	TimeoutMinutes?: int & <=10080 & >=120 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10080 &
+							>=120,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScoringStrategy": close({
-	Resources?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ResourceWeight" | fn.#ObjectExpression
-	] |
+	Resources?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceWeight"] |
 		fn.#ListExpression
 	Type?: "LeastAllocated" | "MostAllocated" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceNodePortRange": close({
-	MaxPort?: int | fn.#NumberExpression
-	MinPort?: int | fn.#NumberExpression
+	MaxPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -256,7 +349,9 @@ _#defs: "/$defs/Properties/definitions/UpgradePolicy": close(
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ZonalShiftConfig": close({Enabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/ZonalShiftConfig": close(
+	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EKS::Cluster"

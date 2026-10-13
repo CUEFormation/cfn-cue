@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -39,9 +43,8 @@ strings.MinRunes(0) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AutoScalingPolicy": close({
-	EstimatedInstanceWarmup?: _#defs."/$defs/Properties/definitions/EstimatedInstanceWarmup" | fn.#NumberExpression
-	TargetTrackingConfiguration!: _#defs."/$defs/Properties/definitions/TargetTrackingConfiguration" |
-		fn.#ObjectExpression
+	EstimatedInstanceWarmup?:     _#defs."/$defs/Properties/definitions/EstimatedInstanceWarmup"
+	TargetTrackingConfiguration!: _#defs."/$defs/Properties/definitions/TargetTrackingConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -54,22 +57,39 @@ _#defs: "/$defs/Properties/definitions/CreationTime": string | fn.#StringExpress
 
 _#defs: "/$defs/Properties/definitions/DeleteOption": "SAFE_DELETE" | "FORCE_DELETE" | "RETAIN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EstimatedInstanceWarmup": >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/EstimatedInstanceWarmup": >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						>=1,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/GameServerGroup": close({
-	AutoScalingGroupArn?: _#defs."/$defs/Properties/definitions/AutoScalingGroupArn" | fn.#StringExpression
-	BalancingStrategy?:   _#defs."/$defs/Properties/definitions/BalancingStrategy" | fn.#StringExpression
-	CreationTime?:        _#defs."/$defs/Properties/definitions/CreationTime" | fn.#StringExpression
-	GameServerGroupArn?:  _#defs."/$defs/Properties/definitions/GameServerGroupArn" | fn.#StringExpression
-	GameServerGroupName?: _#defs."/$defs/Properties/definitions/GameServerGroupName" | fn.#StringExpression
-	GameServerProtectionPolicy?: _#defs."/$defs/Properties/definitions/GameServerProtectionPolicy" |
-		fn.#StringExpression
-	InstanceDefinitions?: _#defs."/$defs/Properties/definitions/InstanceDefinitions" | fn.#ListExpression
-	LastUpdatedTime?:     _#defs."/$defs/Properties/definitions/LastUpdatedTime" | fn.#StringExpression
-	RoleArn?:             _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
-	Status?:              _#defs."/$defs/Properties/definitions/Status" | fn.#StringExpression
-	StatusReason?:        _#defs."/$defs/Properties/definitions/StatusReason" | fn.#StringExpression
-	SuspendedActions?:    _#defs."/$defs/Properties/definitions/SuspendedActions" | fn.#ListExpression
+	AutoScalingGroupArn?:        _#defs."/$defs/Properties/definitions/AutoScalingGroupArn"
+	BalancingStrategy?:          _#defs."/$defs/Properties/definitions/BalancingStrategy"
+	CreationTime?:               _#defs."/$defs/Properties/definitions/CreationTime"
+	GameServerGroupArn?:         _#defs."/$defs/Properties/definitions/GameServerGroupArn"
+	GameServerGroupName?:        _#defs."/$defs/Properties/definitions/GameServerGroupName"
+	GameServerProtectionPolicy?: _#defs."/$defs/Properties/definitions/GameServerProtectionPolicy"
+	InstanceDefinitions?:        _#defs."/$defs/Properties/definitions/InstanceDefinitions"
+	LastUpdatedTime?:            _#defs."/$defs/Properties/definitions/LastUpdatedTime"
+	RoleArn?:                    _#defs."/$defs/Properties/definitions/RoleArn"
+	Status?:                     _#defs."/$defs/Properties/definitions/Status"
+	StatusReason?:               _#defs."/$defs/Properties/definitions/StatusReason"
+	SuspendedActions?:           _#defs."/$defs/Properties/definitions/SuspendedActions"
 }) |
 fn.#ObjectExpression
 
@@ -88,13 +108,13 @@ _#defs: "/$defs/Properties/definitions/GameServerProtectionPolicy": "NO_PROTECTI
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/InstanceDefinition": close({
-	InstanceType!:     _#defs."/$defs/Properties/definitions/InstanceType" | fn.#StringExpression
-	WeightedCapacity?: _#defs."/$defs/Properties/definitions/WeightedCapacity" | fn.#StringExpression
+	InstanceType!:     _#defs."/$defs/Properties/definitions/InstanceType"
+	WeightedCapacity?: _#defs."/$defs/Properties/definitions/WeightedCapacity"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InstanceDefinitions": list.MaxItems(20) & list.MinItems(2) & [
-	..._#defs."/$defs/Properties/definitions/InstanceDefinition" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/InstanceDefinition"
 ] |
 	fn.#ListExpression
 
@@ -103,9 +123,9 @@ _#defs: "/$defs/Properties/definitions/InstanceType": string | fn.#StringExpress
 _#defs: "/$defs/Properties/definitions/LastUpdatedTime": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LaunchTemplate": close({
-	LaunchTemplateId?:   _#defs."/$defs/Properties/definitions/LaunchTemplateId" | fn.#StringExpression
-	LaunchTemplateName?: _#defs."/$defs/Properties/definitions/LaunchTemplateName" | fn.#StringExpression
-	Version?:            _#defs."/$defs/Properties/definitions/Version" | fn.#StringExpression
+	LaunchTemplateId?:   _#defs."/$defs/Properties/definitions/LaunchTemplateId"
+	LaunchTemplateName?: _#defs."/$defs/Properties/definitions/LaunchTemplateName"
+	Version?:            _#defs."/$defs/Properties/definitions/Version"
 }) |
 fn.#ObjectExpression
 
@@ -117,11 +137,48 @@ strings.MinRunes(3) &
 =~"^[a-zA-Z0-9\\(\\)\\.\\-/_]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MaxSize": >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/MaxSize": >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						>=1,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MinSize": >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/MinSize": >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						>=0,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(256) &
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:.*:role\\/[\\w+=,.@-]+" |
 fn.#StringExpression
@@ -148,16 +205,34 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/TargetTrackingConfiguration": close(
-	{TargetValue!: _#defs."/$defs/Properties/definitions/TargetValue" | fn.#NumberExpression},
+	{TargetValue!: _#defs."/$defs/Properties/definitions/TargetValue"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetValue": >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/TargetValue": >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						>=0,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Version": strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 

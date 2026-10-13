@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,26 +18,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SageMaker::InferenceExperiment
 #Properties: close({
-	DataStorageConfig?: _#defs."/$defs/Properties/definitions/DataStorageConfig" | fn.#ObjectExpression
+	DataStorageConfig?: _#defs."/$defs/Properties/definitions/DataStorageConfig"
 	Description?:       strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
 	DesiredState?:      "Running" | "Completed" | "Cancelled" | fn.#StringExpression
-	EndpointName!:      _#defs."/$defs/Properties/definitions/EndpointName" | fn.#StringExpression
+	EndpointName!:      _#defs."/$defs/Properties/definitions/EndpointName"
 	KmsKey?:            strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	ModelVariants!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ModelVariantConfig" | fn.#ObjectExpression
-	] |
+	ModelVariants!: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ModelVariantConfig"] |
 		fn.#ListExpression
 	Name!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" | fn.#StringExpression
-	RoleArn!: strings.MaxRunes(2048) &
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
-	Schedule?:         _#defs."/$defs/Properties/definitions/InferenceExperimentSchedule" | fn.#ObjectExpression
-	ShadowModeConfig?: _#defs."/$defs/Properties/definitions/ShadowModeConfig" | fn.#ObjectExpression
+	Schedule?:         _#defs."/$defs/Properties/definitions/InferenceExperimentSchedule"
+	ShadowModeConfig?: _#defs."/$defs/Properties/definitions/ShadowModeConfig"
 	StatusReason?:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Type!: "ShadowMode" | fn.#StringExpression
+	Tags?:             list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Type!:             "ShadowMode" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CaptureContentTypeHeader": close({
@@ -51,7 +53,7 @@ _#defs: "/$defs/Properties/definitions/CaptureContentTypeHeader": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataStorageConfig": close({
-	ContentType?: _#defs."/$defs/Properties/definitions/CaptureContentTypeHeader" | fn.#ObjectExpression
+	ContentType?: _#defs."/$defs/Properties/definitions/CaptureContentTypeHeader"
 	Destination!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" | fn.#StringExpression
 	KmsKey?:      strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 }) |
@@ -59,7 +61,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EndpointMetadata": close({
 	EndpointConfigName?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" | fn.#StringExpression
-	EndpointName!:       _#defs."/$defs/Properties/definitions/EndpointName" | fn.#StringExpression
+	EndpointName!:       _#defs."/$defs/Properties/definitions/EndpointName"
 	EndpointStatus?: ("Creating" |
 		"Updating" |
 		"SystemUpdating" |
@@ -86,12 +88,12 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ModelInfrastructureConfig": close({
 	InfrastructureType!:      "RealTimeInference" | fn.#StringExpression
-	RealTimeInferenceConfig!: _#defs."/$defs/Properties/definitions/RealTimeInferenceConfig" | fn.#ObjectExpression
+	RealTimeInferenceConfig!: _#defs."/$defs/Properties/definitions/RealTimeInferenceConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ModelVariantConfig": close({
-	InfrastructureConfig!: _#defs."/$defs/Properties/definitions/ModelInfrastructureConfig" | fn.#ObjectExpression
+	InfrastructureConfig!: _#defs."/$defs/Properties/definitions/ModelInfrastructureConfig"
 	ModelName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" | fn.#StringExpression
 	VariantName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?" |
 	fn.#StringExpression
@@ -99,14 +101,28 @@ _#defs: "/$defs/Properties/definitions/ModelVariantConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RealTimeInferenceConfig": close({
-	InstanceCount!: int & >=0 | fn.#NumberExpression
-	InstanceType!:  string | fn.#StringExpression
+	InstanceCount!: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	InstanceType!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ShadowModeConfig": close({
 	ShadowModelVariants!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ShadowModelVariantConfig" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ShadowModelVariantConfig"
 	] |
 		fn.#ListExpression
 	SourceModelVariantName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?" |
@@ -115,7 +131,21 @@ _#defs: "/$defs/Properties/definitions/ShadowModeConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ShadowModelVariantConfig": close({
-	SamplingPercentage!: int & <=100 | fn.#NumberExpression
+	SamplingPercentage!: int & <=100 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ShadowModelVariantName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?" |
 	fn.#StringExpression
 }) |

@@ -8,33 +8,84 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A domain defined for 3rd party data source in Profile Service
 #Properties: close({
-	DataStore?:             close({Enabled?: bool | fn.#BooleanExpression}) | fn.#ObjectExpression
-	DeadLetterQueueUrl?:    strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	DefaultEncryptionKey?:  strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	DefaultExpirationDays!: int & <=1098 & >=1 | fn.#NumberExpression
-	DomainName!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Matching?:              _#defs."/$defs/Properties/definitions/Matching" | fn.#ObjectExpression
+	DataStore?: close({Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
+		fn.#ObjectExpression
+	DeadLetterQueueUrl?:   strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	DefaultEncryptionKey?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	DefaultExpirationDays!: int & <=1098 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1098 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DomainName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	Matching?:   _#defs."/$defs/Properties/definitions/Matching"
 	RuleBasedMatching?: close({
-		AttributeTypesSelector?: _#defs."/$defs/Properties/definitions/AttributeTypesSelector" | fn.#ObjectExpression
-		ConflictResolution?:     _#defs."/$defs/Properties/definitions/ConflictResolution" | fn.#ObjectExpression
-		Enabled!:                bool | fn.#BooleanExpression
-		ExportingConfig?:        _#defs."/$defs/Properties/definitions/ExportingConfig" | fn.#ObjectExpression
-		MatchingRules?: list.MaxItems(15) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/MatchingRule" | fn.#ObjectExpression
-		] |
+		AttributeTypesSelector?: _#defs."/$defs/Properties/definitions/AttributeTypesSelector"
+		ConflictResolution?:     _#defs."/$defs/Properties/definitions/ConflictResolution"
+		Enabled!:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ExportingConfig?:        _#defs."/$defs/Properties/definitions/ExportingConfig"
+		MatchingRules?: list.MaxItems(15) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/MatchingRule"] |
 			fn.#ListExpression
-		MaxAllowedRuleLevelForMatching?: int & <=15 & >=1 | fn.#NumberExpression
-		MaxAllowedRuleLevelForMerging?:  int & <=15 & >=1 | fn.#NumberExpression
+		MaxAllowedRuleLevelForMatching?: int & <=15 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=15 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaxAllowedRuleLevelForMerging?: int & <=15 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=15 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AttributeTypesSelector": close({
@@ -55,10 +106,29 @@ _#defs: "/$defs/Properties/definitions/AttributeTypesSelector": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AutoMerging": close({
-	ConflictResolution?: _#defs."/$defs/Properties/definitions/ConflictResolution" | fn.#ObjectExpression
-	Consolidation?:      _#defs."/$defs/Properties/definitions/Consolidation" | fn.#ObjectExpression
-	Enabled!:            bool | fn.#BooleanExpression
-	MinAllowedConfidenceScoreForMerging?: <=1 & >=0 | fn.#NumberExpression
+	ConflictResolution?: _#defs."/$defs/Properties/definitions/ConflictResolution"
+	Consolidation?:      _#defs."/$defs/Properties/definitions/Consolidation"
+	Enabled!:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MinAllowedConfidenceScoreForMerging?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -70,28 +140,100 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Consolidation": close({
 	MatchingAttributesList!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MatchingAttributes" | fn.#ListExpression
+		..._#defs."/$defs/Properties/definitions/MatchingAttributes"
 	] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataStore": close({
-	Enabled?:   bool | fn.#BooleanExpression
-	Readiness?: _#defs."/$defs/Properties/definitions/Readiness" | fn.#ObjectExpression
+	Enabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Readiness?: _#defs."/$defs/Properties/definitions/Readiness"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DomainStats": close({
-	MeteringProfileCount?: number | fn.#NumberExpression
-	ObjectCount?:          number | fn.#NumberExpression
-	ProfileCount?:         number | fn.#NumberExpression
-	TotalSize?:            number | fn.#NumberExpression
+	MeteringProfileCount?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ObjectCount?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ProfileCount?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TotalSize?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExportingConfig": close(
-	{S3Exporting?: _#defs."/$defs/Properties/definitions/S3ExportingConfig" | fn.#ObjectExpression},
+	{S3Exporting?: _#defs."/$defs/Properties/definitions/S3ExportingConfig"},
 ) |
 	fn.#ObjectExpression
 
@@ -110,10 +252,10 @@ _#defs: "/$defs/Properties/definitions/JobSchedule": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Matching": close({
-	AutoMerging?:     _#defs."/$defs/Properties/definitions/AutoMerging" | fn.#ObjectExpression
-	Enabled!:         bool | fn.#BooleanExpression
-	ExportingConfig?: _#defs."/$defs/Properties/definitions/ExportingConfig" | fn.#ObjectExpression
-	JobSchedule?:     _#defs."/$defs/Properties/definitions/JobSchedule" | fn.#ObjectExpression
+	AutoMerging?:     _#defs."/$defs/Properties/definitions/AutoMerging"
+	Enabled!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExportingConfig?: _#defs."/$defs/Properties/definitions/ExportingConfig"
+	JobSchedule?:     _#defs."/$defs/Properties/definitions/JobSchedule"
 }) |
 fn.#ObjectExpression
 
@@ -123,7 +265,7 @@ _#defs: "/$defs/Properties/definitions/MatchingAttributes": list.MaxItems(20) & 
 fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/MatchingRule": close(
-	{Rule!: _#defs."/$defs/Properties/definitions/MatchingRuleAttributeList" | fn.#ListExpression},
+	{Rule!: _#defs."/$defs/Properties/definitions/MatchingRuleAttributeList"},
 ) |
 	fn.#ObjectExpression
 
@@ -133,23 +275,66 @@ _#defs: "/$defs/Properties/definitions/MatchingRuleAttributeList": list.MaxItems
 fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/Readiness": close({
-	Message?:            string | fn.#StringExpression
-	ProgressPercentage?: int & <=100 & >=0 | fn.#NumberExpression
+	Message?: string | fn.#StringExpression
+	ProgressPercentage?: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RuleBasedMatching": close({
-	AttributeTypesSelector?: _#defs."/$defs/Properties/definitions/AttributeTypesSelector" | fn.#ObjectExpression
-	ConflictResolution?:     _#defs."/$defs/Properties/definitions/ConflictResolution" | fn.#ObjectExpression
-	Enabled!:                bool | fn.#BooleanExpression
-	ExportingConfig?:        _#defs."/$defs/Properties/definitions/ExportingConfig" | fn.#ObjectExpression
-	MatchingRules?: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MatchingRule" | fn.#ObjectExpression
-	] |
+	AttributeTypesSelector?: _#defs."/$defs/Properties/definitions/AttributeTypesSelector"
+	ConflictResolution?:     _#defs."/$defs/Properties/definitions/ConflictResolution"
+	Enabled!:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExportingConfig?:        _#defs."/$defs/Properties/definitions/ExportingConfig"
+	MatchingRules?: list.MaxItems(15) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/MatchingRule"] |
 		fn.#ListExpression
-	MaxAllowedRuleLevelForMatching?: int & <=15 & >=1 | fn.#NumberExpression
-	MaxAllowedRuleLevelForMerging?:  int & <=15 & >=1 | fn.#NumberExpression
-	Status?:                         "PENDING" | "IN_PROGRESS" | "ACTIVE" | fn.#StringExpression
+	MaxAllowedRuleLevelForMatching?: int & <=15 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=15 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxAllowedRuleLevelForMerging?: int & <=15 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=15 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Status?: "PENDING" | "IN_PROGRESS" | "ACTIVE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

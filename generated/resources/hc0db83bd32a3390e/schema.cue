@@ -16,9 +16,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CurrentRevisionId?:  strings.MaxRunes(40) & strings.MinRunes(1) | fn.#StringExpression
 	Environment?:        string | fn.#StringExpression
 	Name?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	RobotSoftwareSuite!: _#defs."/$defs/Properties/definitions/RobotSoftwareSuite" | fn.#ObjectExpression
-	Sources?: [..._#defs."/$defs/Properties/definitions/SourceConfig" | fn.#ObjectExpression] | fn.#ListExpression
-	Tags?:    _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	RobotSoftwareSuite!: _#defs."/$defs/Properties/definitions/RobotSoftwareSuite"
+	Sources?:            [..._#defs."/$defs/Properties/definitions/SourceConfig"] | fn.#ListExpression
+	Tags?:               _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" |

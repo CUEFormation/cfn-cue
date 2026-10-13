@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,28 +20,61 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CapacityProviderArns?:    list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	ClusterArn?:              string | fn.#StringExpression
-	Critical?:                bool | fn.#BooleanExpression
+	Critical?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DaemonName?:              string | fn.#StringExpression
 	DaemonTaskDefinitionArn?: string | fn.#StringExpression
 	DeploymentConfiguration?: _#defs."/$defs/Properties/definitions/DaemonDeploymentConfiguration" |
 		fn.#ObjectExpression
-	EnableECSManagedTags?: bool | fn.#BooleanExpression
-	EnableExecuteCommand?: bool | fn.#BooleanExpression
+	EnableECSManagedTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PropagateTags?:        "DAEMON" | "NONE" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DaemonAlarmConfiguration": close({
 	AlarmNames?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Enable?:     bool | fn.#BooleanExpression
+	Enable?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DaemonDeploymentConfiguration": close({
-	Alarms?:            _#defs."/$defs/Properties/definitions/DaemonAlarmConfiguration" | fn.#ObjectExpression
-	BakeTimeInMinutes?: int & <=1440 & >=0 | fn.#NumberExpression
-	DrainPercent?:      <=100 & >=0 | fn.#NumberExpression
+	Alarms?: _#defs."/$defs/Properties/definitions/DaemonAlarmConfiguration" | fn.#ObjectExpression
+	BakeTimeInMinutes?: int & <=1440 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1440 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DrainPercent?: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,23 +14,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for a CloudWatch Observability Admin S3 Table Integration.
 #Properties: close({
-	Encryption!: _#defs."/$defs/Properties/definitions/EncryptionConfig" | fn.#ObjectExpression
+	Encryption!: _#defs."/$defs/Properties/definitions/EncryptionConfig"
 	LogSources?: list.UniqueItems() & [...close({
 		Name!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 		Type!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	RoleArn!: strings.MaxRunes(1011) &
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(1011) &
 	strings.MinRunes(1) &
 	=~"^arn:aws([a-z0-9\\-]+)?:([a-zA-Z0-9\\-]+):([a-z0-9\\-]+)?:([0-9]{12})?:(.+)$" |
 	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfig": close({
-	KmsKeyArn?: strings.MaxRunes(1011) &
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(1011) &
 	strings.MinRunes(1) &
 	=~"^arn:aws([a-z0-9\\-]+)?:([a-zA-Z0-9\\-]+):([a-z0-9\\-]+)?:([0-9]{12})?:(.+)$" |
 	fn.#StringExpression

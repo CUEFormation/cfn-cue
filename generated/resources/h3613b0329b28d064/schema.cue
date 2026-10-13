@@ -15,7 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Represents a table that can be queried within a collaboration
 #Properties: close({
 	ConfiguredTableAssociationAnalysisRules?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRule" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRule"
 	] |
 		fn.#ListExpression
 	ConfiguredTableIdentifier!: strings.MaxRunes(36) &
@@ -30,13 +30,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
 	fn.#StringExpression
 	Name!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" | fn.#StringExpression
-	RoleArn!: strings.MaxRunes(512) & strings.MinRunes(32) & =~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$" |
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(32) &
+	=~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$" |
 	fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AllowedAdditionalAnalyses": list.MaxItems(25) & [...] & [
-	..._#defs."/$defs/Properties/definitions/AllowedAdditionalAnalysis" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/AllowedAdditionalAnalysis"
 ] |
 	fn.#ListExpression
 
@@ -46,47 +49,46 @@ _#defs: "/$defs/Properties/definitions/AllowedResultReceiver": strings.MaxRunes(
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AllowedResultReceivers": [...] & [
-	..._#defs."/$defs/Properties/definitions/AllowedResultReceiver" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/AllowedResultReceiver"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRule": close({
-	Policy!: _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRulePolicy" | fn.#ObjectExpression
-	Type!:   _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleType" | fn.#StringExpression
+	Policy!: _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRulePolicy"
+	Type!:   _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleAggregation": close({
-	AllowedAdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AllowedAdditionalAnalyses" | fn.#ListExpression
-	AllowedResultReceivers?:    _#defs."/$defs/Properties/definitions/AllowedResultReceivers" | fn.#ListExpression
+	AllowedAdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AllowedAdditionalAnalyses"
+	AllowedResultReceivers?:    _#defs."/$defs/Properties/definitions/AllowedResultReceivers"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleCustom": close({
-	AllowedAdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AllowedAdditionalAnalyses" | fn.#ListExpression
-	AllowedResultReceivers?:    _#defs."/$defs/Properties/definitions/AllowedResultReceivers" | fn.#ListExpression
+	AllowedAdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AllowedAdditionalAnalyses"
+	AllowedResultReceivers?:    _#defs."/$defs/Properties/definitions/AllowedResultReceivers"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleList": close({
-	AllowedAdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AllowedAdditionalAnalyses" | fn.#ListExpression
-	AllowedResultReceivers?:    _#defs."/$defs/Properties/definitions/AllowedResultReceivers" | fn.#ListExpression
+	AllowedAdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AllowedAdditionalAnalyses"
+	AllowedResultReceivers?:    _#defs."/$defs/Properties/definitions/AllowedResultReceivers"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRulePolicy": close(
-	{V1!: _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRulePolicyV1" | fn.#ValueExpression},
+	{V1!: _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRulePolicyV1"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRulePolicyV1": matchN(1, [close(
-	{List!: _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleList" | fn.#ObjectExpression},
-), close({
-	Aggregation!: _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleAggregation" |
-		fn.#ObjectExpression
-}), close({
-	Custom!: _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleCustom" | fn.#ObjectExpression
-})]) |
+	{List!: _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleList"},
+), close(
+	{Aggregation!: _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleAggregation"},
+), close(
+	{Custom!: _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleCustom"},
+)]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleType": "AGGREGATION" |

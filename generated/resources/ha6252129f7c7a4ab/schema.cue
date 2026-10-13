@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,21 +14,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // resource definition
 #Properties: close({
-	Artifact?:    _#defs."/$defs/Properties/definitions/PackageVersionArtifact" | fn.#ObjectExpression
-	Attributes?:  _#defs."/$defs/Properties/definitions/ResourceAttributes" | fn.#ObjectExpression
+	Artifact?:    _#defs."/$defs/Properties/definitions/PackageVersionArtifact"
+	Attributes?:  _#defs."/$defs/Properties/definitions/ResourceAttributes"
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[^\\p{C}]+$" | fn.#StringExpression
 	PackageName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$" | fn.#StringExpression
 	Recipe?:      strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
-	Sbom?:        _#defs."/$defs/Properties/definitions/Sbom" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Sbom?:        _#defs."/$defs/Properties/definitions/Sbom"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VersionName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/PackageVersionArtifact": close(
-	{S3Location!: _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression},
+	{S3Location!: _#defs."/$defs/Properties/definitions/S3Location"},
 ) |
 	fn.#ObjectExpression
 
@@ -49,9 +46,7 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Sbom": close(
-	{S3Location!: _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/Sbom": close({S3Location!: _#defs."/$defs/Properties/definitions/S3Location"}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SbomValidationStatus": "IN_PROGRESS" |

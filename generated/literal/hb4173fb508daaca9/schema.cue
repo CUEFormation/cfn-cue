@@ -24,7 +24,7 @@ package schema
 	LogLevel?:              string
 	Maintenance?:           _#defs."/$defs/Properties/definitions/MaintenanceCreateSettings"
 	Name?:                  string
-	RoleArn?:               string
+	RoleArn?:               =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Tags?:                  string | {...}
 	Vpc?:                   _#defs."/$defs/Properties/definitions/VpcOutputSettings"
 })
@@ -1376,7 +1376,7 @@ _#defs: "/$defs/Properties/definitions/VideoSelectorSettings": close({
 
 _#defs: "/$defs/Properties/definitions/VpcOutputSettings": close({
 	PublicAddressAllocationIds?: [...string]
-	SecurityGroupIds?:           [...string]
+	SecurityGroupIds?:           [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SubnetIds?:                  [...string]
 })
 

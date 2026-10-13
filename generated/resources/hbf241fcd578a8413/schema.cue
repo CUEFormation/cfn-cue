@@ -7,6 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,22 +24,112 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
 	fn.#StringExpression
 	Name!:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}\\-_.:=@'|]+$" | fn.#StringExpression
-	Primary?: bool | fn.#BooleanExpression
+	Primary?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Validation?: close({
 		Enum?: close({
-			Strict?: bool | fn.#BooleanExpression
+			Strict?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 			Values?: [...string | fn.#StringExpression] | fn.#ListExpression
 		}) |
 		fn.#ObjectExpression
-		ExclusiveMaximum?: number | fn.#NumberExpression
-		ExclusiveMinimum?: number | fn.#NumberExpression
-		MaxLength?:        _#defs."/$defs/Properties/definitions/LengthBoundary" | fn.#NumberExpression
-		MaxValues?:        _#defs."/$defs/Properties/definitions/ValueBoundary" | fn.#NumberExpression
-		Maximum?:          number | fn.#NumberExpression
-		MinLength?:        _#defs."/$defs/Properties/definitions/LengthBoundary" | fn.#NumberExpression
-		MinValues?:        _#defs."/$defs/Properties/definitions/ValueBoundary" | fn.#NumberExpression
-		Minimum?:          number | fn.#NumberExpression
-		MultipleOf?:       >=0 | fn.#NumberExpression
+		ExclusiveMaximum?: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ExclusiveMinimum?: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaxLength?: _#defs."/$defs/Properties/definitions/LengthBoundary" | fn.#NumberExpression
+		MaxValues?: _#defs."/$defs/Properties/definitions/ValueBoundary" | fn.#NumberExpression
+		Maximum?: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MinLength?: _#defs."/$defs/Properties/definitions/LengthBoundary" | fn.#NumberExpression
+		MinValues?: _#defs."/$defs/Properties/definitions/ValueBoundary" | fn.#NumberExpression
+		Minimum?: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MultipleOf?: >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								>=0,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
 	ValueType!: "TEXT" | "NUMBER" | "BOOLEAN" | "TEXT_LIST" | "NUMBER_LIST" | fn.#StringExpression
@@ -51,9 +145,41 @@ strings.MinRunes(0) &
 	""" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LengthBoundary": <1000 & int & <=1000 & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/LengthBoundary": <1000 & int & <=1000 & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						<1000 &
+						int &
+						<=1000 &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ValueBoundary": <100 & int & <=100 & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/ValueBoundary": <100 & int & <=100 & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						<100 &
+						int &
+						<=100 &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Connect::DataTableAttribute"
 	Properties!: #Properties

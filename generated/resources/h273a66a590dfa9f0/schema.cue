@@ -43,7 +43,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?$" |
 	fn.#StringExpression
 	FunctionUrlAuthType?:   "AWS_IAM" | "NONE" | fn.#StringExpression
-	InvokedViaFunctionUrl?: bool | fn.#BooleanExpression
+	InvokedViaFunctionUrl?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Principal!:             strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 	PrincipalOrgID?:        strings.MaxRunes(34) & strings.MinRunes(12) & =~"^o-[a-z0-9]{10,32}$" | fn.#StringExpression
 	SourceAccount?:         strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" | fn.#StringExpression

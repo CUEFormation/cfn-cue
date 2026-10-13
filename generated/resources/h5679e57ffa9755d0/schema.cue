@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,41 +20,65 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::LicenseManager::License
 #Properties: close({
 	Beneficiary!:              string | fn.#StringExpression
-	ConsumptionConfiguration!: _#defs."/$defs/Properties/definitions/ConsumptionConfiguration" | fn.#ObjectExpression
-	Entitlements!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Entitlement" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	HomeRegion!: string | fn.#StringExpression
-	Issuer!:     _#defs."/$defs/Properties/definitions/IssuerData" | fn.#ObjectExpression
-	LicenseMetadata?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Metadata" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	LicenseName!: string | fn.#StringExpression
-	ProductName!: string | fn.#StringExpression
-	ProductSKU!:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Status?:      _#defs."/$defs/Properties/definitions/LicenseStatus" | fn.#StringExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	Validity!:    _#defs."/$defs/Properties/definitions/ValidityDateFormat" | fn.#ObjectExpression
+	ConsumptionConfiguration!: _#defs."/$defs/Properties/definitions/ConsumptionConfiguration"
+	Entitlements!:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Entitlement"] | fn.#ListExpression
+	HomeRegion!:      string | fn.#StringExpression
+	Issuer!:          _#defs."/$defs/Properties/definitions/IssuerData"
+	LicenseMetadata?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Metadata"] | fn.#ListExpression
+	LicenseName!:     string | fn.#StringExpression
+	ProductName!:     string | fn.#StringExpression
+	ProductSKU!:      strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Status?:          _#defs."/$defs/Properties/definitions/LicenseStatus"
+	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Validity!:        _#defs."/$defs/Properties/definitions/ValidityDateFormat"
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/BorrowConfiguration": close({
-	AllowEarlyCheckIn!:      bool | fn.#BooleanExpression
-	MaxTimeToLiveInMinutes!: int | fn.#NumberExpression
+	AllowEarlyCheckIn!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MaxTimeToLiveInMinutes!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConsumptionConfiguration": close({
-	BorrowConfiguration?:      _#defs."/$defs/Properties/definitions/BorrowConfiguration" | fn.#ObjectExpression
-	ProvisionalConfiguration?: _#defs."/$defs/Properties/definitions/ProvisionalConfiguration" | fn.#ObjectExpression
+	BorrowConfiguration?:      _#defs."/$defs/Properties/definitions/BorrowConfiguration"
+	ProvisionalConfiguration?: _#defs."/$defs/Properties/definitions/ProvisionalConfiguration"
 	RenewType?:                "Monthly" | "None" | "Weekly" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Entitlement": close({
-	AllowCheckIn?: bool | fn.#BooleanExpression
-	MaxCount?:     int | fn.#NumberExpression
-	Name!:         string | fn.#StringExpression
-	Overage?:      bool | fn.#BooleanExpression
+	AllowCheckIn?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MaxCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name!:    string | fn.#StringExpression
+	Overage?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Unit!: "Bits" |
 		"Bits/Second" |
 		"Bytes" |
@@ -97,9 +125,22 @@ _#defs: "/$defs/Properties/definitions/Metadata": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisionalConfiguration": close(
-	{MaxTimeToLiveInMinutes!: int | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/ProvisionalConfiguration": close({
+	MaxTimeToLiveInMinutes!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

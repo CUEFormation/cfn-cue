@@ -17,8 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
 	HostKeyBody?: strings.MaxRunes(4096) | fn.#StringExpression
 	ServerId!:    strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:        list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

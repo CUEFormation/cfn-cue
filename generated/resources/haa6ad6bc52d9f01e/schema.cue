@@ -7,6 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,20 +20,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AccountId!:      strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 	Description?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	ProfileName!:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ResourceLimits!: _#defs."/$defs/Properties/definitions/ResourceLimitsMap" | fn.#ObjectExpression
+	ResourceLimits!: _#defs."/$defs/Properties/definitions/ResourceLimitsMap"
 })
 
 _#defs: "/$defs/Properties/definitions/LimitUnit": "MB" | "GB" | "HOURS" | "DAYS" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ProfileLimitValue": close({
-	MaxValue!: >=0 | fn.#NumberExpression
-	Unit!:     _#defs."/$defs/Properties/definitions/LimitUnit" | fn.#StringExpression
+	MaxValue!: >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Unit!: _#defs."/$defs/Properties/definitions/LimitUnit"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceLimitsMap": close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/ProfileLimitValue" | fn.#ObjectExpression}}) |
+	{[=~".+"]: _#defs."/$defs/Properties/definitions/ProfileLimitValue"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceType": "INDEX_STORAGE" | "AGENT_HOURS" | fn.#StringExpression

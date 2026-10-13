@@ -23,8 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	RemoteAccount?: close({Identifier!: strings.MaxRunes(255) & =~"^[-a-zA-Z0-9_@\\.]+$" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 	RemoteOwnerAccount?: strings.MaxRunes(255) & =~"^[-a-zA-Z0-9_@\\.]+$" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AttachPoint": close({

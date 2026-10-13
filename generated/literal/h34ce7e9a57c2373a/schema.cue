@@ -8,13 +8,16 @@ import "strings"
 
 // The AWS::Amplify::Branch resource creates a new branch within an app.
 #Properties: close({
-	AppId!:                      strings.MaxRunes(20) & strings.MinRunes(1) & =~"d[a-z0-9]+"
-	Arn?:                        strings.MaxRunes(1000) & =~"(?s).*"
-	Backend?:                    _#defs."/$defs/Properties/definitions/Backend"
-	BasicAuthConfig?:            _#defs."/$defs/Properties/definitions/BasicAuthConfig"
-	BranchName!:                 strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+"
-	BuildSpec?:                  strings.MaxRunes(25000) & strings.MinRunes(1) & =~"(?s).+"
-	ComputeRoleArn?:             strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*"
+	AppId!:           strings.MaxRunes(20) & strings.MinRunes(1) & =~"d[a-z0-9]+"
+	Arn?:             strings.MaxRunes(1000) & =~"(?s).*"
+	Backend?:         _#defs."/$defs/Properties/definitions/Backend"
+	BasicAuthConfig?: _#defs."/$defs/Properties/definitions/BasicAuthConfig"
+	BranchName!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+"
+	BuildSpec?:       strings.MaxRunes(25000) & strings.MinRunes(1) & =~"(?s).+"
+	ComputeRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1000) &
+	strings.MinRunes(0) &
+	=~"(?s).*"
 	Description?:                strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*"
 	EnableAutoBuild?:            bool
 	EnablePerformanceMode?:      bool

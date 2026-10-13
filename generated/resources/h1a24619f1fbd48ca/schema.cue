@@ -19,16 +19,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:         strings.MaxRunes(255) | fn.#StringExpression
 	DomainId?:            strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	LayoutConfiguration?: _#defs."/$defs/Properties/definitions/LayoutConfiguration" | fn.#ObjectExpression
+	LayoutConfiguration?: _#defs."/$defs/Properties/definitions/LayoutConfiguration"
 	Name!:                strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
-	RequiredFields?: list.MaxItems(100) & [
-		..._#defs."/$defs/Properties/definitions/RequiredField" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Rules?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/TemplateRule" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Status?: _#defs."/$defs/Properties/definitions/TemplateStatus" | fn.#StringExpression
-	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	RequiredFields?: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/RequiredField"] | fn.#ListExpression
+	Rules?:          list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/TemplateRule"] | fn.#ListExpression
+	Status?:         _#defs."/$defs/Properties/definitions/TemplateStatus"
+	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/LayoutConfiguration": close(

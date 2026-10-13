@@ -23,7 +23,7 @@ package schema
 	// PeerVpcPeeringConnectionOptions on a peering connection with another AWS
 	// account, the role must allow ec2:DescribeVpcPeeringConnections and
 	// ec2:ModifyVpcPeeringConnectionOptions.
-	PeerRoleArn?: string
+	PeerRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The ID of the VPC with which you are creating the VPC peering connection. You
 	// must specify this parameter in the request.
@@ -31,7 +31,7 @@ package schema
 	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"]
 
 	// The ID of the VPC.
-	VpcId!: string
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 // A key-value pair to associate with a resource.

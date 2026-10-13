@@ -138,7 +138,7 @@ _#defs: "/$defs/Properties/definitions/ReplicaGlobalSecondaryIndexSpecification"
 	ReadProvisionedThroughputSettings?: _#defs."/$defs/Properties/definitions/ReadProvisionedThroughputSettings"
 })
 
-_#defs: "/$defs/Properties/definitions/ReplicaSSESpecification": close({KMSMasterKeyId!: string | string | string})
+_#defs: "/$defs/Properties/definitions/ReplicaSSESpecification": close({KMSMasterKeyId!: string & string})
 
 _#defs: "/$defs/Properties/definitions/ReplicaSpecification": close({
 	ContributorInsightsSpecification?: _#defs."/$defs/Properties/definitions/ContributorInsightsSpecification"
@@ -159,13 +159,13 @@ _#defs: "/$defs/Properties/definitions/ReplicaSpecification": close({
 	Tags?:                               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
 })
 
-_#defs: "/$defs/Properties/definitions/ReplicaStreamSpecification": ({
+_#defs: "/$defs/Properties/definitions/ReplicaStreamSpecification": matchN(>=1, [{
 	ResourcePolicy!: _
 	...
-} | {
+}, {
 	Tags!: _
 	...
-}) & close({
+}]) & close({
 	ResourcePolicy?: _#defs."/$defs/Properties/definitions/ResourcePolicy"
 	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
 })
@@ -218,13 +218,13 @@ _#defs: "/$defs/Properties/definitions/VectorIndex": close({
 	VectorAttribute!: _#defs."/$defs/Properties/definitions/VectorAttribute"
 })
 
-_#defs: "/$defs/Properties/definitions/WarmThroughput": ({
+_#defs: "/$defs/Properties/definitions/WarmThroughput": matchN(>=1, [{
 	ReadUnitsPerSecond!: _
 	...
-} | {
+}, {
 	WriteUnitsPerSecond!: _
 	...
-}) & close({
+}]) & close({
 	ReadUnitsPerSecond?:  int & >=1
 	WriteUnitsPerSecond?: int & >=1
 })

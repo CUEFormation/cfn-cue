@@ -10,13 +10,13 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for StateMachineAlias
-#Properties: ({
+#Properties: matchN(>=1, [{
 	RoutingConfiguration!: _
 	...
-} | {
+}, {
 	DeploymentPreference!: _
 	...
-}) & close({
+}]) & close({
 	// The ARN of the alias.
 	Arn?:                  strings.MaxRunes(2048) & strings.MinRunes(1)
 	DeploymentPreference?: _#defs."/$defs/Properties/definitions/DeploymentPreference"

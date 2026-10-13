@@ -14,26 +14,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::SSMQuickSetup::ConfigurationManager Resource Type
 #Properties: close({
 	ConfigurationDefinitions!: [...close({
-		LocalDeploymentAdministrationRoleArn?: string | fn.#StringExpression
-		LocalDeploymentExecutionRoleName?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Parameters!:  _#defs."/$defs/Properties/definitions/ConfigurationParametersMap" | fn.#ObjectExpression
-		Type!:        =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" | fn.#StringExpression
-		TypeVersion?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		LocalDeploymentAdministrationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		LocalDeploymentExecutionRoleName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Parameters!:                       _#defs."/$defs/Properties/definitions/ConfigurationParametersMap"
+		Type!:                             =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" | fn.#StringExpression
+		TypeVersion?:                      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
 	Description?: =~"^.{0,512}$" | fn.#StringExpression
 	Name?:        =~"^[ A-Za-z0-9_-]{1,50}$" | fn.#StringExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
+	Tags?:        _#defs."/$defs/Properties/definitions/TagsMap"
 })
 
 _#defs: "/$defs/Properties/definitions/ConfigurationDefinition": close({
-	LocalDeploymentAdministrationRoleArn?: string | fn.#StringExpression
-	LocalDeploymentExecutionRoleName?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters!:  _#defs."/$defs/Properties/definitions/ConfigurationParametersMap" | fn.#ObjectExpression
-	Type!:        =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" | fn.#StringExpression
-	TypeVersion?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	id?:          string | fn.#StringExpression
+	LocalDeploymentAdministrationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	LocalDeploymentExecutionRoleName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Parameters!:                       _#defs."/$defs/Properties/definitions/ConfigurationParametersMap"
+	Type!:                             =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" | fn.#StringExpression
+	TypeVersion?:                      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	id?:                               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -61,10 +63,10 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StatusSummary": close({
 	LastUpdatedAt!: string | fn.#StringExpression
-	Status?:        _#defs."/$defs/Properties/definitions/Status" | fn.#StringExpression
-	StatusDetails?: _#defs."/$defs/Properties/definitions/StatusDetails" | fn.#ObjectExpression
+	Status?:        _#defs."/$defs/Properties/definitions/Status"
+	StatusDetails?: _#defs."/$defs/Properties/definitions/StatusDetails"
 	StatusMessage?: string | fn.#StringExpression
-	StatusType!:    _#defs."/$defs/Properties/definitions/StatusType" | fn.#StringExpression
+	StatusType!:    _#defs."/$defs/Properties/definitions/StatusType"
 }) |
 fn.#ObjectExpression
 

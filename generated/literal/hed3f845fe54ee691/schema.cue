@@ -34,7 +34,8 @@ import "strings"
 	FederationParameters?: _#defs."/$defs/Properties/definitions/FederationParameters"
 
 	// KMS key used to encrypt customer data within FinSpace Environment infrastructure
-	KmsKeyId?: (string | string | string) & =~"^[a-zA-Z-0-9-:\\/]{1,1000}$"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+		=~"^[a-zA-Z-0-9-:\\/]{1,1000}$"
 
 	// Name of the Environment
 	Name!: =~"^[a-zA-Z0-9]+[a-zA-Z0-9-]*[a-zA-Z0-9]{1,255}$"

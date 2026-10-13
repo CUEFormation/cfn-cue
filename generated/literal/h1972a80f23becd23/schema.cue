@@ -108,7 +108,8 @@ _#defs: "/$defs/Properties/definitions/LakeFormationConfiguration": close({
 	QueryAccessControlEnabled?: bool
 
 	// The ARN of the query engine role.
-	QueryEngineRoleArn?: strings.MaxRunes(2048) &
+	QueryEngineRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::\\d{12}:role/.+$"
 	SecureNamespaceInfo?: _#defs."/$defs/Properties/definitions/SecureNamespaceInfo"
@@ -129,7 +130,7 @@ _#defs: "/$defs/Properties/definitions/S3EncryptionConfiguration": close({
 	EncryptionOption?: "SSE-S3" | "SSE-KMS" | "CSE-KMS"
 
 	// The KMS key ID for encryption.
-	KMSKeyId?: string | string | string
+	KMSKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 })
 
 // Secure namespace information for Lake Formation.

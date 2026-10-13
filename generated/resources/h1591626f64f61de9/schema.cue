@@ -19,10 +19,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AgentSpaceId!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	AssetType!:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" | fn.#StringExpression
-	Files?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AssetFile" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Metadata?: {[string]: fn.#Value} | fn.#ObjectExpression
-	Zip?:      strings.MaxRunes(8388608) | fn.#StringExpression
+	Files?:        list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AssetFile"] | fn.#ListExpression
+	Metadata?:     fn.#Object & {...} | fn.#ObjectExpression
+	Zip?:          strings.MaxRunes(8388608) | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AssetFile": matchN(1, [{
@@ -34,7 +33,7 @@ _#defs: "/$defs/Properties/definitions/AssetFile": matchN(1, [{
 }]) & close({
 	ContentBytes?: strings.MaxRunes(8388608) | fn.#StringExpression
 	ContentText?:  strings.MaxRunes(1572864) | fn.#StringExpression
-	Metadata?:     {[string]: fn.#Value} | fn.#ObjectExpression
+	Metadata?:     fn.#Object & {...} | fn.#ObjectExpression
 	Path!:         strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_./-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

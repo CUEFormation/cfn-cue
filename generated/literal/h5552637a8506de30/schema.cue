@@ -11,11 +11,11 @@ package schema
 	Id?:                             string
 	InputDevices?:                   [..._#defs."/$defs/Properties/definitions/InputDeviceSettings"]
 	InputNetworkLocation?:           string
-	InputSecurityGroups?:            [...string]
+	InputSecurityGroups?:            [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	MediaConnectFlows?:              [..._#defs."/$defs/Properties/definitions/MediaConnectFlowRequest"]
 	MulticastSettings?:              _#defs."/$defs/Properties/definitions/MulticastSettingsCreateRequest"
 	Name?:                           string
-	RoleArn?:                        string
+	RoleArn?:                        =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	RouterSettings?:                 _#defs."/$defs/Properties/definitions/RouterSettings"
 	SdiSources?:                     [...string]
 	Smpte2110ReceiverGroupSettings?: _#defs."/$defs/Properties/definitions/Smpte2110ReceiverGroupSettings"
@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/InputSourceRequest": close({
 })
 
 _#defs: "/$defs/Properties/definitions/InputVpcRequest": close({
-	SecurityGroupIds?: [...string]
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SubnetIds?:        [...string]
 })
 

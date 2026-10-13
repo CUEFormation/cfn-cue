@@ -15,8 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::SES::MailManagerAddonInstance Resource Type
 #Properties: close({
 	AddonSubscriptionId!: strings.MaxRunes(67) & strings.MinRunes(4) & =~"^as-[a-zA-Z0-9]{1,64}$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

@@ -22,7 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/RunConfigurations": close(
-	{VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression},
+	{VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"},
 ) |
 	fn.#ObjectExpression
 
@@ -33,7 +33,11 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	SecurityGroupIds?: list.MaxItems(5) & [
-		...strings.MaxRunes(128) & strings.MinRunes(4) & =~"^sg-[0-9a-f]+$" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(128) &
+		strings.MinRunes(4) &
+		=~"^sg-[0-9a-f]+$" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SubnetIds?: list.MaxItems(16) & [

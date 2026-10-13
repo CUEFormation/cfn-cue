@@ -39,7 +39,8 @@ import (
 
 	// The Amazon Resource Name (ARN) of the IAM role used by the replicator to
 	// access external resources.
-	ServiceExecutionRoleArn!: =~"arn:(aws|aws-us-gov|aws-cn):iam:.*"
+	ServiceExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"arn:(aws|aws-us-gov|aws-cn):iam:.*"
 
 	// A collection of tags associated with a resource
 	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
@@ -142,7 +143,9 @@ _#defs: "/$defs/Properties/definitions/KafkaClusterClientVpcConfig": close({
 	// The AWS security groups to associate with the elastic network interfaces in
 	// order to specify what the replicator has access to. If a security group is
 	// not specified, the default security group associated with the VPC is used.
-	SecurityGroupIds?: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [...string]
+	SecurityGroupIds?: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
+	]
 
 	// The list of subnets to connect to in the virtual private cloud (VPC). AWS
 	// creates elastic network interfaces inside these subnets.

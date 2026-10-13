@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,26 +21,214 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	MultiplexProgramSettings?: _#defs."/$defs/Properties/definitions/MultiplexProgramSettings" | fn.#ObjectExpression
 	PacketIdentifiersMap?: _#defs."/$defs/Properties/definitions/MultiplexProgramPacketIdentifiersMap" |
 		fn.#ObjectExpression
-	PipelineDetails?: [..._#defs."/$defs/Properties/definitions/MultiplexProgramPipelineDetail" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	PipelineDetails?: [..._#defs."/$defs/Properties/definitions/MultiplexProgramPipelineDetail"] | fn.#ListExpression
 	PreferredChannelPipeline?: _#defs."/$defs/Properties/definitions/PreferredChannelPipeline" | fn.#StringExpression
 	ProgramName?:              string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/MultiplexProgramPacketIdentifiersMap": close({
-	AudioPids?:          [...int | fn.#NumberExpression] | fn.#ListExpression
-	DvbSubPids?:         [...int | fn.#NumberExpression] | fn.#ListExpression
-	DvbTeletextPid?:     int | fn.#NumberExpression
-	EtvPlatformPid?:     int | fn.#NumberExpression
-	EtvSignalPid?:       int | fn.#NumberExpression
-	KlvDataPids?:        [...int | fn.#NumberExpression] | fn.#ListExpression
-	PcrPid?:             int | fn.#NumberExpression
-	PmtPid?:             int | fn.#NumberExpression
-	PrivateMetadataPid?: int | fn.#NumberExpression
-	Scte27Pids?:         [...int | fn.#NumberExpression] | fn.#ListExpression
-	Scte35Pid?:          int | fn.#NumberExpression
-	TimedMetadataPid?:   int | fn.#NumberExpression
-	VideoPid?:           int | fn.#NumberExpression
+	AudioPids?: [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	DvbSubPids?: [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	DvbTeletextPid?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	EtvPlatformPid?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	EtvSignalPid?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	KlvDataPids?: [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	PcrPid?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PmtPid?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PrivateMetadataPid?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Scte27Pids?: [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	Scte35Pid?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TimedMetadataPid?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VideoPid?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -55,24 +247,84 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/MultiplexProgramSettings": close({
 	PreferredChannelPipeline?: _#defs."/$defs/Properties/definitions/PreferredChannelPipeline" & string |
 		fn.#StringExpression
-	ProgramNumber!:     int & <=65535 & >=0 | fn.#NumberExpression
+	ProgramNumber!: int & <=65535 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ServiceDescriptor?: _#defs."/$defs/Properties/definitions/MultiplexProgramServiceDescriptor" | fn.#ObjectExpression
 	VideoSettings?:     _#defs."/$defs/Properties/definitions/MultiplexVideoSettings" | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MultiplexStatmuxVideoSettings": close({
-	MaximumBitrate?: int & <=100000000 & >=100000 | fn.#NumberExpression
-	MinimumBitrate?: int & <=100000000 & >=100000 | fn.#NumberExpression
-	Priority?:       int & <=5 & >=-5 | fn.#NumberExpression
+	MaximumBitrate?: int & <=100000000 & >=100000 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100000000 &
+							>=100000,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinimumBitrate?: int & <=100000000 & >=100000 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100000000 &
+							>=100000,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Priority?: int & <=5 & >=-5 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=5 &
+							>=-5,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiplexVideoSettings": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/MultiplexVideoSettings": fn.#Object & {...} & matchN(1, [close(
 	{ConstantBitrate!: int & <=100000000 & >=100000 | fn.#NumberExpression},
 ), close(
 	{StatmuxSettings!: _#defs."/$defs/Properties/definitions/MultiplexStatmuxVideoSettings" | fn.#ObjectExpression},
-)]) & {[string]: fn.#Value} |
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PreferredChannelPipeline": "CURRENTLY_ACTIVE" |

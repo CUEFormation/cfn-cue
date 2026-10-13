@@ -101,7 +101,7 @@ _#defs: "/$defs/Properties/definitions/AnalysisTemplateArtifacts": close({
 		..._#defs."/$defs/Properties/definitions/AnalysisTemplateArtifact"
 	]
 	EntryPoint!: _#defs."/$defs/Properties/definitions/AnalysisTemplateArtifact"
-	RoleArn!:    strings.MaxRunes(512) & strings.MinRunes(32)
+	RoleArn!:    =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(512) & strings.MinRunes(32))
 })
 
 _#defs: "/$defs/Properties/definitions/ColumnClassificationDetails": close({

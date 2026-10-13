@@ -16,16 +16,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CidrEndpointsCustomSubDomain?: string | fn.#StringExpression
 	Description?:                  string | fn.#StringExpression
-	FipsEnabled?:                  bool | fn.#BooleanExpression
+	FipsEnabled?:                  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LoggingConfigurations?:        _#defs."/$defs/Properties/definitions/VerifiedAccessLogs" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VerifiedAccessTrustProviderIds?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/VerifiedAccessTrustProviderId" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/VerifiedAccessTrustProviderId"
 	] |
 		fn.#ListExpression
 	VerifiedAccessTrustProviders?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/VerifiedAccessTrustProvider" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/VerifiedAccessTrustProvider"
 	] |
 		fn.#ListExpression
 })
@@ -40,21 +39,21 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VerifiedAccessLogs": close({
 	CloudWatchLogs?: close({
-		Enabled?:  bool | fn.#BooleanExpression
+		Enabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		LogGroup?: string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	IncludeTrustContext?: bool | fn.#BooleanExpression
+	IncludeTrustContext?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KinesisDataFirehose?: close({
 		DeliveryStream?: string | fn.#StringExpression
-		Enabled?:        bool | fn.#BooleanExpression
+		Enabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	}) |
 	fn.#ObjectExpression
 	LogVersion?: string | fn.#StringExpression
 	S3?: close({
 		BucketName?:  string | fn.#StringExpression
 		BucketOwner?: string | fn.#StringExpression
-		Enabled?:     bool | fn.#BooleanExpression
+		Enabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Prefix?:      string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression

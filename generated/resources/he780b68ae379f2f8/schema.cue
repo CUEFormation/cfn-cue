@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AccessAssociationSource!:     string | fn.#StringExpression
 	AccessAssociationSourceType!: "VPCE" | fn.#StringExpression
 	DomainNameArn!:               string | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

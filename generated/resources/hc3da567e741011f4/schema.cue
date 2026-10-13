@@ -18,12 +18,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	IdentityCenterInstanceArn!: =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
 		fn.#StringExpression
 	IdentityCenterRegion?: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^[a-z0-9-]+$" | fn.#StringExpression
-	RoleArn!:              =~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" | fn.#StringExpression
-	Subdomain!:            =~"^[a-z0-9-]{1,100}$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" |
+		fn.#StringExpression
+	Subdomain!: =~"^[a-z0-9-]{1,100}$" | fn.#StringExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

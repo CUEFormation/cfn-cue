@@ -28,14 +28,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Compression!:          "ZIP" | "GZIP" | "Parquet" | fn.#StringExpression
 	Format!:               "textORcsv" | "Parquet" | fn.#StringExpression
-	RefreshClosedReports!: bool | fn.#BooleanExpression
+	RefreshClosedReports!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReportName!:       strings.MaxRunes(256) & strings.MinRunes(1) & =~"[0-9A-Za-z!\\-_.*\\'()]+" | fn.#StringExpression
 	ReportVersioning!: "CREATE_NEW_REPORT" | "OVERWRITE_REPORT" | fn.#StringExpression
 	S3Bucket!:         strings.MaxRunes(256) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\.\\-]+" | fn.#StringExpression
 	S3Prefix!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[0-9A-Za-z!\\-_.*\\'()/]*" | fn.#StringExpression
 	S3Region!: string | fn.#StringExpression
-	Tags?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:     list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TimeUnit!: "HOURLY" | "DAILY" | "MONTHLY" | fn.#StringExpression
 })
 

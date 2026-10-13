@@ -188,7 +188,10 @@ _#defs: "/$defs/Properties/definitions/RegistryRecordIamCredentialProvider": clo
 	Region?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z0-9-]+$"
 
 	// The ARN of the IAM role.
-	RoleArn?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$"
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$"
 
 	// The SigV4 signing service name.
 	Service?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"

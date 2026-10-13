@@ -16,19 +16,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	KafkaClusters!: list.MaxItems(2) & list.MinItems(2) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/KafkaCluster" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/KafkaCluster"
 	] |
 		fn.#ListExpression
 	LogDelivery?: _#defs."/$defs/Properties/definitions/LogDelivery" | fn.#ObjectExpression
 	ReplicationInfoList!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ReplicationInfo" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ReplicationInfo"
 	] |
 		fn.#ListExpression
 	ReplicatorName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9A-Za-z][0-9A-Za-z-]{0,}$" |
 	fn.#StringExpression
-	ServiceExecutionRoleArn!: =~"arn:(aws|aws-us-gov|aws-cn):iam:.*" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ServiceExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"arn:(aws|aws-us-gov|aws-cn):iam:.*" |
+		fn.#StringExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AmazonMskCluster": close(
@@ -43,7 +44,7 @@ _#defs: "/$defs/Properties/definitions/ApacheKafkaCluster": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CloudWatchLogs": close({
-	Enabled!:  bool | fn.#BooleanExpression
+	Enabled!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LogGroup?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -61,14 +62,28 @@ _#defs: "/$defs/Properties/definitions/ConsumerGroupReplication": close({
 		...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	DetectAndCopyNewConsumerGroups?:  bool | fn.#BooleanExpression
-	SynchroniseConsumerGroupOffsets?: bool | fn.#BooleanExpression
+	DetectAndCopyNewConsumerGroups?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	SynchroniseConsumerGroupOffsets?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Firehose": close({
 	DeliveryStream?: string | fn.#StringExpression
-	Enabled!:        bool | fn.#BooleanExpression
+	Enabled!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -93,7 +108,10 @@ _#defs: "/$defs/Properties/definitions/KafkaClusterClientAuthentication": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KafkaClusterClientVpcConfig": close({
-	SecurityGroupIds?: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
+	SecurityGroupIds?: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
 		fn.#ListExpression
 	SubnetIds!: list.MaxItems(3) & list.MinItems(2) & list.UniqueItems() & [...string | fn.#StringExpression] |
 		fn.#ListExpression
@@ -170,14 +188,14 @@ _#defs: "/$defs/Properties/definitions/ReplicationInfo": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReplicationStartingPosition": close(
-	{Type?: _#defs."/$defs/Properties/definitions/ReplicationStartingPositionType" | fn.#StringExpression},
+	{Type?: _#defs."/$defs/Properties/definitions/ReplicationStartingPositionType"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReplicationStartingPositionType": "LATEST" | "EARLIEST" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ReplicationTopicNameConfiguration": close(
-	{Type?: _#defs."/$defs/Properties/definitions/ReplicationTopicNameConfigurationType" | fn.#StringExpression},
+	{Type?: _#defs."/$defs/Properties/definitions/ReplicationTopicNameConfigurationType"},
 ) |
 	fn.#ObjectExpression
 
@@ -194,7 +212,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3": close({
 	Bucket?:  string | fn.#StringExpression
-	Enabled!: bool | fn.#BooleanExpression
+	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Prefix?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -211,10 +229,17 @@ _#defs: "/$defs/Properties/definitions/TokenEndpointAuthenticationMethod": "POST
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TopicReplication": close({
-	CopyAccessControlListsForTopics?: bool | fn.#BooleanExpression
-	CopyTopicConfigurations?:         bool | fn.#BooleanExpression
-	DetectAndCopyNewTopics?:          bool | fn.#BooleanExpression
-	StartingPosition?: _#defs."/$defs/Properties/definitions/ReplicationStartingPosition" | fn.#ObjectExpression
+	CopyAccessControlListsForTopics?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	CopyTopicConfigurations?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DetectAndCopyNewTopics?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	StartingPosition?:        _#defs."/$defs/Properties/definitions/ReplicationStartingPosition" | fn.#ObjectExpression
 	TopicNameConfiguration?: _#defs."/$defs/Properties/definitions/ReplicationTopicNameConfiguration" |
 		fn.#ObjectExpression
 	TopicsToExclude?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [

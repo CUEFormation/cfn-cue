@@ -29,7 +29,7 @@ import (
 	CloudWatchLogsLogGroupArn?: string
 
 	// Specifies the role for the CloudWatch Logs endpoint to assume to write to a user's log group.
-	CloudWatchLogsRoleArn?: string
+	CloudWatchLogsRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Specifies whether log file validation is enabled. The default is false.
 	EnableLogFileValidation?: bool
@@ -75,7 +75,7 @@ import (
 	// The value can be an alias name prefixed by 'alias/', a fully specified ARN
 	// to an alias, a fully specified ARN to a key, or a globally unique
 	// identifier.
-	KMSKeyId?: string | string | string
+	KMSKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// Specifies the name of the Amazon S3 bucket designated for publishing log
 	// files. See Amazon S3 Bucket Naming Requirements.
@@ -85,7 +85,7 @@ import (
 	// you have designated for log file delivery. For more information, see Finding
 	// Your CloudTrail Log Files. The maximum length is 200 characters.
 	S3KeyPrefix?: strings.MaxRunes(200)
-	SnsTopicArn?: string
+	SnsTopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 
 	// Specifies the name of the Amazon SNS topic defined for notification of log
 	// file delivery. The maximum length is 256 characters.

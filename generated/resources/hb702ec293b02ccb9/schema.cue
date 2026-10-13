@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,8 +17,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	GatewayRouteName?:   string | fn.#StringExpression
 	MeshName!:           string | fn.#StringExpression
 	MeshOwner?:          string | fn.#StringExpression
-	Spec!:               _#defs."/$defs/Properties/definitions/GatewayRouteSpec" | fn.#ObjectExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Spec!:               _#defs."/$defs/Properties/definitions/GatewayRouteSpec"
+	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VirtualGatewayName!: string | fn.#StringExpression
 })
 
@@ -32,29 +36,81 @@ _#defs: "/$defs/Properties/definitions/GatewayRouteHostnameRewrite": close(
 _#defs: "/$defs/Properties/definitions/GatewayRouteMetadataMatch": close({
 	Exact?:  string | fn.#StringExpression
 	Prefix?: string | fn.#StringExpression
-	Range?:  _#defs."/$defs/Properties/definitions/GatewayRouteRangeMatch" | fn.#ObjectExpression
+	Range?:  _#defs."/$defs/Properties/definitions/GatewayRouteRangeMatch"
 	Regex?:  string | fn.#StringExpression
 	Suffix?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GatewayRouteRangeMatch": close({
-	End!:   int | fn.#NumberExpression
-	Start!: int | fn.#NumberExpression
+	End!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Start!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GatewayRouteSpec": close({
-	GrpcRoute?:  _#defs."/$defs/Properties/definitions/GrpcGatewayRoute" | fn.#ObjectExpression
-	Http2Route?: _#defs."/$defs/Properties/definitions/HttpGatewayRoute" | fn.#ObjectExpression
-	HttpRoute?:  _#defs."/$defs/Properties/definitions/HttpGatewayRoute" | fn.#ObjectExpression
-	Priority?:   int | fn.#NumberExpression
+	GrpcRoute?:  _#defs."/$defs/Properties/definitions/GrpcGatewayRoute"
+	Http2Route?: _#defs."/$defs/Properties/definitions/HttpGatewayRoute"
+	HttpRoute?:  _#defs."/$defs/Properties/definitions/HttpGatewayRoute"
+	Priority?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GatewayRouteTarget": close({
-	Port?:           int | fn.#NumberExpression
-	VirtualService!: _#defs."/$defs/Properties/definitions/GatewayRouteVirtualService" | fn.#ObjectExpression
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VirtualService!: _#defs."/$defs/Properties/definitions/GatewayRouteVirtualService"
 }) |
 fn.#ObjectExpression
 
@@ -64,53 +120,65 @@ _#defs: "/$defs/Properties/definitions/GatewayRouteVirtualService": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GrpcGatewayRoute": close({
-	Action!: _#defs."/$defs/Properties/definitions/GrpcGatewayRouteAction" | fn.#ObjectExpression
-	Match!:  _#defs."/$defs/Properties/definitions/GrpcGatewayRouteMatch" | fn.#ObjectExpression
+	Action!: _#defs."/$defs/Properties/definitions/GrpcGatewayRouteAction"
+	Match!:  _#defs."/$defs/Properties/definitions/GrpcGatewayRouteMatch"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GrpcGatewayRouteAction": close({
-	Rewrite?: _#defs."/$defs/Properties/definitions/GrpcGatewayRouteRewrite" | fn.#ObjectExpression
-	Target!:  _#defs."/$defs/Properties/definitions/GatewayRouteTarget" | fn.#ObjectExpression
+	Rewrite?: _#defs."/$defs/Properties/definitions/GrpcGatewayRouteRewrite"
+	Target!:  _#defs."/$defs/Properties/definitions/GatewayRouteTarget"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GrpcGatewayRouteMatch": close({
-	Hostname?: _#defs."/$defs/Properties/definitions/GatewayRouteHostnameMatch" | fn.#ObjectExpression
-	Metadata?: [..._#defs."/$defs/Properties/definitions/GrpcGatewayRouteMetadata" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Port?:        int | fn.#NumberExpression
+	Hostname?: _#defs."/$defs/Properties/definitions/GatewayRouteHostnameMatch"
+	Metadata?: [..._#defs."/$defs/Properties/definitions/GrpcGatewayRouteMetadata"] | fn.#ListExpression
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ServiceName?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GrpcGatewayRouteMetadata": close({
-	Invert?: bool | fn.#BooleanExpression
-	Match?:  _#defs."/$defs/Properties/definitions/GatewayRouteMetadataMatch" | fn.#ObjectExpression
+	Invert?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Match?:  _#defs."/$defs/Properties/definitions/GatewayRouteMetadataMatch"
 	Name!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GrpcGatewayRouteRewrite": close(
-	{Hostname?: _#defs."/$defs/Properties/definitions/GatewayRouteHostnameRewrite" | fn.#ObjectExpression},
+	{Hostname?: _#defs."/$defs/Properties/definitions/GatewayRouteHostnameRewrite"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HttpGatewayRoute": close({
-	Action!: _#defs."/$defs/Properties/definitions/HttpGatewayRouteAction" | fn.#ObjectExpression
-	Match!:  _#defs."/$defs/Properties/definitions/HttpGatewayRouteMatch" | fn.#ObjectExpression
+	Action!: _#defs."/$defs/Properties/definitions/HttpGatewayRouteAction"
+	Match!:  _#defs."/$defs/Properties/definitions/HttpGatewayRouteMatch"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HttpGatewayRouteAction": close({
-	Rewrite?: _#defs."/$defs/Properties/definitions/HttpGatewayRouteRewrite" | fn.#ObjectExpression
-	Target!:  _#defs."/$defs/Properties/definitions/GatewayRouteTarget" | fn.#ObjectExpression
+	Rewrite?: _#defs."/$defs/Properties/definitions/HttpGatewayRouteRewrite"
+	Target!:  _#defs."/$defs/Properties/definitions/GatewayRouteTarget"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HttpGatewayRouteHeader": close({
-	Invert?: bool | fn.#BooleanExpression
-	Match?:  _#defs."/$defs/Properties/definitions/HttpGatewayRouteHeaderMatch" | fn.#ObjectExpression
+	Invert?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Match?:  _#defs."/$defs/Properties/definitions/HttpGatewayRouteHeaderMatch"
 	Name!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -118,22 +186,33 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/HttpGatewayRouteHeaderMatch": close({
 	Exact?:  string | fn.#StringExpression
 	Prefix?: string | fn.#StringExpression
-	Range?:  _#defs."/$defs/Properties/definitions/GatewayRouteRangeMatch" | fn.#ObjectExpression
+	Range?:  _#defs."/$defs/Properties/definitions/GatewayRouteRangeMatch"
 	Regex?:  string | fn.#StringExpression
 	Suffix?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HttpGatewayRouteMatch": close({
-	Headers?: [..._#defs."/$defs/Properties/definitions/HttpGatewayRouteHeader" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Hostname?: _#defs."/$defs/Properties/definitions/GatewayRouteHostnameMatch" | fn.#ObjectExpression
+	Headers?:  [..._#defs."/$defs/Properties/definitions/HttpGatewayRouteHeader"] | fn.#ListExpression
+	Hostname?: _#defs."/$defs/Properties/definitions/GatewayRouteHostnameMatch"
 	Method?:   string | fn.#StringExpression
-	Path?:     _#defs."/$defs/Properties/definitions/HttpPathMatch" | fn.#ObjectExpression
-	Port?:     int | fn.#NumberExpression
-	Prefix?:   string | fn.#StringExpression
-	QueryParameters?: [..._#defs."/$defs/Properties/definitions/QueryParameter" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Path?:     _#defs."/$defs/Properties/definitions/HttpPathMatch"
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Prefix?:          string | fn.#StringExpression
+	QueryParameters?: [..._#defs."/$defs/Properties/definitions/QueryParameter"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -147,9 +226,9 @@ _#defs: "/$defs/Properties/definitions/HttpGatewayRoutePrefixRewrite": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HttpGatewayRouteRewrite": close({
-	Hostname?: _#defs."/$defs/Properties/definitions/GatewayRouteHostnameRewrite" | fn.#ObjectExpression
-	Path?:     _#defs."/$defs/Properties/definitions/HttpGatewayRoutePathRewrite" | fn.#ObjectExpression
-	Prefix?:   _#defs."/$defs/Properties/definitions/HttpGatewayRoutePrefixRewrite" | fn.#ObjectExpression
+	Hostname?: _#defs."/$defs/Properties/definitions/GatewayRouteHostnameRewrite"
+	Path?:     _#defs."/$defs/Properties/definitions/HttpGatewayRoutePathRewrite"
+	Prefix?:   _#defs."/$defs/Properties/definitions/HttpGatewayRoutePrefixRewrite"
 }) |
 fn.#ObjectExpression
 
@@ -163,7 +242,7 @@ _#defs: "/$defs/Properties/definitions/HttpQueryParameterMatch": close({Exact?: 
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/QueryParameter": close({
-	Match?: _#defs."/$defs/Properties/definitions/HttpQueryParameterMatch" | fn.#ObjectExpression
+	Match?: _#defs."/$defs/Properties/definitions/HttpQueryParameterMatch"
 	Name!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

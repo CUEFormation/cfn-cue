@@ -11,7 +11,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Pinpoint::App
 #Properties: close({
 	Name!: string | fn.#StringExpression
-	Tags?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Pinpoint::App"

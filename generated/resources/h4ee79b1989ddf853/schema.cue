@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,15 +19,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // egress content transmitted from router inputs
 #Properties: close({
 	AvailabilityZone?:         string | fn.#StringExpression
-	Configuration!:            _#defs."/$defs/Properties/definitions/RouterOutputConfiguration" | fn.#ValueExpression
-	FabricConfiguration?:      _#defs."/$defs/Properties/definitions/FabricConfiguration" | fn.#ObjectExpression
-	MaintenanceConfiguration?: _#defs."/$defs/Properties/definitions/MaintenanceConfiguration" | fn.#ValueExpression
-	MaximumBitrate!:           int | fn.#NumberExpression
-	Name!:                     strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	RegionName?:               string | fn.#StringExpression
-	RoutingScope!:             _#defs."/$defs/Properties/definitions/RoutingScope" | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	Tier!: _#defs."/$defs/Properties/definitions/RouterOutputTier" | fn.#StringExpression
+	Configuration!:            _#defs."/$defs/Properties/definitions/RouterOutputConfiguration"
+	FabricConfiguration?:      _#defs."/$defs/Properties/definitions/FabricConfiguration"
+	MaintenanceConfiguration?: _#defs."/$defs/Properties/definitions/MaintenanceConfiguration"
+	MaximumBitrate!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name!:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	RegionName?:   string | fn.#StringExpression
+	RoutingScope!: _#defs."/$defs/Properties/definitions/RoutingScope"
+	Tags?:         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tier!:         _#defs."/$defs/Properties/definitions/RouterOutputTier"
 })
 
 _#defs: "/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration": close({}) | fn.#ObjectExpression
@@ -40,24 +57,22 @@ _#defs: "/$defs/Properties/definitions/Day": "MONDAY" |
 _#defs: "/$defs/Properties/definitions/DefaultMaintenanceConfiguration": close({}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FabricConfiguration": close(
-	{RecoveryLatencyMode!: _#defs."/$defs/Properties/definitions/FabricLatencyMode" | fn.#StringExpression},
+	{RecoveryLatencyMode!: _#defs."/$defs/Properties/definitions/FabricLatencyMode"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FabricLatencyMode": "BALANCED" | "LOW_LATENCY" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/FlowTransitEncryption": close({
-	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration" |
-		fn.#ValueExpression
-	EncryptionKeyType?: _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyType" | fn.#StringExpression
+	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration"
+	EncryptionKeyType?:          _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyType"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration": matchN(1, [close({
-	SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration" |
-		fn.#ObjectExpression
-}), close(
-	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration" | fn.#ObjectExpression},
+_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration": matchN(1, [close(
+	{SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
+), close(
+	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration"},
 )]) |
 fn.#ValueExpression
 
@@ -67,18 +82,17 @@ _#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyType": "SECRETS_M
 
 _#defs: "/$defs/Properties/definitions/ForwardErrorCorrectionState": "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MaintenanceConfiguration": matchN(1, [close({
-	PreferredDayTime!: _#defs."/$defs/Properties/definitions/PreferredDayTimeMaintenanceConfiguration" |
-		fn.#ObjectExpression
-}), close(
-	{Default!: _#defs."/$defs/Properties/definitions/DefaultMaintenanceConfiguration" | fn.#ObjectExpression},
+_#defs: "/$defs/Properties/definitions/MaintenanceConfiguration": matchN(1, [close(
+	{PreferredDayTime!: _#defs."/$defs/Properties/definitions/PreferredDayTimeMaintenanceConfiguration"},
+), close(
+	{Default!: _#defs."/$defs/Properties/definitions/DefaultMaintenanceConfiguration"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/MaintenanceType": "PREFERRED_DAY_TIME" | "DEFAULT" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/MediaConnectFlowRouterOutputConfiguration": close({
-	DestinationTransitEncryption!: _#defs."/$defs/Properties/definitions/FlowTransitEncryption" | fn.#ObjectExpression
+	DestinationTransitEncryption!: _#defs."/$defs/Properties/definitions/FlowTransitEncryption"
 	FlowArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 		fn.#StringExpression
 	FlowSourceArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:source:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
@@ -89,26 +103,23 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/MediaLiveInputPipelineId": "PIPELINE_0" | "PIPELINE_1" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/MediaLiveInputRouterOutputConfiguration": close({
-	DestinationTransitEncryption!: _#defs."/$defs/Properties/definitions/MediaLiveTransitEncryption" |
-		fn.#ObjectExpression
+	DestinationTransitEncryption!: _#defs."/$defs/Properties/definitions/MediaLiveTransitEncryption"
 	MediaLiveInputArn?: =~"^arn:(aws[a-zA-Z-]*):medialive:[a-z0-9-]+:[0-9]{12}:input:[a-zA-Z0-9]+$" |
 		fn.#StringExpression
-	MediaLivePipelineId?: _#defs."/$defs/Properties/definitions/MediaLiveInputPipelineId" | fn.#StringExpression
+	MediaLivePipelineId?: _#defs."/$defs/Properties/definitions/MediaLiveInputPipelineId"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MediaLiveTransitEncryption": close({
-	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyConfiguration" |
-		fn.#ValueExpression
-	EncryptionKeyType?: _#defs."/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyType" | fn.#StringExpression
+	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyConfiguration"
+	EncryptionKeyType?:          _#defs."/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyType"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyConfiguration": matchN(1, [close({
-	SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration" |
-		fn.#ObjectExpression
-}), close(
-	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration" | fn.#ObjectExpression},
+_#defs: "/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyConfiguration": matchN(1, [close(
+	{SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
+), close(
+	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration"},
 )]) |
 fn.#ValueExpression
 
@@ -117,7 +128,7 @@ _#defs: "/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyType": "SECR
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PreferredDayTimeMaintenanceConfiguration": close({
-	Day!:  _#defs."/$defs/Properties/definitions/Day" | fn.#StringExpression
+	Day!:  _#defs."/$defs/Properties/definitions/Day"
 	Time!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -126,19 +137,32 @@ _#defs: "/$defs/Properties/definitions/PublicTlsEncryptionConfiguration": close(
 
 _#defs: "/$defs/Properties/definitions/RistRouterOutputConfiguration": close({
 	DestinationAddress!: string | fn.#StringExpression
-	DestinationPort!:    int & <=65535 & >=1024 | fn.#NumberExpression
+	DestinationPort!: int & <=65535 & >=1024 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1024,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RouterOutputConfiguration": matchN(1, [close(
-	{Standard!: _#defs."/$defs/Properties/definitions/StandardRouterOutputConfiguration" | fn.#ObjectExpression},
-), close({
-	MediaConnectFlow!: _#defs."/$defs/Properties/definitions/MediaConnectFlowRouterOutputConfiguration" |
-		fn.#ObjectExpression
-}), close({
-	MediaLiveInput!: _#defs."/$defs/Properties/definitions/MediaLiveInputRouterOutputConfiguration" |
-		fn.#ObjectExpression
-})]) |
+	{Standard!: _#defs."/$defs/Properties/definitions/StandardRouterOutputConfiguration"},
+), close(
+	{MediaConnectFlow!: _#defs."/$defs/Properties/definitions/MediaConnectFlowRouterOutputConfiguration"},
+), close(
+	{MediaLiveInput!: _#defs."/$defs/Properties/definitions/MediaLiveInputRouterOutputConfiguration"},
+)]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/RouterOutputProtocol": "RTP" |
@@ -149,15 +173,15 @@ _#defs: "/$defs/Properties/definitions/RouterOutputProtocol": "RTP" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RouterOutputProtocolConfiguration": matchN(1, [close(
-	{Rtp!: _#defs."/$defs/Properties/definitions/RtpRouterOutputConfiguration" | fn.#ObjectExpression},
+	{Rtp!: _#defs."/$defs/Properties/definitions/RtpRouterOutputConfiguration"},
 ), close(
-	{Rist!: _#defs."/$defs/Properties/definitions/RistRouterOutputConfiguration" | fn.#ObjectExpression},
+	{Rist!: _#defs."/$defs/Properties/definitions/RistRouterOutputConfiguration"},
 ), close(
-	{SrtListener!: _#defs."/$defs/Properties/definitions/SrtListenerRouterOutputConfiguration" | fn.#ObjectExpression},
+	{SrtListener!: _#defs."/$defs/Properties/definitions/SrtListenerRouterOutputConfiguration"},
 ), close(
-	{SrtCaller!: _#defs."/$defs/Properties/definitions/SrtCallerRouterOutputConfiguration" | fn.#ObjectExpression},
+	{SrtCaller!: _#defs."/$defs/Properties/definitions/SrtCallerRouterOutputConfiguration"},
 ), close(
-	{RtmpPush!: _#defs."/$defs/Properties/definitions/RtmpPushRouterOutputConfiguration" | fn.#ObjectExpression},
+	{RtmpPush!: _#defs."/$defs/Properties/definitions/RtmpPushRouterOutputConfiguration"},
 )]) |
 fn.#ValueExpression
 
@@ -193,54 +217,144 @@ _#defs: "/$defs/Properties/definitions/RoutingScope": "REGIONAL" | "GLOBAL" | fn
 _#defs: "/$defs/Properties/definitions/RtmpPushRouterOutputConfiguration": close({
 	ApplicationName!:    string | fn.#StringExpression
 	DestinationAddress!: string | fn.#StringExpression
-	DestinationPort!:    int & <=65535 & >=443 | fn.#NumberExpression
-	StreamName!:         string | fn.#StringExpression
-	TlsEncryption?:      _#defs."/$defs/Properties/definitions/TlsEncryption" | fn.#ObjectExpression
+	DestinationPort!: int & <=65535 & >=443 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=443,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StreamName!:    string | fn.#StringExpression
+	TlsEncryption?: _#defs."/$defs/Properties/definitions/TlsEncryption"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RtpRouterOutputConfiguration": close({
-	DestinationAddress!:     string | fn.#StringExpression
-	DestinationPort!:        int & <=65531 & >=1024 | fn.#NumberExpression
-	ForwardErrorCorrection?: _#defs."/$defs/Properties/definitions/ForwardErrorCorrectionState" | fn.#StringExpression
+	DestinationAddress!: string | fn.#StringExpression
+	DestinationPort!: int & <=65531 & >=1024 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65531 &
+							>=1024,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ForwardErrorCorrection?: _#defs."/$defs/Properties/definitions/ForwardErrorCorrectionState"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration": close({
-	RoleArn!: =~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" |
+		fn.#StringExpression
 	SecretArn!: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SrtCallerRouterOutputConfiguration": close({
-	DestinationAddress!:      string | fn.#StringExpression
-	DestinationPort!:         int & <=65535 & >=1024 | fn.#NumberExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/SrtEncryptionConfiguration" | fn.#ObjectExpression
-	MinimumLatencyMilliseconds!: int & <=10000 & >=10 | fn.#NumberExpression
-	StreamId?:                   string | fn.#StringExpression
+	DestinationAddress!: string | fn.#StringExpression
+	DestinationPort!: int & <=65535 & >=1024 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1024,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/SrtEncryptionConfiguration"
+	MinimumLatencyMilliseconds!: int & <=10000 & >=10 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10000 &
+							>=10,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StreamId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SrtEncryptionConfiguration": close({
-	EncryptionKey!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/SrtEncryptionConfiguration": close(
+	{EncryptionKey!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SrtListenerRouterOutputConfiguration": close({
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/SrtEncryptionConfiguration" | fn.#ObjectExpression
-	MinimumLatencyMilliseconds!: int & <=10000 & >=10 | fn.#NumberExpression
-	Port!:                       int & <=30000 & >=3000 | fn.#NumberExpression
+	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/SrtEncryptionConfiguration"
+	MinimumLatencyMilliseconds!: int & <=10000 & >=10 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10000 &
+							>=10,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Port!: int & <=30000 & >=3000 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=30000 &
+							>=3000,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StandardRouterOutputConfiguration": close({
 	NetworkInterfaceArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:routerNetworkInterface:[a-z0-9]{12}$" |
 		fn.#StringExpression
-	Protocol?: _#defs."/$defs/Properties/definitions/RouterOutputProtocol" | fn.#StringExpression
-	ProtocolConfiguration!: _#defs."/$defs/Properties/definitions/RouterOutputProtocolConfiguration" |
-		fn.#ValueExpression
+	Protocol?:              _#defs."/$defs/Properties/definitions/RouterOutputProtocol"
+	ProtocolConfiguration!: _#defs."/$defs/Properties/definitions/RouterOutputProtocolConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -251,13 +365,13 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TlsEncryption": close({
-	EncryptionConfiguration!: _#defs."/$defs/Properties/definitions/TlsEncryptionConfiguration" | fn.#ValueExpression
-	EncryptionType?:          _#defs."/$defs/Properties/definitions/TlsEncryptionType" | fn.#StringExpression
+	EncryptionConfiguration!: _#defs."/$defs/Properties/definitions/TlsEncryptionConfiguration"
+	EncryptionType?:          _#defs."/$defs/Properties/definitions/TlsEncryptionType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TlsEncryptionConfiguration": close(
-	{Public!: _#defs."/$defs/Properties/definitions/PublicTlsEncryptionConfiguration" | fn.#ObjectExpression},
+	{Public!: _#defs."/$defs/Properties/definitions/PublicTlsEncryptionConfiguration"},
 ) |
 	fn.#ValueExpression
 

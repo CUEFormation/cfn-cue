@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::ImageBuilder::DistributionConfiguration
 #Properties: close({
 	Description?:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Distributions!: [..._#defs."/$defs/Properties/definitions/Distribution" | fn.#ObjectExpression] | fn.#ListExpression
+	Distributions!: [..._#defs."/$defs/Properties/definitions/Distribution"] | fn.#ListExpression
 	Name!:          =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
 	Tags?: close({
 
@@ -29,9 +33,10 @@ _#defs: "/$defs/Properties/definitions/AmiDistributionConfiguration": close({
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	KmsKeyId?:    (string | string | string) & (strings.MaxRunes(1024) & strings.MinRunes(1)) | fn.#StringExpression
-	LaunchPermissionConfiguration?: _#defs."/$defs/Properties/definitions/LaunchPermissionConfiguration" |
-		fn.#ObjectExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	fn.#StringExpression
+	LaunchPermissionConfiguration?: _#defs."/$defs/Properties/definitions/LaunchPermissionConfiguration"
 	Name?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[-_A-Za-z0-9{][-_A-Za-z0-9\\s:{}\\.]+[-_A-Za-z0-9}]$" |
 	fn.#StringExpression
 	TargetAccountIds?: list.MaxItems(1536) & list.MinItems(1) & [...=~"^[0-9]{12}$" | fn.#StringExpression] |
@@ -47,35 +52,45 @@ _#defs: "/$defs/Properties/definitions/ContainerDistributionConfiguration": clos
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Distribution": close({
-	AmiDistributionConfiguration?: _#defs."/$defs/Properties/definitions/AmiDistributionConfiguration" |
-		fn.#ObjectExpression
-	ContainerDistributionConfiguration?: _#defs."/$defs/Properties/definitions/ContainerDistributionConfiguration" |
-		fn.#ObjectExpression
+	AmiDistributionConfiguration?:       _#defs."/$defs/Properties/definitions/AmiDistributionConfiguration"
+	ContainerDistributionConfiguration?: _#defs."/$defs/Properties/definitions/ContainerDistributionConfiguration"
 	FastLaunchConfigurations?: list.MaxItems(1000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FastLaunchConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/FastLaunchConfiguration"
 	] |
 		fn.#ListExpression
 	LaunchTemplateConfigurations?: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/LaunchTemplateConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/LaunchTemplateConfiguration"
 	] |
 		fn.#ListExpression
 	LicenseConfigurationArns?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/LicenseConfigurationArn" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/LicenseConfigurationArn"
 	] |
 		fn.#ListExpression
 	Region!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	SsmParameterConfigurations?: [
-		..._#defs."/$defs/Properties/definitions/SsmParameterConfiguration" | fn.#ObjectExpression
-	] |
+	SsmParameterConfigurations?: [..._#defs."/$defs/Properties/definitions/SsmParameterConfiguration"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FastLaunchConfiguration": close({
 	AccountId?:      =~"^[0-9]{12}$" | fn.#StringExpression
-	Enabled?:        bool | fn.#BooleanExpression
+	Enabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LaunchTemplate?: _#defs."/$defs/Properties/definitions/FastLaunchLaunchTemplateSpecification" | fn.#ObjectExpression
-	MaxParallelLaunches?: int & >=1 | fn.#NumberExpression
+	MaxParallelLaunches?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SnapshotConfiguration?: _#defs."/$defs/Properties/definitions/FastLaunchSnapshotConfiguration" |
 		fn.#ObjectExpression
 }) |
@@ -88,9 +103,24 @@ _#defs: "/$defs/Properties/definitions/FastLaunchLaunchTemplateSpecification": c
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FastLaunchSnapshotConfiguration": close(
-	{TargetResourceCount?: int & <=10000 & >=1 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/FastLaunchSnapshotConfiguration": close({
+	TargetResourceCount?: int & <=10000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LaunchPermissionConfiguration": close({
@@ -104,7 +134,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/LaunchTemplateConfiguration": close({
 	AccountId?:         =~"^[0-9]{12}$" | fn.#StringExpression
 	LaunchTemplateId?:  =~"^lt-[a-z0-9-_]{17}$" | fn.#StringExpression
-	SetDefaultVersion?: bool | fn.#BooleanExpression
+	SetDefaultVersion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 

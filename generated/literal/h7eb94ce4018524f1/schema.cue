@@ -20,7 +20,8 @@ import (
 
 	// The Amazon Resource Name (ARN) of an IAM role that has permissions to access
 	// the Amazon S3 bucket that contains your input file.
-	DataAccessRoleArn?: strings.MaxRunes(2048) & strings.MinRunes(20)
+	DataAccessRoleArn?:
+		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 	// The language code that represents the language of the entries in your custom
 	// vocabulary. Each custom vocabulary must contain terms in only one language.

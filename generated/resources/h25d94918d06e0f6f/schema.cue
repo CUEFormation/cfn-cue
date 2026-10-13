@@ -14,17 +14,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::GlobalAccelerator::Accelerator
 #Properties: close({
-	Enabled?:          bool | fn.#BooleanExpression
-	FlowLogsEnabled?:  bool | fn.#BooleanExpression
+	Enabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	FlowLogsEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FlowLogsS3Bucket?: strings.MaxRunes(255) | fn.#StringExpression
 	FlowLogsS3Prefix?: strings.MaxRunes(255) | fn.#StringExpression
 	IpAddressType?:    "IPV4" | "DUAL_STACK" | fn.#StringExpression
-	IpAddresses?: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/IpAddress" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{0,64}$" | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	IpAddresses?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/IpAddress"] | fn.#ListExpression
+	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{0,64}$" | fn.#StringExpression
+	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/IpAddress": =~"^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$" | fn.#StringExpression

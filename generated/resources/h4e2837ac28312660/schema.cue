@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -25,39 +29,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	DeploymentGroupName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" | fn.#StringExpression
 	DeploymentStyle?:     _#defs."/$defs/Properties/definitions/DeploymentStyle" | fn.#ObjectExpression
-	ECSServices?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ECSService" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Ec2TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EC2TagFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Ec2TagSet?:        _#defs."/$defs/Properties/definitions/EC2TagSet" | fn.#ObjectExpression
+	ECSServices?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ECSService"] | fn.#ListExpression
+	Ec2TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EC2TagFilter"] | fn.#ListExpression
+	Ec2TagSet?:     _#defs."/$defs/Properties/definitions/EC2TagSet" | fn.#ObjectExpression
 	LoadBalancerInfo?: _#defs."/$defs/Properties/definitions/LoadBalancerInfo" | fn.#ObjectExpression
-	OnPremisesInstanceTagFilters?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TagFilter" | fn.#ObjectExpression
-	] |
+	OnPremisesInstanceTagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] |
 		fn.#ListExpression
 	OnPremisesTagSet?:          _#defs."/$defs/Properties/definitions/OnPremisesTagSet" | fn.#ObjectExpression
 	OutdatedInstancesStrategy?: "IGNORE" | "UPDATE" | fn.#StringExpression
-	ServiceRoleArn!:            string | fn.#StringExpression
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	TerminationHookEnabled?: bool | fn.#BooleanExpression
-	TriggerConfigurations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TriggerConfig" | fn.#ObjectExpression
-	] |
+	ServiceRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TerminationHookEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	TriggerConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TriggerConfig"] |
 		fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Alarm": close({Name?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AlarmConfiguration": close({
-	Alarms?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Alarm" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Enabled?:                bool | fn.#BooleanExpression
-	IgnorePollAlarmFailure?: bool | fn.#BooleanExpression
+	Alarms?:                 list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Alarm"] | fn.#ListExpression
+	Enabled?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IgnorePollAlarmFailure?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AutoRollbackConfiguration": close({
-	Enabled?: bool | fn.#BooleanExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Events?: list.UniqueItems() & [
 		..."DEPLOYMENT_FAILURE" | "DEPLOYMENT_STOP_ON_ALARM" | "DEPLOYMENT_STOP_ON_REQUEST" | fn.#StringExpression
 	] |
@@ -75,21 +73,54 @@ _#defs: "/$defs/Properties/definitions/BlueGreenDeploymentConfiguration": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BlueInstanceTerminationOption": close({
-	Action?:                       "KEEP_ALIVE" | "TERMINATE" | fn.#StringExpression
-	TerminationWaitTimeInMinutes?: int | fn.#NumberExpression
+	Action?: "KEEP_ALIVE" | "TERMINATE" | fn.#StringExpression
+	TerminationWaitTimeInMinutes?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Deployment": close({
-	Description?:                   string | fn.#StringExpression
-	IgnoreApplicationStopFailures?: bool | fn.#BooleanExpression
-	Revision!:                      _#defs."/$defs/Properties/definitions/RevisionLocation" | fn.#ObjectExpression
+	Description?: string | fn.#StringExpression
+	IgnoreApplicationStopFailures?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	Revision!: _#defs."/$defs/Properties/definitions/RevisionLocation" | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DeploymentReadyOption": close({
-	ActionOnTimeout?:   "CONTINUE_DEPLOYMENT" | "STOP_DEPLOYMENT" | fn.#StringExpression
-	WaitTimeInMinutes?: int | fn.#NumberExpression
+	ActionOnTimeout?: "CONTINUE_DEPLOYMENT" | "STOP_DEPLOYMENT" | fn.#StringExpression
+	WaitTimeInMinutes?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -107,17 +138,14 @@ _#defs: "/$defs/Properties/definitions/EC2TagFilter": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EC2TagSet": close({
-	Ec2TagSetList?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/EC2TagSetListObject" | fn.#ObjectExpression
-	] |
+	Ec2TagSetList?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EC2TagSetListObject"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EC2TagSetListObject": close({
-	Ec2TagGroup?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EC2TagFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/EC2TagSetListObject": close(
+	{Ec2TagGroup?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EC2TagFilter"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ECSService": close({
@@ -140,39 +168,29 @@ _#defs: "/$defs/Properties/definitions/GreenFleetProvisioningOption": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoadBalancerInfo": close({
-	ElbInfoList?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ELBInfo" | fn.#ObjectExpression] |
+	ElbInfoList?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ELBInfo"] | fn.#ListExpression
+	TargetGroupInfoList?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroupInfo"] |
 		fn.#ListExpression
-	TargetGroupInfoList?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TargetGroupInfo" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	TargetGroupPairInfoList?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TargetGroupPairInfo" | fn.#ObjectExpression
-	] |
+	TargetGroupPairInfoList?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroupPairInfo"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OnPremisesTagSet": close({
-	OnPremisesTagSetList?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/OnPremisesTagSetListObject" | fn.#ObjectExpression
-	] |
+	OnPremisesTagSetList?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/OnPremisesTagSetListObject"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OnPremisesTagSetListObject": close({
-	OnPremisesTagGroup?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TagFilter" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	OnPremisesTagGroup?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RevisionLocation": close({
-	GitHubLocation?: _#defs."/$defs/Properties/definitions/GitHubLocation" | fn.#ObjectExpression
+	GitHubLocation?: _#defs."/$defs/Properties/definitions/GitHubLocation"
 	RevisionType?:   string | fn.#StringExpression
-	S3Location?:     _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
+	S3Location?:     _#defs."/$defs/Properties/definitions/S3Location"
 }) |
 fn.#ObjectExpression
 
@@ -203,10 +221,7 @@ _#defs: "/$defs/Properties/definitions/TargetGroupInfo": close({Name?: string | 
 
 _#defs: "/$defs/Properties/definitions/TargetGroupPairInfo": close({
 	ProdTrafficRoute?: _#defs."/$defs/Properties/definitions/TrafficRoute" | fn.#ObjectExpression
-	TargetGroups?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TargetGroupInfo" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	TargetGroups?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroupInfo"] | fn.#ListExpression
 	TestTrafficRoute?: _#defs."/$defs/Properties/definitions/TrafficRoute" | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression

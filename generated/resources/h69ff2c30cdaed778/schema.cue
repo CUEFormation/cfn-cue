@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -32,9 +36,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"PublicRead" |
 		"PublicReadWrite" |
 		fn.#StringExpression
-	AnalyticsConfigurations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AnalyticsConfiguration" | fn.#ObjectExpression
-	] |
+	AnalyticsConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AnalyticsConfiguration"] |
 		fn.#ListExpression
 	BucketEncryption?:  _#defs."/$defs/Properties/definitions/BucketEncryption" | fn.#ObjectExpression
 	BucketName?:        strings.MaxRunes(63) & =~"^([a-z0-9][a-z0-9.-]*[a-z0-9])?$" | fn.#StringExpression
@@ -42,12 +44,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	BucketNamespace?:   "global" | "account-regional" | fn.#StringExpression
 	CorsConfiguration?: _#defs."/$defs/Properties/definitions/CorsConfiguration" | fn.#ObjectExpression
 	IntelligentTieringConfigurations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IntelligentTieringConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/IntelligentTieringConfiguration"
 	] |
 		fn.#ListExpression
-	InventoryConfigurations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/InventoryConfiguration" | fn.#ObjectExpression
-	] |
+	InventoryConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InventoryConfiguration"] |
 		fn.#ListExpression
 	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration" | fn.#ObjectExpression
 	LoggingConfiguration?:   _#defs."/$defs/Properties/definitions/LoggingConfiguration" | fn.#ObjectExpression
@@ -81,25 +81,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
-	MetricsConfigurations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricsConfiguration" | fn.#ObjectExpression
-	] |
+	MetricsConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricsConfiguration"] |
 		fn.#ListExpression
 	NotificationConfiguration?: _#defs."/$defs/Properties/definitions/NotificationConfiguration" | fn.#ObjectExpression
 	ObjectLockConfiguration?:   _#defs."/$defs/Properties/definitions/ObjectLockConfiguration" | fn.#ObjectExpression
-	ObjectLockEnabled?:         bool | fn.#BooleanExpression
+	ObjectLockEnabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	OwnershipControls?:         _#defs."/$defs/Properties/definitions/OwnershipControls" | fn.#ObjectExpression
 	PublicAccessBlockConfiguration?: _#defs."/$defs/Properties/definitions/PublicAccessBlockConfiguration" |
 		fn.#ObjectExpression
 	ReplicationConfiguration?: _#defs."/$defs/Properties/definitions/ReplicationConfiguration" | fn.#ObjectExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	VersioningConfiguration?: _#defs."/$defs/Properties/definitions/VersioningConfiguration" | fn.#ObjectExpression
-	WebsiteConfiguration?:    _#defs."/$defs/Properties/definitions/WebsiteConfiguration" | fn.#ObjectExpression
+	Tags?:                     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VersioningConfiguration?:  _#defs."/$defs/Properties/definitions/VersioningConfiguration" | fn.#ObjectExpression
+	WebsiteConfiguration?:     _#defs."/$defs/Properties/definitions/WebsiteConfiguration" | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close(
-	{DaysAfterInitiation!: int & >=0 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close({
+	DaysAfterInitiation!: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AccelerateConfiguration": close(
@@ -116,8 +128,7 @@ _#defs: "/$defs/Properties/definitions/AnalyticsConfiguration": close({
 	Id!:                   string | fn.#StringExpression
 	Prefix?:               string | fn.#StringExpression
 	StorageClassAnalysis!: _#defs."/$defs/Properties/definitions/StorageClassAnalysis" | fn.#ObjectExpression
-	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -145,7 +156,7 @@ _#defs: "/$defs/Properties/definitions/BlockedEncryptionTypes": close(
 
 _#defs: "/$defs/Properties/definitions/BucketEncryption": close({
 	ServerSideEncryptionConfiguration!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ServerSideEncryptionRule" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ServerSideEncryptionRule"
 	] |
 		fn.#ListExpression
 }) |
@@ -168,7 +179,21 @@ _#defs: "/$defs/Properties/definitions/CorsRule": close({
 	AllowedOrigins!: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	ExposedHeaders?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Id?:             strings.MaxRunes(255) | fn.#StringExpression
-	MaxAge?:         int & >=0 | fn.#NumberExpression
+	MaxAge?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -179,16 +204,68 @@ _#defs: "/$defs/Properties/definitions/DataExport": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultEventHold": close({
-	Days?:  int | fn.#NumberExpression
-	Years?: int | fn.#NumberExpression
+	Days?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Years?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultRetention": close({
-	Days?:             int | fn.#NumberExpression
+	Days?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	DefaultEventHold?: _#defs."/$defs/Properties/definitions/DefaultEventHold" | fn.#ObjectExpression
 	Mode?:             "COMPLIANCE" | "GOVERNANCE" | fn.#StringExpression
-	Years?:            int | fn.#NumberExpression
+	Years?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -211,7 +288,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EventBridgeConfiguration": close(
-	{EventBridgeEnabled!: bool | fn.#BooleanExpression},
+	{EventBridgeEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
@@ -222,19 +299,17 @@ _#defs: "/$defs/Properties/definitions/FilterRule": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IntelligentTieringConfiguration": close({
-	Id!:     string | fn.#StringExpression
-	Prefix?: string | fn.#StringExpression
-	Status!: "Disabled" | "Enabled" | fn.#StringExpression
-	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tierings!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tiering" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Id!:         string | fn.#StringExpression
+	Prefix?:     string | fn.#StringExpression
+	Status!:     "Disabled" | "Enabled" | fn.#StringExpression
+	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
+	Tierings!:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tiering"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InventoryConfiguration": close({
 	Destination!:            _#defs."/$defs/Properties/definitions/Destination" | fn.#ObjectExpression
-	Enabled!:                bool | fn.#BooleanExpression
+	Enabled!:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Id!:                     string | fn.#StringExpression
 	IncludedObjectVersions!: "All" | "Current" | fn.#StringExpression
 	OptionalFields?: list.UniqueItems() & [
@@ -291,8 +366,7 @@ _#defs: "/$defs/Properties/definitions/LambdaConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
-	Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Rule" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression
 	TransitionDefaultMinimumObjectSize?: "varies_by_storage_class" | "all_storage_classes_128K" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -327,7 +401,8 @@ _#defs: "/$defs/Properties/definitions/MetadataTableConfiguration": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetadataTableEncryptionConfiguration": close({
-	KmsKeyArn?:    string | fn.#StringExpression
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	SseAlgorithm!: "aws:kms" | "AES256" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -342,19 +417,57 @@ _#defs: "/$defs/Properties/definitions/MetricsConfiguration": close({
 	AccessPointArn?: string | fn.#StringExpression
 	Id!:             string | fn.#StringExpression
 	Prefix?:         string | fn.#StringExpression
-	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	TagFilters?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NoncurrentVersionExpiration": close({
-	NewerNoncurrentVersions?: int | fn.#NumberExpression
-	NoncurrentDays!:          int | fn.#NumberExpression
+	NewerNoncurrentVersions?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	NoncurrentDays!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NoncurrentVersionTransition": close({
-	NewerNoncurrentVersions?: int | fn.#NumberExpression
+	NewerNoncurrentVersions?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	StorageClass!: "DEEP_ARCHIVE" |
 		"GLACIER" |
 		"Glacier" |
@@ -363,23 +476,30 @@ _#defs: "/$defs/Properties/definitions/NoncurrentVersionTransition": close({
 		"ONEZONE_IA" |
 		"STANDARD_IA" |
 		fn.#StringExpression
-	TransitionInDays!: int | fn.#NumberExpression
+	TransitionInDays!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NotificationConfiguration": close({
 	EventBridgeConfiguration?: _#defs."/$defs/Properties/definitions/EventBridgeConfiguration" | fn.#ObjectExpression
-	LambdaConfigurations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/LambdaConfiguration" | fn.#ObjectExpression
-	] |
+	LambdaConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LambdaConfiguration"] |
 		fn.#ListExpression
-	QueueConfigurations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/QueueConfiguration" | fn.#ObjectExpression
-	] |
+	QueueConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/QueueConfiguration"] |
 		fn.#ListExpression
-	TopicConfigurations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TopicConfiguration" | fn.#ObjectExpression
-	] |
+	TopicConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TopicConfiguration"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -401,10 +521,7 @@ _#defs: "/$defs/Properties/definitions/ObjectLockRule": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OwnershipControls": close({
-	Rules!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/OwnershipControlsRule" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/OwnershipControlsRule"] | fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
@@ -419,10 +536,10 @@ _#defs: "/$defs/Properties/definitions/PartitionedPrefix": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
-	BlockPublicAcls?:       bool | fn.#BooleanExpression
-	BlockPublicPolicy?:     bool | fn.#BooleanExpression
-	IgnorePublicAcls?:      bool | fn.#BooleanExpression
-	RestrictPublicBuckets?: bool | fn.#BooleanExpression
+	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	BlockPublicPolicy?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IgnorePublicAcls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RestrictPublicBuckets?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -434,7 +551,20 @@ _#defs: "/$defs/Properties/definitions/QueueConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RecordExpiration": close({
-	Days?:       int | fn.#NumberExpression
+	Days?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Expiration!: "ENABLED" | "DISABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -511,16 +641,28 @@ _#defs: "/$defs/Properties/definitions/ReplicationRule": close({
 	Filter?:                  _#defs."/$defs/Properties/definitions/ReplicationRuleFilter" | fn.#ObjectExpression
 	Id?:                      strings.MaxRunes(255) | fn.#StringExpression
 	Prefix?:                  strings.MaxRunes(1024) | fn.#StringExpression
-	Priority?:                int | fn.#NumberExpression
+	Priority?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SourceSelectionCriteria?: _#defs."/$defs/Properties/definitions/SourceSelectionCriteria" | fn.#ObjectExpression
 	Status!:                  "Disabled" | "Enabled" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReplicationRuleAndOperator": close({
-	Prefix?: string | fn.#StringExpression
-	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Prefix?:     string | fn.#StringExpression
+	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -537,7 +679,22 @@ _#defs: "/$defs/Properties/definitions/ReplicationTime": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationTimeValue": close({Minutes!: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/ReplicationTimeValue": close({
+	Minutes!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RoutingRule": close({
@@ -546,13 +703,13 @@ _#defs: "/$defs/Properties/definitions/RoutingRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingRuleCondition": ({
+_#defs: "/$defs/Properties/definitions/RoutingRuleCondition": matchN(>=1, [{
 	HttpErrorCodeReturnedEquals!: _
 	...
-} | {
+}, {
 	KeyPrefixEquals!: _
 	...
-}) & close({
+}]) & close({
 	HttpErrorCodeReturnedEquals?: string | fn.#StringExpression
 	KeyPrefixEquals?:             string | fn.#StringExpression
 }) |
@@ -572,35 +729,58 @@ _#defs: "/$defs/Properties/definitions/Rule": matchN(2, [
 ]) & close({
 	AbortIncompleteMultipartUpload?: _#defs."/$defs/Properties/definitions/AbortIncompleteMultipartUpload" |
 		fn.#ObjectExpression
-	ExpirationDate?:            _#defs."/$defs/Properties/definitions/iso8601UTC" | fn.#StringExpression
-	ExpirationInDays?:          int | fn.#NumberExpression
-	ExpiredObjectDeleteMarker?: bool | fn.#BooleanExpression
+	ExpirationDate?: _#defs."/$defs/Properties/definitions/iso8601UTC" | fn.#StringExpression
+	ExpirationInDays?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ExpiredObjectDeleteMarker?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Id?:                        strings.MaxRunes(255) | fn.#StringExpression
 	NoncurrentVersionExpiration?: _#defs."/$defs/Properties/definitions/NoncurrentVersionExpiration" |
 		fn.#ObjectExpression
-	NoncurrentVersionExpirationInDays?: int | fn.#NumberExpression
+	NoncurrentVersionExpirationInDays?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	NoncurrentVersionTransition?: _#defs."/$defs/Properties/definitions/NoncurrentVersionTransition" |
 		fn.#ObjectExpression
 	NoncurrentVersionTransitions?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NoncurrentVersionTransition" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/NoncurrentVersionTransition"
 	] |
 		fn.#ListExpression
 	ObjectSizeGreaterThan?: strings.MaxRunes(20) & =~"[0-9]+" | fn.#StringExpression
 	ObjectSizeLessThan?:    strings.MaxRunes(20) & =~"[0-9]+" | fn.#StringExpression
 	Prefix?:                string | fn.#StringExpression
 	Status!:                "Enabled" | "Disabled" | fn.#StringExpression
-	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Transition?: _#defs."/$defs/Properties/definitions/Transition" | fn.#ObjectExpression
-	Transitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Transition" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	TagFilters?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
+	Transition?:  _#defs."/$defs/Properties/definitions/Transition" | fn.#ObjectExpression
+	Transitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Transition"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3KeyFilter": close({
-	Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/FilterRule" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/S3KeyFilter": close(
+	{Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/FilterRule"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3TablesDestination": close({
@@ -612,14 +792,16 @@ _#defs: "/$defs/Properties/definitions/S3TablesDestination": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServerSideEncryptionByDefault": close({
-	KMSMasterKeyID?: string | string | string | fn.#StringExpression
-	SSEAlgorithm!:   "aws:kms" | "AES256" | "aws:kms:dsse" | fn.#StringExpression
+	KMSMasterKeyID?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	SSEAlgorithm!: "aws:kms" | "AES256" | "aws:kms:dsse" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServerSideEncryptionRule": close({
 	BlockedEncryptionTypes?: _#defs."/$defs/Properties/definitions/BlockedEncryptionTypes" | fn.#ObjectExpression
-	BucketKeyEnabled?:       bool | fn.#BooleanExpression
+	BucketKeyEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ServerSideEncryptionByDefault?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionByDefault" |
 		fn.#ObjectExpression
 }) |
@@ -653,16 +835,29 @@ _#defs: "/$defs/Properties/definitions/TagFilter": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetObjectKeyFormat": matchN(1, [close(
+_#defs: "/$defs/Properties/definitions/TargetObjectKeyFormat": fn.#Object & {...} & matchN(1, [close(
 	{SimplePrefix!: close({}) | fn.#ObjectExpression},
 ), close(
-	{PartitionedPrefix!: _#defs."/$defs/Properties/definitions/PartitionedPrefix" | fn.#ObjectExpression},
-)]) & {[string]: fn.#Value} |
+	{PartitionedPrefix!: _#defs."/$defs/Properties/definitions/PartitionedPrefix"},
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tiering": close({
 	AccessTier!: "ARCHIVE_ACCESS" | "DEEP_ARCHIVE_ACCESS" | fn.#StringExpression
-	Days!:       int | fn.#NumberExpression
+	Days!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -682,8 +877,21 @@ _#defs: "/$defs/Properties/definitions/Transition": close({
 		"ONEZONE_IA" |
 		"STANDARD_IA" |
 		fn.#StringExpression
-	TransitionDate?:   _#defs."/$defs/Properties/definitions/iso8601UTC" | fn.#StringExpression
-	TransitionInDays?: int | fn.#NumberExpression
+	TransitionDate?: _#defs."/$defs/Properties/definitions/iso8601UTC" | fn.#StringExpression
+	TransitionInDays?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -696,7 +904,7 @@ _#defs: "/$defs/Properties/definitions/WebsiteConfiguration": close({
 	ErrorDocument?:         string | fn.#StringExpression
 	IndexDocument?:         string | fn.#StringExpression
 	RedirectAllRequestsTo?: _#defs."/$defs/Properties/definitions/RedirectAllRequestsTo" | fn.#ObjectExpression
-	RoutingRules?: [..._#defs."/$defs/Properties/definitions/RoutingRule" | fn.#ObjectExpression] | fn.#ListExpression
+	RoutingRules?:          [..._#defs."/$defs/Properties/definitions/RoutingRule"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

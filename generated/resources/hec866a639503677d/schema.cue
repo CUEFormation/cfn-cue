@@ -14,19 +14,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource type definition for AWS::SSMIncidents::ReplicationSet
 #Properties: close({
-	DeletionProtected?: _#defs."/$defs/Properties/definitions/DeletionProtected" | fn.#BooleanExpression
+	DeletionProtected?: _#defs."/$defs/Properties/definitions/DeletionProtected"
 	Regions!:           _#defs."/$defs/Properties/definitions/RegionList" | fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(1000) &
 =~"^arn:aws(-(cn|us-gov|iso(-b)?))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DeletionProtected": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/DeletionProtected": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/RegionConfiguration": close(
 	{SseKmsKeyId!: strings.MaxRunes(2048) | fn.#StringExpression},
@@ -34,15 +38,15 @@ _#defs: "/$defs/Properties/definitions/RegionConfiguration": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RegionList": list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/ReplicationRegion" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ReplicationRegion"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/RegionName": strings.MaxRunes(20) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ReplicationRegion": close({
-	RegionConfiguration?: _#defs."/$defs/Properties/definitions/RegionConfiguration" | fn.#ObjectExpression
-	RegionName?:          _#defs."/$defs/Properties/definitions/RegionName" | fn.#StringExpression
+	RegionConfiguration?: _#defs."/$defs/Properties/definitions/RegionConfiguration"
+	RegionName?:          _#defs."/$defs/Properties/definitions/RegionName"
 }) |
 fn.#ObjectExpression
 

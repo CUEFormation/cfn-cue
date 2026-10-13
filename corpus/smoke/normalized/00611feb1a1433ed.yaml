@@ -1,0 +1,149 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Conditions:
+  Hbase:
+    Fn::Equals:
+    - Ref: Applications
+    - Hbase
+  Spark:
+    Fn::Equals:
+    - Ref: Applications
+    - Spark
+Description: Best Practice EMR Cluster for Spark or S3 backed Hbase
+Mappings: {}
+Outputs: {}
+Parameters:
+  Applications:
+    AllowedValues:
+    - Spark
+    - Hbase
+    Description: Please select which application will be installed on the cluster
+      this would be either Ganglia and spark, or Ganglia and s3 acked Hbase
+    Type: String
+  CoreInstanceType:
+    Default: m3.xlarge
+    Description: Instance type to be used for core instances.
+    Type: String
+  EMRClusterName:
+    Default: emrcluster
+    Description: Name of the cluster
+    Type: String
+  KeyName:
+    Description: Must be an existing Keyname
+    Type: String
+  LogUri:
+    Default: s3://emrclusterlogbucket/
+    Description: Must be a valid S3 URL
+    Type: String
+  MasterInstanceType:
+    Default: m3.xlarge
+    Description: Instance type to be used for the master instance.
+    Type: String
+  NumberOfCoreInstances:
+    Default: 2
+    Description: Must be a valid number
+    Type: Number
+  ReleaseLabel:
+    Default: emr-5.7.0
+    Description: Must be a valid EMR release  version
+    Type: String
+  S3DataUri:
+    Default: s3://emrclusterdatabucket/
+    Description: 'Must be a valid S3 bucket URL '
+    Type: String
+  SubnetID:
+    Default: subnet-dba430ad
+    Description: Must be Valid public subnet ID
+    Type: String
+Resources:
+  EMRCluster:
+    DependsOn:
+    - EMRClusterServiceRole
+    - EMRClusterinstanceProfileRole
+    - EMRClusterinstanceProfile
+    Properties:
+      Applications:
+      - Name: Ganglia
+      - Fn::If:
+        - Spark
+        - Name: Spark
+        - Ref: AWS::NoValue
+      - Fn::If:
+        - Hbase
+        - Name: Hbase
+        - Ref: AWS::NoValue
+      AutoScalingRole: EMR_AutoScaling_DefaultRole
+      Configurations:
+      - Classification: hbase-site
+        ConfigurationProperties:
+          hbase.rootdir:
+            Ref: S3DataUri
+      - Classification: hbase
+        ConfigurationProperties:
+          hbase.emr.storageMode: s3
+      Instances:
+        CoreInstanceGroup:
+          InstanceCount:
+            Ref: NumberOfCoreInstances
+          InstanceType:
+            Ref: CoreInstanceType
+          Market: ON_DEMAND
+          Name: Core
+        Ec2KeyName:
+          Ref: KeyName
+        Ec2SubnetId:
+          Ref: SubnetID
+        MasterInstanceGroup:
+          InstanceCount: 1
+          InstanceType:
+            Ref: MasterInstanceType
+          Market: ON_DEMAND
+          Name: Master
+        TerminationProtected: false
+      JobFlowRole:
+        Ref: EMRClusterinstanceProfile
+      LogUri:
+        Ref: LogUri
+      Name:
+        Ref: EMRClusterName
+      ReleaseLabel:
+        Ref: ReleaseLabel
+      ServiceRole:
+        Ref: EMRClusterServiceRole
+      VisibleToAllUsers: true
+    Type: AWS::EMR::Cluster
+  EMRClusterServiceRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - elasticmapreduce.amazonaws.com
+        Version: '2012-10-17'
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole
+      Path: /
+    Type: AWS::IAM::Role
+  EMRClusterinstanceProfile:
+    Properties:
+      Path: /
+      Roles:
+      - Ref: EMRClusterinstanceProfileRole
+    Type: AWS::IAM::InstanceProfile
+  EMRClusterinstanceProfileRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+        Version: '2012-10-17'
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role
+      Path: /
+    Type: AWS::IAM::Role

@@ -135,7 +135,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionAuthType": "BASIC" |
 	"OAUTH2_AUTHORIZATION_CODE"
 
 _#defs: "/$defs/Properties/definitions/IAMConnectionMetadata": close(
-	{RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20)},
+	{RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))},
 )
 
 _#defs: "/$defs/Properties/definitions/NoneConnectionMetadata": close(

@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,8 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CodeEditorAppImageConfig?: _#defs."/$defs/Properties/definitions/CodeEditorAppImageConfig" | fn.#ObjectExpression
 	JupyterLabAppImageConfig?: _#defs."/$defs/Properties/definitions/JupyterLabAppImageConfig" | fn.#ObjectExpression
 	KernelGatewayImageConfig?: _#defs."/$defs/Properties/definitions/KernelGatewayImageConfig" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CodeEditorAppImageConfig": close(
@@ -30,15 +33,15 @@ _#defs: "/$defs/Properties/definitions/CodeEditorAppImageConfig": close(
 
 _#defs: "/$defs/Properties/definitions/ContainerConfig": close({
 	ContainerArguments?: list.MaxItems(50) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomImageContainerArguments" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/CustomImageContainerArguments"
 	] |
 		fn.#ListExpression
 	ContainerEntrypoint?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomImageContainerEntrypoint" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/CustomImageContainerEntrypoint"
 	] |
 		fn.#ListExpression
 	ContainerEnvironmentVariables?: list.MaxItems(25) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomImageContainerEnvironmentVariable" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/CustomImageContainerEnvironmentVariable"
 	] |
 		fn.#ListExpression
 }) |
@@ -57,9 +60,39 @@ _#defs: "/$defs/Properties/definitions/CustomImageContainerEnvironmentVariable":
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FileSystemConfig": close({
-	DefaultGid?: int & <=65535 & >=0 | fn.#NumberExpression
-	DefaultUid?: int & <=65535 & >=0 | fn.#NumberExpression
-	MountPath?:  strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^/.*" | fn.#StringExpression
+	DefaultGid?: int & <=65535 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DefaultUid?: int & <=65535 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MountPath?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^/.*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -70,9 +103,7 @@ _#defs: "/$defs/Properties/definitions/JupyterLabAppImageConfig": close(
 
 _#defs: "/$defs/Properties/definitions/KernelGatewayImageConfig": close({
 	FileSystemConfig?: _#defs."/$defs/Properties/definitions/FileSystemConfig" | fn.#ObjectExpression
-	KernelSpecs!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/KernelSpec" | fn.#ObjectExpression
-	] |
+	KernelSpecs!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/KernelSpec"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression

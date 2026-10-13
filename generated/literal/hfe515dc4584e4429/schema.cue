@@ -62,7 +62,8 @@ _#defs: "/$defs/Properties/definitions/AmazonOpenSearchParameters": close({
 
 // <p>Parameters for Amazon Athena.</p>
 _#defs: "/$defs/Properties/definitions/AthenaParameters": close({
-	ConsumerAccountRoleArn?:      strings.MaxRunes(2048) & strings.MinRunes(20)
+	ConsumerAccountRoleArn?:
+		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 	IdentityCenterConfiguration?: _#defs."/$defs/Properties/definitions/IdentityCenterConfiguration"
 
 	// <p>Use the <code>RoleArn</code> structure to override an account-wide role
@@ -72,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/AthenaParameters": close({
 	// role and allow Athena access for the single Athena data source that is
 	// specified in the structure, even if the account-wide role forbidding Athena
 	// access is still active.</p>
-	RoleArn?: strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 	// <p>The workgroup that Amazon Athena uses.</p>
 	WorkGroup?: strings.MaxRunes(128) & strings.MinRunes(1)
@@ -404,7 +405,7 @@ _#defs: "/$defs/Properties/definitions/RedshiftIAMParameters": close({
 	// principal must have <code>iam:PassRole</code> access to pass the role to
 	// Amazon QuickSight. The role's trust policy must allow the Amazon QuickSight
 	// service principal to assume the role.</p>
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
 // <p>The parameters for Amazon Redshift. The <code>ClusterId</code> field can be blank if
@@ -473,7 +474,7 @@ _#defs: "/$defs/Properties/definitions/S3Parameters": close({
 	// then use <code>RoleArn</code> to bypass the account-wide role and allow S3
 	// access for the single S3 data source that is specified in the structure,
 	// even if the account-wide role forbidding S3 access is still active.</p>
-	RoleArn?: strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
 _#defs: "/$defs/Properties/definitions/S3TablesParameters": close(

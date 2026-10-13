@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,22 +19,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The ``AWS::RDS::OptionGroup`` resource creates or updates an option group, to
 // enable and configure features that are specific to a particular DB engine.
 #Properties: close({
-	EngineName!:         string | fn.#StringExpression
-	MajorEngineVersion!: string | fn.#StringExpression
-	OptionConfigurations?: [..._#defs."/$defs/Properties/definitions/OptionConfiguration" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	EngineName!:             string | fn.#StringExpression
+	MajorEngineVersion!:     string | fn.#StringExpression
+	OptionConfigurations?:   [..._#defs."/$defs/Properties/definitions/OptionConfiguration"] | fn.#ListExpression
 	OptionGroupDescription!: string | fn.#StringExpression
 	OptionGroupName?:        string | fn.#StringExpression
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/OptionConfiguration": close({
 	DBSecurityGroupMemberships?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	OptionName!:                 string | fn.#StringExpression
-	OptionSettings?: [..._#defs."/$defs/Properties/definitions/OptionSetting" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	OptionVersion?:               string | fn.#StringExpression
-	Port?:                        int | fn.#NumberExpression
+	OptionSettings?:             [..._#defs."/$defs/Properties/definitions/OptionSetting"] | fn.#ListExpression
+	OptionVersion?:              string | fn.#StringExpression
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	VpcSecurityGroupMemberships?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression

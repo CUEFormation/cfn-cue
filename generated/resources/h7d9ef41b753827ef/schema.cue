@@ -16,14 +16,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	BusinessName!: strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
 	Email?:        strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$" | fn.#StringExpression
-	Logging!:      _#defs."/$defs/Properties/definitions/Logging" | fn.#StringExpression
+	Logging!:      _#defs."/$defs/Properties/definitions/Logging"
 	Name!:         strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
 	Phone!: strings.MaxRunes(22) &
 	strings.MinRunes(7) &
 	=~"^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Logging": "ENABLED" | "DISABLED" | fn.#StringExpression

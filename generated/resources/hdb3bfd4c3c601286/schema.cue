@@ -8,31 +8,49 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Trigger
 #Properties: close({
-	Actions!:     [..._#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression] | fn.#ListExpression
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+	Actions!:                [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
+	Description?:            strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	EventBatchingCondition?: _#defs."/$defs/Properties/definitions/EventBatchingCondition" | fn.#ObjectExpression
 	Name?:                   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Predicate?:              _#defs."/$defs/Properties/definitions/Predicate" | fn.#ObjectExpression
 	Schedule?:               string | fn.#StringExpression
-	StartOnCreation?:        bool | fn.#BooleanExpression
-	Tags?:                   string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	StartOnCreation?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?:                   fn.#Object & {...} | string | fn.#StringObjectExpression
 	Type!:                   "CONDITIONAL" | "EVENT" | "ON_DEMAND" | "SCHEDULED" | fn.#StringExpression
 	WorkflowName?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Action": close({
-	Arguments?:             string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Arguments?:             fn.#Object & {...} | string | fn.#StringObjectExpression
 	CrawlerName?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	JobName?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	NotificationProperty?:  _#defs."/$defs/Properties/definitions/NotificationProperty" | fn.#ObjectExpression
 	SecurityConfiguration?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Timeout?:               int & >=1 | fn.#NumberExpression
+	Timeout?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -46,22 +64,63 @@ _#defs: "/$defs/Properties/definitions/Condition": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EventBatchingCondition": close({
-	BatchSize!:   int & <=100 & >=1 | fn.#NumberExpression
-	BatchWindow?: int & <=900 & >=1 | fn.#NumberExpression
+	BatchSize!: int & <=100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	BatchWindow?: int & <=900 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=900 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationProperty": close(
-	{NotifyDelayAfter?: int & >=1 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/NotificationProperty": close({
+	NotifyDelayAfter?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Predicate": close({
-	Conditions?: list.MaxItems(500) & [...] & [
-		..._#defs."/$defs/Properties/definitions/Condition" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Logical?: "AND" | "ANY" | fn.#StringExpression
+	Conditions?: list.MaxItems(500) & [...] & [..._#defs."/$defs/Properties/definitions/Condition"] | fn.#ListExpression
+	Logical?:    "AND" | "ANY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

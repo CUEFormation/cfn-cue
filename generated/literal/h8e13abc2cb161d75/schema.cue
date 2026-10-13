@@ -18,7 +18,7 @@ import (
 
 	// The ARN of the IAM role that grants CloudWatch permissions to fetch log lines
 	// for alarm notifications. Required when ActionLogLineCount is greater than 0.
-	ActionLogLineRoleArn?: string
+	ActionLogLineRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Indicates whether actions should be executed during any changes to the alarm
 	// state. The default is TRUE.
@@ -109,7 +109,8 @@ _#defs: "/$defs/Properties/definitions/ScheduledQueryConfiguration": close({
 	ScheduleConfiguration!: _#defs."/$defs/Properties/definitions/ScheduleConfiguration"
 
 	// The ARN of the IAM role that grants permissions to execute the scheduled query.
-	ScheduledQueryRoleARN!: strings.MaxRunes(1024) & strings.MinRunes(1)
+	ScheduledQueryRoleARN!:
+		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1024) & strings.MinRunes(1))
 
 	// A list of key-value pairs to associate with the scheduled query that backs the log alarm.
 	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]

@@ -8,69 +8,106 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Cassandra::Table
 #Properties: close({
-	AutoScalingSpecifications?:   _#defs."/$defs/Properties/definitions/AutoScalingSpecification" | fn.#ObjectExpression
-	BillingMode?:                 _#defs."/$defs/Properties/definitions/BillingMode" | fn.#ObjectExpression
-	CdcSpecification?:            _#defs."/$defs/Properties/definitions/CdcSpecification" | fn.#ObjectExpression
-	ClientSideTimestampsEnabled?: bool | fn.#BooleanExpression
-	ClusteringKeyColumns?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ClusteringKeyColumn" | fn.#ObjectExpression
-	] |
+	AutoScalingSpecifications?:   _#defs."/$defs/Properties/definitions/AutoScalingSpecification"
+	BillingMode?:                 _#defs."/$defs/Properties/definitions/BillingMode"
+	CdcSpecification?:            _#defs."/$defs/Properties/definitions/CdcSpecification"
+	ClientSideTimestampsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ClusteringKeyColumns?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ClusteringKeyColumn"] |
 		fn.#ListExpression
-	DefaultTimeToLive?:       int & >=0 | fn.#NumberExpression
-	EncryptionSpecification?: _#defs."/$defs/Properties/definitions/EncryptionSpecification" | fn.#ObjectExpression
+	DefaultTimeToLive?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	EncryptionSpecification?: _#defs."/$defs/Properties/definitions/EncryptionSpecification"
 	KeyspaceName!:            =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
-	PartitionKeyColumns!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Column" | fn.#ObjectExpression
-	] |
+	PartitionKeyColumns!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Column"] |
 		fn.#ListExpression
-	PointInTimeRecoveryEnabled?: bool | fn.#BooleanExpression
-	RegularColumns?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Column" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	PointInTimeRecoveryEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RegularColumns?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Column"] | fn.#ListExpression
 	ReplicaSpecifications?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ReplicaSpecification" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ReplicaSpecification"
 	] |
 		fn.#ListExpression
 	TableName?: =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
-	WarmThroughput?: _#defs."/$defs/Properties/definitions/WarmThroughput" | fn.#ObjectExpression
+	WarmThroughput?: _#defs."/$defs/Properties/definitions/WarmThroughput"
 })
 
 _#defs: "/$defs/Properties/definitions/AutoScalingSetting": close({
-	AutoScalingDisabled?: bool | fn.#BooleanExpression
-	MaximumUnits?:        int & >=1 | fn.#NumberExpression
-	MinimumUnits?:        int & >=1 | fn.#NumberExpression
-	ScalingPolicy?:       _#defs."/$defs/Properties/definitions/ScalingPolicy" | fn.#ObjectExpression
+	AutoScalingDisabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MaximumUnits?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinimumUnits?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ScalingPolicy?: _#defs."/$defs/Properties/definitions/ScalingPolicy"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AutoScalingSpecification": close({
-	ReadCapacityAutoScaling?:  _#defs."/$defs/Properties/definitions/AutoScalingSetting" | fn.#ObjectExpression
-	WriteCapacityAutoScaling?: _#defs."/$defs/Properties/definitions/AutoScalingSetting" | fn.#ObjectExpression
+	ReadCapacityAutoScaling?:  _#defs."/$defs/Properties/definitions/AutoScalingSetting"
+	WriteCapacityAutoScaling?: _#defs."/$defs/Properties/definitions/AutoScalingSetting"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BillingMode": close({
-	Mode!:                  _#defs."/$defs/Properties/definitions/Mode" | fn.#StringExpression
-	ProvisionedThroughput?: _#defs."/$defs/Properties/definitions/ProvisionedThroughput" | fn.#ObjectExpression
+	Mode!:                  _#defs."/$defs/Properties/definitions/Mode"
+	ProvisionedThroughput?: _#defs."/$defs/Properties/definitions/ProvisionedThroughput"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CdcSpecification": close({
-	Status!: _#defs."/$defs/Properties/definitions/CdcStatus" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Status!: _#defs."/$defs/Properties/definitions/CdcStatus"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
-	ViewType?: _#defs."/$defs/Properties/definitions/CdcViewType" | fn.#StringExpression
+	ViewType?: _#defs."/$defs/Properties/definitions/CdcViewType"
 }) |
 fn.#ObjectExpression
 
@@ -83,7 +120,7 @@ _#defs: "/$defs/Properties/definitions/CdcViewType": "NEW_IMAGE" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ClusteringKeyColumn": close({
-	Column!:  _#defs."/$defs/Properties/definitions/Column" | fn.#ObjectExpression
+	Column!:  _#defs."/$defs/Properties/definitions/Column"
 	OrderBy?: "ASC" | "DESC" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -95,8 +132,8 @@ _#defs: "/$defs/Properties/definitions/Column": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionSpecification": close({
-	EncryptionType!:   _#defs."/$defs/Properties/definitions/EncryptionType" | fn.#StringExpression
-	KmsKeyIdentifier?: _#defs."/$defs/Properties/definitions/KmsKeyIdentifier" | fn.#StringExpression
+	EncryptionType!:   _#defs."/$defs/Properties/definitions/EncryptionType"
+	KmsKeyIdentifier?: _#defs."/$defs/Properties/definitions/KmsKeyIdentifier"
 }) |
 fn.#ObjectExpression
 
@@ -109,21 +146,62 @@ _#defs: "/$defs/Properties/definitions/KmsKeyIdentifier": string | fn.#StringExp
 _#defs: "/$defs/Properties/definitions/Mode": "PROVISIONED" | "ON_DEMAND" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ProvisionedThroughput": close({
-	ReadCapacityUnits!:  int & >=1 | fn.#NumberExpression
-	WriteCapacityUnits!: int & >=1 | fn.#NumberExpression
+	ReadCapacityUnits!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	WriteCapacityUnits!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReplicaSpecification": close({
-	ReadCapacityAutoScaling?: _#defs."/$defs/Properties/definitions/AutoScalingSetting" | fn.#ObjectExpression
-	ReadCapacityUnits?:       int | fn.#NumberExpression
-	Region!:                  strings.MaxRunes(25) & strings.MinRunes(2) | fn.#StringExpression
+	ReadCapacityAutoScaling?: _#defs."/$defs/Properties/definitions/AutoScalingSetting"
+	ReadCapacityUnits?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Region!: strings.MaxRunes(25) & strings.MinRunes(2) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
-	TargetTrackingScalingPolicyConfiguration?: _#defs."/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration" |
-		fn.#ObjectExpression
+	TargetTrackingScalingPolicyConfiguration?:
+		_#defs."/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration"
 }) |
 	fn.#ObjectExpression
 
@@ -134,16 +212,83 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration": close({
-	DisableScaleIn?:   bool | fn.#BooleanExpression
-	ScaleInCooldown?:  int | fn.#NumberExpression
-	ScaleOutCooldown?: int | fn.#NumberExpression
-	TargetValue!:      int | fn.#NumberExpression
+	DisableScaleIn?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ScaleInCooldown?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ScaleOutCooldown?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TargetValue!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WarmThroughput": close({
-	ReadUnitsPerSecond?:  int & >=1 | fn.#NumberExpression
-	WriteUnitsPerSecond?: int & >=1 | fn.#NumberExpression
+	ReadUnitsPerSecond?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	WriteUnitsPerSecond?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

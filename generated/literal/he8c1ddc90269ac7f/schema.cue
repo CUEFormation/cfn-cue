@@ -50,7 +50,7 @@ import (
 	Recipe?:      _#defs."/$defs/Properties/definitions/Recipe"
 
 	// Role arn
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 	Tags?:    [..._#defs."/$defs/Properties/definitions/Tag"]
 
 	// Timeout

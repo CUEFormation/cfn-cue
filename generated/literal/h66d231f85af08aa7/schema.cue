@@ -147,7 +147,7 @@ _#defs: "/$defs/Properties/definitions/StringFilter": close({
 })
 
 _#defs: "/$defs/Properties/definitions/StringFilterList": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/StringFilter"
+	..._#defs."/$defs/Properties/definitions/StringFilter" & {...}
 ]
 
 _#defs: "/$defs/Properties/definitions/StringInput": strings.MaxRunes(1024) & strings.MinRunes(1)

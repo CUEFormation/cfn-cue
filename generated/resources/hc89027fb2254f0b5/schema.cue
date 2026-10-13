@@ -16,8 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CertificateAlternativeNames?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	CertificateDomainName!:       string | fn.#StringExpression
 	CertificateName!:             =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
-	HttpsRedirectionEnabled?:     bool | fn.#BooleanExpression
-	IsAttached?:                  bool | fn.#BooleanExpression
+	HttpsRedirectionEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IsAttached?:                  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LoadBalancerName!:            =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {

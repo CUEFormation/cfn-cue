@@ -3,11 +3,15 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"struct"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -15,17 +19,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for StateMachine
 #Properties: close({
-	Definition?:              _#defs."/$defs/Properties/definitions/Definition" | fn.#ObjectExpression
-	DefinitionS3Location?:    _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
+	Definition?:              _#defs."/$defs/Properties/definitions/Definition"
+	DefinitionS3Location?:    _#defs."/$defs/Properties/definitions/S3Location"
 	DefinitionString?:        strings.MaxRunes(1048576) & strings.MinRunes(1) | fn.#StringExpression
-	DefinitionSubstitutions?: _#defs."/$defs/Properties/definitions/DefinitionSubstitutions" | fn.#ObjectExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
-	LoggingConfiguration?:    _#defs."/$defs/Properties/definitions/LoggingConfiguration" | fn.#ObjectExpression
-	RoleArn!:                 strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	StateMachineName?:        strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
-	StateMachineType?:        "STANDARD" | "EXPRESS" | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/TagsEntry" | fn.#ObjectExpression] | fn.#ListExpression
-	TracingConfiguration?: _#defs."/$defs/Properties/definitions/TracingConfiguration" | fn.#ObjectExpression
+	DefinitionSubstitutions?: _#defs."/$defs/Properties/definitions/DefinitionSubstitutions"
+	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	LoggingConfiguration?:    _#defs."/$defs/Properties/definitions/LoggingConfiguration"
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(256) & strings.MinRunes(1)) |
+	fn.#StringExpression
+	StateMachineName?:     strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
+	StateMachineType?:     "STANDARD" | "EXPRESS" | fn.#StringExpression
+	Tags?:                 [..._#defs."/$defs/Properties/definitions/TagsEntry"] | fn.#ListExpression
+	TracingConfiguration?: _#defs."/$defs/Properties/definitions/TracingConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/CloudWatchLogsLogGroup": close(
@@ -33,7 +38,7 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogsLogGroup": close(
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Definition": struct.MinFields(1) & {[string]: fn.#Value} | fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/Definition": fn.#Object & {...} & struct.MinFields(1) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefinitionSubstitutions": struct.MinFields(1) & close({
 
@@ -41,21 +46,37 @@ _#defs: "/$defs/Properties/definitions/DefinitionSubstitutions": struct.MinField
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	KmsDataKeyReusePeriodSeconds?: int & <=900 & >=60 | fn.#NumberExpression
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) | fn.#StringExpression
-	Type!:     "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KEY" | fn.#StringExpression
+	KmsDataKeyReusePeriodSeconds?: int & <=900 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=900 &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	fn.#StringExpression
+	Type!: "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KEY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LogDestination": close(
-	{CloudWatchLogsLogGroup?: _#defs."/$defs/Properties/definitions/CloudWatchLogsLogGroup" | fn.#ObjectExpression},
+	{CloudWatchLogsLogGroup?: _#defs."/$defs/Properties/definitions/CloudWatchLogsLogGroup"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoggingConfiguration": close({
-	Destinations?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LogDestination" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	IncludeExecutionData?: bool | fn.#BooleanExpression
+	Destinations?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LogDestination"] | fn.#ListExpression
+	IncludeExecutionData?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Level?:                "ALL" | "ERROR" | "FATAL" | "OFF" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -73,7 +94,9 @@ _#defs: "/$defs/Properties/definitions/TagsEntry": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TracingConfiguration": close({Enabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/TracingConfiguration": close(
+	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::StepFunctions::StateMachine"

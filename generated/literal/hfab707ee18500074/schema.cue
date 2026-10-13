@@ -20,7 +20,7 @@ import (
 	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
 	LoggingConfiguration?:    _#defs."/$defs/Properties/definitions/LoggingConfiguration"
 	Name?:                    strings.MaxRunes(80) & strings.MinRunes(1)
-	RoleArn!:                 strings.MaxRunes(256) & strings.MinRunes(1)
+	RoleArn!:                 =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(256) & strings.MinRunes(1))
 	StateMachineName?:        strings.MaxRunes(80) & strings.MinRunes(1)
 	StateMachineRevisionId?:  strings.MaxRunes(256) & strings.MinRunes(1)
 	StateMachineType?:        "STANDARD" | "EXPRESS"
@@ -40,8 +40,8 @@ _#defs: "/$defs/Properties/definitions/DefinitionSubstitutions": struct.MinField
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 	KmsDataKeyReusePeriodSeconds?: int & <=900 & >=60
-	KmsKeyId?:                     (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
-	Type!:                         "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KEY"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
+	Type!: "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KEY"
 })
 
 _#defs: "/$defs/Properties/definitions/LogDestination": close(

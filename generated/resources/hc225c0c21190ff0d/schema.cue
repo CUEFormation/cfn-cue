@@ -17,9 +17,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	InstanceId!:               strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	IntegrationAssociationId!: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	UseCaseType!: "RULES_EVALUATION" | "CONNECT_CAMPAIGNS" | fn.#StringExpression
+	Tags?:                     list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UseCaseType!:              "RULES_EVALUATION" | "CONNECT_CAMPAIGNS" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

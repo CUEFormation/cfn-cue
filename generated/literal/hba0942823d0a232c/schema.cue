@@ -41,7 +41,7 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The ARN of the role for invoking the extension action.
-	RoleArn?: strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 	// The URI of the extension action.
 	Uri!: strings.MaxRunes(2048) & strings.MinRunes(1)

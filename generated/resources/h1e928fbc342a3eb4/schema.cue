@@ -15,10 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::ElastiCache::UserGroup
 #Properties: close({
 	Engine!: "redis" | "valkey" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	UserGroupId!: =~"[a-z][a-z0-9\\\\-]*" | fn.#StringExpression
 	UserIds!: list.UniqueItems() & [...] & [
 		...strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9\\-]*$" | fn.#StringExpression

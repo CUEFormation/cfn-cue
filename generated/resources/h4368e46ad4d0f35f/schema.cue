@@ -16,13 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	LogDestinationConfigs!: [...string | fn.#StringExpression] | fn.#ListExpression
 	LoggingFilter?: close({
 		DefaultBehavior!: "KEEP" | "DROP" | fn.#StringExpression
-		Filters!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Filter" | fn.#ObjectExpression] |
-			fn.#ListExpression
+		Filters!:         list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Filter"] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
-	RedactedFields?: [..._#defs."/$defs/Properties/definitions/FieldToMatch" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ResourceArn!: string | fn.#StringExpression
+	RedactedFields?: [..._#defs."/$defs/Properties/definitions/FieldToMatch"] | fn.#ListExpression
+	ResourceArn!:    string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Condition": close({
@@ -42,17 +40,16 @@ _#defs: "/$defs/Properties/definitions/Condition": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldToMatch": close({
-	Method?:       string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	QueryString?:  string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Method?:       fn.#Object & {...} | string | fn.#StringObjectExpression
+	QueryString?:  fn.#Object & {...} | string | fn.#StringObjectExpression
 	SingleHeader?: close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
-	UriPath?:      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	UriPath?:      fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Filter": close({
-	Behavior!: "KEEP" | "DROP" | fn.#StringExpression
-	Conditions!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Condition" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Behavior!:    "KEEP" | "DROP" | fn.#StringExpression
+	Conditions!:  list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Condition"] | fn.#ListExpression
 	Requirement!: "MEETS_ALL" | "MEETS_ANY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

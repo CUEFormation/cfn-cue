@@ -155,7 +155,7 @@ _#defs: "/$defs/Properties/definitions/ServerSideEncryptionByDefault": close({
 	// default encryption. This parameter is allowed only if SSEAlgorithm is set to
 	// aws:kms. You can specify this parameter with the key ID or the Amazon
 	// Resource Name (ARN) of the KMS key
-	KMSMasterKeyID?: string | string | string
+	KMSMasterKeyID?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 	SSEAlgorithm!:   "aws:kms" | "AES256"
 })
 

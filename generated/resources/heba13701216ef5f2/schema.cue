@@ -15,20 +15,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of the AWS::QuickSight::ActionConnector Resource Type.
 #Properties: close({
 	ActionConnectorId!:    strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	AuthenticationConfig!: _#defs."/$defs/Properties/definitions/AuthConfig" | fn.#ObjectExpression
+	AuthenticationConfig!: _#defs."/$defs/Properties/definitions/AuthConfig"
 	AwsAccountId!:         strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[A-Za-z0-9 _.,!?-]*$" | fn.#StringExpression
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9](?:[\\w- ]*[A-Za-z0-9])?$" |
 	fn.#StringExpression
-	Permissions?: list.MaxItems(64) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ResourcePermission" | fn.#ObjectExpression
-	] |
+	Permissions?: list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Type!:             _#defs."/$defs/Properties/definitions/ActionConnectorType" | fn.#StringExpression
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Type!: _#defs."/$defs/Properties/definitions/ActionConnectorType"
 	VpcConnectionArn?: string | fn.#StringExpression
 })
 
@@ -69,33 +64,29 @@ _#defs: "/$defs/Properties/definitions/ActionConnectorType": "GENERIC_HTTP" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AuthConfig": close({
-	AuthenticationMetadata!: _#defs."/$defs/Properties/definitions/AuthenticationMetadata" | fn.#ValueExpression
-	AuthenticationType!:     _#defs."/$defs/Properties/definitions/ConnectionAuthType" | fn.#StringExpression
+	AuthenticationMetadata!: _#defs."/$defs/Properties/definitions/AuthenticationMetadata"
+	AuthenticationType!:     _#defs."/$defs/Properties/definitions/ConnectionAuthType"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthenticationMetadata": matchN(1, [close({
-	AuthorizationCodeGrantMetadata!: _#defs."/$defs/Properties/definitions/AuthorizationCodeGrantMetadata" |
-		fn.#ObjectExpression
-}), close({
-	ClientCredentialsGrantMetadata!: _#defs."/$defs/Properties/definitions/ClientCredentialsGrantMetadata" |
-		fn.#ObjectExpression
-}), close({
-	BasicAuthConnectionMetadata!: _#defs."/$defs/Properties/definitions/BasicAuthConnectionMetadata" |
-		fn.#ObjectExpression
-}), close(
-	{ApiKeyConnectionMetadata!: _#defs."/$defs/Properties/definitions/APIKeyConnectionMetadata" | fn.#ObjectExpression},
+_#defs: "/$defs/Properties/definitions/AuthenticationMetadata": matchN(1, [close(
+	{AuthorizationCodeGrantMetadata!: _#defs."/$defs/Properties/definitions/AuthorizationCodeGrantMetadata"},
 ), close(
-	{NoneConnectionMetadata!: _#defs."/$defs/Properties/definitions/NoneConnectionMetadata" | fn.#ObjectExpression},
+	{ClientCredentialsGrantMetadata!: _#defs."/$defs/Properties/definitions/ClientCredentialsGrantMetadata"},
 ), close(
-	{IamConnectionMetadata!: _#defs."/$defs/Properties/definitions/IAMConnectionMetadata" | fn.#ObjectExpression},
+	{BasicAuthConnectionMetadata!: _#defs."/$defs/Properties/definitions/BasicAuthConnectionMetadata"},
+), close(
+	{ApiKeyConnectionMetadata!: _#defs."/$defs/Properties/definitions/APIKeyConnectionMetadata"},
+), close(
+	{NoneConnectionMetadata!: _#defs."/$defs/Properties/definitions/NoneConnectionMetadata"},
+), close(
+	{IamConnectionMetadata!: _#defs."/$defs/Properties/definitions/IAMConnectionMetadata"},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/AuthorizationCodeGrantCredentialsDetails": close({
-	AuthorizationCodeGrantDetails!: _#defs."/$defs/Properties/definitions/AuthorizationCodeGrantDetails" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/AuthorizationCodeGrantCredentialsDetails": close(
+	{AuthorizationCodeGrantDetails!: _#defs."/$defs/Properties/definitions/AuthorizationCodeGrantDetails"},
+) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/AuthorizationCodeGrantCredentialsSource": "PLAIN_CREDENTIALS" |
@@ -110,10 +101,10 @@ _#defs: "/$defs/Properties/definitions/AuthorizationCodeGrantDetails": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AuthorizationCodeGrantMetadata": close({
-	AuthorizationCodeGrantCredentialsDetails?: _#defs."/$defs/Properties/definitions/AuthorizationCodeGrantCredentialsDetails" |
-		fn.#ValueExpression
-	AuthorizationCodeGrantCredentialsSource?: _#defs."/$defs/Properties/definitions/AuthorizationCodeGrantCredentialsSource" |
-		fn.#StringExpression
+	AuthorizationCodeGrantCredentialsDetails?:
+		_#defs."/$defs/Properties/definitions/AuthorizationCodeGrantCredentialsDetails"
+	AuthorizationCodeGrantCredentialsSource?:
+		_#defs."/$defs/Properties/definitions/AuthorizationCodeGrantCredentialsSource"
 	BaseEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" | fn.#StringExpression
 	RedirectUrl!:  strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" | fn.#StringExpression
 }) |
@@ -126,10 +117,9 @@ _#defs: "/$defs/Properties/definitions/BasicAuthConnectionMetadata": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientCredentialsDetails": close({
-	ClientCredentialsGrantDetails!: _#defs."/$defs/Properties/definitions/ClientCredentialsGrantDetails" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/ClientCredentialsDetails": close(
+	{ClientCredentialsGrantDetails!: _#defs."/$defs/Properties/definitions/ClientCredentialsGrantDetails"},
+) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/ClientCredentialsGrantDetails": close({
@@ -141,8 +131,8 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClientCredentialsGrantMetadata": close({
 	BaseEndpoint!:             strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" | fn.#StringExpression
-	ClientCredentialsDetails?: _#defs."/$defs/Properties/definitions/ClientCredentialsDetails" | fn.#ValueExpression
-	ClientCredentialsSource?:  _#defs."/$defs/Properties/definitions/ClientCredentialsSource" | fn.#StringExpression
+	ClientCredentialsDetails?: _#defs."/$defs/Properties/definitions/ClientCredentialsDetails"
+	ClientCredentialsSource?:  _#defs."/$defs/Properties/definitions/ClientCredentialsSource"
 }) |
 fn.#ObjectExpression
 
@@ -156,9 +146,10 @@ _#defs: "/$defs/Properties/definitions/ConnectionAuthType": "BASIC" |
 	"OAUTH2_AUTHORIZATION_CODE" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IAMConnectionMetadata": close(
-	{RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression},
-) |
+_#defs: "/$defs/Properties/definitions/IAMConnectionMetadata": close({
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NoneConnectionMetadata": close(

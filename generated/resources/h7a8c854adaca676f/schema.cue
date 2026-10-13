@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,7 +19,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // for a specified Amazon Redshift feature on a cluster. The usage limit is
 // identified by the returned usage limit identifier.
 #Properties: close({
-	Amount!:            number | fn.#NumberExpression
+	Amount!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	BreachAction?:      "log" | "emit-metric" | "disable" | fn.#StringExpression
 	ClusterIdentifier!: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
 	FeatureType!: "spectrum" |
@@ -25,7 +47,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	LimitType!: "time" | "data-scanned" | fn.#StringExpression
 	Period?:    "daily" | "weekly" | "monthly" | fn.#StringExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

@@ -1,0 +1,11 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "FifoQueue": "maybe",
+        "QueueName": "compatibility.fifo"
+      },
+      "Type": "AWS::SQS::Queue"
+    }
+  }
+}

@@ -165,7 +165,10 @@ _#defs: "/$defs/Properties/definitions/ResourceType": strings.MaxRunes(64)
 
 // The Amazon Resource Name (ARN) of an IAM role that grants the AWS FIS service
 // permission to perform service actions on your behalf.
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(1224) & strings.MinRunes(20) & =~"^[\\S]+$"
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+strings.MaxRunes(1224) &
+strings.MinRunes(20) &
+=~"^[\\S]+$"
 
 _#defs: "/$defs/Properties/definitions/StopConditionSource": strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[\\S]+$"
 

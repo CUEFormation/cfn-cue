@@ -18,7 +18,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-custom-domains.html)
 // in the *API Gateway Developer Guide*.
 #Properties: close({
-	CertificateArn?:          string | fn.#StringExpression
+	CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	DomainName?:              string | fn.#StringExpression
 	EndpointAccessMode?:      string | fn.#StringExpression
 	EndpointConfiguration?:   _#defs."/$defs/Properties/definitions/EndpointConfiguration" | fn.#ObjectExpression
@@ -30,7 +31,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"ROUTING_RULE_ONLY" |
 		fn.#StringExpression
 	SecurityPolicy?: string | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EndpointConfiguration": close({

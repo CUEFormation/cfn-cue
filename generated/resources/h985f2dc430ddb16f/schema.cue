@@ -13,9 +13,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::Route53GlobalResolver::HostedZoneAssociation
 #Properties: close({
-	HostedZoneId!: _#defs."/$defs/Properties/definitions/HostedZoneId" | fn.#StringExpression
-	Name!:         _#defs."/$defs/Properties/definitions/ResourceName" | fn.#StringExpression
-	ResourceArn!:  _#defs."/$defs/Properties/definitions/ResourceArn" | fn.#StringExpression
+	HostedZoneId!: _#defs."/$defs/Properties/definitions/HostedZoneId"
+	Name!:         _#defs."/$defs/Properties/definitions/ResourceName"
+	ResourceArn!:  _#defs."/$defs/Properties/definitions/ResourceArn"
 })
 
 _#defs: "/$defs/Properties/definitions/HostedZoneAssociationStatus": "CREATING" |

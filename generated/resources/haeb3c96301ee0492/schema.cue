@@ -14,13 +14,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Contains a list of IP addresses. This can be either IPV4 or IPV6. The list will be mutually
 #Properties: close({
-	Addresses!:        [..._#defs."/$defs/Properties/definitions/IPAddress" | fn.#StringExpression] | fn.#ListExpression
-	Description?:      _#defs."/$defs/Properties/definitions/EntityDescription" | fn.#StringExpression
-	IPAddressVersion!: _#defs."/$defs/Properties/definitions/IPAddressVersion" | fn.#StringExpression
-	Name?:             _#defs."/$defs/Properties/definitions/EntityName" | fn.#StringExpression
-	Scope!:            _#defs."/$defs/Properties/definitions/Scope" | fn.#StringExpression
-	Tags?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Addresses!:        [..._#defs."/$defs/Properties/definitions/IPAddress"] | fn.#ListExpression
+	Description?:      _#defs."/$defs/Properties/definitions/EntityDescription"
+	IPAddressVersion!: _#defs."/$defs/Properties/definitions/IPAddressVersion"
+	Name?:             _#defs."/$defs/Properties/definitions/EntityName"
+	Scope!:            _#defs."/$defs/Properties/definitions/Scope"
+	Tags?:             list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EntityDescription": =~"^[a-zA-Z0-9=:#@/\\-,.][a-zA-Z0-9+=:#@/\\-,.\\s]+[a-zA-Z0-9+=:#@/\\-,.]{1,256}$" |

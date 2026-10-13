@@ -7,6 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,10 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	IntegrationName!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
 	IntegrationType!: "OPENSEARCH" | fn.#StringExpression
-	ResourceConfig!: close({
-		OpenSearchResourceConfig?: _#defs."/$defs/Properties/definitions/OpenSearchResourceConfig" |
-			fn.#ObjectExpression
-	}) |
+	ResourceConfig!: close({OpenSearchResourceConfig?: _#defs."/$defs/Properties/definitions/OpenSearchResourceConfig"}) |
 		fn.#ObjectExpression
 })
 
@@ -26,12 +27,40 @@ _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.Mi
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/OpenSearchResourceConfig": close({
-	ApplicationARN?: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	DashboardViewerPrincipals!: [..._#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression] |
-		fn.#ListExpression
-	DataSourceRoleArn!: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	KmsKeyArn?:         _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	RetentionDays?:     int & <=3650 & >=1 | fn.#NumberExpression
+	ApplicationARN?:            _#defs."/$defs/Properties/definitions/Arn"
+	DashboardViewerPrincipals!: [..._#defs."/$defs/Properties/definitions/Arn"] | fn.#ListExpression
+	DataSourceRoleArn!: _#defs."/$defs/Properties/definitions/Arn" &
+	(null |
+	bool |
+	number |
+	=~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+	[...] |
+	{...}) |
+	fn.#StringExpression
+	KmsKeyArn?: _#defs."/$defs/Properties/definitions/Arn" &
+	(null |
+	bool |
+	number |
+	=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+	[...] |
+	{...}) |
+	fn.#StringExpression
+	RetentionDays?: int & <=3650 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=3650 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

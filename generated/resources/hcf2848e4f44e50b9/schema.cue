@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -31,143 +35,337 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"db2_zos" |
 		"sybase" |
 		fn.#StringExpression
-	ExactSettings?: bool | fn.#BooleanExpression
-	Settings?: ({
+	ExactSettings?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Settings?: matchN(>=1, [{
 		PostgreSqlSettings!: _
 		...
-	} | {
+	}, {
 		MySqlSettings!: _
 		...
-	} | {
+	}, {
 		OracleSettings!: _
 		...
-	} | {
+	}, {
 		MicrosoftSqlServerSettings!: _
 		...
-	} | {
+	}, {
 		RedshiftSettings!: _
 		...
-	} | {
+	}, {
 		DocDbSettings!: _
 		...
-	} | {
+	}, {
 		MariaDbSettings!: _
 		...
-	} | {
+	}, {
 		MongoDbSettings!: _
 		...
-	} | {
+	}, {
 		IbmDb2LuwSettings!: _
 		...
-	} | {
+	}, {
 		IbmDb2zOsSettings!: _
 		...
-	} | {
+	}, {
 		SybaseAseSettings!: _
 		...
-	}) & close({
+	}]) & close({
 		DocDbSettings?: close({
 			CertificateArn?: string | fn.#StringExpression
 			DatabaseName!:   string | fn.#StringExpression
-			Port!:           int | fn.#NumberExpression
-			ServerName!:     string | fn.#StringExpression
-			SslMode?:        _#defs."/$defs/Properties/definitions/MongoDbSslModeValue" | fn.#StringExpression
+			Port!: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ServerName!: string | fn.#StringExpression
+			SslMode?:    _#defs."/$defs/Properties/definitions/MongoDbSslModeValue"
 		}) |
 		fn.#ObjectExpression
 		IbmDb2LuwSettings?: close({
-			CertificateArn?:      string | fn.#StringExpression
-			DatabaseName!:        string | fn.#StringExpression
-			EncryptionAlgorithm?: int | fn.#NumberExpression
-			Port!:                int | fn.#NumberExpression
-			SecurityMechanism?:   int | fn.#NumberExpression
-			ServerName!:          string | fn.#StringExpression
-			SslMode!:             _#defs."/$defs/Properties/definitions/Db2SslModeValue" | fn.#StringExpression
+			CertificateArn?: string | fn.#StringExpression
+			DatabaseName!:   string | fn.#StringExpression
+			EncryptionAlgorithm?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			Port!: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			SecurityMechanism?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ServerName!: string | fn.#StringExpression
+			SslMode!:    _#defs."/$defs/Properties/definitions/Db2SslModeValue"
 		}) |
 		fn.#ObjectExpression
 		IbmDb2zOsSettings?: close({
 			CertificateArn?: string | fn.#StringExpression
 			DatabaseName!:   string | fn.#StringExpression
-			Port!:           int | fn.#NumberExpression
-			ServerName!:     string | fn.#StringExpression
-			SslMode!:        _#defs."/$defs/Properties/definitions/Db2SslModeValue" | fn.#StringExpression
+			Port!: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ServerName!: string | fn.#StringExpression
+			SslMode!:    _#defs."/$defs/Properties/definitions/Db2SslModeValue"
 		}) |
 		fn.#ObjectExpression
 		MariaDbSettings?: close({
 			CertificateArn?: string | fn.#StringExpression
-			Port!:           int | fn.#NumberExpression
-			ServerName!:     string | fn.#StringExpression
-			SslMode!:        _#defs."/$defs/Properties/definitions/DmsSslModeValue" | fn.#StringExpression
+			Port!: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ServerName!: string | fn.#StringExpression
+			SslMode!:    _#defs."/$defs/Properties/definitions/DmsSslModeValue"
 		}) |
 		fn.#ObjectExpression
 		MicrosoftSqlServerSettings?: close({
-			CertificateArn?:  string | fn.#StringExpression
-			DatabaseName!:    string | fn.#StringExpression
-			Port!:            int | fn.#NumberExpression
+			CertificateArn?: string | fn.#StringExpression
+			DatabaseName!:   string | fn.#StringExpression
+			Port!: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
 			S3AccessRoleArn?: string | fn.#StringExpression
 			S3Path?:          string | fn.#StringExpression
 			ServerName!:      string | fn.#StringExpression
-			SslMode!:         _#defs."/$defs/Properties/definitions/DmsSslModeValue" | fn.#StringExpression
+			SslMode!:         _#defs."/$defs/Properties/definitions/DmsSslModeValue"
 		}) |
 		fn.#ObjectExpression
 		MongoDbSettings?: close({
-			AuthMechanism?:  _#defs."/$defs/Properties/definitions/MongoDbAuthMechanism" | fn.#StringExpression
+			AuthMechanism?:  _#defs."/$defs/Properties/definitions/MongoDbAuthMechanism"
 			AuthSource?:     string | fn.#StringExpression
-			AuthType?:       _#defs."/$defs/Properties/definitions/MongoDbAuthType" | fn.#StringExpression
+			AuthType?:       _#defs."/$defs/Properties/definitions/MongoDbAuthType"
 			CertificateArn?: string | fn.#StringExpression
 			DatabaseName?:   string | fn.#StringExpression
-			Port!:           int | fn.#NumberExpression
-			ServerName!:     string | fn.#StringExpression
-			SslMode?:        _#defs."/$defs/Properties/definitions/MongoDbSslModeValue" | fn.#StringExpression
+			Port!: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ServerName!: string | fn.#StringExpression
+			SslMode?:    _#defs."/$defs/Properties/definitions/MongoDbSslModeValue"
 		}) |
 		fn.#ObjectExpression
 		MySqlSettings?: close({
 			CertificateArn?: string | fn.#StringExpression
-			Port!:           int | fn.#NumberExpression
-			ServerName!:     string | fn.#StringExpression
-			SslMode!:        _#defs."/$defs/Properties/definitions/DmsSslModeValue" | fn.#StringExpression
+			Port!: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ServerName!: string | fn.#StringExpression
+			SslMode!:    _#defs."/$defs/Properties/definitions/DmsSslModeValue"
 		}) |
 		fn.#ObjectExpression
 		OracleSettings?: close({
-			AsmServer?:                                       string | fn.#StringExpression
-			CertificateArn?:                                  string | fn.#StringExpression
-			DatabaseName!:                                    string | fn.#StringExpression
-			Port!:                                            int | fn.#NumberExpression
+			AsmServer?:      string | fn.#StringExpression
+			CertificateArn?: string | fn.#StringExpression
+			DatabaseName!:   string | fn.#StringExpression
+			Port!: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
 			SecretsManagerOracleAsmAccessRoleArn?:            string | fn.#StringExpression
 			SecretsManagerOracleAsmSecretId?:                 string | fn.#StringExpression
 			SecretsManagerSecurityDbEncryptionAccessRoleArn?: string | fn.#StringExpression
 			SecretsManagerSecurityDbEncryptionSecretId?:      string | fn.#StringExpression
 			ServerName!:                                      string | fn.#StringExpression
-			SslMode!: _#defs."/$defs/Properties/definitions/DmsSslModeValue" | fn.#StringExpression
+			SslMode!:                                         _#defs."/$defs/Properties/definitions/DmsSslModeValue"
 		}) |
 		fn.#ObjectExpression
 		PostgreSqlSettings?: close({
 			CertificateArn?: string | fn.#StringExpression
 			DatabaseName!:   string | fn.#StringExpression
-			Port!:           int | fn.#NumberExpression
-			ServerName!:     string | fn.#StringExpression
-			SslMode!:        _#defs."/$defs/Properties/definitions/DmsSslModeValue" | fn.#StringExpression
+			Port!: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ServerName!: string | fn.#StringExpression
+			SslMode!:    _#defs."/$defs/Properties/definitions/DmsSslModeValue"
 		}) |
 		fn.#ObjectExpression
 		RedshiftSettings?: close({
 			DatabaseName!: string | fn.#StringExpression
-			Port!:         int | fn.#NumberExpression
-			ServerName!:   string | fn.#StringExpression
+			Port!: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ServerName!: string | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		SybaseAseSettings?: close({
 			CertificateArn?:  string | fn.#StringExpression
 			DatabaseName?:    string | fn.#StringExpression
-			EncryptPassword?: bool | fn.#BooleanExpression
-			Port!:            int | fn.#NumberExpression
-			ServerName!:      string | fn.#StringExpression
-			SslMode!:         _#defs."/$defs/Properties/definitions/SybaseSslModeValue" | fn.#StringExpression
+			EncryptPassword?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			Port!: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ServerName!: string | fn.#StringExpression
+			SslMode!:    _#defs."/$defs/Properties/definitions/SybaseSslModeValue"
 		}) |
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Virtual?: bool | fn.#BooleanExpression
+	Tags?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Virtual?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Db2SslModeValue": "none" | "verify-ca" | fn.#StringExpression

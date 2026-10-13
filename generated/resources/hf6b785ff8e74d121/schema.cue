@@ -7,6 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -31,32 +35,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	GenerateSecretString?: _#defs."/$defs/Properties/definitions/GenerateSecretString" | fn.#ObjectExpression
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(0)) | fn.#StringExpression
-	Name?:     strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	ReplicaRegions?: [..._#defs."/$defs/Properties/definitions/ReplicaRegion" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	SecretString?: strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:         [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	Type?:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & (strings.MaxRunes(2048) & strings.MinRunes(0)) |
+	fn.#StringExpression
+	Name?:           strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+	ReplicaRegions?: [..._#defs."/$defs/Properties/definitions/ReplicaRegion"] | fn.#ListExpression
+	SecretString?:   strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
+	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Type?:           strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/GenerateSecretString": close({
-	ExcludeCharacters?:       string | fn.#StringExpression
-	ExcludeLowercase?:        bool | fn.#BooleanExpression
-	ExcludeNumbers?:          bool | fn.#BooleanExpression
-	ExcludePunctuation?:      bool | fn.#BooleanExpression
-	ExcludeUppercase?:        bool | fn.#BooleanExpression
-	GenerateStringKey?:       string | fn.#StringExpression
-	IncludeSpace?:            bool | fn.#BooleanExpression
-	PasswordLength?:          int | fn.#NumberExpression
-	RequireEachIncludedType?: bool | fn.#BooleanExpression
+	ExcludeCharacters?:  string | fn.#StringExpression
+	ExcludeLowercase?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExcludeNumbers?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExcludePunctuation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExcludeUppercase?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	GenerateStringKey?:  string | fn.#StringExpression
+	IncludeSpace?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PasswordLength?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RequireEachIncludedType?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SecretStringTemplate?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReplicaRegion": close({
-	KmsKeyId?: string | string | string | fn.#StringExpression
-	Region!:   string | fn.#StringExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	Region!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

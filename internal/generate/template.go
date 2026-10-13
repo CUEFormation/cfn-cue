@@ -23,7 +23,7 @@ func Template(module string, extensions, sam bool) *ast.File {
 	for _, name := range []string{"AllowedPattern", "ConstraintDescription", "Description"} {
 		parameter.Elts = append(parameter.Elts, field(name, id("string"), true))
 	}
-	parameter.Elts = append(parameter.Elts, field("Default", union(id("string"), id("number")), true), field("AllowedValues", list(union(id("string"), id("number"))), true), field("NoEcho", union(id("bool"), str("true"), str("false")), true))
+	parameter.Elts = append(parameter.Elts, field("Default", union(id("string"), id("number")), true), field("AllowedValues", list(union(id("string"), id("number"))), true), field("NoEcho", id("bool"), true))
 	for _, name := range []string{"MaxLength", "MinLength"} {
 		parameter.Elts = append(parameter.Elts, field(name, and(id("int"), &ast.UnaryExpr{Op: token.GEQ, X: ast.NewLit(token.INT, "0")}), true))
 	}
@@ -50,5 +50,9 @@ func Template(module string, extensions, sam bool) *ast.File {
 		template.Elts = append(template.Elts, field("Globals", sel("fn", "Object"), true))
 	}
 	add("Template", template)
+	// Parameter bounds have the same quoted scalar compatibility as resource
+	// properties. Select only this definition so unrelated template fields and
+	// the existing string alternatives in Default/AllowedValues stay intact.
+	addScalarCompatibility(f, "#Parameter")
 	return f
 }

@@ -63,7 +63,8 @@ _#defs: "/$defs/Properties/definitions/AnalyticsConfiguration": close({
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
 	ApplicationId?: =~"^[0-9a-fA-F]+$"
 	ExternalId?:    strings.MaxRunes(131072) & strings.MinRunes(0)
-	RoleArn?: strings.MaxRunes(2048) &
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
 	UserDataShared?: bool

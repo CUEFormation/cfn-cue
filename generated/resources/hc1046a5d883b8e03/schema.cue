@@ -15,18 +15,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Schema of AWS::EC2::IPAM Type
 #Properties: close({
 	DefaultResourceDiscoveryOrganizationalUnitExclusions?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IpamOrganizationalUnitExclusion" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/IpamOrganizationalUnitExclusion"
 	] |
 		fn.#ListExpression
 	Description?:      string | fn.#StringExpression
-	EnablePrivateGua?: bool | fn.#BooleanExpression
+	EnablePrivateGua?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MeteredAccount?:   "ipam-owner" | "resource-owner" | fn.#StringExpression
 	OperatingRegions?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/IpamOperatingRegion" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/IpamOperatingRegion"
 	] |
 		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Tier?: "free" | "advanced" | fn.#StringExpression
 })
 

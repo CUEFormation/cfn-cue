@@ -29,7 +29,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"arn:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]*:[0-9]+:([\\w+=\\/,.@:-]+)*" |
 	fn.#StringExpression
-	DeferActivation?: bool | fn.#BooleanExpression
+	DeferActivation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SSMContacts::ContactChannel"

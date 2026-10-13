@@ -15,10 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Redshift::RedshiftIdcApplication. Creates
 // an Amazon Redshift application for use with IAM Identity Center.
 #Properties: close({
-	ApplicationType?: "None" | "Lakehouse" | fn.#StringExpression
-	AuthorizedTokenIssuerList?: [..._#defs."/$defs/Properties/definitions/AuthorizedTokenIssuer" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	IamRoleArn!: strings.MaxRunes(2147483647) &
+	ApplicationType?:           "None" | "Lakehouse" | fn.#StringExpression
+	AuthorizedTokenIssuerList?: [..._#defs."/$defs/Properties/definitions/AuthorizedTokenIssuer"] | fn.#ListExpression
+	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2147483647) &
 	strings.MinRunes(0) &
 	=~"^arn:aws[a-zA-Z-]*:[a-zA-Z0-9-]+:[a-z0-9-]*:[0-9]*:.+$" |
 	fn.#StringExpression
@@ -30,11 +30,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	IdentityNamespace?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_+.#@$-]+$" | fn.#StringExpression
 	RedshiftIdcApplicationName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
 	fn.#StringExpression
-	ServiceIntegrations?: [..._#defs."/$defs/Properties/definitions/ServiceIntegrationsUnion" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ServiceIntegrations?: [..._#defs."/$defs/Properties/definitions/ServiceIntegrationsUnion"] | fn.#ListExpression
 	SsoTagKeys?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AuthorizedTokenIssuer": close({
@@ -56,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/LakeFormationQuery": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LakeFormationScopeUnion": close(
-	{LakeFormationQuery?: _#defs."/$defs/Properties/definitions/LakeFormationQuery" | fn.#ObjectExpression},
+	{LakeFormationQuery?: _#defs."/$defs/Properties/definitions/LakeFormationQuery"},
 ) |
 	fn.#ObjectExpression
 
@@ -66,22 +64,19 @@ _#defs: "/$defs/Properties/definitions/ReadWriteAccess": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RedshiftScopeUnion": close(
-	{Connect?: _#defs."/$defs/Properties/definitions/Connect" | fn.#ObjectExpression},
+	{Connect?: _#defs."/$defs/Properties/definitions/Connect"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3AccessGrantsScopeUnion": close(
-	{ReadWriteAccess?: _#defs."/$defs/Properties/definitions/ReadWriteAccess" | fn.#ObjectExpression},
+	{ReadWriteAccess?: _#defs."/$defs/Properties/definitions/ReadWriteAccess"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceIntegrationsUnion": close({
-	LakeFormation?: [..._#defs."/$defs/Properties/definitions/LakeFormationScopeUnion" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Redshift?: [..._#defs."/$defs/Properties/definitions/RedshiftScopeUnion" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	S3AccessGrants?: [..._#defs."/$defs/Properties/definitions/S3AccessGrantsScopeUnion" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	LakeFormation?:  [..._#defs."/$defs/Properties/definitions/LakeFormationScopeUnion"] | fn.#ListExpression
+	Redshift?:       [..._#defs."/$defs/Properties/definitions/RedshiftScopeUnion"] | fn.#ListExpression
+	S3AccessGrants?: [..._#defs."/$defs/Properties/definitions/S3AccessGrantsScopeUnion"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

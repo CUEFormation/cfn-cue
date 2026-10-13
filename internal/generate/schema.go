@@ -124,6 +124,9 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 			for i, child := range x.([]any) {
 				a = append(a, c.normalize(child, fmt.Sprintf("%s/%d", p, i), k == "prefixItems", root, visiting))
 			}
+			if k == "anyOf" {
+				a = deduplicateAnyOf(a)
+			}
 			m[k] = a
 		case k == "dependencies":
 			n := map[string]any{}
@@ -174,11 +177,7 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 				m[k] = pat
 			}
 		case k == "format":
-			if x == "date-time" || x == "date" || x == "uri" || x == "uri-reference" || x == "regex" {
-				m[k] = x
-			} else {
-				c.warn(p, k, "format annotation not enforced: "+fmt.Sprint(x))
-			}
+			c.normalizeFormat(m, p, x)
 		case includes(standard, k):
 			m[k] = x
 		default:
@@ -193,11 +192,11 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 	if !lift || !c.template {
 		return m
 	}
+	if len(m) == 1 && localReferenceIsLifted(s, root) {
+		return m
+	}
 	if len(m) == 0 {
 		return map[string]any{"$ref": "cue://intrinsics/Value"}
-	}
-	if includes(schemaTypes(s), "object") && s["additionalProperties"] == nil && s["properties"] == nil && s["patternProperties"] == nil {
-		m["additionalProperties"] = map[string]any{"$ref": "cue://intrinsics/Value"}
 	}
 	// Literal alternatives already belong to m. Adding #Value here would
 	// duplicate open objects and arrays, leaving nested values ambiguous in
@@ -205,8 +204,37 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 	classes := schemaClasses(s, root, map[string]bool{})
 	if len(classes) == 0 {
 		classes = []string{"ValueExpression"}
+	} else if len(classes) > 1 {
+		name := ""
+		for _, class := range []string{"String", "Number", "Boolean", "List", "Object"} {
+			if includes(classes, class+"Expression") {
+				name += class
+			}
+		}
+		classes = []string{name + "Expression"}
 	}
 	alternatives := []any{m}
+	if includes(schemaTypes(s), "object") && s["additionalProperties"] == nil && s["properties"] == nil && s["patternProperties"] == nil {
+		// Generic objects must use the same literal/expression distinction as
+		// #Value. Otherwise an intrinsic also matches an open object, leaving
+		// intersections with typed properties ambiguous. Split mixed types so
+		// the object guard does not constrain their scalar/array alternatives.
+		object := clone(m).(map[string]any)
+		object["type"] = "object"
+		object["allOf"] = append(asArray(object["allOf"]), map[string]any{"$ref": "cue://intrinsics/Object"})
+		alternatives = []any{object}
+		var otherTypes []any
+		for _, typ := range schemaTypes(s) {
+			if typ != "object" {
+				otherTypes = append(otherTypes, typ)
+			}
+		}
+		if len(otherTypes) > 0 {
+			other := clone(m).(map[string]any)
+			other["type"] = otherTypes
+			alternatives = append(alternatives, other)
+		}
+	}
 	for _, class := range classes {
 		alternatives = append(alternatives, map[string]any{"$ref": "cue://intrinsics/" + class})
 	}
@@ -259,6 +287,7 @@ func (c *converter) extract(root map[string]any, template bool) (*ast.File, erro
 	if template {
 		c.removeReadOnly(s)
 	}
+	preservePatternReferences(s)
 	n := c.normalize(s, "#", false, s, map[string]bool{})
 	wrapper := map[string]any{"$schema": "https://json-schema.org/draft/2020-12/schema", "$defs": map[string]any{"Properties": n}, "$ref": "#/$defs/Properties"}
 	b, e := json.Marshal(wrapper)
@@ -287,13 +316,20 @@ func (c *converter) extract(root map[string]any, template bool) (*ast.File, erro
 	}
 	if e == nil {
 		simplifyApplicators(f)
+		if template {
+			if n := addScalarCompatibility(f); n > 0 {
+				c.warn("#", "scalarCompatibility", fmt.Sprintf("quoted scalar coercion not applied to %d composed scalar constraints; exact constraints retained", n))
+			}
+		}
+		e = astutil.Sanitize(f)
 	}
 	return f, e
 }
 
 // anyOf and allOf are direct CUE operations. Keeping the extractor's matchN
 // wrappers for these makes recursive intrinsic arguments repeatedly evaluate
-// entire schemas. oneOf/not keep matchN so exclusivity is preserved.
+// entire schemas. Required-key presence predicates retain matchN so absent
+// fields do not survive as incomplete alternatives. oneOf/not also retain it.
 func simplifyApplicators(f *ast.File) {
 	astutil.Apply(f, nil, func(cur astutil.Cursor) bool {
 		call, ok := cur.Node().(*ast.CallExpr)
@@ -309,7 +345,7 @@ func simplifyApplicators(f *ast.File) {
 			return true
 		}
 		if bound, ok := call.Args[0].(*ast.UnaryExpr); ok && bound.Op == token.GEQ {
-			if n, ok := bound.X.(*ast.BasicLit); ok && n.Value == "1" {
+			if n, ok := bound.X.(*ast.BasicLit); ok && n.Value == "1" && !presenceOnlyAlternatives(args.Elts) {
 				cur.Replace(union(args.Elts...))
 			}
 		}

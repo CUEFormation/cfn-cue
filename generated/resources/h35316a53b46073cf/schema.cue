@@ -27,20 +27,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
 	fn.#StringExpression
 	PermissionsBoundary?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	Policies?:            [..._#defs."/$defs/Properties/definitions/Policy" | fn.#ObjectExpression] | fn.#ListExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Policies?:            [..._#defs."/$defs/Properties/definitions/Policy"] | fn.#ListExpression
+	Tags?:     list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	UserName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/LoginProfile": close({
 	Password!:              string | fn.#StringExpression
-	PasswordResetRequired?: bool | fn.#BooleanExpression
+	PasswordResetRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Policy": close({
-	PolicyDocument!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
 	PolicyName!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

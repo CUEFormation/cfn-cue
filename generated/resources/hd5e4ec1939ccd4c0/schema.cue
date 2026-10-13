@@ -10,20 +10,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::EC2::NetworkInsightsAccessScope
 #Properties: close({
-	ExcludePaths?: [..._#defs."/$defs/Properties/definitions/AccessScopePathRequest" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	MatchPaths?: [..._#defs."/$defs/Properties/definitions/AccessScopePathRequest" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	ExcludePaths?: [..._#defs."/$defs/Properties/definitions/AccessScopePathRequest"] | fn.#ListExpression
+	MatchPaths?:   [..._#defs."/$defs/Properties/definitions/AccessScopePathRequest"] | fn.#ListExpression
+	Tags?:         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccessScopePathRequest": close({
-	Destination?: _#defs."/$defs/Properties/definitions/PathStatementRequest" | fn.#ObjectExpression
-	Source?:      _#defs."/$defs/Properties/definitions/PathStatementRequest" | fn.#ObjectExpression
-	ThroughResources?: [
-		..._#defs."/$defs/Properties/definitions/ThroughResourcesStatementRequest" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Destination?:      _#defs."/$defs/Properties/definitions/PathStatementRequest"
+	Source?:           _#defs."/$defs/Properties/definitions/PathStatementRequest"
+	ThroughResources?: [..._#defs."/$defs/Properties/definitions/ThroughResourcesStatementRequest"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -31,16 +26,16 @@ _#defs: "/$defs/Properties/definitions/PacketHeaderStatementRequest": close({
 	DestinationAddresses?:   [...string | fn.#StringExpression] | fn.#ListExpression
 	DestinationPorts?:       [...string | fn.#StringExpression] | fn.#ListExpression
 	DestinationPrefixLists?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Protocols?:         [..._#defs."/$defs/Properties/definitions/Protocol" | fn.#StringExpression] | fn.#ListExpression
-	SourceAddresses?:   [...string | fn.#StringExpression] | fn.#ListExpression
-	SourcePorts?:       [...string | fn.#StringExpression] | fn.#ListExpression
-	SourcePrefixLists?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Protocols?:              [..._#defs."/$defs/Properties/definitions/Protocol"] | fn.#ListExpression
+	SourceAddresses?:        [...string | fn.#StringExpression] | fn.#ListExpression
+	SourcePorts?:            [...string | fn.#StringExpression] | fn.#ListExpression
+	SourcePrefixLists?:      [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PathStatementRequest": close({
-	PacketHeaderStatement?: _#defs."/$defs/Properties/definitions/PacketHeaderStatementRequest" | fn.#ObjectExpression
-	ResourceStatement?:     _#defs."/$defs/Properties/definitions/ResourceStatementRequest" | fn.#ObjectExpression
+	PacketHeaderStatement?: _#defs."/$defs/Properties/definitions/PacketHeaderStatementRequest"
+	ResourceStatement?:     _#defs."/$defs/Properties/definitions/ResourceStatementRequest"
 }) |
 fn.#ObjectExpression
 
@@ -59,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ThroughResourcesStatementRequest": close(
-	{ResourceStatement?: _#defs."/$defs/Properties/definitions/ResourceStatementRequest" | fn.#ObjectExpression},
+	{ResourceStatement?: _#defs."/$defs/Properties/definitions/ResourceStatementRequest"},
 ) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -7,6 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -27,22 +31,87 @@ _#defs: "/$defs/Properties/definitions/CompactionConfiguration": close({
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergCompactionConfiguration": close({
-	DeleteFileThreshold?: int | fn.#NumberExpression
-	MinInputFiles?:       int | fn.#NumberExpression
-	Strategy?:            "binpack" | "sort" | "z-order" | fn.#StringExpression
+	DeleteFileThreshold?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinInputFiles?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Strategy?: "binpack" | "sort" | "z-order" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergConfiguration": close({
-	Location?:                        string | fn.#StringExpression
-	OrphanFileRetentionPeriodInDays?: int | fn.#NumberExpression
+	Location?: string | fn.#StringExpression
+	OrphanFileRetentionPeriodInDays?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergRetentionConfiguration": close({
-	CleanExpiredFiles?:             bool | fn.#BooleanExpression
-	NumberOfSnapshotsToRetain?:     int | fn.#NumberExpression
-	SnapshotRetentionPeriodInDays?: int | fn.#NumberExpression
+	CleanExpiredFiles?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NumberOfSnapshotsToRetain?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SnapshotRetentionPeriodInDays?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -58,12 +127,13 @@ _#defs: "/$defs/Properties/definitions/RetentionConfiguration": close(
 
 _#defs: "/$defs/Properties/definitions/TableOptimizerConfiguration": close({
 	CompactionConfiguration?: _#defs."/$defs/Properties/definitions/CompactionConfiguration" | fn.#ObjectExpression
-	Enabled!:                 bool | fn.#BooleanExpression
+	Enabled!:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	OrphanFileDeletionConfiguration?: _#defs."/$defs/Properties/definitions/OrphanFileDeletionConfiguration" |
 		fn.#ObjectExpression
 	RetentionConfiguration?: _#defs."/$defs/Properties/definitions/RetentionConfiguration" | fn.#ObjectExpression
-	RoleArn!:                strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	VpcConfiguration?:       _#defs."/$defs/Properties/definitions/VpcConfiguration" | fn.#ObjectExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
+	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration" | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 

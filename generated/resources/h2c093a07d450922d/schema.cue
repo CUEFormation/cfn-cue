@@ -14,8 +14,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for Carrier Gateway which describes the Carrier Gateway resource
 #Properties: close({
-	Tags?:  _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
-	VpcId!: string | fn.#StringExpression
+	Tags?: _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
@@ -24,9 +25,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EC2::CarrierGateway"

@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,12 +19,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::IoTAnalytics::Datastore
 #Properties: close({
 	DatastoreName?:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
-	DatastorePartitions?:     _#defs."/$defs/Properties/definitions/DatastorePartitions" | fn.#ObjectExpression
-	DatastoreStorage?:        _#defs."/$defs/Properties/definitions/DatastoreStorage" | fn.#ObjectExpression
-	FileFormatConfiguration?: _#defs."/$defs/Properties/definitions/FileFormatConfiguration" | fn.#ObjectExpression
-	RetentionPeriod?:         _#defs."/$defs/Properties/definitions/RetentionPeriod" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	DatastorePartitions?:     _#defs."/$defs/Properties/definitions/DatastorePartitions"
+	DatastoreStorage?:        _#defs."/$defs/Properties/definitions/DatastoreStorage"
+	FileFormatConfiguration?: _#defs."/$defs/Properties/definitions/FileFormatConfiguration"
+	RetentionPeriod?:         _#defs."/$defs/Properties/definitions/RetentionPeriod"
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Column": close({
@@ -32,7 +35,8 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/CustomerManagedS3": close({
 	Bucket!:    strings.MaxRunes(255) & strings.MinRunes(3) & =~"[a-zA-Z0-9.\\-_]*" | fn.#StringExpression
 	KeyPrefix?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9!_.*'()/{}:-]*/" | fn.#StringExpression
-	RoleArn!:   strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -43,49 +47,39 @@ _#defs: "/$defs/Properties/definitions/CustomerManagedS3Storage": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DatastorePartition": close({
-	Partition?:          _#defs."/$defs/Properties/definitions/Partition" | fn.#ObjectExpression
-	TimestampPartition?: _#defs."/$defs/Properties/definitions/TimestampPartition" | fn.#ObjectExpression
+	Partition?:          _#defs."/$defs/Properties/definitions/Partition"
+	TimestampPartition?: _#defs."/$defs/Properties/definitions/TimestampPartition"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DatastorePartitions": close({
-	Partitions?: list.MaxItems(25) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DatastorePartition" | fn.#ObjectExpression
-	] |
+	Partitions?: list.MaxItems(25) & [...] & [..._#defs."/$defs/Properties/definitions/DatastorePartition"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DatastoreStorage": close({
-	CustomerManagedS3?: _#defs."/$defs/Properties/definitions/CustomerManagedS3" | fn.#ObjectExpression
-	IotSiteWiseMultiLayerStorage?: _#defs."/$defs/Properties/definitions/IotSiteWiseMultiLayerStorage" |
-		fn.#ObjectExpression
-	ServiceManagedS3?: _#defs."/$defs/Properties/definitions/ServiceManagedS3" |
-		fn.#ObjectExpression |
-		fn.#StringExpression
+	CustomerManagedS3?:            _#defs."/$defs/Properties/definitions/CustomerManagedS3"
+	IotSiteWiseMultiLayerStorage?: _#defs."/$defs/Properties/definitions/IotSiteWiseMultiLayerStorage"
+	ServiceManagedS3?:             _#defs."/$defs/Properties/definitions/ServiceManagedS3"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FileFormatConfiguration": close({
-	JsonConfiguration?: _#defs."/$defs/Properties/definitions/JsonConfiguration" |
-		fn.#ObjectExpression |
-		fn.#StringExpression
-	ParquetConfiguration?: _#defs."/$defs/Properties/definitions/ParquetConfiguration" | fn.#ObjectExpression
+	JsonConfiguration?:    _#defs."/$defs/Properties/definitions/JsonConfiguration"
+	ParquetConfiguration?: _#defs."/$defs/Properties/definitions/ParquetConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IotSiteWiseMultiLayerStorage": close(
-	{CustomerManagedS3Storage?: _#defs."/$defs/Properties/definitions/CustomerManagedS3Storage" | fn.#ObjectExpression},
+	{CustomerManagedS3Storage?: _#defs."/$defs/Properties/definitions/CustomerManagedS3Storage"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JsonConfiguration": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/JsonConfiguration": fn.#Object & {...} | string | fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParquetConfiguration": close(
-	{SchemaDefinition?: _#defs."/$defs/Properties/definitions/SchemaDefinition" | fn.#ObjectExpression},
+	{SchemaDefinition?: _#defs."/$defs/Properties/definitions/SchemaDefinition"},
 ) |
 	fn.#ObjectExpression
 
@@ -93,23 +87,33 @@ _#defs: "/$defs/Properties/definitions/Partition": close({AttributeName!: =~"[a-
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
-	NumberOfDays?: int & <=2147483647 & >=1 | fn.#NumberExpression
-	Unlimited?:    bool | fn.#BooleanExpression
+	NumberOfDays?: int & <=2147483647 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Unlimited?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SchemaDefinition": close({
-	Columns?: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Column" | fn.#ObjectExpression
-	] |
+	Columns?: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Column"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceManagedS3": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/ServiceManagedS3": fn.#Object & {...} | string | fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

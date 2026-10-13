@@ -14,15 +14,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SES::EmailIdentity
 #Properties: close({
-	ConfigurationSetAttributes?: _#defs."/$defs/Properties/definitions/ConfigurationSetAttributes" |
-		fn.#ObjectExpression
-	DkimAttributes?:        _#defs."/$defs/Properties/definitions/DkimAttributes" | fn.#ObjectExpression
-	DkimSigningAttributes?: _#defs."/$defs/Properties/definitions/DkimSigningAttributes" | fn.#ObjectExpression
-	EmailIdentity!:         string | fn.#StringExpression
-	FeedbackAttributes?:    _#defs."/$defs/Properties/definitions/FeedbackAttributes" | fn.#ObjectExpression
-	MailFromAttributes?:    _#defs."/$defs/Properties/definitions/MailFromAttributes" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ConfigurationSetAttributes?: _#defs."/$defs/Properties/definitions/ConfigurationSetAttributes"
+	DkimAttributes?:             _#defs."/$defs/Properties/definitions/DkimAttributes"
+	DkimSigningAttributes?:      _#defs."/$defs/Properties/definitions/DkimSigningAttributes"
+	EmailIdentity!:              string | fn.#StringExpression
+	FeedbackAttributes?:         _#defs."/$defs/Properties/definitions/FeedbackAttributes"
+	MailFromAttributes?:         _#defs."/$defs/Properties/definitions/MailFromAttributes"
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ConfigurationSetAttributes": close(
@@ -30,7 +28,9 @@ _#defs: "/$defs/Properties/definitions/ConfigurationSetAttributes": close(
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DkimAttributes": close({SigningEnabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/DkimAttributes": close(
+	{SigningEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DkimSigningAttributes": close({
@@ -41,7 +41,7 @@ _#defs: "/$defs/Properties/definitions/DkimSigningAttributes": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FeedbackAttributes": close(
-	{EmailForwardingEnabled?: bool | fn.#BooleanExpression},
+	{EmailForwardingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 

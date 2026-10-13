@@ -44,7 +44,8 @@ _#defs: "/$defs/Properties/definitions/Monitor": close({
 	AlarmArn!: strings.MaxRunes(2048) & strings.MinRunes(1)
 
 	// ARN of an AWS Identity and Access Management (IAM) role for AWS AppConfig to monitor AlarmArn.
-	AlarmRoleArn?: strings.MaxRunes(2048) &
+	AlarmRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((arn):(aws|aws-cn|aws-iso|aws-iso-[a-z]{1}|aws-us-gov|aws-eusc):(iam)::\\d{12}:role[/].*)$"
 })

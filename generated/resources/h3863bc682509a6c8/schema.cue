@@ -17,14 +17,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AuthType?:      "NONE" | "AWS_IAM" | fn.#StringExpression
 	Name?:          strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	SharingConfig?: _#defs."/$defs/Properties/definitions/SharingConfig" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	SharingConfig?: _#defs."/$defs/Properties/definitions/SharingConfig"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/SharingConfig": close({enabled!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/SharingConfig": close(
+	{enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

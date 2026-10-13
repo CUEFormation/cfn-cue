@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // region and can opt-in to Central Configuration only in the aggregation
 // region of FindingAggregator.
 #Properties: close({
-	AutoEnable!:          bool | fn.#BooleanExpression
+	AutoEnable!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AutoEnableStandards?: "DEFAULT" | "NONE" | fn.#StringExpression
 	ConfigurationType?:   "CENTRAL" | "LOCAL" | fn.#StringExpression
 })

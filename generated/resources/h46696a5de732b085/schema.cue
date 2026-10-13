@@ -18,15 +18,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Level?:         _#defs."/$defs/Properties/definitions/ConfigurationLevel" | fn.#StringExpression
 	Name?:          strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" | fn.#StringExpression
 	ScopeSettings?: _#defs."/$defs/Properties/definitions/ScopeSettings" | fn.#ObjectExpression
-	Tags?:          _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
+	Tags?:          _#defs."/$defs/Properties/definitions/TagMap"
 })
 
 _#defs: "/$defs/Properties/definitions/CodeSecurityScanConfiguration": close({
-	continuousIntegrationScanConfiguration?: _#defs."/$defs/Properties/definitions/ContinuousIntegrationScanConfiguration" |
-		fn.#ObjectExpression
-	periodicScanConfiguration?: _#defs."/$defs/Properties/definitions/PeriodicScanConfiguration" | fn.#ObjectExpression
+	continuousIntegrationScanConfiguration?:
+		_#defs."/$defs/Properties/definitions/ContinuousIntegrationScanConfiguration"
+	periodicScanConfiguration?: _#defs."/$defs/Properties/definitions/PeriodicScanConfiguration"
 	ruleSetCategories!: list.MaxItems(3) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RuleSetCategory" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/RuleSetCategory"
 	] |
 		fn.#ListExpression
 }) |
@@ -36,7 +36,7 @@ _#defs: "/$defs/Properties/definitions/ConfigurationLevel": "ORGANIZATION" | "AC
 
 _#defs: "/$defs/Properties/definitions/ContinuousIntegrationScanConfiguration": close({
 	supportedEvents!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ContinuousIntegrationScanEvent" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/ContinuousIntegrationScanEvent"
 	] |
 		fn.#ListExpression
 }) |
@@ -45,7 +45,7 @@ _#defs: "/$defs/Properties/definitions/ContinuousIntegrationScanConfiguration": 
 _#defs: "/$defs/Properties/definitions/ContinuousIntegrationScanEvent": "PULL_REQUEST" | "PUSH" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PeriodicScanConfiguration": close({
-	frequency?:           _#defs."/$defs/Properties/definitions/PeriodicScanFrequency" | fn.#StringExpression
+	frequency?:           _#defs."/$defs/Properties/definitions/PeriodicScanFrequency"
 	frequencyExpression?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -57,7 +57,7 @@ _#defs: "/$defs/Properties/definitions/ProjectSelectionScope": "ALL" | fn.#Strin
 _#defs: "/$defs/Properties/definitions/RuleSetCategory": "SAST" | "IAC" | "SCA" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ScopeSettings": close(
-	{projectSelectionScope?: _#defs."/$defs/Properties/definitions/ProjectSelectionScope" | fn.#StringExpression},
+	{projectSelectionScope?: _#defs."/$defs/Properties/definitions/ProjectSelectionScope"},
 ) |
 	fn.#ObjectExpression
 

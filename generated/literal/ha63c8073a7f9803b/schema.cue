@@ -73,5 +73,6 @@ _#defs: "/$defs/Properties/definitions/TlsPolicy": "REQUIRED" | "OPTIONAL" | "FI
 _#defs: "/$defs/Properties/definitions/TrustStore": close({
 	CAContent!:  strings.MaxRunes(500000) & strings.MinRunes(1) & =~"^[\\P{C}\\s]*$"
 	CrlContent?: strings.MaxRunes(500000) & strings.MinRunes(1) & =~"^[\\P{C}\\s]*$"
-	KmsKeyArn?:  =~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc):kms:[a-z0-9-]+:\\d{12}:(key|alias)/[a-zA-Z0-9/_-]+$"
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc):kms:[a-z0-9-]+:\\d{12}:(key|alias)/[a-zA-Z0-9/_-]+$"
 })

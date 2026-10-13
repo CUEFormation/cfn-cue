@@ -42,7 +42,7 @@ import "strings"
 	EngineVersion!: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-z0-9_.-]{1,60}$"
 
 	// A value that indicates the ID of the AMI.
-	ImageId?: strings.MaxRunes(255) & strings.MinRunes(1)
+	ImageId?: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1))
 
 	// The AWS KMS key identifier for an encrypted CEV. A symmetric encryption KMS
 	// key is required for RDS Custom, but optional for Amazon RDS.
@@ -54,7 +54,10 @@ import "strings"
 	// in the *Key Management Service Developer Guide*.
 	// You can choose the same symmetric encryption key when you create a CEV and a
 	// DB instance, or choose different keys.
-	KMSKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_:\\-\\/]+$"
+	KMSKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9_:\\-\\/]+$"
 
 	// The CEV manifest, which is a JSON document that describes the installation
 	// .zip files stored in Amazon S3. Specify the name/value pairs in a file or a

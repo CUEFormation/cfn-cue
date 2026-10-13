@@ -33,7 +33,7 @@ import (
 	FleetProxyConfiguration?: _#defs."/$defs/Properties/definitions/ProxyConfiguration"
 	FleetServiceRole?:        strings.MinRunes(1) & =~"^(?:arn:)[a-zA-Z+-=,._:/@]+$"
 	FleetVpcConfig?:          _#defs."/$defs/Properties/definitions/VpcConfig"
-	ImageId?:                 strings.MinRunes(1)
+	ImageId?:                 =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & strings.MinRunes(1)
 	Name?:                    strings.MaxRunes(128) & strings.MinRunes(2) & =~"^[A-Za-z0-9][A-Za-z0-9\\-_]{1,127}$"
 	OverflowBehavior?:        "QUEUE" | "ON_DEMAND"
 	ScalingConfiguration?:    _#defs."/$defs/Properties/definitions/ScalingConfigurationInput"
@@ -84,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/TargetTrackingScalingConfiguration": clos
 })
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroupIds?: [...string]
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	Subnets?:          [...string]
-	VpcId?:            string
+	VpcId?:            =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })

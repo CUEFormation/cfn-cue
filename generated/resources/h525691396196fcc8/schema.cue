@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,17 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::DataSync::LocationNFS
 #Properties: close({
-	MountOptions?: _#defs."/$defs/Properties/definitions/MountOptions" | fn.#ObjectExpression
-	OnPremConfig!: _#defs."/$defs/Properties/definitions/OnPremConfig" | fn.#ObjectExpression
+	MountOptions?: _#defs."/$defs/Properties/definitions/MountOptions"
+	OnPremConfig!: _#defs."/$defs/Properties/definitions/OnPremConfig"
 	ServerHostname?: strings.MaxRunes(255) &
 	strings.MinRunes(0) &
 	=~"^(([a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9\\-]*[A-Za-z0-9])$" |
 	fn.#StringExpression
 	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

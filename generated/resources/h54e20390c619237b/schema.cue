@@ -8,21 +8,23 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::Stack
 #Properties: close({
-	AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AccessEndpoint" | fn.#ObjectExpression
-	] |
+	AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AccessEndpoint"] |
 		fn.#ListExpression
 	AgentAccessConfig?:       _#defs."/$defs/Properties/definitions/AgentAccessConfig" | fn.#ObjectExpression
 	ApplicationSettings?:     _#defs."/$defs/Properties/definitions/ApplicationSettings" | fn.#ObjectExpression
 	AttributesToDelete?:      [...string | fn.#StringExpression] | fn.#ListExpression
 	ContentRedirection?:      _#defs."/$defs/Properties/definitions/ContentRedirection" | fn.#ObjectExpression
-	DeleteStorageConnectors?: bool | fn.#BooleanExpression
+	DeleteStorageConnectors?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Description?:             strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	DisplayName?:             strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
 	EmbedHostDomains?: list.MaxItems(20) & list.MinItems(1) & [
@@ -44,9 +46,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	StreamingExperienceSettings?: _#defs."/$defs/Properties/definitions/StreamingExperienceSettings" |
 		fn.#ObjectExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	UserSettings?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/UserSetting" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UserSettings?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/UserSetting"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccessEndpoint": close({
@@ -60,9 +61,8 @@ _#defs: "/$defs/Properties/definitions/AgentAccessConfig": close({
 		fn.#StringExpression
 	ScreenImageFormat!:        "JPEG" | "PNG" | fn.#StringExpression
 	ScreenResolution!:         "W_1280xH_720" | fn.#StringExpression
-	ScreenshotsUploadEnabled?: bool | fn.#BooleanExpression
-	Settings!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AgentAccessSetting" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ScreenshotsUploadEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Settings!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AgentAccessSetting"] | fn.#ListExpression
 	UserControlMode?: "DISABLED" | "VIEW_ONLY" | "VIEW_STOP" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -74,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/AgentAccessSetting": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ApplicationSettings": close({
-	Enabled!:       bool | fn.#BooleanExpression
+	Enabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SettingsGroup?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -112,7 +112,7 @@ _#defs: "/$defs/Properties/definitions/UrlRedirectionConfig": close({
 		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(\\*|https?://[^\\s,;]+)$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Enabled!: bool | fn.#BooleanExpression
+	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -126,8 +126,21 @@ _#defs: "/$defs/Properties/definitions/UserSetting": close({
 		"FILE_UPLOAD" |
 		"PRINTING_TO_LOCAL_DEVICE" |
 		fn.#StringExpression
-	MaximumLength?: int | fn.#NumberExpression
-	Permission!:    "DISABLED" | "ENABLED" | fn.#StringExpression
+	MaximumLength?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Permission!: "DISABLED" | "ENABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,9 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	LoRaWAN?:              _#defs."/$defs/Properties/definitions/LoRaWANDevice" | fn.#ObjectExpression
 	Name?:                 strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	Positioning?:          "Enabled" | "Disabled" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	ThingArn?: string | fn.#StringExpression
 	Type!:     "Sidewalk" | "LoRaWAN" | fn.#StringExpression
@@ -30,27 +32,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 _#defs: "/$defs/Properties/definitions/AbpV10x": close({
 	DevAddr!:     =~"[a-fA-F0-9]{8}" | fn.#StringExpression
-	SessionKeys!: _#defs."/$defs/Properties/definitions/SessionKeysAbpV10x" | fn.#ObjectExpression
+	SessionKeys!: _#defs."/$defs/Properties/definitions/SessionKeysAbpV10x"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AbpV11": close({
 	DevAddr!:     =~"[a-fA-F0-9]{8}" | fn.#StringExpression
-	SessionKeys!: _#defs."/$defs/Properties/definitions/SessionKeysAbpV11" | fn.#ObjectExpression
+	SessionKeys!: _#defs."/$defs/Properties/definitions/SessionKeysAbpV11"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Application": close({
 	DestinationName?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-_]+" | fn.#StringExpression
-	FPort?:           int & <=223 & >=1 | fn.#NumberExpression
-	Type?:            "SemtechGeolocation" | "SemtechGNSS" | "SemtechGNSSNG" | "SemtechWiFi" | fn.#StringExpression
+	FPort?: int & <=223 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=223 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type?: "SemtechGeolocation" | "SemtechGNSS" | "SemtechGNSSNG" | "SemtechWiFi" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FPorts": close({
-	Applications?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Application" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/FPorts": close(
+	{Applications?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Application"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoRaWANDevice": matchN(1, [{
@@ -66,13 +82,13 @@ _#defs: "/$defs/Properties/definitions/LoRaWANDevice": matchN(1, [{
 	AbpV10x!: _
 	...
 }]) & close({
-	AbpV10x?:          _#defs."/$defs/Properties/definitions/AbpV10x" | fn.#ObjectExpression
-	AbpV11?:           _#defs."/$defs/Properties/definitions/AbpV11" | fn.#ObjectExpression
+	AbpV10x?:          _#defs."/$defs/Properties/definitions/AbpV10x"
+	AbpV11?:           _#defs."/$defs/Properties/definitions/AbpV11"
 	DevEui?:           =~"[a-f0-9]{16}" | fn.#StringExpression
 	DeviceProfileId?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	FPorts?:           _#defs."/$defs/Properties/definitions/FPorts" | fn.#ObjectExpression
-	OtaaV10x?:         _#defs."/$defs/Properties/definitions/OtaaV10x" | fn.#ObjectExpression
-	OtaaV11?:          _#defs."/$defs/Properties/definitions/OtaaV11" | fn.#ObjectExpression
+	FPorts?:           _#defs."/$defs/Properties/definitions/FPorts"
+	OtaaV10x?:         _#defs."/$defs/Properties/definitions/OtaaV10x"
+	OtaaV11?:          _#defs."/$defs/Properties/definitions/OtaaV11"
 	ServiceProfileId?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression

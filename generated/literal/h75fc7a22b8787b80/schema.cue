@@ -9,7 +9,7 @@ package schema
 	HybridAccessEnabled?:  bool
 	Id?:                   string
 	ResourceArn!:          string
-	RoleArn?:              string
+	RoleArn?:              =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	UseServiceLinkedRole!: bool
 	WithFederation?:       bool
 })

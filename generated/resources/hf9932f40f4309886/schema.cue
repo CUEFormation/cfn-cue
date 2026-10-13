@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -24,71 +28,139 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	LoadBalancerOptions?:     _#defs."/$defs/Properties/definitions/LoadBalancerOptions" | fn.#ObjectExpression
 	NetworkInterfaceOptions?: _#defs."/$defs/Properties/definitions/NetworkInterfaceOptions" | fn.#ObjectExpression
 	PolicyDocument?:          string | fn.#StringExpression
-	PolicyEnabled?:           bool | fn.#BooleanExpression
+	PolicyEnabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RdsOptions?:              _#defs."/$defs/Properties/definitions/RdsOptions" | fn.#ObjectExpression
-	SecurityGroupIds?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SecurityGroupId" | fn.#StringExpression
-	] |
+	SecurityGroupIds?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SecurityGroupId"] |
 		fn.#ListExpression
-	SseSpecification?: _#defs."/$defs/Properties/definitions/SseSpecification" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	SseSpecification?:      _#defs."/$defs/Properties/definitions/SseSpecification" | fn.#ObjectExpression
+	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VerifiedAccessGroupId!: string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CidrOptions": close({
-	Cidr?: string | fn.#StringExpression
-	PortRanges?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortRange" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Protocol?: "http" | "https" | "tcp" | fn.#StringExpression
-	SubnetIds?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SubnetId" | fn.#StringExpression] |
-		fn.#ListExpression
+	Cidr?:       string | fn.#StringExpression
+	PortRanges?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
+	Protocol?:   "http" | "https" | "tcp" | fn.#StringExpression
+	SubnetIds?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SubnetId"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoadBalancerOptions": close({
 	LoadBalancerArn?: string | fn.#StringExpression
-	Port?:            int & <=65535 & >=1 | fn.#NumberExpression
-	PortRanges?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortRange" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Protocol?: "http" | "https" | "tcp" | fn.#StringExpression
-	SubnetIds?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SubnetId" | fn.#StringExpression] |
-		fn.#ListExpression
+	Port?: int & <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PortRanges?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
+	Protocol?:   "http" | "https" | "tcp" | fn.#StringExpression
+	SubnetIds?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SubnetId"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkInterfaceOptions": close({
 	NetworkInterfaceId?: string | fn.#StringExpression
-	Port?:               int & <=65535 & >=1 | fn.#NumberExpression
-	PortRanges?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortRange" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Protocol?: "http" | "https" | "tcp" | fn.#StringExpression
+	Port?: int & <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PortRanges?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
+	Protocol?:   "http" | "https" | "tcp" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PortRange": close({
-	FromPort?: int & <=65535 & >=1 | fn.#NumberExpression
-	ToPort?:   int & <=65535 & >=1 | fn.#NumberExpression
+	FromPort?: int & <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ToPort?: int & <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RdsOptions": close({
-	Port?:             int & <=65535 & >=1 | fn.#NumberExpression
+	Port?: int & <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Protocol?:         "http" | "https" | "tcp" | fn.#StringExpression
 	RdsDbClusterArn?:  string | fn.#StringExpression
 	RdsDbInstanceArn?: string | fn.#StringExpression
 	RdsDbProxyArn?:    string | fn.#StringExpression
 	RdsEndpoint?:      string | fn.#StringExpression
-	SubnetIds?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SubnetId" | fn.#StringExpression] |
-		fn.#ListExpression
+	SubnetIds?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SubnetId"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": string | fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SseSpecification": close({
-	CustomerManagedKeyEnabled?: bool | fn.#BooleanExpression
-	KmsKeyArn?:                 string | fn.#StringExpression
+	CustomerManagedKeyEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

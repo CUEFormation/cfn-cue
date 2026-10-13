@@ -76,7 +76,8 @@ _#defs: "/$defs/Properties/definitions/CfnTemplateProviderDetail": close({
 	Parameters?: _#defs."/$defs/Properties/definitions/CfnStackParameters"
 
 	// The Amazon Resource Name (ARN) of the IAM role used by the template provider.
-	RoleARN?: strings.MaxRunes(2048) &
+	RoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+"
 

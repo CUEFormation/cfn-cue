@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,8 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	MeshName!:           string | fn.#StringExpression
 	MeshOwner?:          string | fn.#StringExpression
-	Spec!:               _#defs."/$defs/Properties/definitions/VirtualGatewaySpec" | fn.#ObjectExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Spec!:               _#defs."/$defs/Properties/definitions/VirtualGatewaySpec"
+	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VirtualGatewayName?: string | fn.#StringExpression
 })
 
@@ -24,7 +28,7 @@ _#defs: "/$defs/Properties/definitions/JsonFormatRef": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoggingFormat": close({
-	Json?: [..._#defs."/$defs/Properties/definitions/JsonFormatRef" | fn.#ObjectExpression] | fn.#ListExpression
+	Json?: [..._#defs."/$defs/Properties/definitions/JsonFormatRef"] | fn.#ListExpression
 	Text?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -35,7 +39,7 @@ _#defs: "/$defs/Properties/definitions/SubjectAlternativeNameMatchers": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SubjectAlternativeNames": close(
-	{Match!: _#defs."/$defs/Properties/definitions/SubjectAlternativeNameMatchers" | fn.#ObjectExpression},
+	{Match!: _#defs."/$defs/Properties/definitions/SubjectAlternativeNameMatchers"},
 ) |
 	fn.#ObjectExpression
 
@@ -46,99 +50,234 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayAccessLog": close(
-	{File?: _#defs."/$defs/Properties/definitions/VirtualGatewayFileAccessLog" | fn.#ObjectExpression},
+	{File?: _#defs."/$defs/Properties/definitions/VirtualGatewayFileAccessLog"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayBackendDefaults": close(
-	{ClientPolicy?: _#defs."/$defs/Properties/definitions/VirtualGatewayClientPolicy" | fn.#ObjectExpression},
+	{ClientPolicy?: _#defs."/$defs/Properties/definitions/VirtualGatewayClientPolicy"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayClientPolicy": close(
-	{TLS?: _#defs."/$defs/Properties/definitions/VirtualGatewayClientPolicyTls" | fn.#ObjectExpression},
+	{TLS?: _#defs."/$defs/Properties/definitions/VirtualGatewayClientPolicyTls"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayClientPolicyTls": close({
-	Certificate?: _#defs."/$defs/Properties/definitions/VirtualGatewayClientTlsCertificate" | fn.#ObjectExpression
-	Enforce?:     bool | fn.#BooleanExpression
-	Ports?:       [...int | fn.#NumberExpression] | fn.#ListExpression
-	Validation!:  _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContext" | fn.#ObjectExpression
+	Certificate?: _#defs."/$defs/Properties/definitions/VirtualGatewayClientTlsCertificate"
+	Enforce?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Ports?: [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	Validation!: _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContext"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayClientTlsCertificate": close({
-	File?: _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsFileCertificate" | fn.#ObjectExpression
-	SDS?:  _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsSdsCertificate" | fn.#ObjectExpression
+	File?: _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsFileCertificate"
+	SDS?:  _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsSdsCertificate"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayConnectionPool": close({
-	GRPC?:  _#defs."/$defs/Properties/definitions/VirtualGatewayGrpcConnectionPool" | fn.#ObjectExpression
-	HTTP?:  _#defs."/$defs/Properties/definitions/VirtualGatewayHttpConnectionPool" | fn.#ObjectExpression
-	HTTP2?: _#defs."/$defs/Properties/definitions/VirtualGatewayHttp2ConnectionPool" | fn.#ObjectExpression
+	GRPC?:  _#defs."/$defs/Properties/definitions/VirtualGatewayGrpcConnectionPool"
+	HTTP?:  _#defs."/$defs/Properties/definitions/VirtualGatewayHttpConnectionPool"
+	HTTP2?: _#defs."/$defs/Properties/definitions/VirtualGatewayHttp2ConnectionPool"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayFileAccessLog": close({
-	Format?: _#defs."/$defs/Properties/definitions/LoggingFormat" | fn.#ObjectExpression
+	Format?: _#defs."/$defs/Properties/definitions/LoggingFormat"
 	Path!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayGrpcConnectionPool": close(
-	{MaxRequests!: int | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/VirtualGatewayGrpcConnectionPool": close({
+	MaxRequests!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayHealthCheckPolicy": close({
-	HealthyThreshold!:   int | fn.#NumberExpression
-	IntervalMillis!:     int | fn.#NumberExpression
-	Path?:               string | fn.#StringExpression
-	Port?:               int | fn.#NumberExpression
-	Protocol!:           string | fn.#StringExpression
-	TimeoutMillis!:      int | fn.#NumberExpression
-	UnhealthyThreshold!: int | fn.#NumberExpression
+	HealthyThreshold!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IntervalMillis!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Path?: string | fn.#StringExpression
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Protocol!: string | fn.#StringExpression
+	TimeoutMillis!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UnhealthyThreshold!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayHttp2ConnectionPool": close(
-	{MaxRequests!: int | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/VirtualGatewayHttp2ConnectionPool": close({
+	MaxRequests!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayHttpConnectionPool": close({
-	MaxConnections!:     int | fn.#NumberExpression
-	MaxPendingRequests?: int | fn.#NumberExpression
+	MaxConnections!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxPendingRequests?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayListener": close({
-	ConnectionPool?: _#defs."/$defs/Properties/definitions/VirtualGatewayConnectionPool" | fn.#ObjectExpression
-	HealthCheck?:    _#defs."/$defs/Properties/definitions/VirtualGatewayHealthCheckPolicy" | fn.#ObjectExpression
-	PortMapping!:    _#defs."/$defs/Properties/definitions/VirtualGatewayPortMapping" | fn.#ObjectExpression
-	TLS?:            _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTls" | fn.#ObjectExpression
+	ConnectionPool?: _#defs."/$defs/Properties/definitions/VirtualGatewayConnectionPool"
+	HealthCheck?:    _#defs."/$defs/Properties/definitions/VirtualGatewayHealthCheckPolicy"
+	PortMapping!:    _#defs."/$defs/Properties/definitions/VirtualGatewayPortMapping"
+	TLS?:            _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTls"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTls": close({
-	Certificate!: _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsCertificate" | fn.#ObjectExpression
+	Certificate!: _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsCertificate"
 	Mode!:        string | fn.#StringExpression
-	Validation?: _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsValidationContext" |
-		fn.#ObjectExpression
+	Validation?:  _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsValidationContext"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsAcmCertificate": close(
-	{CertificateArn!: string | fn.#StringExpression},
-) |
+_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsAcmCertificate": close({
+	CertificateArn!: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsCertificate": close({
-	ACM?:  _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsAcmCertificate" | fn.#ObjectExpression
-	File?: _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsFileCertificate" | fn.#ObjectExpression
-	SDS?:  _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsSdsCertificate" | fn.#ObjectExpression
+	ACM?:  _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsAcmCertificate"
+	File?: _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsFileCertificate"
+	SDS?:  _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsSdsCertificate"
 }) |
 fn.#ObjectExpression
 
@@ -154,40 +293,51 @@ _#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsSdsCertificate":
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsValidationContext": close({
-	SubjectAlternativeNames?: _#defs."/$defs/Properties/definitions/SubjectAlternativeNames" | fn.#ObjectExpression
-	Trust!: _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsValidationContextTrust" |
-		fn.#ObjectExpression
+	SubjectAlternativeNames?: _#defs."/$defs/Properties/definitions/SubjectAlternativeNames"
+	Trust!:                   _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsValidationContextTrust"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsValidationContextTrust": close({
-	File?: _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextFileTrust" | fn.#ObjectExpression
-	SDS?:  _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextSdsTrust" | fn.#ObjectExpression
+	File?: _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextFileTrust"
+	SDS?:  _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextSdsTrust"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayLogging": close(
-	{AccessLog?: _#defs."/$defs/Properties/definitions/VirtualGatewayAccessLog" | fn.#ObjectExpression},
+	{AccessLog?: _#defs."/$defs/Properties/definitions/VirtualGatewayAccessLog"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayPortMapping": close({
-	Port!:     int | fn.#NumberExpression
+	Port!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Protocol!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewaySpec": close({
-	BackendDefaults?: _#defs."/$defs/Properties/definitions/VirtualGatewayBackendDefaults" | fn.#ObjectExpression
-	Listeners!: [..._#defs."/$defs/Properties/definitions/VirtualGatewayListener" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Logging?: _#defs."/$defs/Properties/definitions/VirtualGatewayLogging" | fn.#ObjectExpression
+	BackendDefaults?: _#defs."/$defs/Properties/definitions/VirtualGatewayBackendDefaults"
+	Listeners!:       [..._#defs."/$defs/Properties/definitions/VirtualGatewayListener"] | fn.#ListExpression
+	Logging?:         _#defs."/$defs/Properties/definitions/VirtualGatewayLogging"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayTlsValidationContext": close({
-	SubjectAlternativeNames?: _#defs."/$defs/Properties/definitions/SubjectAlternativeNames" | fn.#ObjectExpression
-	Trust!: _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextTrust" | fn.#ObjectExpression
+	SubjectAlternativeNames?: _#defs."/$defs/Properties/definitions/SubjectAlternativeNames"
+	Trust!:                   _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextTrust"
 }) |
 fn.#ObjectExpression
 
@@ -207,9 +357,9 @@ _#defs: "/$defs/Properties/definitions/VirtualGatewayTlsValidationContextSdsTrus
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualGatewayTlsValidationContextTrust": close({
-	ACM?:  _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextAcmTrust" | fn.#ObjectExpression
-	File?: _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextFileTrust" | fn.#ObjectExpression
-	SDS?:  _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextSdsTrust" | fn.#ObjectExpression
+	ACM?:  _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextAcmTrust"
+	File?: _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextFileTrust"
+	SDS?:  _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextSdsTrust"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

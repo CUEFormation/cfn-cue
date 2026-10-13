@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -11,12 +15,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::AmazonMQ::ConfigurationAssociation
 #Properties: close({
 	Broker!:        string | fn.#StringExpression
-	Configuration!: _#defs."/$defs/Properties/definitions/ConfigurationId" | fn.#ObjectExpression
+	Configuration!: _#defs."/$defs/Properties/definitions/ConfigurationId"
 })
 
 _#defs: "/$defs/Properties/definitions/ConfigurationId": close({
-	Id!:       string | fn.#StringExpression
-	Revision!: int | fn.#NumberExpression
+	Id!: string | fn.#StringExpression
+	Revision!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

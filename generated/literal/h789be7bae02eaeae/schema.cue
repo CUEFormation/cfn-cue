@@ -33,7 +33,7 @@ import (
 	// The AWS Key Management System (AWS KMS) key identifier for the key to use to
 	// encrypt the integration. If you don't specify an encryption key, RDS uses a
 	// default AWS owned key.
-	KMSKeyId?: string | string | string
+	KMSKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The Amazon Resource Name (ARN) of the database to use as the source for replication.
 	SourceArn!: strings.MaxRunes(255) &

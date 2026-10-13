@@ -16,21 +16,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 	IdMappingWorkflowProperties?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/IdNamespaceIdMappingWorkflowProperties" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/IdNamespaceIdMappingWorkflowProperties"
 	] |
 		fn.#ListExpression
-	IdNamespaceName!: _#defs."/$defs/Properties/definitions/EntityName" | fn.#StringExpression
-	InputSourceConfig?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/IdNamespaceInputSource" | fn.#ObjectExpression
-	] |
+	IdNamespaceName!: _#defs."/$defs/Properties/definitions/EntityName"
+	InputSourceConfig?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/IdNamespaceInputSource"] |
 		fn.#ListExpression
-	RoleArn?: strings.MaxRunes(512) &
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(512) &
 	strings.MinRunes(32) &
 	=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	Type!: "SOURCE" | "TARGET" | fn.#StringExpression
 })
@@ -45,15 +42,15 @@ fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/IdNamespaceIdMappingWorkflowProperties": close({
 	IdMappingType!:       "PROVIDER" | "RULE_BASED" | fn.#StringExpression
-	ProviderProperties?:  _#defs."/$defs/Properties/definitions/NamespaceProviderProperties" | fn.#ObjectExpression
-	RuleBasedProperties?: _#defs."/$defs/Properties/definitions/NamespaceRuleBasedProperties" | fn.#ObjectExpression
+	ProviderProperties?:  _#defs."/$defs/Properties/definitions/NamespaceProviderProperties"
+	RuleBasedProperties?: _#defs."/$defs/Properties/definitions/NamespaceRuleBasedProperties"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IdNamespaceInputSource": close({
 	InputSourceARN!: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(matchingworkflow/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):glue:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(table/[a-zA-Z_0-9-]{1,255}/[a-zA-Z_0-9-]{1,255})$" |
 		fn.#StringExpression
-	SchemaName?: _#defs."/$defs/Properties/definitions/EntityName" | fn.#StringExpression
+	SchemaName?: _#defs."/$defs/Properties/definitions/EntityName"
 }) |
 fn.#ObjectExpression
 
@@ -62,20 +59,15 @@ _#defs: "/$defs/Properties/definitions/NamespaceProviderProperties": close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	ProviderServiceArn!: _#defs."/$defs/Properties/definitions/ProviderServiceArn" | fn.#StringExpression
+	ProviderServiceArn!: _#defs."/$defs/Properties/definitions/ProviderServiceArn"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NamespaceRuleBasedProperties": close({
 	AttributeMatchingModel?: "ONE_TO_ONE" | "MANY_TO_MANY" | fn.#StringExpression
-	RecordMatchingModels?: [..._#defs."/$defs/Properties/definitions/RecordMatchingModel" | fn.#StringExpression] |
-		fn.#ListExpression
-	RuleDefinitionTypes?: [..._#defs."/$defs/Properties/definitions/RuleDefinitionType" | fn.#StringExpression] |
-		fn.#ListExpression
-	Rules?: list.MaxItems(25) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Rule" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	RecordMatchingModels?:   [..._#defs."/$defs/Properties/definitions/RecordMatchingModel"] | fn.#ListExpression
+	RuleDefinitionTypes?:    [..._#defs."/$defs/Properties/definitions/RuleDefinitionType"] | fn.#ListExpression
+	Rules?: list.MaxItems(25) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -89,9 +81,7 @@ _#defs: "/$defs/Properties/definitions/RecordMatchingModel": "ONE_SOURCE_TO_ONE_
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Rule": close({
-	MatchingKeys!: list.MaxItems(25) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AttributeName" | fn.#StringExpression
-	] |
+	MatchingKeys!: list.MaxItems(25) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AttributeName"] |
 		fn.#ListExpression
 	RuleName!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" | fn.#StringExpression
 }) |

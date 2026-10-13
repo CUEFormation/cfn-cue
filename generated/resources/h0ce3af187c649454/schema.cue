@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Ruleset?:     strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:        string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:        fn.#Object & {...} | string | fn.#StringObjectExpression
 	TargetTable?: _#defs."/$defs/Properties/definitions/DataQualityTargetTable" | fn.#ObjectExpression
 })
 

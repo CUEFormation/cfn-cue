@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -11,9 +15,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::MediaConnect::BridgeSource
 #Properties: close({
 	BridgeArn!:     string | fn.#StringExpression
-	FlowSource?:    _#defs."/$defs/Properties/definitions/BridgeFlowSource" | fn.#ObjectExpression
+	FlowSource?:    _#defs."/$defs/Properties/definitions/BridgeFlowSource"
 	Name!:          string | fn.#StringExpression
-	NetworkSource?: _#defs."/$defs/Properties/definitions/BridgeNetworkSource" | fn.#ObjectExpression
+	NetworkSource?: _#defs."/$defs/Properties/definitions/BridgeNetworkSource"
 })
 
 _#defs: "/$defs/Properties/definitions/BridgeFlowSource": close({
@@ -26,8 +30,21 @@ _#defs: "/$defs/Properties/definitions/BridgeNetworkSource": close({
 	MulticastIp!:             string | fn.#StringExpression
 	MulticastSourceSettings?: _#defs."/$defs/Properties/definitions/MulticastSourceSettings" | fn.#ObjectExpression
 	NetworkName!:             string | fn.#StringExpression
-	Port!:                    int | fn.#NumberExpression
-	Protocol!:                _#defs."/$defs/Properties/definitions/ProtocolEnum" | fn.#StringExpression
+	Port!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Protocol!: _#defs."/$defs/Properties/definitions/ProtocolEnum" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

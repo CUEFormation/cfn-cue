@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Bedrock::ResourcePolicy Resource Type
 #Properties: close({
-	PolicyDocument!: {[string]: fn.#Value} | fn.#ObjectExpression
+	PolicyDocument!: fn.#Object & {...} | fn.#ObjectExpression
 	ResourceArn!:    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {

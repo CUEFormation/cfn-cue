@@ -102,7 +102,7 @@ _#defs: "/$defs/Properties/definitions/DestinationTable": close({
 // Encryption configuration
 _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 	// The ARN of the KMS key for encryption
-	KmsKeyArn!: string
+	KmsKeyArn!: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 })
 
 // Firehose log destination details
@@ -135,7 +135,7 @@ _#defs: "/$defs/Properties/definitions/IcebergDestinationConfiguration": close({
 	SchemaEvolution!: _#defs."/$defs/Properties/definitions/SchemaEvolution"
 
 	// The Amazon Resource Name (ARN) of an IAM role used by MSK to access the table
-	ServiceExecutionRoleArn!: string
+	ServiceExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	TableCreation!:           _#defs."/$defs/Properties/definitions/TableCreation"
 })
 
@@ -177,7 +177,7 @@ _#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close({
 	DeadLetterQueueS3!:      _#defs."/$defs/Properties/definitions/DeadLetterQueueS3"
 
 	// The Amazon Resource Name (ARN) of an IAM role used by MSK to access S3
-	ServiceExecutionRoleArn!: string
+	ServiceExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Storage!:                 _#defs."/$defs/Properties/definitions/S3Storage"
 })
 

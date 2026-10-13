@@ -25,7 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 			fn.#StringExpression
 			Type!: close({
-				Attribute?: _#defs."/$defs/Properties/definitions/Attribute" | fn.#ObjectExpression
+				Attribute?: _#defs."/$defs/Properties/definitions/Attribute"
 				Metric?: close({
 					Expression!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 					Variables!: [...close({
@@ -51,9 +51,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 							strings.MinRunes(1) &
 							=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
 							fn.#StringExpression
-							PropertyPath?: [
-								..._#defs."/$defs/Properties/definitions/PropertyPathDefinition" | fn.#ObjectExpression
-							] |
+							PropertyPath?: [..._#defs."/$defs/Properties/definitions/PropertyPathDefinition"] |
 								fn.#ListExpression
 						}) |
 						fn.#ObjectExpression
@@ -88,9 +86,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 							strings.MinRunes(1) &
 							=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
 							fn.#StringExpression
-							PropertyPath?: [
-								..._#defs."/$defs/Properties/definitions/PropertyPathDefinition" | fn.#ObjectExpression
-							] |
+							PropertyPath?: [..._#defs."/$defs/Properties/definitions/PropertyPathDefinition"] |
 								fn.#ListExpression
 						}) |
 						fn.#ObjectExpression
@@ -99,7 +95,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					fn.#ListExpression
 				}) |
 				fn.#ObjectExpression
-				TypeName!: _#defs."/$defs/Properties/definitions/TypeName" | fn.#StringExpression
+				TypeName!: _#defs."/$defs/Properties/definitions/TypeName"
 			}) |
 			fn.#ObjectExpression
 			Unit?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
@@ -150,7 +146,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 		fn.#StringExpression
 		Type!: close({
-			Attribute?: _#defs."/$defs/Properties/definitions/Attribute" | fn.#ObjectExpression
+			Attribute?: _#defs."/$defs/Properties/definitions/Attribute"
 			Metric?: close({
 				Expression!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 				Variables!: [...close({
@@ -176,9 +172,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						strings.MinRunes(1) &
 						=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
 						fn.#StringExpression
-						PropertyPath?: [
-							..._#defs."/$defs/Properties/definitions/PropertyPathDefinition" | fn.#ObjectExpression
-						] |
+						PropertyPath?: [..._#defs."/$defs/Properties/definitions/PropertyPathDefinition"] |
 							fn.#ListExpression
 					}) |
 					fn.#ObjectExpression
@@ -213,9 +207,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						strings.MinRunes(1) &
 						=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
 						fn.#StringExpression
-						PropertyPath?: [
-							..._#defs."/$defs/Properties/definitions/PropertyPathDefinition" | fn.#ObjectExpression
-						] |
+						PropertyPath?: [..._#defs."/$defs/Properties/definitions/PropertyPathDefinition"] |
 							fn.#ListExpression
 					}) |
 					fn.#ObjectExpression
@@ -224,7 +216,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				fn.#ListExpression
 			}) |
 			fn.#ObjectExpression
-			TypeName!: _#defs."/$defs/Properties/definitions/TypeName" | fn.#StringExpression
+			TypeName!: _#defs."/$defs/Properties/definitions/TypeName"
 		}) |
 		fn.#ObjectExpression
 		Unit?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
@@ -234,16 +226,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	AssetModelType?: "ASSET_MODEL" | "COMPONENT_MODEL" | "INTERFACE" | fn.#StringExpression
 	EnforcedAssetModelInterfaceRelationships?: [
-		..._#defs."/$defs/Properties/definitions/EnforcedAssetModelInterfaceRelationship" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/EnforcedAssetModelInterfaceRelationship"
 	] |
 		fn.#ListExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AssetModelCompositeModel": close({
-	ComposedAssetModelId?: string | fn.#StringExpression
-	CompositeModelProperties?: [..._#defs."/$defs/Properties/definitions/AssetModelProperty" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ComposedAssetModelId?:     string | fn.#StringExpression
+	CompositeModelProperties?: [..._#defs."/$defs/Properties/definitions/AssetModelProperty"] | fn.#ListExpression
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression
 	ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
@@ -317,9 +308,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EnforcedAssetModelInterfaceRelationship": close({
 	InterfaceAssetModelId?: string | fn.#StringExpression
-	PropertyMappings?: [
-		..._#defs."/$defs/Properties/definitions/EnforcedAssetModelInterfacePropertyMapping" | fn.#ObjectExpression
-	] |
+	PropertyMappings?: [..._#defs."/$defs/Properties/definitions/EnforcedAssetModelInterfacePropertyMapping"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -334,14 +323,13 @@ _#defs: "/$defs/Properties/definitions/Interval": strings.MaxRunes(23) & strings
 
 _#defs: "/$defs/Properties/definitions/Metric": close({
 	Expression!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Variables!: [..._#defs."/$defs/Properties/definitions/ExpressionVariable" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Window!: _#defs."/$defs/Properties/definitions/MetricWindow" | fn.#ObjectExpression
+	Variables!:  [..._#defs."/$defs/Properties/definitions/ExpressionVariable"] | fn.#ListExpression
+	Window!:     _#defs."/$defs/Properties/definitions/MetricWindow" | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetricWindow": close(
-	{Tumbling?: _#defs."/$defs/Properties/definitions/TumblingWindow" | fn.#ObjectExpression},
+	{Tumbling?: _#defs."/$defs/Properties/definitions/TumblingWindow"},
 ) |
 	fn.#ObjectExpression
 
@@ -353,10 +341,10 @@ _#defs: "/$defs/Properties/definitions/PropertyPathDefinition": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PropertyType": close({
-	Attribute?: _#defs."/$defs/Properties/definitions/Attribute" | fn.#ObjectExpression
-	Metric?:    _#defs."/$defs/Properties/definitions/Metric" | fn.#ObjectExpression
-	Transform?: _#defs."/$defs/Properties/definitions/Transform" | fn.#ObjectExpression
-	TypeName!:  _#defs."/$defs/Properties/definitions/TypeName" | fn.#StringExpression
+	Attribute?: _#defs."/$defs/Properties/definitions/Attribute"
+	Metric?:    _#defs."/$defs/Properties/definitions/Metric"
+	Transform?: _#defs."/$defs/Properties/definitions/Transform"
+	TypeName!:  _#defs."/$defs/Properties/definitions/TypeName"
 }) |
 fn.#ObjectExpression
 
@@ -368,14 +356,13 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Transform": close({
 	Expression!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Variables!: [..._#defs."/$defs/Properties/definitions/ExpressionVariable" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Variables!:  [..._#defs."/$defs/Properties/definitions/ExpressionVariable"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TumblingWindow": close({
-	Interval!: _#defs."/$defs/Properties/definitions/Interval" | fn.#StringExpression
-	Offset?:   _#defs."/$defs/Properties/definitions/Offset" | fn.#StringExpression
+	Interval!: _#defs."/$defs/Properties/definitions/Interval"
+	Offset?:   _#defs."/$defs/Properties/definitions/Offset"
 }) |
 fn.#ObjectExpression
 
@@ -402,8 +389,7 @@ _#defs: "/$defs/Properties/definitions/VariableValue": close({
 	fn.#StringExpression
 	PropertyLogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
 	fn.#StringExpression
-	PropertyPath?: [..._#defs."/$defs/Properties/definitions/PropertyPathDefinition" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	PropertyPath?: [..._#defs."/$defs/Properties/definitions/PropertyPathDefinition"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

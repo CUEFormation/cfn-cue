@@ -16,8 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Name?:                      string | fn.#StringExpression
 	RestApiId!:                 string | fn.#StringExpression
-	ValidateRequestBody?:       bool | fn.#BooleanExpression
-	ValidateRequestParameters?: bool | fn.#BooleanExpression
+	ValidateRequestBody?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ValidateRequestParameters?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ApiGateway::RequestValidator"

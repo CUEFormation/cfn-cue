@@ -8,48 +8,51 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Kendra DataSource
 #Properties: close({
-	CustomDocumentEnrichmentConfiguration?: _#defs."/$defs/Properties/definitions/CustomDocumentEnrichmentConfiguration" |
-		fn.#ObjectExpression
-	DataSourceConfiguration?: _#defs."/$defs/Properties/definitions/DataSourceConfiguration" | fn.#ObjectExpression
-	Description?:             _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	IndexId!:                 _#defs."/$defs/Properties/definitions/IndexId" | fn.#StringExpression
-	LanguageCode?:            _#defs."/$defs/Properties/definitions/LanguageCode" | fn.#StringExpression
-	Name!:                    _#defs."/$defs/Properties/definitions/Name" | fn.#StringExpression
-	RoleArn?:                 _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
-	Schedule?:                _#defs."/$defs/Properties/definitions/Schedule" | fn.#StringExpression
-	Tags?:                    _#defs."/$defs/Properties/definitions/TagList" | fn.#ListExpression
-	Type!:                    _#defs."/$defs/Properties/definitions/Type" | fn.#StringExpression
+	CustomDocumentEnrichmentConfiguration?: _#defs."/$defs/Properties/definitions/CustomDocumentEnrichmentConfiguration"
+	DataSourceConfiguration?:               _#defs."/$defs/Properties/definitions/DataSourceConfiguration"
+	Description?:                           _#defs."/$defs/Properties/definitions/Description"
+	IndexId!:                               _#defs."/$defs/Properties/definitions/IndexId"
+	LanguageCode?:                          _#defs."/$defs/Properties/definitions/LanguageCode"
+	Name!:                                  _#defs."/$defs/Properties/definitions/Name"
+	RoleArn?:                               _#defs."/$defs/Properties/definitions/RoleArn"
+	Schedule?:                              _#defs."/$defs/Properties/definitions/Schedule"
+	Tags?:                                  _#defs."/$defs/Properties/definitions/TagList" | fn.#ListExpression
+	Type!:                                  _#defs."/$defs/Properties/definitions/Type"
 })
 
 _#defs: "/$defs/Properties/definitions/AccessControlListConfiguration": close(
-	{KeyPath?: _#defs."/$defs/Properties/definitions/S3ObjectKey" | fn.#StringExpression},
+	{KeyPath?: _#defs."/$defs/Properties/definitions/S3ObjectKey"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AclConfiguration": close(
-	{AllowedGroupsColumnName!: _#defs."/$defs/Properties/definitions/ColumnName" | fn.#StringExpression},
+	{AllowedGroupsColumnName!: _#defs."/$defs/Properties/definitions/ColumnName"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(1000) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ChangeDetectingColumns": list.MaxItems(5) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ColumnName" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/ColumnName"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ColumnConfiguration": close({
-	ChangeDetectingColumns!:  _#defs."/$defs/Properties/definitions/ChangeDetectingColumns" | fn.#ListExpression
-	DocumentDataColumnName!:  _#defs."/$defs/Properties/definitions/ColumnName" | fn.#StringExpression
-	DocumentIdColumnName!:    _#defs."/$defs/Properties/definitions/ColumnName" | fn.#StringExpression
-	DocumentTitleColumnName?: _#defs."/$defs/Properties/definitions/ColumnName" | fn.#StringExpression
-	FieldMappings?: _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList" | fn.#ListExpression
+	ChangeDetectingColumns!:  _#defs."/$defs/Properties/definitions/ChangeDetectingColumns"
+	DocumentDataColumnName!:  _#defs."/$defs/Properties/definitions/ColumnName"
+	DocumentIdColumnName!:    _#defs."/$defs/Properties/definitions/ColumnName"
+	DocumentTitleColumnName?: _#defs."/$defs/Properties/definitions/ColumnName"
+	FieldMappings?:           _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
 }) |
 fn.#ObjectExpression
 
@@ -69,14 +72,13 @@ _#defs: "/$defs/Properties/definitions/ConditionOperator": "GreaterThan" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ConfluenceAttachmentConfiguration": close({
-	AttachmentFieldMappings?: _#defs."/$defs/Properties/definitions/ConfluenceAttachmentFieldMappingsList" |
-		fn.#ListExpression
-	CrawlAttachments?: bool | fn.#BooleanExpression
+	AttachmentFieldMappings?: _#defs."/$defs/Properties/definitions/ConfluenceAttachmentFieldMappingsList"
+	CrawlAttachments?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfluenceAttachmentFieldMappingsList": list.MaxItems(11) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ConfluenceAttachmentToIndexFieldMapping" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ConfluenceAttachmentToIndexFieldMapping"
 ] |
 	fn.#ListExpression
 
@@ -94,19 +96,19 @@ _#defs: "/$defs/Properties/definitions/ConfluenceAttachmentFieldName": "AUTHOR" 
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ConfluenceAttachmentToIndexFieldMapping": close({
-	DataSourceFieldName!: _#defs."/$defs/Properties/definitions/ConfluenceAttachmentFieldName" | fn.#StringExpression
-	DateFieldFormat?:     _#defs."/$defs/Properties/definitions/DateFieldFormat" | fn.#StringExpression
-	IndexFieldName!:      _#defs."/$defs/Properties/definitions/IndexFieldName" | fn.#StringExpression
+	DataSourceFieldName!: _#defs."/$defs/Properties/definitions/ConfluenceAttachmentFieldName"
+	DateFieldFormat?:     _#defs."/$defs/Properties/definitions/DateFieldFormat"
+	IndexFieldName!:      _#defs."/$defs/Properties/definitions/IndexFieldName"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfluenceBlogConfiguration": close(
-	{BlogFieldMappings?: _#defs."/$defs/Properties/definitions/ConfluenceBlogFieldMappingsList" | fn.#ListExpression},
+	{BlogFieldMappings?: _#defs."/$defs/Properties/definitions/ConfluenceBlogFieldMappingsList"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfluenceBlogFieldMappingsList": list.MaxItems(9) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ConfluenceBlogToIndexFieldMapping" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ConfluenceBlogToIndexFieldMapping"
 ] |
 	fn.#ListExpression
 
@@ -122,36 +124,33 @@ _#defs: "/$defs/Properties/definitions/ConfluenceBlogFieldName": "AUTHOR" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ConfluenceBlogToIndexFieldMapping": close({
-	DataSourceFieldName!: _#defs."/$defs/Properties/definitions/ConfluenceBlogFieldName" | fn.#StringExpression
-	DateFieldFormat?:     _#defs."/$defs/Properties/definitions/DateFieldFormat" | fn.#StringExpression
-	IndexFieldName!:      _#defs."/$defs/Properties/definitions/IndexFieldName" | fn.#StringExpression
+	DataSourceFieldName!: _#defs."/$defs/Properties/definitions/ConfluenceBlogFieldName"
+	DateFieldFormat?:     _#defs."/$defs/Properties/definitions/DateFieldFormat"
+	IndexFieldName!:      _#defs."/$defs/Properties/definitions/IndexFieldName"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfluenceConfiguration": close({
-	AttachmentConfiguration?: _#defs."/$defs/Properties/definitions/ConfluenceAttachmentConfiguration" |
-		fn.#ObjectExpression
-	BlogConfiguration?: _#defs."/$defs/Properties/definitions/ConfluenceBlogConfiguration" | fn.#ObjectExpression
-	ExclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	InclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	PageConfiguration?:  _#defs."/$defs/Properties/definitions/ConfluencePageConfiguration" | fn.#ObjectExpression
-	SecretArn!:          _#defs."/$defs/Properties/definitions/SecretArn" | fn.#StringExpression
-	ServerUrl!:          _#defs."/$defs/Properties/definitions/Url" | fn.#StringExpression
-	SpaceConfiguration?: _#defs."/$defs/Properties/definitions/ConfluenceSpaceConfiguration" | fn.#ObjectExpression
-	Version!:            _#defs."/$defs/Properties/definitions/ConfluenceVersion" | fn.#StringExpression
-	VpcConfiguration?:   _#defs."/$defs/Properties/definitions/DataSourceVpcConfiguration" | fn.#ObjectExpression
+	AttachmentConfiguration?: _#defs."/$defs/Properties/definitions/ConfluenceAttachmentConfiguration"
+	BlogConfiguration?:       _#defs."/$defs/Properties/definitions/ConfluenceBlogConfiguration"
+	ExclusionPatterns?:       _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	InclusionPatterns?:       _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	PageConfiguration?:       _#defs."/$defs/Properties/definitions/ConfluencePageConfiguration"
+	SecretArn!:               _#defs."/$defs/Properties/definitions/SecretArn"
+	ServerUrl!:               _#defs."/$defs/Properties/definitions/Url"
+	SpaceConfiguration?:      _#defs."/$defs/Properties/definitions/ConfluenceSpaceConfiguration"
+	Version!:                 _#defs."/$defs/Properties/definitions/ConfluenceVersion"
+	VpcConfiguration?:        _#defs."/$defs/Properties/definitions/DataSourceVpcConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfluencePageConfiguration": close(
-	{PageFieldMappings?: _#defs."/$defs/Properties/definitions/ConfluencePageFieldMappingsList" | fn.#ListExpression},
+	{PageFieldMappings?: _#defs."/$defs/Properties/definitions/ConfluencePageFieldMappingsList"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfluencePageFieldMappingsList": list.MaxItems(12) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ConfluencePageToIndexFieldMapping" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ConfluencePageToIndexFieldMapping"
 ] |
 	fn.#ListExpression
 
@@ -170,23 +169,23 @@ _#defs: "/$defs/Properties/definitions/ConfluencePageFieldName": "AUTHOR" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ConfluencePageToIndexFieldMapping": close({
-	DataSourceFieldName!: _#defs."/$defs/Properties/definitions/ConfluencePageFieldName" | fn.#StringExpression
-	DateFieldFormat?:     _#defs."/$defs/Properties/definitions/DateFieldFormat" | fn.#StringExpression
-	IndexFieldName!:      _#defs."/$defs/Properties/definitions/IndexFieldName" | fn.#StringExpression
+	DataSourceFieldName!: _#defs."/$defs/Properties/definitions/ConfluencePageFieldName"
+	DateFieldFormat?:     _#defs."/$defs/Properties/definitions/DateFieldFormat"
+	IndexFieldName!:      _#defs."/$defs/Properties/definitions/IndexFieldName"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfluenceSpaceConfiguration": close({
-	CrawlArchivedSpaces?: bool | fn.#BooleanExpression
-	CrawlPersonalSpaces?: bool | fn.#BooleanExpression
-	ExcludeSpaces?:       _#defs."/$defs/Properties/definitions/ConfluenceSpaceList" | fn.#ListExpression
-	IncludeSpaces?:       _#defs."/$defs/Properties/definitions/ConfluenceSpaceList" | fn.#ListExpression
-	SpaceFieldMappings?:  _#defs."/$defs/Properties/definitions/ConfluenceSpaceFieldMappingsList" | fn.#ListExpression
+	CrawlArchivedSpaces?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CrawlPersonalSpaces?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExcludeSpaces?:       _#defs."/$defs/Properties/definitions/ConfluenceSpaceList"
+	IncludeSpaces?:       _#defs."/$defs/Properties/definitions/ConfluenceSpaceList"
+	SpaceFieldMappings?:  _#defs."/$defs/Properties/definitions/ConfluenceSpaceFieldMappingsList"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfluenceSpaceFieldMappingsList": list.MaxItems(4) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ConfluenceSpaceToIndexFieldMapping" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ConfluenceSpaceToIndexFieldMapping"
 ] |
 	fn.#ListExpression
 
@@ -200,33 +199,33 @@ _#defs: "/$defs/Properties/definitions/ConfluenceSpaceIdentifier": strings.MaxRu
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ConfluenceSpaceList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ConfluenceSpaceIdentifier" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/ConfluenceSpaceIdentifier"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ConfluenceSpaceToIndexFieldMapping": close({
-	DataSourceFieldName!: _#defs."/$defs/Properties/definitions/ConfluenceSpaceFieldName" | fn.#StringExpression
-	DateFieldFormat?:     _#defs."/$defs/Properties/definitions/DateFieldFormat" | fn.#StringExpression
-	IndexFieldName!:      _#defs."/$defs/Properties/definitions/IndexFieldName" | fn.#StringExpression
+	DataSourceFieldName!: _#defs."/$defs/Properties/definitions/ConfluenceSpaceFieldName"
+	DateFieldFormat?:     _#defs."/$defs/Properties/definitions/DateFieldFormat"
+	IndexFieldName!:      _#defs."/$defs/Properties/definitions/IndexFieldName"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfluenceVersion": "CLOUD" | "SERVER" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ConnectionConfiguration": close({
-	DatabaseHost!: _#defs."/$defs/Properties/definitions/DatabaseHost" | fn.#StringExpression
-	DatabaseName!: _#defs."/$defs/Properties/definitions/DatabaseName" | fn.#StringExpression
-	DatabasePort!: _#defs."/$defs/Properties/definitions/DatabasePort" | fn.#NumberExpression
-	SecretArn!:    _#defs."/$defs/Properties/definitions/SecretArn" | fn.#StringExpression
-	TableName!:    _#defs."/$defs/Properties/definitions/TableName" | fn.#StringExpression
+	DatabaseHost!: _#defs."/$defs/Properties/definitions/DatabaseHost"
+	DatabaseName!: _#defs."/$defs/Properties/definitions/DatabaseName"
+	DatabasePort!: _#defs."/$defs/Properties/definitions/DatabasePort"
+	SecretArn!:    _#defs."/$defs/Properties/definitions/SecretArn"
+	TableName!:    _#defs."/$defs/Properties/definitions/TableName"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomDocumentEnrichmentConfiguration": close({
-	InlineConfigurations?:            _#defs."/$defs/Properties/definitions/InlineConfigurations" | fn.#ListExpression
-	PostExtractionHookConfiguration?: _#defs."/$defs/Properties/definitions/HookConfiguration" | fn.#ObjectExpression
-	PreExtractionHookConfiguration?:  _#defs."/$defs/Properties/definitions/HookConfiguration" | fn.#ObjectExpression
-	RoleArn?:                         _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
+	InlineConfigurations?:            _#defs."/$defs/Properties/definitions/InlineConfigurations"
+	PostExtractionHookConfiguration?: _#defs."/$defs/Properties/definitions/HookConfiguration"
+	PreExtractionHookConfiguration?:  _#defs."/$defs/Properties/definitions/HookConfiguration"
+	RoleArn?:                         _#defs."/$defs/Properties/definitions/RoleArn"
 }) |
 fn.#ObjectExpression
 
@@ -264,17 +263,17 @@ _#defs: "/$defs/Properties/definitions/DataSourceConfiguration": matchN(1, [{
 	TemplateConfiguration!: _
 	...
 }]) & close({
-	ConfluenceConfiguration?:  _#defs."/$defs/Properties/definitions/ConfluenceConfiguration" | fn.#ObjectExpression
-	DatabaseConfiguration?:    _#defs."/$defs/Properties/definitions/DatabaseConfiguration" | fn.#ObjectExpression
-	GoogleDriveConfiguration?: _#defs."/$defs/Properties/definitions/GoogleDriveConfiguration" | fn.#ObjectExpression
-	OneDriveConfiguration?:    _#defs."/$defs/Properties/definitions/OneDriveConfiguration" | fn.#ObjectExpression
-	S3Configuration?:          _#defs."/$defs/Properties/definitions/S3DataSourceConfiguration" | fn.#ObjectExpression
-	SalesforceConfiguration?:  _#defs."/$defs/Properties/definitions/SalesforceConfiguration" | fn.#ObjectExpression
-	ServiceNowConfiguration?:  _#defs."/$defs/Properties/definitions/ServiceNowConfiguration" | fn.#ObjectExpression
-	SharePointConfiguration?:  _#defs."/$defs/Properties/definitions/SharePointConfiguration" | fn.#ObjectExpression
-	TemplateConfiguration?:    _#defs."/$defs/Properties/definitions/TemplateConfiguration" | fn.#ObjectExpression
-	WebCrawlerConfiguration?:  _#defs."/$defs/Properties/definitions/WebCrawlerConfiguration" | fn.#ObjectExpression
-	WorkDocsConfiguration?:    _#defs."/$defs/Properties/definitions/WorkDocsConfiguration" | fn.#ObjectExpression
+	ConfluenceConfiguration?:  _#defs."/$defs/Properties/definitions/ConfluenceConfiguration"
+	DatabaseConfiguration?:    _#defs."/$defs/Properties/definitions/DatabaseConfiguration"
+	GoogleDriveConfiguration?: _#defs."/$defs/Properties/definitions/GoogleDriveConfiguration"
+	OneDriveConfiguration?:    _#defs."/$defs/Properties/definitions/OneDriveConfiguration"
+	S3Configuration?:          _#defs."/$defs/Properties/definitions/S3DataSourceConfiguration"
+	SalesforceConfiguration?:  _#defs."/$defs/Properties/definitions/SalesforceConfiguration"
+	ServiceNowConfiguration?:  _#defs."/$defs/Properties/definitions/ServiceNowConfiguration"
+	SharePointConfiguration?:  _#defs."/$defs/Properties/definitions/SharePointConfiguration"
+	TemplateConfiguration?:    _#defs."/$defs/Properties/definitions/TemplateConfiguration"
+	WebCrawlerConfiguration?:  _#defs."/$defs/Properties/definitions/WebCrawlerConfiguration"
+	WorkDocsConfiguration?:    _#defs."/$defs/Properties/definitions/WorkDocsConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -287,20 +286,24 @@ _#defs: "/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings": l
 fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/DataSourceToIndexFieldMapping": close({
-	DataSourceFieldName!: _#defs."/$defs/Properties/definitions/DataSourceFieldName" | fn.#StringExpression
-	DateFieldFormat?:     _#defs."/$defs/Properties/definitions/DateFieldFormat" | fn.#StringExpression
-	IndexFieldName!:      _#defs."/$defs/Properties/definitions/IndexFieldName" | fn.#StringExpression
+	DataSourceFieldName!: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
+	DateFieldFormat?:     _#defs."/$defs/Properties/definitions/DateFieldFormat"
+	IndexFieldName!:      _#defs."/$defs/Properties/definitions/IndexFieldName"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSourceToIndexFieldMappingList": list.MaxItems(100) & [
-	..._#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMapping" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMapping"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/DataSourceVpcConfiguration": close({
 	SecurityGroupIds!: list.MaxItems(10) & [
-		...strings.MaxRunes(200) & strings.MinRunes(1) & =~"[\\-0-9a-zA-Z]+" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(200) &
+		strings.MinRunes(1) &
+		=~"[\\-0-9a-zA-Z]+" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SubnetIds!: list.MaxItems(6) & [
@@ -311,12 +314,12 @@ _#defs: "/$defs/Properties/definitions/DataSourceVpcConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DatabaseConfiguration": close({
-	AclConfiguration?:        _#defs."/$defs/Properties/definitions/AclConfiguration" | fn.#ObjectExpression
-	ColumnConfiguration!:     _#defs."/$defs/Properties/definitions/ColumnConfiguration" | fn.#ObjectExpression
-	ConnectionConfiguration!: _#defs."/$defs/Properties/definitions/ConnectionConfiguration" | fn.#ObjectExpression
-	DatabaseEngineType!:      _#defs."/$defs/Properties/definitions/DatabaseEngineType" | fn.#StringExpression
-	SqlConfiguration?:        _#defs."/$defs/Properties/definitions/SqlConfiguration" | fn.#ObjectExpression
-	VpcConfiguration?:        _#defs."/$defs/Properties/definitions/DataSourceVpcConfiguration" | fn.#ObjectExpression
+	AclConfiguration?:        _#defs."/$defs/Properties/definitions/AclConfiguration"
+	ColumnConfiguration!:     _#defs."/$defs/Properties/definitions/ColumnConfiguration"
+	ConnectionConfiguration!: _#defs."/$defs/Properties/definitions/ConnectionConfiguration"
+	DatabaseEngineType!:      _#defs."/$defs/Properties/definitions/DatabaseEngineType"
+	SqlConfiguration?:        _#defs."/$defs/Properties/definitions/SqlConfiguration"
+	VpcConfiguration?:        _#defs."/$defs/Properties/definitions/DataSourceVpcConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -330,7 +333,22 @@ _#defs: "/$defs/Properties/definitions/DatabaseHost": strings.MaxRunes(253) & st
 
 _#defs: "/$defs/Properties/definitions/DatabaseName": strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatabasePort": int & <=65535 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/DatabasePort": int & <=65535 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=65535 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/DateFieldFormat": strings.MaxRunes(40) & strings.MinRunes(4) |
 fn.#StringExpression
@@ -338,12 +356,19 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\P{C}*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DisableLocalGroups": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/DisableLocalGroups": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/DocumentAttributeCondition": close({
-	ConditionDocumentAttributeKey!: _#defs."/$defs/Properties/definitions/DocumentAttributeKey" | fn.#StringExpression
-	ConditionOnValue?:              _#defs."/$defs/Properties/definitions/DocumentAttributeValue" | fn.#ObjectExpression
-	Operator!:                      _#defs."/$defs/Properties/definitions/ConditionOperator" | fn.#StringExpression
+	ConditionDocumentAttributeKey!: _#defs."/$defs/Properties/definitions/DocumentAttributeKey"
+	ConditionOnValue?:              _#defs."/$defs/Properties/definitions/DocumentAttributeValue"
+	Operator!:                      _#defs."/$defs/Properties/definitions/ConditionOperator"
 }) |
 fn.#ObjectExpression
 
@@ -353,57 +378,62 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DocumentAttributeTarget": close({
-	TargetDocumentAttributeKey!:   _#defs."/$defs/Properties/definitions/DocumentAttributeKey" | fn.#StringExpression
-	TargetDocumentAttributeValue?: _#defs."/$defs/Properties/definitions/DocumentAttributeValue" | fn.#ObjectExpression
-	TargetDocumentAttributeValueDeletion?: bool | fn.#BooleanExpression
+	TargetDocumentAttributeKey!:   _#defs."/$defs/Properties/definitions/DocumentAttributeKey"
+	TargetDocumentAttributeValue?: _#defs."/$defs/Properties/definitions/DocumentAttributeValue"
+	TargetDocumentAttributeValueDeletion?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DocumentAttributeValue": close({
-	DateValue?:       _#defs."/$defs/Properties/definitions/Timestamp" | fn.#StringExpression
-	LongValue?:       _#defs."/$defs/Properties/definitions/Long" | fn.#NumberExpression
+	DateValue?:       _#defs."/$defs/Properties/definitions/Timestamp"
+	LongValue?:       _#defs."/$defs/Properties/definitions/Long"
 	StringListValue?: [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	StringValue?:     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DocumentsMetadataConfiguration": close(
-	{S3Prefix?: _#defs."/$defs/Properties/definitions/S3ObjectKey" | fn.#StringExpression},
+	{S3Prefix?: _#defs."/$defs/Properties/definitions/S3ObjectKey"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExcludeMimeTypesList": list.MaxItems(30) & [...] & [
-	..._#defs."/$defs/Properties/definitions/MimeType" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/MimeType"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ExcludeSharedDrivesList": list.MaxItems(100) & [...] & [
-	..._#defs."/$defs/Properties/definitions/SharedDriveId" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/SharedDriveId"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/ExcludeUserAccountsList": list.MaxItems(100) & [...] & [
-	..._#defs."/$defs/Properties/definitions/UserAccount" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/UserAccount"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/GoogleDriveConfiguration": close({
-	ExcludeMimeTypes?:    _#defs."/$defs/Properties/definitions/ExcludeMimeTypesList" | fn.#ListExpression
-	ExcludeSharedDrives?: _#defs."/$defs/Properties/definitions/ExcludeSharedDrivesList" | fn.#ListExpression
-	ExcludeUserAccounts?: _#defs."/$defs/Properties/definitions/ExcludeUserAccountsList" | fn.#ListExpression
-	ExclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	FieldMappings?: _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList" | fn.#ListExpression
-	InclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	SecretArn!: _#defs."/$defs/Properties/definitions/SecretArn" | fn.#StringExpression
+	ExcludeMimeTypes?:    _#defs."/$defs/Properties/definitions/ExcludeMimeTypesList"
+	ExcludeSharedDrives?: _#defs."/$defs/Properties/definitions/ExcludeSharedDrivesList"
+	ExcludeUserAccounts?: _#defs."/$defs/Properties/definitions/ExcludeUserAccountsList"
+	ExclusionPatterns?:   _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	FieldMappings?:       _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
+	InclusionPatterns?:   _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	SecretArn!:           _#defs."/$defs/Properties/definitions/SecretArn"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HookConfiguration": close({
-	InvocationCondition?: _#defs."/$defs/Properties/definitions/DocumentAttributeCondition" | fn.#ObjectExpression
-	LambdaArn!:           _#defs."/$defs/Properties/definitions/LambdaArn" | fn.#StringExpression
-	S3Bucket!:            _#defs."/$defs/Properties/definitions/S3BucketName" | fn.#StringExpression
+	InvocationCondition?: _#defs."/$defs/Properties/definitions/DocumentAttributeCondition"
+	LambdaArn!:           _#defs."/$defs/Properties/definitions/LambdaArn"
+	S3Bucket!:            _#defs."/$defs/Properties/definitions/S3BucketName"
 }) |
 fn.#ObjectExpression
 
@@ -418,18 +448,19 @@ strings.MinRunes(36) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/InlineConfigurations": list.MaxItems(100) & [...] & [
-	..._#defs."/$defs/Properties/definitions/InlineCustomDocumentEnrichmentConfiguration" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/InlineCustomDocumentEnrichmentConfiguration"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/InlineCustomDocumentEnrichmentConfiguration": close({
-	Condition?:               _#defs."/$defs/Properties/definitions/DocumentAttributeCondition" | fn.#ObjectExpression
-	DocumentContentDeletion?: bool | fn.#BooleanExpression
-	Target?:                  _#defs."/$defs/Properties/definitions/DocumentAttributeTarget" | fn.#ObjectExpression
+	Condition?:               _#defs."/$defs/Properties/definitions/DocumentAttributeCondition"
+	DocumentContentDeletion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Target?:                  _#defs."/$defs/Properties/definitions/DocumentAttributeTarget"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaArn": strings.MaxRunes(2048) &
+_#defs: "/$defs/Properties/definitions/LambdaArn": =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^/arn:aws[a-zA-Z-]*:lambda:[a-z]+-[a-z]+-[0-9]:[0-9]{12}:function:[a-zA-Z0-9-_]+(\\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})?(:[a-zA-Z0-9-_]+)?/$" |
 fn.#StringExpression
@@ -437,7 +468,19 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/LanguageCode": strings.MaxRunes(10) & strings.MinRunes(2) & =~"[a-zA-Z-]*" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Long": int | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Long": int |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/MimeType": strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
@@ -447,22 +490,20 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/OneDriveConfiguration": close({
-	DisableLocalGroups?: _#defs."/$defs/Properties/definitions/DisableLocalGroups" | fn.#BooleanExpression
-	ExclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	FieldMappings?: _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList" | fn.#ListExpression
-	InclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	OneDriveUsers!: _#defs."/$defs/Properties/definitions/OneDriveUsers" | fn.#ObjectExpression
-	SecretArn!:     _#defs."/$defs/Properties/definitions/SecretArn" | fn.#StringExpression
-	TenantDomain!:  _#defs."/$defs/Properties/definitions/TenantDomain" | fn.#StringExpression
+	DisableLocalGroups?: _#defs."/$defs/Properties/definitions/DisableLocalGroups"
+	ExclusionPatterns?:  _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	FieldMappings?:      _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
+	InclusionPatterns?:  _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	OneDriveUsers!:      _#defs."/$defs/Properties/definitions/OneDriveUsers"
+	SecretArn!:          _#defs."/$defs/Properties/definitions/SecretArn"
+	TenantDomain!:       _#defs."/$defs/Properties/definitions/TenantDomain"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OneDriveUser": strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/OneDriveUserList": list.MaxItems(100) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/OneDriveUser" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/OneDriveUser"
 ] |
 	fn.#ListExpression
 
@@ -473,21 +514,37 @@ _#defs: "/$defs/Properties/definitions/OneDriveUsers": matchN(1, [{
 	OneDriveUserS3Path!: _
 	...
 }]) & close({
-	OneDriveUserList?:   _#defs."/$defs/Properties/definitions/OneDriveUserList" | fn.#ListExpression
-	OneDriveUserS3Path?: _#defs."/$defs/Properties/definitions/S3Path" | fn.#ObjectExpression
+	OneDriveUserList?:   _#defs."/$defs/Properties/definitions/OneDriveUserList"
+	OneDriveUserS3Path?: _#defs."/$defs/Properties/definitions/S3Path"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ProxyConfiguration": close({
-	Credentials?: _#defs."/$defs/Properties/definitions/SecretArn" | fn.#StringExpression
+	Credentials?: _#defs."/$defs/Properties/definitions/SecretArn"
 	Host!:        strings.MaxRunes(253) & strings.MinRunes(1) & =~"([^\\s]*)" | fn.#StringExpression
-	Port!:        int & <=65535 & >=1 | fn.#NumberExpression
+	Port!: int & <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/QueryIdentifiersEnclosingOption": "DOUBLE_QUOTES" | "NONE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(1284) & strings.MinRunes(1) | fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(1)) |
+fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/S3BucketName": strings.MaxRunes(63) &
 strings.MinRunes(3) &
@@ -495,34 +552,28 @@ strings.MinRunes(3) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/S3DataSourceConfiguration": close({
-	AccessControlListConfiguration?: _#defs."/$defs/Properties/definitions/AccessControlListConfiguration" |
-		fn.#ObjectExpression
-	BucketName!: _#defs."/$defs/Properties/definitions/S3BucketName" | fn.#StringExpression
-	DocumentsMetadataConfiguration?: _#defs."/$defs/Properties/definitions/DocumentsMetadataConfiguration" |
-		fn.#ObjectExpression
-	ExclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	InclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	InclusionPrefixes?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
+	AccessControlListConfiguration?: _#defs."/$defs/Properties/definitions/AccessControlListConfiguration"
+	BucketName!:                     _#defs."/$defs/Properties/definitions/S3BucketName"
+	DocumentsMetadataConfiguration?: _#defs."/$defs/Properties/definitions/DocumentsMetadataConfiguration"
+	ExclusionPatterns?:              _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	InclusionPatterns?:              _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	InclusionPrefixes?:              _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3ObjectKey": strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/S3Path": close({
-	Bucket!: _#defs."/$defs/Properties/definitions/S3BucketName" | fn.#StringExpression
-	Key!:    _#defs."/$defs/Properties/definitions/S3ObjectKey" | fn.#StringExpression
+	Bucket!: _#defs."/$defs/Properties/definitions/S3BucketName"
+	Key!:    _#defs."/$defs/Properties/definitions/S3ObjectKey"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SalesforceChatterFeedConfiguration": close({
-	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName" | fn.#StringExpression
-	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName" | fn.#StringExpression
-	FieldMappings?: _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList" | fn.#ListExpression
-	IncludeFilterTypes?: _#defs."/$defs/Properties/definitions/SalesforceChatterFeedIncludeFilterTypes" |
-		fn.#ListExpression
+	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName"
+	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
+	FieldMappings?:          _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
+	IncludeFilterTypes?:     _#defs."/$defs/Properties/definitions/SalesforceChatterFeedIncludeFilterTypes"
 }) |
 fn.#ObjectExpression
 
@@ -531,51 +582,46 @@ _#defs: "/$defs/Properties/definitions/SalesforceChatterFeedIncludeFilterType": 
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SalesforceChatterFeedIncludeFilterTypes": list.MaxItems(2) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SalesforceChatterFeedIncludeFilterType" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/SalesforceChatterFeedIncludeFilterType"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/SalesforceConfiguration": close({
-	ChatterFeedConfiguration?: _#defs."/$defs/Properties/definitions/SalesforceChatterFeedConfiguration" |
-		fn.#ObjectExpression
-	CrawlAttachments?: bool | fn.#BooleanExpression
-	ExcludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	IncludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	KnowledgeArticleConfiguration?: _#defs."/$defs/Properties/definitions/SalesforceKnowledgeArticleConfiguration" |
-		fn.#ObjectExpression
-	SecretArn!: _#defs."/$defs/Properties/definitions/SecretArn" | fn.#StringExpression
-	ServerUrl!: _#defs."/$defs/Properties/definitions/Url" | fn.#StringExpression
-	StandardObjectAttachmentConfiguration?: _#defs."/$defs/Properties/definitions/SalesforceStandardObjectAttachmentConfiguration" |
-		fn.#ObjectExpression
-	StandardObjectConfigurations?: _#defs."/$defs/Properties/definitions/SalesforceStandardObjectConfigurationList" |
-		fn.#ListExpression
+	ChatterFeedConfiguration?: _#defs."/$defs/Properties/definitions/SalesforceChatterFeedConfiguration"
+	CrawlAttachments?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExcludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	IncludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	KnowledgeArticleConfiguration?: _#defs."/$defs/Properties/definitions/SalesforceKnowledgeArticleConfiguration"
+	SecretArn!:                     _#defs."/$defs/Properties/definitions/SecretArn"
+	ServerUrl!:                     _#defs."/$defs/Properties/definitions/Url"
+	StandardObjectAttachmentConfiguration?:
+		_#defs."/$defs/Properties/definitions/SalesforceStandardObjectAttachmentConfiguration"
+	StandardObjectConfigurations?: _#defs."/$defs/Properties/definitions/SalesforceStandardObjectConfigurationList"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SalesforceCustomKnowledgeArticleTypeConfiguration": close({
-	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName" | fn.#StringExpression
-	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName" | fn.#StringExpression
-	FieldMappings?: _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList" | fn.#ListExpression
-	Name!: _#defs."/$defs/Properties/definitions/SalesforceCustomKnowledgeArticleTypeName" | fn.#StringExpression
+	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName"
+	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
+	FieldMappings?:          _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
+	Name!:                   _#defs."/$defs/Properties/definitions/SalesforceCustomKnowledgeArticleTypeName"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SalesforceCustomKnowledgeArticleTypeConfigurationList": list.MaxItems(10) & list.MinItems(
 	1,
-) & [..._#defs."/$defs/Properties/definitions/SalesforceCustomKnowledgeArticleTypeConfiguration" | fn.#ObjectExpression] |
+) & [..._#defs."/$defs/Properties/definitions/SalesforceCustomKnowledgeArticleTypeConfiguration"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/SalesforceCustomKnowledgeArticleTypeName": strings.MaxRunes(100) & strings.MinRunes(1) |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SalesforceKnowledgeArticleConfiguration": close({
-	CustomKnowledgeArticleTypeConfigurations?: _#defs."/$defs/Properties/definitions/SalesforceCustomKnowledgeArticleTypeConfigurationList" |
-		fn.#ListExpression
-	IncludedStates!: _#defs."/$defs/Properties/definitions/SalesforceKnowledgeArticleStateList" | fn.#ListExpression
-	StandardKnowledgeArticleTypeConfiguration?: _#defs."/$defs/Properties/definitions/SalesforceStandardKnowledgeArticleTypeConfiguration" |
-		fn.#ObjectExpression
+	CustomKnowledgeArticleTypeConfigurations?:
+		_#defs."/$defs/Properties/definitions/SalesforceCustomKnowledgeArticleTypeConfigurationList"
+	IncludedStates!: _#defs."/$defs/Properties/definitions/SalesforceKnowledgeArticleStateList"
+	StandardKnowledgeArticleTypeConfiguration?:
+		_#defs."/$defs/Properties/definitions/SalesforceStandardKnowledgeArticleTypeConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -585,33 +631,33 @@ _#defs: "/$defs/Properties/definitions/SalesforceKnowledgeArticleState": "DRAFT"
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SalesforceKnowledgeArticleStateList": list.MaxItems(3) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SalesforceKnowledgeArticleState" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/SalesforceKnowledgeArticleState"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/SalesforceStandardKnowledgeArticleTypeConfiguration": close({
-	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName" | fn.#StringExpression
-	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName" | fn.#StringExpression
-	FieldMappings?: _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList" | fn.#ListExpression
+	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName"
+	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
+	FieldMappings?:          _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SalesforceStandardObjectAttachmentConfiguration": close({
-	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName" | fn.#StringExpression
-	FieldMappings?: _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList" | fn.#ListExpression
+	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
+	FieldMappings?:          _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SalesforceStandardObjectConfiguration": close({
-	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName" | fn.#StringExpression
-	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName" | fn.#StringExpression
-	FieldMappings?: _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList" | fn.#ListExpression
-	Name!:          _#defs."/$defs/Properties/definitions/SalesforceStandardObjectName" | fn.#StringExpression
+	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName"
+	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
+	FieldMappings?:          _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
+	Name!:                   _#defs."/$defs/Properties/definitions/SalesforceStandardObjectName"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SalesforceStandardObjectConfigurationList": list.MaxItems(17) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SalesforceStandardObjectConfiguration" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/SalesforceStandardObjectConfiguration"
 ] |
 	fn.#ListExpression
 
@@ -643,14 +689,12 @@ _#defs: "/$defs/Properties/definitions/ServiceNowAuthenticationType": "HTTP_BASI
 _#defs: "/$defs/Properties/definitions/ServiceNowBuildVersionType": "LONDON" | "OTHERS" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceNowConfiguration": close({
-	AuthenticationType?: _#defs."/$defs/Properties/definitions/ServiceNowAuthenticationType" | fn.#StringExpression
-	HostUrl!:            _#defs."/$defs/Properties/definitions/ServiceNowHostUrl" | fn.#StringExpression
-	KnowledgeArticleConfiguration?: _#defs."/$defs/Properties/definitions/ServiceNowKnowledgeArticleConfiguration" |
-		fn.#ObjectExpression
-	SecretArn!: _#defs."/$defs/Properties/definitions/SecretArn" | fn.#StringExpression
-	ServiceCatalogConfiguration?: _#defs."/$defs/Properties/definitions/ServiceNowServiceCatalogConfiguration" |
-		fn.#ObjectExpression
-	ServiceNowBuildVersion!: _#defs."/$defs/Properties/definitions/ServiceNowBuildVersionType" | fn.#StringExpression
+	AuthenticationType?:            _#defs."/$defs/Properties/definitions/ServiceNowAuthenticationType"
+	HostUrl!:                       _#defs."/$defs/Properties/definitions/ServiceNowHostUrl"
+	KnowledgeArticleConfiguration?: _#defs."/$defs/Properties/definitions/ServiceNowKnowledgeArticleConfiguration"
+	SecretArn!:                     _#defs."/$defs/Properties/definitions/SecretArn"
+	ServiceCatalogConfiguration?:   _#defs."/$defs/Properties/definitions/ServiceNowServiceCatalogConfiguration"
+	ServiceNowBuildVersion!:        _#defs."/$defs/Properties/definitions/ServiceNowBuildVersionType"
 }) |
 fn.#ObjectExpression
 
@@ -658,15 +702,13 @@ _#defs: "/$defs/Properties/definitions/ServiceNowHostUrl": strings.MaxRunes(2048
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceNowKnowledgeArticleConfiguration": close({
-	CrawlAttachments?:       bool | fn.#BooleanExpression
-	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName" | fn.#StringExpression
-	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName" | fn.#StringExpression
-	ExcludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	FieldMappings?: _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList" | fn.#ListExpression
-	FilterQuery?:   _#defs."/$defs/Properties/definitions/ServiceNowKnowledgeArticleFilterQuery" | fn.#StringExpression
-	IncludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
+	CrawlAttachments?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName"
+	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
+	ExcludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	FieldMappings?:                 _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
+	FilterQuery?:                   _#defs."/$defs/Properties/definitions/ServiceNowKnowledgeArticleFilterQuery"
+	IncludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
 }) |
 fn.#ObjectExpression
 
@@ -674,43 +716,37 @@ _#defs: "/$defs/Properties/definitions/ServiceNowKnowledgeArticleFilterQuery": s
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ServiceNowServiceCatalogConfiguration": close({
-	CrawlAttachments?:       bool | fn.#BooleanExpression
-	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName" | fn.#StringExpression
-	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName" | fn.#StringExpression
-	ExcludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	FieldMappings?: _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList" | fn.#ListExpression
-	IncludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
+	CrawlAttachments?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName"
+	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
+	ExcludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	FieldMappings?:                 _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
+	IncludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SharePointConfiguration": close({
-	CrawlAttachments?:       bool | fn.#BooleanExpression
-	DisableLocalGroups?:     _#defs."/$defs/Properties/definitions/DisableLocalGroups" | fn.#BooleanExpression
-	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName" | fn.#StringExpression
-	ExclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	FieldMappings?: _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList" | fn.#ListExpression
-	InclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	SecretArn!:            _#defs."/$defs/Properties/definitions/SecretArn" | fn.#StringExpression
-	SharePointVersion!:    "SHAREPOINT_ONLINE" | "SHAREPOINT_2013" | "SHAREPOINT_2016" | fn.#StringExpression
-	SslCertificateS3Path?: _#defs."/$defs/Properties/definitions/S3Path" | fn.#ObjectExpression
-	Urls!: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/Url" | fn.#StringExpression] |
-		fn.#ListExpression
-	UseChangeLog?:     bool | fn.#BooleanExpression
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/DataSourceVpcConfiguration" | fn.#ObjectExpression
+	CrawlAttachments?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DisableLocalGroups?:     _#defs."/$defs/Properties/definitions/DisableLocalGroups"
+	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
+	ExclusionPatterns?:      _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	FieldMappings?:          _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
+	InclusionPatterns?:      _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	SecretArn!:              _#defs."/$defs/Properties/definitions/SecretArn"
+	SharePointVersion!:      "SHAREPOINT_ONLINE" | "SHAREPOINT_2013" | "SHAREPOINT_2016" | fn.#StringExpression
+	SslCertificateS3Path?:   _#defs."/$defs/Properties/definitions/S3Path"
+	Urls!:                   list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/Url"] | fn.#ListExpression
+	UseChangeLog?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	VpcConfiguration?:       _#defs."/$defs/Properties/definitions/DataSourceVpcConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SharedDriveId": strings.MaxRunes(256) & strings.MinRunes(1) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SqlConfiguration": close({
-	QueryIdentifiersEnclosingOption?: _#defs."/$defs/Properties/definitions/QueryIdentifiersEnclosingOption" |
-		fn.#StringExpression
-}) |
+_#defs: "/$defs/Properties/definitions/SqlConfiguration": close(
+	{QueryIdentifiersEnclosingOption?: _#defs."/$defs/Properties/definitions/QueryIdentifiersEnclosingOption"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableName": strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
@@ -722,14 +758,14 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TagList": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/TemplateConfiguration": close(
-	{Template!: {[string]: fn.#Value} | fn.#ObjectExpression},
+	{Template!: fn.#Object & {...} | fn.#ObjectExpression},
 ) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TenantDomain": strings.MaxRunes(256) &
 strings.MinRunes(1) &
@@ -759,36 +795,112 @@ fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/UserAccount": strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WebCrawlerAuthenticationConfiguration": close({
-	BasicAuthentication?: _#defs."/$defs/Properties/definitions/WebCrawlerBasicAuthenticationList" | fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/WebCrawlerAuthenticationConfiguration": close(
+	{BasicAuthentication?: _#defs."/$defs/Properties/definitions/WebCrawlerBasicAuthenticationList"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WebCrawlerBasicAuthentication": close({
-	Credentials!: _#defs."/$defs/Properties/definitions/SecretArn" | fn.#StringExpression
+	Credentials!: _#defs."/$defs/Properties/definitions/SecretArn"
 	Host!:        strings.MaxRunes(253) & strings.MinRunes(1) & =~"([^\\s]*)" | fn.#StringExpression
-	Port!:        int & <=65535 & >=1 | fn.#NumberExpression
+	Port!: int & <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WebCrawlerBasicAuthenticationList": list.MaxItems(10) & [
-	..._#defs."/$defs/Properties/definitions/WebCrawlerBasicAuthentication" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/WebCrawlerBasicAuthentication"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/WebCrawlerConfiguration": close({
-	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/WebCrawlerAuthenticationConfiguration" |
-		fn.#ObjectExpression
-	CrawlDepth?:                       int & <=10 & >=1 | fn.#NumberExpression
-	MaxContentSizePerPageInMegaBytes?: <=50 & >=0 | fn.#NumberExpression
-	MaxLinksPerPage?:                  int & <=1000 & >=1 | fn.#NumberExpression
-	MaxUrlsPerMinuteCrawlRate?:        int & <=300 & >=1 | fn.#NumberExpression
-	ProxyConfiguration?:               _#defs."/$defs/Properties/definitions/ProxyConfiguration" | fn.#ObjectExpression
-	UrlExclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	UrlInclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	Urls!: _#defs."/$defs/Properties/definitions/WebCrawlerUrls" | fn.#ObjectExpression
+	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/WebCrawlerAuthenticationConfiguration"
+	CrawlDepth?: int & <=10 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxContentSizePerPageInMegaBytes?: <=50 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=50 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxLinksPerPage?: int & <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxUrlsPerMinuteCrawlRate?: int & <=300 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=300 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ProxyConfiguration?:   _#defs."/$defs/Properties/definitions/ProxyConfiguration"
+	UrlExclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	UrlInclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	Urls!:                 _#defs."/$defs/Properties/definitions/WebCrawlerUrls"
 }) |
 fn.#ObjectExpression
 
@@ -798,13 +910,13 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/WebCrawlerSeedUrlConfiguration": close({
-	SeedUrls!:       _#defs."/$defs/Properties/definitions/WebCrawlerSeedUrlList" | fn.#ListExpression
+	SeedUrls!:       _#defs."/$defs/Properties/definitions/WebCrawlerSeedUrlList"
 	WebCrawlerMode?: "HOST_ONLY" | "SUBDOMAINS" | "EVERYTHING" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WebCrawlerSeedUrlList": list.MaxItems(100) & [...] & [
-	..._#defs."/$defs/Properties/definitions/WebCrawlerSeedUrl" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/WebCrawlerSeedUrl"
 ] |
 	fn.#ListExpression
 
@@ -814,31 +926,28 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/WebCrawlerSiteMaps": list.MaxItems(3) & [...] & [
-	..._#defs."/$defs/Properties/definitions/WebCrawlerSiteMap" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/WebCrawlerSiteMap"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/WebCrawlerSiteMapsConfiguration": close(
-	{SiteMaps!: _#defs."/$defs/Properties/definitions/WebCrawlerSiteMaps" | fn.#ListExpression},
+	{SiteMaps!: _#defs."/$defs/Properties/definitions/WebCrawlerSiteMaps"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WebCrawlerUrls": close({
-	SeedUrlConfiguration?: _#defs."/$defs/Properties/definitions/WebCrawlerSeedUrlConfiguration" | fn.#ObjectExpression
-	SiteMapsConfiguration?: _#defs."/$defs/Properties/definitions/WebCrawlerSiteMapsConfiguration" |
-		fn.#ObjectExpression
+	SeedUrlConfiguration?:  _#defs."/$defs/Properties/definitions/WebCrawlerSeedUrlConfiguration"
+	SiteMapsConfiguration?: _#defs."/$defs/Properties/definitions/WebCrawlerSiteMapsConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WorkDocsConfiguration": close({
-	CrawlComments?: bool | fn.#BooleanExpression
-	ExclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	FieldMappings?: _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList" | fn.#ListExpression
-	InclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings" |
-		fn.#ListExpression
-	OrganizationId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"d-[0-9a-fA-F]{10}" | fn.#StringExpression
-	UseChangeLog?:   bool | fn.#BooleanExpression
+	CrawlComments?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	FieldMappings?:     _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
+	InclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	OrganizationId!:    strings.MaxRunes(12) & strings.MinRunes(12) & =~"d-[0-9a-fA-F]{10}" | fn.#StringExpression
+	UseChangeLog?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

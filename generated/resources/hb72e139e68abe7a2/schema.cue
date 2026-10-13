@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -21,22 +25,70 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Parameters!: close({
 		BudgetParameters?: list.MaxItems(2) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/BudgetParameter" | fn.#ObjectExpression
+			..._#defs."/$defs/Properties/definitions/BudgetParameter"
 		] |
 			fn.#ListExpression
-		Epsilon?:            int & <=20 & >=1 | fn.#NumberExpression
-		ResourceArn?:        strings.MaxRunes(200) | fn.#StringExpression
-		UsersNoisePerQuery?: int & <=100 & >=10 | fn.#NumberExpression
+		Epsilon?: int & <=20 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=20 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ResourceArn?: strings.MaxRunes(200) | fn.#StringExpression
+		UsersNoisePerQuery?: int & <=100 & >=10 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=100 &
+								>=10,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
 	PrivacyBudgetType!: "DIFFERENTIAL_PRIVACY" | "ACCESS_BUDGET" | fn.#StringExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/BudgetParameter": close({
 	AutoRefresh?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	Budget!:      int & >=0 | fn.#NumberExpression
-	Type!:        "CALENDAR_DAY" | "CALENDAR_MONTH" | "CALENDAR_WEEK" | "LIFETIME" | fn.#StringExpression
+	Budget!: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type!: "CALENDAR_DAY" | "CALENDAR_MONTH" | "CALENDAR_WEEK" | "LIFETIME" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

@@ -11,7 +11,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::KinesisAnalytics::ApplicationReferenceDataSource
 #Properties: close({
 	ApplicationName!:     string | fn.#StringExpression
-	ReferenceDataSource!: _#defs."/$defs/Properties/definitions/ReferenceDataSource" | fn.#ObjectExpression
+	ReferenceDataSource!: _#defs."/$defs/Properties/definitions/ReferenceDataSource"
 })
 
 _#defs: "/$defs/Properties/definitions/CSVMappingParameters": close({
@@ -24,8 +24,8 @@ _#defs: "/$defs/Properties/definitions/JSONMappingParameters": close({RecordRowP
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MappingParameters": close({
-	CSVMappingParameters?:  _#defs."/$defs/Properties/definitions/CSVMappingParameters" | fn.#ObjectExpression
-	JSONMappingParameters?: _#defs."/$defs/Properties/definitions/JSONMappingParameters" | fn.#ObjectExpression
+	CSVMappingParameters?:  _#defs."/$defs/Properties/definitions/CSVMappingParameters"
+	JSONMappingParameters?: _#defs."/$defs/Properties/definitions/JSONMappingParameters"
 }) |
 fn.#ObjectExpression
 
@@ -37,29 +37,30 @@ _#defs: "/$defs/Properties/definitions/RecordColumn": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RecordFormat": close({
-	MappingParameters?: _#defs."/$defs/Properties/definitions/MappingParameters" | fn.#ObjectExpression
+	MappingParameters?: _#defs."/$defs/Properties/definitions/MappingParameters"
 	RecordFormatType!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReferenceDataSource": close({
-	ReferenceSchema!:       _#defs."/$defs/Properties/definitions/ReferenceSchema" | fn.#ObjectExpression
-	S3ReferenceDataSource?: _#defs."/$defs/Properties/definitions/S3ReferenceDataSource" | fn.#ObjectExpression
+	ReferenceSchema!:       _#defs."/$defs/Properties/definitions/ReferenceSchema"
+	S3ReferenceDataSource?: _#defs."/$defs/Properties/definitions/S3ReferenceDataSource"
 	TableName?:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReferenceSchema": close({
-	RecordColumns!: [..._#defs."/$defs/Properties/definitions/RecordColumn" | fn.#ObjectExpression] | fn.#ListExpression
+	RecordColumns!:  [..._#defs."/$defs/Properties/definitions/RecordColumn"] | fn.#ListExpression
 	RecordEncoding?: string | fn.#StringExpression
-	RecordFormat!:   _#defs."/$defs/Properties/definitions/RecordFormat" | fn.#ObjectExpression
+	RecordFormat!:   _#defs."/$defs/Properties/definitions/RecordFormat"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3ReferenceDataSource": close({
-	BucketARN!:        string | fn.#StringExpression
-	FileKey!:          string | fn.#StringExpression
-	ReferenceRoleARN!: string | fn.#StringExpression
+	BucketARN!: string | fn.#StringExpression
+	FileKey!:   string | fn.#StringExpression
+	ReferenceRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

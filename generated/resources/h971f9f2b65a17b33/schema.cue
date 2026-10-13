@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,23 +21,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // endpoint location within a service and environment.
 #Properties: close({
 	AttributeFilters?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AttributeFilterGroup" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/AttributeFilterGroup"
 	] |
 		fn.#ListExpression
-	CaptureConfiguration!: close(
-		{CodeCapture!: _#defs."/$defs/Properties/definitions/CodeCaptureConfiguration" | fn.#ObjectExpression},
-	) |
+	CaptureConfiguration!: close({CodeCapture!: _#defs."/$defs/Properties/definitions/CodeCaptureConfiguration"}) |
 		fn.#ObjectExpression
 	Description?: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 	Environment!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9:/+=,.@_-]+$" | fn.#StringExpression
 	ExpiresAt?:   time.Time | fn.#StringExpression
 	InstrumentationType!: "BREAKPOINT" | "PROBE" | fn.#StringExpression
-	Location!: close({CodeLocation!: _#defs."/$defs/Properties/definitions/CodeLocation" | fn.#ObjectExpression}) |
-		fn.#ObjectExpression
+	Location!:   close({CodeLocation!: _#defs."/$defs/Properties/definitions/CodeLocation"}) | fn.#ObjectExpression
 	Service!:    strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9:/+=,.@_-]+$" | fn.#StringExpression
 	SignalType!: "SNAPSHOT" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:       list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AttributeFilterGroup": close({
@@ -42,34 +42,168 @@ _#defs: "/$defs/Properties/definitions/AttributeFilterGroup": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CaptureLimitsConfig": close({
-	MaxCollectionDepth?: int & <=5 & >=1 | fn.#NumberExpression
-	MaxCollectionWidth?: int & <=20 & >=1 | fn.#NumberExpression
-	MaxFieldsPerObject?: int & <=20 & >=1 | fn.#NumberExpression
-	MaxHits?:            int & <=1000 & >=1 | fn.#NumberExpression
-	MaxObjectDepth?:     int & <=5 & >=1 | fn.#NumberExpression
-	MaxStackFrames?:     int & <=20 & >=1 | fn.#NumberExpression
-	MaxStackTraceSize?:  int & <=1000 & >=1 | fn.#NumberExpression
-	MaxStringLength?:    int & <=255 & >=1 | fn.#NumberExpression
+	MaxCollectionDepth?: int & <=5 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=5 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxCollectionWidth?: int & <=20 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=20 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxFieldsPerObject?: int & <=20 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=20 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxHits?: int & <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxObjectDepth?: int & <=5 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=5 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxStackFrames?: int & <=20 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=20 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxStackTraceSize?: int & <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxStringLength?: int & <=255 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=255 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CodeCaptureConfiguration": close({
 	CaptureArguments?: list.MaxItems(10) & [...strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
-	CaptureLimits!: _#defs."/$defs/Properties/definitions/CaptureLimitsConfig" | fn.#ObjectExpression
+	CaptureLimits!: _#defs."/$defs/Properties/definitions/CaptureLimitsConfig"
 	CaptureLocals?: list.MaxItems(20) & [...strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
-	CaptureReturn?:     bool | fn.#BooleanExpression
-	CaptureStackTrace?: bool | fn.#BooleanExpression
+	CaptureReturn?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CaptureStackTrace?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CodeLocation": close({
-	ClassName?:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	CodeUnit?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	FilePath!:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Language!:   "Java" | "Python" | "Javascript" | fn.#StringExpression
-	LineNumber?: int & >=1 | fn.#NumberExpression
+	ClassName?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	CodeUnit?:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	FilePath!:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Language!:  "Java" | "Python" | "Javascript" | fn.#StringExpression
+	LineNumber?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	MethodName?: strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression

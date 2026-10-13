@@ -80,7 +80,7 @@ _#defs: "/$defs/Properties/definitions/CannedAccessControlList": "private" |
 
 _#defs: "/$defs/Properties/definitions/CloudwatchAlarmAction": close({
 	AlarmName!:   string
-	RoleArn!:     string
+	RoleArn!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	StateReason!: string
 	StateValue!:  string
 })
@@ -88,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/CloudwatchAlarmAction": close({
 _#defs: "/$defs/Properties/definitions/CloudwatchLogsAction": close({
 	BatchMode?:    bool
 	LogGroupName!: string
-	RoleArn!:      string
+	RoleArn!:      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/CloudwatchMetricAction": close({
@@ -97,7 +97,7 @@ _#defs: "/$defs/Properties/definitions/CloudwatchMetricAction": close({
 	MetricTimestamp?: string
 	MetricUnit!:      string
 	MetricValue!:     string
-	RoleArn!:         string
+	RoleArn!:         =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/DynamoDBAction": close({
@@ -108,27 +108,27 @@ _#defs: "/$defs/Properties/definitions/DynamoDBAction": close({
 	RangeKeyField?: string
 	RangeKeyType?:  "NUMBER" | "STRING"
 	RangeKeyValue?: string
-	RoleArn!:       string
+	RoleArn!:       =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	TableName!:     string
 })
 
 _#defs: "/$defs/Properties/definitions/DynamoDBv2Action": close({
 	PutItem?: _#defs."/$defs/Properties/definitions/PutItemInput"
-	RoleArn?: string
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/ElasticsearchAction": close({
 	Endpoint!: =~"^https?://"
 	Id!:       string
 	Index!:    string
-	RoleArn!:  string
+	RoleArn!:  =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Type!:     string
 })
 
 _#defs: "/$defs/Properties/definitions/FirehoseAction": close({
 	BatchMode?:          bool
 	DeliveryStreamName!: string
-	RoleArn!:            string
+	RoleArn!:            =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Separator?:          =~"^([\\n\\t])|(\\r\\n)|(,)$"
 })
 
@@ -157,7 +157,7 @@ _#defs: "/$defs/Properties/definitions/InfluxDBAction": close({
 	DatabaseName!:   strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[^_\\\"][^\\\"]+$"
 	DestinationArn!: string
 	Organization?:   strings.MaxRunes(64) & strings.MinRunes(1)
-	RoleArn!:        string
+	RoleArn!:        =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	TableName!:      strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[^_].*$"
 	Tags?: close({
 
@@ -175,21 +175,21 @@ _#defs: "/$defs/Properties/definitions/InfluxDBBatchConfig": close({
 _#defs: "/$defs/Properties/definitions/IotAnalyticsAction": close({
 	BatchMode?:   bool
 	ChannelName!: string
-	RoleArn!:     string
+	RoleArn!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/IotEventsAction": close({
 	BatchMode?: bool
 	InputName!: strings.MaxRunes(128) & strings.MinRunes(1)
 	MessageId?: strings.MaxRunes(128) & strings.MinRunes(0)
-	RoleArn!:   string
+	RoleArn!:   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/IotSiteWiseAction": close({
 	PutAssetPropertyValueEntries!: list.MinItems(1) & list.UniqueItems() & [
 		..._#defs."/$defs/Properties/definitions/PutAssetPropertyValueEntry"
 	]
-	RoleArn!: string
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/KafkaAction": close({
@@ -212,17 +212,19 @@ _#defs: "/$defs/Properties/definitions/KafkaActionHeader": close({
 
 _#defs: "/$defs/Properties/definitions/KinesisAction": close({
 	PartitionKey?: string
-	RoleArn!:      string
+	RoleArn!:      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	StreamName!:   string
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaAction": close({FunctionArn?: string})
+_#defs: "/$defs/Properties/definitions/LambdaAction": close(
+	{FunctionArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"},
+)
 
 _#defs: "/$defs/Properties/definitions/LocationAction": close({
 	DeviceId!:    string
 	Latitude!:    string
 	Longitude!:   string
-	RoleArn!:     string
+	RoleArn!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Timestamp?:   _#defs."/$defs/Properties/definitions/Timestamp"
 	TrackerName!: string
 })
@@ -231,7 +233,7 @@ _#defs: "/$defs/Properties/definitions/OpenSearchAction": close({
 	Endpoint!: =~"^https?://"
 	Id!:       string
 	Index!:    string
-	RoleArn!:  string
+	RoleArn!:  =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Type!:     string
 })
 
@@ -250,7 +252,7 @@ _#defs: "/$defs/Properties/definitions/PutItemInput": close({TableName!: string}
 _#defs: "/$defs/Properties/definitions/RepublishAction": close({
 	Headers?: _#defs."/$defs/Properties/definitions/RepublishActionHeaders"
 	Qos?:     int & <=1 & >=0
-	RoleArn!: string
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Topic!:   string
 })
 
@@ -269,30 +271,30 @@ _#defs: "/$defs/Properties/definitions/S3Action": close({
 	BucketName!: string
 	CannedAcl?:  _#defs."/$defs/Properties/definitions/CannedAccessControlList"
 	Key!:        string
-	RoleArn!:    string
+	RoleArn!:    =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/SigV4Authorization": close({
-	RoleArn!:       string
+	RoleArn!:       =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	ServiceName!:   string
 	SigningRegion!: string
 })
 
 _#defs: "/$defs/Properties/definitions/SnsAction": close({
 	MessageFormat?: "JSON" | "RAW"
-	RoleArn!:       string
+	RoleArn!:       =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	TargetArn!:     string
 })
 
 _#defs: "/$defs/Properties/definitions/SqsAction": close({
 	QueueUrl!:  string
-	RoleArn!:   string
+	RoleArn!:   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	UseBase64?: bool
 })
 
 _#defs: "/$defs/Properties/definitions/StepFunctionsAction": close({
 	ExecutionNamePrefix?: string
-	RoleArn!:             string
+	RoleArn!:             =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	StateMachineName!:    string
 })
 
@@ -309,7 +311,7 @@ _#defs: "/$defs/Properties/definitions/Timestamp": close({
 _#defs: "/$defs/Properties/definitions/TimestreamAction": close({
 	DatabaseName!: string
 	Dimensions!:   _#defs."/$defs/Properties/definitions/TimestreamDimensionsList"
-	RoleArn!:      string
+	RoleArn!:      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	TableName!:    string
 	Timestamp?:    _#defs."/$defs/Properties/definitions/TimestreamTimestamp"
 })

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -14,24 +14,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::AppStream::Application
 #Properties: close({
-	AppBlockArn!: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	AttributesToDelete?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ApplicationAttribute" | fn.#StringExpression
-	] |
+	AppBlockArn!: _#defs."/$defs/Properties/definitions/Arn"
+	AttributesToDelete?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ApplicationAttribute"] |
 		fn.#ListExpression
 	Description?:      strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	DisplayName?:      strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	IconS3Location!:   _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
+	IconS3Location!:   _#defs."/$defs/Properties/definitions/S3Location"
 	InstanceFamilies!: list.UniqueItems() & [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	LaunchParameters?: strings.MinRunes(1) | fn.#StringExpression
 	LaunchPath!:       strings.MinRunes(1) | fn.#StringExpression
 	Name!:             =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
-	Platforms!: list.MaxItems(4) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/PlatformType" | fn.#StringExpression
-	] |
+	Platforms!: list.MaxItems(4) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/PlatformType"] |
 		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ValueExpression] |
-		fn.#ListExpression
+	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	WorkingDirectory?: strings.MinRunes(1) | fn.#StringExpression
 })
 

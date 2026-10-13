@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,12 +21,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ComputeResources?: close({
 		AllocationStrategy?: =~"(?i)^(?:best_fit|best_fit_progressive|best_fit_progressive_ordered|spot_capacity_optimized|spot_capacity_optimized_prioritized|spot_price_capacity_optimized)$" |
 			fn.#StringExpression
-		BidPercentage?: int | fn.#NumberExpression
+		BidPercentage?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 		CapacityTags?: close({
 
 			{[=~".*"]: string | fn.#StringExpression}}) |
 		fn.#ObjectExpression
-		DesiredvCpus?: int | fn.#NumberExpression
+		DesiredvCpus?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 		Ec2Configuration?: [...close({
 			ImageIdOverride?:        string | fn.#StringExpression
 			ImageKubernetesVersion?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
@@ -30,18 +64,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		Ec2KeyPair?:     string | fn.#StringExpression
-		ImageId?:        string | fn.#StringExpression
-		InstanceRole?:   string | fn.#StringExpression
-		InstanceTypes?:  [...string | fn.#StringExpression] | fn.#ListExpression
-		LaunchTemplate?: _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification" | fn.#ObjectExpression
-		ManagedInstancesProvider?: _#defs."/$defs/Properties/definitions/ManagedInstancesProvider" |
-			fn.#ObjectExpression
-		MaxvCpus!:         int | fn.#NumberExpression
-		MinvCpus?:         int | fn.#NumberExpression
-		PlacementGroup?:   string | fn.#StringExpression
-		ScalingPolicy?:    _#defs."/$defs/Properties/definitions/ComputeScalingPolicy" | fn.#ObjectExpression
-		SecurityGroupIds?: [...string | fn.#StringExpression] | fn.#ListExpression
+		Ec2KeyPair?: string | fn.#StringExpression
+		ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		InstanceRole?:             string | fn.#StringExpression
+		InstanceTypes?:            [...string | fn.#StringExpression] | fn.#ListExpression
+		LaunchTemplate?:           _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification"
+		ManagedInstancesProvider?: _#defs."/$defs/Properties/definitions/ManagedInstancesProvider"
+		MaxvCpus!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MinvCpus?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PlacementGroup?: string | fn.#StringExpression
+		ScalingPolicy?:  _#defs."/$defs/Properties/definitions/ComputeScalingPolicy"
+		SecurityGroupIds?: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
 		SpotIamFleetRole?: string | fn.#StringExpression
 		Subnets?:          [...string | fn.#StringExpression] | fn.#ListExpression
 		Tags?: close({
@@ -49,11 +117,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			{[=~".*"]: string | fn.#StringExpression}}) |
 		fn.#ObjectExpression
 		Type!: =~"(?i)^(?:ec2|ecs_managed_instances|fargate|fargate_spot|spot)$" | fn.#StringExpression
-		UpdateToLatestImageVersion?: bool | fn.#BooleanExpression
+		UpdateToLatestImageVersion?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
 	}) |
 	fn.#ObjectExpression
 	Context?:     string | fn.#StringExpression
-	EcsSettings?: _#defs."/$defs/Properties/definitions/EcsSettings" | fn.#ObjectExpression
+	EcsSettings?: _#defs."/$defs/Properties/definitions/EcsSettings"
 	EksConfiguration?: close({
 		AccessEntry?: close({DesiredState?: =~"(?i)^(?:disabled|enabled|inherit_from_cluster)$" | fn.#StringExpression}) |
 			fn.#ObjectExpression
@@ -61,16 +136,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		KubernetesNamespace!: string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	ReplaceComputeEnvironment?: bool | fn.#BooleanExpression
+	ReplaceComputeEnvironment?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ServiceRole?:               string | fn.#StringExpression
 	State?:                     string | fn.#StringExpression
 	Tags?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Type!:           =~"(?i)^(?:managed|unmanaged)$" | fn.#StringExpression
-	UnmanagedvCpus?: int | fn.#NumberExpression
-	UpdatePolicy?:   _#defs."/$defs/Properties/definitions/UpdatePolicy" | fn.#ObjectExpression
+	Type!: =~"(?i)^(?:managed|unmanaged)$" | fn.#StringExpression
+	UnmanagedvCpus?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UpdatePolicy?: _#defs."/$defs/Properties/definitions/UpdatePolicy"
 })
 
 _#defs: "/$defs/Properties/definitions/CapacityReservations": close({
@@ -82,39 +170,108 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ComputeResources": close({
 	AllocationStrategy?: =~"(?i)^(?:best_fit|best_fit_progressive|best_fit_progressive_ordered|spot_capacity_optimized|spot_capacity_optimized_prioritized|spot_price_capacity_optimized)$" |
 		fn.#StringExpression
-	BidPercentage?: int | fn.#NumberExpression
+	BidPercentage?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	CapacityTags?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	DesiredvCpus?: int | fn.#NumberExpression
-	Ec2Configuration?: [..._#defs."/$defs/Properties/definitions/Ec2ConfigurationObject" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Ec2KeyPair?:               string | fn.#StringExpression
-	ImageId?:                  string | fn.#StringExpression
+	DesiredvCpus?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ec2Configuration?: [..._#defs."/$defs/Properties/definitions/Ec2ConfigurationObject"] | fn.#ListExpression
+	Ec2KeyPair?:       string | fn.#StringExpression
+	ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	InstanceRole?:             string | fn.#StringExpression
 	InstanceTypes?:            [...string | fn.#StringExpression] | fn.#ListExpression
-	LaunchTemplate?:           _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification" | fn.#ObjectExpression
-	ManagedInstancesProvider?: _#defs."/$defs/Properties/definitions/ManagedInstancesProvider" | fn.#ObjectExpression
-	MaxvCpus!:                 int | fn.#NumberExpression
-	MinvCpus?:                 int | fn.#NumberExpression
-	PlacementGroup?:           string | fn.#StringExpression
-	ScalingPolicy?:            _#defs."/$defs/Properties/definitions/ComputeScalingPolicy" | fn.#ObjectExpression
-	SecurityGroupIds?:         [...string | fn.#StringExpression] | fn.#ListExpression
-	SpotIamFleetRole?:         string | fn.#StringExpression
-	Subnets?:                  [...string | fn.#StringExpression] | fn.#ListExpression
+	LaunchTemplate?:           _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification"
+	ManagedInstancesProvider?: _#defs."/$defs/Properties/definitions/ManagedInstancesProvider"
+	MaxvCpus!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinvCpus?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PlacementGroup?: string | fn.#StringExpression
+	ScalingPolicy?:  _#defs."/$defs/Properties/definitions/ComputeScalingPolicy"
+	SecurityGroupIds?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	SpotIamFleetRole?: string | fn.#StringExpression
+	Subnets?:          [...string | fn.#StringExpression] | fn.#ListExpression
 	Tags?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
 	Type!: =~"(?i)^(?:ec2|ecs_managed_instances|fargate|fargate_spot|spot)$" | fn.#StringExpression
-	UpdateToLatestImageVersion?: bool | fn.#BooleanExpression
+	UpdateToLatestImageVersion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComputeScalingPolicy": close(
-	{MinScaleDownDelayMinutes?: int | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/ComputeScalingPolicy": close({
+	MinScaleDownDelayMinutes?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Ec2ConfigurationObject": close({
@@ -137,29 +294,48 @@ _#defs: "/$defs/Properties/definitions/EksAccessEntry": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EksConfiguration": close({
-	AccessEntry?:         _#defs."/$defs/Properties/definitions/EksAccessEntry" | fn.#ObjectExpression
+	AccessEntry?:         _#defs."/$defs/Properties/definitions/EksAccessEntry"
 	EksClusterArn!:       string | fn.#StringExpression
 	KubernetesNamespace!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InfrastructureOptimization": close({ScaleInAfter?: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/InfrastructureOptimization": close({
+	ScaleInAfter?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InstanceLaunchTemplate": close({
-	CapacityOptionType?:              "ON_DEMAND" | "SPOT" | "RESERVED" | fn.#StringExpression
-	CapacityReservations?:            _#defs."/$defs/Properties/definitions/CapacityReservations" | fn.#ObjectExpression
-	Ec2InstanceProfileArn!:           string | fn.#StringExpression
-	FipsEnabled?:                     bool | fn.#BooleanExpression
-	InstanceMetadataTagsPropagation?: bool | fn.#BooleanExpression
-	InstanceRequirements?:            _#defs."/$defs/Properties/definitions/InstanceRequirements" | fn.#ObjectExpression
-	LocalStorageConfiguration?: _#defs."/$defs/Properties/definitions/ManagedInstancesLocalStorageConfiguration" |
-		fn.#ObjectExpression
-	Monitoring?: string | fn.#StringExpression
-	NetworkConfiguration!: _#defs."/$defs/Properties/definitions/ManagedInstancesNetworkConfiguration" |
-		fn.#ObjectExpression
-	StorageConfiguration?: _#defs."/$defs/Properties/definitions/ManagedInstancesStorageConfiguration" |
-		fn.#ObjectExpression
+	CapacityOptionType?:    "ON_DEMAND" | "SPOT" | "RESERVED" | fn.#StringExpression
+	CapacityReservations?:  _#defs."/$defs/Properties/definitions/CapacityReservations"
+	Ec2InstanceProfileArn!: string | fn.#StringExpression
+	FipsEnabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InstanceMetadataTagsPropagation?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	InstanceRequirements?:      _#defs."/$defs/Properties/definitions/InstanceRequirements"
+	LocalStorageConfiguration?: _#defs."/$defs/Properties/definitions/ManagedInstancesLocalStorageConfiguration"
+	Monitoring?:                string | fn.#StringExpression
+	NetworkConfiguration!:      _#defs."/$defs/Properties/definitions/ManagedInstancesNetworkConfiguration"
+	StorageConfiguration?:      _#defs."/$defs/Properties/definitions/ManagedInstancesStorageConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -171,8 +347,7 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close(
 _#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": close({
 	LaunchTemplateId?:   string | fn.#StringExpression
 	LaunchTemplateName?: string | fn.#StringExpression
-	Overrides?: [..._#defs."/$defs/Properties/definitions/LaunchTemplateSpecificationOverride" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Overrides?:    [..._#defs."/$defs/Properties/definitions/LaunchTemplateSpecificationOverride"] | fn.#ListExpression
 	UserdataType?: =~"(?i)^(?:eks_bootstrap_sh|eks_nodeadm)$" | fn.#StringExpression
 	Version?:      string | fn.#StringExpression
 }) |
@@ -188,33 +363,63 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateSpecificationOverride": clo
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ManagedInstancesLocalStorageConfiguration": close(
-	{UseLocalStorage?: bool | fn.#BooleanExpression},
+	{UseLocalStorage?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ManagedInstancesNetworkConfiguration": close({
-	SecurityGroups!: [...string | fn.#StringExpression] | fn.#ListExpression
-	Subnets!:        [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroups!: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	Subnets!: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ManagedInstancesProvider": close({
-	InfrastructureOptimization?: _#defs."/$defs/Properties/definitions/InfrastructureOptimization" |
-		fn.#ObjectExpression
-	InfrastructureRoleArn!:  string | fn.#StringExpression
-	InstanceLaunchTemplate!: _#defs."/$defs/Properties/definitions/InstanceLaunchTemplate" | fn.#ObjectExpression
+	InfrastructureOptimization?: _#defs."/$defs/Properties/definitions/InfrastructureOptimization"
+	InfrastructureRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	InstanceLaunchTemplate!: _#defs."/$defs/Properties/definitions/InstanceLaunchTemplate"
 	PropagateTags?:          "CAPACITY_PROVIDER" | "NONE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesStorageConfiguration": close(
-	{StorageSizeGiB?: int | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/ManagedInstancesStorageConfiguration": close({
+	StorageSizeGiB?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UpdatePolicy": close({
-	JobExecutionTimeoutMinutes?: int | fn.#NumberExpression
-	TerminateJobsOnUpdate?:      bool | fn.#BooleanExpression
+	JobExecutionTimeoutMinutes?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TerminateJobsOnUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -7,6 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CatalogId!:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	DatabaseName!:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	PartitionInput!: _#defs."/$defs/Properties/definitions/PartitionInput" | fn.#ObjectExpression
+	PartitionInput!: _#defs."/$defs/Properties/definitions/PartitionInput"
 	TableName!:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 })
 
@@ -27,14 +31,29 @@ _#defs: "/$defs/Properties/definitions/Column": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Order": close({
-	Column!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	SortOrder?: int & <=1 & >=0 | fn.#NumberExpression
+	Column!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	SortOrder?: int & <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PartitionInput": close({
-	Parameters?:        string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	StorageDescriptor?: _#defs."/$defs/Properties/definitions/StorageDescriptor" | fn.#ObjectExpression
+	Parameters?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+	StorageDescriptor?: _#defs."/$defs/Properties/definitions/StorageDescriptor"
 	Values!:            [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -48,43 +67,71 @@ _#defs: "/$defs/Properties/definitions/SchemaId": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SchemaReference": close({
-	SchemaId?: _#defs."/$defs/Properties/definitions/SchemaId" | fn.#ObjectExpression
+	SchemaId?: _#defs."/$defs/Properties/definitions/SchemaId"
 	SchemaVersionId?: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
 	fn.#StringExpression
-	SchemaVersionNumber?: int & <=100000 & >=1 | fn.#NumberExpression
+	SchemaVersionNumber?: int & <=100000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SerdeInfo": close({
 	Name?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters?:           string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Parameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 	SerializationLibrary?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SkewedInfo": close({
 	SkewedColumnNames?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	SkewedColumnValueLocationMaps?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	SkewedColumnValueLocationMaps?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	SkewedColumnValues?:            [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StorageDescriptor": close({
-	BucketColumns?:   [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Columns?:         [..._#defs."/$defs/Properties/definitions/Column" | fn.#ObjectExpression] | fn.#ListExpression
-	Compressed?:      bool | fn.#BooleanExpression
-	InputFormat?:     strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Location?:        strings.MaxRunes(2056) & strings.MinRunes(0) | fn.#StringExpression
-	NumberOfBuckets?: int | fn.#NumberExpression
-	OutputFormat?:    strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Parameters?:      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	SchemaReference?: _#defs."/$defs/Properties/definitions/SchemaReference" | fn.#ObjectExpression
-	SerdeInfo?:       _#defs."/$defs/Properties/definitions/SerdeInfo" | fn.#ObjectExpression
-	SkewedInfo?:      _#defs."/$defs/Properties/definitions/SkewedInfo" | fn.#ObjectExpression
-	SortColumns?:     [..._#defs."/$defs/Properties/definitions/Order" | fn.#ObjectExpression] | fn.#ListExpression
-	StoredAsSubDirectories?: bool | fn.#BooleanExpression
+	BucketColumns?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+	Columns?:       [..._#defs."/$defs/Properties/definitions/Column"] | fn.#ListExpression
+	Compressed?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InputFormat?:   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+	Location?:      strings.MaxRunes(2056) & strings.MinRunes(0) | fn.#StringExpression
+	NumberOfBuckets?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	OutputFormat?:           strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+	Parameters?:             fn.#Object & {...} | string | fn.#StringObjectExpression
+	SchemaReference?:        _#defs."/$defs/Properties/definitions/SchemaReference"
+	SerdeInfo?:              _#defs."/$defs/Properties/definitions/SerdeInfo"
+	SkewedInfo?:             _#defs."/$defs/Properties/definitions/SkewedInfo"
+	SortColumns?:            [..._#defs."/$defs/Properties/definitions/Order"] | fn.#ListExpression
+	StoredAsSubDirectories?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

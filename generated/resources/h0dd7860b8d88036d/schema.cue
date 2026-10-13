@@ -8,34 +8,50 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Athena::CapacityReservation
 #Properties: close({
-	CapacityAssignmentConfiguration?: _#defs."/$defs/Properties/definitions/CapacityAssignmentConfiguration" |
-		fn.#ObjectExpression
-	Name!: =~"[a-zA-Z0-9._-]{1,128}" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TargetDpus!: int & >=1 | fn.#NumberExpression
+	CapacityAssignmentConfiguration?: _#defs."/$defs/Properties/definitions/CapacityAssignmentConfiguration"
+	Name!:                            =~"[a-zA-Z0-9._-]{1,128}" | fn.#StringExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TargetDpus!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CapacityAssignment": close(
-	{WorkgroupNames!: _#defs."/$defs/Properties/definitions/WorkgroupNames" | fn.#ListExpression},
+	{WorkgroupNames!: _#defs."/$defs/Properties/definitions/WorkgroupNames"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CapacityAssignmentConfiguration": close(
-	{CapacityAssignments!: _#defs."/$defs/Properties/definitions/CapacityAssignments" | fn.#ListExpression},
+	{CapacityAssignments!: _#defs."/$defs/Properties/definitions/CapacityAssignments"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CapacityAssignments": [
-	..._#defs."/$defs/Properties/definitions/CapacityAssignment" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/CapacityAssignment"
 ] |
 	fn.#ListExpression
 
@@ -55,9 +71,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WorkgroupName": =~"[a-zA-Z0-9._-]{1,128}" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WorkgroupNames": [
-	..._#defs."/$defs/Properties/definitions/WorkgroupName" | fn.#StringExpression
-] |
+_#defs: "/$defs/Properties/definitions/WorkgroupNames": [..._#defs."/$defs/Properties/definitions/WorkgroupName"] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Athena::CapacityReservation"

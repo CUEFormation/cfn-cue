@@ -11,6 +11,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/cueformation/cfn-cue/internal/cfn"
+
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/parser"
 	"cuelang.org/go/cue/token"
@@ -32,6 +34,7 @@ type Manifest struct {
 	SourceSHA256       string                       `json:"sourceSHA256"`
 	Module             string                       `json:"module"`
 	LanguageExtensions bool                         `json:"languageExtensions"`
+	IncludeSAM         bool                         `json:"includeSAM"`
 	Regions            map[string]map[string]string `json:"regions"`
 	Schemas            map[string]SchemaInfo        `json:"schemas"`
 	Diagnostics        []Diagnostic                 `json:"diagnostics"`
@@ -65,9 +68,10 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 	} else if !os.IsNotExist(e) {
 		return nil, e
 	}
-	m := &Manifest{Generator: "cfn-cue/v2", Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, Regions: map[string]map[string]string{}, Schemas: map[string]SchemaInfo{}, Diagnostics: []Diagnostic{}}
+	m := &Manifest{Generator: "cfn-cue/v2", Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, Regions: map[string]map[string]string{}, Schemas: map[string]SchemaInfo{}, Diagnostics: []Diagnostic{}}
 	m.ValidationNotes = []string{
-		"Full regional aggregate evaluation exceeds the current verification budget; filtered resource modules are the verified authoring path.",
+		"Each region has a full resource package and a separate types package. The types package checks template structure and regional type names, leaving resource Properties unconstrained.",
+		"Full regional aggregate evaluation has exceeded prior verification budgets; use the reproducible regional performance script to measure current CUE versions and resource scales.",
 		"Intrinsic schemas validate argument shapes and result type classes. Function-specific nesting permissions and context permissions require cfn-lint.",
 		"Ref, GetAtt, Sub, mapping lookups, condition evaluation, macro expansion, and property-specific constraints on intrinsic results require semantic validation.",
 		"CreationPolicy, UpdatePolicy, parameter type names, and SAM Globals use structural schemas; service-specific restrictions require cfn-lint.",
@@ -215,8 +219,8 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 		addImport(f, "base", opt.Module+"/template:template")
 		propsRequired := len(asArray(root["required"])) > 0
 		resource := and(sel("base", "ResourceAttributes"), obj(field("Type", str(typ), false), field("Properties", id("#Properties"), !propsRequired)))
-		if typ == "AWS::CloudFormation::CustomResource" {
-			resource = and(sel("base", "ResourceAttributes"), obj(field("Type", union(str(typ), &ast.UnaryExpr{Op: token.MAT, X: str("^Custom::[A-Za-z0-9_@-]{1,60}$")}), false), field("Properties", id("#Properties"), false)))
+		if typ == cfn.CustomResourceType {
+			resource = and(sel("base", "ResourceAttributes"), obj(field("Type", union(str(typ), &ast.UnaryExpr{Op: token.MAT, X: str(cfn.CustomResourcePattern)}), false), field("Properties", id("#Properties"), false)))
 		}
 		f.Decls = append(f.Decls, def("Resource", resource))
 		if e = writeAST("resources/h"+hash+"/schema.cue", f); e != nil {
@@ -225,7 +229,14 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 		m.Diagnostics = append(m.Diagnostics, c.diagnostics...)
 	}
 	for _, region := range sortedRegionKeys(m.Regions) {
-		if e = writeAST("regions/"+region+"/region.cue", Region(opt.Module, m.Regions[region], opt.LanguageExtensions)); e != nil {
+		regional, err := Region(opt.Module, m.Regions[region], opt.LanguageExtensions)
+		if err != nil {
+			return nil, fmt.Errorf("region %s: %w", region, err)
+		}
+		if e = writeAST("regions/"+region+"/region.cue", regional); e != nil {
+			return nil, e
+		}
+		if e = writeAST("regions/"+region+"/types/region.cue", RegionTypes(opt.Module, m.Regions[region], opt.LanguageExtensions)); e != nil {
 			return nil, e
 		}
 	}

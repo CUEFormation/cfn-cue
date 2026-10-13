@@ -96,7 +96,7 @@ import (
 })
 
 // Represents a single IPv4 or IPv6 CIDR
-_#defs: "/$defs/Properties/definitions/Cidr": string | string
+_#defs: "/$defs/Properties/definitions/Cidr": string & string
 
 // An address space to be inserted into this pool. All allocations must be made
 // from this address space.

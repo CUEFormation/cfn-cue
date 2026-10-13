@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,9 +19,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // queue with a configured compute capacity, resource sharing strategy, and
 // borrow limits.
 #Properties: close({
-	CapacityLimits!: [..._#defs."/$defs/Properties/definitions/QuotaShareCapacityLimit" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	JobQueue!: string | fn.#StringExpression
+	CapacityLimits!: [..._#defs."/$defs/Properties/definitions/QuotaShareCapacityLimit"] | fn.#ListExpression
+	JobQueue!:       string | fn.#StringExpression
 	PreemptionConfiguration!: _#defs."/$defs/Properties/definitions/QuotaSharePreemptionConfiguration" |
 		fn.#ObjectExpression
 	QuotaShareName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -32,7 +35,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 _#defs: "/$defs/Properties/definitions/QuotaShareCapacityLimit": close({
 	CapacityUnit!: string | fn.#StringExpression
-	MaxCapacity!:  int & >=1 | fn.#NumberExpression
+	MaxCapacity!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -42,8 +59,22 @@ _#defs: "/$defs/Properties/definitions/QuotaSharePreemptionConfiguration": close
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/QuotaShareResourceSharingConfiguration": close({
-	BorrowLimit?: int & >=-1 | fn.#NumberExpression
-	Strategy!:    =~"(?i)^(?:lend|lend_and_borrow|reserve)$" | fn.#StringExpression
+	BorrowLimit?: int & >=-1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=-1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Strategy!: =~"(?i)^(?:lend|lend_and_borrow|reserve)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

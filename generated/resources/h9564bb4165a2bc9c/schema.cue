@@ -13,14 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::GuardDuty::ThreatEntitySet
 #Properties: close({
-	Activate?:            bool | fn.#BooleanExpression
+	Activate?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DetectorId?:          strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 	ExpectedBucketOwner?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]+$" | fn.#StringExpression
 	Format!: ("ALIEN_VAULT" | "FIRE_EYE" | "OTX_CSV" | "PROOF_POINT" | "STIX" | "TXT") & (strings.MaxRunes(300) & strings.MinRunes(1)) |
 	fn.#StringExpression
 	Location!: strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
 	Name?:     strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:     [..._#defs."/$defs/Properties/definitions/TagItem" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:     [..._#defs."/$defs/Properties/definitions/TagItem"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/TagItem": close({

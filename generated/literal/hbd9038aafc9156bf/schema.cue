@@ -113,7 +113,8 @@ _#defs: "/$defs/Properties/definitions/LambdaCodeHook": close({
 	CodeHookInterfaceVersion!: strings.MaxRunes(5) & strings.MinRunes(1)
 
 	// The Amazon Resource Name (ARN) of the Lambda function.
-	LambdaArn!: strings.MaxRunes(2048) & strings.MinRunes(20)
+	LambdaArn!:
+		=~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
 // The identifier of the language and locale that the bot alias will be configured in.
@@ -126,7 +127,8 @@ _#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(100) & strings.Mi
 _#defs: "/$defs/Properties/definitions/S3BucketLogDestination": close({
 	// The Amazon Resource Name (ARN) of an AWS Key Management Service (KMS) key for
 	// encrypting audio log files stored in an S3 bucket.
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w\\-]+:kms:[\\w\\-]+:[\\d]{12}:(?:key\\/[\\w\\-]+|alias\\/[a-zA-Z0-9:\\/_\\-]{1,256})$"
 

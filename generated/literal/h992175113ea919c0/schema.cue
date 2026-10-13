@@ -40,7 +40,7 @@ _#defs: "/$defs/Properties/definitions/IngressVpcConfiguration": close({
 	VpcEndpointId!: strings.MaxRunes(51200) & strings.MinRunes(0)
 
 	// The ID of the VPC that the VPC endpoint is used in.
-	VpcId!: strings.MaxRunes(51200) & strings.MinRunes(0)
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(51200) & strings.MinRunes(0))
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

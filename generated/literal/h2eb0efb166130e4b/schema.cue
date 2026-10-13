@@ -26,7 +26,8 @@ import "list"
 	ResourceARN?: =~"arn:(aws|aws-cn|aws-us-gov):config:\\w+(?:-\\w+)+:[0-9]*:.*"
 
 	// The Amazon Resource Name (ARN) of the role that allows AWS Config to read S3 objects.
-	RoleARN!: =~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role)\\/.*"
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role)\\/.*"
 
 	// Defaults to 'true'. Controls whether the recorder starts recording after the
 	// create operation. Set this to 'false' for development and testing purposes.

@@ -4,28 +4,45 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::LoggerDefinition
 #Properties: close({
-	InitialVersion?: _#defs."/$defs/Properties/definitions/LoggerDefinitionVersion" | fn.#ObjectExpression
+	InitialVersion?: _#defs."/$defs/Properties/definitions/LoggerDefinitionVersion"
 	Name!:           string | fn.#StringExpression
-	Tags?:           string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Logger": close({
 	Component!: string | fn.#StringExpression
 	Id!:        string | fn.#StringExpression
 	Level!:     string | fn.#StringExpression
-	Space?:     int | fn.#NumberExpression
-	Type!:      string | fn.#StringExpression
+	Space?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoggerDefinitionVersion": close(
-	{Loggers!: [..._#defs."/$defs/Properties/definitions/Logger" | fn.#ObjectExpression] | fn.#ListExpression},
+	{Loggers!: [..._#defs."/$defs/Properties/definitions/Logger"] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

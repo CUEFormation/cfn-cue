@@ -153,7 +153,8 @@ _#defs: "/$defs/Properties/definitions/Filters": list.MinItems(1) & list.UniqueI
 
 // The Amazon Resource Name (ARN) of the customer-managed AWS KMS key used to
 // encrypt the destination log groups specified in the Telemetry Rule.
-_#defs: "/$defs/Properties/definitions/KmsKeyArn": strings.MaxRunes(2048) &
+_#defs: "/$defs/Properties/definitions/KmsKeyArn": =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\d{12}:key/(mrk-)?[a-f0-9-]+$"
 

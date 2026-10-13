@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,19 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::WorkSpacesWeb::IpAccessSettings Resource Type
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap" | fn.#ObjectExpression
+	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap"
 	CustomerManagedKey?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
 	fn.#StringExpression
 	Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 	DisplayName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	IpRules!: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/IpRule" | fn.#ObjectExpression
-	] |
+	IpRules!: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/IpRule"] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({

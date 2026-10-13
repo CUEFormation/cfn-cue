@@ -16,8 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CustomerId!: strings.MaxRunes(4100) | fn.#StringExpression
 	DomainId!:   strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:       list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TemplateId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
 	Title!:      strings.MaxRunes(4100) | fn.#StringExpression
 })

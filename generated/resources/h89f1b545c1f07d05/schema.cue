@@ -8,17 +8,19 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaTailor::PlaybackConfiguration
 #Properties: close({
-	AdConditioningConfiguration?: _#defs."/$defs/Properties/definitions/AdConditioningConfiguration" |
-		fn.#ObjectExpression
-	AdDecisionServerConfiguration?: _#defs."/$defs/Properties/definitions/AdDecisionServerConfiguration" |
-		fn.#ObjectExpression
-	AdDecisionServerUrl!: string | fn.#StringExpression
+	AdConditioningConfiguration?:   _#defs."/$defs/Properties/definitions/AdConditioningConfiguration"
+	AdDecisionServerConfiguration?: _#defs."/$defs/Properties/definitions/AdDecisionServerConfiguration"
+	AdDecisionServerUrl!:           string | fn.#StringExpression
 	AdsPersonalizationConcurrency?: _#defs."/$defs/Properties/definitions/AdsPersonalizationConcurrency" |
 		fn.#ObjectExpression
 	AdsPersonalizationTimeouts?: _#defs."/$defs/Properties/definitions/AdsPersonalizationTimeouts" |
@@ -42,23 +44,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	LogConfiguration?:         _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
 	ManifestProcessingRules?:  _#defs."/$defs/Properties/definitions/ManifestProcessingRules" | fn.#ObjectExpression
 	Name!:                     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	PersonalizationThresholdSeconds?: int & >=1 | fn.#NumberExpression
-	SlateAdUrl?:                      string | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	PersonalizationThresholdSeconds?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SlateAdUrl?:            string | fn.#StringExpression
+	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TranscodeProfileName?:  string | fn.#StringExpression
 	VideoContentSourceUrl!: string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AdConditioningConfiguration": close({
-	StreamingMediaFileConditioning!: _#defs."/$defs/Properties/definitions/StreamingMediaFileConditioning" |
-		fn.#StringExpression
-}) |
+_#defs: "/$defs/Properties/definitions/AdConditioningConfiguration": close(
+	{StreamingMediaFileConditioning!: _#defs."/$defs/Properties/definitions/StreamingMediaFileConditioning"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AdDecisionServerConfiguration": close({
-	HttpRequest?:  _#defs."/$defs/Properties/definitions/HttpRequest" | fn.#ObjectExpression
-	VastResponse?: _#defs."/$defs/Properties/definitions/VastResponse" | fn.#ObjectExpression
+	HttpRequest?:  _#defs."/$defs/Properties/definitions/HttpRequest"
+	VastResponse?: _#defs."/$defs/Properties/definitions/VastResponse"
 }) |
 fn.#ObjectExpression
 
@@ -67,7 +81,9 @@ _#defs: "/$defs/Properties/definitions/AdDecisionServerConfigurationHttpHeaders"
 	{[=~".*"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AdMarkerPassthrough": close({Enabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/AdMarkerPassthrough": close(
+	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AdsInteractionLog": close({
@@ -77,17 +93,95 @@ _#defs: "/$defs/Properties/definitions/AdsInteractionLog": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AdsPersonalizationConcurrency": close({
-	EnableVodVastParallelization?: bool | fn.#BooleanExpression
-	MaxConcurrentAdsRequests?:     int | fn.#NumberExpression
+	EnableVodVastParallelization?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MaxConcurrentAdsRequests?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AdsPersonalizationTimeouts": close({
-	AdsRequestTimeoutMilliseconds?:                     int | fn.#NumberExpression
-	LiveMaximumAdsPersonalizationTimeMilliseconds?:     int | fn.#NumberExpression
-	PrefetchAdsRequestTimeoutMilliseconds?:             int | fn.#NumberExpression
-	PrefetchMaximumAdsPersonalizationTimeMilliseconds?: int | fn.#NumberExpression
-	VodMaximumAdsPersonalizationTimeMilliseconds?:      int | fn.#NumberExpression
+	AdsRequestTimeoutMilliseconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LiveMaximumAdsPersonalizationTimeMilliseconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PrefetchAdsRequestTimeoutMilliseconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PrefetchMaximumAdsPersonalizationTimeMilliseconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VodMaximumAdsPersonalizationTimeMilliseconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -133,18 +227,30 @@ _#defs: "/$defs/Properties/definitions/HlsConfiguration": close(
 _#defs: "/$defs/Properties/definitions/HttpRequest": close({
 	Body?:            string | fn.#StringExpression
 	CompressRequest?: "NONE" | "GZIP" | fn.#StringExpression
-	Headers?:    _#defs."/$defs/Properties/definitions/AdDecisionServerConfigurationHttpHeaders" | fn.#ObjectExpression
-	HttpMethod?: "GET" | "POST" | fn.#StringExpression
+	Headers?:         _#defs."/$defs/Properties/definitions/AdDecisionServerConfigurationHttpHeaders"
+	HttpMethod?:      "GET" | "POST" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InsertionMode": "STITCHED_ONLY" | "PLAYER_SELECT" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LivePreRollConfiguration": close({
-	AdDecisionServerConfiguration?: _#defs."/$defs/Properties/definitions/PreRollAdDecisionServerConfiguration" |
-		fn.#ObjectExpression
-	AdDecisionServerUrl?: string | fn.#StringExpression
-	MaxDurationSeconds?:  int | fn.#NumberExpression
+	AdDecisionServerConfiguration?: _#defs."/$defs/Properties/definitions/PreRollAdDecisionServerConfiguration"
+	AdDecisionServerUrl?:           string | fn.#StringExpression
+	MaxDurationSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -153,7 +259,22 @@ _#defs: "/$defs/Properties/definitions/LogConfiguration": close({
 	EnabledLoggingStrategies?: [...string | fn.#StringExpression] | fn.#ListExpression
 	ManifestServiceInteractionLog?: _#defs."/$defs/Properties/definitions/ManifestServiceInteractionLog" |
 		fn.#ObjectExpression
-	PercentEnabled!: int & <=100 & >=0 | fn.#NumberExpression
+	PercentEnabled!: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -168,7 +289,7 @@ _#defs: "/$defs/Properties/definitions/ManifestServiceInteractionLog": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PreRollAdDecisionServerConfiguration": close(
-	{VastResponse?: _#defs."/$defs/Properties/definitions/PreRollVastResponse" | fn.#ObjectExpression},
+	{VastResponse?: _#defs."/$defs/Properties/definitions/PreRollVastResponse"},
 ) |
 	fn.#ObjectExpression
 

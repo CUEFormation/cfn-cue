@@ -19,8 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DestinationPhoneNumber!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^\\+?[1-9][0-9]{1,18}$" |
 	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

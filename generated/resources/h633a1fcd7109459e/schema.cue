@@ -10,6 +10,10 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,44 +21,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of the AWS::QuickSight::DataSet Resource Type.
 #Properties: close({
 	AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	ColumnGroups?: list.MaxItems(8) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ColumnGroup" | fn.#ObjectExpression
-	] |
+	ColumnGroups?: list.MaxItems(8) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnGroup"] |
 		fn.#ListExpression
 	ColumnLevelPermissionRules?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ColumnLevelPermissionRule" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ColumnLevelPermissionRule"
 	] |
 		fn.#ListExpression
-	DataPrepConfiguration?:     _#defs."/$defs/Properties/definitions/DataPrepConfiguration" | fn.#ObjectExpression
+	DataPrepConfiguration?:     _#defs."/$defs/Properties/definitions/DataPrepConfiguration"
 	DataSetId?:                 string | fn.#StringExpression
-	DataSetRefreshProperties?:  _#defs."/$defs/Properties/definitions/DataSetRefreshProperties" | fn.#ObjectExpression
-	DataSetUsageConfiguration?: _#defs."/$defs/Properties/definitions/DataSetUsageConfiguration" | fn.#ObjectExpression
-	DatasetParameters?: list.MaxItems(32) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DatasetParameter" | fn.#ObjectExpression
-	] |
+	DataSetRefreshProperties?:  _#defs."/$defs/Properties/definitions/DataSetRefreshProperties"
+	DataSetUsageConfiguration?: _#defs."/$defs/Properties/definitions/DataSetUsageConfiguration"
+	DatasetParameters?: list.MaxItems(32) & [...] & [..._#defs."/$defs/Properties/definitions/DatasetParameter"] |
 		fn.#ListExpression
-	FieldFolders?:             _#defs."/$defs/Properties/definitions/FieldFolderMap" | fn.#ObjectExpression
+	FieldFolders?:             _#defs."/$defs/Properties/definitions/FieldFolderMap"
 	FolderArns?:               list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	ImportMode?:               _#defs."/$defs/Properties/definitions/DataSetImportMode" | fn.#StringExpression
-	IngestionWaitPolicy?:      _#defs."/$defs/Properties/definitions/IngestionWaitPolicy" | fn.#ObjectExpression
-	LogicalTableMap?:          _#defs."/$defs/Properties/definitions/LogicalTableMap" | fn.#ObjectExpression
+	ImportMode?:               _#defs."/$defs/Properties/definitions/DataSetImportMode"
+	IngestionWaitPolicy?:      _#defs."/$defs/Properties/definitions/IngestionWaitPolicy"
+	LogicalTableMap?:          _#defs."/$defs/Properties/definitions/LogicalTableMap"
 	Name?:                     strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	PerformanceConfiguration?: _#defs."/$defs/Properties/definitions/PerformanceConfiguration" | fn.#ObjectExpression
-	Permissions?: list.MaxItems(64) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ResourcePermission" | fn.#ObjectExpression
-	] |
+	PerformanceConfiguration?: _#defs."/$defs/Properties/definitions/PerformanceConfiguration"
+	Permissions?: list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"] |
 		fn.#ListExpression
-	PhysicalTableMap?:          _#defs."/$defs/Properties/definitions/PhysicalTableMap" | fn.#ObjectExpression
-	RowLevelPermissionDataSet?: _#defs."/$defs/Properties/definitions/RowLevelPermissionDataSet" | fn.#ObjectExpression
-	RowLevelPermissionTagConfiguration?: _#defs."/$defs/Properties/definitions/RowLevelPermissionTagConfiguration" |
-		fn.#ObjectExpression
-	SemanticModelConfiguration?: _#defs."/$defs/Properties/definitions/SemanticModelConfiguration" |
-		fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	UseAs?: _#defs."/$defs/Properties/definitions/DataSetUseAs" | fn.#StringExpression
+	PhysicalTableMap?:                   _#defs."/$defs/Properties/definitions/PhysicalTableMap"
+	RowLevelPermissionDataSet?:          _#defs."/$defs/Properties/definitions/RowLevelPermissionDataSet"
+	RowLevelPermissionTagConfiguration?: _#defs."/$defs/Properties/definitions/RowLevelPermissionTagConfiguration"
+	SemanticModelConfiguration?:         _#defs."/$defs/Properties/definitions/SemanticModelConfiguration"
+	Tags?:  list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UseAs?: _#defs."/$defs/Properties/definitions/DataSetUseAs"
 })
 
 _#defs: "/$defs/Properties/definitions/AdditionalNotes": close(
@@ -63,21 +56,19 @@ _#defs: "/$defs/Properties/definitions/AdditionalNotes": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AggregateOperation": close({
-	Aggregations!: list.MaxItems(128) & [...] & [
-		..._#defs."/$defs/Properties/definitions/Aggregation" | fn.#ObjectExpression
-	] |
+	Aggregations!: list.MaxItems(128) & [...] & [..._#defs."/$defs/Properties/definitions/Aggregation"] |
 		fn.#ListExpression
 	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	GroupByColumnNames?: list.MaxItems(128) & [...] & [
 		...strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Source!: _#defs."/$defs/Properties/definitions/TransformOperationSource" | fn.#ObjectExpression
+	Source!: _#defs."/$defs/Properties/definitions/TransformOperationSource"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Aggregation": close({
-	AggregationFunction!: _#defs."/$defs/Properties/definitions/DataPrepAggregationFunction" | fn.#ObjectExpression
+	AggregationFunction!: _#defs."/$defs/Properties/definitions/DataPrepAggregationFunction"
 	NewColumnId!:         strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	NewColumnName!:       strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 }) |
@@ -85,12 +76,10 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AppendOperation": close({
 	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	AppendedColumns!: list.MaxItems(2048) & [...] & [
-		..._#defs."/$defs/Properties/definitions/AppendedColumn" | fn.#ObjectExpression
-	] |
+	AppendedColumns!: list.MaxItems(2048) & [...] & [..._#defs."/$defs/Properties/definitions/AppendedColumn"] |
 		fn.#ListExpression
-	FirstSource?:  _#defs."/$defs/Properties/definitions/TransformOperationSource" | fn.#ObjectExpression
-	SecondSource?: _#defs."/$defs/Properties/definitions/TransformOperationSource" | fn.#ObjectExpression
+	FirstSource?:  _#defs."/$defs/Properties/definitions/TransformOperationSource"
+	SecondSource?: _#defs."/$defs/Properties/definitions/TransformOperationSource"
 }) |
 fn.#ObjectExpression
 
@@ -110,18 +99,18 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/CastColumnTypeOperation": close({
 	ColumnName!:    strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Format?:        strings.MaxRunes(32) & strings.MinRunes(0) | fn.#StringExpression
-	NewColumnType!: _#defs."/$defs/Properties/definitions/ColumnDataType" | fn.#StringExpression
-	SubType?:       _#defs."/$defs/Properties/definitions/ColumnDataSubType" | fn.#StringExpression
+	NewColumnType!: _#defs."/$defs/Properties/definitions/ColumnDataType"
+	SubType?:       _#defs."/$defs/Properties/definitions/ColumnDataSubType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CastColumnTypesOperation": close({
 	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	CastColumnTypeOperations!: list.MaxItems(2048) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CastColumnTypeOperation" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/CastColumnTypeOperation"
 	] |
 		fn.#ListExpression
-	Source!: _#defs."/$defs/Properties/definitions/TransformOperationSource" | fn.#ObjectExpression
+	Source!: _#defs."/$defs/Properties/definitions/TransformOperationSource"
 }) |
 fn.#ObjectExpression
 
@@ -139,7 +128,7 @@ _#defs: "/$defs/Properties/definitions/ColumnDescription": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ColumnGroup": close(
-	{GeoSpatialColumnGroup?: _#defs."/$defs/Properties/definitions/GeoSpatialColumnGroup" | fn.#ObjectExpression},
+	{GeoSpatialColumnGroup?: _#defs."/$defs/Properties/definitions/GeoSpatialColumnGroup"},
 ) |
 	fn.#ObjectExpression
 
@@ -150,20 +139,20 @@ _#defs: "/$defs/Properties/definitions/ColumnLevelPermissionRule": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ColumnSemanticProperty": close({
-	AdditionalNotes?: _#defs."/$defs/Properties/definitions/AdditionalNotes" | fn.#ObjectExpression
-	Description?:     _#defs."/$defs/Properties/definitions/ColumnDescription" | fn.#ObjectExpression
-	SemanticType?:    _#defs."/$defs/Properties/definitions/ColumnSemanticType" | fn.#ObjectExpression
+	AdditionalNotes?: _#defs."/$defs/Properties/definitions/AdditionalNotes"
+	Description?:     _#defs."/$defs/Properties/definitions/ColumnDescription"
+	SemanticType?:    _#defs."/$defs/Properties/definitions/ColumnSemanticType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ColumnSemanticType": close(
-	{GeographicalRole?: _#defs."/$defs/Properties/definitions/GeoSpatialDataRole" | fn.#StringExpression},
+	{GeographicalRole?: _#defs."/$defs/Properties/definitions/GeoSpatialDataRole"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ColumnTag": close({
-	ColumnDescription?:    _#defs."/$defs/Properties/definitions/ColumnDescription" | fn.#ObjectExpression
-	ColumnGeographicRole?: _#defs."/$defs/Properties/definitions/GeoSpatialDataRole" | fn.#StringExpression
+	ColumnDescription?:    _#defs."/$defs/Properties/definitions/ColumnDescription"
+	ColumnGeographicRole?: _#defs."/$defs/Properties/definitions/GeoSpatialDataRole"
 }) |
 fn.#ObjectExpression
 
@@ -179,24 +168,19 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CreateColumnsOperation": close({
 	Alias?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Columns!: list.MaxItems(256) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CalculatedColumn" | fn.#ObjectExpression
-	] |
+	Columns!: list.MaxItems(256) & [...] & [..._#defs."/$defs/Properties/definitions/CalculatedColumn"] |
 		fn.#ListExpression
-	Source?: _#defs."/$defs/Properties/definitions/TransformOperationSource" | fn.#ObjectExpression
+	Source?: _#defs."/$defs/Properties/definitions/TransformOperationSource"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomInstruction": close(
-	{InlineCustomInstruction?: _#defs."/$defs/Properties/definitions/InlineCustomInstruction" | fn.#ObjectExpression},
+	{InlineCustomInstruction?: _#defs."/$defs/Properties/definitions/InlineCustomInstruction"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomSql": close({
-	Columns!: list.MaxItems(2048) & [...] & [
-		..._#defs."/$defs/Properties/definitions/InputColumn" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Columns!: list.MaxItems(2048) & [...] & [..._#defs."/$defs/Properties/definitions/InputColumn"] | fn.#ListExpression
 	DataSourceArn!: string | fn.#StringExpression
 	Name!:          strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	SqlQuery!:      strings.MaxRunes(168000) & strings.MinRunes(1) | fn.#StringExpression
@@ -204,22 +188,21 @@ _#defs: "/$defs/Properties/definitions/CustomSql": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataPrepAggregationFunction": close({
-	ListAggregation?: _#defs."/$defs/Properties/definitions/DataPrepListAggregationFunction" | fn.#ObjectExpression
-	PercentileAggregation?: _#defs."/$defs/Properties/definitions/DataPrepPercentileAggregationFunction" |
-		fn.#ObjectExpression
-	SimpleAggregation?: _#defs."/$defs/Properties/definitions/DataPrepSimpleAggregationFunction" | fn.#ObjectExpression
+	ListAggregation?:       _#defs."/$defs/Properties/definitions/DataPrepListAggregationFunction"
+	PercentileAggregation?: _#defs."/$defs/Properties/definitions/DataPrepPercentileAggregationFunction"
+	SimpleAggregation?:     _#defs."/$defs/Properties/definitions/DataPrepSimpleAggregationFunction"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataPrepConfiguration": close({
-	DestinationTableMap!: _#defs."/$defs/Properties/definitions/DestinationTableMap" | fn.#ObjectExpression
-	SourceTableMap!:      _#defs."/$defs/Properties/definitions/SourceTableMap" | fn.#ObjectExpression
-	TransformStepMap!:    _#defs."/$defs/Properties/definitions/TransformStepMap" | fn.#ObjectExpression
+	DestinationTableMap!: _#defs."/$defs/Properties/definitions/DestinationTableMap"
+	SourceTableMap!:      _#defs."/$defs/Properties/definitions/SourceTableMap"
+	TransformStepMap!:    _#defs."/$defs/Properties/definitions/TransformStepMap"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataPrepListAggregationFunction": close({
-	Distinct!:        bool | fn.#BooleanExpression
+	Distinct!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InputColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Separator!:       string | fn.#StringExpression
 }) |
@@ -227,12 +210,31 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataPrepPercentileAggregationFunction": close({
 	InputColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	PercentileValue!: <=100 & >=0 | fn.#NumberExpression
+	PercentileValue!: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataPrepSimpleAggregationFunction": close({
-	FunctionType!: _#defs."/$defs/Properties/definitions/DataPrepSimpleAggregationFunctionType" | fn.#StringExpression
+	FunctionType!:    _#defs."/$defs/Properties/definitions/DataPrepSimpleAggregationFunctionType"
 	InputColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -255,8 +257,8 @@ _#defs: "/$defs/Properties/definitions/DataSetColumnIdMapping": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSetDateComparisonFilterCondition": close({
-	Operator!: _#defs."/$defs/Properties/definitions/DataSetDateComparisonFilterOperator" | fn.#StringExpression
-	Value?:    _#defs."/$defs/Properties/definitions/DataSetDateFilterValue" | fn.#ObjectExpression
+	Operator!: _#defs."/$defs/Properties/definitions/DataSetDateComparisonFilterOperator"
+	Value?:    _#defs."/$defs/Properties/definitions/DataSetDateFilterValue"
 }) |
 fn.#ObjectExpression
 
@@ -267,10 +269,9 @@ _#defs: "/$defs/Properties/definitions/DataSetDateComparisonFilterOperator": "BE
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DataSetDateFilterCondition": close({
-	ColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	ComparisonFilterCondition?: _#defs."/$defs/Properties/definitions/DataSetDateComparisonFilterCondition" |
-		fn.#ObjectExpression
-	RangeFilterCondition?: _#defs."/$defs/Properties/definitions/DataSetDateRangeFilterCondition" | fn.#ObjectExpression
+	ColumnName?:                strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	ComparisonFilterCondition?: _#defs."/$defs/Properties/definitions/DataSetDateComparisonFilterCondition"
+	RangeFilterCondition?:      _#defs."/$defs/Properties/definitions/DataSetDateRangeFilterCondition"
 }) |
 fn.#ObjectExpression
 
@@ -278,18 +279,18 @@ _#defs: "/$defs/Properties/definitions/DataSetDateFilterValue": close({StaticVal
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSetDateRangeFilterCondition": close({
-	IncludeMaximum?: bool | fn.#BooleanExpression
-	IncludeMinimum?: bool | fn.#BooleanExpression
-	RangeMaximum?:   _#defs."/$defs/Properties/definitions/DataSetDateFilterValue" | fn.#ObjectExpression
-	RangeMinimum?:   _#defs."/$defs/Properties/definitions/DataSetDateFilterValue" | fn.#ObjectExpression
+	IncludeMaximum?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeMinimum?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RangeMaximum?:   _#defs."/$defs/Properties/definitions/DataSetDateFilterValue"
+	RangeMinimum?:   _#defs."/$defs/Properties/definitions/DataSetDateFilterValue"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSetImportMode": "SPICE" | "DIRECT_QUERY" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DataSetNumericComparisonFilterCondition": close({
-	Operator!: _#defs."/$defs/Properties/definitions/DataSetNumericComparisonFilterOperator" | fn.#StringExpression
-	Value?:    _#defs."/$defs/Properties/definitions/DataSetNumericFilterValue" | fn.#ObjectExpression
+	Operator!: _#defs."/$defs/Properties/definitions/DataSetNumericComparisonFilterOperator"
+	Value?:    _#defs."/$defs/Properties/definitions/DataSetNumericFilterValue"
 }) |
 fn.#ObjectExpression
 
@@ -302,28 +303,46 @@ _#defs: "/$defs/Properties/definitions/DataSetNumericComparisonFilterOperator": 
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DataSetNumericFilterCondition": close({
-	ColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	ComparisonFilterCondition?: _#defs."/$defs/Properties/definitions/DataSetNumericComparisonFilterCondition" |
-		fn.#ObjectExpression
-	RangeFilterCondition?: _#defs."/$defs/Properties/definitions/DataSetNumericRangeFilterCondition" |
-		fn.#ObjectExpression
+	ColumnName?:                strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	ComparisonFilterCondition?: _#defs."/$defs/Properties/definitions/DataSetNumericComparisonFilterCondition"
+	RangeFilterCondition?:      _#defs."/$defs/Properties/definitions/DataSetNumericRangeFilterCondition"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataSetNumericFilterValue": close({StaticValue?: number | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/DataSetNumericFilterValue": close({
+	StaticValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSetNumericRangeFilterCondition": close({
-	IncludeMaximum?: bool | fn.#BooleanExpression
-	IncludeMinimum?: bool | fn.#BooleanExpression
-	RangeMaximum?:   _#defs."/$defs/Properties/definitions/DataSetNumericFilterValue" | fn.#ObjectExpression
-	RangeMinimum?:   _#defs."/$defs/Properties/definitions/DataSetNumericFilterValue" | fn.#ObjectExpression
+	IncludeMaximum?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeMinimum?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RangeMaximum?:   _#defs."/$defs/Properties/definitions/DataSetNumericFilterValue"
+	RangeMinimum?:   _#defs."/$defs/Properties/definitions/DataSetNumericFilterValue"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSetRefreshProperties": close({
-	FailureConfiguration?: _#defs."/$defs/Properties/definitions/RefreshFailureConfiguration" | fn.#ObjectExpression
-	RefreshConfiguration?: _#defs."/$defs/Properties/definitions/RefreshConfiguration" | fn.#ObjectExpression
+	FailureConfiguration?: _#defs."/$defs/Properties/definitions/RefreshFailureConfiguration"
+	RefreshConfiguration?: _#defs."/$defs/Properties/definitions/RefreshConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -334,16 +353,16 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSetSemanticMetadata": close({
 	CustomInstructions?: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/CustomInstruction" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/CustomInstruction"
 	] |
 		fn.#ListExpression
-	Description?: _#defs."/$defs/Properties/definitions/DataSetSemanticDescription" | fn.#ObjectExpression
+	Description?: _#defs."/$defs/Properties/definitions/DataSetSemanticDescription"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSetStringComparisonFilterCondition": close({
-	Operator!: _#defs."/$defs/Properties/definitions/DataSetStringComparisonFilterOperator" | fn.#StringExpression
-	Value?:    _#defs."/$defs/Properties/definitions/DataSetStringFilterValue" | fn.#ObjectExpression
+	Operator!: _#defs."/$defs/Properties/definitions/DataSetStringComparisonFilterOperator"
+	Value?:    _#defs."/$defs/Properties/definitions/DataSetStringFilterValue"
 }) |
 fn.#ObjectExpression
 
@@ -356,10 +375,9 @@ _#defs: "/$defs/Properties/definitions/DataSetStringComparisonFilterOperator": "
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DataSetStringFilterCondition": close({
-	ColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	ComparisonFilterCondition?: _#defs."/$defs/Properties/definitions/DataSetStringComparisonFilterCondition" |
-		fn.#ObjectExpression
-	ListFilterCondition?: _#defs."/$defs/Properties/definitions/DataSetStringListFilterCondition" | fn.#ObjectExpression
+	ColumnName?:                strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	ComparisonFilterCondition?: _#defs."/$defs/Properties/definitions/DataSetStringComparisonFilterCondition"
+	ListFilterCondition?:       _#defs."/$defs/Properties/definitions/DataSetStringListFilterCondition"
 }) |
 fn.#ObjectExpression
 
@@ -369,8 +387,8 @@ _#defs: "/$defs/Properties/definitions/DataSetStringFilterValue": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSetStringListFilterCondition": close({
-	Operator!: _#defs."/$defs/Properties/definitions/DataSetStringListFilterOperator" | fn.#StringExpression
-	Values?:   _#defs."/$defs/Properties/definitions/DataSetStringListFilterValue" | fn.#ObjectExpression
+	Operator!: _#defs."/$defs/Properties/definitions/DataSetStringListFilterOperator"
+	Values?:   _#defs."/$defs/Properties/definitions/DataSetStringListFilterValue"
 }) |
 fn.#ObjectExpression
 
@@ -383,18 +401,25 @@ _#defs: "/$defs/Properties/definitions/DataSetStringListFilterValue": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSetUsageConfiguration": close({
-	DisableUseAsDirectQuerySource?: bool | fn.#BooleanExpression
-	DisableUseAsImportedSource?:    bool | fn.#BooleanExpression
+	DisableUseAsDirectQuerySource?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	DisableUseAsImportedSource?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSetUseAs": "RLS_RULES" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DatasetParameter": close({
-	DateTimeDatasetParameter?: _#defs."/$defs/Properties/definitions/DateTimeDatasetParameter" | fn.#ObjectExpression
-	DecimalDatasetParameter?:  _#defs."/$defs/Properties/definitions/DecimalDatasetParameter" | fn.#ObjectExpression
-	IntegerDatasetParameter?:  _#defs."/$defs/Properties/definitions/IntegerDatasetParameter" | fn.#ObjectExpression
-	StringDatasetParameter?:   _#defs."/$defs/Properties/definitions/StringDatasetParameter" | fn.#ObjectExpression
+	DateTimeDatasetParameter?: _#defs."/$defs/Properties/definitions/DateTimeDatasetParameter"
+	DecimalDatasetParameter?:  _#defs."/$defs/Properties/definitions/DecimalDatasetParameter"
+	IntegerDatasetParameter?:  _#defs."/$defs/Properties/definitions/IntegerDatasetParameter"
+	StringDatasetParameter?:   _#defs."/$defs/Properties/definitions/StringDatasetParameter"
 }) |
 fn.#ObjectExpression
 
@@ -403,11 +428,11 @@ _#defs: "/$defs/Properties/definitions/DatasetParameterValueType": "MULTI_VALUED
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DateTimeDatasetParameter": close({
-	DefaultValues?: _#defs."/$defs/Properties/definitions/DateTimeDatasetParameterDefaultValues" | fn.#ObjectExpression
-	Id!:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	Name!:          strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	TimeGranularity?: _#defs."/$defs/Properties/definitions/TimeGranularity" | fn.#StringExpression
-	ValueType!:       _#defs."/$defs/Properties/definitions/DatasetParameterValueType" | fn.#StringExpression
+	DefaultValues?:   _#defs."/$defs/Properties/definitions/DateTimeDatasetParameterDefaultValues"
+	Id!:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+	Name!:            strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	TimeGranularity?: _#defs."/$defs/Properties/definitions/TimeGranularity"
+	ValueType!:       _#defs."/$defs/Properties/definitions/DatasetParameterValueType"
 }) |
 fn.#ObjectExpression
 
@@ -417,27 +442,48 @@ _#defs: "/$defs/Properties/definitions/DateTimeDatasetParameterDefaultValues": c
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DecimalDatasetParameter": close({
-	DefaultValues?: _#defs."/$defs/Properties/definitions/DecimalDatasetParameterDefaultValues" | fn.#ObjectExpression
+	DefaultValues?: _#defs."/$defs/Properties/definitions/DecimalDatasetParameterDefaultValues"
 	Id!:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
 	Name!:          strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	ValueType!:     _#defs."/$defs/Properties/definitions/DatasetParameterValueType" | fn.#StringExpression
+	ValueType!:     _#defs."/$defs/Properties/definitions/DatasetParameterValueType"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DecimalDatasetParameterDefaultValues": close(
-	{StaticValues?: list.MaxItems(32) & [...] & [...number | fn.#NumberExpression] | fn.#ListExpression},
-) |
+_#defs: "/$defs/Properties/definitions/DecimalDatasetParameterDefaultValues": close({
+	StaticValues?: list.MaxItems(32) & [...] & [
+		...number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DestinationTable": close({
 	Alias!:  strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Source!: _#defs."/$defs/Properties/definitions/DestinationTableSource" | fn.#ObjectExpression
+	Source!: _#defs."/$defs/Properties/definitions/DestinationTableSource"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DestinationTableMap": struct.MaxFields(1) & struct.MinFields(1) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/DestinationTable" | fn.#ObjectExpression}}) |
+	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/DestinationTable"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DestinationTableSource": close(
@@ -453,7 +499,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldFolderMap": close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/FieldFolder" | fn.#ObjectExpression}}) |
+	{[=~".+"]: _#defs."/$defs/Properties/definitions/FieldFolder"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FileFormat": "CSV" |
@@ -466,19 +512,17 @@ _#defs: "/$defs/Properties/definitions/FileFormat": "CSV" |
 
 _#defs: "/$defs/Properties/definitions/FilterOperation": close({
 	ConditionExpression?:    strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	DateFilterCondition?:    _#defs."/$defs/Properties/definitions/DataSetDateFilterCondition" | fn.#ObjectExpression
-	NumericFilterCondition?: _#defs."/$defs/Properties/definitions/DataSetNumericFilterCondition" | fn.#ObjectExpression
-	StringFilterCondition?:  _#defs."/$defs/Properties/definitions/DataSetStringFilterCondition" | fn.#ObjectExpression
+	DateFilterCondition?:    _#defs."/$defs/Properties/definitions/DataSetDateFilterCondition"
+	NumericFilterCondition?: _#defs."/$defs/Properties/definitions/DataSetNumericFilterCondition"
+	StringFilterCondition?:  _#defs."/$defs/Properties/definitions/DataSetStringFilterCondition"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FiltersOperation": close({
 	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	FilterOperations!: list.MaxItems(128) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FilterOperation" | fn.#ObjectExpression
-	] |
+	FilterOperations!: list.MaxItems(128) & [...] & [..._#defs."/$defs/Properties/definitions/FilterOperation"] |
 		fn.#ListExpression
-	Source!: _#defs."/$defs/Properties/definitions/TransformOperationSource" | fn.#ObjectExpression
+	Source!: _#defs."/$defs/Properties/definitions/TransformOperationSource"
 }) |
 fn.#ObjectExpression
 
@@ -487,7 +531,7 @@ _#defs: "/$defs/Properties/definitions/GeoSpatialColumnGroup": close({
 		...strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	CountryCode?: _#defs."/$defs/Properties/definitions/GeoSpatialCountryCode" | fn.#StringExpression
+	CountryCode?: _#defs."/$defs/Properties/definitions/GeoSpatialCountryCode"
 	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -509,13 +553,13 @@ _#defs: "/$defs/Properties/definitions/GeoSpatialDataRole": "COUNTRY" |
 
 _#defs: "/$defs/Properties/definitions/ImportTableOperation": close({
 	Alias!:  strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Source!: _#defs."/$defs/Properties/definitions/ImportTableOperationSource" | fn.#ObjectExpression
+	Source!: _#defs."/$defs/Properties/definitions/ImportTableOperationSource"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ImportTableOperationSource": close({
 	ColumnIdMappings?: list.MaxItems(2048) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataSetColumnIdMapping" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/DataSetColumnIdMapping"
 	] |
 		fn.#ListExpression
 	SourceTableId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" | fn.#StringExpression
@@ -523,27 +567,46 @@ _#defs: "/$defs/Properties/definitions/ImportTableOperationSource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IncrementalRefresh": close(
-	{LookbackWindow!: _#defs."/$defs/Properties/definitions/LookbackWindow" | fn.#ObjectExpression},
+	{LookbackWindow!: _#defs."/$defs/Properties/definitions/LookbackWindow"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IngestionWaitPolicy": close({
-	IngestionWaitTimeInHours?: <=36 & >=1 | fn.#NumberExpression
-	WaitForSpiceIngestion?:    bool | fn.#BooleanExpression
+	IngestionWaitTimeInHours?: <=36 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=36 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	WaitForSpiceIngestion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InlineCustomInstruction": close({
 	InstructionText!:          strings.MaxRunes(50000) & strings.MinRunes(0) | fn.#StringExpression
-	UploadedDocumentMetadata?: _#defs."/$defs/Properties/definitions/UploadedDocumentMetadata" | fn.#ObjectExpression
+	UploadedDocumentMetadata?: _#defs."/$defs/Properties/definitions/UploadedDocumentMetadata"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InputColumn": close({
 	Id?:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:    strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	SubType?: _#defs."/$defs/Properties/definitions/ColumnDataSubType" | fn.#StringExpression
-	Type!:    _#defs."/$defs/Properties/definitions/InputColumnDataType" | fn.#StringExpression
+	SubType?: _#defs."/$defs/Properties/definitions/ColumnDataSubType"
+	Type!:    _#defs."/$defs/Properties/definitions/InputColumnDataType"
 }) |
 fn.#ObjectExpression
 
@@ -558,34 +621,54 @@ _#defs: "/$defs/Properties/definitions/InputColumnDataType": "STRING" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/IntegerDatasetParameter": close({
-	DefaultValues?: _#defs."/$defs/Properties/definitions/IntegerDatasetParameterDefaultValues" | fn.#ObjectExpression
+	DefaultValues?: _#defs."/$defs/Properties/definitions/IntegerDatasetParameterDefaultValues"
 	Id!:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
 	Name!:          strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	ValueType!:     _#defs."/$defs/Properties/definitions/DatasetParameterValueType" | fn.#StringExpression
+	ValueType!:     _#defs."/$defs/Properties/definitions/DatasetParameterValueType"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntegerDatasetParameterDefaultValues": close(
-	{StaticValues?: list.MaxItems(32) & [...] & [...int | fn.#NumberExpression] | fn.#ListExpression},
-) |
+_#defs: "/$defs/Properties/definitions/IntegerDatasetParameterDefaultValues": close({
+	StaticValues?: list.MaxItems(32) & [...] & [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/JoinInstruction": close({
-	LeftJoinKeyProperties?:  _#defs."/$defs/Properties/definitions/JoinKeyProperties" | fn.#ObjectExpression
+	LeftJoinKeyProperties?:  _#defs."/$defs/Properties/definitions/JoinKeyProperties"
 	LeftOperand!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" | fn.#StringExpression
 	OnClause!:               strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	RightJoinKeyProperties?: _#defs."/$defs/Properties/definitions/JoinKeyProperties" | fn.#ObjectExpression
+	RightJoinKeyProperties?: _#defs."/$defs/Properties/definitions/JoinKeyProperties"
 	RightOperand!:           strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" | fn.#StringExpression
-	Type!:                   _#defs."/$defs/Properties/definitions/JoinType" | fn.#StringExpression
+	Type!:                   _#defs."/$defs/Properties/definitions/JoinType"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JoinKeyProperties": close({UniqueKey?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/JoinKeyProperties": close(
+	{UniqueKey?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/JoinOperandProperties": close({
 	OutputColumnNameOverrides!: list.MaxItems(2048) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/OutputColumnNameOverride" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/OutputColumnNameOverride"
 	] |
 		fn.#ListExpression
 }) |
@@ -593,12 +676,12 @@ _#defs: "/$defs/Properties/definitions/JoinOperandProperties": close({
 
 _#defs: "/$defs/Properties/definitions/JoinOperation": close({
 	Alias!:                  strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	LeftOperand!:            _#defs."/$defs/Properties/definitions/TransformOperationSource" | fn.#ObjectExpression
-	LeftOperandProperties?:  _#defs."/$defs/Properties/definitions/JoinOperandProperties" | fn.#ObjectExpression
+	LeftOperand!:            _#defs."/$defs/Properties/definitions/TransformOperationSource"
+	LeftOperandProperties?:  _#defs."/$defs/Properties/definitions/JoinOperandProperties"
 	OnClause!:               strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	RightOperand!:           _#defs."/$defs/Properties/definitions/TransformOperationSource" | fn.#ObjectExpression
-	RightOperandProperties?: _#defs."/$defs/Properties/definitions/JoinOperandProperties" | fn.#ObjectExpression
-	Type!:                   _#defs."/$defs/Properties/definitions/JoinOperationType" | fn.#StringExpression
+	RightOperand!:           _#defs."/$defs/Properties/definitions/TransformOperationSource"
+	RightOperandProperties?: _#defs."/$defs/Properties/definitions/JoinOperandProperties"
+	Type!:                   _#defs."/$defs/Properties/definitions/JoinOperationType"
 }) |
 fn.#ObjectExpression
 
@@ -609,29 +692,47 @@ _#defs: "/$defs/Properties/definitions/JoinType": "INNER" | "OUTER" | "LEFT" | "
 _#defs: "/$defs/Properties/definitions/LogicalTable": close({
 	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	DataTransforms?: list.MaxItems(2048) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TransformOperation" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/TransformOperation"
 	] |
 		fn.#ListExpression
-	Source!: _#defs."/$defs/Properties/definitions/LogicalTableSource" | fn.#ObjectExpression
+	Source!: _#defs."/$defs/Properties/definitions/LogicalTableSource"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LogicalTableMap": struct.MaxFields(256) & struct.MinFields(1) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/LogicalTable" | fn.#ObjectExpression}}) |
+	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/LogicalTable"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LogicalTableSource": close({
 	DataSetArn?:      string | fn.#StringExpression
-	JoinInstruction?: _#defs."/$defs/Properties/definitions/JoinInstruction" | fn.#ObjectExpression
+	JoinInstruction?: _#defs."/$defs/Properties/definitions/JoinInstruction"
 	PhysicalTableId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LookbackWindow": close({
 	ColumnName!: string | fn.#StringExpression
-	Size!:       >=1 | fn.#NumberExpression
-	SizeUnit!:   _#defs."/$defs/Properties/definitions/LookbackWindowSizeUnit" | fn.#StringExpression
+	Size!: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SizeUnit!: _#defs."/$defs/Properties/definitions/LookbackWindowSizeUnit"
 }) |
 fn.#ObjectExpression
 
@@ -639,8 +740,47 @@ _#defs: "/$defs/Properties/definitions/LookbackWindowSizeUnit": "HOUR" | "DAY" |
 
 _#defs: "/$defs/Properties/definitions/NewDefaultValues": close({
 	DateTimeStaticValues?: list.MaxItems(32) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	DecimalStaticValues?:  list.MaxItems(32) & [...] & [...number | fn.#NumberExpression] | fn.#ListExpression
-	IntegerStaticValues?:  list.MaxItems(32) & [...] & [...int | fn.#NumberExpression] | fn.#ListExpression
+	DecimalStaticValues?: list.MaxItems(32) & [...] & [
+		...number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	IntegerStaticValues?: list.MaxItems(32) & [...] & [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
 	StringStaticValues?: list.MaxItems(32) & [...] & [
 		...strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
 	] |
@@ -652,8 +792,8 @@ _#defs: "/$defs/Properties/definitions/OutputColumn": close({
 	Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
 	Id?:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	Name?:        strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	SubType?:     _#defs."/$defs/Properties/definitions/ColumnDataSubType" | fn.#StringExpression
-	Type?:        _#defs."/$defs/Properties/definitions/ColumnDataType" | fn.#StringExpression
+	SubType?:     _#defs."/$defs/Properties/definitions/ColumnDataSubType"
+	Type?:        _#defs."/$defs/Properties/definitions/ColumnDataType"
 }) |
 fn.#ObjectExpression
 
@@ -664,7 +804,7 @@ _#defs: "/$defs/Properties/definitions/OutputColumnNameOverride": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OverrideDatasetParameterOperation": close({
-	NewDefaultValues?: _#defs."/$defs/Properties/definitions/NewDefaultValues" | fn.#ObjectExpression
+	NewDefaultValues?: _#defs."/$defs/Properties/definitions/NewDefaultValues"
 	NewParameterName?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
 	ParameterName!:    strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
 }) |
@@ -672,39 +812,33 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParentDataSet": close({
 	DataSetArn!: string | fn.#StringExpression
-	InputColumns!: list.MaxItems(2048) & [...] & [
-		..._#defs."/$defs/Properties/definitions/InputColumn" | fn.#ObjectExpression
-	] |
+	InputColumns!: list.MaxItems(2048) & [...] & [..._#defs."/$defs/Properties/definitions/InputColumn"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PerformanceConfiguration": close({
-	UniqueKeys?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/UniqueKey" | fn.#ObjectExpression
-	] |
+	UniqueKeys?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/UniqueKey"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PhysicalTable": close({
-	CustomSql?:       _#defs."/$defs/Properties/definitions/CustomSql" | fn.#ObjectExpression
-	RelationalTable?: _#defs."/$defs/Properties/definitions/RelationalTable" | fn.#ObjectExpression
-	S3Source?:        _#defs."/$defs/Properties/definitions/S3Source" | fn.#ObjectExpression
-	SaaSTable?:       _#defs."/$defs/Properties/definitions/SaaSTable" | fn.#ObjectExpression
+	CustomSql?:       _#defs."/$defs/Properties/definitions/CustomSql"
+	RelationalTable?: _#defs."/$defs/Properties/definitions/RelationalTable"
+	S3Source?:        _#defs."/$defs/Properties/definitions/S3Source"
+	SaaSTable?:       _#defs."/$defs/Properties/definitions/SaaSTable"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PhysicalTableMap": struct.MaxFields(32) & struct.MinFields(0) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/PhysicalTable" | fn.#ObjectExpression}}) |
+	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/PhysicalTable"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PivotConfiguration": close({
 	LabelColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	PivotedLabels!: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PivotedLabel" | fn.#ObjectExpression
-	] |
+	PivotedLabels!: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/PivotedLabel"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -715,9 +849,9 @@ _#defs: "/$defs/Properties/definitions/PivotOperation": close({
 		...strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	PivotConfiguration!:       _#defs."/$defs/Properties/definitions/PivotConfiguration" | fn.#ObjectExpression
-	Source!:                   _#defs."/$defs/Properties/definitions/TransformOperationSource" | fn.#ObjectExpression
-	ValueColumnConfiguration!: _#defs."/$defs/Properties/definitions/ValueColumnConfiguration" | fn.#ObjectExpression
+	PivotConfiguration!:       _#defs."/$defs/Properties/definitions/PivotConfiguration"
+	Source!:                   _#defs."/$defs/Properties/definitions/TransformOperationSource"
+	ValueColumnConfiguration!: _#defs."/$defs/Properties/definitions/ValueColumnConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -731,33 +865,31 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ProjectOperation": close({
 	Alias?:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	ProjectedColumns?: list.MaxItems(2048) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	Source?:           _#defs."/$defs/Properties/definitions/TransformOperationSource" | fn.#ObjectExpression
+	Source?:           _#defs."/$defs/Properties/definitions/TransformOperationSource"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RefreshConfiguration": close(
-	{IncrementalRefresh!: _#defs."/$defs/Properties/definitions/IncrementalRefresh" | fn.#ObjectExpression},
+	{IncrementalRefresh!: _#defs."/$defs/Properties/definitions/IncrementalRefresh"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RefreshFailureAlertStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RefreshFailureConfiguration": close(
-	{EmailAlert?: _#defs."/$defs/Properties/definitions/RefreshFailureEmailAlert" | fn.#ObjectExpression},
+	{EmailAlert?: _#defs."/$defs/Properties/definitions/RefreshFailureEmailAlert"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RefreshFailureEmailAlert": close(
-	{AlertStatus?: _#defs."/$defs/Properties/definitions/RefreshFailureAlertStatus" | fn.#StringExpression},
+	{AlertStatus?: _#defs."/$defs/Properties/definitions/RefreshFailureAlertStatus"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RelationalTable": close({
 	Catalog?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	DataSourceArn!: string | fn.#StringExpression
-	InputColumns!: list.MaxItems(2048) & [...] & [
-		..._#defs."/$defs/Properties/definitions/InputColumn" | fn.#ObjectExpression
-	] |
+	InputColumns!: list.MaxItems(2048) & [...] & [..._#defs."/$defs/Properties/definitions/InputColumn"] |
 		fn.#ListExpression
 	Name!:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Schema?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
@@ -773,10 +905,10 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/RenameColumnsOperation": close({
 	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	RenameColumnOperations!: list.MaxItems(2048) & [...] & [
-		..._#defs."/$defs/Properties/definitions/RenameColumnOperation" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/RenameColumnOperation"
 	] |
 		fn.#ListExpression
-	Source!: _#defs."/$defs/Properties/definitions/TransformOperationSource" | fn.#ObjectExpression
+	Source!: _#defs."/$defs/Properties/definitions/TransformOperationSource"
 }) |
 fn.#ObjectExpression
 
@@ -787,17 +919,17 @@ _#defs: "/$defs/Properties/definitions/ResourcePermission": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RowLevelPermissionConfiguration": close({
-	RowLevelPermissionDataSet?: _#defs."/$defs/Properties/definitions/RowLevelPermissionDataSet" | fn.#ObjectExpression
-	TagConfiguration?: _#defs."/$defs/Properties/definitions/RowLevelPermissionTagConfiguration" | fn.#ObjectExpression
+	RowLevelPermissionDataSet?: _#defs."/$defs/Properties/definitions/RowLevelPermissionDataSet"
+	TagConfiguration?:          _#defs."/$defs/Properties/definitions/RowLevelPermissionTagConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RowLevelPermissionDataSet": close({
 	Arn!:              string | fn.#StringExpression
-	FormatVersion?:    _#defs."/$defs/Properties/definitions/RowLevelPermissionFormatVersion" | fn.#StringExpression
+	FormatVersion?:    _#defs."/$defs/Properties/definitions/RowLevelPermissionFormatVersion"
 	Namespace?:        strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[a-zA-Z0-9._-]*$" | fn.#StringExpression
-	PermissionPolicy!: _#defs."/$defs/Properties/definitions/RowLevelPermissionPolicy" | fn.#StringExpression
-	Status?:           _#defs."/$defs/Properties/definitions/Status" | fn.#StringExpression
+	PermissionPolicy!: _#defs."/$defs/Properties/definitions/RowLevelPermissionPolicy"
+	Status?:           _#defs."/$defs/Properties/definitions/Status"
 }) |
 fn.#ObjectExpression
 
@@ -808,7 +940,7 @@ _#defs: "/$defs/Properties/definitions/RowLevelPermissionFormatVersion": "VERSIO
 _#defs: "/$defs/Properties/definitions/RowLevelPermissionPolicy": "GRANT_ACCESS" | "DENY_ACCESS" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RowLevelPermissionTagConfiguration": close({
-	Status?: _#defs."/$defs/Properties/definitions/Status" | fn.#StringExpression
+	Status?: _#defs."/$defs/Properties/definitions/Status"
 	TagRuleConfigurations?: list.MaxItems(50) & list.MinItems(1) & [
 		...list.MaxItems(50) & list.MinItems(1) & [
 			...strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -817,7 +949,7 @@ _#defs: "/$defs/Properties/definitions/RowLevelPermissionTagConfiguration": clos
 	] |
 	fn.#ListExpression
 	TagRules!: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RowLevelPermissionTagRule" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/RowLevelPermissionTagRule"
 	] |
 		fn.#ListExpression
 }) |
@@ -833,77 +965,70 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3Source": close({
 	DataSourceArn!: string | fn.#StringExpression
-	InputColumns!: list.MaxItems(2048) & [...] & [
-		..._#defs."/$defs/Properties/definitions/InputColumn" | fn.#ObjectExpression
-	] |
+	InputColumns!: list.MaxItems(2048) & [...] & [..._#defs."/$defs/Properties/definitions/InputColumn"] |
 		fn.#ListExpression
-	UploadSettings?: _#defs."/$defs/Properties/definitions/UploadSettings" | fn.#ObjectExpression
+	UploadSettings?: _#defs."/$defs/Properties/definitions/UploadSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SaaSTable": close({
 	DataSourceArn!: string | fn.#StringExpression
-	InputColumns!: list.MaxItems(2048) & [...] & [
-		..._#defs."/$defs/Properties/definitions/InputColumn" | fn.#ObjectExpression
-	] |
+	InputColumns!: list.MaxItems(2048) & [...] & [..._#defs."/$defs/Properties/definitions/InputColumn"] |
 		fn.#ListExpression
-	TablePath!: list.MaxItems(32) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TablePathElement" | fn.#ObjectExpression
-	] |
+	TablePath!: list.MaxItems(32) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TablePathElement"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SemanticModelConfiguration": close({
 	SemanticMetadata?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataSetSemanticMetadata" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/DataSetSemanticMetadata"
 	] |
 		fn.#ListExpression
-	TableMap?: _#defs."/$defs/Properties/definitions/SemanticTableMap" | fn.#ObjectExpression
+	TableMap?: _#defs."/$defs/Properties/definitions/SemanticTableMap"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SemanticTable": close({
 	Alias!:              strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	DestinationTableId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" | fn.#StringExpression
-	RowLevelPermissionConfiguration?: _#defs."/$defs/Properties/definitions/RowLevelPermissionConfiguration" |
-		fn.#ObjectExpression
-	SemanticMetadata?: _#defs."/$defs/Properties/definitions/TableSemanticMetadata" | fn.#ObjectExpression
+	RowLevelPermissionConfiguration?: _#defs."/$defs/Properties/definitions/RowLevelPermissionConfiguration"
+	SemanticMetadata?:                _#defs."/$defs/Properties/definitions/TableSemanticMetadata"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SemanticTableMap": struct.MaxFields(1) & struct.MinFields(1) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/SemanticTable" | fn.#ObjectExpression}}) |
+	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/SemanticTable"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SharedColumnSemanticMetadata": close({
 	ColumnNames?: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	ColumnProperties!: list.MaxItems(3) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ColumnSemanticProperty" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ColumnSemanticProperty"
 	] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SourceTable": close({
-	DataSet?:         _#defs."/$defs/Properties/definitions/ParentDataSet" | fn.#ObjectExpression
+	DataSet?:         _#defs."/$defs/Properties/definitions/ParentDataSet"
 	PhysicalTableId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SourceTableMap": struct.MaxFields(32) & struct.MinFields(1) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/SourceTable" | fn.#ObjectExpression}}) |
+	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/SourceTable"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Status": "ENABLED" | "DISABLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/StringDatasetParameter": close({
-	DefaultValues?: _#defs."/$defs/Properties/definitions/StringDatasetParameterDefaultValues" | fn.#ObjectExpression
+	DefaultValues?: _#defs."/$defs/Properties/definitions/StringDatasetParameterDefaultValues"
 	Id!:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
 	Name!:          strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	ValueType!:     _#defs."/$defs/Properties/definitions/DatasetParameterValueType" | fn.#StringExpression
+	ValueType!:     _#defs."/$defs/Properties/definitions/DatasetParameterValueType"
 }) |
 fn.#ObjectExpression
 
@@ -921,7 +1046,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableSemanticMetadata": close({
 	ColumnMetadata?: list.MaxItems(2000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/SharedColumnSemanticMetadata" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/SharedColumnSemanticMetadata"
 	] |
 		fn.#ListExpression
 }) |
@@ -935,9 +1060,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TagColumnOperation": close({
 	ColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Tags!: list.MaxItems(16) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ColumnTag" | fn.#ObjectExpression
-	] |
+	Tags!: list.MaxItems(16) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnTag"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -956,21 +1079,20 @@ _#defs: "/$defs/Properties/definitions/TimeGranularity": "YEAR" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TransformOperation": close({
-	CastColumnTypeOperation?: _#defs."/$defs/Properties/definitions/CastColumnTypeOperation" | fn.#ObjectExpression
-	CreateColumnsOperation?:  _#defs."/$defs/Properties/definitions/CreateColumnsOperation" | fn.#ObjectExpression
-	FilterOperation?:         _#defs."/$defs/Properties/definitions/FilterOperation" | fn.#ObjectExpression
-	OverrideDatasetParameterOperation?: _#defs."/$defs/Properties/definitions/OverrideDatasetParameterOperation" |
-		fn.#ObjectExpression
-	ProjectOperation?:      _#defs."/$defs/Properties/definitions/ProjectOperation" | fn.#ObjectExpression
-	RenameColumnOperation?: _#defs."/$defs/Properties/definitions/RenameColumnOperation" | fn.#ObjectExpression
-	TagColumnOperation?:    _#defs."/$defs/Properties/definitions/TagColumnOperation" | fn.#ObjectExpression
-	UntagColumnOperation?:  _#defs."/$defs/Properties/definitions/UntagColumnOperation" | fn.#ObjectExpression
+	CastColumnTypeOperation?:           _#defs."/$defs/Properties/definitions/CastColumnTypeOperation"
+	CreateColumnsOperation?:            _#defs."/$defs/Properties/definitions/CreateColumnsOperation"
+	FilterOperation?:                   _#defs."/$defs/Properties/definitions/FilterOperation"
+	OverrideDatasetParameterOperation?: _#defs."/$defs/Properties/definitions/OverrideDatasetParameterOperation"
+	ProjectOperation?:                  _#defs."/$defs/Properties/definitions/ProjectOperation"
+	RenameColumnOperation?:             _#defs."/$defs/Properties/definitions/RenameColumnOperation"
+	TagColumnOperation?:                _#defs."/$defs/Properties/definitions/TagColumnOperation"
+	UntagColumnOperation?:              _#defs."/$defs/Properties/definitions/UntagColumnOperation"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TransformOperationSource": close({
 	ColumnIdMappings?: list.MaxItems(2048) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataSetColumnIdMapping" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/DataSetColumnIdMapping"
 	] |
 		fn.#ListExpression
 	TransformOperationId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" | fn.#StringExpression
@@ -978,23 +1100,23 @@ _#defs: "/$defs/Properties/definitions/TransformOperationSource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TransformStep": close({
-	AggregateStep?:       _#defs."/$defs/Properties/definitions/AggregateOperation" | fn.#ObjectExpression
-	AppendStep?:          _#defs."/$defs/Properties/definitions/AppendOperation" | fn.#ObjectExpression
-	CastColumnTypesStep?: _#defs."/$defs/Properties/definitions/CastColumnTypesOperation" | fn.#ObjectExpression
-	CreateColumnsStep?:   _#defs."/$defs/Properties/definitions/CreateColumnsOperation" | fn.#ObjectExpression
-	FiltersStep?:         _#defs."/$defs/Properties/definitions/FiltersOperation" | fn.#ObjectExpression
-	ImportTableStep?:     _#defs."/$defs/Properties/definitions/ImportTableOperation" | fn.#ObjectExpression
-	JoinStep?:            _#defs."/$defs/Properties/definitions/JoinOperation" | fn.#ObjectExpression
-	PivotStep?:           _#defs."/$defs/Properties/definitions/PivotOperation" | fn.#ObjectExpression
-	ProjectStep?:         _#defs."/$defs/Properties/definitions/ProjectOperation" | fn.#ObjectExpression
-	RenameColumnsStep?:   _#defs."/$defs/Properties/definitions/RenameColumnsOperation" | fn.#ObjectExpression
-	UnpivotStep?:         _#defs."/$defs/Properties/definitions/UnpivotOperation" | fn.#ObjectExpression
+	AggregateStep?:       _#defs."/$defs/Properties/definitions/AggregateOperation"
+	AppendStep?:          _#defs."/$defs/Properties/definitions/AppendOperation"
+	CastColumnTypesStep?: _#defs."/$defs/Properties/definitions/CastColumnTypesOperation"
+	CreateColumnsStep?:   _#defs."/$defs/Properties/definitions/CreateColumnsOperation"
+	FiltersStep?:         _#defs."/$defs/Properties/definitions/FiltersOperation"
+	ImportTableStep?:     _#defs."/$defs/Properties/definitions/ImportTableOperation"
+	JoinStep?:            _#defs."/$defs/Properties/definitions/JoinOperation"
+	PivotStep?:           _#defs."/$defs/Properties/definitions/PivotOperation"
+	ProjectStep?:         _#defs."/$defs/Properties/definitions/ProjectOperation"
+	RenameColumnsStep?:   _#defs."/$defs/Properties/definitions/RenameColumnsOperation"
+	UnpivotStep?:         _#defs."/$defs/Properties/definitions/UnpivotOperation"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TransformStepMap": struct.MaxFields(256) & struct.MinFields(1) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/TransformStep" | fn.#ObjectExpression}}) |
+	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/TransformStep"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UniqueKey": close({
@@ -1007,11 +1129,9 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UnpivotOperation": close({
 	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	ColumnsToUnpivot!: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnToUnpivot" | fn.#ObjectExpression
-	] |
+	ColumnsToUnpivot!: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnToUnpivot"] |
 		fn.#ListExpression
-	Source!:                   _#defs."/$defs/Properties/definitions/TransformOperationSource" | fn.#ObjectExpression
+	Source!:                   _#defs."/$defs/Properties/definitions/TransformOperationSource"
 	UnpivotedLabelColumnId!:   strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	UnpivotedLabelColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	UnpivotedValueColumnId!:   strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
@@ -1021,16 +1141,34 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UntagColumnOperation": close({
 	ColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	TagNames!:   [..._#defs."/$defs/Properties/definitions/ColumnTagName" | fn.#StringExpression] | fn.#ListExpression
+	TagNames!:   [..._#defs."/$defs/Properties/definitions/ColumnTagName"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UploadSettings": close({
-	ContainsHeader?: bool | fn.#BooleanExpression
+	ContainsHeader?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Delimiter?:      strings.MaxRunes(1) & strings.MinRunes(1) | fn.#StringExpression
-	Format?:         _#defs."/$defs/Properties/definitions/FileFormat" | fn.#StringExpression
-	StartFromRow?:   >=1 | fn.#NumberExpression
-	TextQualifier?:  _#defs."/$defs/Properties/definitions/TextQualifier" | fn.#StringExpression
+	Format?:         _#defs."/$defs/Properties/definitions/FileFormat"
+	StartFromRow?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TextQualifier?: _#defs."/$defs/Properties/definitions/TextQualifier"
 }) |
 fn.#ObjectExpression
 
@@ -1040,7 +1178,7 @@ _#defs: "/$defs/Properties/definitions/UploadedDocumentMetadata": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ValueColumnConfiguration": close(
-	{AggregationFunction?: _#defs."/$defs/Properties/definitions/DataPrepAggregationFunction" | fn.#ObjectExpression},
+	{AggregationFunction?: _#defs."/$defs/Properties/definitions/DataPrepAggregationFunction"},
 ) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

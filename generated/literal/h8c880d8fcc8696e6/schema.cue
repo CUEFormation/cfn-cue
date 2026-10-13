@@ -70,7 +70,7 @@ _#defs: "/$defs/Properties/definitions/AppMonitorConfiguration": close({
 
 	// The ARN of the guest IAM role that is attached to the identity pool that is
 	// used to authorize the sending of data to RUM.
-	GuestRoleArn?: _#defs."/$defs/Properties/definitions/Arn"
+	GuestRoleArn?: _#defs."/$defs/Properties/definitions/Arn" & =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The ID of the identity pool that is used to authorize the sending of data to RUM.
 	IdentityPoolId?: strings.MaxRunes(55) & strings.MinRunes(1) & =~"[\\w-]+:[0-9a-f-]+"
@@ -286,7 +286,7 @@ _#defs: "/$defs/Properties/definitions/MetricDestination": close({
 	// This parameter specifies the ARN of an IAM role that RUM will assume to write
 	// to the Evidently experiment that you are sending metrics to. This role must
 	// have permission to write to that experiment.
-	IamRoleArn?: =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*"
+	IamRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*"
 
 	// An array of structures which define the metrics that you want to send.
 	MetricDefinitions?: list.MaxItems(2000) & list.UniqueItems() & [...] & [

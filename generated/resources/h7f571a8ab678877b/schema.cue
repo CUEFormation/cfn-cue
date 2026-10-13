@@ -8,60 +8,56 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTAnalytics::Dataset
 #Properties: close({
-	Actions!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression
-	] |
+	Actions!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Action"] |
 		fn.#ListExpression
 	ContentDeliveryRules?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DatasetContentDeliveryRule" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/DatasetContentDeliveryRule"
 	] |
 		fn.#ListExpression
 	DatasetName?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	LateDataRules?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/LateDataRule" | fn.#ObjectExpression
-	] |
+	LateDataRules?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LateDataRule"] |
 		fn.#ListExpression
-	RetentionPeriod?: _#defs."/$defs/Properties/definitions/RetentionPeriod" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Triggers?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Trigger" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	VersioningConfiguration?: _#defs."/$defs/Properties/definitions/VersioningConfiguration" | fn.#ObjectExpression
+	RetentionPeriod?: _#defs."/$defs/Properties/definitions/RetentionPeriod"
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Triggers?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Trigger"] | fn.#ListExpression
+	VersioningConfiguration?: _#defs."/$defs/Properties/definitions/VersioningConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/Action": close({
 	ActionName!:      strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" | fn.#StringExpression
-	ContainerAction?: _#defs."/$defs/Properties/definitions/ContainerAction" | fn.#ObjectExpression
-	QueryAction?:     _#defs."/$defs/Properties/definitions/QueryAction" | fn.#ObjectExpression
+	ContainerAction?: _#defs."/$defs/Properties/definitions/ContainerAction"
+	QueryAction?:     _#defs."/$defs/Properties/definitions/QueryAction"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ContainerAction": close({
-	ExecutionRoleArn!:      strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 	Image!:                 strings.MaxRunes(255) | fn.#StringExpression
-	ResourceConfiguration!: _#defs."/$defs/Properties/definitions/ResourceConfiguration" | fn.#ObjectExpression
-	Variables?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Variable" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ResourceConfiguration!: _#defs."/$defs/Properties/definitions/ResourceConfiguration"
+	Variables?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Variable"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DatasetContentDeliveryRule": close({
-	Destination!: _#defs."/$defs/Properties/definitions/DatasetContentDeliveryRuleDestination" | fn.#ObjectExpression
+	Destination!: _#defs."/$defs/Properties/definitions/DatasetContentDeliveryRuleDestination"
 	EntryName?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DatasetContentDeliveryRuleDestination": close({
-	IotEventsDestinationConfiguration?: _#defs."/$defs/Properties/definitions/IotEventsDestinationConfiguration" |
-		fn.#ObjectExpression
-	S3DestinationConfiguration?: _#defs."/$defs/Properties/definitions/S3DestinationConfiguration" |
-		fn.#ObjectExpression
+	IotEventsDestinationConfiguration?: _#defs."/$defs/Properties/definitions/IotEventsDestinationConfiguration"
+	S3DestinationConfiguration?:        _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -71,19 +67,45 @@ _#defs: "/$defs/Properties/definitions/DatasetContentVersionValue": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DeltaTime": close({
-	OffsetSeconds!:  int | fn.#NumberExpression
+	OffsetSeconds!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	TimeExpression!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeltaTimeSessionWindowConfiguration": close(
-	{TimeoutInMinutes!: int & <=60 & >=1 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/DeltaTimeSessionWindowConfiguration": close({
+	TimeoutInMinutes!: int & <=60 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=60 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Filter": close(
-	{DeltaTime?: _#defs."/$defs/Properties/definitions/DeltaTime" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/Filter": close({DeltaTime?: _#defs."/$defs/Properties/definitions/DeltaTime"}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GlueConfiguration": close({
@@ -94,20 +116,20 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IotEventsDestinationConfiguration": close({
 	InputName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
-	RoleArn!:   strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LateDataRule": close({
-	RuleConfiguration!: _#defs."/$defs/Properties/definitions/LateDataRuleConfiguration" | fn.#ObjectExpression
+	RuleConfiguration!: _#defs."/$defs/Properties/definitions/LateDataRuleConfiguration"
 	RuleName?:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LateDataRuleConfiguration": close({
-	DeltaTimeSessionWindowConfiguration?: _#defs."/$defs/Properties/definitions/DeltaTimeSessionWindowConfiguration" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/LateDataRuleConfiguration": close(
+	{DeltaTimeSessionWindowConfiguration?: _#defs."/$defs/Properties/definitions/DeltaTimeSessionWindowConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OutputFileUriValue": close(
@@ -116,29 +138,59 @@ _#defs: "/$defs/Properties/definitions/OutputFileUriValue": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/QueryAction": close({
-	Filters?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/Filter" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Filters?:  list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/Filter"] | fn.#ListExpression
 	SqlQuery!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResourceConfiguration": close({
-	ComputeType!:    "ACU_1" | "ACU_2" | fn.#StringExpression
-	VolumeSizeInGB!: int & <=50 & >=1 | fn.#NumberExpression
+	ComputeType!: "ACU_1" | "ACU_2" | fn.#StringExpression
+	VolumeSizeInGB!: int & <=50 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=50 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
-	NumberOfDays?: int & <=2147483647 & >=1 | fn.#NumberExpression
-	Unlimited?:    bool | fn.#BooleanExpression
+	NumberOfDays?: int & <=2147483647 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Unlimited?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close({
 	Bucket!:            strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.\\-_]*$" | fn.#StringExpression
-	GlueConfiguration?: _#defs."/$defs/Properties/definitions/GlueConfiguration" | fn.#ObjectExpression
-	Key!:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/{}:-]*$" | fn.#StringExpression
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	GlueConfiguration?: _#defs."/$defs/Properties/definitions/GlueConfiguration"
+	Key!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/{}:-]*$" | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -152,8 +204,8 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Trigger": close({
-	Schedule?:          _#defs."/$defs/Properties/definitions/Schedule" | fn.#ObjectExpression
-	TriggeringDataset?: _#defs."/$defs/Properties/definitions/TriggeringDataset" | fn.#ObjectExpression
+	Schedule?:          _#defs."/$defs/Properties/definitions/Schedule"
+	TriggeringDataset?: _#defs."/$defs/Properties/definitions/TriggeringDataset"
 }) |
 fn.#ObjectExpression
 
@@ -163,18 +215,50 @@ _#defs: "/$defs/Properties/definitions/TriggeringDataset": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Variable": close({
-	DatasetContentVersionValue?: _#defs."/$defs/Properties/definitions/DatasetContentVersionValue" |
-		fn.#ObjectExpression
-	DoubleValue?:        number | fn.#NumberExpression
-	OutputFileUriValue?: _#defs."/$defs/Properties/definitions/OutputFileUriValue" | fn.#ObjectExpression
+	DatasetContentVersionValue?: _#defs."/$defs/Properties/definitions/DatasetContentVersionValue"
+	DoubleValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	OutputFileUriValue?: _#defs."/$defs/Properties/definitions/OutputFileUriValue"
 	StringValue?:        strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	VariableName!:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VersioningConfiguration": close({
-	MaxVersions?: int & <=1000 & >=1 | fn.#NumberExpression
-	Unlimited?:   bool | fn.#BooleanExpression
+	MaxVersions?: int & <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Unlimited?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

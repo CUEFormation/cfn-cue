@@ -16,15 +16,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::Location::APIKey Resource Type
 #Properties: close({
 	Description?:  strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	ExpireTime?:   _#defs."/$defs/Properties/definitions/iso8601UTC" | fn.#StringExpression
-	ForceDelete?:  bool | fn.#BooleanExpression
-	ForceUpdate?:  bool | fn.#BooleanExpression
+	ExpireTime?:   _#defs."/$defs/Properties/definitions/iso8601UTC"
+	ForceDelete?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ForceUpdate?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KeyName!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
-	NoExpiry?:     bool | fn.#BooleanExpression
-	Restrictions!: _#defs."/$defs/Properties/definitions/ApiKeyRestrictions" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	NoExpiry?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Restrictions!: _#defs."/$defs/Properties/definitions/ApiKeyRestrictions"
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
@@ -42,13 +40,9 @@ _#defs: "/$defs/Properties/definitions/ApiKeyRestrictions": close({
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	AllowAndroidApps?: list.MaxItems(5) & [...] & [
-		..._#defs."/$defs/Properties/definitions/AndroidApp" | fn.#ObjectExpression
-	] |
+	AllowAndroidApps?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/AndroidApp"] |
 		fn.#ListExpression
-	AllowAppleApps?: list.MaxItems(5) & [...] & [
-		..._#defs."/$defs/Properties/definitions/AppleApp" | fn.#ObjectExpression
-	] |
+	AllowAppleApps?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/AppleApp"] |
 		fn.#ListExpression
 	AllowReferers?: list.MaxItems(5) & [...] & [
 		...strings.MaxRunes(253) & =~"^([\\w!$&()*+,./:;=?@\\x60-]|%([\\dA-Fa-f]{2}|[\\dA-Fa-f]?\\*))+$" |

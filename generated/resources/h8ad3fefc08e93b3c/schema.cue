@@ -7,6 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -25,25 +29,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	SecurityGroupIds?: [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	SnsTopicArn?:      =~"^arn:aws[^:]*:sns:[^:]+:[0-9]{12}:[a-zA-Z0-9-_]{1,256}$" | fn.#StringExpression
-	SubnetId?:         strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	SecurityGroupIds?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+		fn.#StringExpression
+	] |
+	fn.#ListExpression
+	SnsTopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:aws[^:]*:sns:[^:]+:[0-9]{12}:[a-zA-Z0-9-_]{1,256}$" |
+		fn.#StringExpression
+	SubnetId?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Tags?: close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	TerminateInstanceOnFailure?: bool | fn.#BooleanExpression
+	TerminateInstanceOnFailure?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 
 _#defs: "/$defs/Properties/definitions/InstanceMetadataOptions": close({
-	HttpPutResponseHopLimit?: int & <=64 & >=1 | fn.#NumberExpression
-	HttpTokens?:              "required" | "optional" | fn.#StringExpression
+	HttpPutResponseHopLimit?: int & <=64 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=64 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	HttpTokens?: "required" | "optional" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Logging": close(
-	{S3Logs?: _#defs."/$defs/Properties/definitions/S3Logs" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/Logging": close({S3Logs?: _#defs."/$defs/Properties/definitions/S3Logs"}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Placement": close({

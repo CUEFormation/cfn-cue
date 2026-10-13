@@ -15,31 +15,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for SSO PermissionSet
 #Properties: close({
 	CustomerManagedPolicyReferences?: list.MaxItems(25) & [
-		..._#defs."/$defs/Properties/definitions/CustomerManagedPolicyReference" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/CustomerManagedPolicyReference"
 	] |
 		fn.#ListExpression
 	Description?: strings.MaxRunes(700) &
 	strings.MinRunes(1) &
 	=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]*" |
 	fn.#StringExpression
-	InlinePolicy?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	InlinePolicy?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	InstanceArn!: strings.MaxRunes(1224) &
 	strings.MinRunes(10) &
 	=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" |
 	fn.#StringExpression
-	ManagedPolicies?: list.MaxItems(25) & [
-		..._#defs."/$defs/Properties/definitions/ManagedPolicyArn" | fn.#StringExpression
-	] |
+	ManagedPolicies?: list.MaxItems(25) & [..._#defs."/$defs/Properties/definitions/ManagedPolicyArn"] |
 		fn.#ListExpression
 	Name!:                strings.MaxRunes(32) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
-	PermissionsBoundary?: _#defs."/$defs/Properties/definitions/PermissionsBoundary" | fn.#ObjectExpression
+	PermissionsBoundary?: _#defs."/$defs/Properties/definitions/PermissionsBoundary"
 	RelayStateType?: strings.MaxRunes(240) &
 	strings.MinRunes(1) &
 	=~"[a-zA-Z0-9&amp;$@#\\/%?=~\\-_'&quot;|!:,.;*+\\[\\]\\ \\(\\)\\{\\}]+" |
 	fn.#StringExpression
 	SessionDuration?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:            list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CustomerManagedPolicyReference": close({
@@ -52,9 +49,8 @@ _#defs: "/$defs/Properties/definitions/ManagedPolicyArn": strings.MaxRunes(2048)
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PermissionsBoundary": close({
-	CustomerManagedPolicyReference?: _#defs."/$defs/Properties/definitions/CustomerManagedPolicyReference" |
-		fn.#ObjectExpression
-	ManagedPolicyArn?: _#defs."/$defs/Properties/definitions/ManagedPolicyArn" | fn.#StringExpression
+	CustomerManagedPolicyReference?: _#defs."/$defs/Properties/definitions/CustomerManagedPolicyReference"
+	ManagedPolicyArn?:               _#defs."/$defs/Properties/definitions/ManagedPolicyArn"
 }) |
 fn.#ObjectExpression
 

@@ -52,14 +52,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	HostedZoneConfig?:   _#defs."/$defs/Properties/definitions/HostedZoneConfig" | fn.#ObjectExpression
 	HostedZoneFeatures?: _#defs."/$defs/Properties/definitions/HostedZoneFeatures" | fn.#ObjectExpression
-	HostedZoneTags?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/HostedZoneTag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Name?:               strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	HostedZoneTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/HostedZoneTag"] | fn.#ListExpression
+	Name?:           strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	QueryLoggingConfig?: _#defs."/$defs/Properties/definitions/QueryLoggingConfig" | fn.#ObjectExpression
-	VPCs?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VPC" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	VPCs?:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VPC"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/HostedZoneConfig": close(
@@ -68,7 +64,7 @@ _#defs: "/$defs/Properties/definitions/HostedZoneConfig": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HostedZoneFeatures": close(
-	{EnableAcceleratedRecovery?: bool | fn.#BooleanExpression},
+	{EnableAcceleratedRecovery?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
@@ -84,7 +80,8 @@ _#defs: "/$defs/Properties/definitions/QueryLoggingConfig": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VPC": close({
-	VPCId!:     string | fn.#StringExpression
+	VPCId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	VPCRegion!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

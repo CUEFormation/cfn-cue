@@ -95,7 +95,7 @@ import "list"
 	TransitEncryptionEnabled?: bool
 
 	// One or more VPC security groups associated with the cluster.
-	VpcSecurityGroupIds?: [...string]
+	VpcSecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 })
 
 _#defs: "/$defs/Properties/definitions/CloudWatchLogsDestinationDetails": close({

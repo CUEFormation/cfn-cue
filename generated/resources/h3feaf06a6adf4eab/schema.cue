@@ -29,19 +29,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"IMMUTABLE_WITH_EXCLUSION" |
 		fn.#StringExpression
 	ImageTagMutabilityExclusionFilters?: list.MaxItems(5) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ImageTagMutabilityExclusionFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ImageTagMutabilityExclusionFilter"
 	] |
 		fn.#ListExpression
 	LifecyclePolicy?:      _#defs."/$defs/Properties/definitions/LifecyclePolicy" | fn.#ObjectExpression
 	RepositoryName?:       strings.MaxRunes(256) & strings.MinRunes(2) | fn.#StringExpression
-	RepositoryPolicyText?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	RepositoryPolicyText?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EmptyOnDelete": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/EmptyOnDelete": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 	EncryptionType!: _#defs."/$defs/Properties/definitions/EncryptionType" | fn.#StringExpression
@@ -85,7 +89,14 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/RegistryId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ScanOnPush": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/ScanOnPush": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression

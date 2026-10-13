@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,16 +19,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::Wisdom::KnowledgeBase Resource Type
 #Properties: close({
 	Description?:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-	KnowledgeBaseType!: _#defs."/$defs/Properties/definitions/KnowledgeBaseType" | fn.#StringExpression
+	KnowledgeBaseType!: _#defs."/$defs/Properties/definitions/KnowledgeBaseType"
 	Name!:              strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-	RenderingConfiguration?: _#defs."/$defs/Properties/definitions/RenderingConfiguration" | fn.#ObjectExpression
-	ServerSideEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionConfiguration" |
-		fn.#ObjectExpression
-	SourceConfiguration?: _#defs."/$defs/Properties/definitions/SourceConfiguration" | fn.#ValueExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	VectorIngestionConfiguration?: _#defs."/$defs/Properties/definitions/VectorIngestionConfiguration" |
-		fn.#ObjectExpression
+	RenderingConfiguration?:            _#defs."/$defs/Properties/definitions/RenderingConfiguration"
+	ServerSideEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionConfiguration"
+	SourceConfiguration?:               _#defs."/$defs/Properties/definitions/SourceConfiguration"
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VectorIngestionConfiguration?: _#defs."/$defs/Properties/definitions/VectorIngestionConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/AppIntegrationsConfiguration": close({
@@ -50,23 +51,97 @@ _#defs: "/$defs/Properties/definitions/BedrockFoundationModelConfiguration": clo
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FixedSizeChunkingConfiguration": close({
-	MaxTokens!:         >=1 | fn.#NumberExpression
-	OverlapPercentage!: <=99 & >=1 | fn.#NumberExpression
+	MaxTokens!: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	OverlapPercentage!: <=99 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=99 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HierarchicalChunkingConfiguration": close({
 	LevelConfigurations!: list.MaxItems(2) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/HierarchicalChunkingLevelConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/HierarchicalChunkingLevelConfiguration"
 	] |
 		fn.#ListExpression
-	OverlapTokens!: >=1 | fn.#NumberExpression
+	OverlapTokens!: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HierarchicalChunkingLevelConfiguration": close(
-	{MaxTokens!: <=8192 & >=1 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/HierarchicalChunkingLevelConfiguration": close({
+	MaxTokens!: <=8192 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=8192 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KnowledgeBaseType": "EXTERNAL" |
@@ -77,7 +152,7 @@ _#defs: "/$defs/Properties/definitions/KnowledgeBaseType": "EXTERNAL" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ManagedSourceConfiguration": close(
-	{WebCrawlerConfiguration!: _#defs."/$defs/Properties/definitions/WebCrawlerConfiguration" | fn.#ObjectExpression},
+	{WebCrawlerConfiguration!: _#defs."/$defs/Properties/definitions/WebCrawlerConfiguration"},
 ) |
 	fn.#ValueExpression
 
@@ -90,22 +165,80 @@ _#defs: "/$defs/Properties/definitions/SeedUrl": close({Url?: =~"^https?://[A-Za
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SemanticChunkingConfiguration": close({
-	BreakpointPercentileThreshold!: <=99 & >=50 | fn.#NumberExpression
-	BufferSize!:                    <=1 & >=0 | fn.#NumberExpression
-	MaxTokens!:                     >=1 | fn.#NumberExpression
+	BreakpointPercentileThreshold!: <=99 & >=50 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=99 &
+							>=50,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	BufferSize!: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxTokens!: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close(
-	{KmsKeyId?: (string | string | string) & (strings.MaxRunes(4096) & strings.MinRunes(1)) | fn.#StringExpression},
-) |
+_#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close({
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & (strings.MaxRunes(4096) & strings.MinRunes(1)) |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SourceConfiguration": matchN(1, [close(
-	{AppIntegrations!: _#defs."/$defs/Properties/definitions/AppIntegrationsConfiguration" | fn.#ObjectExpression},
-), close({
-	ManagedSourceConfiguration!: _#defs."/$defs/Properties/definitions/ManagedSourceConfiguration" | fn.#ValueExpression
-})]) |
+	{AppIntegrations!: _#defs."/$defs/Properties/definitions/AppIntegrationsConfiguration"},
+), close(
+	{ManagedSourceConfiguration!: _#defs."/$defs/Properties/definitions/ManagedSourceConfiguration"},
+)]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
@@ -115,7 +248,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UrlFilterList": list.MaxItems(25) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/UrlFilterPattern" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/UrlFilterPattern"
 ] |
 	fn.#ListExpression
 
@@ -124,33 +257,49 @@ fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/VectorIngestionConfiguration": close({
 	ChunkingConfiguration?: close({
-		ChunkingStrategy!: "FIXED_SIZE" | "NONE" | "HIERARCHICAL" | "SEMANTIC" | fn.#StringExpression
-		FixedSizeChunkingConfiguration?: _#defs."/$defs/Properties/definitions/FixedSizeChunkingConfiguration" |
-			fn.#ObjectExpression
-		HierarchicalChunkingConfiguration?: _#defs."/$defs/Properties/definitions/HierarchicalChunkingConfiguration" |
-			fn.#ObjectExpression
-		SemanticChunkingConfiguration?: _#defs."/$defs/Properties/definitions/SemanticChunkingConfiguration" |
-			fn.#ObjectExpression
+		ChunkingStrategy!:                  "FIXED_SIZE" | "NONE" | "HIERARCHICAL" | "SEMANTIC" | fn.#StringExpression
+		FixedSizeChunkingConfiguration?:    _#defs."/$defs/Properties/definitions/FixedSizeChunkingConfiguration"
+		HierarchicalChunkingConfiguration?: _#defs."/$defs/Properties/definitions/HierarchicalChunkingConfiguration"
+		SemanticChunkingConfiguration?:     _#defs."/$defs/Properties/definitions/SemanticChunkingConfiguration"
 	}) |
 	fn.#ObjectExpression
 	ParsingConfiguration?: close({
-		BedrockFoundationModelConfiguration?: _#defs."/$defs/Properties/definitions/BedrockFoundationModelConfiguration" |
-			fn.#ObjectExpression
-		ParsingStrategy!: "BEDROCK_FOUNDATION_MODEL" | fn.#StringExpression
+		BedrockFoundationModelConfiguration?: _#defs."/$defs/Properties/definitions/BedrockFoundationModelConfiguration"
+		ParsingStrategy!:                     "BEDROCK_FOUNDATION_MODEL" | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WebCrawlerConfiguration": close({
-	CrawlerLimits?:    close({RateLimit?: <=3000 & >=1 | fn.#NumberExpression}) | fn.#ObjectExpression
-	ExclusionFilters?: _#defs."/$defs/Properties/definitions/UrlFilterList" | fn.#ListExpression
-	InclusionFilters?: _#defs."/$defs/Properties/definitions/UrlFilterList" | fn.#ListExpression
+	CrawlerLimits?: close({
+		RateLimit?: <=3000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=3000 &
+								>=1,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	}) |
+		fn.#ObjectExpression
+	ExclusionFilters?: _#defs."/$defs/Properties/definitions/UrlFilterList"
+	InclusionFilters?: _#defs."/$defs/Properties/definitions/UrlFilterList"
 	Scope?:            "HOST_ONLY" | "SUBDOMAINS" | fn.#StringExpression
 	UrlConfiguration!: close({
-		SeedUrls?: list.MaxItems(100) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/SeedUrl" | fn.#ObjectExpression
-		] |
+		SeedUrls?: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SeedUrl"] |
 			fn.#ListExpression
 	}) |
 		fn.#ObjectExpression

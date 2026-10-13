@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -23,23 +27,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" |
 	fn.#StringExpression
 	Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
-	SchedulerConfig!: _#defs."/$defs/Properties/definitions/SchedulerConfig" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	SchedulerConfig!: _#defs."/$defs/Properties/definitions/SchedulerConfig"
+	Tags?:            list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/PriorityClass": close({
-	Name!:   =~"^[a-z0-9]([-a-z0-9]*[a-z0-9]){0,39}?$" | fn.#StringExpression
-	Weight!: int & <=100 & >=0 | fn.#NumberExpression
+	Name!: =~"^[a-z0-9]([-a-z0-9]*[a-z0-9]){0,39}?$" | fn.#StringExpression
+	Weight!: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SchedulerConfig": close({
 	FairShare?:           "Enabled" | "Disabled" | fn.#StringExpression
 	IdleResourceSharing?: "Enabled" | "Disabled" | fn.#StringExpression
-	PriorityClasses?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PriorityClass" | fn.#ObjectExpression
-	] |
+	PriorityClasses?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/PriorityClass"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression

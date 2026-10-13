@@ -31,7 +31,8 @@ import (
 	DryRunAndUpdate?: bool
 
 	// Lambda Execution role used to run your canaries
-	ExecutionRoleArn!: strings.MaxRunes(2048) &
+	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
@@ -43,7 +44,8 @@ import (
 
 	// KMS key ARN for encrypting the canary's Lambda function environment variables
 	// at rest. If omitted, Lambda uses an AWS-managed key.
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-z0-9-]+:kms:[a-z0-9-]+:[0-9]{12}:(key/([a-f0-9-]{36}|mrk-[a-f0-9]{32})|alias/[a-zA-Z0-9:/_.-]+)$"
 
@@ -111,31 +113,31 @@ _#defs: "/$defs/Properties/definitions/BrowserConfig": close(
 
 _#defs: "/$defs/Properties/definitions/BrowserType": "CHROME" | "FIREFOX"
 
-_#defs: "/$defs/Properties/definitions/Code": ({
+_#defs: "/$defs/Properties/definitions/Code": matchN(>=1, [{
 	Handler!:  _
 	S3Bucket!: _
 	S3Key!:    _
 	...
-} | {
+}, {
 	BlueprintTypes!: _
 	S3Bucket!:       _
 	S3Key!:          _
 	...
-} | {
+}, {
 	Handler!: _
 	Script!:  _
 	...
-} | {
+}, {
 	BlueprintTypes!: _
 	Script!:         _
 	...
-} | {
+}, {
 	Handler!: _
 	...
-} | {
+}, {
 	BlueprintTypes!: _
 	...
-}) & close({
+}]) & close({
 	BlueprintTypes?: list.MaxItems(1) & [...] & [
 		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_\\-\\.]+$"
 	]
@@ -168,7 +170,7 @@ _#defs: "/$defs/Properties/definitions/Replica": close({
 	CanaryState?: string
 
 	// ARN of the KMS key used to encrypt the replica canary's Lambda function environment variables
-	KmsKeyArn?:
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		=~"^arn:[a-z0-9-]+:kms:[a-z0-9-]+:[0-9]{12}:(key/([a-f0-9-]{36}|mrk-[a-f0-9]{32})|alias/[a-zA-Z0-9:/_.-]+)$"
 
 	// Last modified timestamp of the replica
@@ -229,7 +231,8 @@ _#defs: "/$defs/Properties/definitions/S3Encryption": close({
 
 	// KMS key Arn for encrypting artifacts when uploading to S3. You must specify
 	// KMS key Arn for SSE_KMS encryption mode only.
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z-]*)?:kms:[a-z]{2,4}(-[a-z]{2,4})?-[a-z]+-\\d{1}:\\d{12}:key/[\\w\\-\\/]+$"
 })
@@ -261,9 +264,9 @@ _#defs: "/$defs/Properties/definitions/VPCConfig": close({
 	// Allow outbound IPv6 traffic on VPC canaries that are connected to dual-stack
 	// subnets if set to true
 	Ipv6AllowedForDualStack?: bool
-	SecurityGroupIds!:        list.MaxItems(5) & [...] & [...string]
+	SecurityGroupIds!:        list.MaxItems(5) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SubnetIds!:               list.MaxItems(16) & [...] & [...string]
-	VpcId?:                   string
+	VpcId?:                   =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/VisualReference": close({

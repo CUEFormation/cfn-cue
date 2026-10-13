@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,65 +22,65 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	FilterAction!:   _#defs."/$defs/Properties/definitions/FilterAction" | fn.#StringExpression
 	FilterCriteria!: _#defs."/$defs/Properties/definitions/FilterCriteria" | fn.#ObjectExpression
 	Name!:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:           _#defs."/$defs/Properties/definitions/FilterTagMap" | fn.#ObjectExpression
+	Tags?:           _#defs."/$defs/Properties/definitions/FilterTagMap"
 })
 
 _#defs: "/$defs/Properties/definitions/DateFilter": close({
-	EndInclusive?:   _#defs."/$defs/Properties/definitions/Timestamp" | fn.#NumberExpression
-	StartInclusive?: _#defs."/$defs/Properties/definitions/Timestamp" | fn.#NumberExpression
+	EndInclusive?:   _#defs."/$defs/Properties/definitions/Timestamp"
+	StartInclusive?: _#defs."/$defs/Properties/definitions/Timestamp"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DateFilterList": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/DateFilter" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/DateFilter"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/FilterAction": "NONE" | "SUPPRESS" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/FilterCriteria": close({
-	AwsAccountId?:                   _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	CodeVulnerabilityDetectorName?:  _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	CodeVulnerabilityDetectorTags?:  _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	CodeVulnerabilityFilePath?:      _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	ComponentId?:                    _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	ComponentType?:                  _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	Ec2InstanceImageId?:             _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	Ec2InstanceSubnetId?:            _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	Ec2InstanceVpcId?:               _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	EcrImageArchitecture?:           _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	EcrImageHash?:                   _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	EcrImagePushedAt?:               _#defs."/$defs/Properties/definitions/DateFilterList" | fn.#ListExpression
-	EcrImageRegistry?:               _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	EcrImageRepositoryName?:         _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	EcrImageTags?:                   _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	EpssScore?:                      _#defs."/$defs/Properties/definitions/NumberFilterList" | fn.#ListExpression
-	ExploitAvailable?:               _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	FindingArn?:                     _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	FindingStatus?:                  _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	FindingType?:                    _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	FirstObservedAt?:                _#defs."/$defs/Properties/definitions/DateFilterList" | fn.#ListExpression
-	FixAvailable?:                   _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	InspectorScore?:                 _#defs."/$defs/Properties/definitions/NumberFilterList" | fn.#ListExpression
-	LambdaFunctionExecutionRoleArn?: _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	LambdaFunctionLastModifiedAt?:   _#defs."/$defs/Properties/definitions/DateFilterList" | fn.#ListExpression
-	LambdaFunctionLayers?:           _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	LambdaFunctionName?:             _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	LambdaFunctionRuntime?:          _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	LastObservedAt?:                 _#defs."/$defs/Properties/definitions/DateFilterList" | fn.#ListExpression
-	NetworkProtocol?:                _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	PortRange?:                      _#defs."/$defs/Properties/definitions/PortRangeFilterList" | fn.#ListExpression
-	RelatedVulnerabilities?:         _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	ResourceId?:                     _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	ResourceTags?:                   _#defs."/$defs/Properties/definitions/MapFilterList" | fn.#ListExpression
-	ResourceType?:                   _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	Severity?:                       _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	Title?:                          _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	UpdatedAt?:                      _#defs."/$defs/Properties/definitions/DateFilterList" | fn.#ListExpression
-	VendorSeverity?:                 _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	VulnerabilityId?:                _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	VulnerabilitySource?:            _#defs."/$defs/Properties/definitions/StringFilterList" | fn.#ListExpression
-	VulnerablePackages?:             _#defs."/$defs/Properties/definitions/PackageFilterList" | fn.#ListExpression
+	AwsAccountId?:                   _#defs."/$defs/Properties/definitions/StringFilterList"
+	CodeVulnerabilityDetectorName?:  _#defs."/$defs/Properties/definitions/StringFilterList"
+	CodeVulnerabilityDetectorTags?:  _#defs."/$defs/Properties/definitions/StringFilterList"
+	CodeVulnerabilityFilePath?:      _#defs."/$defs/Properties/definitions/StringFilterList"
+	ComponentId?:                    _#defs."/$defs/Properties/definitions/StringFilterList"
+	ComponentType?:                  _#defs."/$defs/Properties/definitions/StringFilterList"
+	Ec2InstanceImageId?:             _#defs."/$defs/Properties/definitions/StringFilterList"
+	Ec2InstanceSubnetId?:            _#defs."/$defs/Properties/definitions/StringFilterList"
+	Ec2InstanceVpcId?:               _#defs."/$defs/Properties/definitions/StringFilterList"
+	EcrImageArchitecture?:           _#defs."/$defs/Properties/definitions/StringFilterList"
+	EcrImageHash?:                   _#defs."/$defs/Properties/definitions/StringFilterList"
+	EcrImagePushedAt?:               _#defs."/$defs/Properties/definitions/DateFilterList"
+	EcrImageRegistry?:               _#defs."/$defs/Properties/definitions/StringFilterList"
+	EcrImageRepositoryName?:         _#defs."/$defs/Properties/definitions/StringFilterList"
+	EcrImageTags?:                   _#defs."/$defs/Properties/definitions/StringFilterList"
+	EpssScore?:                      _#defs."/$defs/Properties/definitions/NumberFilterList"
+	ExploitAvailable?:               _#defs."/$defs/Properties/definitions/StringFilterList"
+	FindingArn?:                     _#defs."/$defs/Properties/definitions/StringFilterList"
+	FindingStatus?:                  _#defs."/$defs/Properties/definitions/StringFilterList"
+	FindingType?:                    _#defs."/$defs/Properties/definitions/StringFilterList"
+	FirstObservedAt?:                _#defs."/$defs/Properties/definitions/DateFilterList"
+	FixAvailable?:                   _#defs."/$defs/Properties/definitions/StringFilterList"
+	InspectorScore?:                 _#defs."/$defs/Properties/definitions/NumberFilterList"
+	LambdaFunctionExecutionRoleArn?: _#defs."/$defs/Properties/definitions/StringFilterList"
+	LambdaFunctionLastModifiedAt?:   _#defs."/$defs/Properties/definitions/DateFilterList"
+	LambdaFunctionLayers?:           _#defs."/$defs/Properties/definitions/StringFilterList"
+	LambdaFunctionName?:             _#defs."/$defs/Properties/definitions/StringFilterList"
+	LambdaFunctionRuntime?:          _#defs."/$defs/Properties/definitions/StringFilterList"
+	LastObservedAt?:                 _#defs."/$defs/Properties/definitions/DateFilterList"
+	NetworkProtocol?:                _#defs."/$defs/Properties/definitions/StringFilterList"
+	PortRange?:                      _#defs."/$defs/Properties/definitions/PortRangeFilterList"
+	RelatedVulnerabilities?:         _#defs."/$defs/Properties/definitions/StringFilterList"
+	ResourceId?:                     _#defs."/$defs/Properties/definitions/StringFilterList"
+	ResourceTags?:                   _#defs."/$defs/Properties/definitions/MapFilterList"
+	ResourceType?:                   _#defs."/$defs/Properties/definitions/StringFilterList"
+	Severity?:                       _#defs."/$defs/Properties/definitions/StringFilterList"
+	Title?:                          _#defs."/$defs/Properties/definitions/StringFilterList"
+	UpdatedAt?:                      _#defs."/$defs/Properties/definitions/DateFilterList"
+	VendorSeverity?:                 _#defs."/$defs/Properties/definitions/StringFilterList"
+	VulnerabilityId?:                _#defs."/$defs/Properties/definitions/StringFilterList"
+	VulnerabilitySource?:            _#defs."/$defs/Properties/definitions/StringFilterList"
+	VulnerablePackages?:             _#defs."/$defs/Properties/definitions/PackageFilterList"
 }) |
 fn.#ObjectExpression
 
@@ -88,14 +92,14 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/MapComparison": "EQUALS" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/MapFilter": close({
-	Comparison!: _#defs."/$defs/Properties/definitions/MapComparison" | fn.#StringExpression
-	Key?:        _#defs."/$defs/Properties/definitions/MapKey" | fn.#StringExpression
-	Value?:      _#defs."/$defs/Properties/definitions/MapValue" | fn.#StringExpression
+	Comparison!: _#defs."/$defs/Properties/definitions/MapComparison"
+	Key?:        _#defs."/$defs/Properties/definitions/MapKey"
+	Value?:      _#defs."/$defs/Properties/definitions/MapValue"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MapFilterList": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/MapFilter" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/MapFilter"
 ] |
 	fn.#ListExpression
 
@@ -104,62 +108,132 @@ _#defs: "/$defs/Properties/definitions/MapKey": strings.MaxRunes(128) & strings.
 _#defs: "/$defs/Properties/definitions/MapValue": strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/NumberFilter": close({
-	LowerInclusive?: number | fn.#NumberExpression
-	UpperInclusive?: number | fn.#NumberExpression
+	LowerInclusive?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UpperInclusive?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NumberFilterList": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/NumberFilter" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/NumberFilter"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/PackageFilter": close({
-	Architecture?:         _#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	Epoch?:                _#defs."/$defs/Properties/definitions/NumberFilter" | fn.#ObjectExpression
-	FilePath?:             _#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	Name?:                 _#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	Release?:              _#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	SourceLambdaLayerArn?: _#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	SourceLayerHash?:      _#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
-	Version?:              _#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+	Architecture?:         _#defs."/$defs/Properties/definitions/StringFilter"
+	Epoch?:                _#defs."/$defs/Properties/definitions/NumberFilter"
+	FilePath?:             _#defs."/$defs/Properties/definitions/StringFilter"
+	Name?:                 _#defs."/$defs/Properties/definitions/StringFilter"
+	Release?:              _#defs."/$defs/Properties/definitions/StringFilter"
+	SourceLambdaLayerArn?: _#defs."/$defs/Properties/definitions/StringFilter"
+	SourceLayerHash?:      _#defs."/$defs/Properties/definitions/StringFilter"
+	Version?:              _#defs."/$defs/Properties/definitions/StringFilter"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PackageFilterList": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/PackageFilter" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/PackageFilter"
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=65535 &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/PortRangeFilter": close({
-	BeginInclusive?: _#defs."/$defs/Properties/definitions/Port" | fn.#NumberExpression
-	EndInclusive?:   _#defs."/$defs/Properties/definitions/Port" | fn.#NumberExpression
+	BeginInclusive?: _#defs."/$defs/Properties/definitions/Port"
+	EndInclusive?:   _#defs."/$defs/Properties/definitions/Port"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PortRangeFilterList": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/PortRangeFilter" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/PortRangeFilter"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/StringComparison": "EQUALS" | "PREFIX" | "NOT_EQUALS" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/StringFilter": close({
-	Comparison!: _#defs."/$defs/Properties/definitions/StringComparison" | fn.#StringExpression
-	Value!:      _#defs."/$defs/Properties/definitions/StringInput" | fn.#StringExpression
+	Comparison!: _#defs."/$defs/Properties/definitions/StringComparison"
+	Value!:      _#defs."/$defs/Properties/definitions/StringInput"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StringFilterList": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/StringFilter" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/StringFilter" &
+	(null |
+	bool |
+	number |
+	=~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+	[...] |
+	{...}) |
+	fn.#ObjectExpression
 ] |
-	fn.#ListExpression
+fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/StringInput": strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Timestamp": int | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Timestamp": int |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::InspectorV2::Filter"
 	Properties!: #Properties

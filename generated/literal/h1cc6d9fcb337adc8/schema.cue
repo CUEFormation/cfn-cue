@@ -19,7 +19,8 @@ import (
 	IdMappingTableIdentifier?: _#defs."/$defs/Properties/definitions/UUID"
 	InputReferenceConfig!:     _#defs."/$defs/Properties/definitions/IdMappingTableInputReferenceConfig"
 	InputReferenceProperties?: _#defs."/$defs/Properties/definitions/IdMappingTableInputReferenceProperties"
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(4) &
 	=~"^arn:aws:kms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:key/[a-zA-Z0-9-]+$"
 	MembershipArn?:        strings.MaxRunes(100)

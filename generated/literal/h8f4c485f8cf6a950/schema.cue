@@ -103,7 +103,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 _#defs: "/$defs/Properties/definitions/WorkforceVpcConfigRequest": close({
 	// The VPC security group IDs.
 	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(0) & =~"^sg-[0-9a-z]*$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"^sg-[0-9a-z]*$"
 	]
 
 	// The VPC subnets.
@@ -112,5 +115,8 @@ _#defs: "/$defs/Properties/definitions/WorkforceVpcConfigRequest": close({
 	]
 
 	// The ID of the VPC.
-	VpcId?: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^vpc-[0-9a-z]*$"
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"^vpc-[0-9a-z]*$"
 })

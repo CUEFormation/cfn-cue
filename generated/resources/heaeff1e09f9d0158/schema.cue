@@ -4,21 +4,51 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for for AWS::EC2::TrafficMirrorFilterRule
 #Properties: close({
-	Description?:           string | fn.#StringExpression
-	DestinationCidrBlock!:  string | fn.#StringExpression
-	DestinationPortRange?:  _#defs."/$defs/Properties/definitions/TrafficMirrorPortRange" | fn.#ObjectExpression
-	Protocol?:              int | fn.#NumberExpression
-	RuleAction!:            _#defs."/$defs/Properties/definitions/TrafficMirrorRuleAction" | fn.#StringExpression
-	RuleNumber!:            int | fn.#NumberExpression
+	Description?:          string | fn.#StringExpression
+	DestinationCidrBlock!: string | fn.#StringExpression
+	DestinationPortRange?: _#defs."/$defs/Properties/definitions/TrafficMirrorPortRange" | fn.#ObjectExpression
+	Protocol?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RuleAction!: _#defs."/$defs/Properties/definitions/TrafficMirrorRuleAction" | fn.#StringExpression
+	RuleNumber!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SourceCidrBlock!:       string | fn.#StringExpression
 	SourcePortRange?:       _#defs."/$defs/Properties/definitions/TrafficMirrorPortRange" | fn.#ObjectExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TrafficDirection!:      _#defs."/$defs/Properties/definitions/TrafficDirection" | fn.#StringExpression
 	TrafficMirrorFilterId!: string | fn.#StringExpression
 })
@@ -32,8 +62,34 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/TrafficDirection": =~"(?i)^(?:egress|ingress)$" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TrafficMirrorPortRange": close({
-	FromPort!: int | fn.#NumberExpression
-	ToPort!:   int | fn.#NumberExpression
+	FromPort!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ToPort!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

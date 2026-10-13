@@ -29,7 +29,10 @@ import (
 	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
 	TransitGatewayAttachmentId?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^tgw-attach-[0-9a-z]+$"
 	TransitGatewayId?:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"^tgw-[0-9a-z]+$"
-	VpcId?:                      strings.MaxRunes(128) & strings.MinRunes(1) & =~"^vpc-[0-9a-f]+$"
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) &
+	=~"^vpc-[0-9a-f]+$"
 })
 
 _#defs: "/$defs/Properties/definitions/AvailabilityZoneMapping": close({

@@ -8,40 +8,83 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EC2::IPAMPool Type
 #Properties: close({
-	AddressFamily!:                  =~"(?i)^(?:ipv4|ipv6)$" | fn.#StringExpression
-	AllocationDefaultNetmaskLength?: int & <=128 & >=0 | fn.#NumberExpression
-	AllocationMaxNetmaskLength?:     int & <=128 & >=0 | fn.#NumberExpression
-	AllocationMinNetmaskLength?:     int & <=128 & >=0 | fn.#NumberExpression
-	AllocationResourceTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	AutoImport?:  bool | fn.#BooleanExpression
-	AwsService?:  =~"(?i)^(?:ec2|global-services)$" | fn.#StringExpression
-	Description?: string | fn.#StringExpression
-	IpamScopeId!: string | fn.#StringExpression
-	Locale?:      string | fn.#StringExpression
-	ProvisionedCidrs?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ProvisionedCidr" | fn.#ObjectExpression
-	] |
+	AddressFamily!: =~"(?i)^(?:ipv4|ipv6)$" | fn.#StringExpression
+	AllocationDefaultNetmaskLength?: int & <=128 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=128 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	AllocationMaxNetmaskLength?: int & <=128 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=128 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	AllocationMinNetmaskLength?: int & <=128 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=128 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	AllocationResourceTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	AutoImport?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AwsService?:             =~"(?i)^(?:ec2|global-services)$" | fn.#StringExpression
+	Description?:            string | fn.#StringExpression
+	IpamScopeId!:            string | fn.#StringExpression
+	Locale?:                 string | fn.#StringExpression
+	ProvisionedCidrs?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ProvisionedCidr"] |
 		fn.#ListExpression
 	PublicIpSource?:       =~"(?i)^(?:amazon|byoip)$" | fn.#StringExpression
-	PubliclyAdvertisable?: bool | fn.#BooleanExpression
+	PubliclyAdvertisable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SourceIpamPoolId?:     string | fn.#StringExpression
-	SourceResource?:       _#defs."/$defs/Properties/definitions/SourceResource" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	SourceResource?:       _#defs."/$defs/Properties/definitions/SourceResource"
+	Tags?:                 list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Cidr": string | string | fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/Cidr": string & string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisionedCidr": close(
-	{Cidr!: _#defs."/$defs/Properties/definitions/Cidr" | fn.#StringExpression},
-) |
+_#defs: "/$defs/Properties/definitions/ProvisionedCidr": close({Cidr!: _#defs."/$defs/Properties/definitions/Cidr"}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SourceResource": close({

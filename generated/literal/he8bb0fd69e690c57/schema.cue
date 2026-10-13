@@ -85,7 +85,7 @@ _#defs: "/$defs/Properties/definitions/Unit": close({})
 // including the security group IDs and subnet ID.
 _#defs: "/$defs/Properties/definitions/VpcRouterNetworkInterfaceConfiguration": close({
 	// The IDs of the security groups to associate with the router network interface within the VPC.
-	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [...string]
+	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// The ID of the subnet within the VPC to associate the router network interface with.
 	SubnetId!: string

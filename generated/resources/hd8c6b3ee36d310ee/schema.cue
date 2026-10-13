@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,8 +13,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Connect::ApprovedOrigin
 #Properties: close({
-	InstanceId!: _#defs."/$defs/Properties/definitions/InstanceId" | fn.#StringExpression
-	Origin!:     _#defs."/$defs/Properties/definitions/Origin" | fn.#StringExpression
+	InstanceId!: _#defs."/$defs/Properties/definitions/InstanceId"
+	Origin!:     _#defs."/$defs/Properties/definitions/Origin"
 })
 
 _#defs: "/$defs/Properties/definitions/InstanceId": strings.MaxRunes(100) &

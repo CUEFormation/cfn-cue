@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,7 +23,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ConnectorProfileConfig?: _#defs."/$defs/Properties/definitions/ConnectorProfileConfig" | fn.#ObjectExpression
 	ConnectorProfileName!:   strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+" | fn.#StringExpression
 	ConnectorType!:          _#defs."/$defs/Properties/definitions/ConnectorType" | fn.#StringExpression
-	KMSArn?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:aws:kms:.*:[0-9]+:.*" | fn.#StringExpression
+	KMSArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"arn:aws:kms:.*:[0-9]+:.*" |
+	fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccessKeyId": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
@@ -33,7 +41,7 @@ fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AmplitudeConnectorProfileCredentials": {
 	ApiKey!:    _#defs."/$defs/Properties/definitions/ApiKey" | fn.#StringExpression
-	SecretKey!: _#defs."/$defs/Properties/definitions/SecretKey" | fn.#StringExpression
+	SecretKey!: _#defs."/$defs/Properties/definitions/SecretKey"
 	...
 } | fn.#ObjectExpression
 
@@ -41,8 +49,8 @@ _#defs: "/$defs/Properties/definitions/ApiKey": strings.MaxRunes(256) & strings.
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ApiKeyCredentials": close({
-	ApiKey!:       _#defs."/$defs/Properties/definitions/ApiKey" | fn.#StringExpression
-	ApiSecretKey?: _#defs."/$defs/Properties/definitions/ApiSecretKey" | fn.#StringExpression
+	ApiKey!:       _#defs."/$defs/Properties/definitions/ApiKey"
+	ApiSecretKey?: _#defs."/$defs/Properties/definitions/ApiSecretKey"
 }) |
 fn.#ObjectExpression
 
@@ -72,8 +80,8 @@ _#defs: "/$defs/Properties/definitions/AuthenticationType": "OAUTH2" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/BasicAuthCredentials": close({
-	Password!: _#defs."/$defs/Properties/definitions/Password" | fn.#StringExpression
-	Username!: _#defs."/$defs/Properties/definitions/Username" | fn.#StringExpression
+	Password!: _#defs."/$defs/Properties/definitions/Password"
+	Username!: _#defs."/$defs/Properties/definitions/Username"
 }) |
 fn.#ObjectExpression
 
@@ -109,51 +117,48 @@ _#defs: "/$defs/Properties/definitions/ConnectorOAuthRequest": {
 } | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConnectorProfileConfig": {
-	ConnectorProfileCredentials?: _#defs."/$defs/Properties/definitions/ConnectorProfileCredentials" |
-		fn.#ObjectExpression
-	ConnectorProfileProperties?: _#defs."/$defs/Properties/definitions/ConnectorProfileProperties" |
-		fn.#ObjectExpression
+	ConnectorProfileCredentials?: _#defs."/$defs/Properties/definitions/ConnectorProfileCredentials"
+	ConnectorProfileProperties?:  _#defs."/$defs/Properties/definitions/ConnectorProfileProperties"
 	...
 } | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConnectorProfileCredentials": {
-	Amplitude?:       _#defs."/$defs/Properties/definitions/AmplitudeConnectorProfileCredentials" | fn.#ObjectExpression
-	CustomConnector?: _#defs."/$defs/Properties/definitions/CustomConnectorProfileCredentials" | fn.#ObjectExpression
-	Datadog?:         _#defs."/$defs/Properties/definitions/DatadogConnectorProfileCredentials" | fn.#ObjectExpression
-	Dynatrace?:       _#defs."/$defs/Properties/definitions/DynatraceConnectorProfileCredentials" | fn.#ObjectExpression
-	GoogleAnalytics?: _#defs."/$defs/Properties/definitions/GoogleAnalyticsConnectorProfileCredentials" |
-		fn.#ObjectExpression
-	InforNexus?: _#defs."/$defs/Properties/definitions/InforNexusConnectorProfileCredentials" | fn.#ObjectExpression
-	Marketo?:    _#defs."/$defs/Properties/definitions/MarketoConnectorProfileCredentials" | fn.#ObjectExpression
-	Pardot?:     _#defs."/$defs/Properties/definitions/PardotConnectorProfileCredentials" | fn.#ObjectExpression
-	Redshift?:   _#defs."/$defs/Properties/definitions/RedshiftConnectorProfileCredentials" | fn.#ObjectExpression
-	SAPOData?:   _#defs."/$defs/Properties/definitions/SAPODataConnectorProfileCredentials" | fn.#ObjectExpression
-	Salesforce?: _#defs."/$defs/Properties/definitions/SalesforceConnectorProfileCredentials" | fn.#ObjectExpression
-	ServiceNow?: _#defs."/$defs/Properties/definitions/ServiceNowConnectorProfileCredentials" | fn.#ObjectExpression
-	Singular?:   _#defs."/$defs/Properties/definitions/SingularConnectorProfileCredentials" | fn.#ObjectExpression
-	Slack?:      _#defs."/$defs/Properties/definitions/SlackConnectorProfileCredentials" | fn.#ObjectExpression
-	Snowflake?:  _#defs."/$defs/Properties/definitions/SnowflakeConnectorProfileCredentials" | fn.#ObjectExpression
-	Trendmicro?: _#defs."/$defs/Properties/definitions/TrendmicroConnectorProfileCredentials" | fn.#ObjectExpression
-	Veeva?:      _#defs."/$defs/Properties/definitions/VeevaConnectorProfileCredentials" | fn.#ObjectExpression
-	Zendesk?:    _#defs."/$defs/Properties/definitions/ZendeskConnectorProfileCredentials" | fn.#ObjectExpression
+	Amplitude?:       _#defs."/$defs/Properties/definitions/AmplitudeConnectorProfileCredentials"
+	CustomConnector?: _#defs."/$defs/Properties/definitions/CustomConnectorProfileCredentials"
+	Datadog?:         _#defs."/$defs/Properties/definitions/DatadogConnectorProfileCredentials"
+	Dynatrace?:       _#defs."/$defs/Properties/definitions/DynatraceConnectorProfileCredentials"
+	GoogleAnalytics?: _#defs."/$defs/Properties/definitions/GoogleAnalyticsConnectorProfileCredentials"
+	InforNexus?:      _#defs."/$defs/Properties/definitions/InforNexusConnectorProfileCredentials"
+	Marketo?:         _#defs."/$defs/Properties/definitions/MarketoConnectorProfileCredentials"
+	Pardot?:          _#defs."/$defs/Properties/definitions/PardotConnectorProfileCredentials"
+	Redshift?:        _#defs."/$defs/Properties/definitions/RedshiftConnectorProfileCredentials"
+	SAPOData?:        _#defs."/$defs/Properties/definitions/SAPODataConnectorProfileCredentials"
+	Salesforce?:      _#defs."/$defs/Properties/definitions/SalesforceConnectorProfileCredentials"
+	ServiceNow?:      _#defs."/$defs/Properties/definitions/ServiceNowConnectorProfileCredentials"
+	Singular?:        _#defs."/$defs/Properties/definitions/SingularConnectorProfileCredentials"
+	Slack?:           _#defs."/$defs/Properties/definitions/SlackConnectorProfileCredentials"
+	Snowflake?:       _#defs."/$defs/Properties/definitions/SnowflakeConnectorProfileCredentials"
+	Trendmicro?:      _#defs."/$defs/Properties/definitions/TrendmicroConnectorProfileCredentials"
+	Veeva?:           _#defs."/$defs/Properties/definitions/VeevaConnectorProfileCredentials"
+	Zendesk?:         _#defs."/$defs/Properties/definitions/ZendeskConnectorProfileCredentials"
 	...
 } | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConnectorProfileProperties": {
-	CustomConnector?: _#defs."/$defs/Properties/definitions/CustomConnectorProfileProperties" | fn.#ObjectExpression
-	Datadog?:         _#defs."/$defs/Properties/definitions/DatadogConnectorProfileProperties" | fn.#ObjectExpression
-	Dynatrace?:       _#defs."/$defs/Properties/definitions/DynatraceConnectorProfileProperties" | fn.#ObjectExpression
-	InforNexus?:      _#defs."/$defs/Properties/definitions/InforNexusConnectorProfileProperties" | fn.#ObjectExpression
-	Marketo?:         _#defs."/$defs/Properties/definitions/MarketoConnectorProfileProperties" | fn.#ObjectExpression
-	Pardot?:          _#defs."/$defs/Properties/definitions/PardotConnectorProfileProperties" | fn.#ObjectExpression
-	Redshift?:        _#defs."/$defs/Properties/definitions/RedshiftConnectorProfileProperties" | fn.#ObjectExpression
-	SAPOData?:        _#defs."/$defs/Properties/definitions/SAPODataConnectorProfileProperties" | fn.#ObjectExpression
-	Salesforce?:      _#defs."/$defs/Properties/definitions/SalesforceConnectorProfileProperties" | fn.#ObjectExpression
-	ServiceNow?:      _#defs."/$defs/Properties/definitions/ServiceNowConnectorProfileProperties" | fn.#ObjectExpression
-	Slack?:           _#defs."/$defs/Properties/definitions/SlackConnectorProfileProperties" | fn.#ObjectExpression
-	Snowflake?:       _#defs."/$defs/Properties/definitions/SnowflakeConnectorProfileProperties" | fn.#ObjectExpression
-	Veeva?:           _#defs."/$defs/Properties/definitions/VeevaConnectorProfileProperties" | fn.#ObjectExpression
-	Zendesk?:         _#defs."/$defs/Properties/definitions/ZendeskConnectorProfileProperties" | fn.#ObjectExpression
+	CustomConnector?: _#defs."/$defs/Properties/definitions/CustomConnectorProfileProperties"
+	Datadog?:         _#defs."/$defs/Properties/definitions/DatadogConnectorProfileProperties"
+	Dynatrace?:       _#defs."/$defs/Properties/definitions/DynatraceConnectorProfileProperties"
+	InforNexus?:      _#defs."/$defs/Properties/definitions/InforNexusConnectorProfileProperties"
+	Marketo?:         _#defs."/$defs/Properties/definitions/MarketoConnectorProfileProperties"
+	Pardot?:          _#defs."/$defs/Properties/definitions/PardotConnectorProfileProperties"
+	Redshift?:        _#defs."/$defs/Properties/definitions/RedshiftConnectorProfileProperties"
+	SAPOData?:        _#defs."/$defs/Properties/definitions/SAPODataConnectorProfileProperties"
+	Salesforce?:      _#defs."/$defs/Properties/definitions/SalesforceConnectorProfileProperties"
+	ServiceNow?:      _#defs."/$defs/Properties/definitions/ServiceNowConnectorProfileProperties"
+	Slack?:           _#defs."/$defs/Properties/definitions/SlackConnectorProfileProperties"
+	Snowflake?:       _#defs."/$defs/Properties/definitions/SnowflakeConnectorProfileProperties"
+	Veeva?:           _#defs."/$defs/Properties/definitions/VeevaConnectorProfileProperties"
+	Zendesk?:         _#defs."/$defs/Properties/definitions/ZendeskConnectorProfileProperties"
 	...
 } | fn.#ObjectExpression
 
@@ -183,8 +188,8 @@ _#defs: "/$defs/Properties/definitions/CredentialsMap": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomAuthCredentials": close({
-	CredentialsMap?:           _#defs."/$defs/Properties/definitions/CredentialsMap" | fn.#ObjectExpression
-	CustomAuthenticationType!: _#defs."/$defs/Properties/definitions/CustomAuthenticationType" | fn.#StringExpression
+	CredentialsMap?:           _#defs."/$defs/Properties/definitions/CredentialsMap"
+	CustomAuthenticationType!: _#defs."/$defs/Properties/definitions/CustomAuthenticationType"
 }) |
 fn.#ObjectExpression
 
@@ -192,21 +197,22 @@ _#defs: "/$defs/Properties/definitions/CustomAuthenticationType": strings.MaxRun
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CustomConnectorProfileCredentials": close({
-	ApiKey?:             _#defs."/$defs/Properties/definitions/ApiKeyCredentials" | fn.#ObjectExpression
-	AuthenticationType!: _#defs."/$defs/Properties/definitions/AuthenticationType" | fn.#StringExpression
-	Basic?:              _#defs."/$defs/Properties/definitions/BasicAuthCredentials" | fn.#ObjectExpression
-	Custom?:             _#defs."/$defs/Properties/definitions/CustomAuthCredentials" | fn.#ObjectExpression
-	Oauth2?:             _#defs."/$defs/Properties/definitions/OAuth2Credentials" | fn.#ObjectExpression
+	ApiKey?:             _#defs."/$defs/Properties/definitions/ApiKeyCredentials"
+	AuthenticationType!: _#defs."/$defs/Properties/definitions/AuthenticationType"
+	Basic?:              _#defs."/$defs/Properties/definitions/BasicAuthCredentials"
+	Custom?:             _#defs."/$defs/Properties/definitions/CustomAuthCredentials"
+	Oauth2?:             _#defs."/$defs/Properties/definitions/OAuth2Credentials"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomConnectorProfileProperties": close({
-	OAuth2Properties?:  _#defs."/$defs/Properties/definitions/OAuth2Properties" | fn.#ObjectExpression
-	ProfileProperties?: _#defs."/$defs/Properties/definitions/ProfileProperties" | fn.#ObjectExpression
+	OAuth2Properties?:  _#defs."/$defs/Properties/definitions/OAuth2Properties"
+	ProfileProperties?: _#defs."/$defs/Properties/definitions/ProfileProperties"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataApiRoleArn": strings.MaxRunes(512) &
+_#defs: "/$defs/Properties/definitions/DataApiRoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(512) &
 strings.MinRunes(0) &
 =~"arn:aws:iam:.*:[0-9]+:.*" |
 fn.#StringExpression
@@ -288,11 +294,11 @@ _#defs: "/$defs/Properties/definitions/MarketoConnectorProfileProperties": {
 } | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OAuth2Credentials": close({
-	AccessToken?:  _#defs."/$defs/Properties/definitions/AccessToken" | fn.#StringExpression
-	ClientId?:     _#defs."/$defs/Properties/definitions/ClientId" | fn.#StringExpression
-	ClientSecret?: _#defs."/$defs/Properties/definitions/ClientSecret" | fn.#StringExpression
-	OAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest" | fn.#ObjectExpression
-	RefreshToken?: _#defs."/$defs/Properties/definitions/RefreshToken" | fn.#StringExpression
+	AccessToken?:  _#defs."/$defs/Properties/definitions/AccessToken"
+	ClientId?:     _#defs."/$defs/Properties/definitions/ClientId"
+	ClientSecret?: _#defs."/$defs/Properties/definitions/ClientSecret"
+	OAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest"
+	RefreshToken?: _#defs."/$defs/Properties/definitions/RefreshToken"
 }) |
 fn.#ObjectExpression
 
@@ -302,12 +308,12 @@ _#defs: "/$defs/Properties/definitions/OAuth2GrantType": "CLIENT_CREDENTIALS" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/OAuth2Properties": close({
-	OAuth2GrantType?: _#defs."/$defs/Properties/definitions/OAuth2GrantType" | fn.#StringExpression
+	OAuth2GrantType?: _#defs."/$defs/Properties/definitions/OAuth2GrantType"
 	TokenUrl?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^(https?)://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]" |
 	fn.#StringExpression
-	TokenUrlCustomProperties?: _#defs."/$defs/Properties/definitions/TokenUrlCustomProperties" | fn.#ObjectExpression
+	TokenUrlCustomProperties?: _#defs."/$defs/Properties/definitions/TokenUrlCustomProperties"
 }) |
 fn.#ObjectExpression
 
@@ -338,14 +344,29 @@ _#defs: "/$defs/Properties/definitions/PardotConnectorProfileCredentials": {
 _#defs: "/$defs/Properties/definitions/PardotConnectorProfileProperties": {
 	BusinessUnitId!:       _#defs."/$defs/Properties/definitions/BusinessUnitId" | fn.#StringExpression
 	InstanceUrl?:          _#defs."/$defs/Properties/definitions/InstanceUrl" | fn.#StringExpression
-	IsSandboxEnvironment?: bool | fn.#BooleanExpression
+	IsSandboxEnvironment?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	...
 } | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Password": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PortNumber": int & <=65535 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/PortNumber": int & <=65535 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=65535 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateLinkServiceName": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
 fn.#StringExpression
@@ -368,7 +389,7 @@ _#defs: "/$defs/Properties/definitions/RedshiftConnectorProfileProperties": {
 	DataApiRoleArn?:       _#defs."/$defs/Properties/definitions/DataApiRoleArn" | fn.#StringExpression
 	DatabaseName?:         _#defs."/$defs/Properties/definitions/DatabaseName" | fn.#StringExpression
 	DatabaseUrl?:          _#defs."/$defs/Properties/definitions/DatabaseUrl" | fn.#StringExpression
-	IsRedshiftServerless?: bool | fn.#BooleanExpression
+	IsRedshiftServerless?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RoleArn!:              _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
 	WorkgroupName?:        _#defs."/$defs/Properties/definitions/WorkgroupName" | fn.#StringExpression
 	...
@@ -380,33 +401,34 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/Region": strings.MaxRunes(64) & strings.MinRunes(0) & =~"\\S+" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(512) &
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(512) &
 strings.MinRunes(0) &
 =~"arn:aws:iam:.*:[0-9]+:.*" |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SAPODataConnectorProfileCredentials": {
-	BasicAuthCredentials?: _#defs."/$defs/Properties/definitions/BasicAuthCredentials" | fn.#ObjectExpression
+	BasicAuthCredentials?: _#defs."/$defs/Properties/definitions/BasicAuthCredentials"
 	OAuthCredentials?: {
-		AccessToken?:           _#defs."/$defs/Properties/definitions/AccessToken" | fn.#StringExpression
-		ClientId?:              _#defs."/$defs/Properties/definitions/ClientId" | fn.#StringExpression
-		ClientSecret?:          _#defs."/$defs/Properties/definitions/ClientSecret" | fn.#StringExpression
-		ConnectorOAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest" | fn.#ObjectExpression
-		RefreshToken?:          _#defs."/$defs/Properties/definitions/RefreshToken" | fn.#StringExpression
+		AccessToken?:           _#defs."/$defs/Properties/definitions/AccessToken"
+		ClientId?:              _#defs."/$defs/Properties/definitions/ClientId"
+		ClientSecret?:          _#defs."/$defs/Properties/definitions/ClientSecret"
+		ConnectorOAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest"
+		RefreshToken?:          _#defs."/$defs/Properties/definitions/RefreshToken"
 		...
 	} | fn.#ObjectExpression
 	...
 } | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SAPODataConnectorProfileProperties": {
-	ApplicationHostUrl?:     _#defs."/$defs/Properties/definitions/ApplicationHostUrl" | fn.#StringExpression
-	ApplicationServicePath?: _#defs."/$defs/Properties/definitions/ApplicationServicePath" | fn.#StringExpression
-	ClientNumber?:           _#defs."/$defs/Properties/definitions/ClientNumber" | fn.#StringExpression
-	DisableSSO?:             bool | fn.#BooleanExpression
-	LogonLanguage?:          _#defs."/$defs/Properties/definitions/LogonLanguage" | fn.#StringExpression
-	OAuthProperties?:        _#defs."/$defs/Properties/definitions/OAuthProperties" | fn.#ObjectExpression
-	PortNumber?:             _#defs."/$defs/Properties/definitions/PortNumber" | fn.#NumberExpression
-	PrivateLinkServiceName?: _#defs."/$defs/Properties/definitions/PrivateLinkServiceName" | fn.#StringExpression
+	ApplicationHostUrl?:     _#defs."/$defs/Properties/definitions/ApplicationHostUrl"
+	ApplicationServicePath?: _#defs."/$defs/Properties/definitions/ApplicationServicePath"
+	ClientNumber?:           _#defs."/$defs/Properties/definitions/ClientNumber"
+	DisableSSO?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	LogonLanguage?:          _#defs."/$defs/Properties/definitions/LogonLanguage"
+	OAuthProperties?:        _#defs."/$defs/Properties/definitions/OAuthProperties"
+	PortNumber?:             _#defs."/$defs/Properties/definitions/PortNumber"
+	PrivateLinkServiceName?: _#defs."/$defs/Properties/definitions/PrivateLinkServiceName"
 	...
 } | fn.#ObjectExpression
 
@@ -422,8 +444,15 @@ _#defs: "/$defs/Properties/definitions/SalesforceConnectorProfileCredentials": {
 
 _#defs: "/$defs/Properties/definitions/SalesforceConnectorProfileProperties": {
 	InstanceUrl?:          _#defs."/$defs/Properties/definitions/InstanceUrl" | fn.#StringExpression
-	isSandboxEnvironment?: bool | fn.#BooleanExpression
-	usePrivateLinkForMetadataAndAuthorization?: bool | fn.#BooleanExpression
+	isSandboxEnvironment?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	usePrivateLinkForMetadataAndAuthorization?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 	...
 } | fn.#ObjectExpression
 

@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::ServiceDiscovery::Instance
 #Properties: close({
-	InstanceAttributes!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	InstanceAttributes!: fn.#Object & {...} | string | fn.#StringObjectExpression
 	InstanceId?:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_/:.@-]+$" | fn.#StringExpression
 	ServiceId!:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 })

@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,18 +20,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AcceleratorArn!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 	ClientAffinity?: "NONE" | "SOURCE_IP" | fn.#StringExpression
-	PortRanges!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/PortRange" | fn.#ObjectExpression
-	] |
+	PortRanges!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/PortRange"] |
 		fn.#ListExpression
 	Protocol!: "TCP" | "UDP" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=65535 &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/PortRange": close({
-	FromPort!: _#defs."/$defs/Properties/definitions/Port" | fn.#NumberExpression
-	ToPort!:   _#defs."/$defs/Properties/definitions/Port" | fn.#NumberExpression
+	FromPort!: _#defs."/$defs/Properties/definitions/Port"
+	ToPort!:   _#defs."/$defs/Properties/definitions/Port"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

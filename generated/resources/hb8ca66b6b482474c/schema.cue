@@ -20,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Fields!: struct.MaxFields(2) & struct.MinFields(1) & close({
 
 		{[=~"^.+$"]: list.MaxItems(9) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/RecommenderSchemaField" | fn.#ObjectExpression
+			..._#defs."/$defs/Properties/definitions/RecommenderSchemaField"
 		] |
 			fn.#ListExpression}}) |
 	fn.#ObjectExpression

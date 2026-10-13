@@ -13,12 +13,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::ResourceExplorer2::View Resource Type
 #Properties: close({
-	Filters?: _#defs."/$defs/Properties/definitions/SearchFilter" | fn.#ObjectExpression
-	IncludedProperties?: [..._#defs."/$defs/Properties/definitions/IncludedProperty" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Scope?:    string | fn.#StringExpression
-	Tags?:     _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
-	ViewName!: =~"^[a-zA-Z0-9\\-]{1,64}$" | fn.#StringExpression
+	Filters?:            _#defs."/$defs/Properties/definitions/SearchFilter"
+	IncludedProperties?: [..._#defs."/$defs/Properties/definitions/IncludedProperty"] | fn.#ListExpression
+	Scope?:              string | fn.#StringExpression
+	Tags?:               _#defs."/$defs/Properties/definitions/TagMap"
+	ViewName!:           =~"^[a-zA-Z0-9\\-]{1,64}$" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/IncludedProperty": close(

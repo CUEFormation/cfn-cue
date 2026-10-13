@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,120 +20,112 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // use to create Storage Lens configurations.
 #Properties: close({
 	StorageLensConfiguration!: close({
-		AccountLevel!: _#defs."/$defs/Properties/definitions/AccountLevel" | fn.#ObjectExpression
-		AwsOrg?:       _#defs."/$defs/Properties/definitions/AwsOrg" | fn.#ObjectExpression
-		DataExport?:   _#defs."/$defs/Properties/definitions/DataExport" | fn.#ObjectExpression
-		Exclude?:      _#defs."/$defs/Properties/definitions/BucketsAndRegions" | fn.#ObjectExpression
-		ExpandedPrefixesDataExport?: _#defs."/$defs/Properties/definitions/StorageLensExpandedPrefixesDataExport" |
-			fn.#ObjectExpression
-		Id!:              _#defs."/$defs/Properties/definitions/Id" | fn.#StringExpression
-		Include?:         _#defs."/$defs/Properties/definitions/BucketsAndRegions" | fn.#ObjectExpression
-		IsEnabled!:       bool | fn.#BooleanExpression
+		AccountLevel!:               _#defs."/$defs/Properties/definitions/AccountLevel"
+		AwsOrg?:                     _#defs."/$defs/Properties/definitions/AwsOrg"
+		DataExport?:                 _#defs."/$defs/Properties/definitions/DataExport"
+		Exclude?:                    _#defs."/$defs/Properties/definitions/BucketsAndRegions"
+		ExpandedPrefixesDataExport?: _#defs."/$defs/Properties/definitions/StorageLensExpandedPrefixesDataExport"
+		Id!:                         _#defs."/$defs/Properties/definitions/Id"
+		Include?:                    _#defs."/$defs/Properties/definitions/BucketsAndRegions"
+		IsEnabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		PrefixDelimiter?: string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccountLevel": close({
-	ActivityMetrics?: _#defs."/$defs/Properties/definitions/ActivityMetrics" | fn.#ObjectExpression
-	AdvancedCostOptimizationMetrics?: _#defs."/$defs/Properties/definitions/AdvancedCostOptimizationMetrics" |
-		fn.#ObjectExpression
-	AdvancedDataProtectionMetrics?: _#defs."/$defs/Properties/definitions/AdvancedDataProtectionMetrics" |
-		fn.#ObjectExpression
-	AdvancedPerformanceMetrics?: _#defs."/$defs/Properties/definitions/AdvancedPerformanceMetrics" |
-		fn.#ObjectExpression
-	BucketLevel!: _#defs."/$defs/Properties/definitions/BucketLevel" | fn.#ObjectExpression
-	DetailedStatusCodesMetrics?: _#defs."/$defs/Properties/definitions/DetailedStatusCodesMetrics" |
-		fn.#ObjectExpression
-	StorageLensGroupLevel?: _#defs."/$defs/Properties/definitions/StorageLensGroupLevel" | fn.#ObjectExpression
+	ActivityMetrics?:                 _#defs."/$defs/Properties/definitions/ActivityMetrics"
+	AdvancedCostOptimizationMetrics?: _#defs."/$defs/Properties/definitions/AdvancedCostOptimizationMetrics"
+	AdvancedDataProtectionMetrics?:   _#defs."/$defs/Properties/definitions/AdvancedDataProtectionMetrics"
+	AdvancedPerformanceMetrics?:      _#defs."/$defs/Properties/definitions/AdvancedPerformanceMetrics"
+	BucketLevel!:                     _#defs."/$defs/Properties/definitions/BucketLevel"
+	DetailedStatusCodesMetrics?:      _#defs."/$defs/Properties/definitions/DetailedStatusCodesMetrics"
+	StorageLensGroupLevel?:           _#defs."/$defs/Properties/definitions/StorageLensGroupLevel"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ActivityMetrics": close({IsEnabled?: bool | fn.#BooleanExpression}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/AdvancedCostOptimizationMetrics": close(
-	{IsEnabled?: bool | fn.#BooleanExpression},
+_#defs: "/$defs/Properties/definitions/ActivityMetrics": close(
+	{IsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AdvancedDataProtectionMetrics": close({IsEnabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/AdvancedCostOptimizationMetrics": close(
+	{IsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AdvancedPerformanceMetrics": close({IsEnabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/AdvancedDataProtectionMetrics": close(
+	{IsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
+	fn.#ObjectExpression
+
+_#defs: "/$defs/Properties/definitions/AdvancedPerformanceMetrics": close(
+	{IsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AwsOrg": close(
-	{Arn!: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression},
-) |
+_#defs: "/$defs/Properties/definitions/AwsOrg": close({Arn!: _#defs."/$defs/Properties/definitions/Arn"}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BucketLevel": close({
-	ActivityMetrics?: _#defs."/$defs/Properties/definitions/ActivityMetrics" | fn.#ObjectExpression
-	AdvancedCostOptimizationMetrics?: _#defs."/$defs/Properties/definitions/AdvancedCostOptimizationMetrics" |
-		fn.#ObjectExpression
-	AdvancedDataProtectionMetrics?: _#defs."/$defs/Properties/definitions/AdvancedDataProtectionMetrics" |
-		fn.#ObjectExpression
-	AdvancedPerformanceMetrics?: _#defs."/$defs/Properties/definitions/AdvancedPerformanceMetrics" |
-		fn.#ObjectExpression
-	DetailedStatusCodesMetrics?: _#defs."/$defs/Properties/definitions/DetailedStatusCodesMetrics" |
-		fn.#ObjectExpression
-	PrefixLevel?: _#defs."/$defs/Properties/definitions/PrefixLevel" | fn.#ObjectExpression
+	ActivityMetrics?:                 _#defs."/$defs/Properties/definitions/ActivityMetrics"
+	AdvancedCostOptimizationMetrics?: _#defs."/$defs/Properties/definitions/AdvancedCostOptimizationMetrics"
+	AdvancedDataProtectionMetrics?:   _#defs."/$defs/Properties/definitions/AdvancedDataProtectionMetrics"
+	AdvancedPerformanceMetrics?:      _#defs."/$defs/Properties/definitions/AdvancedPerformanceMetrics"
+	DetailedStatusCodesMetrics?:      _#defs."/$defs/Properties/definitions/DetailedStatusCodesMetrics"
+	PrefixLevel?:                     _#defs."/$defs/Properties/definitions/PrefixLevel"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BucketsAndRegions": close({
-	Buckets?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression] |
-		fn.#ListExpression
+	Buckets?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Arn"] | fn.#ListExpression
 	Regions?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchMetrics": close({IsEnabled!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/CloudWatchMetrics": close(
+	{IsEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataExport": close({
-	CloudWatchMetrics?:   _#defs."/$defs/Properties/definitions/CloudWatchMetrics" | fn.#ObjectExpression
-	S3BucketDestination?: _#defs."/$defs/Properties/definitions/S3BucketDestination" | fn.#ObjectExpression
-	StorageLensTableDestination?: _#defs."/$defs/Properties/definitions/StorageLensTableDestination" |
-		fn.#ObjectExpression
+	CloudWatchMetrics?:           _#defs."/$defs/Properties/definitions/CloudWatchMetrics"
+	S3BucketDestination?:         _#defs."/$defs/Properties/definitions/S3BucketDestination"
+	StorageLensTableDestination?: _#defs."/$defs/Properties/definitions/StorageLensTableDestination"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DetailedStatusCodesMetrics": close({IsEnabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/DetailedStatusCodesMetrics": close(
+	{IsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Encryption": matchN(1, [close(
-	{SSES3!: close({}) | fn.#ObjectExpression},
-), close(
-	{SSEKMS!: _#defs."/$defs/Properties/definitions/SSEKMS" | fn.#ObjectExpression},
-)]) & {[string]: fn.#Value} |
+_#defs: "/$defs/Properties/definitions/Encryption": fn.#Object & {...} & matchN(1, [
+	close({SSES3!: close({}) | fn.#ObjectExpression}), close({SSEKMS!: _#defs."/$defs/Properties/definitions/SSEKMS"}),
+]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_.]+$" |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PrefixLevel": close(
-	{StorageMetrics!: _#defs."/$defs/Properties/definitions/PrefixLevelStorageMetrics" | fn.#ObjectExpression},
+	{StorageMetrics!: _#defs."/$defs/Properties/definitions/PrefixLevelStorageMetrics"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrefixLevelStorageMetrics": close({
-	IsEnabled?:         bool | fn.#BooleanExpression
-	SelectionCriteria?: _#defs."/$defs/Properties/definitions/SelectionCriteria" | fn.#ObjectExpression
+	IsEnabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SelectionCriteria?: _#defs."/$defs/Properties/definitions/SelectionCriteria"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3BucketDestination": close({
 	AccountId!:           string | fn.#StringExpression
 	Arn!:                 string | fn.#StringExpression
-	Encryption?:          _#defs."/$defs/Properties/definitions/Encryption" | fn.#ObjectExpression
+	Encryption?:          _#defs."/$defs/Properties/definitions/Encryption"
 	Format!:              "CSV" | "Parquet" | fn.#StringExpression
 	OutputSchemaVersion!: "V_1" | fn.#StringExpression
 	Prefix?:              string | fn.#StringExpression
@@ -139,57 +135,79 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/SSEKMS": close({KeyId!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SelectionCriteria": close({
-	Delimiter?:                 string | fn.#StringExpression
-	MaxDepth?:                  int | fn.#NumberExpression
-	MinStorageBytesPercentage?: number | fn.#NumberExpression
+	Delimiter?: string | fn.#StringExpression
+	MaxDepth?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinStorageBytesPercentage?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StorageLensConfiguration": close({
-	AccountLevel!: _#defs."/$defs/Properties/definitions/AccountLevel" | fn.#ObjectExpression
-	AwsOrg?:       _#defs."/$defs/Properties/definitions/AwsOrg" | fn.#ObjectExpression
-	DataExport?:   _#defs."/$defs/Properties/definitions/DataExport" | fn.#ObjectExpression
-	Exclude?:      _#defs."/$defs/Properties/definitions/BucketsAndRegions" | fn.#ObjectExpression
-	ExpandedPrefixesDataExport?: _#defs."/$defs/Properties/definitions/StorageLensExpandedPrefixesDataExport" |
-		fn.#ObjectExpression
-	Id!:              _#defs."/$defs/Properties/definitions/Id" | fn.#StringExpression
-	Include?:         _#defs."/$defs/Properties/definitions/BucketsAndRegions" | fn.#ObjectExpression
-	IsEnabled!:       bool | fn.#BooleanExpression
-	PrefixDelimiter?: string | fn.#StringExpression
-	StorageLensArn?:  string | fn.#StringExpression
+	AccountLevel!:               _#defs."/$defs/Properties/definitions/AccountLevel"
+	AwsOrg?:                     _#defs."/$defs/Properties/definitions/AwsOrg"
+	DataExport?:                 _#defs."/$defs/Properties/definitions/DataExport"
+	Exclude?:                    _#defs."/$defs/Properties/definitions/BucketsAndRegions"
+	ExpandedPrefixesDataExport?: _#defs."/$defs/Properties/definitions/StorageLensExpandedPrefixesDataExport"
+	Id!:                         _#defs."/$defs/Properties/definitions/Id"
+	Include?:                    _#defs."/$defs/Properties/definitions/BucketsAndRegions"
+	IsEnabled!:                  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PrefixDelimiter?:            string | fn.#StringExpression
+	StorageLensArn?:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StorageLensExpandedPrefixesDataExport": close({
-	S3BucketDestination?: _#defs."/$defs/Properties/definitions/S3BucketDestination" | fn.#ObjectExpression
-	StorageLensTableDestination?: _#defs."/$defs/Properties/definitions/StorageLensTableDestination" |
-		fn.#ObjectExpression
+	S3BucketDestination?:         _#defs."/$defs/Properties/definitions/S3BucketDestination"
+	StorageLensTableDestination?: _#defs."/$defs/Properties/definitions/StorageLensTableDestination"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StorageLensGroupArn": string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StorageLensGroupLevel": close({
-	StorageLensGroupSelectionCriteria?: _#defs."/$defs/Properties/definitions/StorageLensGroupSelectionCriteria" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/StorageLensGroupLevel": close(
+	{StorageLensGroupSelectionCriteria?: _#defs."/$defs/Properties/definitions/StorageLensGroupSelectionCriteria"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StorageLensGroupSelectionCriteria": close({
-	Exclude?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StorageLensGroupArn" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Include?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StorageLensGroupArn" | fn.#StringExpression
-	] |
-		fn.#ListExpression
+	Exclude?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StorageLensGroupArn"] | fn.#ListExpression
+	Include?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StorageLensGroupArn"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StorageLensTableDestination": close({
-	Encryption?: _#defs."/$defs/Properties/definitions/Encryption" | fn.#ObjectExpression
-	IsEnabled!:  bool | fn.#BooleanExpression
+	Encryption?: _#defs."/$defs/Properties/definitions/Encryption"
+	IsEnabled!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 

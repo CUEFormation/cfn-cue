@@ -33,7 +33,10 @@ import (
 	RealTimeAlertConfiguration?:             _#defs."/$defs/Properties/definitions/RealTimeAlertConfiguration"
 
 	// The ARN of the role used by the service to access Amazon Web Services resources.
-	ResourceAccessRoleArn!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$"
+	ResourceAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(1) &
+	=~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$"
 
 	// The tags associated with the configuration.
 	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
@@ -182,7 +185,7 @@ _#defs: "/$defs/Properties/definitions/PostCallAnalyticsSettings": close({
 	ContentRedactionOutput?: "redacted" | "redacted_and_unredacted"
 
 	// The ARN of the role used by Transcribe to upload post-call analysis.
-	DataAccessRoleArn!: strings.MaxRunes(4096)
+	DataAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MaxRunes(4096)
 
 	// The ID of the KMS key used to encrypt the output.
 	OutputEncryptionKMSKeyId?: strings.MaxRunes(4096)

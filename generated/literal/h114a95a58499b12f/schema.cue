@@ -132,7 +132,8 @@ _#defs: "/$defs/Properties/definitions/Encryption": close({
 
 	// The ARN of the role that you created during setup (when you set up AWS
 	// Elemental MediaConnect as a trusted entity).
-	RoleArn!: =~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$"
 
 	// The ARN of the secret that you created in AWS Secrets Manager to store the
 	// encryption key. This parameter is required for static key encryption and is
@@ -188,7 +189,8 @@ _#defs: "/$defs/Properties/definitions/MediaStreamOutputConfiguration": close({
 _#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration": close({
 	// The ARN of the IAM role used for transit encryption to the router input using
 	// AWS Secrets Manager.
-	RoleArn!: =~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$"
 
 	// The ARN of the AWS Secrets Manager secret used for transit encryption to the router input.
 	SecretArn!: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$"

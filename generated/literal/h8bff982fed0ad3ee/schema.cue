@@ -29,7 +29,7 @@ import (
 
 	// The Amazon Resource Name (ARN) of an IAM role with permission to access the
 	// S3 bucket that contains the block list text file.
-	RoleArn!:      strings.MaxRunes(1284) & strings.MinRunes(0)
+	RoleArn!:      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
 	SourceS3Path!: _#defs."/$defs/Properties/definitions/S3Path"
 
 	// A list of key-value pairs that identify or categorize the block list.

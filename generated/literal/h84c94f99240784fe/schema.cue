@@ -28,7 +28,8 @@ import (
 })
 
 _#defs: "/$defs/Properties/definitions/RegistrationConfig": close({
-	RoleArn?: strings.MaxRunes(2048) &
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+"
 	TemplateBody?: strings.MaxRunes(10240) & strings.MinRunes(0) & =~"[\\s\\S]*"

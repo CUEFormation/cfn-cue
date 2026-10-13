@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // support.
 #Properties: close({
 	EmergencyContactList!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EmergencyContact" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/EmergencyContact"
 	] |
 		fn.#ListExpression
 	ProactiveEngagementStatus!: "ENABLED" | "DISABLED" | fn.#StringExpression

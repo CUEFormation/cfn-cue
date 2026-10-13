@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -16,44 +20,74 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // connection requests, but you can define additional rules. Each rule consists
 // of a priority, one or more actions, and one or more conditions.
 #Properties: close({
-	Action!: _#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression
+	Action!: _#defs."/$defs/Properties/definitions/Action"
 	ListenerIdentifier?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((listener-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:service/svc-[0-9a-z]{17}/listener/listener-[0-9a-z]{17}))$" |
 	fn.#StringExpression
-	Match!:    _#defs."/$defs/Properties/definitions/Match" | fn.#ObjectExpression
-	Name?:     strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	Priority!: int & <=2000 & >=1 | fn.#NumberExpression
+	Match!: _#defs."/$defs/Properties/definitions/Match"
+	Name?:  strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+	Priority!: int & <=2000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ServiceIdentifier?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((svc-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:service/svc-[0-9a-z]{17}))$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Action": close({
-	FixedResponse?: _#defs."/$defs/Properties/definitions/FixedResponse" | fn.#ObjectExpression
-	Forward?:       _#defs."/$defs/Properties/definitions/Forward" | fn.#ObjectExpression
+	FixedResponse?: _#defs."/$defs/Properties/definitions/FixedResponse"
+	Forward?:       _#defs."/$defs/Properties/definitions/Forward"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FixedResponse": close({StatusCode!: int & <=599 & >=100 | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/FixedResponse": close({
+	StatusCode!: int & <=599 & >=100 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=599 &
+							>=100,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Forward": close({
 	TargetGroups!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/WeightedTargetGroup" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/WeightedTargetGroup"
 	] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HeaderMatch": close({
-	CaseSensitive?: bool | fn.#BooleanExpression
-	Match!:         _#defs."/$defs/Properties/definitions/HeaderMatchType" | fn.#ObjectExpression
+	CaseSensitive?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Match!:         _#defs."/$defs/Properties/definitions/HeaderMatchType"
 	Name!:          strings.MaxRunes(40) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -66,21 +100,18 @@ _#defs: "/$defs/Properties/definitions/HeaderMatchType": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HttpMatch": close({
-	HeaderMatches?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/HeaderMatch" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Method?:    "CONNECT" | "DELETE" | "GET" | "HEAD" | "OPTIONS" | "POST" | "PUT" | "TRACE" | fn.#StringExpression
-	PathMatch?: _#defs."/$defs/Properties/definitions/PathMatch" | fn.#ObjectExpression
+	HeaderMatches?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/HeaderMatch"] | fn.#ListExpression
+	Method?:        "CONNECT" | "DELETE" | "GET" | "HEAD" | "OPTIONS" | "POST" | "PUT" | "TRACE" | fn.#StringExpression
+	PathMatch?:     _#defs."/$defs/Properties/definitions/PathMatch"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Match": close(
-	{HttpMatch!: _#defs."/$defs/Properties/definitions/HttpMatch" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/Match": close({HttpMatch!: _#defs."/$defs/Properties/definitions/HttpMatch"}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PathMatch": close({
-	CaseSensitive?: bool | fn.#BooleanExpression
-	Match!:         _#defs."/$defs/Properties/definitions/PathMatchType" | fn.#ObjectExpression
+	CaseSensitive?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Match!:         _#defs."/$defs/Properties/definitions/PathMatchType"
 }) |
 fn.#ObjectExpression
 
@@ -101,7 +132,22 @@ _#defs: "/$defs/Properties/definitions/WeightedTargetGroup": close({
 	strings.MinRunes(20) &
 	=~"^((tg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:targetgroup/tg-[0-9a-z]{17}))$" |
 	fn.#StringExpression
-	Weight?: int & <=999 & >=0 | fn.#NumberExpression
+	Weight?: int & <=999 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=999 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

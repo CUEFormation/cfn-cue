@@ -17,7 +17,7 @@ import "strings"
 // The encryption configuration for Amazon CloudWatch.
 _#defs: "/$defs/Properties/definitions/CloudWatchEncryption": close({
 	CloudWatchEncryptionMode?: "DISABLED" | "SSE-KMS"
-	KmsKeyArn?:                =~"^$|arn:aws[a-z0-9-]*:kms:"
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & =~"^$|arn:aws[a-z0-9-]*:kms:"
 })
 
 // The encryption configuration for the security configuration.
@@ -32,12 +32,12 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 // The encryption configuration for job bookmarks.
 _#defs: "/$defs/Properties/definitions/JobBookmarksEncryption": close({
 	JobBookmarksEncryptionMode?: "CSE-KMS" | "DISABLED"
-	KmsKeyArn?:                  =~"^$|arn:aws[a-z0-9-]*:kms:"
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & =~"^$|arn:aws[a-z0-9-]*:kms:"
 })
 
 // Specifies how Amazon Simple Storage Service (Amazon S3) data should be encrypted.
 _#defs: "/$defs/Properties/definitions/S3Encryption": close({
-	KmsKeyArn?:        string
+	KmsKeyArn?:        =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 	S3EncryptionMode?: string
 })
 
@@ -46,7 +46,12 @@ bool |
 number |
 string |
 [...null | bool | number | string | [...] | {
-	KmsKeyArn?: _
+	KmsKeyArn?: null |
+	bool |
+	number |
+	=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	[...] |
+	{...}
 	...
 }] |
 {...}

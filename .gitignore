@@ -1,4 +1,8 @@
 /bin/
+/.corpus*/
+/.region-performance*/
+/.venv/
+__pycache__/
 /cfn-cue
 /.cfn-cue-stage-*/
 /.cfn-cue-backup-*/

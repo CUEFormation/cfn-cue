@@ -17,7 +17,7 @@ import "list"
 	AccessGrantsLocationId?: string
 
 	// The Amazon Resource Name (ARN) of the access grant location's associated IAM role.
-	IamRoleArn!: string
+	IamRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Descriptor for where the location actually points
 	LocationScope!: string

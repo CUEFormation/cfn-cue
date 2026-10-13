@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ApplicationCode?:        string | fn.#StringExpression
 	ApplicationDescription?: string | fn.#StringExpression
 	ApplicationName?:        string | fn.#StringExpression
-	Inputs!: [..._#defs."/$defs/Properties/definitions/Input" | fn.#ObjectExpression] | fn.#ListExpression
+	Inputs!:                 [..._#defs."/$defs/Properties/definitions/Input"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CSVMappingParameters": close({
@@ -23,34 +27,49 @@ _#defs: "/$defs/Properties/definitions/CSVMappingParameters": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Input": close({
-	InputParallelism?: _#defs."/$defs/Properties/definitions/InputParallelism" | fn.#ObjectExpression
-	InputProcessingConfiguration?: _#defs."/$defs/Properties/definitions/InputProcessingConfiguration" |
-		fn.#ObjectExpression
-	InputSchema!:          _#defs."/$defs/Properties/definitions/InputSchema" | fn.#ObjectExpression
-	KinesisFirehoseInput?: _#defs."/$defs/Properties/definitions/KinesisFirehoseInput" | fn.#ObjectExpression
-	KinesisStreamsInput?:  _#defs."/$defs/Properties/definitions/KinesisStreamsInput" | fn.#ObjectExpression
-	NamePrefix!:           string | fn.#StringExpression
+	InputParallelism?:             _#defs."/$defs/Properties/definitions/InputParallelism"
+	InputProcessingConfiguration?: _#defs."/$defs/Properties/definitions/InputProcessingConfiguration"
+	InputSchema!:                  _#defs."/$defs/Properties/definitions/InputSchema"
+	KinesisFirehoseInput?:         _#defs."/$defs/Properties/definitions/KinesisFirehoseInput"
+	KinesisStreamsInput?:          _#defs."/$defs/Properties/definitions/KinesisStreamsInput"
+	NamePrefix!:                   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InputLambdaProcessor": close({
 	ResourceARN!: string | fn.#StringExpression
-	RoleARN!:     string | fn.#StringExpression
+	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputParallelism": close({Count?: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/InputParallelism": close({
+	Count?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InputProcessingConfiguration": close(
-	{InputLambdaProcessor?: _#defs."/$defs/Properties/definitions/InputLambdaProcessor" | fn.#ObjectExpression},
+	{InputLambdaProcessor?: _#defs."/$defs/Properties/definitions/InputLambdaProcessor"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InputSchema": close({
-	RecordColumns!: [..._#defs."/$defs/Properties/definitions/RecordColumn" | fn.#ObjectExpression] | fn.#ListExpression
+	RecordColumns!:  [..._#defs."/$defs/Properties/definitions/RecordColumn"] | fn.#ListExpression
 	RecordEncoding?: string | fn.#StringExpression
-	RecordFormat!:   _#defs."/$defs/Properties/definitions/RecordFormat" | fn.#ObjectExpression
+	RecordFormat!:   _#defs."/$defs/Properties/definitions/RecordFormat"
 }) |
 fn.#ObjectExpression
 
@@ -59,19 +78,21 @@ _#defs: "/$defs/Properties/definitions/JSONMappingParameters": close({RecordRowP
 
 _#defs: "/$defs/Properties/definitions/KinesisFirehoseInput": close({
 	ResourceARN!: string | fn.#StringExpression
-	RoleARN!:     string | fn.#StringExpression
+	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KinesisStreamsInput": close({
 	ResourceARN!: string | fn.#StringExpression
-	RoleARN!:     string | fn.#StringExpression
+	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MappingParameters": close({
-	CSVMappingParameters?:  _#defs."/$defs/Properties/definitions/CSVMappingParameters" | fn.#ObjectExpression
-	JSONMappingParameters?: _#defs."/$defs/Properties/definitions/JSONMappingParameters" | fn.#ObjectExpression
+	CSVMappingParameters?:  _#defs."/$defs/Properties/definitions/CSVMappingParameters"
+	JSONMappingParameters?: _#defs."/$defs/Properties/definitions/JSONMappingParameters"
 }) |
 fn.#ObjectExpression
 
@@ -83,7 +104,7 @@ _#defs: "/$defs/Properties/definitions/RecordColumn": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RecordFormat": close({
-	MappingParameters?: _#defs."/$defs/Properties/definitions/MappingParameters" | fn.#ObjectExpression
+	MappingParameters?: _#defs."/$defs/Properties/definitions/MappingParameters"
 	RecordFormatType!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

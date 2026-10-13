@@ -18,9 +18,9 @@ import (
 	Tags?:                              list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
 })
 
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close(
-	{KmsKeyId!: (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))},
-)
+_#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close({
+	KmsKeyId!: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
+})
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"

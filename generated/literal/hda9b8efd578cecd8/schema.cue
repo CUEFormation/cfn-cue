@@ -43,19 +43,19 @@ package schema
 		Ipv6CidrBlock!:  _
 		...
 	}]) & {...},
-	{
+	matchN(>=1, [{
 		CidrBlock!: _
 		...
-	} | {
+	}, {
 		Ipv4IpamPoolId!: _
 		...
-	} | {
+	}, {
 		Ipv6IpamPoolId!: _
 		...
-	} | {
+	}, {
 		Ipv6CidrBlock!: _
 		...
-	}
+	}])
 ]) & close({
 	Ipv4IpamPoolId?: _
 	if Ipv4IpamPoolId != _|_ {
@@ -167,7 +167,7 @@ package schema
 
 	// The ID of the VPC the subnet is in.
 	// If you update this property, you must also update the ``CidrBlock`` property.
-	VpcId!: string
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 // Specifies a tag. For more information, see [Resource

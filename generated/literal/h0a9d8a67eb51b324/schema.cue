@@ -36,7 +36,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
 	CustomAuthenticationCredentials?: {...}
 
 	// The Amazon Resource Name (ARN) of the KMS key used in the authentication configuration.
-	KmsKeyArn?: =~"^$|arn:aws[a-z0-9-]*:kms:"
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & =~"^$|arn:aws[a-z0-9-]*:kms:"
 
 	// A structure containing properties for OAuth2 in the CreateConnection request.
 	OAuth2Properties?: _#defs."/$defs/Properties/definitions/OAuth2Properties"
@@ -46,7 +46,12 @@ _#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
 })
 
 _#defs: "/$defs/Properties/definitions/AuthenticationConfigurationInput": null | bool | number | string | [...] | {
-	KmsKeyArn?: _
+	KmsKeyArn?: null |
+	bool |
+	number |
+	=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	[...] |
+	{...}
 	...
 }
 
@@ -248,7 +253,9 @@ _#defs: "/$defs/Properties/definitions/PhysicalConnectionRequirements": close({
 	AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// The security group ID list used by the connection.
-	SecurityGroupIdList?: list.MaxItems(50) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(1)]
+	SecurityGroupIdList?: list.MaxItems(50) & [...] & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1))
+	]
 
 	// The subnet ID used by the connection.
 	SubnetId?: strings.MaxRunes(255) & strings.MinRunes(1)

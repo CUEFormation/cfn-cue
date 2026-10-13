@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,41 +21,57 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AccountId?: =~"[0-9]{12}" | fn.#StringExpression
 	BillingGroupArn!: =~"arn:aws(-cn)?:billingconductor::[0-9]{12}:billinggroup/?[a-zA-Z0-9]{10,12}" |
 		fn.#StringExpression
-	BillingPeriodRange?: _#defs."/$defs/Properties/definitions/BillingPeriodRange" | fn.#ObjectExpression
-	ComputationRule?:    "CONSOLIDATED" | "ITEMIZED" | fn.#StringExpression
-	CustomLineItemChargeDetails?: _#defs."/$defs/Properties/definitions/CustomLineItemChargeDetails" |
-		fn.#ObjectExpression
-	Description?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
+	BillingPeriodRange?:          _#defs."/$defs/Properties/definitions/BillingPeriodRange"
+	ComputationRule?:             "CONSOLIDATED" | "ITEMIZED" | fn.#StringExpression
+	CustomLineItemChargeDetails?: _#defs."/$defs/Properties/definitions/CustomLineItemChargeDetails"
+	Description?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
 	PresentationDetails?: close(
 		{Service!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression},
 	) |
 	fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AttributeValue": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/BillingPeriodRange": close({
-	ExclusiveEndBillingPeriod?: _#defs."/$defs/Properties/definitions/ExclusiveEndBillingPeriod" | fn.#StringExpression
-	InclusiveStartBillingPeriod?: _#defs."/$defs/Properties/definitions/InclusiveStartBillingPeriod" |
-		fn.#StringExpression
+	ExclusiveEndBillingPeriod?:   _#defs."/$defs/Properties/definitions/ExclusiveEndBillingPeriod"
+	InclusiveStartBillingPeriod?: _#defs."/$defs/Properties/definitions/InclusiveStartBillingPeriod"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomLineItemChargeDetails": close({
-	Flat?:            _#defs."/$defs/Properties/definitions/CustomLineItemFlatChargeDetails" | fn.#ObjectExpression
-	LineItemFilters?: _#defs."/$defs/Properties/definitions/LineItemFilters" | fn.#ListExpression
-	Percentage?: _#defs."/$defs/Properties/definitions/CustomLineItemPercentageChargeDetails" | fn.#ObjectExpression
-	Type!:       _#defs."/$defs/Properties/definitions/Type" | fn.#StringExpression
+	Flat?:            _#defs."/$defs/Properties/definitions/CustomLineItemFlatChargeDetails"
+	LineItemFilters?: _#defs."/$defs/Properties/definitions/LineItemFilters"
+	Percentage?:      _#defs."/$defs/Properties/definitions/CustomLineItemPercentageChargeDetails"
+	Type!:            _#defs."/$defs/Properties/definitions/Type"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomLineItemFlatChargeDetails": close(
-	{ChargeValue!: <=1000000 & >=0 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/CustomLineItemFlatChargeDetails": close({
+	ChargeValue!: <=1000000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1000000 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomLineItemPercentageChargeDetails": close({
@@ -60,7 +80,26 @@ _#defs: "/$defs/Properties/definitions/CustomLineItemPercentageChargeDetails": c
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	PercentageValue!: <=10000 & >=0 | fn.#NumberExpression
+	PercentageValue!: <=10000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=10000 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -70,20 +109,17 @@ _#defs: "/$defs/Properties/definitions/InclusiveStartBillingPeriod": =~"\\d{4}-(
 
 _#defs: "/$defs/Properties/definitions/LineItemFilter": close({
 	Attribute!: "LINE_ITEM_TYPE" | "SERVICE" | fn.#StringExpression
-	AttributeValues?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AttributeValue" | fn.#StringExpression
-	] |
+	AttributeValues?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AttributeValue"] |
 		fn.#ListExpression
 	MatchOption!: "NOT_EQUAL" | "EQUAL" | fn.#StringExpression
-	Values?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LineItemFilterValue" | fn.#StringExpression] |
-		fn.#ListExpression
+	Values?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LineItemFilterValue"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LineItemFilterValue": "SAVINGS_PLAN_NEGATION" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LineItemFilters": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/LineItemFilter" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/LineItemFilter"
 ] |
 	fn.#ListExpression
 

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -13,24 +13,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource schema represents the NotificationChannel resource in the Amazon DevOps Guru.
-#Properties: close({Config!: _#defs."/$defs/Properties/definitions/NotificationChannelConfig" | fn.#ObjectExpression})
+#Properties: close({Config!: _#defs."/$defs/Properties/definitions/NotificationChannelConfig"})
 
 _#defs: "/$defs/Properties/definitions/InsightSeveritiesFilterList": list.MaxItems(3) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/InsightSeverity" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/InsightSeverity"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/InsightSeverity": "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/NotificationChannelConfig": close({
-	Filters?: _#defs."/$defs/Properties/definitions/NotificationFilterConfig" | fn.#ObjectExpression
-	Sns?:     _#defs."/$defs/Properties/definitions/SnsChannelConfig" | fn.#ObjectExpression
+	Filters?: _#defs."/$defs/Properties/definitions/NotificationFilterConfig"
+	Sns?:     _#defs."/$defs/Properties/definitions/SnsChannelConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NotificationFilterConfig": close({
-	MessageTypes?: _#defs."/$defs/Properties/definitions/NotificationMessageTypesFilterList" | fn.#ListExpression
-	Severities?:   _#defs."/$defs/Properties/definitions/InsightSeveritiesFilterList" | fn.#ListExpression
+	MessageTypes?: _#defs."/$defs/Properties/definitions/NotificationMessageTypesFilterList"
+	Severities?:   _#defs."/$defs/Properties/definitions/InsightSeveritiesFilterList"
 }) |
 fn.#ObjectExpression
 
@@ -42,12 +42,15 @@ _#defs: "/$defs/Properties/definitions/NotificationMessageType": "NEW_INSIGHT" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/NotificationMessageTypesFilterList": list.MaxItems(5) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/NotificationMessageType" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/NotificationMessageType"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/SnsChannelConfig": close({
-	TopicArn?: strings.MaxRunes(1024) & strings.MinRunes(36) & =~"^arn:aws[a-z0-9-]*:sns:[a-z0-9-]+:\\d{12}:[^:]+$" |
+	TopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(36) &
+	=~"^arn:aws[a-z0-9-]*:sns:[a-z0-9-]+:\\d{12}:[^:]+$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -23,7 +23,8 @@ import (
 	RequiredFileSystemLocationNames?: list.MaxItems(20) & list.UniqueItems() & [...] & [
 		...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z ]*$"
 	]
-	RoleArn?:                 =~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$"
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$"
 	SchedulingConfiguration?: _#defs."/$defs/Properties/definitions/SchedulingConfiguration"
 
 	// An array of key-value pairs to apply to this resource.

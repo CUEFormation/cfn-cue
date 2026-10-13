@@ -43,8 +43,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
 	Oauth2ProviderConfigInput?: _#defs."/$defs/Properties/definitions/Oauth2ProviderConfigInput" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:                      list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AdditionalClaims": struct.MaxFields(10) & close({
@@ -55,7 +54,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/AtlassianOauth2ProviderConfigInput": close({
 	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference" | fn.#ObjectExpression
+	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
 	ClientSecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -72,26 +71,23 @@ _#defs: "/$defs/Properties/definitions/CustomOauth2ProviderConfigInput": close({
 		"AWS_IAM_ID_TOKEN_JWT" |
 		"PRIVATE_KEY_JWT" |
 		fn.#StringExpression
-	ClientId?:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference" | fn.#ObjectExpression
-	ClientSecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
-	OauthDiscovery!:     _#defs."/$defs/Properties/definitions/Oauth2Discovery" | fn.#ObjectExpression
-	OnBehalfOfTokenExchangeConfig?: _#defs."/$defs/Properties/definitions/OnBehalfOfTokenExchangeConfig" |
-		fn.#ObjectExpression
-	PrivateEndpoint?: _#defs."/$defs/Properties/definitions/PrivateEndpoint" | fn.#ObjectExpression
-	PrivateEndpointOverrides?: list.MaxItems(5) & [
-		..._#defs."/$defs/Properties/definitions/PrivateEndpointOverride" | fn.#ObjectExpression
-	] |
+	ClientId?:                      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	ClientSecret?:                  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	ClientSecretConfig?:            _#defs."/$defs/Properties/definitions/SecretReference"
+	ClientSecretSource?:            "MANAGED" | "EXTERNAL" | fn.#StringExpression
+	OauthDiscovery!:                _#defs."/$defs/Properties/definitions/Oauth2Discovery"
+	OnBehalfOfTokenExchangeConfig?: _#defs."/$defs/Properties/definitions/OnBehalfOfTokenExchangeConfig"
+	PrivateEndpoint?:               _#defs."/$defs/Properties/definitions/PrivateEndpoint"
+	PrivateEndpointOverrides?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/PrivateEndpointOverride"] |
 		fn.#ListExpression
-	PrivateKeyJwtConfig?: _#defs."/$defs/Properties/definitions/PrivateKeyJwtConfig" | fn.#ObjectExpression
+	PrivateKeyJwtConfig?: _#defs."/$defs/Properties/definitions/PrivateKeyJwtConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GithubOauth2ProviderConfigInput": close({
 	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference" | fn.#ObjectExpression
+	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
 	ClientSecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -99,7 +95,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/GoogleOauth2ProviderConfigInput": close({
 	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference" | fn.#ObjectExpression
+	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
 	ClientSecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -108,7 +104,7 @@ _#defs: "/$defs/Properties/definitions/IncludedOauth2ProviderConfigInput": close
 	AuthorizationEndpoint?: string | fn.#StringExpression
 	ClientId!:              strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ClientSecret?:          strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecretConfig?:    _#defs."/$defs/Properties/definitions/SecretReference" | fn.#ObjectExpression
+	ClientSecretConfig?:    _#defs."/$defs/Properties/definitions/SecretReference"
 	ClientSecretSource?:    "MANAGED" | "EXTERNAL" | fn.#StringExpression
 	Issuer?:                string | fn.#StringExpression
 	TokenEndpoint?:         string | fn.#StringExpression
@@ -116,7 +112,8 @@ _#defs: "/$defs/Properties/definitions/IncludedOauth2ProviderConfigInput": close
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KmsKeySourceType": close({
-	KmsKeyArn!: strings.MaxRunes(2048) &
+	KmsKeyArn!: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
 	fn.#StringExpression
@@ -126,7 +123,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/LinkedinOauth2ProviderConfigInput": close({
 	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference" | fn.#ObjectExpression
+	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
 	ClientSecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -134,7 +131,11 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
 	EndpointIpAddressType!: "IPV4" | "IPV6" | fn.#StringExpression
 	RoutingDomain?:         strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-	SecurityGroupIds?: list.MaxItems(5) & [...=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" | fn.#StringExpression] |
+	SecurityGroupIds?: list.MaxItems(5) & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+			fn.#StringExpression
+	] |
 		fn.#ListExpression
 	SubnetIds!:     [...=~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression] | fn.#ListExpression
 	Tags?:          _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
@@ -145,7 +146,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/MicrosoftOauth2ProviderConfigInput": close({
 	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference" | fn.#ObjectExpression
+	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
 	ClientSecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
 	TenantId?:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
@@ -160,31 +161,21 @@ _#defs: "/$defs/Properties/definitions/Oauth2AuthorizationServerMetadata": close
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Oauth2Discovery": close({
-	AuthorizationServerMetadata?: _#defs."/$defs/Properties/definitions/Oauth2AuthorizationServerMetadata" |
-		fn.#ObjectExpression
-	DiscoveryUrl?: =~"^.+/\\.well-known/openid-configuration$" | fn.#StringExpression
+	AuthorizationServerMetadata?: _#defs."/$defs/Properties/definitions/Oauth2AuthorizationServerMetadata"
+	DiscoveryUrl?:                =~"^.+/\\.well-known/openid-configuration$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Oauth2ProviderConfigInput": close({
-	AtlassianOauth2ProviderConfig?: _#defs."/$defs/Properties/definitions/AtlassianOauth2ProviderConfigInput" |
-		fn.#ObjectExpression
-	CustomOauth2ProviderConfig?: _#defs."/$defs/Properties/definitions/CustomOauth2ProviderConfigInput" |
-		fn.#ObjectExpression
-	GithubOauth2ProviderConfig?: _#defs."/$defs/Properties/definitions/GithubOauth2ProviderConfigInput" |
-		fn.#ObjectExpression
-	GoogleOauth2ProviderConfig?: _#defs."/$defs/Properties/definitions/GoogleOauth2ProviderConfigInput" |
-		fn.#ObjectExpression
-	IncludedOauth2ProviderConfig?: _#defs."/$defs/Properties/definitions/IncludedOauth2ProviderConfigInput" |
-		fn.#ObjectExpression
-	LinkedinOauth2ProviderConfig?: _#defs."/$defs/Properties/definitions/LinkedinOauth2ProviderConfigInput" |
-		fn.#ObjectExpression
-	MicrosoftOauth2ProviderConfig?: _#defs."/$defs/Properties/definitions/MicrosoftOauth2ProviderConfigInput" |
-		fn.#ObjectExpression
-	SalesforceOauth2ProviderConfig?: _#defs."/$defs/Properties/definitions/SalesforceOauth2ProviderConfigInput" |
-		fn.#ObjectExpression
-	SlackOauth2ProviderConfig?: _#defs."/$defs/Properties/definitions/SlackOauth2ProviderConfigInput" |
-		fn.#ObjectExpression
+	AtlassianOauth2ProviderConfig?:  _#defs."/$defs/Properties/definitions/AtlassianOauth2ProviderConfigInput"
+	CustomOauth2ProviderConfig?:     _#defs."/$defs/Properties/definitions/CustomOauth2ProviderConfigInput"
+	GithubOauth2ProviderConfig?:     _#defs."/$defs/Properties/definitions/GithubOauth2ProviderConfigInput"
+	GoogleOauth2ProviderConfig?:     _#defs."/$defs/Properties/definitions/GoogleOauth2ProviderConfigInput"
+	IncludedOauth2ProviderConfig?:   _#defs."/$defs/Properties/definitions/IncludedOauth2ProviderConfigInput"
+	LinkedinOauth2ProviderConfig?:   _#defs."/$defs/Properties/definitions/LinkedinOauth2ProviderConfigInput"
+	MicrosoftOauth2ProviderConfig?:  _#defs."/$defs/Properties/definitions/MicrosoftOauth2ProviderConfigInput"
+	SalesforceOauth2ProviderConfig?: _#defs."/$defs/Properties/definitions/SalesforceOauth2ProviderConfigInput"
+	SlackOauth2ProviderConfig?:      _#defs."/$defs/Properties/definitions/SlackOauth2ProviderConfigInput"
 }) |
 fn.#ObjectExpression
 
@@ -194,56 +185,51 @@ _#defs: "/$defs/Properties/definitions/Oauth2ProviderConfigOutput": close({
 		"AWS_IAM_ID_TOKEN_JWT" |
 		"PRIVATE_KEY_JWT" |
 		fn.#StringExpression
-	ClientId?:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	OauthDiscovery?: _#defs."/$defs/Properties/definitions/Oauth2Discovery" | fn.#ObjectExpression
-	OnBehalfOfTokenExchangeConfig?: _#defs."/$defs/Properties/definitions/OnBehalfOfTokenExchangeConfig" |
-		fn.#ObjectExpression
-	PrivateEndpoint?: _#defs."/$defs/Properties/definitions/PrivateEndpoint" | fn.#ObjectExpression
-	PrivateEndpointOverrides?: list.MaxItems(5) & [
-		..._#defs."/$defs/Properties/definitions/PrivateEndpointOverride" | fn.#ObjectExpression
-	] |
+	ClientId?:                      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	OauthDiscovery?:                _#defs."/$defs/Properties/definitions/Oauth2Discovery"
+	OnBehalfOfTokenExchangeConfig?: _#defs."/$defs/Properties/definitions/OnBehalfOfTokenExchangeConfig"
+	PrivateEndpoint?:               _#defs."/$defs/Properties/definitions/PrivateEndpoint"
+	PrivateEndpointOverrides?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/PrivateEndpointOverride"] |
 		fn.#ListExpression
-	PrivateKeyJwtConfig?: _#defs."/$defs/Properties/definitions/PrivateKeyJwtConfig" | fn.#ObjectExpression
+	PrivateKeyJwtConfig?: _#defs."/$defs/Properties/definitions/PrivateKeyJwtConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OnBehalfOfTokenExchangeConfig": close({
-	GrantType!: "TOKEN_EXCHANGE" | "JWT_AUTHORIZATION_GRANT" | fn.#StringExpression
-	TokenExchangeGrantTypeConfig?: _#defs."/$defs/Properties/definitions/TokenExchangeGrantTypeConfig" |
-		fn.#ObjectExpression
+	GrantType!:                    "TOKEN_EXCHANGE" | "JWT_AUTHORIZATION_GRANT" | fn.#StringExpression
+	TokenExchangeGrantTypeConfig?: _#defs."/$defs/Properties/definitions/TokenExchangeGrantTypeConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateEndpoint": close({
-	ManagedVpcResource?: _#defs."/$defs/Properties/definitions/ManagedVpcResource" | fn.#ObjectExpression
-	SelfManagedLatticeResource?: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource" |
-		fn.#ObjectExpression
+	ManagedVpcResource?:         _#defs."/$defs/Properties/definitions/ManagedVpcResource"
+	SelfManagedLatticeResource?: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateEndpointOverride": close({
 	Domain!:          strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
-	PrivateEndpoint!: _#defs."/$defs/Properties/definitions/PrivateEndpoint" | fn.#ObjectExpression
+	PrivateEndpoint!: _#defs."/$defs/Properties/definitions/PrivateEndpoint"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateKeyJwtConfig": close({
-	AdditionalHeaderClaims?:  _#defs."/$defs/Properties/definitions/AdditionalClaims" | fn.#ObjectExpression
-	AdditionalPayloadClaims?: _#defs."/$defs/Properties/definitions/AdditionalClaims" | fn.#ObjectExpression
-	PrivateKeySource?:        _#defs."/$defs/Properties/definitions/PrivateKeySource" | fn.#ObjectExpression
+	AdditionalHeaderClaims?:  _#defs."/$defs/Properties/definitions/AdditionalClaims"
+	AdditionalPayloadClaims?: _#defs."/$defs/Properties/definitions/AdditionalClaims"
+	PrivateKeySource?:        _#defs."/$defs/Properties/definitions/PrivateKeySource"
 	SigningAlgorithm?:        "RS256" | "PS256" | "ES256" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateKeySource": close(
-	{KmsKeySource?: _#defs."/$defs/Properties/definitions/KmsKeySourceType" | fn.#ObjectExpression},
+	{KmsKeySource?: _#defs."/$defs/Properties/definitions/KmsKeySourceType"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SalesforceOauth2ProviderConfigInput": close({
 	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference" | fn.#ObjectExpression
+	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
 	ClientSecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -265,7 +251,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/SlackOauth2ProviderConfigInput": close({
 	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference" | fn.#ObjectExpression
+	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
 	ClientSecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

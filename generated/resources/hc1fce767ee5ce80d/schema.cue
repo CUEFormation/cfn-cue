@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -40,15 +44,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...
 	}, _) & {...}
 ]) & close({
-	CustomDomainConfig?:  _#defs."/$defs/Properties/definitions/CustomDomainConfigType" | fn.#ObjectExpression
-	Domain!:              strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	ManagedLoginVersion?: int | fn.#NumberExpression
-	Routing?:             _#defs."/$defs/Properties/definitions/RoutingType" | fn.#ObjectExpression
-	UserPoolId!:          strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
+	CustomDomainConfig?: _#defs."/$defs/Properties/definitions/CustomDomainConfigType"
+	Domain!:             strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
+	ManagedLoginVersion?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Routing?:    _#defs."/$defs/Properties/definitions/RoutingType"
+	UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CustomDomainConfigType": close({
-	CertificateArn?: strings.MaxRunes(2048) &
+	CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
 	fn.#StringExpression
@@ -63,7 +81,7 @@ _#defs: "/$defs/Properties/definitions/FailoverType": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RoutingType": close(
-	{Failover?: _#defs."/$defs/Properties/definitions/FailoverType" | fn.#ObjectExpression},
+	{Failover?: _#defs."/$defs/Properties/definitions/FailoverType"},
 ) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

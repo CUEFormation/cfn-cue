@@ -15,9 +15,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:        =~"^([a-z]){1}([a-z0-9_]){2,254}" | fn.#StringExpression
-	Reference!:   _#defs."/$defs/Properties/definitions/ReferenceItem" | fn.#ObjectExpression
-	SseConfig?:   _#defs."/$defs/Properties/definitions/SseConfig" | fn.#ObjectExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
+	Reference!:   _#defs."/$defs/Properties/definitions/ReferenceItem"
+	SseConfig?:   _#defs."/$defs/Properties/definitions/SseConfig"
+	Tags?:        _#defs."/$defs/Properties/definitions/TagMap"
 })
 
 _#defs: "/$defs/Properties/definitions/EncryptionType": "KMS" | fn.#StringExpression
@@ -38,7 +38,7 @@ _#defs: "/$defs/Properties/definitions/SseConfig": close({
 		]*)
 		""" |
 	fn.#StringExpression
-	Type!: _#defs."/$defs/Properties/definitions/EncryptionType" | fn.#StringExpression
+	Type!: _#defs."/$defs/Properties/definitions/EncryptionType"
 }) |
 fn.#ObjectExpression
 

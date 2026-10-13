@@ -8,24 +8,65 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolClient
 #Properties: close({
-	AccessTokenValidity?: int & <=86400 & >=1 | fn.#NumberExpression
+	AccessTokenValidity?: int & <=86400 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=86400 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	AllowedOAuthFlows?: list.MaxItems(3) & [...] & [
 		..."client_credentials" | "code" | "implicit" | fn.#StringExpression
 	] |
 		fn.#ListExpression
-	AllowedOAuthFlowsUserPoolClient?: bool | fn.#BooleanExpression
+	AllowedOAuthFlowsUserPoolClient?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 	AllowedOAuthScopes?: list.MaxItems(50) & [...] & [
 		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	AnalyticsConfiguration?: _#defs."/$defs/Properties/definitions/AnalyticsConfiguration" | fn.#ObjectExpression
-	AuthSessionValidity?:    int & <=15 & >=3 | fn.#NumberExpression
+	AnalyticsConfiguration?: _#defs."/$defs/Properties/definitions/AnalyticsConfiguration"
+	AuthSessionValidity?: int & <=15 & >=3 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=15 &
+							>=3,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	CallbackURLs?: list.MaxItems(100) & [...] & [
 		...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" | fn.#StringExpression
 	] |
@@ -33,8 +74,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ClientName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" | fn.#StringExpression
 	DefaultRedirectURI?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
 	fn.#StringExpression
-	EnablePropagateAdditionalUserContextData?: bool | fn.#BooleanExpression
-	EnableTokenRevocation?:                    bool | fn.#BooleanExpression
+	EnablePropagateAdditionalUserContextData?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	EnableTokenRevocation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ExplicitAuthFlows?: [
 		..."ADMIN_NO_SRP_AUTH" |
 			"ALLOW_ADMIN_USER_PASSWORD_AUTH" |
@@ -48,22 +96,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	GenerateSecret?:  bool | fn.#BooleanExpression
-	IdTokenValidity?: int & <=86400 & >=1 | fn.#NumberExpression
+	GenerateSecret?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IdTokenValidity?: int & <=86400 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=86400 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	LogoutURLs?: list.MaxItems(100) & [...] & [
 		...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
 	PreventUserExistenceErrors?: "ENABLED" | "LEGACY" | fn.#StringExpression
 	ReadAttributes?:       [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	RefreshTokenRotation?: _#defs."/$defs/Properties/definitions/RefreshTokenRotation" | fn.#ObjectExpression
-	RefreshTokenValidity?: int & <=315360000 & >=1 | fn.#NumberExpression
+	RefreshTokenRotation?: _#defs."/$defs/Properties/definitions/RefreshTokenRotation"
+	RefreshTokenValidity?: int & <=315360000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=315360000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SupportedIdentityProviders?: [
 		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\p{Z}]+$" |
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	TokenValidityUnits?: _#defs."/$defs/Properties/definitions/TokenValidityUnits" | fn.#ObjectExpression
+	TokenValidityUnits?: _#defs."/$defs/Properties/definitions/TokenValidityUnits"
 	UserPoolId!:         strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
 	WriteAttributes?:    [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 })
@@ -75,17 +153,33 @@ _#defs: "/$defs/Properties/definitions/AnalyticsConfiguration": close({
 	fn.#StringExpression
 	ApplicationId?: =~"^[0-9a-fA-F]+$" | fn.#StringExpression
 	ExternalId?:    strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression
-	RoleArn?: strings.MaxRunes(2048) &
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
 	fn.#StringExpression
-	UserDataShared?: bool | fn.#BooleanExpression
+	UserDataShared?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RefreshTokenRotation": {
-	Feature?:                 "ENABLED" | "DISABLED" | fn.#StringExpression
-	RetryGracePeriodSeconds?: int & <=60 & >=0 | fn.#NumberExpression
+	Feature?: "ENABLED" | "DISABLED" | fn.#StringExpression
+	RetryGracePeriodSeconds?: int & <=60 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=60 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	...
 } | fn.#ObjectExpression
 

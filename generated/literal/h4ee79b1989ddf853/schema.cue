@@ -258,7 +258,8 @@ _#defs: "/$defs/Properties/definitions/RtpRouterOutputConfiguration": close({
 // including the secret ARN and role ARN.
 _#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration": close({
 	// The ARN of the IAM role assumed by MediaConnect to access the Secrets Manager secret.
-	RoleArn!: =~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$"
 
 	// The ARN of the Secrets Manager secret used for transit encryption.
 	SecretArn!: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$"

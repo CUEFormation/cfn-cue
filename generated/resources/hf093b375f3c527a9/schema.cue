@@ -22,8 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	ComputationModelName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@]+$" |
 	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AnomalyDetectionComputationModelConfiguration": close({
@@ -64,15 +63,13 @@ _#defs: "/$defs/Properties/definitions/ComputationModelConfiguration": close({
 
 _#defs: "/$defs/Properties/definitions/ComputationModelDataBinding": close({
 
-	{[=~"^[a-z][a-z0-9_]{0,63}$"]: _#defs."/$defs/Properties/definitions/ComputationModelDataBindingValue" |
-		fn.#ObjectExpression}}) |
+	{[=~"^[a-z][a-z0-9_]{0,63}$"]: _#defs."/$defs/Properties/definitions/ComputationModelDataBindingValue"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComputationModelDataBindingValue": close({
 	AssetModelProperty?: _#defs."/$defs/Properties/definitions/AssetModelPropertyBindingValue" | fn.#ObjectExpression
 	AssetProperty?:      _#defs."/$defs/Properties/definitions/AssetPropertyBindingValue" | fn.#ObjectExpression
-	List?: [..._#defs."/$defs/Properties/definitions/ComputationModelDataBindingValue" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	List?: [..._#defs."/$defs/Properties/definitions/ComputationModelDataBindingValue"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

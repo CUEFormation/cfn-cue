@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"time"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
 )
@@ -15,12 +15,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Bedrock::AutomatedReasoningPolicy Resource Type
 #Properties: close({
-	Description?:      _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	ForceDelete?:      _#defs."/$defs/Properties/definitions/ForceDelete" | fn.#BooleanExpression
-	KmsKeyId?:         _#defs."/$defs/Properties/definitions/KmsKeyId" | fn.#StringExpression
-	Name!:             _#defs."/$defs/Properties/definitions/Name" | fn.#StringExpression
-	PolicyDefinition?: _#defs."/$defs/Properties/definitions/PolicyDefinition" | fn.#ObjectExpression
-	Tags?:             _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	Description?:      _#defs."/$defs/Properties/definitions/Description"
+	ForceDelete?:      _#defs."/$defs/Properties/definitions/ForceDelete"
+	KmsKeyId?:         _#defs."/$defs/Properties/definitions/KmsKeyId"
+	Name!:             _#defs."/$defs/Properties/definitions/Name"
+	PolicyDefinition?: _#defs."/$defs/Properties/definitions/PolicyDefinition"
+	Tags?:             _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/CreatedAt": time.Time | fn.#StringExpression
@@ -32,14 +32,23 @@ fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1024) & =~"^[\\s\\S]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ForceDelete": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/ForceDelete": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKeyArn": strings.MaxRunes(2048) &
+_#defs: "/$defs/Properties/definitions/KmsKeyArn": =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKeyId": (string | string | string) &
+_#defs: "/$defs/Properties/definitions/KmsKeyId": (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+	string) &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^(arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:((key/[a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)))|([a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)$" |
@@ -69,7 +78,7 @@ _#defs: "/$defs/Properties/definitions/PolicyDefinitionRule": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PolicyDefinitionRuleList": list.MaxItems(500) & [...] & [
-	..._#defs."/$defs/Properties/definitions/PolicyDefinitionRule" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/PolicyDefinitionRule"
 ] |
 	fn.#ListExpression
 
@@ -81,7 +90,7 @@ _#defs: "/$defs/Properties/definitions/PolicyDefinitionType": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PolicyDefinitionTypeList": list.MaxItems(50) & [...] & [
-	..._#defs."/$defs/Properties/definitions/PolicyDefinitionType" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/PolicyDefinitionType"
 ] |
 	fn.#ListExpression
 
@@ -92,7 +101,7 @@ _#defs: "/$defs/Properties/definitions/PolicyDefinitionTypeValue": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PolicyDefinitionTypeValueList": list.MaxItems(50) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/PolicyDefinitionTypeValue" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/PolicyDefinitionTypeValue"
 ] |
 	fn.#ListExpression
 
@@ -104,7 +113,7 @@ _#defs: "/$defs/Properties/definitions/PolicyDefinitionVariable": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PolicyDefinitionVariableList": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/PolicyDefinitionVariable" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/PolicyDefinitionVariable"
 ] |
 	fn.#ListExpression
 
@@ -118,7 +127,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 

@@ -16,7 +16,8 @@ import (
 	CreatedAt?: time.Time
 
 	// The Amazon Resource Name (ARN) of the function.
-	FunctionArn?: strings.MaxRunes(2048) &
+	FunctionArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-z-]*):lambda:[a-z0-9-]+:[0-9]{12}:web-function/.+$"
 

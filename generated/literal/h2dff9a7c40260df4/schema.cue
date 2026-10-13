@@ -66,7 +66,7 @@ import (
 	Scheme?: string
 
 	// The security groups for the load balancer. Valid only for load balancers in a VPC.
-	SecurityGroups?:      [...string]
+	SecurityGroups?:      [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SourceSecurityGroup?: _#defs."/$defs/Properties/definitions/SourceSecurityGroup"
 
 	// The IDs of the subnets for the load balancer. You can specify at most one

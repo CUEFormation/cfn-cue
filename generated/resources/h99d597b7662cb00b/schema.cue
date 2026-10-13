@@ -18,19 +18,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:            strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 	RoutingStrategy!: _#defs."/$defs/Properties/definitions/RoutingStrategy" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/RoutingStrategy": ({
+_#defs: "/$defs/Properties/definitions/RoutingStrategy": matchN(>=1, [{
 	FleetId!: _
 	...
-} | {
+}, {
 	Message!: _
 	...
-}) & close({
+}]) & close({
 	FleetId?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-z]*fleet-[a-zA-Z0-9\\-]+" | fn.#StringExpression
 	Message?: string | fn.#StringExpression
 	Type!:    "SIMPLE" | "TERMINAL" | fn.#StringExpression

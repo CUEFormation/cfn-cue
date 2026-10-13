@@ -42,7 +42,7 @@ import (
 	// IAM role ARN the integration assumes. Required for AWS_INTEGRATION (a valid,
 	// service-assumable IAM role ARN). Not used by AWS_CONFIG_SLREC or
 	// EXTERNAL_AGENT.
-	RoleArn?: strings.MaxRunes(2048) & strings.MinRunes(1)
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 	// Lifecycle status of the integration.
 	Status?: "PENDING" | "PENDING_OAUTH" | "ACTIVE" | "ERROR" | "FAILED" | "DELETED"

@@ -106,7 +106,7 @@ import "strings"
 	// for Key Management
 	// Service](https://docs.aws.amazon.com/kms/latest/developerguide/best-practices.html)
 	// in the *Key Management Service Developer Guide*
-	KmsMasterKeyId?: string | string | string
+	KmsMasterKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The limit of how many bytes that a message can contain before SQS rejects it.
 	// You can specify an integer from 1,024 bytes (1 KiB) to 1,048,576 bytes (1

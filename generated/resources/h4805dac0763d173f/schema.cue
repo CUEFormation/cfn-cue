@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,12 +21,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:            strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	DisplayName?:            strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:                   =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
-	PackagingType?:          _#defs."/$defs/Properties/definitions/PackagingType" | fn.#StringExpression
-	PostSetupScriptDetails?: _#defs."/$defs/Properties/definitions/ScriptDetails" | fn.#ObjectExpression
-	SetupScriptDetails?:     _#defs."/$defs/Properties/definitions/ScriptDetails" | fn.#ObjectExpression
-	SourceS3Location!:       _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ValueExpression] |
-		fn.#ListExpression
+	PackagingType?:          _#defs."/$defs/Properties/definitions/PackagingType"
+	PostSetupScriptDetails?: _#defs."/$defs/Properties/definitions/ScriptDetails"
+	SetupScriptDetails?:     _#defs."/$defs/Properties/definitions/ScriptDetails"
+	SourceS3Location!:       _#defs."/$defs/Properties/definitions/S3Location"
+	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
@@ -38,8 +41,21 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ScriptDetails": close({
 	ExecutableParameters?: strings.MinRunes(1) | fn.#StringExpression
 	ExecutablePath!:       strings.MinRunes(1) | fn.#StringExpression
-	ScriptS3Location!:     _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
-	TimeoutInSeconds!:     int | fn.#NumberExpression
+	ScriptS3Location!:     _#defs."/$defs/Properties/definitions/S3Location"
+	TimeoutInSeconds!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

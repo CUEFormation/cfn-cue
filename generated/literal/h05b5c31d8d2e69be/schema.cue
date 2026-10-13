@@ -81,7 +81,8 @@ _#defs: "/$defs/Properties/definitions/Regions": list.MinItems(1) & list.UniqueI
 	..._#defs."/$defs/Properties/definitions/Region"
 ]
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(1011) &
+_#defs: "/$defs/Properties/definitions/ResourceArn": =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+strings.MaxRunes(1011) &
 strings.MinRunes(1) &
 =~"^arn:aws([a-z0-9\\-]+)?:([a-zA-Z0-9\\-]+):([a-z0-9\\-]+)?:([0-9]{12})?:(.+)$"
 
@@ -112,7 +113,8 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 
 _#defs: "/$defs/Properties/definitions/TagPropagationConfiguration": close({
 	// The ARN of the destination account IAM role used for tag propagation.
-	DestinationRoleArn!: strings.MaxRunes(2048) &
+	DestinationRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:role/[\\w+=,.@/-]+$"
 

@@ -8,26 +8,42 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Disk
 #Properties: close({
-	AddOns?:           [..._#defs."/$defs/Properties/definitions/AddOn" | fn.#ObjectExpression] | fn.#ListExpression
+	AddOns?:           [..._#defs."/$defs/Properties/definitions/AddOn"] | fn.#ListExpression
 	AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 	DiskName!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" |
 	fn.#StringExpression
 	Location?: close({}) | fn.#ObjectExpression
-	SizeInGb!: int | fn.#NumberExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	SizeInGb!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AddOn": close({
 	AddOnType!: ("AutoSnapshot" | "StopInstanceOnIdle") & (strings.MaxRunes(128) & strings.MinRunes(1)) |
 	fn.#StringExpression
-	AutoSnapshotAddOnRequest?: _#defs."/$defs/Properties/definitions/AutoSnapshotAddOn" | fn.#ObjectExpression
+	AutoSnapshotAddOnRequest?: _#defs."/$defs/Properties/definitions/AutoSnapshotAddOn"
 	Status?: "Enabling" |
 		"Disabling" |
 		"Enabled" |

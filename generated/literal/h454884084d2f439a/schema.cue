@@ -16,7 +16,10 @@ import (
 	]
 	Arn?:                     string
 	CertificateProviderName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w=,@-]+"
-	LambdaFunctionArn!:       strings.MaxRunes(170) & strings.MinRunes(1) & =~"^[\\s\\S]*$"
+	LambdaFunctionArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+	strings.MaxRunes(170) &
+	strings.MinRunes(1) &
+	=~"^[\\s\\S]*$"
 
 	// An array of key-value pairs to apply to this resource.
 	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]

@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::DSQL::Cluster
 #Properties: close({
-	DeletionProtectionEnabled?: bool | fn.#BooleanExpression
+	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KmsEncryptionKey?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/_-]+$" | fn.#StringExpression
 	MultiRegionProperties?: close({
 		Clusters?: list.UniqueItems() & [
@@ -25,7 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) |
 	fn.#ObjectExpression
 	PolicyDocument?: string | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

@@ -20,7 +20,7 @@ import (
 	// The resource properties associated with the integration source.
 	SourceProcessingProperties?: close({
 		// The IAM role to access the Glue connection.
-		RoleArn!: strings.MaxRunes(128) & strings.MinRunes(1)
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(128) & strings.MinRunes(1))
 	})
 
 	// An array of key-value pairs to apply to this resource.
@@ -35,10 +35,16 @@ import (
 		EventBusArn?: strings.MaxRunes(128) & strings.MinRunes(1)
 
 		// The ARN of the KMS key used for encryption.
-		KmsArn?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"arn:aws:kms:.*:[0-9]+:.*"
+		KmsArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"arn:aws:kms:.*:[0-9]+:.*"
 
 		// The IAM role to access the Glue database.
-		RoleArn!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"arn:aws:iam:.*:[0-9]+:.*"
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"arn:aws:iam:.*:[0-9]+:.*"
 	})
 })
 

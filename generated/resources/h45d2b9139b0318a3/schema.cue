@@ -15,11 +15,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::Route53Resolver::FirewallDomainList.
 #Properties: close({
 	DomainFileUrl?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Domains?:       _#defs."/$defs/Properties/definitions/Domains" | fn.#ListExpression
+	Domains?:       _#defs."/$defs/Properties/definitions/Domains"
 	Name?:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

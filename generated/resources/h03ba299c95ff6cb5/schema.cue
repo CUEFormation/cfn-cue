@@ -25,7 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	Tags?: _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/IamIdentityCenter": close({
@@ -41,7 +41,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/IdentitySourceArn": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/IdentitySourceParameters": close(
-	{IamIdentityCenter!: _#defs."/$defs/Properties/definitions/IamIdentityCenter" | fn.#ObjectExpression},
+	{IamIdentityCenter!: _#defs."/$defs/Properties/definitions/IamIdentityCenter"},
 ) |
 	fn.#ObjectExpression
 
@@ -51,9 +51,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::MPA::IdentitySource"

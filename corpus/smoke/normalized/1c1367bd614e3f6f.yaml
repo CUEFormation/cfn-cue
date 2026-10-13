@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  SomeManagedPolicy:
+    Properties:
+      Description: 'Example1? Managed Policy
+
+        '
+      PolicyDocument:
+        Statement:
+        - Action:
+          - s3:ListBucket
+          - s3:GetObject
+          Effect: Allow
+          Resource: '*'
+        Version: '2012-10-17'
+    Type: AWS::IAM::ManagedPolicy

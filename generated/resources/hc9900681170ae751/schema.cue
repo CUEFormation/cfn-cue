@@ -11,7 +11,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::AppStream::StackUserAssociation
 #Properties: close({
 	AuthenticationType!:    string | fn.#StringExpression
-	SendEmailNotification?: bool | fn.#BooleanExpression
+	SendEmailNotification?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	StackName!:             string | fn.#StringExpression
 	UserName!:              string | fn.#StringExpression
 })

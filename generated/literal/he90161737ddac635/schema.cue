@@ -25,7 +25,7 @@ import (
 	DataTiering?: "true" | "false"
 
 	// The ID of the KMS key used to encrypt the snapshot.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The name of the snapshot.
 	SnapshotName!: string
@@ -79,10 +79,10 @@ _#defs: "/$defs/Properties/definitions/ClusterConfiguration": close({
 	SubnetGroupName?: string
 
 	// The Amazon Resource Name (ARN) of the SNS notification topic for the cluster.
-	TopicArn?: string
+	TopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 
 	// The ID of the VPC the cluster belongs to.
-	VpcId?: string
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

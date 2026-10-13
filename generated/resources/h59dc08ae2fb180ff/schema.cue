@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):s3:[a-z\\-0-9]*:[0-9]*:.*$" |
 	fn.#StringExpression
-	S3Config!: _#defs."/$defs/Properties/definitions/S3Config" | fn.#ObjectExpression
+	S3Config!: _#defs."/$defs/Properties/definitions/S3Config"
 	S3StorageClass?: "STANDARD" |
 		"STANDARD_IA" |
 		"ONEZONE_IA" |
@@ -29,14 +29,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	Subdirectory?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}\\p{C}]*$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/S3Config": close({
-	BucketAccessRoleArn!: strings.MaxRunes(2048) &
+	BucketAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*$" |
 	fn.#StringExpression

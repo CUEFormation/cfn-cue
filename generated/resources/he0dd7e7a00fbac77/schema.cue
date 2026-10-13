@@ -16,12 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Contributor Insights rule that analyzes log data to identify top
 // contributors and usage patterns.
 #Properties: close({
-	ApplyOnTransformedLogs?: bool | fn.#BooleanExpression
+	ApplyOnTransformedLogs?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RuleBody!:               string | fn.#StringExpression
 	RuleName!:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\x20-\\x7E]+$" | fn.#StringExpression
 	RuleState!: ("ENABLED" | "DISABLED") & (strings.MaxRunes(32) & strings.MinRunes(1)) | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

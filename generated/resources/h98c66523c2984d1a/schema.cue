@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,11 +21,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Components?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/Component" | fn.#ObjectExpression}}) |
+		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/Component"}}) |
 	fn.#ObjectExpression
 	CompositeComponents?: close({
 
-		{[=~"[a-zA-Z_\\-0-9/]+"]: _#defs."/$defs/Properties/definitions/CompositeComponent" | fn.#ObjectExpression}}) |
+		{[=~"[a-zA-Z_\\-0-9/]+"]: _#defs."/$defs/Properties/definitions/CompositeComponent"}}) |
 	fn.#ObjectExpression
 	Description?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
 	EntityId?: strings.MaxRunes(128) &
@@ -49,11 +53,11 @@ _#defs: "/$defs/Properties/definitions/Component": close({
 	Description?:     strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
 	Properties?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/Property" | fn.#ObjectExpression}}) |
+		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/Property"}}) |
 	fn.#ObjectExpression
 	PropertyGroups?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/PropertyGroup" | fn.#ObjectExpression}}) |
+		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/PropertyGroup"}}) |
 	fn.#ObjectExpression
 	Status?: _#defs."/$defs/Properties/definitions/Status" | fn.#ObjectExpression
 }) |
@@ -66,20 +70,18 @@ _#defs: "/$defs/Properties/definitions/CompositeComponent": close({
 	Description?:     strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
 	Properties?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/Property" | fn.#ObjectExpression}}) |
+		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/Property"}}) |
 	fn.#ObjectExpression
 	PropertyGroups?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/PropertyGroup" | fn.#ObjectExpression}}) |
+		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/PropertyGroup"}}) |
 	fn.#ObjectExpression
 	Status?: _#defs."/$defs/Properties/definitions/Status" | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataType": close({
-	AllowedValues?: list.MaxItems(50) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DataValue" | fn.#ObjectExpression
-	] |
+	AllowedValues?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/DataValue"] |
 		fn.#ListExpression
 	NestedType?:   _#defs."/$defs/Properties/definitions/DataType" | fn.#ObjectExpression
 	Relationship?: _#defs."/$defs/Properties/definitions/Relationship" | fn.#ObjectExpression
@@ -89,17 +91,65 @@ _#defs: "/$defs/Properties/definitions/DataType": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataValue": close({
-	BooleanValue?: bool | fn.#BooleanExpression
-	DoubleValue?:  number | fn.#NumberExpression
+	BooleanValue?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DoubleValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Expression?: strings.MaxRunes(316) & strings.MinRunes(1) & =~"(^\\$\\{Parameters\\.[a-zA-z]+([a-zA-z_0-9]*)}$)" |
 	fn.#StringExpression
-	IntegerValue?: int | fn.#NumberExpression
-	ListValue?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/DataValue" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	LongValue?: number | fn.#NumberExpression
+	IntegerValue?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ListValue?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/DataValue"] | fn.#ListExpression
+	LongValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	MapValue?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/DataValue" | fn.#ObjectExpression}}) |
+		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/DataValue"}}) |
 	fn.#ObjectExpression
 	RelationshipValue?: close({
 		TargetComponentName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" | fn.#StringExpression
@@ -119,13 +169,13 @@ _#defs: "/$defs/Properties/definitions/Definition": close({
 	Configuration?:      _#defs."/$defs/Properties/definitions/PropertyDefinitionConfiguration" | fn.#ObjectExpression
 	DataType?:           _#defs."/$defs/Properties/definitions/DataType" | fn.#ObjectExpression
 	DefaultValue?:       _#defs."/$defs/Properties/definitions/DataValue" | fn.#ObjectExpression
-	IsExternalId?:       bool | fn.#BooleanExpression
-	IsFinal?:            bool | fn.#BooleanExpression
-	IsImported?:         bool | fn.#BooleanExpression
-	IsInherited?:        bool | fn.#BooleanExpression
-	IsRequiredInEntity?: bool | fn.#BooleanExpression
-	IsStoredExternally?: bool | fn.#BooleanExpression
-	IsTimeSeries?:       bool | fn.#BooleanExpression
+	IsExternalId?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IsFinal?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IsImported?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IsInherited?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IsRequiredInEntity?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IsStoredExternally?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IsTimeSeries?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -143,7 +193,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/PropertyGroup": close({
 	GroupType?: "TABULAR" | fn.#StringExpression
 	PropertyNames?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PropertyName" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/PropertyName"
 	] |
 		fn.#ListExpression
 }) |
@@ -159,10 +209,12 @@ _#defs: "/$defs/Properties/definitions/Relationship": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Status": close({
-	Error?: (close({}) | close({
+	Error?: fn.#Object &
+	{...} &
+	(close({}) | close({
 		Code?:    "VALIDATION_ERROR" | "INTERNAL_FAILURE" | fn.#StringExpression
 		Message?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	})) & {[string]: fn.#Value} |
+	})) |
 	fn.#ObjectExpression
 	State?: "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "ERROR" | fn.#StringExpression
 }) |

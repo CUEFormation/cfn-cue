@@ -9,6 +9,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,11 +21,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Components?: close({
 
-		{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentDeploymentSpecification" | fn.#ObjectExpression}}) |
+		{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentDeploymentSpecification"}}) |
 	fn.#ObjectExpression
 	DeploymentName?:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	DeploymentPolicies?:  _#defs."/$defs/Properties/definitions/DeploymentPolicies" | fn.#ObjectExpression
-	IotJobConfiguration?: _#defs."/$defs/Properties/definitions/DeploymentIoTJobConfiguration" | fn.#ObjectExpression
+	DeploymentPolicies?:  _#defs."/$defs/Properties/definitions/DeploymentPolicies"
+	IotJobConfiguration?: _#defs."/$defs/Properties/definitions/DeploymentIoTJobConfiguration"
 	ParentTargetArn?:     =~"arn:[^:]*:iot:[^:]*:[0-9]+:thinggroup/.+" | fn.#StringExpression
 	Tags?: struct.MaxFields(200) & close({
 
@@ -38,92 +42,263 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComponentDeploymentSpecification": close({
 	ComponentVersion?:    strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	ConfigurationUpdate?: _#defs."/$defs/Properties/definitions/ComponentConfigurationUpdate" | fn.#ObjectExpression
-	RunWith?:             _#defs."/$defs/Properties/definitions/ComponentRunWith" | fn.#ObjectExpression
+	ConfigurationUpdate?: _#defs."/$defs/Properties/definitions/ComponentConfigurationUpdate"
+	RunWith?:             _#defs."/$defs/Properties/definitions/ComponentRunWith"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComponentRunWith": close({
 	PosixUser?:            strings.MinRunes(1) | fn.#StringExpression
-	SystemResourceLimits?: _#defs."/$defs/Properties/definitions/SystemResourceLimits" | fn.#ObjectExpression
+	SystemResourceLimits?: _#defs."/$defs/Properties/definitions/SystemResourceLimits"
 	WindowsUser?:          strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DeploymentComponentUpdatePolicy": close({
-	Action?:           "NOTIFY_COMPONENTS" | "SKIP_NOTIFY_COMPONENTS" | fn.#StringExpression
-	TimeoutInSeconds?: int & <=2147483647 & >=1 | fn.#NumberExpression
+	Action?: "NOTIFY_COMPONENTS" | "SKIP_NOTIFY_COMPONENTS" | fn.#StringExpression
+	TimeoutInSeconds?: int & <=2147483647 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentConfigurationValidationPolicy": close(
-	{TimeoutInSeconds?: int & <=2147483647 & >=1 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/DeploymentConfigurationValidationPolicy": close({
+	TimeoutInSeconds?: int & <=2147483647 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DeploymentIoTJobConfiguration": close({
-	AbortConfig?: _#defs."/$defs/Properties/definitions/IoTJobAbortConfig" | fn.#ObjectExpression
-	JobExecutionsRolloutConfig?: _#defs."/$defs/Properties/definitions/IoTJobExecutionsRolloutConfig" |
-		fn.#ObjectExpression
-	TimeoutConfig?: _#defs."/$defs/Properties/definitions/IoTJobTimeoutConfig" | fn.#ObjectExpression
+	AbortConfig?:                _#defs."/$defs/Properties/definitions/IoTJobAbortConfig"
+	JobExecutionsRolloutConfig?: _#defs."/$defs/Properties/definitions/IoTJobExecutionsRolloutConfig"
+	TimeoutConfig?:              _#defs."/$defs/Properties/definitions/IoTJobTimeoutConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DeploymentPolicies": close({
-	ComponentUpdatePolicy?: _#defs."/$defs/Properties/definitions/DeploymentComponentUpdatePolicy" |
-		fn.#ObjectExpression
-	ConfigurationValidationPolicy?: _#defs."/$defs/Properties/definitions/DeploymentConfigurationValidationPolicy" |
-		fn.#ObjectExpression
-	FailureHandlingPolicy?: "ROLLBACK" | "DO_NOTHING" | fn.#StringExpression
+	ComponentUpdatePolicy?:         _#defs."/$defs/Properties/definitions/DeploymentComponentUpdatePolicy"
+	ConfigurationValidationPolicy?: _#defs."/$defs/Properties/definitions/DeploymentConfigurationValidationPolicy"
+	FailureHandlingPolicy?:         "ROLLBACK" | "DO_NOTHING" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IoTJobAbortConfig": close({
-	CriteriaList!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/IoTJobAbortCriteria" | fn.#ObjectExpression
-	] |
+	CriteriaList!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/IoTJobAbortCriteria"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IoTJobAbortCriteria": close({
-	Action!:                    "CANCEL" | fn.#StringExpression
-	FailureType!:               "FAILED" | "REJECTED" | "TIMED_OUT" | "ALL" | fn.#StringExpression
-	MinNumberOfExecutedThings!: int & <=2147483647 & >=1 | fn.#NumberExpression
-	ThresholdPercentage!:       <=100 & >=0 | fn.#NumberExpression
+	Action!:      "CANCEL" | fn.#StringExpression
+	FailureType!: "FAILED" | "REJECTED" | "TIMED_OUT" | "ALL" | fn.#StringExpression
+	MinNumberOfExecutedThings!: int & <=2147483647 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ThresholdPercentage!: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IoTJobExecutionsRolloutConfig": close({
-	ExponentialRate?:  _#defs."/$defs/Properties/definitions/IoTJobExponentialRolloutRate" | fn.#ObjectExpression
-	MaximumPerMinute?: int & <=1000 & >=1 | fn.#NumberExpression
+	ExponentialRate?: _#defs."/$defs/Properties/definitions/IoTJobExponentialRolloutRate"
+	MaximumPerMinute?: int & <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IoTJobExponentialRolloutRate": close({
-	BaseRatePerMinute!:    int & <=1000 & >=1 | fn.#NumberExpression
-	IncrementFactor!:      <=5 & >=1 | fn.#NumberExpression
-	RateIncreaseCriteria!: _#defs."/$defs/Properties/definitions/IoTJobRateIncreaseCriteria" | fn.#ObjectExpression
+	BaseRatePerMinute!: int & <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IncrementFactor!: <=5 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=5 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RateIncreaseCriteria!: _#defs."/$defs/Properties/definitions/IoTJobRateIncreaseCriteria"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IoTJobRateIncreaseCriteria": matchN(1, [close(
-	{NumberOfNotifiedThings?: _#defs."/$defs/Properties/definitions/NumberOfThings" | fn.#NumberExpression},
+_#defs: "/$defs/Properties/definitions/IoTJobRateIncreaseCriteria": fn.#Object & {...} & matchN(1, [close(
+	{NumberOfNotifiedThings?: _#defs."/$defs/Properties/definitions/NumberOfThings"},
 ), close(
-	{NumberOfSucceededThings?: _#defs."/$defs/Properties/definitions/NumberOfThings" | fn.#NumberExpression},
-)]) & {[string]: fn.#Value} |
+	{NumberOfSucceededThings?: _#defs."/$defs/Properties/definitions/NumberOfThings"},
+)]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IoTJobTimeoutConfig": close(
-	{InProgressTimeoutInMinutes?: int & <=2147483647 & >=0 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/IoTJobTimeoutConfig": close({
+	InProgressTimeoutInMinutes?: int & <=2147483647 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NumberOfThings": int & <=2147483647 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/NumberOfThings": int & <=2147483647 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=2147483647 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/SystemResourceLimits": close({
-	Cpus?:   >=0 | fn.#NumberExpression
-	Memory?: int & <=9223372036854772000 & >=0 | fn.#NumberExpression
+	Cpus?: >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Memory?: int & <=9223372036854772000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=9223372036854772000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

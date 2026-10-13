@@ -17,7 +17,7 @@ import (
 	Cors?:     _#defs."/$defs/Properties/definitions/Cors"
 
 	// The full Amazon Resource Name (ARN) of the function associated with the Function URL.
-	FunctionArn?: string
+	FunctionArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
 
 	// The generated url for this resource.
 	FunctionUrl?: string

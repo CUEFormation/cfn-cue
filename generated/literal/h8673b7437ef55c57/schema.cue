@@ -24,7 +24,8 @@ import (
 
 	// The Amazon Resource Name (ARN) of the AWS IAM role that the DataSync will
 	// assume when mounting the EFS file system.
-	FileSystemAccessRoleArn?: strings.MaxRunes(128) &
+	FileSystemAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*$"
 

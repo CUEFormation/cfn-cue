@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -48,8 +52,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^((`[\\w\\- ]+`)|([\\w\\-]+))(\\.((`[\\w\\- ]+`)|([\\w\\-]+)))*$" |
 	fn.#StringExpression
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:    [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	fn.#StringExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Action": close({
@@ -97,8 +102,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DetectorModelDefinition": close({
 	InitialStateName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	States!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/State" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	States!:           list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/State"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -123,7 +127,7 @@ _#defs: "/$defs/Properties/definitions/DynamoDBv2": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Event": close({
-	Actions?:   [..._#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression] | fn.#ListExpression
+	Actions?:   [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
 	Condition?: strings.MaxRunes(512) | fn.#StringExpression
 	EventName!: strings.MaxRunes(128) | fn.#StringExpression
 }) |
@@ -158,25 +162,25 @@ _#defs: "/$defs/Properties/definitions/IotTopicPublish": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Lambda": close({
-	FunctionArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Payload?:     _#defs."/$defs/Properties/definitions/Payload" | fn.#ObjectExpression
+	FunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	fn.#StringExpression
+	Payload?: _#defs."/$defs/Properties/definitions/Payload" | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OnEnter": close(
-	{Events?: [..._#defs."/$defs/Properties/definitions/Event" | fn.#ObjectExpression] | fn.#ListExpression},
+	{Events?: [..._#defs."/$defs/Properties/definitions/Event"] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OnExit": close(
-	{Events?: [..._#defs."/$defs/Properties/definitions/Event" | fn.#ObjectExpression] | fn.#ListExpression},
+	{Events?: [..._#defs."/$defs/Properties/definitions/Event"] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OnInput": close({
-	Events?: [..._#defs."/$defs/Properties/definitions/Event" | fn.#ObjectExpression] | fn.#ListExpression
-	TransitionEvents?: [..._#defs."/$defs/Properties/definitions/TransitionEvent" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Events?:           [..._#defs."/$defs/Properties/definitions/Event"] | fn.#ListExpression
+	TransitionEvents?: [..._#defs."/$defs/Properties/definitions/TransitionEvent"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -193,8 +197,23 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SetTimer": close({
 	DurationExpression?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Seconds?:            int & <=31622400 & >=60 | fn.#NumberExpression
-	TimerName!:          strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Seconds?: int & <=31622400 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=31622400 &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TimerName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -213,7 +232,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/Sqs": close({
 	Payload?:   _#defs."/$defs/Properties/definitions/Payload" | fn.#ObjectExpression
 	QueueUrl!:  string | fn.#StringExpression
-	UseBase64?: bool | fn.#BooleanExpression
+	UseBase64?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -232,7 +251,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TransitionEvent": close({
-	Actions?:   [..._#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression] | fn.#ListExpression
+	Actions?:   [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
 	Condition!: strings.MaxRunes(512) | fn.#StringExpression
 	EventName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	NextState!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

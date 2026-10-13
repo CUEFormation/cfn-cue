@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -26,11 +30,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	RuleConfig!:      _
 	...
 }]) & close({
-	AssertionRule?:   _#defs."/$defs/Properties/definitions/AssertionRule" | fn.#ObjectExpression
+	AssertionRule?:   _#defs."/$defs/Properties/definitions/AssertionRule"
 	ControlPanelArn?: string | fn.#StringExpression
-	GatingRule?:      _#defs."/$defs/Properties/definitions/GatingRule" | fn.#ObjectExpression
-	Name?:            _#defs."/$defs/Properties/definitions/SafetyRuleName" | fn.#StringExpression
-	RuleConfig?:      _#defs."/$defs/Properties/definitions/RuleConfig" | fn.#ObjectExpression
+	GatingRule?:      _#defs."/$defs/Properties/definitions/GatingRule"
+	Name?:            _#defs."/$defs/Properties/definitions/SafetyRuleName"
+	RuleConfig?:      _#defs."/$defs/Properties/definitions/RuleConfig"
 	Tags?: [
 		..._#defs."/$defs/Properties/definitions/Tag" & (null | bool | number | string | list.MaxItems(20) | {...}) |
 		fn.#ObjectExpression
@@ -40,21 +44,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 _#defs: "/$defs/Properties/definitions/AssertionRule": close({
 	AssertedControls!: [...string | fn.#StringExpression] | fn.#ListExpression
-	WaitPeriodMs!:     int | fn.#NumberExpression
+	WaitPeriodMs!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GatingRule": close({
 	GatingControls!: [...string | fn.#StringExpression] | fn.#ListExpression
 	TargetControls!: [...string | fn.#StringExpression] | fn.#ListExpression
-	WaitPeriodMs!:   int | fn.#NumberExpression
+	WaitPeriodMs!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RuleConfig": close({
-	Inverted!:  bool | fn.#BooleanExpression
-	Threshold!: int | fn.#NumberExpression
-	Type!:      _#defs."/$defs/Properties/definitions/RuleType" | fn.#StringExpression
+	Inverted!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Threshold!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type!: _#defs."/$defs/Properties/definitions/RuleType"
 }) |
 fn.#ObjectExpression
 

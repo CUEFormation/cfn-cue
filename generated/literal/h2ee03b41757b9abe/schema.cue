@@ -36,16 +36,16 @@ _#defs: "/$defs/Properties/definitions/CountryRule": close({
 	ProtectStatus!: "ALLOW" | "BLOCK" | "MONITOR" | "FILTER"
 })
 
-_#defs: "/$defs/Properties/definitions/CountryRuleSet": ({
+_#defs: "/$defs/Properties/definitions/CountryRuleSet": matchN(>=1, [{
 	SMS!: _
 	...
-} | {
+}, {
 	VOICE!: _
 	...
-} | {
+}, {
 	MMS!: _
 	...
-}) & close({
+}]) & close({
 	MMS?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"]
 	SMS?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"]
 	VOICE?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"]

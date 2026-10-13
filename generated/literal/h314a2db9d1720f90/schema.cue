@@ -16,15 +16,16 @@ import (
 	// The Amazon Resource Name (ARN) of the resource.
 	ConsentPortalArn?:
 		=~"^arn:[^:]+:bedrock-agentcore:[^:]*:[0-9]{12}:consent-portal/(?:[a-zA-Z0-9\\-_]{1,50}-[A-Za-z0-9]{10})$"
-	ConsentPortalId?:  =~"^[a-zA-Z0-9\\-_]{1,50}-[A-Za-z0-9]{10}$"
-	CreatedAt?:        time.Time
-	Description?:      strings.MaxRunes(512)
-	ExecutionRoleArn!: =~"^arn:aws(-[a-z-]+)?:iam::[0-9]{12}:role/[a-zA-Z0-9+=,.@\\-_/]+$"
-	IdpConfig!:        _#defs."/$defs/Properties/definitions/IdpConfig"
-	Name!:             strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,50}$"
-	PortalUrl?:        strings.MaxRunes(2000) & strings.MinRunes(1)
-	Sources!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ConsentPortalSource"]
-	Status?:  "CREATING" | "ACTIVE" | "UPDATING" | "UPDATE_FAILED" | "DELETING" | "FAILED"
+	ConsentPortalId?: =~"^[a-zA-Z0-9\\-_]{1,50}-[A-Za-z0-9]{10}$"
+	CreatedAt?:       time.Time
+	Description?:     strings.MaxRunes(512)
+	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:aws(-[a-z-]+)?:iam::[0-9]{12}:role/[a-zA-Z0-9+=,.@\\-_/]+$"
+	IdpConfig!: _#defs."/$defs/Properties/definitions/IdpConfig"
+	Name!:      strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,50}$"
+	PortalUrl?: strings.MaxRunes(2000) & strings.MinRunes(1)
+	Sources!:   list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ConsentPortalSource"]
+	Status?:    "CREATING" | "ACTIVE" | "UPDATING" | "UPDATE_FAILED" | "DELETING" | "FAILED"
 
 	// Tags to assign to the consent portal
 	Tags?:      list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]

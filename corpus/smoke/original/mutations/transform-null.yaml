@@ -1,0 +1,4 @@
+Transform: null
+Resources:
+  Queue:
+    Type: AWS::SQS::Queue

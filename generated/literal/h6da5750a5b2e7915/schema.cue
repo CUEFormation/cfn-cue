@@ -43,7 +43,8 @@ import (
 	// interact with AWS services. This role must have a trust policy that allows
 	// the EKS service principal to assume it, and it must have the necessary
 	// permissions for the capability type you're creating.
-	RoleArn!: =~"^arn:aws[a-z-]*:iam::[0-9]+:role/[a-zA-Z0-9+=,.@_-]+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:aws[a-z-]*:iam::[0-9]+:role/[a-zA-Z0-9+=,.@_-]+$"
 
 	// The current status of the capability. Valid values include: CREATING (the
 	// capability is being created), ACTIVE (the capability is running and

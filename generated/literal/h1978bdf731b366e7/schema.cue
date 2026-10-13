@@ -95,13 +95,13 @@ _#defs: "/$defs/Properties/definitions/NetworkAclEntry": close({
 _#defs: "/$defs/Properties/definitions/NetworkAclEntryList": [..._#defs."/$defs/Properties/definitions/NetworkAclEntry"]
 
 // Network ACL entry set.
-_#defs: "/$defs/Properties/definitions/NetworkAclEntrySet": ({
+_#defs: "/$defs/Properties/definitions/NetworkAclEntrySet": matchN(>=1, [{
 	FirstEntries!: _
 	...
-} | {
+}, {
 	LastEntries!: _
 	...
-}) & close({
+}]) & close({
 	FirstEntries?:                  _#defs."/$defs/Properties/definitions/NetworkAclEntryList"
 	ForceRemediateForFirstEntries!: bool
 	ForceRemediateForLastEntries!:  bool

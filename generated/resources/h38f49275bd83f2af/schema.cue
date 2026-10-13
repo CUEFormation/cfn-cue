@@ -17,9 +17,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ExcludeAppPackagesFromCleanup?: [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
 	Name!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	PackageCleanup?: bool | fn.#BooleanExpression
-	RebootAfterUse?: bool | fn.#BooleanExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	PackageCleanup?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RebootAfterUse?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

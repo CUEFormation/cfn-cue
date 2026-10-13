@@ -17,70 +17,81 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N}\\p{P}\\p{S}\\p{Z}]+$" |
 	fn.#StringExpression
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
 	fn.#StringExpression
 	Locale?: strings.MaxRunes(35) & strings.MinRunes(2) & =~"^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})*$" | fn.#StringExpression
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N}\\p{P}\\p{S}\\p{Z}]+$" | fn.#StringExpression
 	OperatorApp?: close({
-		Iam?: close({OperatorAppRoleArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
+		Iam?: close({
+			OperatorAppRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		}) |
+			fn.#ObjectExpression
 		Idc?: close({
-			IdcInstanceArn!:     string | fn.#StringExpression
-			OperatorAppRoleArn!: string | fn.#StringExpression
+			IdcInstanceArn!: string | fn.#StringExpression
+			OperatorAppRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		Idp?: close({
-			ClientId!:           strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-			ClientSecret!:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-			IssuerUrl!:          =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
-			OperatorAppRoleArn!: string | fn.#StringExpression
-			Provider!:           "okta" | "entra" | fn.#StringExpression
+			ClientId!:     strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+			ClientSecret!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+			IssuerUrl!:    =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
+			OperatorAppRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+			Provider!: "okta" | "entra" | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
-	Preferences?: _#defs."/$defs/Properties/definitions/Preferences" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Preferences?: _#defs."/$defs/Properties/definitions/Preferences"
+	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/IamAuthConfiguration": close({
-	CreatedAt?:          time.Time | fn.#StringExpression
-	OperatorAppRoleArn!: string | fn.#StringExpression
-	UpdatedAt?:          time.Time | fn.#StringExpression
+	CreatedAt?: time.Time | fn.#StringExpression
+	OperatorAppRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	UpdatedAt?: time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IdcAuthConfiguration": close({
-	CreatedAt?:          time.Time | fn.#StringExpression
-	IdcApplicationArn?:  string | fn.#StringExpression
-	IdcInstanceArn!:     string | fn.#StringExpression
-	OperatorAppRoleArn!: string | fn.#StringExpression
-	UpdatedAt?:          time.Time | fn.#StringExpression
+	CreatedAt?:         time.Time | fn.#StringExpression
+	IdcApplicationArn?: string | fn.#StringExpression
+	IdcInstanceArn!:    string | fn.#StringExpression
+	OperatorAppRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	UpdatedAt?: time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IdpAuthConfiguration": close({
-	ClientId!:           strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecret!:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	CreatedAt?:          time.Time | fn.#StringExpression
-	IssuerUrl!:          =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
-	OperatorAppRoleArn!: string | fn.#StringExpression
-	Provider!:           "okta" | "entra" | fn.#StringExpression
-	UpdatedAt?:          time.Time | fn.#StringExpression
-	UserIdClaim?:        string | fn.#StringExpression
+	ClientId!:     strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	ClientSecret!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	CreatedAt?:    time.Time | fn.#StringExpression
+	IssuerUrl!:    =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
+	OperatorAppRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	Provider!:    "okta" | "entra" | fn.#StringExpression
+	UpdatedAt?:   time.Time | fn.#StringExpression
+	UserIdClaim?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OperatorApp": close({
-	Iam?: _#defs."/$defs/Properties/definitions/IamAuthConfiguration" | fn.#ObjectExpression
-	Idc?: _#defs."/$defs/Properties/definitions/IdcAuthConfiguration" | fn.#ObjectExpression
-	Idp?: _#defs."/$defs/Properties/definitions/IdpAuthConfiguration" | fn.#ObjectExpression
+	Iam?: _#defs."/$defs/Properties/definitions/IamAuthConfiguration"
+	Idc?: _#defs."/$defs/Properties/definitions/IdcAuthConfiguration"
+	Idp?: _#defs."/$defs/Properties/definitions/IdpAuthConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Preferences": close({ElevatedActionsEnabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/Preferences": close(
+	{ElevatedActionsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

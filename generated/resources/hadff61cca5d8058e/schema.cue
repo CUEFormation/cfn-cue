@@ -16,9 +16,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // events.
 #Properties: close({
 	AutomationDocument!:   strings.MaxRunes(500) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-	AutomationParameters!: _#defs."/$defs/Properties/definitions/AutomationParameters" | fn.#ObjectExpression
+	AutomationParameters!: _#defs."/$defs/Properties/definitions/AutomationParameters"
 	ResourceKey!:          strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	Tags?:                 _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
+	Tags?:                 _#defs."/$defs/Properties/definitions/TagsMap"
 })
 
 _#defs: "/$defs/Properties/definitions/AutomationParameters": close({

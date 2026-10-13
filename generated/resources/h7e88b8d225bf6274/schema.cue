@@ -18,9 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 	Name!:        strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	QuickConnectConfig!: _#defs."/$defs/Properties/definitions/QuickConnectConfig" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
@@ -28,14 +26,14 @@ _#defs: "/$defs/Properties/definitions/ContactFlowArn": =~"^arn:aws[-a-z0-9]*:co
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/FlowQuickConnectConfig": close(
-	{ContactFlowArn!: _#defs."/$defs/Properties/definitions/ContactFlowArn" | fn.#StringExpression},
+	{ContactFlowArn!: _#defs."/$defs/Properties/definitions/ContactFlowArn"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PhoneNumber": =~"^\\+[1-9]\\d{1,14}$" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PhoneNumberQuickConnectConfig": close(
-	{PhoneNumber!: _#defs."/$defs/Properties/definitions/PhoneNumber" | fn.#StringExpression},
+	{PhoneNumber!: _#defs."/$defs/Properties/definitions/PhoneNumber"},
 ) |
 	fn.#ObjectExpression
 
@@ -43,17 +41,17 @@ _#defs: "/$defs/Properties/definitions/QueueArn": =~"^arn:aws[-a-z0-9]*:connect:
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/QueueQuickConnectConfig": close({
-	ContactFlowArn!: _#defs."/$defs/Properties/definitions/ContactFlowArn" | fn.#StringExpression
-	QueueArn!:       _#defs."/$defs/Properties/definitions/QueueArn" | fn.#StringExpression
+	ContactFlowArn!: _#defs."/$defs/Properties/definitions/ContactFlowArn"
+	QueueArn!:       _#defs."/$defs/Properties/definitions/QueueArn"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/QuickConnectConfig": close({
-	FlowConfig?:       _#defs."/$defs/Properties/definitions/FlowQuickConnectConfig" | fn.#ObjectExpression
-	PhoneConfig?:      _#defs."/$defs/Properties/definitions/PhoneNumberQuickConnectConfig" | fn.#ObjectExpression
-	QueueConfig?:      _#defs."/$defs/Properties/definitions/QueueQuickConnectConfig" | fn.#ObjectExpression
-	QuickConnectType!: _#defs."/$defs/Properties/definitions/QuickConnectType" | fn.#StringExpression
-	UserConfig?:       _#defs."/$defs/Properties/definitions/UserQuickConnectConfig" | fn.#ObjectExpression
+	FlowConfig?:       _#defs."/$defs/Properties/definitions/FlowQuickConnectConfig"
+	PhoneConfig?:      _#defs."/$defs/Properties/definitions/PhoneNumberQuickConnectConfig"
+	QueueConfig?:      _#defs."/$defs/Properties/definitions/QueueQuickConnectConfig"
+	QuickConnectType!: _#defs."/$defs/Properties/definitions/QuickConnectType"
+	UserConfig?:       _#defs."/$defs/Properties/definitions/UserQuickConnectConfig"
 }) |
 fn.#ObjectExpression
 
@@ -73,8 +71,8 @@ _#defs: "/$defs/Properties/definitions/UserArn": =~"^arn:aws[-a-z0-9]*:connect:[
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/UserQuickConnectConfig": close({
-	ContactFlowArn!: _#defs."/$defs/Properties/definitions/ContactFlowArn" | fn.#StringExpression
-	UserArn!:        _#defs."/$defs/Properties/definitions/UserArn" | fn.#StringExpression
+	ContactFlowArn!: _#defs."/$defs/Properties/definitions/ContactFlowArn"
+	UserArn!:        _#defs."/$defs/Properties/definitions/UserArn"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

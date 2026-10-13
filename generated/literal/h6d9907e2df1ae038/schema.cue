@@ -46,7 +46,8 @@ import (
 	DisplayName?: strings.MaxRunes(128) & strings.MinRunes(3)
 
 	// The ARN of the IAM role assumed to execute recommendation actions.
-	ExecutionRoleArn!: strings.MaxRunes(2048) &
+	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:([a-z\\-]+):iam::[0-9]{12}:role/(service-role/)?[a-zA-Z0-9+=,.@\\-_]+$"
 
@@ -72,7 +73,8 @@ import (
 // resources in that account.
 _#defs: "/$defs/Properties/definitions/AggregationConfiguration": close({
 	// The ARN of the IAM role used to access resources in this account.
-	AccessRoleArn!: strings.MaxRunes(2048) &
+	AccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:([a-z\\-]+):iam::[0-9]{12}:role/(service-role/)?[a-zA-Z0-9+=,.@\\-_]+$"
 

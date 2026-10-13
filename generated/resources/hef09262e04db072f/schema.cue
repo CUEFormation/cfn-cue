@@ -8,20 +8,23 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Instance
 #Properties: close({
-	AddOns?:           [..._#defs."/$defs/Properties/definitions/AddOn" | fn.#ObjectExpression] | fn.#ListExpression
+	AddOns?:           [..._#defs."/$defs/Properties/definitions/AddOn"] | fn.#ListExpression
 	AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	BlueprintId!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 	BundleId!:         strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	Hardware?: close({
-		Disks?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Disk" | fn.#ObjectExpression] |
-			fn.#ListExpression
-	}) |
+	Hardware?: close(
+		{Disks?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Disk"] | fn.#ListExpression},
+	) |
 		fn.#ObjectExpression
 	InstanceName!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" |
 	fn.#StringExpression
@@ -29,20 +32,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Location?:    close({}) | fn.#ObjectExpression
 	Networking?: close({
 		MonthlyTransfer?: close({}) | fn.#ObjectExpression
-		Ports!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Port" | fn.#ObjectExpression] |
-			fn.#ListExpression
+		Ports!:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Port"] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
-	State?: close({}) | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	State?:    close({}) | fn.#ObjectExpression
+	Tags?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	UserData?: string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AddOn": close({
 	AddOnType!: ("AutoSnapshot" | "StopInstanceOnIdle") & (strings.MaxRunes(128) & strings.MinRunes(1)) |
 	fn.#StringExpression
-	AutoSnapshotAddOnRequest?: _#defs."/$defs/Properties/definitions/AutoSnapshotAddOn" | fn.#ObjectExpression
+	AutoSnapshotAddOnRequest?: _#defs."/$defs/Properties/definitions/AutoSnapshotAddOn"
 	Status?: "Enabling" |
 		"Disabling" |
 		"Enabled" |
@@ -64,18 +65,56 @@ _#defs: "/$defs/Properties/definitions/Disk": close({
 	AttachmentState?: string | fn.#StringExpression
 	DiskName!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" |
 	fn.#StringExpression
-	IOPS?:         int | fn.#NumberExpression
-	IsSystemDisk?: bool | fn.#BooleanExpression
+	IOPS?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	IsSystemDisk?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Path!:         string | fn.#StringExpression
 	SizeInGb?:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Hardware": close({
-	CpuCount?: int | fn.#NumberExpression
-	Disks?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Disk" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	RamSizeInGb?: int | fn.#NumberExpression
+	CpuCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Disks?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Disk"] | fn.#ListExpression
+	RamSizeInGb?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -89,9 +128,8 @@ _#defs: "/$defs/Properties/definitions/MonthlyTransfer": close({GbPerMonthAlloca
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Networking": close({
-	MonthlyTransfer?: _#defs."/$defs/Properties/definitions/MonthlyTransfer" | fn.#ObjectExpression
-	Ports!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Port" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	MonthlyTransfer?: _#defs."/$defs/Properties/definitions/MonthlyTransfer"
+	Ports!:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Port"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -99,18 +137,57 @@ _#defs: "/$defs/Properties/definitions/Port": close({
 	AccessDirection?: string | fn.#StringExpression
 	AccessFrom?:      string | fn.#StringExpression
 	AccessType?:      string | fn.#StringExpression
-	CidrListAliases?: _#defs."/$defs/Properties/definitions/cidrListAliases" | fn.#ListExpression
-	Cidrs?:           _#defs."/$defs/Properties/definitions/cidrs" | fn.#ListExpression
+	CidrListAliases?: _#defs."/$defs/Properties/definitions/cidrListAliases"
+	Cidrs?:           _#defs."/$defs/Properties/definitions/cidrs"
 	CommonName?:      string | fn.#StringExpression
-	FromPort?:        int | fn.#NumberExpression
-	Ipv6Cidrs?:       _#defs."/$defs/Properties/definitions/ipv6Cidrs" | fn.#ListExpression
-	Protocol?:        string | fn.#StringExpression
-	ToPort?:          int | fn.#NumberExpression
+	FromPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ipv6Cidrs?: _#defs."/$defs/Properties/definitions/ipv6Cidrs"
+	Protocol?:  string | fn.#StringExpression
+	ToPort?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/State": close({
-	Code?: int | fn.#NumberExpression
+	Code?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Name?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

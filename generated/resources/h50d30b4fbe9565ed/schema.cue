@@ -19,8 +19,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^(([a-z0-9]+)|(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))$" |
 	fn.#StringExpression
 	GuardrailVersion!:         =~"^[1-9][0-9]{0,7}$" | fn.#StringExpression
-	ModelEnforcement?:         _#defs."/$defs/Properties/definitions/ModelEnforcement" | fn.#ObjectExpression
-	SelectiveContentGuarding?: _#defs."/$defs/Properties/definitions/SelectiveContentGuarding" | fn.#ObjectExpression
+	ModelEnforcement?:         _#defs."/$defs/Properties/definitions/ModelEnforcement"
+	SelectiveContentGuarding?: _#defs."/$defs/Properties/definitions/SelectiveContentGuarding"
 })
 
 _#defs: "/$defs/Properties/definitions/ConfigOwner": "ACCOUNT" | "ORGANIZATION" | fn.#StringExpression

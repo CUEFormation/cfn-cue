@@ -27,9 +27,12 @@ import (
 
 	// <p>A list of network interfaces.</p>
 	NetworkInterfaces?: list.MaxItems(15) & [...] & [..._#defs."/$defs/Properties/definitions/NetworkInterface"]
-	RoleArn?:           strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn?:           =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 	SecurityGroupIds?: list.MaxItems(16) & list.MinItems(1) & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^sg-[0-9a-z]*$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^sg-[0-9a-z]*$"
 	]
 	Status?: _#defs."/$defs/Properties/definitions/VPCConnectionResourceStatus"
 	SubnetIds?: list.MaxItems(15) & list.MinItems(2) & [
@@ -39,7 +42,7 @@ import (
 	VPCConnectionId?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[\\w\\-]+"
 
 	// <p>The Amazon EC2 VPC ID associated with the VPC connection.</p>
-	VPCId?: string
+	VPCId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 // <p>The structure that contains information about a network interface.</p>

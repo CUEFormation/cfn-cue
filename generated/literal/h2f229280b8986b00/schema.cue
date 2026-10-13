@@ -23,7 +23,8 @@ import (
 		=~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(idnamespace/[a-zA-Z_0-9-]{1,255})$"
 	IdNamespaceName!:   _#defs."/$defs/Properties/definitions/EntityName"
 	InputSourceConfig?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/IdNamespaceInputSource"]
-	RoleArn?: strings.MaxRunes(512) &
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
 	strings.MinRunes(32) &
 	=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]

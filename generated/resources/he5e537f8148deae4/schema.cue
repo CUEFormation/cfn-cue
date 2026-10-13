@@ -35,23 +35,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [AWS::IAM::RolePolicy](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-rolepolicy.html)
 // +
 // [AWS::IAM::UserPolicy](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-userpolicy.html)
-#Properties: ({
+#Properties: matchN(>=1, [{
 	Users!: _
 	...
-} | {
+}, {
 	Groups!: _
 	...
-} | {
+}, {
 	Roles!: _
 	...
-}) & close({
+}]) & close({
 	Groups?: [...string | fn.#StringExpression] | fn.#ListExpression
-	PolicyDocument!: strings.MaxRunes(131072) &
-	strings.MinRunes(1) &
-	=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+	PolicyDocument!: fn.#Object & {...} |
+	strings.MaxRunes(131072) & strings.MinRunes(1) & =~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
+	fn.#StringObjectExpression
 	PolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
 	Roles?:      [...string | fn.#StringExpression] | fn.#ListExpression
 	Users?:      [...string | fn.#StringExpression] | fn.#ListExpression

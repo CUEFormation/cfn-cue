@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,34 +22,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EventTimeFeatureName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
 	fn.#StringExpression
 	FeatureDefinitions!: list.MaxItems(2500) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FeatureDefinition" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/FeatureDefinition"
 	] |
 		fn.#ListExpression
 	FeatureGroupName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
 	fn.#StringExpression
 	OfflineStoreConfig?: close({
-		DataCatalogConfig?:        _#defs."/$defs/Properties/definitions/DataCatalogConfig" | fn.#ObjectExpression
-		DisableGlueTableCreation?: bool | fn.#BooleanExpression
-		S3StorageConfig!:          _#defs."/$defs/Properties/definitions/S3StorageConfig" | fn.#ObjectExpression
-		TableFormat?:              _#defs."/$defs/Properties/definitions/TableFormat" | fn.#StringExpression
+		DataCatalogConfig?:        _#defs."/$defs/Properties/definitions/DataCatalogConfig"
+		DisableGlueTableCreation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		S3StorageConfig!:          _#defs."/$defs/Properties/definitions/S3StorageConfig"
+		TableFormat?:              _#defs."/$defs/Properties/definitions/TableFormat"
 	}) |
 	fn.#ObjectExpression
 	OnlineStoreConfig?: close({
-		EnableOnlineStore?: bool | fn.#BooleanExpression
-		SecurityConfig?:    _#defs."/$defs/Properties/definitions/OnlineStoreSecurityConfig" | fn.#ObjectExpression
-		StorageType?:       _#defs."/$defs/Properties/definitions/StorageType" | fn.#StringExpression
-		TtlDuration?:       _#defs."/$defs/Properties/definitions/TtlDuration" | fn.#ObjectExpression
+		EnableOnlineStore?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SecurityConfig?:    _#defs."/$defs/Properties/definitions/OnlineStoreSecurityConfig"
+		StorageType?:       _#defs."/$defs/Properties/definitions/StorageType"
+		TtlDuration?:       _#defs."/$defs/Properties/definitions/TtlDuration"
 	}) |
 	fn.#ObjectExpression
 	RecordIdentifierFeatureName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
 	fn.#StringExpression
-	RoleArn?: strings.MaxRunes(2048) &
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ThroughputConfig?: _#defs."/$defs/Properties/definitions/ThroughputConfig" | fn.#ObjectExpression
+	Tags?:             list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	ThroughputConfig?: _#defs."/$defs/Properties/definitions/ThroughputConfig"
 })
 
 _#defs: "/$defs/Properties/definitions/DataCatalogConfig": close({
@@ -62,19 +66,20 @@ _#defs: "/$defs/Properties/definitions/FeatureDefinition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKeyId": (string | string | string) &
+_#defs: "/$defs/Properties/definitions/KmsKeyId": (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+	string) &
 strings.MaxRunes(2048) &
 strings.MinRunes(0) &
 =~"^[a-zA-Z0-9:/_-]*$" |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/OnlineStoreSecurityConfig": close(
-	{KmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId" | fn.#StringExpression},
+	{KmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3StorageConfig": close({
-	KmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId" | fn.#StringExpression
+	KmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId"
 	S3Uri!:    strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -90,23 +95,67 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ThroughputConfig": close({
-	ProvisionedReadCapacityUnits?:  int & <=10000000 & >=0 | fn.#NumberExpression
-	ProvisionedWriteCapacityUnits?: int & <=10000000 & >=0 | fn.#NumberExpression
-	ThroughputMode!:                _#defs."/$defs/Properties/definitions/ThroughputMode" | fn.#StringExpression
+	ProvisionedReadCapacityUnits?: int & <=10000000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10000000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ProvisionedWriteCapacityUnits?: int & <=10000000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10000000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ThroughputMode!: _#defs."/$defs/Properties/definitions/ThroughputMode"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ThroughputMode": "OnDemand" | "Provisioned" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TtlDuration": close({
-	Unit?:  _#defs."/$defs/Properties/definitions/Unit" | fn.#StringExpression
-	Value?: _#defs."/$defs/Properties/definitions/Value" | fn.#NumberExpression
+	Unit?:  _#defs."/$defs/Properties/definitions/Unit"
+	Value?: _#defs."/$defs/Properties/definitions/Value"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Unit": "Seconds" | "Minutes" | "Hours" | "Days" | "Weeks" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Value": int & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Value": int & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SageMaker::FeatureGroup"
 	Properties!: #Properties

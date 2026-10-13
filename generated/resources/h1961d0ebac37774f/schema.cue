@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -102,72 +106,198 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}]) & {...}
 ]) & close({
 	AdditionalStorageVolumes?: [...close({
-		AllocatedStorage?:    =~"^[0-9]*$" | fn.#StringExpression
-		Iops?:                int | fn.#NumberExpression
-		MaxAllocatedStorage?: int | fn.#NumberExpression
-		StorageThroughput?:   int | fn.#NumberExpression
-		StorageType?:         string | fn.#StringExpression
-		VolumeName?:          string | fn.#StringExpression
+		AllocatedStorage?: =~"^[0-9]*$" | fn.#StringExpression
+		Iops?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaxAllocatedStorage?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		StorageThroughput?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		StorageType?: string | fn.#StringExpression
+		VolumeName?:  string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
 	AllocatedStorage?:         =~"^[0-9]*$" | fn.#StringExpression
-	AllowMajorVersionUpgrade?: bool | fn.#BooleanExpression
-	ApplyImmediately?:         bool | fn.#BooleanExpression
-	AssociatedRoles?: [..._#defs."/$defs/Properties/definitions/DBInstanceRole" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	AutoMinorVersionUpgrade?:                   bool | fn.#BooleanExpression
-	AutomaticBackupReplicationKmsKeyId?:        string | fn.#StringExpression
-	AutomaticBackupReplicationRegion?:          string | fn.#StringExpression
-	AutomaticBackupReplicationRetentionPeriod?: int & >=1 | fn.#NumberExpression
-	AvailabilityZone?:                          string | fn.#StringExpression
-	BackupRetentionPeriod?:                     int & >=0 | fn.#NumberExpression
-	BackupTarget?:                              string | fn.#StringExpression
-	CACertificateIdentifier?:                   string | fn.#StringExpression
-	CertificateRotationRestart?:                bool | fn.#BooleanExpression
-	CharacterSetName?:                          string | fn.#StringExpression
-	CopyTagsToSnapshot?:                        bool | fn.#BooleanExpression
-	CustomIAMInstanceProfile?:                  string | fn.#StringExpression
-	DBClusterIdentifier?:                       string | fn.#StringExpression
-	DBClusterSnapshotIdentifier?:               string | fn.#StringExpression
-	DBInstanceClass?:                           string | fn.#StringExpression
+	AllowMajorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ApplyImmediately?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AssociatedRoles?:          [..._#defs."/$defs/Properties/definitions/DBInstanceRole"] | fn.#ListExpression
+	AutoMinorVersionUpgrade?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AutomaticBackupReplicationKmsKeyId?: string | fn.#StringExpression
+	AutomaticBackupReplicationRegion?:   string | fn.#StringExpression
+	AutomaticBackupReplicationRetentionPeriod?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	AvailabilityZone?: string | fn.#StringExpression
+	BackupRetentionPeriod?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	BackupTarget?:                string | fn.#StringExpression
+	CACertificateIdentifier?:     string | fn.#StringExpression
+	CertificateRotationRestart?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CharacterSetName?:            string | fn.#StringExpression
+	CopyTagsToSnapshot?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CustomIAMInstanceProfile?:    string | fn.#StringExpression
+	DBClusterIdentifier?:         string | fn.#StringExpression
+	DBClusterSnapshotIdentifier?: string | fn.#StringExpression
+	DBInstanceClass?:             string | fn.#StringExpression
 	DBInstanceIdentifier?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^$|^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" |
 	fn.#StringExpression
-	DBName?:                          string | fn.#StringExpression
-	DBParameterGroupName?:            string | fn.#StringExpression
-	DBSecurityGroups?:                list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	DBSnapshotIdentifier?:            string | fn.#StringExpression
-	DBSubnetGroupName?:               string | fn.#StringExpression
-	DBSystemId?:                      string | fn.#StringExpression
-	DatabaseInsightsMode?:            "advanced" | "standard" | fn.#StringExpression
-	DedicatedLogVolume?:              bool | fn.#BooleanExpression
-	DeleteAutomatedBackups?:          bool | fn.#BooleanExpression
-	DeletionProtection?:              bool | fn.#BooleanExpression
-	Domain?:                          string | fn.#StringExpression
-	DomainAuthSecretArn?:             string | fn.#StringExpression
-	DomainDnsIps?:                    [...string | fn.#StringExpression] | fn.#ListExpression
-	DomainFqdn?:                      string | fn.#StringExpression
-	DomainIAMRoleName?:               string | fn.#StringExpression
-	DomainOu?:                        string | fn.#StringExpression
-	EnableCloudwatchLogsExports?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	EnableIAMDatabaseAuthentication?: bool | fn.#BooleanExpression
-	EnablePerformanceInsights?:       bool | fn.#BooleanExpression
-	Engine?:                          string | fn.#StringExpression
-	EngineLifecycleSupport?:          string | fn.#StringExpression
-	EngineVersion?:                   string | fn.#StringExpression
-	Iops?:                            int | fn.#NumberExpression
-	KmsKeyId?:                        string | string | string | fn.#StringExpression
-	LicenseModel?:                    string | fn.#StringExpression
-	ManageMasterUserPassword?:        bool | fn.#BooleanExpression
-	MasterUserAuthenticationType?:    "iam-db-auth" | "password" | fn.#StringExpression
-	MasterUserPassword?:              string | fn.#StringExpression
-	MasterUserSecret?: close({KmsKeyId?: string | string | string | fn.#StringExpression}) | fn.#ObjectExpression
+	DBName?:                      string | fn.#StringExpression
+	DBParameterGroupName?:        string | fn.#StringExpression
+	DBSecurityGroups?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	DBSnapshotIdentifier?:        string | fn.#StringExpression
+	DBSubnetGroupName?:           string | fn.#StringExpression
+	DBSystemId?:                  string | fn.#StringExpression
+	DatabaseInsightsMode?:        "advanced" | "standard" | fn.#StringExpression
+	DedicatedLogVolume?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DeleteAutomatedBackups?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DeletionProtection?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Domain?:                      string | fn.#StringExpression
+	DomainAuthSecretArn?:         string | fn.#StringExpression
+	DomainDnsIps?:                [...string | fn.#StringExpression] | fn.#ListExpression
+	DomainFqdn?:                  string | fn.#StringExpression
+	DomainIAMRoleName?:           string | fn.#StringExpression
+	DomainOu?:                    string | fn.#StringExpression
+	EnableCloudwatchLogsExports?: [...string | fn.#StringExpression] | fn.#ListExpression
+	EnableIAMDatabaseAuthentication?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	EnablePerformanceInsights?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Engine?:                    string | fn.#StringExpression
+	EngineLifecycleSupport?:    string | fn.#StringExpression
+	EngineVersion?:             string | fn.#StringExpression
+	Iops?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	LicenseModel?:                 string | fn.#StringExpression
+	ManageMasterUserPassword?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MasterUserAuthenticationType?: "iam-db-auth" | "password" | fn.#StringExpression
+	MasterUserPassword?:           string | fn.#StringExpression
+	MasterUserSecret?: close({
+		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string |
+			fn.#StringExpression
+	}) |
+		fn.#ObjectExpression
 	MasterUsername?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]{0,127}$" |
 	fn.#StringExpression
-	MaxAllocatedStorage?:         int | fn.#NumberExpression
-	MonitoringInterval?:          int | fn.#NumberExpression
-	MonitoringRoleArn?:           string | fn.#StringExpression
-	MultiAZ?:                     bool | fn.#BooleanExpression
+	MaxAllocatedStorage?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MonitoringInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MonitoringRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	MultiAZ?:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NcharCharacterSetName?:       string | fn.#StringExpression
 	NetworkType?:                 string | fn.#StringExpression
 	OptionGroupName?:             string | fn.#StringExpression
@@ -202,38 +332,117 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Port?:                       =~"^\\d*$" | fn.#StringExpression
 	PreferredBackupWindow?:      string | fn.#StringExpression
 	PreferredMaintenanceWindow?: string | fn.#StringExpression
-	ProcessorFeatures?: [..._#defs."/$defs/Properties/definitions/ProcessorFeature" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	PromotionTier?:                       int & <=15 & >=0 | fn.#NumberExpression
-	PubliclyAccessible?:                  bool | fn.#BooleanExpression
-	ReplicaMode?:                         string | fn.#StringExpression
-	RestoreTime?:                         time.Time | fn.#StringExpression
-	SourceDBClusterIdentifier?:           string | fn.#StringExpression
+	ProcessorFeatures?:          [..._#defs."/$defs/Properties/definitions/ProcessorFeature"] | fn.#ListExpression
+	PromotionTier?: int & <=15 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=15 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PubliclyAccessible?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ReplicaMode?:               string | fn.#StringExpression
+	RestoreTime?:               time.Time | fn.#StringExpression
+	SourceDBClusterIdentifier?: string | fn.#StringExpression
 	SourceDBInstanceAutomatedBackupsArn?: string | fn.#StringExpression
 	SourceDBInstanceIdentifier?:          string | fn.#StringExpression
 	SourceDbiResourceId?:                 string | fn.#StringExpression
 	SourceRegion?:                        string | fn.#StringExpression
-	StorageEncrypted?:                    bool | fn.#BooleanExpression
-	StorageThroughput?:                   int | fn.#NumberExpression
-	StorageType?:                         string | fn.#StringExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	TdeCredentialArn?:      string | fn.#StringExpression
-	TdeCredentialPassword?: string | fn.#StringExpression
-	Timezone?:              string | fn.#StringExpression
-	UseDefaultProcessorFeatures?: bool | fn.#BooleanExpression
-	UseLatestRestorableTime?:     bool | fn.#BooleanExpression
+	StorageEncrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	StorageThroughput?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StorageType?:                 string | fn.#StringExpression
+	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TdeCredentialArn?:            string | fn.#StringExpression
+	TdeCredentialPassword?:       string | fn.#StringExpression
+	Timezone?:                    string | fn.#StringExpression
+	UseDefaultProcessorFeatures?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UseLatestRestorableTime?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VPCSecurityGroups?:           list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AdditionalStorageVolume": close({
-	AllocatedStorage?:                =~"^[0-9]*$" | fn.#StringExpression
-	Iops?:                            int | fn.#NumberExpression
-	MaxAllocatedStorage?:             int | fn.#NumberExpression
-	StorageOperationPercentProgress?: int | fn.#NumberExpression
-	StorageOperationStatus?:          string | fn.#StringExpression
-	StorageThroughput?:               int | fn.#NumberExpression
-	StorageType?:                     string | fn.#StringExpression
-	VolumeName?:                      string | fn.#StringExpression
+	AllocatedStorage?: =~"^[0-9]*$" | fn.#StringExpression
+	Iops?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxAllocatedStorage?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StorageOperationPercentProgress?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StorageOperationStatus?: string | fn.#StringExpression
+	StorageThroughput?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StorageType?: string | fn.#StringExpression
+	VolumeName?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -245,13 +454,14 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DBInstanceRole": close({
 	FeatureName!: string | fn.#StringExpression
-	RoleArn!:     string | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DBInstanceStatusInfo": close({
 	Message?:    string | fn.#StringExpression
-	Normal?:     bool | fn.#BooleanExpression
+	Normal?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Status?:     string | fn.#StringExpression
 	StatusType?: string | fn.#StringExpression
 }) |
@@ -265,7 +475,9 @@ _#defs: "/$defs/Properties/definitions/Endpoint": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MasterUserSecret": close({
-	KmsKeyId?:  string | string | string | fn.#StringExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
 	SecretArn?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

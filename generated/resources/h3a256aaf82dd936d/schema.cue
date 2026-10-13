@@ -34,14 +34,13 @@ _#defs: "/$defs/Properties/definitions/EventRuleStatus": "ACTIVE" |
 
 _#defs: "/$defs/Properties/definitions/EventRuleStatusSummary": close({
 	Reason!: string | fn.#StringExpression
-	Status!: _#defs."/$defs/Properties/definitions/EventRuleStatus" | fn.#StringExpression
+	Status!: _#defs."/$defs/Properties/definitions/EventRuleStatus"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StatusSummaryByRegion": close({
 
-	{[=~"^([a-z]{1,2})-([a-z]{1,15}-)+([0-9])$"]: _#defs."/$defs/Properties/definitions/EventRuleStatusSummary" |
-		fn.#ObjectExpression}}) |
+	{[=~"^([a-z]{1,2})-([a-z]{1,15}-)+([0-9])$"]: _#defs."/$defs/Properties/definitions/EventRuleStatusSummary"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Unit": close({}) | fn.#ObjectExpression

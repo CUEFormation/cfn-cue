@@ -24,7 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				Contains?: list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] |
 					fn.#ListExpression
 				Eq?:     list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-				Exists?: bool | fn.#BooleanExpression
+				Exists?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 				Neq?:    list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 			}) |
 			fn.#ObjectExpression

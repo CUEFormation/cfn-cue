@@ -42,7 +42,8 @@ import (
 	ResolveConflicts?: ("NONE" | "OVERWRITE" | "PRESERVE") & strings.MinRunes(1)
 
 	// IAM role to bind to the add-on's service account
-	ServiceAccountRoleArn?: strings.MaxRunes(255) & strings.MinRunes(1)
+	ServiceAccountRoleArn?:
+		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1))
 
 	// An array of key-value pairs to apply to this resource.
 	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
@@ -51,7 +52,7 @@ import (
 // A pod identity to associate with an add-on.
 _#defs: "/$defs/Properties/definitions/PodIdentityAssociation": close({
 	// The IAM role ARN that the pod identity association is created for.
-	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:(role)\\/*"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:(role)\\/*"
 
 	// The Kubernetes service account that the pod identity association is created for.
 	ServiceAccount!: string

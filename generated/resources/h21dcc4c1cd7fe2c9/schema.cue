@@ -7,6 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,70 +19,70 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:           strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:                  =~"[a-zA-Z0-9._-]{1,128}" | fn.#StringExpression
-	RecursiveDeleteOption?: bool | fn.#BooleanExpression
+	RecursiveDeleteOption?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	State?:                 "ENABLED" | "DISABLED" | fn.#StringExpression
 	Tags?:                  _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
 	WorkGroupConfiguration?: close({
-		AdditionalConfiguration?: _#defs."/$defs/Properties/definitions/AdditionalConfiguration" | fn.#StringExpression
-		BytesScannedCutoffPerQuery?: _#defs."/$defs/Properties/definitions/BytesScannedCutoffPerQuery" |
-			fn.#NumberExpression
-		CustomerContentEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/CustomerContentEncryptionConfiguration" |
+		AdditionalConfiguration?:    _#defs."/$defs/Properties/definitions/AdditionalConfiguration"
+		BytesScannedCutoffPerQuery?: _#defs."/$defs/Properties/definitions/BytesScannedCutoffPerQuery"
+		CustomerContentEncryptionConfiguration?:
+			_#defs."/$defs/Properties/definitions/CustomerContentEncryptionConfiguration"
+		EnforceWorkGroupConfiguration?: _#defs."/$defs/Properties/definitions/EnforceWorkGroupConfiguration"
+		EngineConfiguration?:           _#defs."/$defs/Properties/definitions/EngineConfiguration"
+		EngineVersion?: close({SelectedEngineVersion?: _#defs."/$defs/Properties/definitions/SelectedEngineVersion"}) |
 			fn.#ObjectExpression
-		EnforceWorkGroupConfiguration?: _#defs."/$defs/Properties/definitions/EnforceWorkGroupConfiguration" |
-			fn.#BooleanExpression
-		EngineConfiguration?: _#defs."/$defs/Properties/definitions/EngineConfiguration" | fn.#ObjectExpression
-		EngineVersion?: close({
-			SelectedEngineVersion?: _#defs."/$defs/Properties/definitions/SelectedEngineVersion" | fn.#StringExpression
-		}) |
-			fn.#ObjectExpression
-		ExecutionRole?: _#defs."/$defs/Properties/definitions/ExecutionRole" | fn.#StringExpression
-		ManagedQueryResultsConfiguration?: _#defs."/$defs/Properties/definitions/ManagedQueryResultsConfiguration" |
-			fn.#ObjectExpression
-		MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/MonitoringConfiguration" | fn.#ObjectExpression
-		PublishCloudWatchMetricsEnabled?: _#defs."/$defs/Properties/definitions/PublishCloudWatchMetricsEnabled" |
-			fn.#BooleanExpression
-		RequesterPaysEnabled?: _#defs."/$defs/Properties/definitions/RequesterPaysEnabled" | fn.#BooleanExpression
-		ResultConfiguration?:  _#defs."/$defs/Properties/definitions/ResultConfiguration" | fn.#ObjectExpression
+		ExecutionRole?:                    _#defs."/$defs/Properties/definitions/ExecutionRole"
+		ManagedQueryResultsConfiguration?: _#defs."/$defs/Properties/definitions/ManagedQueryResultsConfiguration"
+		MonitoringConfiguration?:          _#defs."/$defs/Properties/definitions/MonitoringConfiguration"
+		PublishCloudWatchMetricsEnabled?:  _#defs."/$defs/Properties/definitions/PublishCloudWatchMetricsEnabled"
+		RequesterPaysEnabled?:             _#defs."/$defs/Properties/definitions/RequesterPaysEnabled"
+		ResultConfiguration?:              _#defs."/$defs/Properties/definitions/ResultConfiguration"
 	}) |
 	fn.#ObjectExpression
 	WorkGroupConfigurationUpdates?: close({
-		AdditionalConfiguration?: _#defs."/$defs/Properties/definitions/AdditionalConfiguration" | fn.#StringExpression
-		BytesScannedCutoffPerQuery?: _#defs."/$defs/Properties/definitions/BytesScannedCutoffPerQuery" |
-			fn.#NumberExpression
-		CustomerContentEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/CustomerContentEncryptionConfiguration" |
+		AdditionalConfiguration?:    _#defs."/$defs/Properties/definitions/AdditionalConfiguration"
+		BytesScannedCutoffPerQuery?: _#defs."/$defs/Properties/definitions/BytesScannedCutoffPerQuery"
+		CustomerContentEncryptionConfiguration?:
+			_#defs."/$defs/Properties/definitions/CustomerContentEncryptionConfiguration"
+		EnforceWorkGroupConfiguration?: _#defs."/$defs/Properties/definitions/EnforceWorkGroupConfiguration"
+		EngineConfiguration?:           _#defs."/$defs/Properties/definitions/EngineConfiguration"
+		EngineVersion?: close({SelectedEngineVersion?: _#defs."/$defs/Properties/definitions/SelectedEngineVersion"}) |
 			fn.#ObjectExpression
-		EnforceWorkGroupConfiguration?: _#defs."/$defs/Properties/definitions/EnforceWorkGroupConfiguration" |
-			fn.#BooleanExpression
-		EngineConfiguration?: _#defs."/$defs/Properties/definitions/EngineConfiguration" | fn.#ObjectExpression
-		EngineVersion?: close({
-			SelectedEngineVersion?: _#defs."/$defs/Properties/definitions/SelectedEngineVersion" | fn.#StringExpression
-		}) |
-			fn.#ObjectExpression
-		ExecutionRole?: _#defs."/$defs/Properties/definitions/ExecutionRole" | fn.#StringExpression
-		ManagedQueryResultsConfiguration?: _#defs."/$defs/Properties/definitions/ManagedQueryResultsConfiguration" |
-			fn.#ObjectExpression
-		MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/MonitoringConfiguration" | fn.#ObjectExpression
-		PublishCloudWatchMetricsEnabled?: _#defs."/$defs/Properties/definitions/PublishCloudWatchMetricsEnabled" |
-			fn.#BooleanExpression
-		RemoveBytesScannedCutoffPerQuery?: _#defs."/$defs/Properties/definitions/RemoveBytesScannedCutoffPerQuery" |
-			fn.#BooleanExpression
-		RemoveCustomerContentEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/RemoveCustomerContentEncryptionConfiguration" |
-			fn.#BooleanExpression
-		RequesterPaysEnabled?: _#defs."/$defs/Properties/definitions/RequesterPaysEnabled" | fn.#BooleanExpression
-		ResultConfigurationUpdates?: _#defs."/$defs/Properties/definitions/ResultConfigurationUpdates" |
-			fn.#ObjectExpression
+		ExecutionRole?:                    _#defs."/$defs/Properties/definitions/ExecutionRole"
+		ManagedQueryResultsConfiguration?: _#defs."/$defs/Properties/definitions/ManagedQueryResultsConfiguration"
+		MonitoringConfiguration?:          _#defs."/$defs/Properties/definitions/MonitoringConfiguration"
+		PublishCloudWatchMetricsEnabled?:  _#defs."/$defs/Properties/definitions/PublishCloudWatchMetricsEnabled"
+		RemoveBytesScannedCutoffPerQuery?: _#defs."/$defs/Properties/definitions/RemoveBytesScannedCutoffPerQuery"
+		RemoveCustomerContentEncryptionConfiguration?:
+			_#defs."/$defs/Properties/definitions/RemoveCustomerContentEncryptionConfiguration"
+		RequesterPaysEnabled?:       _#defs."/$defs/Properties/definitions/RequesterPaysEnabled"
+		ResultConfigurationUpdates?: _#defs."/$defs/Properties/definitions/ResultConfigurationUpdates"
 	}) |
 	fn.#ObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AclConfiguration": close(
-	{S3AclOption!: _#defs."/$defs/Properties/definitions/S3AclOption" | fn.#StringExpression},
+	{S3AclOption!: _#defs."/$defs/Properties/definitions/S3AclOption"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AdditionalConfiguration": string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BytesScannedCutoffPerQuery": int & >=10000000 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/BytesScannedCutoffPerQuery": int & >=10000000 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=10000000,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Classification": close({
 	Name?: string | fn.#StringExpression
@@ -90,7 +94,7 @@ _#defs: "/$defs/Properties/definitions/Classification": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CloudWatchLoggingConfiguration": close({
-	Enabled?:             bool | fn.#BooleanExpression
+	Enabled?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LogGroup?:            string | fn.#StringExpression
 	LogStreamNamePrefix?: string | fn.#StringExpression
 	LogTypes?: close({
@@ -101,32 +105,77 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLoggingConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomerContentEncryptionConfiguration": close(
-	{KmsKey!: _#defs."/$defs/Properties/definitions/KmsKey" | fn.#StringExpression},
+	{KmsKey!: _#defs."/$defs/Properties/definitions/KmsKey"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EffectiveEngineVersion": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	EncryptionOption!: _#defs."/$defs/Properties/definitions/EncryptionOption" | fn.#StringExpression
-	KmsKey?:           _#defs."/$defs/Properties/definitions/KmsKey" | fn.#StringExpression
+	EncryptionOption!: _#defs."/$defs/Properties/definitions/EncryptionOption"
+	KmsKey?:           _#defs."/$defs/Properties/definitions/KmsKey"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionOption": "SSE_S3" | "SSE_KMS" | "CSE_KMS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EnforceWorkGroupConfiguration": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/EnforceWorkGroupConfiguration": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/EngineConfiguration": close({
 	AdditionalConfigs?: close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Classifications?: [..._#defs."/$defs/Properties/definitions/Classification" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	CoordinatorDpuSize?:     int | fn.#NumberExpression
-	DefaultExecutorDpuSize?: int | fn.#NumberExpression
-	MaxConcurrentDpus?:      int | fn.#NumberExpression
+	Classifications?: [..._#defs."/$defs/Properties/definitions/Classification"] | fn.#ListExpression
+	CoordinatorDpuSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	DefaultExecutorDpuSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxConcurrentDpus?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SparkProperties?: close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
@@ -135,8 +184,8 @@ _#defs: "/$defs/Properties/definitions/EngineConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EngineVersion": close({
-	EffectiveEngineVersion?: _#defs."/$defs/Properties/definitions/EffectiveEngineVersion" | fn.#StringExpression
-	SelectedEngineVersion?:  _#defs."/$defs/Properties/definitions/SelectedEngineVersion" | fn.#StringExpression
+	EffectiveEngineVersion?: _#defs."/$defs/Properties/definitions/EffectiveEngineVersion"
+	SelectedEngineVersion?:  _#defs."/$defs/Properties/definitions/SelectedEngineVersion"
 }) |
 fn.#ObjectExpression
 
@@ -147,75 +196,127 @@ _#defs: "/$defs/Properties/definitions/ExpectedBucketOwner": string | fn.#String
 _#defs: "/$defs/Properties/definitions/KmsKey": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ManagedLoggingConfiguration": close({
-	Enabled?: bool | fn.#BooleanExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KmsKey?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ManagedQueryResultsConfiguration": close({
-	Enabled?: bool | fn.#BooleanExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/ManagedStorageEncryptionConfiguration" |
-		fn.#ObjectExpression
+	Enabled?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/ManagedStorageEncryptionConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ManagedStorageEncryptionConfiguration": close(
-	{KmsKey?: _#defs."/$defs/Properties/definitions/KmsKey" | fn.#StringExpression},
+	{KmsKey?: _#defs."/$defs/Properties/definitions/KmsKey"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MonitoringConfiguration": close({
-	CloudWatchLoggingConfiguration?: _#defs."/$defs/Properties/definitions/CloudWatchLoggingConfiguration" |
-		fn.#ObjectExpression
-	ManagedLoggingConfiguration?: _#defs."/$defs/Properties/definitions/ManagedLoggingConfiguration" |
-		fn.#ObjectExpression
-	S3LoggingConfiguration?: _#defs."/$defs/Properties/definitions/S3LoggingConfiguration" | fn.#ObjectExpression
+	CloudWatchLoggingConfiguration?: _#defs."/$defs/Properties/definitions/CloudWatchLoggingConfiguration"
+	ManagedLoggingConfiguration?:    _#defs."/$defs/Properties/definitions/ManagedLoggingConfiguration"
+	S3LoggingConfiguration?:         _#defs."/$defs/Properties/definitions/S3LoggingConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OutputLocation": string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PublishCloudWatchMetricsEnabled": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/PublishCloudWatchMetricsEnabled": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/RemoveAclConfiguration": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/RemoveAclConfiguration": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/RemoveBytesScannedCutoffPerQuery": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/RemoveBytesScannedCutoffPerQuery": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/RemoveCustomerContentEncryptionConfiguration": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/RemoveCustomerContentEncryptionConfiguration": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/RemoveEncryptionConfiguration": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/RemoveEncryptionConfiguration": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/RemoveExpectedBucketOwner": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/RemoveExpectedBucketOwner": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/RemoveOutputLocation": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/RemoveOutputLocation": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/RequesterPaysEnabled": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/RequesterPaysEnabled": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/ResultConfiguration": close({
-	AclConfiguration?:        _#defs."/$defs/Properties/definitions/AclConfiguration" | fn.#ObjectExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
-	ExpectedBucketOwner?:     _#defs."/$defs/Properties/definitions/ExpectedBucketOwner" | fn.#StringExpression
-	OutputLocation?:          _#defs."/$defs/Properties/definitions/OutputLocation" | fn.#StringExpression
+	AclConfiguration?:        _#defs."/$defs/Properties/definitions/AclConfiguration"
+	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	ExpectedBucketOwner?:     _#defs."/$defs/Properties/definitions/ExpectedBucketOwner"
+	OutputLocation?:          _#defs."/$defs/Properties/definitions/OutputLocation"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ResultConfigurationUpdates": close({
-	AclConfiguration?:        _#defs."/$defs/Properties/definitions/AclConfiguration" | fn.#ObjectExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
-	ExpectedBucketOwner?:     _#defs."/$defs/Properties/definitions/ExpectedBucketOwner" | fn.#StringExpression
-	OutputLocation?:          _#defs."/$defs/Properties/definitions/OutputLocation" | fn.#StringExpression
-	RemoveAclConfiguration?:  _#defs."/$defs/Properties/definitions/RemoveAclConfiguration" | fn.#BooleanExpression
-	RemoveEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/RemoveEncryptionConfiguration" |
-		fn.#BooleanExpression
-	RemoveExpectedBucketOwner?: _#defs."/$defs/Properties/definitions/RemoveExpectedBucketOwner" | fn.#BooleanExpression
-	RemoveOutputLocation?:      _#defs."/$defs/Properties/definitions/RemoveOutputLocation" | fn.#BooleanExpression
+	AclConfiguration?:              _#defs."/$defs/Properties/definitions/AclConfiguration"
+	EncryptionConfiguration?:       _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	ExpectedBucketOwner?:           _#defs."/$defs/Properties/definitions/ExpectedBucketOwner"
+	OutputLocation?:                _#defs."/$defs/Properties/definitions/OutputLocation"
+	RemoveAclConfiguration?:        _#defs."/$defs/Properties/definitions/RemoveAclConfiguration"
+	RemoveEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/RemoveEncryptionConfiguration"
+	RemoveExpectedBucketOwner?:     _#defs."/$defs/Properties/definitions/RemoveExpectedBucketOwner"
+	RemoveOutputLocation?:          _#defs."/$defs/Properties/definitions/RemoveOutputLocation"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3AclOption": "BUCKET_OWNER_FULL_CONTROL" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/S3LoggingConfiguration": close({
-	Enabled?:     bool | fn.#BooleanExpression
+	Enabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KmsKey?:      string | fn.#StringExpression
 	LogLocation?: string | fn.#StringExpression
 }) |
@@ -229,53 +330,42 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-	fn.#ListExpression
+_#defs: "/$defs/Properties/definitions/Tags": [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/WorkGroupConfiguration": close({
-	AdditionalConfiguration?: _#defs."/$defs/Properties/definitions/AdditionalConfiguration" | fn.#StringExpression
-	BytesScannedCutoffPerQuery?: _#defs."/$defs/Properties/definitions/BytesScannedCutoffPerQuery" |
-		fn.#NumberExpression
-	CustomerContentEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/CustomerContentEncryptionConfiguration" |
-		fn.#ObjectExpression
-	EnforceWorkGroupConfiguration?: _#defs."/$defs/Properties/definitions/EnforceWorkGroupConfiguration" |
-		fn.#BooleanExpression
-	EngineConfiguration?: _#defs."/$defs/Properties/definitions/EngineConfiguration" | fn.#ObjectExpression
-	EngineVersion?:       _#defs."/$defs/Properties/definitions/EngineVersion" | fn.#ObjectExpression
-	ExecutionRole?:       _#defs."/$defs/Properties/definitions/ExecutionRole" | fn.#StringExpression
-	ManagedQueryResultsConfiguration?: _#defs."/$defs/Properties/definitions/ManagedQueryResultsConfiguration" |
-		fn.#ObjectExpression
-	MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/MonitoringConfiguration" | fn.#ObjectExpression
-	PublishCloudWatchMetricsEnabled?: _#defs."/$defs/Properties/definitions/PublishCloudWatchMetricsEnabled" |
-		fn.#BooleanExpression
-	RequesterPaysEnabled?: _#defs."/$defs/Properties/definitions/RequesterPaysEnabled" | fn.#BooleanExpression
-	ResultConfiguration?:  _#defs."/$defs/Properties/definitions/ResultConfiguration" | fn.#ObjectExpression
+	AdditionalConfiguration?:    _#defs."/$defs/Properties/definitions/AdditionalConfiguration"
+	BytesScannedCutoffPerQuery?: _#defs."/$defs/Properties/definitions/BytesScannedCutoffPerQuery"
+	CustomerContentEncryptionConfiguration?:
+		_#defs."/$defs/Properties/definitions/CustomerContentEncryptionConfiguration"
+	EnforceWorkGroupConfiguration?:    _#defs."/$defs/Properties/definitions/EnforceWorkGroupConfiguration"
+	EngineConfiguration?:              _#defs."/$defs/Properties/definitions/EngineConfiguration"
+	EngineVersion?:                    _#defs."/$defs/Properties/definitions/EngineVersion"
+	ExecutionRole?:                    _#defs."/$defs/Properties/definitions/ExecutionRole"
+	ManagedQueryResultsConfiguration?: _#defs."/$defs/Properties/definitions/ManagedQueryResultsConfiguration"
+	MonitoringConfiguration?:          _#defs."/$defs/Properties/definitions/MonitoringConfiguration"
+	PublishCloudWatchMetricsEnabled?:  _#defs."/$defs/Properties/definitions/PublishCloudWatchMetricsEnabled"
+	RequesterPaysEnabled?:             _#defs."/$defs/Properties/definitions/RequesterPaysEnabled"
+	ResultConfiguration?:              _#defs."/$defs/Properties/definitions/ResultConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WorkGroupConfigurationUpdates": close({
-	AdditionalConfiguration?: _#defs."/$defs/Properties/definitions/AdditionalConfiguration" | fn.#StringExpression
-	BytesScannedCutoffPerQuery?: _#defs."/$defs/Properties/definitions/BytesScannedCutoffPerQuery" |
-		fn.#NumberExpression
-	CustomerContentEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/CustomerContentEncryptionConfiguration" |
-		fn.#ObjectExpression
-	EnforceWorkGroupConfiguration?: _#defs."/$defs/Properties/definitions/EnforceWorkGroupConfiguration" |
-		fn.#BooleanExpression
-	EngineConfiguration?: _#defs."/$defs/Properties/definitions/EngineConfiguration" | fn.#ObjectExpression
-	EngineVersion?:       _#defs."/$defs/Properties/definitions/EngineVersion" | fn.#ObjectExpression
-	ExecutionRole?:       _#defs."/$defs/Properties/definitions/ExecutionRole" | fn.#StringExpression
-	ManagedQueryResultsConfiguration?: _#defs."/$defs/Properties/definitions/ManagedQueryResultsConfiguration" |
-		fn.#ObjectExpression
-	MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/MonitoringConfiguration" | fn.#ObjectExpression
-	PublishCloudWatchMetricsEnabled?: _#defs."/$defs/Properties/definitions/PublishCloudWatchMetricsEnabled" |
-		fn.#BooleanExpression
-	RemoveBytesScannedCutoffPerQuery?: _#defs."/$defs/Properties/definitions/RemoveBytesScannedCutoffPerQuery" |
-		fn.#BooleanExpression
-	RemoveCustomerContentEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/RemoveCustomerContentEncryptionConfiguration" |
-		fn.#BooleanExpression
-	RequesterPaysEnabled?: _#defs."/$defs/Properties/definitions/RequesterPaysEnabled" | fn.#BooleanExpression
-	ResultConfigurationUpdates?: _#defs."/$defs/Properties/definitions/ResultConfigurationUpdates" |
-		fn.#ObjectExpression
+	AdditionalConfiguration?:    _#defs."/$defs/Properties/definitions/AdditionalConfiguration"
+	BytesScannedCutoffPerQuery?: _#defs."/$defs/Properties/definitions/BytesScannedCutoffPerQuery"
+	CustomerContentEncryptionConfiguration?:
+		_#defs."/$defs/Properties/definitions/CustomerContentEncryptionConfiguration"
+	EnforceWorkGroupConfiguration?:    _#defs."/$defs/Properties/definitions/EnforceWorkGroupConfiguration"
+	EngineConfiguration?:              _#defs."/$defs/Properties/definitions/EngineConfiguration"
+	EngineVersion?:                    _#defs."/$defs/Properties/definitions/EngineVersion"
+	ExecutionRole?:                    _#defs."/$defs/Properties/definitions/ExecutionRole"
+	ManagedQueryResultsConfiguration?: _#defs."/$defs/Properties/definitions/ManagedQueryResultsConfiguration"
+	MonitoringConfiguration?:          _#defs."/$defs/Properties/definitions/MonitoringConfiguration"
+	PublishCloudWatchMetricsEnabled?:  _#defs."/$defs/Properties/definitions/PublishCloudWatchMetricsEnabled"
+	RemoveBytesScannedCutoffPerQuery?: _#defs."/$defs/Properties/definitions/RemoveBytesScannedCutoffPerQuery"
+	RemoveCustomerContentEncryptionConfiguration?:
+		_#defs."/$defs/Properties/definitions/RemoveCustomerContentEncryptionConfiguration"
+	RequesterPaysEnabled?:       _#defs."/$defs/Properties/definitions/RequesterPaysEnabled"
+	ResultConfigurationUpdates?: _#defs."/$defs/Properties/definitions/ResultConfigurationUpdates"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

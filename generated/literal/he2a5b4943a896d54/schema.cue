@@ -39,33 +39,48 @@ _#defs: "/$defs/Properties/definitions/BounceAction": close({
 	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy"
 	DiagnosticMessage!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x20-\\x7e]+$"
 	Message?:             strings.MaxRunes(500) & strings.MinRunes(1) & =~"^[\\r\\n\\x20-\\x7e]+$"
-	RoleArn!:             strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$"
-	Sender!:              strings.MaxRunes(254) & strings.MinRunes(0) & =~"^[0-9A-Za-z@+.-]+$"
-	SmtpReplyCode!:       strings.MaxRunes(3) & strings.MinRunes(3) & =~"^[45][0-9][0-9]$"
-	StatusCode!:          strings.MaxRunes(9) & strings.MinRunes(5) & =~"^[45]\\.[0-9]{1,3}\\.[0-9]{1,3}$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^[a-zA-Z0-9:_/+=,@.#-]+$"
+	Sender!:        strings.MaxRunes(254) & strings.MinRunes(0) & =~"^[0-9A-Za-z@+.-]+$"
+	SmtpReplyCode!: strings.MaxRunes(3) & strings.MinRunes(3) & =~"^[45][0-9][0-9]$"
+	StatusCode!:    strings.MaxRunes(9) & strings.MinRunes(5) & =~"^[45]\\.[0-9]{1,3}\\.[0-9]{1,3}$"
 })
 
 _#defs: "/$defs/Properties/definitions/DeliverToMailboxAction": close({
 	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy"
 	MailboxArn!:          strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$"
-	RoleArn!:             strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^[a-zA-Z0-9:_/+=,@.#-]+$"
 })
 
 _#defs: "/$defs/Properties/definitions/DeliverToQBusinessAction": close({
 	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy"
 	ApplicationId!:       strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-z0-9-]+$"
 	IndexId!:             strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-z0-9-]+$"
-	RoleArn!:             strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^[a-zA-Z0-9:_/+=,@.#-]+$"
 })
 
 _#defs: "/$defs/Properties/definitions/DropAction": close({})
 
 _#defs: "/$defs/Properties/definitions/InvokeLambdaAction": close({
 	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy"
-	FunctionArn!:         strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$"
-	InvocationType!:      _#defs."/$defs/Properties/definitions/LambdaInvocationType"
-	RetryTimeMinutes?:    int & <=2160 & >=0
-	RoleArn!:             strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$"
+	FunctionArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^[a-zA-Z0-9:_/+=,@.#-]+$"
+	InvocationType!:   _#defs."/$defs/Properties/definitions/LambdaInvocationType"
+	RetryTimeMinutes?: int & <=2160 & >=0
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^[a-zA-Z0-9:_/+=,@.#-]+$"
 })
 
 _#defs: "/$defs/Properties/definitions/LambdaInvocationType": "EVENT" | "REQUEST_RESPONSE"
@@ -264,23 +279,33 @@ _#defs: "/$defs/Properties/definitions/RuleVerdictToEvaluate": matchN(1, [close(
 
 _#defs: "/$defs/Properties/definitions/S3Action": close({
 	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy"
-	RoleArn!:             strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$"
-	S3Bucket!:            strings.MaxRunes(62) & strings.MinRunes(1) & =~"^[a-zA-Z0-9.-]+$"
-	S3Prefix?:            strings.MaxRunes(62) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/-]+$"
-	S3SseKmsKeyId?:       strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9-:/]+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^[a-zA-Z0-9:_/+=,@.#-]+$"
+	S3Bucket!:      strings.MaxRunes(62) & strings.MinRunes(1) & =~"^[a-zA-Z0-9.-]+$"
+	S3Prefix?:      strings.MaxRunes(62) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/-]+$"
+	S3SseKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9-:/]+$"
 })
 
 _#defs: "/$defs/Properties/definitions/SendAction": close({
 	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy"
-	RoleArn!:             strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^[a-zA-Z0-9:_/+=,@.#-]+$"
 })
 
 _#defs: "/$defs/Properties/definitions/SnsAction": close({
 	ActionFailurePolicy?: _#defs."/$defs/Properties/definitions/ActionFailurePolicy"
 	Encoding?:            _#defs."/$defs/Properties/definitions/SnsNotificationEncoding"
 	PayloadType?:         _#defs."/$defs/Properties/definitions/SnsNotificationPayloadType"
-	RoleArn!:             strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$"
-	TopicArn!: strings.MaxRunes(2048) &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^[a-zA-Z0-9:_/+=,@.#-]+$"
+	TopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc):sns:[a-z]{2}-([a-z]+-)+\\d{1}:\\d{12}:[\\w\\-]{1,256}$"
 })

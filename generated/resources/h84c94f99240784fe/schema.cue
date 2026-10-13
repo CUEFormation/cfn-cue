@@ -17,16 +17,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AutoRegistrationStatus?: "ENABLE" | "DISABLE" | fn.#StringExpression
 	CACertificatePem!:       strings.MaxRunes(65536) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
 	CertificateMode?:        "DEFAULT" | "SNI_ONLY" | fn.#StringExpression
-	RegistrationConfig?:     _#defs."/$defs/Properties/definitions/RegistrationConfig" | fn.#ObjectExpression
-	RemoveAutoRegistration?: bool | fn.#BooleanExpression
+	RegistrationConfig?:     _#defs."/$defs/Properties/definitions/RegistrationConfig"
+	RemoveAutoRegistration?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Status!:                 "ACTIVE" | "INACTIVE" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VerificationCertificatePem?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/RegistrationConfig": close({
-	RoleArn?: strings.MaxRunes(2048) &
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+" |
 	fn.#StringExpression

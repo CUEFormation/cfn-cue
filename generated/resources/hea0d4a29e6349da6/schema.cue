@@ -12,10 +12,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Security Hub service in your account. One hub resource is created for each
 // Region in which you enable Security Hub.
 #Properties: close({
-	AutoEnableControls?:      bool | fn.#BooleanExpression
+	AutoEnableControls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ControlFindingGenerator?: =~"^(SECURITY_CONTROL|STANDARD_CONTROL)$" | fn.#StringExpression
-	EnableDefaultStandards?:  bool | fn.#BooleanExpression
-	Tags?:                    _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	EnableDefaultStandards?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?:                    _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/Tags": {...} | fn.#ObjectExpression

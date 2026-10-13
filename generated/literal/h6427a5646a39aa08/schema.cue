@@ -47,7 +47,8 @@ import (
 	// The Amazon Resource Name (ARN) of an IAM role that Amazon SageMaker can
 	// assume to access model artifacts and container images, and manage Amazon
 	// SageMaker Inference endpoints for model deployment.
-	RoleArn!: strings.MaxRunes(2048) &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 	Schedule?:         _#defs."/$defs/Properties/definitions/InferenceExperimentSchedule"

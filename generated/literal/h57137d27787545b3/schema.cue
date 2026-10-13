@@ -103,7 +103,7 @@ _#defs: "/$defs/Properties/definitions/ClusterConfig": close({
 _#defs: "/$defs/Properties/definitions/CognitoOptions": close({
 	Enabled?:        bool
 	IdentityPoolId?: string
-	RoleArn?:        string
+	RoleArn?:        =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	UserPoolId?:     string
 })
 
@@ -131,7 +131,7 @@ _#defs: "/$defs/Properties/definitions/EBSOptions": close({
 
 _#defs: "/$defs/Properties/definitions/EncryptionAtRestOptions": close({
 	Enabled?:  bool
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 })
 
 _#defs: "/$defs/Properties/definitions/IAMFederationOptions": close({
@@ -261,7 +261,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 _#defs: "/$defs/Properties/definitions/VPCOptions": close({
 	// Controls whether egress traffic from the domain is routed through the customer VPC.
 	EgressEnabled?:    bool
-	SecurityGroupIds?: list.UniqueItems() & [...string]
+	SecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SubnetIds?:        list.UniqueItems() & [...string]
 })
 

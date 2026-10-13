@@ -17,19 +17,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ContainerProvider!: _#defs."/$defs/Properties/definitions/ContainerProvider" | fn.#ObjectExpression
 	Name!:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
 	SecurityConfigurationId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-9a-z]+" | fn.#StringExpression
-	SessionEnabled?:          bool | fn.#BooleanExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	SessionEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ContainerInfo": close(
-	{EksInfo!: _#defs."/$defs/Properties/definitions/EksInfo" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/ContainerInfo": close({EksInfo!: _#defs."/$defs/Properties/definitions/EksInfo"}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ContainerProvider": close({
 	Id!:   strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*" | fn.#StringExpression
-	Info!: _#defs."/$defs/Properties/definitions/ContainerInfo" | fn.#ObjectExpression
+	Info!: _#defs."/$defs/Properties/definitions/ContainerInfo"
 	Type!: "EKS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -34,16 +34,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DnsOptions?:               _#defs."/$defs/Properties/definitions/DnsOptionsSpecification" | fn.#ObjectExpression
 	IpAddressType?:            "ipv4" | "ipv6" | "dualstack" | "not-specified" | fn.#StringExpression
-	PolicyDocument?:           string | {[string]: fn.#Value} | fn.#StringExpression | fn.#ObjectExpression
-	PrivateDnsEnabled?:        bool | fn.#BooleanExpression
+	PolicyDocument?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+	PrivateDnsEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ResourceConfigurationArn?: string | fn.#StringExpression
 	RouteTableIds?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SecurityGroupIds?:  list.UniqueItems() & [...string | string | string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds?: list.UniqueItems() & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			string |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
 	ServiceName?:       string | fn.#StringExpression
 	ServiceNetworkArn?: string | fn.#StringExpression
 	ServiceRegion?:     string | fn.#StringExpression
 	SubnetIds?:         list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VpcEndpointType?: "Interface" |
 		"Gateway" |
 		"GatewayLoadBalancer" |
@@ -51,7 +56,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"Resource" |
 		"Tunnel" |
 		fn.#StringExpression
-	VpcId!: string | fn.#StringExpression
+	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DnsOptionsSpecification": close({

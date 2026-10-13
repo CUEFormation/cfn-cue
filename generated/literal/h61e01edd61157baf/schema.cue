@@ -30,7 +30,7 @@ package schema
 
 	// The Amazon Resource Name (ARN) of the Amazon SNS topic to which AWS Config
 	// sends notifications about configuration changes.
-	SnsTopicARN?: string
+	SnsTopicARN?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/ConfigSnapshotDeliveryProperties": close({

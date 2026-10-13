@@ -16,9 +16,9 @@ package schema
 	NumberOfWorkers?:       int
 	PublicKey?:             string
 	PublicKeys?:            [...string]
-	RoleArn!:               string
+	RoleArn!:               =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	SecurityConfiguration?: string
-	SecurityGroupIds?:      [...string]
+	SecurityGroupIds?:      [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SubnetId?:              string
 	Tags?:                  string | {...}
 	WorkerType?:            string

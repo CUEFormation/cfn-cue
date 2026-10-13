@@ -66,7 +66,7 @@ import (
 	OutputFormat?: ("json" | "opentelemetry0.7" | "opentelemetry1.0") & (strings.MaxRunes(255) & strings.MinRunes(1))
 
 	// The ARN of the role that provides access to the Kinesis Firehose.
-	RoleArn?: strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 	// Displays the state of the Metric Stream.
 	State?: strings.MaxRunes(255) & strings.MinRunes(1)

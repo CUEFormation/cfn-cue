@@ -13,18 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::GuardDuty::Detector
 #Properties: close({
-	DataSources?: _#defs."/$defs/Properties/definitions/CFNDataSourceConfigurations" | fn.#ObjectExpression
-	Enable!:      bool | fn.#BooleanExpression
-	Features?: [..._#defs."/$defs/Properties/definitions/CFNFeatureConfiguration" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	DataSources?: _#defs."/$defs/Properties/definitions/CFNDataSourceConfigurations"
+	Enable!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Features?:    [..._#defs."/$defs/Properties/definitions/CFNFeatureConfiguration"] | fn.#ListExpression
 	FindingPublishingFrequency?: "FIFTEEN_MINUTES" | "ONE_HOUR" | "SIX_HOURS" | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/TagItem" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                       [..._#defs."/$defs/Properties/definitions/TagItem"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CFNDataSourceConfigurations": close({
-	Kubernetes?:        _#defs."/$defs/Properties/definitions/CFNKubernetesConfiguration" | fn.#ObjectExpression
-	MalwareProtection?: _#defs."/$defs/Properties/definitions/CFNMalwareProtectionConfiguration" | fn.#ObjectExpression
-	S3Logs?:            _#defs."/$defs/Properties/definitions/CFNS3LogsConfiguration" | fn.#ObjectExpression
+	Kubernetes?:        _#defs."/$defs/Properties/definitions/CFNKubernetesConfiguration"
+	MalwareProtection?: _#defs."/$defs/Properties/definitions/CFNMalwareProtectionConfiguration"
+	S3Logs?:            _#defs."/$defs/Properties/definitions/CFNS3LogsConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -36,9 +35,7 @@ _#defs: "/$defs/Properties/definitions/CFNFeatureAdditionalConfiguration": close
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CFNFeatureConfiguration": close({
-	AdditionalConfiguration?: [
-		..._#defs."/$defs/Properties/definitions/CFNFeatureAdditionalConfiguration" | fn.#ObjectExpression
-	] |
+	AdditionalConfiguration?: [..._#defs."/$defs/Properties/definitions/CFNFeatureAdditionalConfiguration"] |
 		fn.#ListExpression
 	Name!: ("AI_ANALYST" |
 		"AI_PROTECTION" |
@@ -55,26 +52,27 @@ _#defs: "/$defs/Properties/definitions/CFNFeatureConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CFNKubernetesAuditLogsConfiguration": close(
-	{Enable!: bool | fn.#BooleanExpression},
+	{Enable!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CFNKubernetesConfiguration": close(
-	{AuditLogs!: _#defs."/$defs/Properties/definitions/CFNKubernetesAuditLogsConfiguration" | fn.#ObjectExpression},
+	{AuditLogs!: _#defs."/$defs/Properties/definitions/CFNKubernetesAuditLogsConfiguration"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CFNMalwareProtectionConfiguration": close({
-	ScanEc2InstanceWithFindings?: _#defs."/$defs/Properties/definitions/CFNScanEc2InstanceWithFindingsConfiguration" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/CFNMalwareProtectionConfiguration": close(
+	{ScanEc2InstanceWithFindings?: _#defs."/$defs/Properties/definitions/CFNScanEc2InstanceWithFindingsConfiguration"},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CFNS3LogsConfiguration": close({Enable!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/CFNS3LogsConfiguration": close(
+	{Enable!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CFNScanEc2InstanceWithFindingsConfiguration": close(
-	{EbsVolumes?: bool | fn.#BooleanExpression},
+	{EbsVolumes?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 

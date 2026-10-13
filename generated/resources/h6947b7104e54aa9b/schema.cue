@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -16,22 +16,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // the top section and More Info tab of the Cases user interface: Fields to
 // display to the users and Field ordering.
 #Properties: close({
-	Content!:  _#defs."/$defs/Properties/definitions/LayoutContent" | fn.#ValueExpression
+	Content!:  _#defs."/$defs/Properties/definitions/LayoutContent"
 	DomainId?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
-	Tags?:     _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	Tags?:     _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/BasicLayout": close({
-	MoreInfo?: _#defs."/$defs/Properties/definitions/LayoutSections" | fn.#ObjectExpression
-	TopPanel?: _#defs."/$defs/Properties/definitions/LayoutSections" | fn.#ObjectExpression
+	MoreInfo?: _#defs."/$defs/Properties/definitions/LayoutSections"
+	TopPanel?: _#defs."/$defs/Properties/definitions/LayoutSections"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldGroup": close({
-	Fields!: list.MaxItems(220) & [..._#defs."/$defs/Properties/definitions/FieldItem" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Name?: strings.MaxRunes(100) | fn.#StringExpression
+	Fields!: list.MaxItems(220) & [..._#defs."/$defs/Properties/definitions/FieldItem"] | fn.#ListExpression
+	Name?:   strings.MaxRunes(100) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -41,19 +40,16 @@ _#defs: "/$defs/Properties/definitions/FieldItem": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LayoutContent": close(
-	{Basic!: _#defs."/$defs/Properties/definitions/BasicLayout" | fn.#ObjectExpression},
+	{Basic!: _#defs."/$defs/Properties/definitions/BasicLayout"},
 ) |
 	fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/LayoutSections": close({
-	Sections?: list.MaxItems(1) & [..._#defs."/$defs/Properties/definitions/Section" | fn.#ValueExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/LayoutSections": close(
+	{Sections?: list.MaxItems(1) & [..._#defs."/$defs/Properties/definitions/Section"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Section": close(
-	{FieldGroup!: _#defs."/$defs/Properties/definitions/FieldGroup" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/Section": close({FieldGroup!: _#defs."/$defs/Properties/definitions/FieldGroup"}) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
@@ -62,8 +58,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-	fn.#ListExpression
+_#defs: "/$defs/Properties/definitions/Tags": [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Cases::Layout"
 	Properties!: #Properties

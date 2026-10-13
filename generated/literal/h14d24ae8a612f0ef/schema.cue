@@ -1933,7 +1933,7 @@ _#defs: "/$defs/Properties/definitions/ViewerCertificate": matchN(1, [{
 	// If you specify an ACM certificate ARN, you must also specify values for
 	// ``MinimumProtocolVersion`` and ``SSLSupportMethod``. (In CloudFormation, the
 	// field name is ``SslSupportMethod``. Note the different capitalization.)
-	"AcmCertificateArn"?: string
+	"AcmCertificateArn"?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"
 
 	// If the distribution uses the CloudFront domain name such as
 	// ``d111111abcdef8.cloudfront.net``, set this field to ``true``.

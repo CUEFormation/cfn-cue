@@ -49,7 +49,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
 	// The ID of the security group or security groups associated with the Amazon VPC.
 	SecurityGroupIds!: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(20) & strings.MinRunes(11) & =~"^sg-\\w{8}(\\w{9})?$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(20) &
+		strings.MinRunes(11) &
+		=~"^sg-\\w{8}(\\w{9})?$"
 	]
 
 	// The ID of the subnet or subnets associated with the Amazon VPC.
@@ -62,5 +65,8 @@ _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
 	TlsCertificate?: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\s\\S]*$"
 
 	// The ID of the Amazon VPC connected to the infrastructure where your provider type is installed.
-	VpcId!: strings.MaxRunes(21) & strings.MinRunes(12) & =~"^vpc-\\w{8}(\\w{9})?$"
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(21) &
+	strings.MinRunes(12) &
+	=~"^vpc-\\w{8}(\\w{9})?$"
 })

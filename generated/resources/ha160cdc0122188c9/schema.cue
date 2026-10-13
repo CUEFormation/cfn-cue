@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Oam::Sink
 #Properties: close({
 	Name!:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	Policy?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Policy?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	Tags?:   {...} | fn.#ObjectExpression
 })
 #Resource: base.#ResourceAttributes & {

@@ -65,7 +65,7 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogsConfig": close({
 
 _#defs: "/$defs/Properties/definitions/DockerServer": close({
 	ComputeType!:      string
-	SecurityGroupIds?: [...string]
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 })
 
 _#defs: "/$defs/Properties/definitions/Environment": close({
@@ -181,7 +181,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroupIds?: [...string]
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	Subnets?:          [...string]
-	VpcId?:            string
+	VpcId?:            =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })

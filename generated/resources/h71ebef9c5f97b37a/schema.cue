@@ -15,17 +15,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApplicationIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^app-([0-9A-Za-z]{10}$)" |
 	fn.#StringExpression
-	DefaultRoute?: _#defs."/$defs/Properties/definitions/DefaultRouteInput" | fn.#ObjectExpression
+	DefaultRoute?: _#defs."/$defs/Properties/definitions/DefaultRouteInput"
 	EnvironmentIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" |
 	fn.#StringExpression
-	RouteType!:         _#defs."/$defs/Properties/definitions/RouteType" | fn.#StringExpression
+	RouteType!:         _#defs."/$defs/Properties/definitions/RouteType"
 	ServiceIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^svc-([0-9A-Za-z]{10}$)" | fn.#StringExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	UriPathRoute?:      _#defs."/$defs/Properties/definitions/UriPathRouteInput" | fn.#ObjectExpression
+	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UriPathRoute?:      _#defs."/$defs/Properties/definitions/UriPathRouteInput"
 })
 
 _#defs: "/$defs/Properties/definitions/DefaultRouteInput": close(
-	{ActivationState!: _#defs."/$defs/Properties/definitions/RouteActivationState" | fn.#StringExpression},
+	{ActivationState!: _#defs."/$defs/Properties/definitions/RouteActivationState"},
 ) |
 	fn.#ObjectExpression
 
@@ -49,10 +49,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UriPathRouteInput": close({
-	ActivationState!:   _#defs."/$defs/Properties/definitions/RouteActivationState" | fn.#StringExpression
-	AppendSourcePath?:  bool | fn.#BooleanExpression
-	IncludeChildPaths?: bool | fn.#BooleanExpression
-	Methods?:           [..._#defs."/$defs/Properties/definitions/Method" | fn.#StringExpression] | fn.#ListExpression
+	ActivationState!:   _#defs."/$defs/Properties/definitions/RouteActivationState"
+	AppendSourcePath?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeChildPaths?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Methods?:           [..._#defs."/$defs/Properties/definitions/Method"] | fn.#ListExpression
 	SourcePath?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(/([a-zA-Z0-9._:-]+|\\{[a-zA-Z0-9._:-]+\\}))+$" |
 	fn.#StringExpression
 }) |

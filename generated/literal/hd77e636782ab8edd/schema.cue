@@ -192,7 +192,8 @@ _#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
 	IpAddressType?: "IPV4" | "DUAL_STACK"
 })
 
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(1024) &
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+strings.MaxRunes(1024) &
 strings.MinRunes(29) &
 =~"arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::[0-9]{12}:role/[\\w+=,.@-]{1,64}"
 

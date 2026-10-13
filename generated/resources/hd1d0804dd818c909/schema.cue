@@ -21,8 +21,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EnvironmentBlueprintIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 	Name!:                           strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
 	ProjectIdentifier!:              =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	UserParameters?: [..._#defs."/$defs/Properties/definitions/EnvironmentParameter" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	UserParameters?: [..._#defs."/$defs/Properties/definitions/EnvironmentParameter"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EnvironmentParameter": close({

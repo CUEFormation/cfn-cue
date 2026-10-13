@@ -15,14 +15,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::Route53GlobalResolver::DnsView
 #Properties: close({
 	ClientToken?:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:           _#defs."/$defs/Properties/definitions/ResourceDescription" | fn.#StringExpression
-	DnssecValidation?:      _#defs."/$defs/Properties/definitions/DnsSecValidationType" | fn.#StringExpression
-	EdnsClientSubnet?:      _#defs."/$defs/Properties/definitions/EdnsClientSubnetType" | fn.#StringExpression
-	FirewallRulesFailOpen?: _#defs."/$defs/Properties/definitions/FirewallRulesFailOpenType" | fn.#StringExpression
+	Description?:           _#defs."/$defs/Properties/definitions/ResourceDescription"
+	DnssecValidation?:      _#defs."/$defs/Properties/definitions/DnsSecValidationType"
+	EdnsClientSubnet?:      _#defs."/$defs/Properties/definitions/EdnsClientSubnetType"
+	FirewallRulesFailOpen?: _#defs."/$defs/Properties/definitions/FirewallRulesFailOpenType"
 	GlobalResolverId!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
-	Name!:                  _#defs."/$defs/Properties/definitions/ResourceName" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Name!:                  _#defs."/$defs/Properties/definitions/ResourceName"
+	Tags?:                  list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DnsSecValidationType": "ENABLED" | "DISABLED" | fn.#StringExpression

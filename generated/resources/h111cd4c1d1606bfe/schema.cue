@@ -16,15 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AssociatedLicenseAssetRulesetARNs!: [...strings.MaxRunes(2048) | fn.#StringExpression] | fn.#ListExpression
 	Description?:                       strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	LicenseAssetGroupConfigurations!: [
-		..._#defs."/$defs/Properties/definitions/LicenseAssetGroupConfiguration" | fn.#ObjectExpression
-	] |
+	LicenseAssetGroupConfigurations!: [..._#defs."/$defs/Properties/definitions/LicenseAssetGroupConfiguration"] |
 		fn.#ListExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Properties?: [..._#defs."/$defs/Properties/definitions/LicenseAssetGroupProperty" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Name!:       strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+	Properties?: [..._#defs."/$defs/Properties/definitions/LicenseAssetGroupProperty"] | fn.#ListExpression
+	Tags?:       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/LicenseAssetGroupConfiguration": close(

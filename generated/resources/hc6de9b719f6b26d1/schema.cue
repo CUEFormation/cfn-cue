@@ -14,19 +14,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Associates a VPC with a service network.
 #Properties: close({
-	DnsOptions?:        _#defs."/$defs/Properties/definitions/DnsOptions" | fn.#ObjectExpression
-	PrivateDnsEnabled?: bool | fn.#BooleanExpression
+	DnsOptions?:        _#defs."/$defs/Properties/definitions/DnsOptions"
+	PrivateDnsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SecurityGroupIds?: list.UniqueItems() & [
-		...strings.MaxRunes(200) & strings.MinRunes(0) & =~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(200) &
+		strings.MinRunes(0) &
+		=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	ServiceNetworkIdentifier?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((sn-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetwork/sn-[0-9a-z]{17}))$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	VpcIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(5) & =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
 	fn.#StringExpression

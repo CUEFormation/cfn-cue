@@ -129,7 +129,8 @@ _#defs: "/$defs/Properties/definitions/ImportTask": close({
 	ParquetType?: "COLUMNAR"
 
 	// The ARN of the IAM role that will allow access to the data that is to be imported.
-	RoleArn!: strings.MaxRunes(1024) &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
 	=~"arn:aws[^:]*:iam::[0-9]{12}:(role|role/service-role)(/[\\w+=,.@-]+)+"
 

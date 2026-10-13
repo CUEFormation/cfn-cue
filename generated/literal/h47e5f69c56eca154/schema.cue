@@ -54,6 +54,9 @@ _#defs: "/$defs/Properties/definitions/NotificationMessageTypesFilterList": list
 
 // Information about a notification channel configured in DevOps Guru to send
 // notifications when insights are created.
-_#defs: "/$defs/Properties/definitions/SnsChannelConfig": close(
-	{TopicArn?: strings.MaxRunes(1024) & strings.MinRunes(36) & =~"^arn:aws[a-z0-9-]*:sns:[a-z0-9-]+:\\d{12}:[^:]+$"},
-)
+_#defs: "/$defs/Properties/definitions/SnsChannelConfig": close({
+	TopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(36) &
+	=~"^arn:aws[a-z0-9-]*:sns:[a-z0-9-]+:\\d{12}:[^:]+$"
+})

@@ -4,20 +4,37 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::CertificateManager::Account.
-#Properties: close({
-	ExpiryEventsConfiguration!: _#defs."/$defs/Properties/definitions/ExpiryEventsConfiguration" | fn.#ObjectExpression
-})
+#Properties: close({ExpiryEventsConfiguration!: _#defs."/$defs/Properties/definitions/ExpiryEventsConfiguration"})
 
 _#defs: "/$defs/Properties/definitions/AccountId": string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ExpiryEventsConfiguration": close(
-	{DaysBeforeExpiry?: int & <=45 & >=1 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/ExpiryEventsConfiguration": close({
+	DaysBeforeExpiry?: int & <=45 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=45 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::CertificateManager::Account"

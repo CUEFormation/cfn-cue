@@ -14,12 +14,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Schema of AWS::EC2::IPAMScope Type
 #Properties: close({
-	Description?: string | fn.#StringExpression
-	ExternalAuthorityConfiguration?: _#defs."/$defs/Properties/definitions/IpamScopeExternalAuthorityConfiguration" |
-		fn.#ObjectExpression
-	IpamId!: string | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Description?:                    string | fn.#StringExpression
+	ExternalAuthorityConfiguration?: _#defs."/$defs/Properties/definitions/IpamScopeExternalAuthorityConfiguration"
+	IpamId!:                         string | fn.#StringExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/IpamScopeExternalAuthorityConfiguration": close({

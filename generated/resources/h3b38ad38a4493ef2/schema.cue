@@ -7,6 +7,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,9 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::WAF::SizeConstraintSet
 #Properties: close({
 	Name!: string | fn.#StringExpression
-	SizeConstraints!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SizeConstraint" | fn.#ObjectExpression
-	] |
+	SizeConstraints!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SizeConstraint"] |
 		fn.#ListExpression
 })
 
@@ -28,8 +30,21 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SizeConstraint": close({
 	ComparisonOperator!: string | fn.#StringExpression
-	FieldToMatch!:       _#defs."/$defs/Properties/definitions/FieldToMatch" | fn.#ObjectExpression
-	Size!:               int | fn.#NumberExpression
+	FieldToMatch!:       _#defs."/$defs/Properties/definitions/FieldToMatch"
+	Size!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	TextTransformation!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

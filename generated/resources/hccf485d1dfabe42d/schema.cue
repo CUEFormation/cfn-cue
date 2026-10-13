@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Creates or updates the auth policy.
 #Properties: close({
-	Policy!: strings.MaxRunes(36864) | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Policy!: fn.#Object & {...} | strings.MaxRunes(36864) | fn.#StringObjectExpression
 	ResourceIdentifier!: strings.MaxRunes(200) &
 	strings.MinRunes(17) &
 	=~"^((((sn)|(svc))-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:((servicenetwork/sn)|(service/svc))-[0-9a-z]{17}))$" |

@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -11,16 +15,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::CloudFormation::CustomResource
 #Properties: close({
 
-	{[=~".*"]: int |
-		string |
-		[...] |
-		{[string]: fn.#Value} |
-		fn.#StringExpression |
-		fn.#NumberExpression |
-		fn.#ListExpression |
-		fn.#ObjectExpression}
-	ServiceTimeout?: int | fn.#NumberExpression
-	ServiceToken!:   string | fn.#StringExpression
+	{[=~".*"]: fn.#Object & {...} | int | string | [...] | fn.#StringNumberListObjectExpression}
+	ServiceTimeout?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ServiceToken!: string | fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::CloudFormation::CustomResource" | =~"^Custom::[A-Za-z0-9_@-]{1,60}$"

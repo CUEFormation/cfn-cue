@@ -24,9 +24,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	DisplayName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*$" |
 	fn.#StringExpression
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AzureConfiguration": close({
@@ -34,7 +34,7 @@ _#defs: "/$defs/Properties/definitions/AzureConfiguration": close({
 	fn.#StringExpression
 	ApplicationId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" |
 		fn.#StringExpression
-	Targets?: _#defs."/$defs/Properties/definitions/ConfigurationTargets" | fn.#ObjectExpression
+	Targets?: _#defs."/$defs/Properties/definitions/ConfigurationTargets"
 	TenantDisplayName?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*)$" |
 	fn.#StringExpression
 	TenantId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" | fn.#StringExpression
@@ -52,14 +52,12 @@ _#defs: "/$defs/Properties/definitions/AzureSubscription": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CloudConnectorConfiguration": close(
-	{AzureConfiguration!: _#defs."/$defs/Properties/definitions/AzureConfiguration" | fn.#ObjectExpression},
+	{AzureConfiguration!: _#defs."/$defs/Properties/definitions/AzureConfiguration"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfigurationTargets": close({
-	Subscriptions!: list.MaxItems(75) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AzureSubscription" | fn.#ObjectExpression
-	] |
+	Subscriptions!: list.MaxItems(75) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AzureSubscription"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression

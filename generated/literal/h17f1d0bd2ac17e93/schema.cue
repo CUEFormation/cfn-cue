@@ -10,13 +10,13 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Events::Rule
-#Properties: ({
+#Properties: matchN(>=1, [{
 	EventPattern!: _
 	...
-} | {
+}, {
 	ScheduleExpression!: _
 	...
-}) & close({
+}]) & close({
 	// The ARN of the rule, such as arn:aws:events:us-east-2:123456789012:rule/example.
 	Arn?: string
 
@@ -37,7 +37,7 @@ import (
 	Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$"
 
 	// The Amazon Resource Name (ARN) of the role that is used for target invocation.
-	RoleArn?: strings.MaxRunes(1600) & strings.MinRunes(1)
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1600) & strings.MinRunes(1))
 
 	// The name of the rule, exposed as a read-only attribute for use with Fn::GetAtt.
 	RuleName?: string
@@ -63,7 +63,7 @@ _#defs: "/$defs/Properties/definitions/AppSyncParameters": close({GraphQLOperati
 
 _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
 	AssignPublicIp?: "DISABLED" | "ENABLED"
-	SecurityGroups?: list.UniqueItems() & [...string]
+	SecurityGroups?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	Subnets!:        [...string]
 })
 
@@ -204,7 +204,7 @@ _#defs: "/$defs/Properties/definitions/Target": close({
 	KinesisParameters?:           _#defs."/$defs/Properties/definitions/KinesisParameters"
 	RedshiftDataParameters?:      _#defs."/$defs/Properties/definitions/RedshiftDataParameters"
 	RetryPolicy?:                 _#defs."/$defs/Properties/definitions/RetryPolicy"
-	RoleArn?:                     strings.MaxRunes(1600) & strings.MinRunes(1)
+	RoleArn?:                     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1600) & strings.MinRunes(1))
 	RunCommandParameters?:        _#defs."/$defs/Properties/definitions/RunCommandParameters"
 	SageMakerPipelineParameters?: _#defs."/$defs/Properties/definitions/SageMakerPipelineParameters"
 	SqsParameters?:               _#defs."/$defs/Properties/definitions/SqsParameters"

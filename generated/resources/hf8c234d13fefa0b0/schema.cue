@@ -21,7 +21,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!:             _#defs."/$defs/Properties/definitions/SandboxName" | fn.#StringExpression
 	NetworkConfiguration!: _#defs."/$defs/Properties/definitions/CodeInterpreterNetworkConfiguration" |
 		fn.#ObjectExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
+	Tags?: _#defs."/$defs/Properties/definitions/TagsMap"
 })
 
 _#defs: "/$defs/Properties/definitions/Certificate": close(
@@ -30,7 +30,7 @@ _#defs: "/$defs/Properties/definitions/Certificate": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CertificateList": list.MaxItems(10) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Certificate" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Certificate"
 ] |
 	fn.#ListExpression
 
@@ -47,8 +47,8 @@ _#defs: "/$defs/Properties/definitions/CodeInterpreterId": =~"^(aws\\.codeinterp
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CodeInterpreterNetworkConfiguration": close({
-	NetworkMode!: _#defs."/$defs/Properties/definitions/CodeInterpreterNetworkMode" | fn.#StringExpression
-	VpcConfig?:   _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
+	NetworkMode!: _#defs."/$defs/Properties/definitions/CodeInterpreterNetworkMode"
+	VpcConfig?:   _#defs."/$defs/Properties/definitions/VpcConfig"
 }) |
 fn.#ObjectExpression
 
@@ -63,39 +63,42 @@ _#defs: "/$defs/Properties/definitions/CodeInterpreterStatus": "CREATING" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CodeInterpreterSummaries": [
-	..._#defs."/$defs/Properties/definitions/CodeInterpreterSummary" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/CodeInterpreterSummary"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/CodeInterpreterSummary": close({
-	CodeInterpreterArn!: _#defs."/$defs/Properties/definitions/CodeInterpreterArn" | fn.#StringExpression
-	CodeInterpreterId!:  _#defs."/$defs/Properties/definitions/CodeInterpreterId" | fn.#StringExpression
+	CodeInterpreterArn!: _#defs."/$defs/Properties/definitions/CodeInterpreterArn"
+	CodeInterpreterId!:  _#defs."/$defs/Properties/definitions/CodeInterpreterId"
 	CreatedAt!:          time.Time | fn.#StringExpression
-	Description?:        _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
+	Description?:        _#defs."/$defs/Properties/definitions/Description"
 	LastUpdatedAt?:      time.Time | fn.#StringExpression
-	Name?:               _#defs."/$defs/Properties/definitions/SandboxName" | fn.#StringExpression
-	Status!:             _#defs."/$defs/Properties/definitions/CodeInterpreterStatus" | fn.#StringExpression
+	Name?:               _#defs."/$defs/Properties/definitions/SandboxName"
+	Status!:             _#defs."/$defs/Properties/definitions/CodeInterpreterStatus"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Description": string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):iam::[0-9]{12}:role/.+$" |
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	=~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):iam::[0-9]{12}:role/.+$" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SandboxName": string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	=~"^sg-[0-9a-zA-Z]{8,17}$" |
+	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SecurityGroups": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SecurityGroupId" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/SecurityGroupId"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/SubnetId": =~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Subnets": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SubnetId" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/SubnetId"
 ] |
 	fn.#ListExpression
 
@@ -106,8 +109,8 @@ _#defs: "/$defs/Properties/definitions/TagsMap": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroups!: _#defs."/$defs/Properties/definitions/SecurityGroups" | fn.#ListExpression
-	Subnets!:        _#defs."/$defs/Properties/definitions/Subnets" | fn.#ListExpression
+	SecurityGroups!: _#defs."/$defs/Properties/definitions/SecurityGroups"
+	Subnets!:        _#defs."/$defs/Properties/definitions/Subnets"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -20,33 +20,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DomainUnitId?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" | fn.#StringExpression
 	GlossaryTerms?: list.MaxItems(20) & [...] & [...=~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression] |
 		fn.#ListExpression
-	MembershipAssignments?: [
-		..._#defs."/$defs/Properties/definitions/ProjectMembershipAssignment" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	MembershipAssignments?: [..._#defs."/$defs/Properties/definitions/ProjectMembershipAssignment"] | fn.#ListExpression
 	Name!:                  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
 	ProjectCategory?:       string | fn.#StringExpression
 	ProjectExecutionRole?:  =~"^arn:aws[^:]*:iam::\\d{12}:role/[\\w+=,.@/-]+$" | fn.#StringExpression
 	ProjectProfileId?:      =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 	ProjectProfileVersion?: string | fn.#StringExpression
-	ResourceTags?: [..._#defs."/$defs/Properties/definitions/ResourceTag" | fn.#ObjectExpression] | fn.#ListExpression
-	UserParameters?: [
-		..._#defs."/$defs/Properties/definitions/EnvironmentConfigurationUserParameter" | fn.#ObjectExpression
-	] |
+	ResourceTags?:          [..._#defs."/$defs/Properties/definitions/ResourceTag"] | fn.#ListExpression
+	UserParameters?: [..._#defs."/$defs/Properties/definitions/EnvironmentConfigurationUserParameter"] |
 		fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EnvironmentConfigurationUserParameter": close({
 	EnvironmentConfigurationName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
 	EnvironmentId?:                =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	EnvironmentParameters?: [..._#defs."/$defs/Properties/definitions/EnvironmentParameter" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	EnvironmentParameters?:        [..._#defs."/$defs/Properties/definitions/EnvironmentParameter"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EnvironmentDeploymentDetails": close({
-	EnvironmentFailureReasons?: _#defs."/$defs/Properties/definitions/EnvironmentFailureReasons" | fn.#ObjectExpression
-	OverallDeploymentStatus?:   _#defs."/$defs/Properties/definitions/OverallDeploymentStatus" | fn.#StringExpression
+	EnvironmentFailureReasons?: _#defs."/$defs/Properties/definitions/EnvironmentFailureReasons"
+	OverallDeploymentStatus?:   _#defs."/$defs/Properties/definitions/OverallDeploymentStatus"
 }) |
 fn.#ObjectExpression
 
@@ -58,7 +52,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EnvironmentFailureReasons": close({
 
-	{[=~".+"]: [..._#defs."/$defs/Properties/definitions/EnvironmentError" | fn.#ObjectExpression] | fn.#ListExpression}}) |
+	{[=~".+"]: [..._#defs."/$defs/Properties/definitions/EnvironmentError"] | fn.#ListExpression}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EnvironmentParameter": close({
@@ -94,8 +88,8 @@ _#defs: "/$defs/Properties/definitions/ProjectDeletionError": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ProjectMembershipAssignment": close({
-	Designation!: _#defs."/$defs/Properties/definitions/UserDesignation" | fn.#StringExpression
-	Member!:      _#defs."/$defs/Properties/definitions/Member" | fn.#ObjectExpression
+	Designation!: _#defs."/$defs/Properties/definitions/UserDesignation"
+	Member!:      _#defs."/$defs/Properties/definitions/Member"
 }) |
 fn.#ObjectExpression
 

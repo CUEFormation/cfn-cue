@@ -7,13 +7,17 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Registers a package version.
 #Properties: close({
-	MarkLatest?:                bool | fn.#BooleanExpression
+	MarkLatest?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	OwnerAccount?:              _#defs."/$defs/Properties/definitions/PackageOwnerAccount" | fn.#StringExpression
 	PackageId!:                 _#defs."/$defs/Properties/definitions/NodePackageId" | fn.#StringExpression
 	PackageVersion!:            _#defs."/$defs/Properties/definitions/NodePackageVersion" | fn.#StringExpression
@@ -58,7 +62,19 @@ _#defs: "/$defs/Properties/definitions/PackageVersionStatus": "REGISTER_PENDING"
 _#defs: "/$defs/Properties/definitions/PackageVersionStatusDescription": strings.MaxRunes(255) & strings.MinRunes(1) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TimeStamp": int | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/TimeStamp": int |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Panorama::PackageVersion"
 	Properties!: #Properties

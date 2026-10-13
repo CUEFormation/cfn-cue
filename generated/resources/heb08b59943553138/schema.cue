@@ -22,7 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/AwsConsoleLinkParameters": close(
-	{Uri?: _#defs."/$defs/Properties/definitions/EnvironmentActionURI" | fn.#StringExpression},
+	{Uri?: _#defs."/$defs/Properties/definitions/EnvironmentActionURI"},
 ) |
 	fn.#ObjectExpression
 

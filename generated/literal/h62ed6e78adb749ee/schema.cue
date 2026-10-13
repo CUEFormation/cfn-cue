@@ -27,7 +27,8 @@ import (
 	CreatedAt?: string
 
 	// The execution role ARN for the managed endpoint.
-	ExecutionRoleArn!: strings.MaxRunes(2048) &
+	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$"
 
@@ -44,7 +45,7 @@ import (
 	ReleaseLabel!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-Za-z0-9._/-]+"
 
 	// The security group associated with the managed endpoint.
-	SecurityGroup?: string
+	SecurityGroup?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 
 	// The server URL of the managed endpoint.
 	ServerUrl?: string

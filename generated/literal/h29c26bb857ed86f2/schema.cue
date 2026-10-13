@@ -52,7 +52,11 @@ _#defs: "/$defs/Properties/definitions/RequesterGatewayStatus": "PENDING_CREATIO
 
 // The ID of one or more security groups in order to create a requester gateway.
 _#defs: "/$defs/Properties/definitions/SecurityGroupIds": list.MinItems(1) & list.UniqueItems() & [
-	...(string | string) & strings.MaxRunes(43) & strings.MinRunes(11) & =~"^sg-[0-9a-f]{8,40}$"
+	...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	string &
+	strings.MaxRunes(43) &
+	strings.MinRunes(11) &
+	=~"^sg-[0-9a-f]{8,40}$"
 ]
 
 // The ID of one or more subnets in order to create a requester gateway.
@@ -84,4 +88,7 @@ _#defs: "/$defs/Properties/definitions/TotalLinksCount": int
 
 _#defs: "/$defs/Properties/definitions/UpdatedTimestamp": string
 
-_#defs: "/$defs/Properties/definitions/VpcId": strings.MaxRunes(50) & strings.MinRunes(5) & =~"^vpc-[a-f0-9]{8,17}$"
+_#defs: "/$defs/Properties/definitions/VpcId": =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+strings.MaxRunes(50) &
+strings.MinRunes(5) &
+=~"^vpc-[a-f0-9]{8,17}$"

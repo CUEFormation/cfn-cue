@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,11 +18,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Lambda::NetworkConnector
 #Properties: close({
-	Configuration!: _#defs."/$defs/Properties/definitions/Config" | fn.#ObjectExpression
-	Name?:          _#defs."/$defs/Properties/definitions/Name" | fn.#StringExpression
-	OperatorRole?:  _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Configuration!: _#defs."/$defs/Properties/definitions/Config"
+	Name?:          _#defs."/$defs/Properties/definitions/Name"
+	OperatorRole?:  _#defs."/$defs/Properties/definitions/RoleArn"
+	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(140) &
@@ -27,11 +30,25 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Config": close(
-	{VpcEgressConfiguration!: _#defs."/$defs/Properties/definitions/VpcEgressConfiguration" | fn.#ObjectExpression},
+	{VpcEgressConfiguration!: _#defs."/$defs/Properties/definitions/VpcEgressConfiguration"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LatestVersion": int & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/LatestVersion": int & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/LatestVersionArn": strings.MaxRunes(140) &
 strings.MinRunes(1) &
@@ -69,7 +86,11 @@ _#defs: "/$defs/Properties/definitions/VpcEgressConfiguration": close({
 		fn.#ListExpression
 	NetworkProtocol!: "IPv4" | "DualStack" | fn.#StringExpression
 	SecurityGroupIds!: list.MaxItems(5) & [...] & [
-		...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^sg-[0-9a-zA-Z]*$" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(0) &
+		=~"^sg-[0-9a-zA-Z]*$" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SubnetIds!: list.MaxItems(16) & list.MinItems(1) & [

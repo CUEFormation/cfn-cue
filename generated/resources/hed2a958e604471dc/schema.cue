@@ -10,8 +10,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SES::VdmAttributes
 #Properties: close({
-	DashboardAttributes?: _#defs."/$defs/Properties/definitions/DashboardAttributes" | fn.#ObjectExpression
-	GuardianAttributes?:  _#defs."/$defs/Properties/definitions/GuardianAttributes" | fn.#ObjectExpression
+	DashboardAttributes?: _#defs."/$defs/Properties/definitions/DashboardAttributes"
+	GuardianAttributes?:  _#defs."/$defs/Properties/definitions/GuardianAttributes"
 })
 
 _#defs: "/$defs/Properties/definitions/DashboardAttributes": close(

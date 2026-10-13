@@ -11,8 +11,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::AppMesh::Mesh
 #Properties: close({
 	MeshName?: string | fn.#StringExpression
-	Spec?:     _#defs."/$defs/Properties/definitions/MeshSpec" | fn.#ObjectExpression
-	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Spec?:     _#defs."/$defs/Properties/definitions/MeshSpec"
+	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EgressFilter": close({Type!: string | fn.#StringExpression}) |
@@ -22,8 +22,8 @@ _#defs: "/$defs/Properties/definitions/MeshServiceDiscovery": close({IpPreferenc
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MeshSpec": close({
-	EgressFilter?:     _#defs."/$defs/Properties/definitions/EgressFilter" | fn.#ObjectExpression
-	ServiceDiscovery?: _#defs."/$defs/Properties/definitions/MeshServiceDiscovery" | fn.#ObjectExpression
+	EgressFilter?:     _#defs."/$defs/Properties/definitions/EgressFilter"
+	ServiceDiscovery?: _#defs."/$defs/Properties/definitions/MeshServiceDiscovery"
 }) |
 fn.#ObjectExpression
 

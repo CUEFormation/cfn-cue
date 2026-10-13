@@ -47,6 +47,11 @@ _#defs: "/$defs/Properties/definitions/TagMap": close({
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0)}})
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroupIds?: list.MaxItems(5) & [...strings.MaxRunes(128) & strings.MinRunes(4) & =~"^sg-[0-9a-f]+$"]
-	SubnetIds?:        list.MaxItems(16) & [...strings.MaxRunes(128) & strings.MinRunes(8) & =~"^subnet-[0-9a-f]+$"]
+	SecurityGroupIds?: list.MaxItems(5) & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(128) &
+		strings.MinRunes(4) &
+		=~"^sg-[0-9a-f]+$"
+	]
+	SubnetIds?: list.MaxItems(16) & [...strings.MaxRunes(128) & strings.MinRunes(8) & =~"^subnet-[0-9a-f]+$"]
 })

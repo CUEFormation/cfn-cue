@@ -34,7 +34,7 @@ _#defs: "/$defs/Properties/definitions/CFNDestinationProperties": close({
 	DestinationArn?: string
 
 	// The ARN of the KMS key to use for encryption.
-	KmsKeyArn?: string
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/TagItem": close({

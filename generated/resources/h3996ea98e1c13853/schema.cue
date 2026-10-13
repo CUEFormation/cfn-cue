@@ -8,13 +8,17 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource represents a schema of Glue Schema Registry.
 #Properties: close({
-	CheckpointVersion?: _#defs."/$defs/Properties/definitions/SchemaVersion" | fn.#ObjectExpression
+	CheckpointVersion?: _#defs."/$defs/Properties/definitions/SchemaVersion"
 	Compatibility!: "NONE" |
 		"DISABLED" |
 		"BACKWARD" |
@@ -27,10 +31,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DataFormat!:       "AVRO" | "JSON" | "PROTOBUF" | fn.#StringExpression
 	Description?:      strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Registry?:         _#defs."/$defs/Properties/definitions/Registry" | fn.#ObjectExpression
+	Registry?:         _#defs."/$defs/Properties/definitions/Registry"
 	SchemaDefinition?: strings.MaxRunes(170000) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	Tags?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:             list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Registry": close({
@@ -40,8 +43,23 @@ _#defs: "/$defs/Properties/definitions/Registry": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SchemaVersion": close({
-	IsLatest?:      bool | fn.#BooleanExpression
-	VersionNumber?: int & <=100000 & >=1 | fn.#NumberExpression
+	IsLatest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	VersionNumber?: int & <=100000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

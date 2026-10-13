@@ -14,16 +14,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::IoT::ThingType
 #Properties: close({
-	DeprecateThingType?: bool | fn.#BooleanExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	DeprecateThingType?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	ThingTypeName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
 	ThingTypeProperties?: close({
 		Mqtt5Configuration?: close({
 			PropagatingAttributes?: list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/PropagatingAttribute" | fn.#ObjectExpression
+				..._#defs."/$defs/Properties/definitions/PropagatingAttribute"
 			] |
 				fn.#ListExpression
 		}) |

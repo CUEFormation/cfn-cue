@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,23 +23,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(5) &
 	=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
 	fn.#StringExpression
-	Definition!:                    _#defs."/$defs/Properties/definitions/TemplateDefinition" | fn.#ValueExpression
-	Name!:                          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	ReenrollAllCertificateHolders?: bool | fn.#BooleanExpression
-	Tags?:                          _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	Definition!: _#defs."/$defs/Properties/definitions/TemplateDefinition"
+	Name!:       strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	ReenrollAllCertificateHolders?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	Tags?: _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/ApplicationPolicies": close({
-	Critical?: bool | fn.#BooleanExpression
+	Critical?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Policies!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ApplicationPolicy" | fn.#ValueExpression
+		..._#defs."/$defs/Properties/definitions/ApplicationPolicy"
 	] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ApplicationPolicy": matchN(1, [close(
-	{PolicyType!: _#defs."/$defs/Properties/definitions/ApplicationPolicyType" | fn.#StringExpression},
+	{PolicyType!: _#defs."/$defs/Properties/definitions/ApplicationPolicyType"},
 ), close({
 	PolicyObjectIdentifier!: strings.MaxRunes(64) &
 	strings.MinRunes(1) &
@@ -114,8 +125,8 @@ _#defs: "/$defs/Properties/definitions/ApplicationPolicyType": "ALL_APPLICATION_
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CertificateValidity": close({
-	RenewalPeriod!:  _#defs."/$defs/Properties/definitions/ValidityPeriod" | fn.#ObjectExpression
-	ValidityPeriod!: _#defs."/$defs/Properties/definitions/ValidityPeriod" | fn.#ObjectExpression
+	RenewalPeriod!:  _#defs."/$defs/Properties/definitions/ValidityPeriod"
+	ValidityPeriod!: _#defs."/$defs/Properties/definitions/ValidityPeriod"
 }) |
 fn.#ObjectExpression
 
@@ -140,65 +151,107 @@ _#defs: "/$defs/Properties/definitions/ClientCompatibilityV4": "WINDOWS_SERVER_2
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/EnrollmentFlagsV2": close({
-	EnableKeyReuseOnNtTokenKeysetStorageFull?:  bool | fn.#BooleanExpression
-	IncludeSymmetricAlgorithms?:                bool | fn.#BooleanExpression
-	NoSecurityExtension?:                       bool | fn.#BooleanExpression
-	RemoveInvalidCertificateFromPersonalStore?: bool | fn.#BooleanExpression
-	UserInteractionRequired?:                   bool | fn.#BooleanExpression
+	EnableKeyReuseOnNtTokenKeysetStorageFull?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	IncludeSymmetricAlgorithms?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NoSecurityExtension?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RemoveInvalidCertificateFromPersonalStore?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	UserInteractionRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EnrollmentFlagsV3": close({
-	EnableKeyReuseOnNtTokenKeysetStorageFull?:  bool | fn.#BooleanExpression
-	IncludeSymmetricAlgorithms?:                bool | fn.#BooleanExpression
-	NoSecurityExtension?:                       bool | fn.#BooleanExpression
-	RemoveInvalidCertificateFromPersonalStore?: bool | fn.#BooleanExpression
-	UserInteractionRequired?:                   bool | fn.#BooleanExpression
+	EnableKeyReuseOnNtTokenKeysetStorageFull?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	IncludeSymmetricAlgorithms?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NoSecurityExtension?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RemoveInvalidCertificateFromPersonalStore?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	UserInteractionRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EnrollmentFlagsV4": close({
-	EnableKeyReuseOnNtTokenKeysetStorageFull?:  bool | fn.#BooleanExpression
-	IncludeSymmetricAlgorithms?:                bool | fn.#BooleanExpression
-	NoSecurityExtension?:                       bool | fn.#BooleanExpression
-	RemoveInvalidCertificateFromPersonalStore?: bool | fn.#BooleanExpression
-	UserInteractionRequired?:                   bool | fn.#BooleanExpression
+	EnableKeyReuseOnNtTokenKeysetStorageFull?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	IncludeSymmetricAlgorithms?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NoSecurityExtension?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RemoveInvalidCertificateFromPersonalStore?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	UserInteractionRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExtensionsV2": close({
-	ApplicationPolicies?: _#defs."/$defs/Properties/definitions/ApplicationPolicies" | fn.#ObjectExpression
-	KeyUsage!:            _#defs."/$defs/Properties/definitions/KeyUsage" | fn.#ObjectExpression
+	ApplicationPolicies?: _#defs."/$defs/Properties/definitions/ApplicationPolicies"
+	KeyUsage!:            _#defs."/$defs/Properties/definitions/KeyUsage"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExtensionsV3": close({
-	ApplicationPolicies?: _#defs."/$defs/Properties/definitions/ApplicationPolicies" | fn.#ObjectExpression
-	KeyUsage!:            _#defs."/$defs/Properties/definitions/KeyUsage" | fn.#ObjectExpression
+	ApplicationPolicies?: _#defs."/$defs/Properties/definitions/ApplicationPolicies"
+	KeyUsage!:            _#defs."/$defs/Properties/definitions/KeyUsage"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExtensionsV4": close({
-	ApplicationPolicies?: _#defs."/$defs/Properties/definitions/ApplicationPolicies" | fn.#ObjectExpression
-	KeyUsage!:            _#defs."/$defs/Properties/definitions/KeyUsage" | fn.#ObjectExpression
+	ApplicationPolicies?: _#defs."/$defs/Properties/definitions/ApplicationPolicies"
+	KeyUsage!:            _#defs."/$defs/Properties/definitions/KeyUsage"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeneralFlagsV2": close({
-	AutoEnrollment?: bool | fn.#BooleanExpression
-	MachineType?:    bool | fn.#BooleanExpression
+	AutoEnrollment?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MachineType?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeneralFlagsV3": close({
-	AutoEnrollment?: bool | fn.#BooleanExpression
-	MachineType?:    bool | fn.#BooleanExpression
+	AutoEnrollment?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MachineType?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeneralFlagsV4": close({
-	AutoEnrollment?: bool | fn.#BooleanExpression
-	MachineType?:    bool | fn.#BooleanExpression
+	AutoEnrollment?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MachineType?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -207,31 +260,31 @@ _#defs: "/$defs/Properties/definitions/HashAlgorithm": "SHA256" | "SHA384" | "SH
 _#defs: "/$defs/Properties/definitions/KeySpec": "KEY_EXCHANGE" | "SIGNATURE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/KeyUsage": close({
-	Critical?:   bool | fn.#BooleanExpression
-	UsageFlags!: _#defs."/$defs/Properties/definitions/KeyUsageFlags" | fn.#ObjectExpression
+	Critical?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UsageFlags!: _#defs."/$defs/Properties/definitions/KeyUsageFlags"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KeyUsageFlags": close({
-	DataEncipherment?: bool | fn.#BooleanExpression
-	DigitalSignature?: bool | fn.#BooleanExpression
-	KeyAgreement?:     bool | fn.#BooleanExpression
-	KeyEncipherment?:  bool | fn.#BooleanExpression
-	NonRepudiation?:   bool | fn.#BooleanExpression
+	DataEncipherment?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DigitalSignature?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KeyAgreement?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KeyEncipherment?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NonRepudiation?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KeyUsageProperty": matchN(1, [close(
-	{PropertyType!: _#defs."/$defs/Properties/definitions/KeyUsagePropertyType" | fn.#StringExpression},
+	{PropertyType!: _#defs."/$defs/Properties/definitions/KeyUsagePropertyType"},
 ), close(
-	{PropertyFlags!: _#defs."/$defs/Properties/definitions/KeyUsagePropertyFlags" | fn.#ObjectExpression},
+	{PropertyFlags!: _#defs."/$defs/Properties/definitions/KeyUsagePropertyFlags"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/KeyUsagePropertyFlags": close({
-	Decrypt?:      bool | fn.#BooleanExpression
-	KeyAgreement?: bool | fn.#BooleanExpression
-	Sign?:         bool | fn.#BooleanExpression
+	Decrypt?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KeyAgreement?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Sign?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -248,99 +301,167 @@ _#defs: "/$defs/Properties/definitions/PrivateKeyAttributesV2": close({
 		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	KeySpec!:          _#defs."/$defs/Properties/definitions/KeySpec" | fn.#StringExpression
-	MinimalKeyLength!: >=1 | fn.#NumberExpression
+	KeySpec!: _#defs."/$defs/Properties/definitions/KeySpec"
+	MinimalKeyLength!: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateKeyAttributesV3": close({
-	Algorithm!: _#defs."/$defs/Properties/definitions/PrivateKeyAlgorithm" | fn.#StringExpression
+	Algorithm!: _#defs."/$defs/Properties/definitions/PrivateKeyAlgorithm"
 	CryptoProviders?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	KeySpec!:          _#defs."/$defs/Properties/definitions/KeySpec" | fn.#StringExpression
-	KeyUsageProperty!: _#defs."/$defs/Properties/definitions/KeyUsageProperty" | fn.#ValueExpression
-	MinimalKeyLength!: >=1 | fn.#NumberExpression
+	KeySpec!:          _#defs."/$defs/Properties/definitions/KeySpec"
+	KeyUsageProperty!: _#defs."/$defs/Properties/definitions/KeyUsageProperty"
+	MinimalKeyLength!: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateKeyAttributesV4": close({
-	Algorithm?: _#defs."/$defs/Properties/definitions/PrivateKeyAlgorithm" | fn.#StringExpression
+	Algorithm?: _#defs."/$defs/Properties/definitions/PrivateKeyAlgorithm"
 	CryptoProviders?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	KeySpec!:          _#defs."/$defs/Properties/definitions/KeySpec" | fn.#StringExpression
-	KeyUsageProperty?: _#defs."/$defs/Properties/definitions/KeyUsageProperty" | fn.#ValueExpression
-	MinimalKeyLength!: >=1 | fn.#NumberExpression
+	KeySpec!:          _#defs."/$defs/Properties/definitions/KeySpec"
+	KeyUsageProperty?: _#defs."/$defs/Properties/definitions/KeyUsageProperty"
+	MinimalKeyLength!: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateKeyFlagsV2": close({
-	ClientVersion!:               _#defs."/$defs/Properties/definitions/ClientCompatibilityV2" | fn.#StringExpression
-	ExportableKey?:               bool | fn.#BooleanExpression
-	StrongKeyProtectionRequired?: bool | fn.#BooleanExpression
+	ClientVersion!:               _#defs."/$defs/Properties/definitions/ClientCompatibilityV2"
+	ExportableKey?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	StrongKeyProtectionRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateKeyFlagsV3": close({
-	ClientVersion!: _#defs."/$defs/Properties/definitions/ClientCompatibilityV3" | fn.#StringExpression
-	ExportableKey?: bool | fn.#BooleanExpression
-	RequireAlternateSignatureAlgorithm?: bool | fn.#BooleanExpression
-	StrongKeyProtectionRequired?:        bool | fn.#BooleanExpression
+	ClientVersion!: _#defs."/$defs/Properties/definitions/ClientCompatibilityV3"
+	ExportableKey?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RequireAlternateSignatureAlgorithm?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	StrongKeyProtectionRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrivateKeyFlagsV4": close({
-	ClientVersion!: _#defs."/$defs/Properties/definitions/ClientCompatibilityV4" | fn.#StringExpression
-	ExportableKey?: bool | fn.#BooleanExpression
-	RequireAlternateSignatureAlgorithm?: bool | fn.#BooleanExpression
-	RequireSameKeyRenewal?:              bool | fn.#BooleanExpression
-	StrongKeyProtectionRequired?:        bool | fn.#BooleanExpression
-	UseLegacyProvider?:                  bool | fn.#BooleanExpression
+	ClientVersion!: _#defs."/$defs/Properties/definitions/ClientCompatibilityV4"
+	ExportableKey?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RequireAlternateSignatureAlgorithm?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	RequireSameKeyRenewal?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	StrongKeyProtectionRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UseLegacyProvider?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SubjectNameFlagsV2": close({
-	RequireCommonName?:       bool | fn.#BooleanExpression
-	RequireDirectoryPath?:    bool | fn.#BooleanExpression
-	RequireDnsAsCn?:          bool | fn.#BooleanExpression
-	RequireEmail?:            bool | fn.#BooleanExpression
-	SanRequireDirectoryGuid?: bool | fn.#BooleanExpression
-	SanRequireDns?:           bool | fn.#BooleanExpression
-	SanRequireDomainDns?:     bool | fn.#BooleanExpression
-	SanRequireEmail?:         bool | fn.#BooleanExpression
-	SanRequireSpn?:           bool | fn.#BooleanExpression
-	SanRequireUpn?:           bool | fn.#BooleanExpression
+	RequireCommonName?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RequireDirectoryPath?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RequireDnsAsCn?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RequireEmail?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireDirectoryGuid?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireDns?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireDomainDns?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireEmail?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireSpn?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireUpn?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SubjectNameFlagsV3": close({
-	RequireCommonName?:       bool | fn.#BooleanExpression
-	RequireDirectoryPath?:    bool | fn.#BooleanExpression
-	RequireDnsAsCn?:          bool | fn.#BooleanExpression
-	RequireEmail?:            bool | fn.#BooleanExpression
-	SanRequireDirectoryGuid?: bool | fn.#BooleanExpression
-	SanRequireDns?:           bool | fn.#BooleanExpression
-	SanRequireDomainDns?:     bool | fn.#BooleanExpression
-	SanRequireEmail?:         bool | fn.#BooleanExpression
-	SanRequireSpn?:           bool | fn.#BooleanExpression
-	SanRequireUpn?:           bool | fn.#BooleanExpression
+	RequireCommonName?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RequireDirectoryPath?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RequireDnsAsCn?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RequireEmail?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireDirectoryGuid?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireDns?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireDomainDns?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireEmail?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireSpn?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireUpn?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SubjectNameFlagsV4": close({
-	RequireCommonName?:       bool | fn.#BooleanExpression
-	RequireDirectoryPath?:    bool | fn.#BooleanExpression
-	RequireDnsAsCn?:          bool | fn.#BooleanExpression
-	RequireEmail?:            bool | fn.#BooleanExpression
-	SanRequireDirectoryGuid?: bool | fn.#BooleanExpression
-	SanRequireDns?:           bool | fn.#BooleanExpression
-	SanRequireDomainDns?:     bool | fn.#BooleanExpression
-	SanRequireEmail?:         bool | fn.#BooleanExpression
-	SanRequireSpn?:           bool | fn.#BooleanExpression
-	SanRequireUpn?:           bool | fn.#BooleanExpression
+	RequireCommonName?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RequireDirectoryPath?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RequireDnsAsCn?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RequireEmail?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireDirectoryGuid?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireDns?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireDomainDns?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireEmail?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireSpn?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SanRequireUpn?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -350,22 +471,22 @@ _#defs: "/$defs/Properties/definitions/Tags": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TemplateDefinition": matchN(1, [close(
-	{TemplateV2!: _#defs."/$defs/Properties/definitions/TemplateV2" | fn.#ObjectExpression},
+	{TemplateV2!: _#defs."/$defs/Properties/definitions/TemplateV2"},
 ), close(
-	{TemplateV3!: _#defs."/$defs/Properties/definitions/TemplateV3" | fn.#ObjectExpression},
+	{TemplateV3!: _#defs."/$defs/Properties/definitions/TemplateV3"},
 ), close(
-	{TemplateV4!: _#defs."/$defs/Properties/definitions/TemplateV4" | fn.#ObjectExpression},
+	{TemplateV4!: _#defs."/$defs/Properties/definitions/TemplateV4"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/TemplateV2": close({
-	CertificateValidity!:  _#defs."/$defs/Properties/definitions/CertificateValidity" | fn.#ObjectExpression
-	EnrollmentFlags!:      _#defs."/$defs/Properties/definitions/EnrollmentFlagsV2" | fn.#ObjectExpression
-	Extensions!:           _#defs."/$defs/Properties/definitions/ExtensionsV2" | fn.#ObjectExpression
-	GeneralFlags!:         _#defs."/$defs/Properties/definitions/GeneralFlagsV2" | fn.#ObjectExpression
-	PrivateKeyAttributes!: _#defs."/$defs/Properties/definitions/PrivateKeyAttributesV2" | fn.#ObjectExpression
-	PrivateKeyFlags!:      _#defs."/$defs/Properties/definitions/PrivateKeyFlagsV2" | fn.#ObjectExpression
-	SubjectNameFlags!:     _#defs."/$defs/Properties/definitions/SubjectNameFlagsV2" | fn.#ObjectExpression
+	CertificateValidity!:  _#defs."/$defs/Properties/definitions/CertificateValidity"
+	EnrollmentFlags!:      _#defs."/$defs/Properties/definitions/EnrollmentFlagsV2"
+	Extensions!:           _#defs."/$defs/Properties/definitions/ExtensionsV2"
+	GeneralFlags!:         _#defs."/$defs/Properties/definitions/GeneralFlagsV2"
+	PrivateKeyAttributes!: _#defs."/$defs/Properties/definitions/PrivateKeyAttributesV2"
+	PrivateKeyFlags!:      _#defs."/$defs/Properties/definitions/PrivateKeyFlagsV2"
+	SubjectNameFlags!:     _#defs."/$defs/Properties/definitions/SubjectNameFlagsV2"
 	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -374,14 +495,14 @@ _#defs: "/$defs/Properties/definitions/TemplateV2": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TemplateV3": close({
-	CertificateValidity!:  _#defs."/$defs/Properties/definitions/CertificateValidity" | fn.#ObjectExpression
-	EnrollmentFlags!:      _#defs."/$defs/Properties/definitions/EnrollmentFlagsV3" | fn.#ObjectExpression
-	Extensions!:           _#defs."/$defs/Properties/definitions/ExtensionsV3" | fn.#ObjectExpression
-	GeneralFlags!:         _#defs."/$defs/Properties/definitions/GeneralFlagsV3" | fn.#ObjectExpression
-	HashAlgorithm!:        _#defs."/$defs/Properties/definitions/HashAlgorithm" | fn.#StringExpression
-	PrivateKeyAttributes!: _#defs."/$defs/Properties/definitions/PrivateKeyAttributesV3" | fn.#ObjectExpression
-	PrivateKeyFlags!:      _#defs."/$defs/Properties/definitions/PrivateKeyFlagsV3" | fn.#ObjectExpression
-	SubjectNameFlags!:     _#defs."/$defs/Properties/definitions/SubjectNameFlagsV3" | fn.#ObjectExpression
+	CertificateValidity!:  _#defs."/$defs/Properties/definitions/CertificateValidity"
+	EnrollmentFlags!:      _#defs."/$defs/Properties/definitions/EnrollmentFlagsV3"
+	Extensions!:           _#defs."/$defs/Properties/definitions/ExtensionsV3"
+	GeneralFlags!:         _#defs."/$defs/Properties/definitions/GeneralFlagsV3"
+	HashAlgorithm!:        _#defs."/$defs/Properties/definitions/HashAlgorithm"
+	PrivateKeyAttributes!: _#defs."/$defs/Properties/definitions/PrivateKeyAttributesV3"
+	PrivateKeyFlags!:      _#defs."/$defs/Properties/definitions/PrivateKeyFlagsV3"
+	SubjectNameFlags!:     _#defs."/$defs/Properties/definitions/SubjectNameFlagsV3"
 	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -390,14 +511,14 @@ _#defs: "/$defs/Properties/definitions/TemplateV3": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TemplateV4": close({
-	CertificateValidity!:  _#defs."/$defs/Properties/definitions/CertificateValidity" | fn.#ObjectExpression
-	EnrollmentFlags!:      _#defs."/$defs/Properties/definitions/EnrollmentFlagsV4" | fn.#ObjectExpression
-	Extensions!:           _#defs."/$defs/Properties/definitions/ExtensionsV4" | fn.#ObjectExpression
-	GeneralFlags!:         _#defs."/$defs/Properties/definitions/GeneralFlagsV4" | fn.#ObjectExpression
-	HashAlgorithm?:        _#defs."/$defs/Properties/definitions/HashAlgorithm" | fn.#StringExpression
-	PrivateKeyAttributes!: _#defs."/$defs/Properties/definitions/PrivateKeyAttributesV4" | fn.#ObjectExpression
-	PrivateKeyFlags!:      _#defs."/$defs/Properties/definitions/PrivateKeyFlagsV4" | fn.#ObjectExpression
-	SubjectNameFlags!:     _#defs."/$defs/Properties/definitions/SubjectNameFlagsV4" | fn.#ObjectExpression
+	CertificateValidity!:  _#defs."/$defs/Properties/definitions/CertificateValidity"
+	EnrollmentFlags!:      _#defs."/$defs/Properties/definitions/EnrollmentFlagsV4"
+	Extensions!:           _#defs."/$defs/Properties/definitions/ExtensionsV4"
+	GeneralFlags!:         _#defs."/$defs/Properties/definitions/GeneralFlagsV4"
+	HashAlgorithm?:        _#defs."/$defs/Properties/definitions/HashAlgorithm"
+	PrivateKeyAttributes!: _#defs."/$defs/Properties/definitions/PrivateKeyAttributesV4"
+	PrivateKeyFlags!:      _#defs."/$defs/Properties/definitions/PrivateKeyFlagsV4"
+	SubjectNameFlags!:     _#defs."/$defs/Properties/definitions/SubjectNameFlagsV4"
 	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -406,8 +527,27 @@ _#defs: "/$defs/Properties/definitions/TemplateV4": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ValidityPeriod": close({
-	Period!:     <=8766000 & >=1 | fn.#NumberExpression
-	PeriodType!: _#defs."/$defs/Properties/definitions/ValidityPeriodType" | fn.#StringExpression
+	Period!: <=8766000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=8766000 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PeriodType!: _#defs."/$defs/Properties/definitions/ValidityPeriodType"
 }) |
 fn.#ObjectExpression
 

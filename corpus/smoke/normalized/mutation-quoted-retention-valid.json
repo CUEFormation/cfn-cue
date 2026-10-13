@@ -1,0 +1,10 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "MessageRetentionPeriod": "60"
+      },
+      "Type": "AWS::SQS::Queue"
+    }
+  }
+}

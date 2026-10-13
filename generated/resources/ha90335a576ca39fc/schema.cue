@@ -14,34 +14,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Cognito::IdentityPool
 #Properties: close({
-	AllowClassicFlow?:               bool | fn.#BooleanExpression
-	AllowUnauthenticatedIdentities!: bool | fn.#BooleanExpression
-	CognitoEvents?:                  string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	CognitoIdentityProviders?: [
-		..._#defs."/$defs/Properties/definitions/CognitoIdentityProvider" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	CognitoStreams?:        _#defs."/$defs/Properties/definitions/CognitoStreams" | fn.#ObjectExpression
-	DeveloperProviderName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w._-]+$" | fn.#StringExpression
-	IdentityPoolName?:      strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" | fn.#StringExpression
-	IdentityPoolTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	AllowClassicFlow?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AllowUnauthenticatedIdentities!: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	CognitoEvents?:            fn.#Object & {...} | string | fn.#StringObjectExpression
+	CognitoIdentityProviders?: [..._#defs."/$defs/Properties/definitions/CognitoIdentityProvider"] | fn.#ListExpression
+	CognitoStreams?:           _#defs."/$defs/Properties/definitions/CognitoStreams"
+	DeveloperProviderName?:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w._-]+$" | fn.#StringExpression
+	IdentityPoolName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" | fn.#StringExpression
+	IdentityPoolTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	OpenIdConnectProviderARNs?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] |
 	fn.#ListExpression
-	PushSync?:         _#defs."/$defs/Properties/definitions/PushSync" | fn.#ObjectExpression
+	PushSync?:         _#defs."/$defs/Properties/definitions/PushSync"
 	SamlProviderARNs?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] | fn.#ListExpression
-	SupportedLoginProviders?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	SupportedLoginProviders?: fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CognitoIdentityProvider": close({
 	ClientId!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w_]+$" | fn.#StringExpression
 	ProviderName!:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w._:/-]+$" | fn.#StringExpression
-	ServerSideTokenCheck?: bool | fn.#BooleanExpression
+	ServerSideTokenCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CognitoStreams": close({
-	RoleArn?:         string | fn.#StringExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	StreamName?:      string | fn.#StringExpression
 	StreamingStatus?: string | fn.#StringExpression
 }) |
@@ -49,7 +53,8 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PushSync": close({
 	ApplicationArns?: [...string | fn.#StringExpression] | fn.#ListExpression
-	RoleArn?:         string | fn.#StringExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

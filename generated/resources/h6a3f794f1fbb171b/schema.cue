@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,14 +20,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CapacityUnits?: _#defs."/$defs/Properties/definitions/CapacityUnitsConfiguration" | fn.#ObjectExpression
 	Description?:   _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	Name!:          _#defs."/$defs/Properties/definitions/Name" | fn.#StringExpression
+	Name!:          _#defs."/$defs/Properties/definitions/Name"
 	Tags?:          _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(1000) | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CapacityUnitsConfiguration": close(
-	{RescoreCapacityUnits!: _#defs."/$defs/Properties/definitions/RescoreCapacityUnits" | fn.#NumberExpression},
+	{RescoreCapacityUnits!: _#defs."/$defs/Properties/definitions/RescoreCapacityUnits"},
 ) |
 	fn.#ObjectExpression
 
@@ -37,7 +41,21 @@ strings.MinRunes(1) &
 =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RescoreCapacityUnits": int & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/RescoreCapacityUnits": int & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -46,7 +64,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {

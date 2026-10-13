@@ -43,7 +43,8 @@ _#defs: "/$defs/Properties/definitions/MetricAttribute": close({
 // The output configuration details for the metric attribution.
 _#defs: "/$defs/Properties/definitions/MetricsOutputConfig": close({
 	// The ARN of the IAM role for the metric attribution.
-	RoleArn!: strings.MaxRunes(256) &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^arn:([a-z\\d-]+):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 	S3DataDestination?: _#defs."/$defs/Properties/definitions/S3DataDestination"
@@ -52,7 +53,10 @@ _#defs: "/$defs/Properties/definitions/MetricsOutputConfig": close({
 // The configuration details of an Amazon S3 output bucket.
 _#defs: "/$defs/Properties/definitions/S3DataDestination": close({
 	// The ARN of the KMS key.
-	KmsKeyArn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:aws.*:kms:.*:[0-9]{12}:key/"
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~"^arn:aws.*:kms:.*:[0-9]{12}:key/"
 
 	// The file path of the Amazon S3 bucket.
 	Path!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(s3|http|https)://.+$"

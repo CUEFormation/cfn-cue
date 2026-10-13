@@ -99,7 +99,8 @@ _#defs: "/$defs/Properties/definitions/JwtTokenTypeConfiguration": close({
 
 _#defs: "/$defs/Properties/definitions/KeyLocation": "URL" | "SECRET_MANAGER"
 
-_#defs: "/$defs/Properties/definitions/KmsKeyId": (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
+_#defs: "/$defs/Properties/definitions/KmsKeyId": (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 // Name of index
 _#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(1000) &

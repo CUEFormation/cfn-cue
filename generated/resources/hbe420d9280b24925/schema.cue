@@ -16,15 +16,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Bandwidth!:      =~"^[1-9][0-9]*(M|G)bps$" | fn.#StringExpression
 	ConnectionName!: =~"^[\\w \\-_,\\/]{1,200}$" | fn.#StringExpression
-	LagId?: (string | string) & =~"^(arn:aws[a-z-]*:directconnect:[a-z0-9-]+:[0-9]{12}:dxlag/)?dxlag-[a-zA-Z0-9]{8,21}$" |
+	LagId?: string & =~"^(arn:aws[a-z-]*:directconnect:[a-z0-9-]+:[0-9]{12}:dxlag/)?dxlag-[a-zA-Z0-9]{8,21}$" |
 		fn.#StringExpression
 	Location!:      =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
 	ProviderName?:  string | fn.#StringExpression
-	RequestMACSec?: bool | fn.#BooleanExpression
-	Tags?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	RequestMACSec?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"struct"
 )
@@ -15,18 +15,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Bedrock::DataAutomationLibrary
 #Properties: close({
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
+	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
 	LibraryDescription?:      strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
 	LibraryName!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DataAutomationLibraryStatus": "ACTIVE" | "DELETING" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	KmsEncryptionContext?: _#defs."/$defs/Properties/definitions/KmsEncryptionContext" | fn.#ObjectExpression
-	KmsKeyId!: (string | string | string) &
+	KmsEncryptionContext?: _#defs."/$defs/Properties/definitions/KmsEncryptionContext"
+	KmsKeyId!: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^[A-Za-z0-9][A-Za-z0-9:_/+=,@.-]+$" |
@@ -38,7 +38,7 @@ _#defs: "/$defs/Properties/definitions/EntityType": "VOCABULARY" | fn.#StringExp
 
 _#defs: "/$defs/Properties/definitions/EntityTypeInfo": close({
 	EntityMetadata?: string | fn.#StringExpression
-	EntityType!:     _#defs."/$defs/Properties/definitions/EntityType" | fn.#StringExpression
+	EntityType!:     _#defs."/$defs/Properties/definitions/EntityType"
 }) |
 fn.#ObjectExpression
 

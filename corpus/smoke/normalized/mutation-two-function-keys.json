@@ -1,0 +1,47 @@
+{
+  "Conditions": {
+    "Create": {
+      "Fn::Equals": [
+        {
+          "Ref": "Name"
+        },
+        "yes"
+      ]
+    }
+  },
+  "Outputs": {
+    "BucketArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "Bucket",
+          "Arn"
+        ]
+      }
+    }
+  },
+  "Parameters": {
+    "Name": {
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "Bucket": {
+      "Properties": {
+        "AccessControl": {
+          "Fn::If": [
+            "Create",
+            "Private",
+            {
+              "Ref": "AWS::NoValue"
+            }
+          ]
+        },
+        "BucketName": {
+          "Fn::Sub": "x",
+          "Ref": "Name"
+        }
+      },
+      "Type": "AWS::S3::Bucket"
+    }
+  }
+}

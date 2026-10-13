@@ -3,11 +3,15 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"struct"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -17,24 +21,82 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // on-demand, serverless Apache Spark runtime environment for building,
 // testing, and running data preparation and analytics applications.
 #Properties: close({
-	Command!:     _#defs."/$defs/Properties/definitions/SessionCommand" | fn.#ObjectExpression
-	Connections?: _#defs."/$defs/Properties/definitions/ConnectionsList" | fn.#ObjectExpression
+	Command!:     _#defs."/$defs/Properties/definitions/SessionCommand"
+	Connections?: _#defs."/$defs/Properties/definitions/ConnectionsList"
 	DefaultArguments?: struct.MaxFields(75) & close({
 
 		{[=~"^[.\\-_A-Za-z0-9]+$"]: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Description?:     strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	GlueVersion?:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
-	Id!:              strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	IdleTimeout?:     int & >=1 | fn.#NumberExpression
-	MaxCapacity?:     number | fn.#NumberExpression
-	NumberOfWorkers?: int | fn.#NumberExpression
-	RequestOrigin?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[.\\-_A-Za-z0-9]+$" | fn.#StringExpression
+	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+	GlueVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
+	Id!:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	IdleTimeout?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxCapacity?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	NumberOfWorkers?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RequestOrigin?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[.\\-_A-Za-z0-9]+$" | fn.#StringExpression
 	Role!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[^:]*:iam::[0-9]*:role/.+$" | fn.#StringExpression
 	SecurityConfiguration?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Timeout?:    int & >=1 | fn.#NumberExpression
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Timeout?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	WorkerType?: "Standard" | "G.1X" | "G.2X" | "G.025X" | "G.4X" | "G.8X" | "Z.2X" | fn.#StringExpression
 })
 

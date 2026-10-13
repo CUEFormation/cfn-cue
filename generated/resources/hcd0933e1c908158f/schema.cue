@@ -19,23 +19,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	LambdaExclusionInput?:                    "enable" | "disable" | fn.#StringExpression
 	Mode?:                                    "monitor" | "enforce" | fn.#StringExpression
 	NatGatewayExclusionInput?:                "enable" | "disable" | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	VirtualPrivateGatewayExclusionInput?: "enable" | "disable" | fn.#StringExpression
-	VpcId?:                               string | fn.#StringExpression
-	VpcLatticeExclusionInput?:            "enable" | "disable" | fn.#StringExpression
-	VpcPeeringExclusionInput?:            "enable" | "disable" | fn.#StringExpression
+	Tags?:                                    [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VirtualPrivateGatewayExclusionInput?:     "enable" | "disable" | fn.#StringExpression
+	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	VpcLatticeExclusionInput?: "enable" | "disable" | fn.#StringExpression
+	VpcPeeringExclusionInput?: "enable" | "disable" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ResourceExclusions": close({
-	EgressOnlyInternetGateway?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" |
-		fn.#ObjectExpression
-	ElasticFileSystem?:     _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	InternetGateway?:       _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	Lambda?:                _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	NatGateway?:            _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	VirtualPrivateGateway?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	VpcLattice?:            _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	VpcPeering?:            _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
+	EgressOnlyInternetGateway?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
+	ElasticFileSystem?:         _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
+	InternetGateway?:           _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
+	Lambda?:                    _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
+	NatGateway?:                _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
+	VirtualPrivateGateway?:     _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
+	VpcLattice?:                _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
+	VpcPeering?:                _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
 }) |
 fn.#ObjectExpression
 

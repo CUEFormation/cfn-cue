@@ -22,10 +22,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Description?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 		EntityTypes?: list.MinItems(1) & [...close({
 			Description?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-			Inline?:      bool | fn.#BooleanExpression
+			Inline?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 			Name?:        string | fn.#StringExpression
-			Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-				fn.#ListExpression
+			Tags?:        list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
@@ -34,10 +33,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			DataType?:     "STRING" | "INTEGER" | "FLOAT" | "BOOLEAN" | fn.#StringExpression
 			DefaultValue?: string | fn.#StringExpression
 			Description?:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-			Inline?:       bool | fn.#BooleanExpression
+			Inline?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 			Name?:         string | fn.#StringExpression
-			Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-				fn.#ListExpression
+			Tags?:         list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 			VariableType?: "AUTH_CODE" |
 				"AVS" |
 				"BILLING_ADDRESS_L1" |
@@ -75,19 +73,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		Inline?: bool | fn.#BooleanExpression
+		Inline?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Labels?: list.MinItems(2) & [...close({
 			Description?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-			Inline?:      bool | fn.#BooleanExpression
+			Inline?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 			Name?:        string | fn.#StringExpression
-			Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-				fn.#ListExpression
+			Tags?:        list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
-		Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-			fn.#ListExpression
+		Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
 	RuleExecutionMode?: "FIRST_MATCHED" | "ALL_MATCHED" | fn.#StringExpression
@@ -98,50 +94,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Language?:    "DETECTORPL" | fn.#StringExpression
 		Outcomes?: list.MinItems(1) & [...close({
 			Description?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-			Inline?:      bool | fn.#BooleanExpression
+			Inline?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 			Name?:        string | fn.#StringExpression
-			Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-				fn.#ListExpression
+			Tags?:        list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 		RuleId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
-		Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-			fn.#ListExpression
+		Tags?:   list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EntityType": close({
 	Arn?:             string | fn.#StringExpression
 	CreatedTime?:     string | fn.#StringExpression
 	Description?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Inline?:          bool | fn.#BooleanExpression
+	Inline?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LastUpdatedTime?: string | fn.#StringExpression
 	Name?:            string | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:            list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EventType": close({
-	Arn?:         string | fn.#StringExpression
-	CreatedTime?: string | fn.#StringExpression
-	Description?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	EntityTypes?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EntityType" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	EventVariables?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EventVariable" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Inline?: bool | fn.#BooleanExpression
-	Labels?: list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/Label" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Arn?:             string | fn.#StringExpression
+	CreatedTime?:     string | fn.#StringExpression
+	Description?:     strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	EntityTypes?:     list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EntityType"] | fn.#ListExpression
+	EventVariables?:  list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EventVariable"] | fn.#ListExpression
+	Inline?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Labels?:          list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/Label"] | fn.#ListExpression
 	LastUpdatedTime?: string | fn.#StringExpression
 	Name?:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:            list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -152,11 +140,10 @@ _#defs: "/$defs/Properties/definitions/EventVariable": close({
 	DataType?:        "STRING" | "INTEGER" | "FLOAT" | "BOOLEAN" | fn.#StringExpression
 	DefaultValue?:    string | fn.#StringExpression
 	Description?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Inline?:          bool | fn.#BooleanExpression
+	Inline?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LastUpdatedTime?: string | fn.#StringExpression
 	Name?:            string | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:            list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VariableType?: "AUTH_CODE" |
 		"AVS" |
 		"BILLING_ADDRESS_L1" |
@@ -198,11 +185,10 @@ _#defs: "/$defs/Properties/definitions/Label": close({
 	Arn?:             string | fn.#StringExpression
 	CreatedTime?:     string | fn.#StringExpression
 	Description?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Inline?:          bool | fn.#BooleanExpression
+	Inline?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LastUpdatedTime?: string | fn.#StringExpression
 	Name?:            string | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:            list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -212,11 +198,10 @@ _#defs: "/$defs/Properties/definitions/Outcome": close({
 	Arn?:             string | fn.#StringExpression
 	CreatedTime?:     string | fn.#StringExpression
 	Description?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Inline?:          bool | fn.#BooleanExpression
+	Inline?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LastUpdatedTime?: string | fn.#StringExpression
 	Name?:            string | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:            list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -228,12 +213,10 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 	Expression?:      string | fn.#StringExpression
 	Language?:        "DETECTORPL" | fn.#StringExpression
 	LastUpdatedTime?: string | fn.#StringExpression
-	Outcomes?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Outcome" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	RuleId?:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
-	RuleVersion?: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^([1-9][0-9]*)$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Outcomes?:        list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Outcome"] | fn.#ListExpression
+	RuleId?:          strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
+	RuleVersion?:     strings.MaxRunes(5) & strings.MinRunes(1) & =~"^([1-9][0-9]*)$" | fn.#StringExpression
+	Tags?:            list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

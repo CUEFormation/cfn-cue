@@ -540,7 +540,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // Describes the parameters of a VPC used by the application.
 _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
 	// The array of SecurityGroup IDs used by the VPC configuration.
-	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [...string]
+	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// The array of Subnet IDs used by the VPC configuration.
 	SubnetIds!: list.MaxItems(16) & list.MinItems(1) & [...string]

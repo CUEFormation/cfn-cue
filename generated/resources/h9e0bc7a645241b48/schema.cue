@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // manages a Network Security Manager policy.
 #Properties: close({
 	AssociatedTemplateAndRuleList?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/AssociatedTemplateAndRule" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/AssociatedTemplateAndRule"
 	] |
 		fn.#ListExpression
 	FirewallType!:        "WAF" | "SHIELD_ADVANCED" | fn.#StringExpression
@@ -24,9 +28,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PolicyDescription?:   strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
 	PolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _.:/=+\\-@]*$" |
 	fn.#StringExpression
-	Priority!: int & >=1 | fn.#NumberExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Priority!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AssociatedTemplateAndRule": close({
@@ -36,9 +53,9 @@ _#defs: "/$defs/Properties/definitions/AssociatedTemplateAndRule": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PolicyConfiguration": close({
-	RemediationEnabled?: bool | fn.#BooleanExpression
-	ResourcesCleanUp?:   bool | fn.#BooleanExpression
-	WafConfig?:          _#defs."/$defs/Properties/definitions/WafConfig" | fn.#ObjectExpression
+	RemediationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ResourcesCleanUp?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	WafConfig?:          _#defs."/$defs/Properties/definitions/WafConfig"
 }) |
 fn.#ObjectExpression
 

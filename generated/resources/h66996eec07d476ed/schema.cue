@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -14,19 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::B2BI::Capability Resource Type
 #Properties: close({
-	Configuration!: _#defs."/$defs/Properties/definitions/CapabilityConfiguration" | fn.#ValueExpression
-	InstructionsDocuments?: list.MaxItems(5) & [...] & [
-		..._#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
-	] |
+	Configuration!: _#defs."/$defs/Properties/definitions/CapabilityConfiguration"
+	InstructionsDocuments?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/S3Location"] |
 		fn.#ListExpression
 	Name!: strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Type!: _#defs."/$defs/Properties/definitions/CapabilityType" | fn.#StringExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Type!: _#defs."/$defs/Properties/definitions/CapabilityType"
 })
 
 _#defs: "/$defs/Properties/definitions/CapabilityConfiguration": close(
-	{Edi!: _#defs."/$defs/Properties/definitions/EdiConfiguration" | fn.#ObjectExpression},
+	{Edi!: _#defs."/$defs/Properties/definitions/EdiConfiguration"},
 ) |
 	fn.#ValueExpression
 
@@ -35,17 +32,15 @@ _#defs: "/$defs/Properties/definitions/CapabilityDirection": "INBOUND" | "OUTBOU
 _#defs: "/$defs/Properties/definitions/CapabilityType": "edi" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/EdiConfiguration": close({
-	CapabilityDirection?: _#defs."/$defs/Properties/definitions/CapabilityDirection" | fn.#StringExpression
-	InputLocation!:       _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
-	OutputLocation!:      _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
+	CapabilityDirection?: _#defs."/$defs/Properties/definitions/CapabilityDirection"
+	InputLocation!:       _#defs."/$defs/Properties/definitions/S3Location"
+	OutputLocation!:      _#defs."/$defs/Properties/definitions/S3Location"
 	TransformerId!:       strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Type!:                _#defs."/$defs/Properties/definitions/EdiType" | fn.#ValueExpression
+	Type!:                _#defs."/$defs/Properties/definitions/EdiType"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EdiType": close(
-	{X12Details!: _#defs."/$defs/Properties/definitions/X12Details" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/EdiType": close({X12Details!: _#defs."/$defs/Properties/definitions/X12Details"}) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/S3Location": close({
@@ -61,8 +56,8 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/X12Details": close({
-	TransactionSet?: _#defs."/$defs/Properties/definitions/X12TransactionSet" | fn.#StringExpression
-	Version?:        _#defs."/$defs/Properties/definitions/X12Version" | fn.#StringExpression
+	TransactionSet?: _#defs."/$defs/Properties/definitions/X12TransactionSet"
+	Version?:        _#defs."/$defs/Properties/definitions/X12Version"
 }) |
 fn.#ObjectExpression
 

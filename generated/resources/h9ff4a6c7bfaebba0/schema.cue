@@ -13,21 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::OpsWorks::App
 #Properties: close({
-	AppSource?: _#defs."/$defs/Properties/definitions/Source" | fn.#ObjectExpression
+	AppSource?: _#defs."/$defs/Properties/definitions/Source"
 	Attributes?: {
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
 		...
 	} | fn.#ObjectExpression
-	DataSources?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DataSource" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Description?: string | fn.#StringExpression
-	Domains?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	EnableSsl?:   bool | fn.#BooleanExpression
-	Environment?: [..._#defs."/$defs/Properties/definitions/EnvironmentVariable" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	DataSources?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DataSource"] | fn.#ListExpression
+	Description?:      string | fn.#StringExpression
+	Domains?:          [...string | fn.#StringExpression] | fn.#ListExpression
+	EnableSsl?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Environment?:      [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"] | fn.#ListExpression
 	Name!:             string | fn.#StringExpression
 	Shortname?:        string | fn.#StringExpression
-	SslConfiguration?: _#defs."/$defs/Properties/definitions/SslConfiguration" | fn.#ObjectExpression
+	SslConfiguration?: _#defs."/$defs/Properties/definitions/SslConfiguration"
 	StackId!:          string | fn.#StringExpression
 	Type!:             string | fn.#StringExpression
 })
@@ -41,7 +39,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
 	Key!:    string | fn.#StringExpression
-	Secure?: bool | fn.#BooleanExpression
+	Secure?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Value!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

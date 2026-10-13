@@ -9,6 +9,10 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,8 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:              list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TaskConfiguration!: _#defs."/$defs/Properties/definitions/TaskConfiguration" | fn.#ObjectExpression
 	TaskName!:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	WorkspaceName!:     strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
@@ -32,11 +35,9 @@ _#defs: "/$defs/Properties/definitions/ContainerTaskConfiguration": close({
 	strings.MinRunes(1) &
 	=~"^((\\d{12}\\.dkr\\.ecr\\.[a-z0-9-]+\\.[a-z.]+)|public\\.ecr\\.aws/[a-z][a-z0-9]+([._-][a-z0-9]+)*)/[a-z0-9]+((\\.||__|__|-+)[a-z0-9]+)*(/[a-z0-9]+((\\.||__|__|-+)[a-z0-9]+)*)*(:[a-zA-Z0-9._-]+|@sha256:[a-f0-9]{64})?$" |
 	fn.#StringExpression
-	EnvironmentVariables?: _#defs."/$defs/Properties/definitions/EnvironmentVariablesMap" | fn.#ObjectExpression
-	EphemeralStorageConfiguration?: _#defs."/$defs/Properties/definitions/EphemeralStorageConfiguration" |
-		fn.#ObjectExpression
-	Mounts?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Mount" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	EnvironmentVariables?:          _#defs."/$defs/Properties/definitions/EnvironmentVariablesMap"
+	EphemeralStorageConfiguration?: _#defs."/$defs/Properties/definitions/EphemeralStorageConfiguration"
+	Mounts?:         list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Mount"] | fn.#ListExpression
 	ProcessingType!: "GENERIC_COMPUTE_PROCESSING" | "HARDWARE_ACCELERATED_PROCESSING" | fn.#StringExpression
 	ProcessingUnit!: "UNITS_2" |
 		"UNITS_4" |
@@ -57,7 +58,22 @@ _#defs: "/$defs/Properties/definitions/ContainerTaskConfiguration": close({
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:iam::[0-9]+:role/[\\w+=,.@/-]+$" |
 	fn.#StringExpression
-	TimeoutSeconds?: int & <=86400 & >=60 | fn.#NumberExpression
+	TimeoutSeconds?: int & <=86400 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=86400 &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -67,21 +83,36 @@ _#defs: "/$defs/Properties/definitions/EnvironmentVariablesMap": struct.MaxField
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EphemeralStorageConfiguration": close({
-	StorageClass!:     "STANDARD_1" | "STANDARD_2" | "THROUGHPUT_1" | "THROUGHPUT_2" | fn.#StringExpression
-	StorageSizeInGiB!: int & <=16384 & >=1 | fn.#NumberExpression
+	StorageClass!: "STANDARD_1" | "STANDARD_2" | "THROUGHPUT_1" | "THROUGHPUT_2" | fn.#StringExpression
+	StorageSizeInGiB!: int & <=16384 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=16384 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Mount": close({
 	Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	RelativePath!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Source!:       _#defs."/$defs/Properties/definitions/MountSource" | fn.#ObjectExpression
+	Source!:       _#defs."/$defs/Properties/definitions/MountSource"
 	StorageType!:  "SHARED_STORAGE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MountSource": close(
-	{S3AccessPoint!: _#defs."/$defs/Properties/definitions/S3AccessPointSource" | fn.#ObjectExpression},
+	{S3AccessPoint!: _#defs."/$defs/Properties/definitions/S3AccessPointSource"},
 ) |
 	fn.#ObjectExpression
 
@@ -100,10 +131,9 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TaskConfiguration": close({
-	ContainerTaskConfiguration!: _#defs."/$defs/Properties/definitions/ContainerTaskConfiguration" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/TaskConfiguration": close(
+	{ContainerTaskConfiguration!: _#defs."/$defs/Properties/definitions/ContainerTaskConfiguration"},
+) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::IoTSiteWise::Task"

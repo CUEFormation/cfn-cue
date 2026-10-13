@@ -29,18 +29,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // To automatically publish the function to the ``LIVE`` stage when it’s
 // created, set the ``AutoPublish`` property to ``true``.
 #Properties: close({
-	AutoPublish?:      bool | fn.#BooleanExpression
+	AutoPublish?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FunctionCode!:     string | fn.#StringExpression
 	FunctionConfig!:   _#defs."/$defs/Properties/definitions/FunctionConfig" | fn.#ObjectExpression
 	FunctionMetadata?: close({}) | fn.#ObjectExpression
 	Name!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/FunctionConfig": close({
 	Comment!: string | fn.#StringExpression
 	KeyValueStoreAssociations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/KeyValueStoreAssociation" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/KeyValueStoreAssociation"
 	] |
 		fn.#ListExpression
 	Runtime!: "cloudfront-js-1.0" | "cloudfront-js-2.0" | fn.#StringExpression

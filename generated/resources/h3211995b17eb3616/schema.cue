@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -14,12 +14,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SageMaker::Image
 #Properties: close({
-	ImageDescription?: _#defs."/$defs/Properties/definitions/ImageDescription" | fn.#StringExpression
-	ImageDisplayName?: _#defs."/$defs/Properties/definitions/ImageDisplayName" | fn.#StringExpression
-	ImageName!:        _#defs."/$defs/Properties/definitions/ImageName" | fn.#StringExpression
-	ImageRoleArn!:     _#defs."/$defs/Properties/definitions/ImageRoleArn" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ImageDescription?: _#defs."/$defs/Properties/definitions/ImageDescription"
+	ImageDisplayName?: _#defs."/$defs/Properties/definitions/ImageDisplayName"
+	ImageName!:        _#defs."/$defs/Properties/definitions/ImageName"
+	ImageRoleArn!:     _#defs."/$defs/Properties/definitions/ImageRoleArn"
+	Tags?:             list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ImageArn": strings.MaxRunes(256) &
@@ -40,7 +39,8 @@ strings.MinRunes(1) &
 =~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ImageRoleArn": strings.MaxRunes(256) &
+_#defs: "/$defs/Properties/definitions/ImageRoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*$" |
 fn.#StringExpression

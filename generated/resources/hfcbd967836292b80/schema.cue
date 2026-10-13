@@ -16,12 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // and manages a Network Security Manager template.
 #Properties: close({
 	AssociatedRuleList?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AssociatedRule" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/AssociatedRule"
 	] |
 		fn.#ListExpression
-	FirewallType?: "WAF" | "NETWORK_FIREWALL" | "NETWORK_FIREWALL_V2" | "IGW_FIREWALL" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	FirewallType?:        "WAF" | "NETWORK_FIREWALL" | "NETWORK_FIREWALL_V2" | "IGW_FIREWALL" | fn.#StringExpression
+	Tags?:                list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TemplateDescription?: strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
 	TemplateName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _.:/=+\\-@]*$" |
 	fn.#StringExpression

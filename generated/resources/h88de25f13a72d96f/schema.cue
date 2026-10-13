@@ -24,7 +24,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
 	OpenSearchServiceConfig?:  _#defs."/$defs/Properties/definitions/OpenSearchServiceConfig" | fn.#ObjectExpression
 	RelationalDatabaseConfig?: _#defs."/$defs/Properties/definitions/RelationalDatabaseConfig" | fn.#ObjectExpression
-	ServiceRoleArn?:           string | fn.#StringExpression
+	ServiceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	Type!: "AMAZON_BEDROCK_RUNTIME" |
 		"AMAZON_DYNAMODB" |
 		"AMAZON_ELASTICSEARCH" |
@@ -60,8 +61,8 @@ _#defs: "/$defs/Properties/definitions/DynamoDBConfig": close({
 	AwsRegion!:            string | fn.#StringExpression
 	DeltaSyncConfig?:      _#defs."/$defs/Properties/definitions/DeltaSyncConfig" | fn.#ObjectExpression
 	TableName!:            string | fn.#StringExpression
-	UseCallerCredentials?: bool | fn.#BooleanExpression
-	Versioned?:            bool | fn.#BooleanExpression
+	UseCallerCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Versioned?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 

@@ -41,7 +41,8 @@ import (
 
 	// The Amazon Resource Name (ARN) for an IAM role in your account that the
 	// MLflow App uses to access the artifact store in Amazon S3.
-	RoleArn!: strings.MaxRunes(2048) &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+"
 

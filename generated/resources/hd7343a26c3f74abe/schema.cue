@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -16,32 +20,62 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Lattice service, you must add one or more listeners. A listener is a process
 // that checks for connection requests to your services.
 #Properties: close({
-	DefaultAction!: _#defs."/$defs/Properties/definitions/DefaultAction" | fn.#ObjectExpression
+	DefaultAction!: _#defs."/$defs/Properties/definitions/DefaultAction"
 	Name?:          strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	Port?:          int & <=65535 & >=1 | fn.#NumberExpression
-	Protocol!:      "HTTP" | "HTTPS" | "TLS_PASSTHROUGH" | fn.#StringExpression
+	Port?: int & <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Protocol!: "HTTP" | "HTTPS" | "TLS_PASSTHROUGH" | fn.#StringExpression
 	ServiceIdentifier?: strings.MaxRunes(2048) &
 	strings.MinRunes(21) &
 	=~"^((svc-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:service/svc-[0-9a-z]{17}))$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/DefaultAction": close({
-	FixedResponse?: _#defs."/$defs/Properties/definitions/FixedResponse" | fn.#ObjectExpression
-	Forward?:       _#defs."/$defs/Properties/definitions/Forward" | fn.#ObjectExpression
+	FixedResponse?: _#defs."/$defs/Properties/definitions/FixedResponse"
+	Forward?:       _#defs."/$defs/Properties/definitions/Forward"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FixedResponse": close({StatusCode!: int & <=599 & >=100 | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/FixedResponse": close({
+	StatusCode!: int & <=599 & >=100 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=599 &
+							>=100,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Forward": close({
 	TargetGroups!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/WeightedTargetGroup" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/WeightedTargetGroup"
 	] |
 		fn.#ListExpression
 }) |
@@ -58,7 +92,22 @@ _#defs: "/$defs/Properties/definitions/WeightedTargetGroup": close({
 	strings.MinRunes(20) &
 	=~"^((tg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:targetgroup/tg-[0-9a-z]{17}))$" |
 	fn.#StringExpression
-	Weight?: int & <=999 & >=0 | fn.#NumberExpression
+	Weight?: int & <=999 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=999 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

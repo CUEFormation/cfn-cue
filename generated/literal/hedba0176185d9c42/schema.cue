@@ -59,7 +59,8 @@ import (
 
 	// The Amazon Resource Name (ARN) of an IAM role that Amazon SageMaker can
 	// assume to perform tasks on your behalf.
-	RoleArn!: strings.MaxRunes(2048) &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+"
 	StoppingCondition?: _#defs."/$defs/Properties/definitions/StoppingCondition"
@@ -96,7 +97,10 @@ _#defs: "/$defs/Properties/definitions/AthenaDatasetDefinition": close({
 
 	// The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to
 	// encrypt data generated from an Athena query execution.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[a-zA-Z0-9:/_-]*"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~"[a-zA-Z0-9:/_-]*"
 
 	// The compression used for Athena query results.
 	OutputCompression?: "GZIP" | "SNAPPY" | "ZLIB"
@@ -337,7 +341,10 @@ _#defs: "/$defs/Properties/definitions/ProcessingOutputConfig": close({
 	// The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to
 	// encrypt the processing job output. KmsKeyId can be an ID of a KMS key, ARN
 	// of a KMS key, or alias of a KMS key. The KmsKeyId is applied to all outputs.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[a-zA-Z0-9:/_-]*"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~"[a-zA-Z0-9:/_-]*"
 
 	// An array of outputs configuring the data to upload from the processing container.
 	Outputs!: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/ProcessingOutputsObject"]
@@ -370,7 +377,8 @@ _#defs: "/$defs/Properties/definitions/RedshiftDatasetDefinition": close({
 	ClusterId!: strings.MaxRunes(63) & strings.MinRunes(1) & =~".*"
 
 	// The IAM role attached to your Redshift cluster that Amazon SageMaker uses to generate datasets.
-	ClusterRoleArn!: strings.MaxRunes(2048) &
+	ClusterRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+"
 
@@ -382,7 +390,10 @@ _#defs: "/$defs/Properties/definitions/RedshiftDatasetDefinition": close({
 
 	// The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to
 	// encrypt data from a Redshift execution.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[a-zA-Z0-9:/_-]*"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~"[a-zA-Z0-9:/_-]*"
 
 	// The compression used for Redshift query results.
 	OutputCompression?: "None" | "GZIP" | "SNAPPY" | "ZSTD" | "BZIP2"
@@ -488,7 +499,12 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	// The VPC security group IDs, in the form 'sg-xxxxxxxx'. Specify the security
 	// groups for the VPC that is specified in the 'Subnets' field.
-	SecurityGroupIds!: list.MaxItems(5) & [...] & [...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+"]
+	SecurityGroupIds!: list.MaxItems(5) & [...] & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+"
+	]
 
 	// The ID of the subnets in the VPC to which you want to connect your training
 	// job or model. For information about the availability of specific instance

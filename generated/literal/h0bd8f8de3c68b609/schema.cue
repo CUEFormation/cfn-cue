@@ -30,7 +30,7 @@ import "strings"
 	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
 
 	// VPC ID
-	VpcId?: string
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 // A key-value pair to associate with a resource.

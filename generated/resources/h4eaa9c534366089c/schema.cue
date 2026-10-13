@@ -8,54 +8,130 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::ElastiCache::ReplicationGroup
 #Properties: close({
-	AtRestEncryptionEnabled?:  bool | fn.#BooleanExpression
+	AtRestEncryptionEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AuthToken?:                string | fn.#StringExpression
-	AutoMinorVersionUpgrade?:  bool | fn.#BooleanExpression
-	AutomaticFailoverEnabled?: bool | fn.#BooleanExpression
+	AutoMinorVersionUpgrade?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AutomaticFailoverEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CacheNodeType?:            string | fn.#StringExpression
 	CacheParameterGroupName?:  string | fn.#StringExpression
 	CacheSecurityGroupNames?:  list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	CacheSubnetGroupName?:     string | fn.#StringExpression
 	ClusterMode?:              =~"(?i)^(?:compatible|disabled|enabled)$" | fn.#StringExpression
-	DataTieringEnabled?:       bool | fn.#BooleanExpression
+	DataTieringEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Durability?:               =~"(?i)^(?:async|default|disabled|sync)$" | fn.#StringExpression
 	Engine?:                   string | fn.#StringExpression
 	EngineVersion?:            string | fn.#StringExpression
 	GlobalReplicationGroupId?: string | fn.#StringExpression
 	IpDiscovery?:              =~"(?i)^(?:ipv4|ipv6)$" | fn.#StringExpression
-	KmsKeyId?:                 string | string | string | fn.#StringExpression
-	LogDeliveryConfigurations?: [
-		..._#defs."/$defs/Properties/definitions/LogDeliveryConfigurationRequest" | fn.#ObjectExpression
-	] |
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	LogDeliveryConfigurations?: [..._#defs."/$defs/Properties/definitions/LogDeliveryConfigurationRequest"] |
 		fn.#ListExpression
-	MultiAZEnabled?: bool | fn.#BooleanExpression
-	NetworkType?:    =~"(?i)^(?:dual_stack|ipv4|ipv6)$" | fn.#StringExpression
-	NodeGroupConfiguration?: [..._#defs."/$defs/Properties/definitions/NodeGroupConfiguration" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	NotificationTopicArn?:        string | fn.#StringExpression
-	NumCacheClusters?:            int & <=6 & >=1 | fn.#NumberExpression
-	NumNodeGroups?:               int | fn.#NumberExpression
-	Port?:                        int | fn.#NumberExpression
-	PreferredCacheClusterAZs?:    [...string | fn.#StringExpression] | fn.#ListExpression
-	PreferredMaintenanceWindow?:  string | fn.#StringExpression
-	PrimaryClusterId?:            string | fn.#StringExpression
-	ReplicasPerNodeGroup?:        int & <=5 & >=0 | fn.#NumberExpression
+	MultiAZEnabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NetworkType?:            =~"(?i)^(?:dual_stack|ipv4|ipv6)$" | fn.#StringExpression
+	NodeGroupConfiguration?: [..._#defs."/$defs/Properties/definitions/NodeGroupConfiguration"] | fn.#ListExpression
+	NotificationTopicArn?:   string | fn.#StringExpression
+	NumCacheClusters?: int & <=6 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=6 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	NumNodeGroups?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PreferredCacheClusterAZs?:   [...string | fn.#StringExpression] | fn.#ListExpression
+	PreferredMaintenanceWindow?: string | fn.#StringExpression
+	PrimaryClusterId?:           string | fn.#StringExpression
+	ReplicasPerNodeGroup?: int & <=5 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=5 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ReplicationGroupDescription!: string | fn.#StringExpression
 	ReplicationGroupId?:          string | fn.#StringExpression
-	SecurityGroupIds?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SnapshotArns?:                list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SnapshotName?:                string | fn.#StringExpression
-	SnapshotRetentionLimit?:      int | fn.#NumberExpression
-	SnapshotWindow?:              string | fn.#StringExpression
-	SnapshottingClusterId?:       string | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	TransitEncryptionEnabled?: bool | fn.#BooleanExpression
+	SecurityGroupIds?: list.UniqueItems() & [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	SnapshotArns?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	SnapshotName?: string | fn.#StringExpression
+	SnapshotRetentionLimit?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SnapshotWindow?:           string | fn.#StringExpression
+	SnapshottingClusterId?:    string | fn.#StringExpression
+	Tags?:                     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TransitEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TransitEncryptionMode?:    =~"(?i)^(?:preferred|required)$" | fn.#StringExpression
 	UserGroupIds?: list.UniqueItems() & [...] & [
 		...strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9\\-]*$" | fn.#StringExpression
@@ -69,10 +145,8 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogsDestinationDetails": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DestinationDetails": close({
-	CloudWatchLogsDetails?: _#defs."/$defs/Properties/definitions/CloudWatchLogsDestinationDetails" |
-		fn.#ObjectExpression
-	KinesisFirehoseDetails?: _#defs."/$defs/Properties/definitions/KinesisFirehoseDestinationDetails" |
-		fn.#ObjectExpression
+	CloudWatchLogsDetails?:  _#defs."/$defs/Properties/definitions/CloudWatchLogsDestinationDetails"
+	KinesisFirehoseDetails?: _#defs."/$defs/Properties/definitions/KinesisFirehoseDestinationDetails"
 }) |
 fn.#ObjectExpression
 
@@ -88,7 +162,7 @@ _#defs: "/$defs/Properties/definitions/KinesisFirehoseDestinationDetails": close
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LogDeliveryConfigurationRequest": close({
-	DestinationDetails!: _#defs."/$defs/Properties/definitions/DestinationDetails" | fn.#ObjectExpression
+	DestinationDetails!: _#defs."/$defs/Properties/definitions/DestinationDetails"
 	DestinationType!:    =~"(?i)^(?:cloudwatch-logs|kinesis-firehose)$" | fn.#StringExpression
 	LogFormat!:          =~"(?i)^(?:json|text)$" | fn.#StringExpression
 	LogType!:            =~"(?i)^(?:engine-log|slow-log)$" | fn.#StringExpression
@@ -99,8 +173,21 @@ _#defs: "/$defs/Properties/definitions/NodeGroupConfiguration": close({
 	NodeGroupId?:              strings.MaxRunes(4) & strings.MinRunes(1) & =~"^\\d+$" | fn.#StringExpression
 	PrimaryAvailabilityZone?:  string | fn.#StringExpression
 	ReplicaAvailabilityZones?: [...string | fn.#StringExpression] | fn.#ListExpression
-	ReplicaCount?:             int | fn.#NumberExpression
-	Slots?:                    string | fn.#StringExpression
+	ReplicaCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Slots?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

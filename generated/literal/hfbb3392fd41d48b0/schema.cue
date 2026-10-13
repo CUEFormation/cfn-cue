@@ -47,5 +47,5 @@ package schema
 	Ipv6Pool?: string
 
 	// The ID of the VPC.
-	VpcId!: string
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })

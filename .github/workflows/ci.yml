@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -19,15 +19,15 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
-      - name: Check formatting
-        run: test -z "$(gofmt -l cmd internal)"
-      - name: Test
-        run: go test ./... -timeout 90s
-      - name: Vet
-        run: go vet ./...
-      - name: Build
-        run: go build ./cmd/cfn-cue
-      - name: Validate upstream S3 and IAM schemas
-        env:
-          CFN_CUE_INTEGRATION: "1"
-        run: go test ./internal/generate -run '^TestCurrentResources$' -v -timeout 3m
+      - name: Set up the reproducible test environment
+        run: ./scripts/corpus.sh setup
+      - name: Run the same checks as local development
+        run: ./scripts/corpus.sh test
+      - name: Preserve corpus diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: corpus-smoke-report
+          path: .corpus-smoke-report/
+          include-hidden-files: true
+          if-no-files-found: ignore

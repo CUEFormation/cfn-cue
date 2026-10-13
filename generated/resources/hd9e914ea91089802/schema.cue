@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,9 +20,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Steps!: [..._#defs."/$defs/Properties/definitions/RecipeStep" & {[string]: fn.#Value} | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Steps!: [..._#defs."/$defs/Properties/definitions/RecipeStep" & fn.#Object & {...} | fn.#ObjectExpression] |
+	fn.#ListExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Action": close({
@@ -40,7 +44,7 @@ _#defs: "/$defs/Properties/definitions/DataCatalogInputDefinition": close({
 	CatalogId?:     string | fn.#StringExpression
 	DatabaseName?:  string | fn.#StringExpression
 	TableName?:     string | fn.#StringExpression
-	TempDirectory?: _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
+	TempDirectory?: _#defs."/$defs/Properties/definitions/S3Location"
 }) |
 fn.#ObjectExpression
 
@@ -91,38 +95,37 @@ close({
 		DataCatalogInputDefinition!: _
 		...
 	}]) & close({
-		DataCatalogInputDefinition?: _#defs."/$defs/Properties/definitions/DataCatalogInputDefinition" |
-			fn.#ObjectExpression
-		S3InputDefinition?: _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
+		DataCatalogInputDefinition?: _#defs."/$defs/Properties/definitions/DataCatalogInputDefinition"
+		S3InputDefinition?:          _#defs."/$defs/Properties/definitions/S3Location"
 	}) |
 	fn.#ObjectExpression
-	Interval?:                            string | fn.#StringExpression
-	IsText?:                              string | fn.#StringExpression
-	JoinKeys?:                            string | fn.#StringExpression
-	JoinType?:                            string | fn.#StringExpression
-	LeftColumns?:                         string | fn.#StringExpression
-	Limit?:                               string | fn.#StringExpression
-	LowerBound?:                          string | fn.#StringExpression
-	MapType?:                             string | fn.#StringExpression
-	ModeType?:                            string | fn.#StringExpression
-	MultiLine?:                           bool | fn.#BooleanExpression
-	NumRows?:                             string | fn.#StringExpression
-	NumRowsAfter?:                        string | fn.#StringExpression
-	NumRowsBefore?:                       string | fn.#StringExpression
-	OrderByColumn?:                       string | fn.#StringExpression
-	OrderByColumns?:                      string | fn.#StringExpression
-	Other?:                               string | fn.#StringExpression
-	Pattern?:                             string | fn.#StringExpression
-	PatternOption1?:                      string | fn.#StringExpression
-	PatternOption2?:                      string | fn.#StringExpression
-	PatternOptions?:                      string | fn.#StringExpression
-	Period?:                              string | fn.#StringExpression
-	Position?:                            string | fn.#StringExpression
-	RemoveAllPunctuation?:                string | fn.#StringExpression
-	RemoveAllQuotes?:                     string | fn.#StringExpression
-	RemoveAllWhitespace?:                 string | fn.#StringExpression
-	RemoveCustomCharacters?:              string | fn.#StringExpression
-	RemoveCustomValue?:                   string | fn.#StringExpression
+	Interval?:               string | fn.#StringExpression
+	IsText?:                 string | fn.#StringExpression
+	JoinKeys?:               string | fn.#StringExpression
+	JoinType?:               string | fn.#StringExpression
+	LeftColumns?:            string | fn.#StringExpression
+	Limit?:                  string | fn.#StringExpression
+	LowerBound?:             string | fn.#StringExpression
+	MapType?:                string | fn.#StringExpression
+	ModeType?:               string | fn.#StringExpression
+	MultiLine?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NumRows?:                string | fn.#StringExpression
+	NumRowsAfter?:           string | fn.#StringExpression
+	NumRowsBefore?:          string | fn.#StringExpression
+	OrderByColumn?:          string | fn.#StringExpression
+	OrderByColumns?:         string | fn.#StringExpression
+	Other?:                  string | fn.#StringExpression
+	Pattern?:                string | fn.#StringExpression
+	PatternOption1?:         string | fn.#StringExpression
+	PatternOption2?:         string | fn.#StringExpression
+	PatternOptions?:         string | fn.#StringExpression
+	Period?:                 string | fn.#StringExpression
+	Position?:               string | fn.#StringExpression
+	RemoveAllPunctuation?:   string | fn.#StringExpression
+	RemoveAllQuotes?:        string | fn.#StringExpression
+	RemoveAllWhitespace?:    string | fn.#StringExpression
+	RemoveCustomCharacters?: string | fn.#StringExpression
+	RemoveCustomValue?:      string | fn.#StringExpression
 	RemoveLeadingAndTrailingPunctuation?: string | fn.#StringExpression
 	RemoveLeadingAndTrailingQuotes?:      string | fn.#StringExpression
 	RemoveLeadingAndTrailingWhitespace?:  string | fn.#StringExpression
@@ -134,9 +137,26 @@ close({
 	SampleSize?:                          string | fn.#StringExpression
 	SampleType?:                          string | fn.#StringExpression
 	SecondInput?:                         string | fn.#StringExpression
-	SecondaryInputs?: [..._#defs."/$defs/Properties/definitions/SecondaryInput" | fn.#ObjectExpression] |
+	SecondaryInputs?: [..._#defs."/$defs/Properties/definitions/SecondaryInput"] | fn.#ListExpression
+	SheetIndexes?: list.MaxItems(1) & list.MinItems(1) & [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
 		fn.#ListExpression
-	SheetIndexes?:      list.MaxItems(1) & list.MinItems(1) & [...int | fn.#NumberExpression] | fn.#ListExpression
 	SheetNames?:        list.MaxItems(1) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	SourceColumn?:      string | fn.#StringExpression
 	SourceColumn1?:     string | fn.#StringExpression
@@ -172,9 +192,8 @@ close({
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/RecipeStep": close({
-	Action!: _#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression
-	ConditionExpressions?: [..._#defs."/$defs/Properties/definitions/ConditionExpression" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Action!:               _#defs."/$defs/Properties/definitions/Action"
+	ConditionExpressions?: [..._#defs."/$defs/Properties/definitions/ConditionExpression"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -191,9 +210,8 @@ _#defs: "/$defs/Properties/definitions/SecondaryInput": matchN(1, [{
 	DataCatalogInputDefinition!: _
 	...
 }]) & close({
-	DataCatalogInputDefinition?: _#defs."/$defs/Properties/definitions/DataCatalogInputDefinition" |
-		fn.#ObjectExpression
-	S3InputDefinition?: _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
+	DataCatalogInputDefinition?: _#defs."/$defs/Properties/definitions/DataCatalogInputDefinition"
+	S3InputDefinition?:          _#defs."/$defs/Properties/definitions/S3Location"
 }) |
 fn.#ObjectExpression
 

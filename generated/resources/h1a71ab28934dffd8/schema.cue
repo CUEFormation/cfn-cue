@@ -23,14 +23,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!:                 string | fn.#StringExpression
 	NetworkConfiguration!: _#defs."/$defs/Properties/definitions/BrowserNetworkConfiguration" | fn.#ObjectExpression
 	RecordingConfig?:      _#defs."/$defs/Properties/definitions/RecordingConfig" | fn.#ObjectExpression
-	Tags?:                 _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
+	Tags?:                 _#defs."/$defs/Properties/definitions/TagsMap"
 })
 
 _#defs: "/$defs/Properties/definitions/BrowserArn": =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):browser(-custom)?\\/(aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/BrowserEnterprisePolicies": list.MaxItems(10) & [...] & [
-	..._#defs."/$defs/Properties/definitions/BrowserEnterprisePolicy" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/BrowserEnterprisePolicy"
 ] |
 	fn.#ListExpression
 
@@ -46,14 +46,16 @@ _#defs: "/$defs/Properties/definitions/BrowserId": =~"^(aws\\.browser\\.v1|[a-zA
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/BrowserNetworkConfiguration": close({
-	NetworkMode!: _#defs."/$defs/Properties/definitions/BrowserNetworkMode" | fn.#StringExpression
-	VpcConfig?:   _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
+	NetworkMode!: _#defs."/$defs/Properties/definitions/BrowserNetworkMode"
+	VpcConfig?:   _#defs."/$defs/Properties/definitions/VpcConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BrowserNetworkMode": "PUBLIC" | "VPC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserSigning": close({Enabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/BrowserSigning": close(
+	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BrowserStatus": "CREATING" |
@@ -64,19 +66,17 @@ _#defs: "/$defs/Properties/definitions/BrowserStatus": "CREATING" |
 	"DELETED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserSummaries": [
-	..._#defs."/$defs/Properties/definitions/BrowserSummary" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/BrowserSummaries": [..._#defs."/$defs/Properties/definitions/BrowserSummary"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/BrowserSummary": close({
-	BrowserArn!:    _#defs."/$defs/Properties/definitions/BrowserArn" | fn.#StringExpression
-	BrowserId!:     _#defs."/$defs/Properties/definitions/BrowserId" | fn.#StringExpression
+	BrowserArn!:    _#defs."/$defs/Properties/definitions/BrowserArn"
+	BrowserId!:     _#defs."/$defs/Properties/definitions/BrowserId"
 	CreatedAt!:     time.Time | fn.#StringExpression
 	Description?:   string | fn.#StringExpression
 	LastUpdatedAt?: time.Time | fn.#StringExpression
 	Name?:          string | fn.#StringExpression
-	Status!:        _#defs."/$defs/Properties/definitions/BrowserStatus" | fn.#StringExpression
+	Status!:        _#defs."/$defs/Properties/definitions/BrowserStatus"
 }) |
 fn.#ObjectExpression
 
@@ -86,7 +86,7 @@ _#defs: "/$defs/Properties/definitions/Certificate": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CertificateList": list.MaxItems(10) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Certificate" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Certificate"
 ] |
 	fn.#ListExpression
 
@@ -97,12 +97,13 @@ _#defs: "/$defs/Properties/definitions/CertificateLocation": close({
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RecordingConfig": close({
-	Enabled?:    bool | fn.#BooleanExpression
-	S3Location?: _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
+	Enabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	S3Location?: _#defs."/$defs/Properties/definitions/S3Location"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):iam::[0-9]{12}:role/.+$" |
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	=~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):iam::[0-9]{12}:role/.+$" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/S3Location": close({
@@ -111,17 +112,19 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	=~"^sg-[0-9a-zA-Z]{8,17}$" |
+	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SecurityGroups": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SecurityGroupId" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/SecurityGroupId"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/SubnetId": =~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Subnets": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SubnetId" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/SubnetId"
 ] |
 	fn.#ListExpression
 
@@ -132,8 +135,8 @@ _#defs: "/$defs/Properties/definitions/TagsMap": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroups!: _#defs."/$defs/Properties/definitions/SecurityGroups" | fn.#ListExpression
-	Subnets!:        _#defs."/$defs/Properties/definitions/Subnets" | fn.#ListExpression
+	SecurityGroups!: _#defs."/$defs/Properties/definitions/SecurityGroups"
+	Subnets!:        _#defs."/$defs/Properties/definitions/Subnets"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

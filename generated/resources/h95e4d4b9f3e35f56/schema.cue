@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,27 +20,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
 	MetricGoals!: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricGoalObject" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MetricGoalObject"
 	] |
 		fn.#ListExpression
 	Name!:           strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
-	OnlineAbConfig!: _#defs."/$defs/Properties/definitions/OnlineAbConfigObject" | fn.#ObjectExpression
+	OnlineAbConfig!: _#defs."/$defs/Properties/definitions/OnlineAbConfigObject"
 	Project!: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*)" |
 	fn.#StringExpression
 	RandomizationSalt?: strings.MaxRunes(127) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	RemoveSegment?:     bool | fn.#BooleanExpression
+	RemoveSegment?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RunningStatus?:     _#defs."/$defs/Properties/definitions/RunningStatusObject" | fn.#ObjectExpression
-	SamplingRate?:      int & <=100000 & >=0 | fn.#NumberExpression
+	SamplingRate?: int & <=100000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Segment?: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:segment/[-a-zA-Z0-9._]*)" |
 	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Treatments!: list.MaxItems(5) & list.MinItems(2) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TreatmentObject" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/TreatmentObject"
 	] |
 		fn.#ListExpression
 })
@@ -53,9 +71,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OnlineAbConfigObject": close({
 	ControlTreatmentName?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
-	TreatmentWeights?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TreatmentToWeight" | fn.#ObjectExpression
-	] |
+	TreatmentWeights?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TreatmentToWeight"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -92,8 +108,23 @@ _#defs: "/$defs/Properties/definitions/TreatmentObject": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TreatmentToWeight": close({
-	SplitWeight!: int & <=100000 & >=0 | fn.#NumberExpression
-	Treatment!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
+	SplitWeight!: int & <=100000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Treatment!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

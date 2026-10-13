@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -16,12 +16,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // for AWS Organizations to specified member accounts to perform policy actions
 // that are by default available only to the management account.
 #Properties: close({
-	Content!: strings.MaxRunes(40000) & strings.MinRunes(1) & =~"[\\s\\S]*" |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Content!: fn.#Object & {...} |
+	strings.MaxRunes(40000) & strings.MinRunes(1) & =~"[\\s\\S]*" |
+	fn.#StringObjectExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

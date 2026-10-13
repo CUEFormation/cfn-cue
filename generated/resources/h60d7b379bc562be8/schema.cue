@@ -11,7 +11,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Pinpoint::VoiceChannel
 #Properties: close({
 	ApplicationId!: string | fn.#StringExpression
-	Enabled?:       bool | fn.#BooleanExpression
+	Enabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Pinpoint::VoiceChannel"

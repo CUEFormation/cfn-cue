@@ -37,7 +37,7 @@ import (
 
 	// The KMS key that is used by Rekognition to encrypt any intermediate customer
 	// metadata and store in the customer's S3 bucket.
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 	// Name of the stream processor. It's an identifier you assign to the stream
 	// processor. You can use it to manage the stream processor.
@@ -52,7 +52,9 @@ import (
 	// ARN of the IAM role that allows access to the stream processor, and provides
 	// Rekognition read permissions for KVS stream and write permissions to S3
 	// bucket and SNS topic.
-	RoleArn!:       strings.MaxRunes(2048) & =~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*"
 	S3Destination?: _#defs."/$defs/Properties/definitions/S3Destination"
 
 	// Current status of the stream processor.

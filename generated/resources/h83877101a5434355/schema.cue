@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,20 +21,70 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // results.
 #Properties: close({
 	Description?:              strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	DestinationConfiguration?: _#defs."/$defs/Properties/definitions/DestinationConfiguration" | fn.#ObjectExpression
-	ExecutionRoleArn!:         strings.MinRunes(1) | fn.#StringExpression
+	DestinationConfiguration?: _#defs."/$defs/Properties/definitions/DestinationConfiguration"
+	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
+	fn.#StringExpression
 	LogGroupIdentifiers?: list.MaxItems(50) & list.MinItems(1) & [
 		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[\\w#+=/:,.@-]*$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Name!:               strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-/.#]+$" | fn.#StringExpression
-	QueryLanguage!:      "CWLI" | "PPL" | "SQL" | fn.#StringExpression
-	QueryString!:        strings.MaxRunes(10000) & strings.MinRunes(0) | fn.#StringExpression
-	ScheduleEndTime?:    >=0 | fn.#NumberExpression
+	Name!:          strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-/.#]+$" | fn.#StringExpression
+	QueryLanguage!: "CWLI" | "PPL" | "SQL" | fn.#StringExpression
+	QueryString!:   strings.MaxRunes(10000) & strings.MinRunes(0) | fn.#StringExpression
+	ScheduleEndTime?: >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ScheduleExpression!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	ScheduleStartTime?:  >=0 | fn.#NumberExpression
-	StartTimeOffset?:    int | fn.#NumberExpression
-	State?:              _#defs."/$defs/Properties/definitions/ScheduledQueryState" | fn.#StringExpression
+	ScheduleStartTime?: >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StartTimeOffset?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	State?: _#defs."/$defs/Properties/definitions/ScheduledQueryState"
 	Tags?: [...close({
 		Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 		Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
@@ -41,7 +95,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/DestinationConfiguration": close(
-	{S3Configuration?: _#defs."/$defs/Properties/definitions/S3Configuration" | fn.#ObjectExpression},
+	{S3Configuration?: _#defs."/$defs/Properties/definitions/S3Configuration"},
 ) |
 	fn.#ObjectExpression
 
@@ -50,7 +104,8 @@ _#defs: "/$defs/Properties/definitions/S3Configuration": close({
 	strings.MinRunes(0) &
 	=~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?" |
 	fn.#StringExpression
-	RoleArn!: strings.MinRunes(1) | fn.#StringExpression
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

@@ -13,9 +13,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::ElasticLoadBalancingV2::ListenerCertificate
 #Properties: close({
-	Certificates!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Certificate" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ListenerArn!: string | fn.#StringExpression
+	Certificates!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Certificate"] | fn.#ListExpression
+	ListenerArn!:  string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Certificate": close({CertificateArn?: string | fn.#StringExpression}) |

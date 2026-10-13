@@ -25,10 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/IdentityCenter": close({
@@ -44,7 +41,7 @@ _#defs: "/$defs/Properties/definitions/IdentityCenter": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IdentitySource": close(
-	{IdentityCenter!: _#defs."/$defs/Properties/definitions/IdentityCenter" | fn.#ObjectExpression},
+	{IdentityCenter!: _#defs."/$defs/Properties/definitions/IdentityCenter"},
 ) |
 	fn.#ObjectExpression
 

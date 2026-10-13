@@ -8,19 +8,21 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a gateway task definition.
 #Properties: close({
-	AutoCreateTasks!: bool | fn.#BooleanExpression
+	AutoCreateTasks!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LoRaWANUpdateGatewayTaskEntry?: _#defs."/$defs/Properties/definitions/LoRaWANUpdateGatewayTaskEntry" |
 		fn.#ObjectExpression
 	Name?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	TaskDefinitionType?: "UPDATE" | fn.#StringExpression
 	Update?:             _#defs."/$defs/Properties/definitions/UpdateWirelessGatewayTaskCreate" | fn.#ObjectExpression
@@ -34,16 +36,31 @@ _#defs: "/$defs/Properties/definitions/LoRaWANGatewayVersion": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoRaWANUpdateGatewayTaskCreate": close({
-	CurrentVersion?:  _#defs."/$defs/Properties/definitions/LoRaWANGatewayVersion" | fn.#ObjectExpression
-	SigKeyCrc?:       int & <=4294967295 & >=1 | fn.#NumberExpression
+	CurrentVersion?: _#defs."/$defs/Properties/definitions/LoRaWANGatewayVersion"
+	SigKeyCrc?: int & <=4294967295 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=4294967295 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	UpdateSignature?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	UpdateVersion?:   _#defs."/$defs/Properties/definitions/LoRaWANGatewayVersion" | fn.#ObjectExpression
+	UpdateVersion?:   _#defs."/$defs/Properties/definitions/LoRaWANGatewayVersion"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoRaWANUpdateGatewayTaskEntry": close({
-	CurrentVersion?: _#defs."/$defs/Properties/definitions/LoRaWANGatewayVersion" | fn.#ObjectExpression
-	UpdateVersion?:  _#defs."/$defs/Properties/definitions/LoRaWANGatewayVersion" | fn.#ObjectExpression
+	CurrentVersion?: _#defs."/$defs/Properties/definitions/LoRaWANGatewayVersion"
+	UpdateVersion?:  _#defs."/$defs/Properties/definitions/LoRaWANGatewayVersion"
 }) |
 fn.#ObjectExpression
 
@@ -54,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UpdateWirelessGatewayTaskCreate": close({
-	LoRaWAN?:          _#defs."/$defs/Properties/definitions/LoRaWANUpdateGatewayTaskCreate" | fn.#ObjectExpression
+	LoRaWAN?:          _#defs."/$defs/Properties/definitions/LoRaWANUpdateGatewayTaskCreate"
 	UpdateDataRole?:   strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	UpdateDataSource?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 }) |

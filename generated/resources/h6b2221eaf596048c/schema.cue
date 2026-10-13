@@ -15,14 +15,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::IVS::IngestConfiguration
 #Properties: close({
 	IngestProtocol?: "RTMP" | "RTMPS" | fn.#StringExpression
-	InsecureIngest?: bool | fn.#BooleanExpression
+	InsecureIngest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name?:           strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
 	StageArn?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^arn:aws:ivs:[a-z0-9-]+:[0-9]+:stage/[a-zA-Z0-9-]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	UserId?: string | fn.#StringExpression
 })
 

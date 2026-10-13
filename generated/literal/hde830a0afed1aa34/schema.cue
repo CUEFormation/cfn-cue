@@ -49,10 +49,10 @@ _#defs: "/$defs/Properties/definitions/AWSConfiguration": close({
 	// not provided, only non-elevated directed actions are available. Removing
 	// this property from the template clears the role on update. Setting this role
 	// is subject to the same iam:PassRole requirement as AssumableRoleArn.
-	AgentElevatedRoleArn?: string
+	AgentElevatedRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Role ARN to be assumed by DevOpsAgent to operate on behalf of customer
-	AssumableRoleArn!: string
+	AssumableRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Resources?:        _#defs."/$defs/Properties/definitions/AWSResourceList"
 	Tags?:             _#defs."/$defs/Properties/definitions/AWSTagList"
 })
@@ -335,7 +335,8 @@ _#defs: "/$defs/Properties/definitions/SlackBidirectionalConfiguration": close({
 
 	// IAM role ARN that AWS DevOps Agent assumes to exchange messages with your
 	// Slack workspace on behalf of this association
-	RoleArn!: strings.MaxRunes(255) &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(255) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws|aws-cn|aws-us-gov):iam::\\d{12}:role/[a-zA-Z0-9+=,.@_/-]+$"
 })
@@ -381,10 +382,10 @@ _#defs: "/$defs/Properties/definitions/SourceAwsConfiguration": close({
 	// not provided, only non-elevated directed actions are available. Removing
 	// this property from the template clears the role on update. Setting this role
 	// is subject to the same iam:PassRole requirement as AssumableRoleArn.
-	AgentElevatedRoleArn?: string
+	AgentElevatedRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Role ARN to be assumed by DevOpsAgent to operate on behalf of customer
-	AssumableRoleArn!: string
+	AssumableRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Resources?:        _#defs."/$defs/Properties/definitions/AWSResourceList"
 	Tags?:             _#defs."/$defs/Properties/definitions/AWSTagList"
 })

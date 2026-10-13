@@ -35,8 +35,11 @@ import (
 	PaymentManagerId?: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$"
 
 	// The ARN of the IAM role for the payment manager
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$"
-	Status?:  _#defs."/$defs/Properties/definitions/PaymentManagerStatus"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$"
+	Status?: _#defs."/$defs/Properties/definitions/PaymentManagerStatus"
 
 	// Tags to assign to the payment manager
 	Tags?:                    list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]

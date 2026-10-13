@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,53 +20,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of the AWS::QuickSight::Template Resource Type.
 #Properties: close({
 	AwsAccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	Definition?:   _#defs."/$defs/Properties/definitions/TemplateVersionDefinition" | fn.#ObjectExpression
+	Definition?:   _#defs."/$defs/Properties/definitions/TemplateVersionDefinition"
 	Name?:         strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Permissions?: list.MaxItems(64) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ResourcePermission" | fn.#ObjectExpression
-	] |
+	Permissions?: list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"] |
 		fn.#ListExpression
-	SourceEntity?: _#defs."/$defs/Properties/definitions/TemplateSourceEntity" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	SourceEntity?: _#defs."/$defs/Properties/definitions/TemplateSourceEntity"
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TemplateId!:         strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	ValidationStrategy?: _#defs."/$defs/Properties/definitions/ValidationStrategy" | fn.#ObjectExpression
+	ValidationStrategy?: _#defs."/$defs/Properties/definitions/ValidationStrategy"
 	VersionDescription?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AggregationFunction": close({
-	AttributeAggregationFunction?: _#defs."/$defs/Properties/definitions/AttributeAggregationFunction" |
-		fn.#ObjectExpression
-	CategoricalAggregationFunction?: _#defs."/$defs/Properties/definitions/CategoricalAggregationFunction" |
-		fn.#StringExpression
-	DateAggregationFunction?: _#defs."/$defs/Properties/definitions/DateAggregationFunction" | fn.#StringExpression
-	NumericalAggregationFunction?: _#defs."/$defs/Properties/definitions/NumericalAggregationFunction" |
-		fn.#ObjectExpression
+	AttributeAggregationFunction?:   _#defs."/$defs/Properties/definitions/AttributeAggregationFunction"
+	CategoricalAggregationFunction?: _#defs."/$defs/Properties/definitions/CategoricalAggregationFunction"
+	DateAggregationFunction?:        _#defs."/$defs/Properties/definitions/DateAggregationFunction"
+	NumericalAggregationFunction?:   _#defs."/$defs/Properties/definitions/NumericalAggregationFunction"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AggregationSortConfiguration": close({
-	AggregationFunction?: _#defs."/$defs/Properties/definitions/AggregationFunction" | fn.#ObjectExpression
-	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	SortDirection!:       _#defs."/$defs/Properties/definitions/SortDirection" | fn.#StringExpression
+	AggregationFunction?: _#defs."/$defs/Properties/definitions/AggregationFunction"
+	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier"
+	SortDirection!:       _#defs."/$defs/Properties/definitions/SortDirection"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AllSheetsFilterScopeConfiguration": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/AllSheetsFilterScopeConfiguration": fn.#Object & {...} |
+string |
+fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnalysisDefaults": close({
-	DefaultNewSheetConfiguration!: _#defs."/$defs/Properties/definitions/DefaultNewSheetConfiguration" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/AnalysisDefaults": close(
+	{DefaultNewSheetConfiguration!: _#defs."/$defs/Properties/definitions/DefaultNewSheetConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AnchorDateConfiguration": close({
-	AnchorOption?:  _#defs."/$defs/Properties/definitions/AnchorOption" | fn.#StringExpression
+	AnchorOption?:  _#defs."/$defs/Properties/definitions/AnchorOption"
 	ParameterName?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -70,25 +64,97 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/AnchorOption": "NOW" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ArcAxisConfiguration": close({
-	Range?:        _#defs."/$defs/Properties/definitions/ArcAxisDisplayRange" | fn.#ObjectExpression
-	ReserveRange?: number | fn.#NumberExpression
+	Range?: _#defs."/$defs/Properties/definitions/ArcAxisDisplayRange"
+	ReserveRange?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ArcAxisDisplayRange": close({
-	Max?: number | fn.#NumberExpression
-	Min?: number | fn.#NumberExpression
+	Max?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Min?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ArcConfiguration": close({
-	ArcAngle?:     number | fn.#NumberExpression
-	ArcThickness?: _#defs."/$defs/Properties/definitions/ArcThicknessOptions" | fn.#StringExpression
+	ArcAngle?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ArcThickness?: _#defs."/$defs/Properties/definitions/ArcThicknessOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ArcOptions": close(
-	{ArcThickness?: _#defs."/$defs/Properties/definitions/ArcThickness" | fn.#StringExpression},
+	{ArcThickness?: _#defs."/$defs/Properties/definitions/ArcThickness"},
 ) |
 	fn.#ObjectExpression
 
@@ -98,200 +164,281 @@ _#defs: "/$defs/Properties/definitions/ArcThicknessOptions": "SMALL" | "MEDIUM" 
 
 _#defs: "/$defs/Properties/definitions/AssetOptions": close({
 	Timezone?:  string | fn.#StringExpression
-	WeekStart?: _#defs."/$defs/Properties/definitions/DayOfTheWeek" | fn.#StringExpression
+	WeekStart?: _#defs."/$defs/Properties/definitions/DayOfTheWeek"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AttributeAggregationFunction": close({
-	SimpleAttributeAggregation?: _#defs."/$defs/Properties/definitions/SimpleAttributeAggregationFunction" |
-		fn.#StringExpression
-	ValueForMultipleValues?: string | fn.#StringExpression
+	SimpleAttributeAggregation?: _#defs."/$defs/Properties/definitions/SimpleAttributeAggregationFunction"
+	ValueForMultipleValues?:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AxisBinding": "PRIMARY_YAXIS" | "SECONDARY_YAXIS" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/AxisDataOptions": close({
-	DateAxisOptions?:    _#defs."/$defs/Properties/definitions/DateAxisOptions" | fn.#ObjectExpression
-	NumericAxisOptions?: _#defs."/$defs/Properties/definitions/NumericAxisOptions" | fn.#ObjectExpression
+	DateAxisOptions?:    _#defs."/$defs/Properties/definitions/DateAxisOptions"
+	NumericAxisOptions?: _#defs."/$defs/Properties/definitions/NumericAxisOptions"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AxisDisplayDataDrivenRange": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/AxisDisplayDataDrivenRange": fn.#Object & {...} |
+string |
+fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AxisDisplayMinMaxRange": close({
-	Maximum?: number | fn.#NumberExpression
-	Minimum?: number | fn.#NumberExpression
+	Maximum?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Minimum?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AxisDisplayOptions": close({
-	AxisLineVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	AxisLineVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
 	AxisOffset?:         string | fn.#StringExpression
-	DataOptions?:        _#defs."/$defs/Properties/definitions/AxisDataOptions" | fn.#ObjectExpression
-	GridLineVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	ScrollbarOptions?:   _#defs."/$defs/Properties/definitions/ScrollBarOptions" | fn.#ObjectExpression
-	TickLabelOptions?:   _#defs."/$defs/Properties/definitions/AxisTickLabelOptions" | fn.#ObjectExpression
+	DataOptions?:        _#defs."/$defs/Properties/definitions/AxisDataOptions"
+	GridLineVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
+	ScrollbarOptions?:   _#defs."/$defs/Properties/definitions/ScrollBarOptions"
+	TickLabelOptions?:   _#defs."/$defs/Properties/definitions/AxisTickLabelOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AxisDisplayRange": close({
-	DataDriven?: _#defs."/$defs/Properties/definitions/AxisDisplayDataDrivenRange" |
-		fn.#ObjectExpression |
-		fn.#StringExpression
-	MinMax?: _#defs."/$defs/Properties/definitions/AxisDisplayMinMaxRange" | fn.#ObjectExpression
+	DataDriven?: _#defs."/$defs/Properties/definitions/AxisDisplayDataDrivenRange"
+	MinMax?:     _#defs."/$defs/Properties/definitions/AxisDisplayMinMaxRange"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AxisLabelOptions": close({
-	ApplyTo?:           _#defs."/$defs/Properties/definitions/AxisLabelReferenceOptions" | fn.#ObjectExpression
+	ApplyTo?:           _#defs."/$defs/Properties/definitions/AxisLabelReferenceOptions"
 	CustomLabel?:       string | fn.#StringExpression
-	FontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
+	FontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AxisLabelReferenceOptions": close({
-	Column!:  _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
+	Column!:  _#defs."/$defs/Properties/definitions/ColumnIdentifier"
 	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AxisLinearScale": close({
-	StepCount?: number | fn.#NumberExpression
-	StepSize?:  number | fn.#NumberExpression
+	StepCount?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StepSize?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AxisLogarithmicScale": close({Base?: number | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/AxisLogarithmicScale": close({
+	Base?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AxisScale": close({
-	Linear?:      _#defs."/$defs/Properties/definitions/AxisLinearScale" | fn.#ObjectExpression
-	Logarithmic?: _#defs."/$defs/Properties/definitions/AxisLogarithmicScale" | fn.#ObjectExpression
+	Linear?:      _#defs."/$defs/Properties/definitions/AxisLinearScale"
+	Logarithmic?: _#defs."/$defs/Properties/definitions/AxisLogarithmicScale"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AxisTickLabelOptions": close({
-	LabelOptions?:  _#defs."/$defs/Properties/definitions/LabelOptions" | fn.#ObjectExpression
-	RotationAngle?: number | fn.#NumberExpression
+	LabelOptions?: _#defs."/$defs/Properties/definitions/LabelOptions"
+	RotationAngle?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BarChartAggregatedFieldWells": close({
-	Category?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Category?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Colors?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Colors?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	SmallMultiples?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	SmallMultiples?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Values?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Values?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BarChartConfiguration": close({
-	BarsArrangement?:      _#defs."/$defs/Properties/definitions/BarsArrangement" | fn.#StringExpression
-	CategoryAxis?:         _#defs."/$defs/Properties/definitions/AxisDisplayOptions" | fn.#ObjectExpression
-	CategoryLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	ColorLabelOptions?:    _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
+	BarsArrangement?:      _#defs."/$defs/Properties/definitions/BarsArrangement"
+	CategoryAxis?:         _#defs."/$defs/Properties/definitions/AxisDisplayOptions"
+	CategoryLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	ColorLabelOptions?:    _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
 	ContributionAnalysisDefaults?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ContributionAnalysisDefault" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ContributionAnalysisDefault"
 	] |
 		fn.#ListExpression
-	DataLabels?:            _#defs."/$defs/Properties/definitions/DataLabelOptions" | fn.#ObjectExpression
-	DefaultSeriesSettings?: _#defs."/$defs/Properties/definitions/BarChartDefaultSeriesSettings" | fn.#ObjectExpression
-	FieldWells?:            _#defs."/$defs/Properties/definitions/BarChartFieldWells" | fn.#ObjectExpression
-	Interactions?:          _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	Legend?:                _#defs."/$defs/Properties/definitions/LegendOptions" | fn.#ObjectExpression
-	Orientation?:           _#defs."/$defs/Properties/definitions/BarChartOrientation" | fn.#StringExpression
-	ReferenceLines?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ReferenceLine" | fn.#ObjectExpression
-	] |
+	DataLabels?:            _#defs."/$defs/Properties/definitions/DataLabelOptions"
+	DefaultSeriesSettings?: _#defs."/$defs/Properties/definitions/BarChartDefaultSeriesSettings"
+	FieldWells?:            _#defs."/$defs/Properties/definitions/BarChartFieldWells"
+	Interactions?:          _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	Legend?:                _#defs."/$defs/Properties/definitions/LegendOptions"
+	Orientation?:           _#defs."/$defs/Properties/definitions/BarChartOrientation"
+	ReferenceLines?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/ReferenceLine"] |
 		fn.#ListExpression
-	Series?: list.MaxItems(2000) & [...] & [
-		..._#defs."/$defs/Properties/definitions/BarSeriesItem" | fn.#ObjectExpression
-	] |
+	Series?: list.MaxItems(2000) & [...] & [..._#defs."/$defs/Properties/definitions/BarSeriesItem"] |
 		fn.#ListExpression
-	SmallMultiplesOptions?: _#defs."/$defs/Properties/definitions/SmallMultiplesOptions" | fn.#ObjectExpression
-	SortConfiguration?:     _#defs."/$defs/Properties/definitions/BarChartSortConfiguration" | fn.#ObjectExpression
-	Tooltip?:               _#defs."/$defs/Properties/definitions/TooltipOptions" | fn.#ObjectExpression
-	ValueAxis?:             _#defs."/$defs/Properties/definitions/AxisDisplayOptions" | fn.#ObjectExpression
-	ValueLabelOptions?:     _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	VisualPalette?:         _#defs."/$defs/Properties/definitions/VisualPalette" | fn.#ObjectExpression
+	SmallMultiplesOptions?: _#defs."/$defs/Properties/definitions/SmallMultiplesOptions"
+	SortConfiguration?:     _#defs."/$defs/Properties/definitions/BarChartSortConfiguration"
+	Tooltip?:               _#defs."/$defs/Properties/definitions/TooltipOptions"
+	ValueAxis?:             _#defs."/$defs/Properties/definitions/AxisDisplayOptions"
+	ValueLabelOptions?:     _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	VisualPalette?:         _#defs."/$defs/Properties/definitions/VisualPalette"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BarChartDefaultSeriesSettings": close({
-	BorderSettings?: _#defs."/$defs/Properties/definitions/BorderSettings" | fn.#ObjectExpression
-	DecalSettings?:  _#defs."/$defs/Properties/definitions/DecalSettings" | fn.#ObjectExpression
+	BorderSettings?: _#defs."/$defs/Properties/definitions/BorderSettings"
+	DecalSettings?:  _#defs."/$defs/Properties/definitions/DecalSettings"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BarChartFieldWells": close({
-	BarChartAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/BarChartAggregatedFieldWells" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/BarChartFieldWells": close(
+	{BarChartAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/BarChartAggregatedFieldWells"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BarChartOrientation": "HORIZONTAL" | "VERTICAL" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/BarChartSeriesSettings": close({
-	BorderSettings?: _#defs."/$defs/Properties/definitions/BorderSettings" | fn.#ObjectExpression
-	DecalSettings?:  _#defs."/$defs/Properties/definitions/DecalSettings" | fn.#ObjectExpression
+	BorderSettings?: _#defs."/$defs/Properties/definitions/BorderSettings"
+	DecalSettings?:  _#defs."/$defs/Properties/definitions/DecalSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BarChartSortConfiguration": close({
-	CategoryItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" | fn.#ObjectExpression
-	CategorySort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	CategoryItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	CategorySort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
-	ColorItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" | fn.#ObjectExpression
-	ColorSort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	ColorItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	ColorSort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
-	SmallMultiplesLimitConfiguration?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" |
-		fn.#ObjectExpression
-	SmallMultiplesSort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	SmallMultiplesLimitConfiguration?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	SmallMultiplesSort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BarChartVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?: _#defs."/$defs/Properties/definitions/BarChartConfiguration" | fn.#ObjectExpression
-	ColumnHierarchies?: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnHierarchy" | fn.#ObjectExpression
-	] |
+	ChartConfiguration?: _#defs."/$defs/Properties/definitions/BarChartConfiguration"
+	ColumnHierarchies?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnHierarchy"] |
 		fn.#ListExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BarSeriesItem": close({
-	DataFieldBarSeriesItem?: _#defs."/$defs/Properties/definitions/DataFieldBarSeriesItem" | fn.#ObjectExpression
-	FieldBarSeriesItem?:     _#defs."/$defs/Properties/definitions/FieldBarSeriesItem" | fn.#ObjectExpression
+	DataFieldBarSeriesItem?: _#defs."/$defs/Properties/definitions/DataFieldBarSeriesItem"
+	FieldBarSeriesItem?:     _#defs."/$defs/Properties/definitions/FieldBarSeriesItem"
 }) |
 fn.#ObjectExpression
 
@@ -306,153 +453,230 @@ _#defs: "/$defs/Properties/definitions/BaseMapStyleType": "LIGHT_GRAY" |
 	"IMAGERY" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BinCountOptions": close({Value?: >=0 | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/BinCountOptions": close({
+	Value?: >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BinWidthOptions": close({
-	BinCountLimit?: <=1000 & >=0 | fn.#NumberExpression
-	Value?:         >=0 | fn.#NumberExpression
+	BinCountLimit?: <=1000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1000 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Value?: >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BodySectionConfiguration": close({
-	Content!:                _#defs."/$defs/Properties/definitions/BodySectionContent" | fn.#ObjectExpression
-	PageBreakConfiguration?: _#defs."/$defs/Properties/definitions/SectionPageBreakConfiguration" | fn.#ObjectExpression
-	RepeatConfiguration?: _#defs."/$defs/Properties/definitions/BodySectionRepeatConfiguration" | fn.#ObjectExpression
-	SectionId!:           strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Style?:               _#defs."/$defs/Properties/definitions/SectionStyle" | fn.#ObjectExpression
+	Content!:                _#defs."/$defs/Properties/definitions/BodySectionContent"
+	PageBreakConfiguration?: _#defs."/$defs/Properties/definitions/SectionPageBreakConfiguration"
+	RepeatConfiguration?:    _#defs."/$defs/Properties/definitions/BodySectionRepeatConfiguration"
+	SectionId!:              strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Style?:                  _#defs."/$defs/Properties/definitions/SectionStyle"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BodySectionContent": close(
-	{Layout?: _#defs."/$defs/Properties/definitions/SectionLayoutConfiguration" | fn.#ObjectExpression},
+	{Layout?: _#defs."/$defs/Properties/definitions/SectionLayoutConfiguration"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BodySectionDynamicCategoryDimensionConfiguration": close({
-	Column!: _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	Limit?:  <=1000 & >=1 | fn.#NumberExpression
-	SortByMetrics?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnSort" | fn.#ObjectExpression
-	] |
+	Column!: _#defs."/$defs/Properties/definitions/ColumnIdentifier"
+	Limit?: <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1000 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SortByMetrics?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnSort"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BodySectionDynamicNumericDimensionConfiguration": close({
-	Column!: _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	Limit?:  <=1000 & >=1 | fn.#NumberExpression
-	SortByMetrics?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnSort" | fn.#ObjectExpression
-	] |
+	Column!: _#defs."/$defs/Properties/definitions/ColumnIdentifier"
+	Limit?: <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1000 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SortByMetrics?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnSort"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BodySectionRepeatConfiguration": close({
 	DimensionConfigurations?: list.MaxItems(3) & [...] & [
-		..._#defs."/$defs/Properties/definitions/BodySectionRepeatDimensionConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/BodySectionRepeatDimensionConfiguration"
 	] |
 		fn.#ListExpression
 	NonRepeatingVisuals?: list.MaxItems(20) & [...] & [
 		...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	PageBreakConfiguration?: _#defs."/$defs/Properties/definitions/BodySectionRepeatPageBreakConfiguration" |
-		fn.#ObjectExpression
+	PageBreakConfiguration?: _#defs."/$defs/Properties/definitions/BodySectionRepeatPageBreakConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BodySectionRepeatDimensionConfiguration": close({
-	DynamicCategoryDimensionConfiguration?: _#defs."/$defs/Properties/definitions/BodySectionDynamicCategoryDimensionConfiguration" |
-		fn.#ObjectExpression
-	DynamicNumericDimensionConfiguration?: _#defs."/$defs/Properties/definitions/BodySectionDynamicNumericDimensionConfiguration" |
-		fn.#ObjectExpression
+	DynamicCategoryDimensionConfiguration?:
+		_#defs."/$defs/Properties/definitions/BodySectionDynamicCategoryDimensionConfiguration"
+	DynamicNumericDimensionConfiguration?:
+		_#defs."/$defs/Properties/definitions/BodySectionDynamicNumericDimensionConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BodySectionRepeatPageBreakConfiguration": close(
-	{After?: _#defs."/$defs/Properties/definitions/SectionAfterPageBreak" | fn.#ObjectExpression},
+	{After?: _#defs."/$defs/Properties/definitions/SectionAfterPageBreak"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BorderSettings": close({
 	BorderColor?:      =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
-	BorderVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	BorderVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
 	BorderWidth?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BoxPlotAggregatedFieldWells": close({
-	GroupBy?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Values?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	GroupBy?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] | fn.#ListExpression
+	Values?:  list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BoxPlotChartConfiguration": close({
-	BoxPlotOptions?:             _#defs."/$defs/Properties/definitions/BoxPlotOptions" | fn.#ObjectExpression
-	CategoryAxis?:               _#defs."/$defs/Properties/definitions/AxisDisplayOptions" | fn.#ObjectExpression
-	CategoryLabelOptions?:       _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	FieldWells?:                 _#defs."/$defs/Properties/definitions/BoxPlotFieldWells" | fn.#ObjectExpression
-	Interactions?:               _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	Legend?:                     _#defs."/$defs/Properties/definitions/LegendOptions" | fn.#ObjectExpression
-	PrimaryYAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions" | fn.#ObjectExpression
-	PrimaryYAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	ReferenceLines?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ReferenceLine" | fn.#ObjectExpression
-	] |
+	BoxPlotOptions?:             _#defs."/$defs/Properties/definitions/BoxPlotOptions"
+	CategoryAxis?:               _#defs."/$defs/Properties/definitions/AxisDisplayOptions"
+	CategoryLabelOptions?:       _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	FieldWells?:                 _#defs."/$defs/Properties/definitions/BoxPlotFieldWells"
+	Interactions?:               _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	Legend?:                     _#defs."/$defs/Properties/definitions/LegendOptions"
+	PrimaryYAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions"
+	PrimaryYAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	ReferenceLines?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/ReferenceLine"] |
 		fn.#ListExpression
-	SortConfiguration?: _#defs."/$defs/Properties/definitions/BoxPlotSortConfiguration" | fn.#ObjectExpression
-	Tooltip?:           _#defs."/$defs/Properties/definitions/TooltipOptions" | fn.#ObjectExpression
-	VisualPalette?:     _#defs."/$defs/Properties/definitions/VisualPalette" | fn.#ObjectExpression
+	SortConfiguration?: _#defs."/$defs/Properties/definitions/BoxPlotSortConfiguration"
+	Tooltip?:           _#defs."/$defs/Properties/definitions/TooltipOptions"
+	VisualPalette?:     _#defs."/$defs/Properties/definitions/VisualPalette"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BoxPlotFieldWells": close({
-	BoxPlotAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/BoxPlotAggregatedFieldWells" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/BoxPlotFieldWells": close(
+	{BoxPlotAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/BoxPlotAggregatedFieldWells"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BoxPlotFillStyle": "SOLID" | "TRANSPARENT" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/BoxPlotOptions": close({
-	AllDataPointsVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	OutlierVisibility?:       _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	StyleOptions?:            _#defs."/$defs/Properties/definitions/BoxPlotStyleOptions" | fn.#ObjectExpression
+	AllDataPointsVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
+	OutlierVisibility?:       _#defs."/$defs/Properties/definitions/Visibility"
+	StyleOptions?:            _#defs."/$defs/Properties/definitions/BoxPlotStyleOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BoxPlotSortConfiguration": close({
-	CategorySort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	CategorySort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
-	PaginationConfiguration?: _#defs."/$defs/Properties/definitions/PaginationConfiguration" | fn.#ObjectExpression
+	PaginationConfiguration?: _#defs."/$defs/Properties/definitions/PaginationConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BoxPlotStyleOptions": close(
-	{FillStyle?: _#defs."/$defs/Properties/definitions/BoxPlotFillStyle" | fn.#StringExpression},
+	{FillStyle?: _#defs."/$defs/Properties/definitions/BoxPlotFillStyle"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BoxPlotVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?: _#defs."/$defs/Properties/definitions/BoxPlotChartConfiguration" | fn.#ObjectExpression
-	ColumnHierarchies?: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnHierarchy" | fn.#ObjectExpression
-	] |
+	ChartConfiguration?: _#defs."/$defs/Properties/definitions/BoxPlotChartConfiguration"
+	ColumnHierarchies?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnHierarchy"] |
 		fn.#ListExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
@@ -473,15 +697,13 @@ _#defs: "/$defs/Properties/definitions/CalculatedMeasureField": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CascadingControlConfiguration": close({
-	SourceControls?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CascadingControlSource" | fn.#ObjectExpression
-	] |
+	SourceControls?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/CascadingControlSource"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CascadingControlSource": close({
-	ColumnToMatch?:        _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
+	ColumnToMatch?:        _#defs."/$defs/Properties/definitions/ColumnIdentifier"
 	SourceSheetControlId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -491,18 +713,18 @@ _#defs: "/$defs/Properties/definitions/CategoricalAggregationFunction": "COUNT" 
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CategoricalDimensionField": close({
-	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
+	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier"
 	FieldId!:             strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	FormatConfiguration?: _#defs."/$defs/Properties/definitions/StringFormatConfiguration" | fn.#ObjectExpression
+	FormatConfiguration?: _#defs."/$defs/Properties/definitions/StringFormatConfiguration"
 	HierarchyId?:         strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CategoricalMeasureField": close({
-	AggregationFunction?: _#defs."/$defs/Properties/definitions/CategoricalAggregationFunction" | fn.#StringExpression
-	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
+	AggregationFunction?: _#defs."/$defs/Properties/definitions/CategoricalAggregationFunction"
+	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier"
 	FieldId!:             strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	FormatConfiguration?: _#defs."/$defs/Properties/definitions/StringFormatConfiguration" | fn.#ObjectExpression
+	FormatConfiguration?: _#defs."/$defs/Properties/definitions/StringFormatConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -511,24 +733,22 @@ _#defs: "/$defs/Properties/definitions/CategoryDrillDownFilter": close({
 		...strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Column!: _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
+	Column!: _#defs."/$defs/Properties/definitions/ColumnIdentifier"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CategoryFilter": close({
-	Column!:        _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	Configuration!: _#defs."/$defs/Properties/definitions/CategoryFilterConfiguration" | fn.#ObjectExpression
-	DefaultFilterControlConfiguration?: _#defs."/$defs/Properties/definitions/DefaultFilterControlConfiguration" |
-		fn.#ObjectExpression
+	Column!:                            _#defs."/$defs/Properties/definitions/ColumnIdentifier"
+	Configuration!:                     _#defs."/$defs/Properties/definitions/CategoryFilterConfiguration"
+	DefaultFilterControlConfiguration?: _#defs."/$defs/Properties/definitions/DefaultFilterControlConfiguration"
 	FilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CategoryFilterConfiguration": close({
-	CustomFilterConfiguration?: _#defs."/$defs/Properties/definitions/CustomFilterConfiguration" | fn.#ObjectExpression
-	CustomFilterListConfiguration?: _#defs."/$defs/Properties/definitions/CustomFilterListConfiguration" |
-		fn.#ObjectExpression
-	FilterListConfiguration?: _#defs."/$defs/Properties/definitions/FilterListConfiguration" | fn.#ObjectExpression
+	CustomFilterConfiguration?:     _#defs."/$defs/Properties/definitions/CustomFilterConfiguration"
+	CustomFilterListConfiguration?: _#defs."/$defs/Properties/definitions/CustomFilterListConfiguration"
+	FilterListConfiguration?:       _#defs."/$defs/Properties/definitions/FilterListConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -543,60 +763,52 @@ _#defs: "/$defs/Properties/definitions/CategoryFilterMatchOperator": "EQUALS" |
 _#defs: "/$defs/Properties/definitions/CategoryFilterSelectAllOptions": "FILTER_ALL_VALUES" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CategoryInnerFilter": close({
-	Column!:        _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	Configuration!: _#defs."/$defs/Properties/definitions/CategoryFilterConfiguration" | fn.#ObjectExpression
-	DefaultFilterControlConfiguration?: _#defs."/$defs/Properties/definitions/DefaultFilterControlConfiguration" |
-		fn.#ObjectExpression
+	Column!:                            _#defs."/$defs/Properties/definitions/ColumnIdentifier"
+	Configuration!:                     _#defs."/$defs/Properties/definitions/CategoryFilterConfiguration"
+	DefaultFilterControlConfiguration?: _#defs."/$defs/Properties/definitions/DefaultFilterControlConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ChartAxisLabelOptions": close({
-	AxisLabelOptions?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/AxisLabelOptions" | fn.#ObjectExpression
-	] |
+	AxisLabelOptions?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/AxisLabelOptions"] |
 		fn.#ListExpression
-	SortIconVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	Visibility?:         _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	SortIconVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
+	Visibility?:         _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClusterMarker": close(
-	{SimpleClusterMarker?: _#defs."/$defs/Properties/definitions/SimpleClusterMarker" | fn.#ObjectExpression},
+	{SimpleClusterMarker?: _#defs."/$defs/Properties/definitions/SimpleClusterMarker"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClusterMarkerConfiguration": close(
-	{ClusterMarker?: _#defs."/$defs/Properties/definitions/ClusterMarker" | fn.#ObjectExpression},
+	{ClusterMarker?: _#defs."/$defs/Properties/definitions/ClusterMarker"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ColorFillType": "DISCRETE" | "GRADIENT" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ColorScale": close({
-	ColorFillType!: _#defs."/$defs/Properties/definitions/ColorFillType" | fn.#StringExpression
-	Colors!: list.MaxItems(3) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/DataColor" | fn.#ObjectExpression
-	] |
+	ColorFillType!: _#defs."/$defs/Properties/definitions/ColorFillType"
+	Colors!: list.MaxItems(3) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/DataColor"] |
 		fn.#ListExpression
-	NullValueColor?: _#defs."/$defs/Properties/definitions/DataColor" | fn.#ObjectExpression
+	NullValueColor?: _#defs."/$defs/Properties/definitions/DataColor"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ColorsConfiguration": close({
-	CustomColors?: list.MaxItems(50) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomColor" | fn.#ObjectExpression
-	] |
+	CustomColors?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/CustomColor"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ColumnConfiguration": close({
-	ColorsConfiguration?: _#defs."/$defs/Properties/definitions/ColorsConfiguration" | fn.#ObjectExpression
-	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	DecalSettingsConfiguration?: _#defs."/$defs/Properties/definitions/DecalSettingsConfiguration" |
-		fn.#ObjectExpression
-	FormatConfiguration?: _#defs."/$defs/Properties/definitions/FormatConfiguration" | fn.#ObjectExpression
-	Role?:                _#defs."/$defs/Properties/definitions/ColumnRole" | fn.#StringExpression
+	ColorsConfiguration?:        _#defs."/$defs/Properties/definitions/ColorsConfiguration"
+	Column!:                     _#defs."/$defs/Properties/definitions/ColumnIdentifier"
+	DecalSettingsConfiguration?: _#defs."/$defs/Properties/definitions/DecalSettingsConfiguration"
+	FormatConfiguration?:        _#defs."/$defs/Properties/definitions/FormatConfiguration"
+	Role?:                       _#defs."/$defs/Properties/definitions/ColumnRole"
 }) |
 fn.#ObjectExpression
 
@@ -605,7 +817,7 @@ _#defs: "/$defs/Properties/definitions/ColumnGroupColumnSchema": close({Name?: s
 
 _#defs: "/$defs/Properties/definitions/ColumnGroupSchema": close({
 	ColumnGroupColumnSchemaList?: list.MaxItems(500) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnGroupColumnSchema" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ColumnGroupColumnSchema"
 	] |
 		fn.#ListExpression
 	Name?: string | fn.#StringExpression
@@ -613,9 +825,9 @@ _#defs: "/$defs/Properties/definitions/ColumnGroupSchema": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ColumnHierarchy": close({
-	DateTimeHierarchy?:   _#defs."/$defs/Properties/definitions/DateTimeHierarchy" | fn.#ObjectExpression
-	ExplicitHierarchy?:   _#defs."/$defs/Properties/definitions/ExplicitHierarchy" | fn.#ObjectExpression
-	PredefinedHierarchy?: _#defs."/$defs/Properties/definitions/PredefinedHierarchy" | fn.#ObjectExpression
+	DateTimeHierarchy?:   _#defs."/$defs/Properties/definitions/DateTimeHierarchy"
+	ExplicitHierarchy?:   _#defs."/$defs/Properties/definitions/ExplicitHierarchy"
+	PredefinedHierarchy?: _#defs."/$defs/Properties/definitions/PredefinedHierarchy"
 }) |
 fn.#ObjectExpression
 
@@ -636,144 +848,120 @@ _#defs: "/$defs/Properties/definitions/ColumnSchema": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ColumnSort": close({
-	AggregationFunction?: _#defs."/$defs/Properties/definitions/AggregationFunction" | fn.#ObjectExpression
-	Direction!:           _#defs."/$defs/Properties/definitions/SortDirection" | fn.#StringExpression
-	SortBy!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
+	AggregationFunction?: _#defs."/$defs/Properties/definitions/AggregationFunction"
+	Direction!:           _#defs."/$defs/Properties/definitions/SortDirection"
+	SortBy!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ColumnTooltipItem": close({
-	Aggregation?:   _#defs."/$defs/Properties/definitions/AggregationFunction" | fn.#ObjectExpression
-	Column!:        _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
+	Aggregation?:   _#defs."/$defs/Properties/definitions/AggregationFunction"
+	Column!:        _#defs."/$defs/Properties/definitions/ColumnIdentifier"
 	Label?:         string | fn.#StringExpression
-	TooltipTarget?: _#defs."/$defs/Properties/definitions/TooltipTarget" | fn.#StringExpression
-	Visibility?:    _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	TooltipTarget?: _#defs."/$defs/Properties/definitions/TooltipTarget"
+	Visibility?:    _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComboChartAggregatedFieldWells": close({
-	BarValues?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
-	] |
+	BarValues?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] |
 		fn.#ListExpression
-	Category?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Category?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Colors?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Colors?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	LineValues?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
-	] |
+	LineValues?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComboChartConfiguration": close({
-	BarDataLabels?:        _#defs."/$defs/Properties/definitions/DataLabelOptions" | fn.#ObjectExpression
-	BarsArrangement?:      _#defs."/$defs/Properties/definitions/BarsArrangement" | fn.#StringExpression
-	CategoryAxis?:         _#defs."/$defs/Properties/definitions/AxisDisplayOptions" | fn.#ObjectExpression
-	CategoryLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	ColorLabelOptions?:    _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	DefaultSeriesSettings?: _#defs."/$defs/Properties/definitions/ComboChartDefaultSeriesSettings" |
-		fn.#ObjectExpression
-	FieldWells?:                 _#defs."/$defs/Properties/definitions/ComboChartFieldWells" | fn.#ObjectExpression
-	Interactions?:               _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	Legend?:                     _#defs."/$defs/Properties/definitions/LegendOptions" | fn.#ObjectExpression
-	LineDataLabels?:             _#defs."/$defs/Properties/definitions/DataLabelOptions" | fn.#ObjectExpression
-	PrimaryYAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions" | fn.#ObjectExpression
-	PrimaryYAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	ReferenceLines?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ReferenceLine" | fn.#ObjectExpression
-	] |
+	BarDataLabels?:              _#defs."/$defs/Properties/definitions/DataLabelOptions"
+	BarsArrangement?:            _#defs."/$defs/Properties/definitions/BarsArrangement"
+	CategoryAxis?:               _#defs."/$defs/Properties/definitions/AxisDisplayOptions"
+	CategoryLabelOptions?:       _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	ColorLabelOptions?:          _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	DefaultSeriesSettings?:      _#defs."/$defs/Properties/definitions/ComboChartDefaultSeriesSettings"
+	FieldWells?:                 _#defs."/$defs/Properties/definitions/ComboChartFieldWells"
+	Interactions?:               _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	Legend?:                     _#defs."/$defs/Properties/definitions/LegendOptions"
+	LineDataLabels?:             _#defs."/$defs/Properties/definitions/DataLabelOptions"
+	PrimaryYAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions"
+	PrimaryYAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	ReferenceLines?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/ReferenceLine"] |
 		fn.#ListExpression
-	SecondaryYAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions" | fn.#ObjectExpression
-	SecondaryYAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	Series?: list.MaxItems(2000) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ComboSeriesItem" | fn.#ObjectExpression
-	] |
+	SecondaryYAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions"
+	SecondaryYAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	Series?: list.MaxItems(2000) & [...] & [..._#defs."/$defs/Properties/definitions/ComboSeriesItem"] |
 		fn.#ListExpression
-	SingleAxisOptions?: _#defs."/$defs/Properties/definitions/SingleAxisOptions" | fn.#ObjectExpression
-	SortConfiguration?: _#defs."/$defs/Properties/definitions/ComboChartSortConfiguration" | fn.#ObjectExpression
-	Tooltip?:           _#defs."/$defs/Properties/definitions/TooltipOptions" | fn.#ObjectExpression
-	VisualPalette?:     _#defs."/$defs/Properties/definitions/VisualPalette" | fn.#ObjectExpression
+	SingleAxisOptions?: _#defs."/$defs/Properties/definitions/SingleAxisOptions"
+	SortConfiguration?: _#defs."/$defs/Properties/definitions/ComboChartSortConfiguration"
+	Tooltip?:           _#defs."/$defs/Properties/definitions/TooltipOptions"
+	VisualPalette?:     _#defs."/$defs/Properties/definitions/VisualPalette"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComboChartDefaultSeriesSettings": close({
-	BorderSettings?:      _#defs."/$defs/Properties/definitions/BorderSettings" | fn.#ObjectExpression
-	DecalSettings?:       _#defs."/$defs/Properties/definitions/DecalSettings" | fn.#ObjectExpression
-	LineStyleSettings?:   _#defs."/$defs/Properties/definitions/LineChartLineStyleSettings" | fn.#ObjectExpression
-	MarkerStyleSettings?: _#defs."/$defs/Properties/definitions/LineChartMarkerStyleSettings" | fn.#ObjectExpression
+	BorderSettings?:      _#defs."/$defs/Properties/definitions/BorderSettings"
+	DecalSettings?:       _#defs."/$defs/Properties/definitions/DecalSettings"
+	LineStyleSettings?:   _#defs."/$defs/Properties/definitions/LineChartLineStyleSettings"
+	MarkerStyleSettings?: _#defs."/$defs/Properties/definitions/LineChartMarkerStyleSettings"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComboChartFieldWells": close({
-	ComboChartAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/ComboChartAggregatedFieldWells" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/ComboChartFieldWells": close(
+	{ComboChartAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/ComboChartAggregatedFieldWells"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComboChartSeriesSettings": close({
-	BorderSettings?:      _#defs."/$defs/Properties/definitions/BorderSettings" | fn.#ObjectExpression
-	DecalSettings?:       _#defs."/$defs/Properties/definitions/DecalSettings" | fn.#ObjectExpression
-	LineStyleSettings?:   _#defs."/$defs/Properties/definitions/LineChartLineStyleSettings" | fn.#ObjectExpression
-	MarkerStyleSettings?: _#defs."/$defs/Properties/definitions/LineChartMarkerStyleSettings" | fn.#ObjectExpression
+	BorderSettings?:      _#defs."/$defs/Properties/definitions/BorderSettings"
+	DecalSettings?:       _#defs."/$defs/Properties/definitions/DecalSettings"
+	LineStyleSettings?:   _#defs."/$defs/Properties/definitions/LineChartLineStyleSettings"
+	MarkerStyleSettings?: _#defs."/$defs/Properties/definitions/LineChartMarkerStyleSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComboChartSortConfiguration": close({
-	CategoryItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" | fn.#ObjectExpression
-	CategorySort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	CategoryItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	CategorySort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
-	ColorItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" | fn.#ObjectExpression
-	ColorSort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	ColorItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	ColorSort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComboChartVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?: _#defs."/$defs/Properties/definitions/ComboChartConfiguration" | fn.#ObjectExpression
-	ColumnHierarchies?: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnHierarchy" | fn.#ObjectExpression
-	] |
+	ChartConfiguration?: _#defs."/$defs/Properties/definitions/ComboChartConfiguration"
+	ColumnHierarchies?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnHierarchy"] |
 		fn.#ListExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComboSeriesItem": close({
-	DataFieldComboSeriesItem?: _#defs."/$defs/Properties/definitions/DataFieldComboSeriesItem" | fn.#ObjectExpression
-	FieldComboSeriesItem?:     _#defs."/$defs/Properties/definitions/FieldComboSeriesItem" | fn.#ObjectExpression
+	DataFieldComboSeriesItem?: _#defs."/$defs/Properties/definitions/DataFieldComboSeriesItem"
+	FieldComboSeriesItem?:     _#defs."/$defs/Properties/definitions/FieldComboSeriesItem"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CommitMode": "AUTO" | "MANUAL" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ComparisonConfiguration": close({
-	ComparisonFormat?: _#defs."/$defs/Properties/definitions/ComparisonFormatConfiguration" | fn.#ObjectExpression
-	ComparisonMethod?: _#defs."/$defs/Properties/definitions/ComparisonMethod" | fn.#StringExpression
+	ComparisonFormat?: _#defs."/$defs/Properties/definitions/ComparisonFormatConfiguration"
+	ComparisonMethod?: _#defs."/$defs/Properties/definitions/ComparisonMethod"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ComparisonFormatConfiguration": close({
-	NumberDisplayFormatConfiguration?: _#defs."/$defs/Properties/definitions/NumberDisplayFormatConfiguration" |
-		fn.#ObjectExpression
-	PercentageDisplayFormatConfiguration?: _#defs."/$defs/Properties/definitions/PercentageDisplayFormatConfiguration" |
-		fn.#ObjectExpression
+	NumberDisplayFormatConfiguration?:     _#defs."/$defs/Properties/definitions/NumberDisplayFormatConfiguration"
+	PercentageDisplayFormatConfiguration?: _#defs."/$defs/Properties/definitions/PercentageDisplayFormatConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -783,64 +971,61 @@ _#defs: "/$defs/Properties/definitions/ComparisonMethod": "DIFFERENCE" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Computation": close({
-	Forecast?:         _#defs."/$defs/Properties/definitions/ForecastComputation" | fn.#ObjectExpression
-	GrowthRate?:       _#defs."/$defs/Properties/definitions/GrowthRateComputation" | fn.#ObjectExpression
-	MaximumMinimum?:   _#defs."/$defs/Properties/definitions/MaximumMinimumComputation" | fn.#ObjectExpression
-	MetricComparison?: _#defs."/$defs/Properties/definitions/MetricComparisonComputation" | fn.#ObjectExpression
-	PeriodOverPeriod?: _#defs."/$defs/Properties/definitions/PeriodOverPeriodComputation" | fn.#ObjectExpression
-	PeriodToDate?:     _#defs."/$defs/Properties/definitions/PeriodToDateComputation" | fn.#ObjectExpression
-	TopBottomMovers?:  _#defs."/$defs/Properties/definitions/TopBottomMoversComputation" | fn.#ObjectExpression
-	TopBottomRanked?:  _#defs."/$defs/Properties/definitions/TopBottomRankedComputation" | fn.#ObjectExpression
-	TotalAggregation?: _#defs."/$defs/Properties/definitions/TotalAggregationComputation" | fn.#ObjectExpression
-	UniqueValues?:     _#defs."/$defs/Properties/definitions/UniqueValuesComputation" | fn.#ObjectExpression
+	Forecast?:         _#defs."/$defs/Properties/definitions/ForecastComputation"
+	GrowthRate?:       _#defs."/$defs/Properties/definitions/GrowthRateComputation"
+	MaximumMinimum?:   _#defs."/$defs/Properties/definitions/MaximumMinimumComputation"
+	MetricComparison?: _#defs."/$defs/Properties/definitions/MetricComparisonComputation"
+	PeriodOverPeriod?: _#defs."/$defs/Properties/definitions/PeriodOverPeriodComputation"
+	PeriodToDate?:     _#defs."/$defs/Properties/definitions/PeriodToDateComputation"
+	TopBottomMovers?:  _#defs."/$defs/Properties/definitions/TopBottomMoversComputation"
+	TopBottomRanked?:  _#defs."/$defs/Properties/definitions/TopBottomRankedComputation"
+	TotalAggregation?: _#defs."/$defs/Properties/definitions/TotalAggregationComputation"
+	UniqueValues?:     _#defs."/$defs/Properties/definitions/UniqueValuesComputation"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConditionalFormattingColor": close({
-	Gradient?: _#defs."/$defs/Properties/definitions/ConditionalFormattingGradientColor" | fn.#ObjectExpression
-	Solid?:    _#defs."/$defs/Properties/definitions/ConditionalFormattingSolidColor" | fn.#ObjectExpression
+	Gradient?: _#defs."/$defs/Properties/definitions/ConditionalFormattingGradientColor"
+	Solid?:    _#defs."/$defs/Properties/definitions/ConditionalFormattingSolidColor"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConditionalFormattingCustomIconCondition": close({
-	Color?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	DisplayConfiguration?: _#defs."/$defs/Properties/definitions/ConditionalFormattingIconDisplayConfiguration" |
-		fn.#ObjectExpression
-	Expression!:  strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	IconOptions!: _#defs."/$defs/Properties/definitions/ConditionalFormattingCustomIconOptions" | fn.#ObjectExpression
+	Color?:                =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	DisplayConfiguration?: _#defs."/$defs/Properties/definitions/ConditionalFormattingIconDisplayConfiguration"
+	Expression!:           strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	IconOptions!:          _#defs."/$defs/Properties/definitions/ConditionalFormattingCustomIconOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConditionalFormattingCustomIconOptions": close({
-	Icon?:        _#defs."/$defs/Properties/definitions/Icon" | fn.#StringExpression
+	Icon?:        _#defs."/$defs/Properties/definitions/Icon"
 	UnicodeIcon?: =~"^[^\\x{0000}-\\x{00FF}]$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConditionalFormattingGradientColor": close({
-	Color!:      _#defs."/$defs/Properties/definitions/GradientColor" | fn.#ObjectExpression
+	Color!:      _#defs."/$defs/Properties/definitions/GradientColor"
 	Expression!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConditionalFormattingIcon": close({
-	CustomCondition?: _#defs."/$defs/Properties/definitions/ConditionalFormattingCustomIconCondition" |
-		fn.#ObjectExpression
-	IconSet?: _#defs."/$defs/Properties/definitions/ConditionalFormattingIconSet" | fn.#ObjectExpression
+	CustomCondition?: _#defs."/$defs/Properties/definitions/ConditionalFormattingCustomIconCondition"
+	IconSet?:         _#defs."/$defs/Properties/definitions/ConditionalFormattingIconSet"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConditionalFormattingIconDisplayConfiguration": close({
-	IconDisplayOption?: _#defs."/$defs/Properties/definitions/ConditionalFormattingIconDisplayOption" |
-		fn.#StringExpression
-}) |
+_#defs: "/$defs/Properties/definitions/ConditionalFormattingIconDisplayConfiguration": close(
+	{IconDisplayOption?: _#defs."/$defs/Properties/definitions/ConditionalFormattingIconDisplayOption"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConditionalFormattingIconDisplayOption": "ICON_ONLY" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ConditionalFormattingIconSet": close({
 	Expression!:  strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	IconSetType?: _#defs."/$defs/Properties/definitions/ConditionalFormattingIconSetType" | fn.#StringExpression
+	IconSetType?: _#defs."/$defs/Properties/definitions/ConditionalFormattingIconSetType"
 }) |
 fn.#ObjectExpression
 
@@ -864,13 +1049,13 @@ _#defs: "/$defs/Properties/definitions/ConditionalFormattingSolidColor": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ContextMenuOption": close(
-	{AvailabilityStatus?: _#defs."/$defs/Properties/definitions/DashboardBehavior" | fn.#StringExpression},
+	{AvailabilityStatus?: _#defs."/$defs/Properties/definitions/DashboardBehavior"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ContributionAnalysisDefault": close({
 	ContributorDimensions!: list.MaxItems(4) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ColumnIdentifier"
 	] |
 		fn.#ListExpression
 	MeasureFieldId!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
@@ -880,44 +1065,38 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/CrossDatasetTypes": "ALL_DATASETS" | "SINGLE_DATASET" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CurrencyDisplayFormatConfiguration": close({
-	DecimalPlacesConfiguration?: _#defs."/$defs/Properties/definitions/DecimalPlacesConfiguration" |
-		fn.#ObjectExpression
-	NegativeValueConfiguration?: _#defs."/$defs/Properties/definitions/NegativeValueConfiguration" |
-		fn.#ObjectExpression
-	NullValueFormatConfiguration?: _#defs."/$defs/Properties/definitions/NullValueFormatConfiguration" |
-		fn.#ObjectExpression
-	NumberScale?:            _#defs."/$defs/Properties/definitions/NumberScale" | fn.#StringExpression
-	Prefix?:                 strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	SeparatorConfiguration?: _#defs."/$defs/Properties/definitions/NumericSeparatorConfiguration" | fn.#ObjectExpression
-	Suffix?:                 strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Symbol?:                 =~"^[A-Z]{3}$" | fn.#StringExpression
+	DecimalPlacesConfiguration?:   _#defs."/$defs/Properties/definitions/DecimalPlacesConfiguration"
+	NegativeValueConfiguration?:   _#defs."/$defs/Properties/definitions/NegativeValueConfiguration"
+	NullValueFormatConfiguration?: _#defs."/$defs/Properties/definitions/NullValueFormatConfiguration"
+	NumberScale?:                  _#defs."/$defs/Properties/definitions/NumberScale"
+	Prefix?:                       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	SeparatorConfiguration?:       _#defs."/$defs/Properties/definitions/NumericSeparatorConfiguration"
+	Suffix?:                       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Symbol?:                       =~"^[A-Z]{3}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomActionFilterOperation": close({
-	SelectedFieldsConfiguration!: _#defs."/$defs/Properties/definitions/FilterOperationSelectedFieldsConfiguration" |
-		fn.#ObjectExpression
-	TargetVisualsConfiguration!: _#defs."/$defs/Properties/definitions/FilterOperationTargetVisualsConfiguration" |
-		fn.#ObjectExpression
+	SelectedFieldsConfiguration!: _#defs."/$defs/Properties/definitions/FilterOperationSelectedFieldsConfiguration"
+	TargetVisualsConfiguration!:  _#defs."/$defs/Properties/definitions/FilterOperationTargetVisualsConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomActionNavigationOperation": close({
-	LocalNavigationConfiguration?: _#defs."/$defs/Properties/definitions/LocalNavigationConfiguration" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/CustomActionNavigationOperation": close(
+	{LocalNavigationConfiguration?: _#defs."/$defs/Properties/definitions/LocalNavigationConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomActionSetParametersOperation": close({
 	ParameterValueConfigurations!: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/SetParameterValueConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/SetParameterValueConfiguration"
 	] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomActionURLOperation": close({
-	URLTarget!:   _#defs."/$defs/Properties/definitions/URLTargetConfiguration" | fn.#StringExpression
+	URLTarget!:   _#defs."/$defs/Properties/definitions/URLTargetConfiguration"
 	URLTemplate!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -925,15 +1104,15 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/CustomColor": close({
 	Color!:        =~"^#[A-F0-9]{6}$" | fn.#StringExpression
 	FieldValue?:   strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	SpecialValue?: _#defs."/$defs/Properties/definitions/SpecialValue" | fn.#StringExpression
+	SpecialValue?: _#defs."/$defs/Properties/definitions/SpecialValue"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomContentConfiguration": close({
-	ContentType?:  _#defs."/$defs/Properties/definitions/CustomContentType" | fn.#StringExpression
+	ContentType?:  _#defs."/$defs/Properties/definitions/CustomContentType"
 	ContentUrl?:   strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ImageScaling?: _#defs."/$defs/Properties/definitions/CustomContentImageScalingConfiguration" | fn.#StringExpression
-	Interactions?: _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
+	ImageScaling?: _#defs."/$defs/Properties/definitions/CustomContentImageScalingConfiguration"
+	Interactions?: _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
 }) |
 fn.#ObjectExpression
 
@@ -946,14 +1125,12 @@ _#defs: "/$defs/Properties/definitions/CustomContentImageScalingConfiguration": 
 _#defs: "/$defs/Properties/definitions/CustomContentType": "IMAGE" | "OTHER_EMBEDDED_CONTENT" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CustomContentVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?:   _#defs."/$defs/Properties/definitions/CustomContentConfiguration" | fn.#ObjectExpression
+	ChartConfiguration?:   _#defs."/$defs/Properties/definitions/CustomContentConfiguration"
 	DataSetIdentifier?:    strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	TopicIdentifier?:      strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
@@ -962,10 +1139,10 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomFilterConfiguration": close({
 	CategoryValue?:    strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	MatchOperator!:    _#defs."/$defs/Properties/definitions/CategoryFilterMatchOperator" | fn.#StringExpression
-	NullOption!:       _#defs."/$defs/Properties/definitions/FilterNullOption" | fn.#StringExpression
+	MatchOperator!:    _#defs."/$defs/Properties/definitions/CategoryFilterMatchOperator"
+	NullOption!:       _#defs."/$defs/Properties/definitions/FilterNullOption"
 	ParameterName?:    strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	SelectAllOptions?: _#defs."/$defs/Properties/definitions/CategoryFilterSelectAllOptions" | fn.#StringExpression
+	SelectAllOptions?: _#defs."/$defs/Properties/definitions/CategoryFilterSelectAllOptions"
 }) |
 fn.#ObjectExpression
 
@@ -974,9 +1151,9 @@ _#defs: "/$defs/Properties/definitions/CustomFilterListConfiguration": close({
 		...strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	MatchOperator!:    _#defs."/$defs/Properties/definitions/CategoryFilterMatchOperator" | fn.#StringExpression
-	NullOption!:       _#defs."/$defs/Properties/definitions/FilterNullOption" | fn.#StringExpression
-	SelectAllOptions?: _#defs."/$defs/Properties/definitions/CategoryFilterSelectAllOptions" | fn.#StringExpression
+	MatchOperator!:    _#defs."/$defs/Properties/definitions/CategoryFilterMatchOperator"
+	NullOption!:       _#defs."/$defs/Properties/definitions/FilterNullOption"
+	SelectAllOptions?: _#defs."/$defs/Properties/definitions/CategoryFilterSelectAllOptions"
 }) |
 fn.#ObjectExpression
 
@@ -987,15 +1164,57 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomParameterValues": close({
 	DateTimeValues?: list.MaxItems(50000) & [...] & [...time.Time | fn.#StringExpression] | fn.#ListExpression
-	DecimalValues?:  list.MaxItems(50000) & [...] & [...number | fn.#NumberExpression] | fn.#ListExpression
-	IntegerValues?:  list.MaxItems(50000) & [...] & [...number | fn.#NumberExpression] | fn.#ListExpression
-	StringValues?:   list.MaxItems(50000) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+	DecimalValues?: list.MaxItems(50000) & [...] & [
+		...number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	IntegerValues?: list.MaxItems(50000) & [...] & [
+		...number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	StringValues?: list.MaxItems(50000) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomValuesConfiguration": close({
-	CustomValues!:     _#defs."/$defs/Properties/definitions/CustomParameterValues" | fn.#ObjectExpression
-	IncludeNullValue?: bool | fn.#BooleanExpression
+	CustomValues!:     _#defs."/$defs/Properties/definitions/CustomParameterValues"
+	IncludeNullValue?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -1009,30 +1228,48 @@ _#defs: "/$defs/Properties/definitions/DataBarsOptions": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataColor": close({
-	Color?:     =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	DataValue?: number | fn.#NumberExpression
+	Color?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	DataValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataFieldBarSeriesItem": close({
 	FieldId!:    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	FieldValue?: string | fn.#StringExpression
-	Settings?:   _#defs."/$defs/Properties/definitions/BarChartSeriesSettings" | fn.#ObjectExpression
+	Settings?:   _#defs."/$defs/Properties/definitions/BarChartSeriesSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataFieldComboSeriesItem": close({
 	FieldId!:    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	FieldValue?: string | fn.#StringExpression
-	Settings?:   _#defs."/$defs/Properties/definitions/ComboChartSeriesSettings" | fn.#ObjectExpression
+	Settings?:   _#defs."/$defs/Properties/definitions/ComboChartSeriesSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataFieldSeriesItem": close({
-	AxisBinding!: _#defs."/$defs/Properties/definitions/AxisBinding" | fn.#StringExpression
+	AxisBinding!: _#defs."/$defs/Properties/definitions/AxisBinding"
 	FieldId!:     strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	FieldValue?:  string | fn.#StringExpression
-	Settings?:    _#defs."/$defs/Properties/definitions/LineChartSeriesSettings" | fn.#ObjectExpression
+	Settings?:    _#defs."/$defs/Properties/definitions/LineChartSeriesSettings"
 }) |
 fn.#ObjectExpression
 
@@ -1042,19 +1279,17 @@ _#defs: "/$defs/Properties/definitions/DataLabelContent": "VALUE" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DataLabelOptions": close({
-	CategoryLabelVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	DataLabelTypes?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DataLabelType" | fn.#ObjectExpression
-	] |
+	CategoryLabelVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
+	DataLabelTypes?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/DataLabelType"] |
 		fn.#ListExpression
 	LabelColor?:             =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	LabelContent?:           _#defs."/$defs/Properties/definitions/DataLabelContent" | fn.#StringExpression
-	LabelFontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
-	MeasureLabelVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	Overlap?:                _#defs."/$defs/Properties/definitions/DataLabelOverlap" | fn.#StringExpression
-	Position?:               _#defs."/$defs/Properties/definitions/DataLabelPosition" | fn.#StringExpression
-	TotalsVisibility?:       _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	Visibility?:             _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	LabelContent?:           _#defs."/$defs/Properties/definitions/DataLabelContent"
+	LabelFontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration"
+	MeasureLabelVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
+	Overlap?:                _#defs."/$defs/Properties/definitions/DataLabelOverlap"
+	Position?:               _#defs."/$defs/Properties/definitions/DataLabelPosition"
+	TotalsVisibility?:       _#defs."/$defs/Properties/definitions/Visibility"
+	Visibility?:             _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
@@ -1069,55 +1304,51 @@ _#defs: "/$defs/Properties/definitions/DataLabelPosition": "INSIDE" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DataLabelType": close({
-	DataPathLabelType?:  _#defs."/$defs/Properties/definitions/DataPathLabelType" | fn.#ObjectExpression
-	FieldLabelType?:     _#defs."/$defs/Properties/definitions/FieldLabelType" | fn.#ObjectExpression
-	MaximumLabelType?:   _#defs."/$defs/Properties/definitions/MaximumLabelType" | fn.#ObjectExpression
-	MinimumLabelType?:   _#defs."/$defs/Properties/definitions/MinimumLabelType" | fn.#ObjectExpression
-	RangeEndsLabelType?: _#defs."/$defs/Properties/definitions/RangeEndsLabelType" | fn.#ObjectExpression
+	DataPathLabelType?:  _#defs."/$defs/Properties/definitions/DataPathLabelType"
+	FieldLabelType?:     _#defs."/$defs/Properties/definitions/FieldLabelType"
+	MaximumLabelType?:   _#defs."/$defs/Properties/definitions/MaximumLabelType"
+	MinimumLabelType?:   _#defs."/$defs/Properties/definitions/MinimumLabelType"
+	RangeEndsLabelType?: _#defs."/$defs/Properties/definitions/RangeEndsLabelType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataPathColor": close({
 	Color!:           =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	Element!:         _#defs."/$defs/Properties/definitions/DataPathValue" | fn.#ObjectExpression
-	TimeGranularity?: _#defs."/$defs/Properties/definitions/TimeGranularity" | fn.#StringExpression
+	Element!:         _#defs."/$defs/Properties/definitions/DataPathValue"
+	TimeGranularity?: _#defs."/$defs/Properties/definitions/TimeGranularity"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataPathLabelType": close({
 	FieldId?:    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	FieldValue?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	Visibility?: _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataPathSort": close({
-	Direction!: _#defs."/$defs/Properties/definitions/SortDirection" | fn.#StringExpression
-	SortPaths!: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DataPathValue" | fn.#ObjectExpression
-	] |
+	Direction!: _#defs."/$defs/Properties/definitions/SortDirection"
+	SortPaths!: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/DataPathValue"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataPathType": close(
-	{PivotTableDataPathType?: _#defs."/$defs/Properties/definitions/PivotTableDataPathType" | fn.#StringExpression},
+	{PivotTableDataPathType?: _#defs."/$defs/Properties/definitions/PivotTableDataPathType"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataPathValue": close({
-	DataPathType?: _#defs."/$defs/Properties/definitions/DataPathType" | fn.#ObjectExpression
+	DataPathType?: _#defs."/$defs/Properties/definitions/DataPathType"
 	FieldId?:      strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	FieldValue?:   strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSetConfiguration": close({
-	ColumnGroupSchemaList?: list.MaxItems(500) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnGroupSchema" | fn.#ObjectExpression
-	] |
+	ColumnGroupSchemaList?: list.MaxItems(500) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnGroupSchema"] |
 		fn.#ListExpression
-	DataSetSchema?: _#defs."/$defs/Properties/definitions/DataSetSchema" | fn.#ObjectExpression
+	DataSetSchema?: _#defs."/$defs/Properties/definitions/DataSetSchema"
 	Placeholder?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -1129,9 +1360,7 @@ _#defs: "/$defs/Properties/definitions/DataSetReference": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSetSchema": close({
-	ColumnSchemaList?: list.MaxItems(500) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnSchema" | fn.#ObjectExpression
-	] |
+	ColumnSchemaList?: list.MaxItems(500) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnSchema"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -1143,77 +1372,72 @@ _#defs: "/$defs/Properties/definitions/DateAggregationFunction": "COUNT" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DateAxisOptions": close(
-	{MissingDateVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression},
+	{MissingDateVisibility?: _#defs."/$defs/Properties/definitions/Visibility"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DateDimensionField": close({
-	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	DateGranularity?:     _#defs."/$defs/Properties/definitions/TimeGranularity" | fn.#StringExpression
+	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier"
+	DateGranularity?:     _#defs."/$defs/Properties/definitions/TimeGranularity"
 	FieldId!:             strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	FormatConfiguration?: _#defs."/$defs/Properties/definitions/DateTimeFormatConfiguration" | fn.#ObjectExpression
+	FormatConfiguration?: _#defs."/$defs/Properties/definitions/DateTimeFormatConfiguration"
 	HierarchyId?:         strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DateMeasureField": close({
-	AggregationFunction?: _#defs."/$defs/Properties/definitions/DateAggregationFunction" | fn.#StringExpression
-	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
+	AggregationFunction?: _#defs."/$defs/Properties/definitions/DateAggregationFunction"
+	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier"
 	FieldId!:             strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	FormatConfiguration?: _#defs."/$defs/Properties/definitions/DateTimeFormatConfiguration" | fn.#ObjectExpression
+	FormatConfiguration?: _#defs."/$defs/Properties/definitions/DateTimeFormatConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DateTimeDefaultValues": close({
-	DynamicValue?: _#defs."/$defs/Properties/definitions/DynamicDefaultValue" | fn.#ObjectExpression
-	RollingDate?:  _#defs."/$defs/Properties/definitions/RollingDateConfiguration" | fn.#ObjectExpression
+	DynamicValue?: _#defs."/$defs/Properties/definitions/DynamicDefaultValue"
+	RollingDate?:  _#defs."/$defs/Properties/definitions/RollingDateConfiguration"
 	StaticValues?: list.MaxItems(50000) & [...] & [...time.Time | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DateTimeFormatConfiguration": close({
-	DateTimeFormat?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	NullValueFormatConfiguration?: _#defs."/$defs/Properties/definitions/NullValueFormatConfiguration" |
-		fn.#ObjectExpression
-	NumericFormatConfiguration?: _#defs."/$defs/Properties/definitions/NumericFormatConfiguration" |
-		fn.#ObjectExpression
+	DateTimeFormat?:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	NullValueFormatConfiguration?: _#defs."/$defs/Properties/definitions/NullValueFormatConfiguration"
+	NumericFormatConfiguration?:   _#defs."/$defs/Properties/definitions/NumericFormatConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DateTimeHierarchy": close({
-	DrillDownFilters?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DrillDownFilter" | fn.#ObjectExpression
-	] |
+	DrillDownFilters?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/DrillDownFilter"] |
 		fn.#ListExpression
 	HierarchyId!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DateTimeParameterDeclaration": close({
-	DefaultValues?: _#defs."/$defs/Properties/definitions/DateTimeDefaultValues" | fn.#ObjectExpression
+	DefaultValues?: _#defs."/$defs/Properties/definitions/DateTimeDefaultValues"
 	MappedDataSetParameters?: list.MaxItems(150) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MappedDataSetParameter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MappedDataSetParameter"
 	] |
 		fn.#ListExpression
 	Name!:            strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	TimeGranularity?: _#defs."/$defs/Properties/definitions/TimeGranularity" | fn.#StringExpression
-	ValueWhenUnset?:  _#defs."/$defs/Properties/definitions/DateTimeValueWhenUnsetConfiguration" | fn.#ObjectExpression
+	TimeGranularity?: _#defs."/$defs/Properties/definitions/TimeGranularity"
+	ValueWhenUnset?:  _#defs."/$defs/Properties/definitions/DateTimeValueWhenUnsetConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DateTimePickerControlDisplayOptions": close({
-	DateIconVisibility?:   _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	DateIconVisibility?:   _#defs."/$defs/Properties/definitions/Visibility"
 	DateTimeFormat?:       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	HelperTextVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	InfoIconLabelOptions?: _#defs."/$defs/Properties/definitions/SheetControlInfoIconLabelOptions" |
-		fn.#ObjectExpression
-	TitleOptions?: _#defs."/$defs/Properties/definitions/LabelOptions" | fn.#ObjectExpression
+	HelperTextVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
+	InfoIconLabelOptions?: _#defs."/$defs/Properties/definitions/SheetControlInfoIconLabelOptions"
+	TitleOptions?:         _#defs."/$defs/Properties/definitions/LabelOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DateTimeValueWhenUnsetConfiguration": close({
 	CustomValue?:          time.Time | fn.#StringExpression
-	ValueWhenUnsetOption?: _#defs."/$defs/Properties/definitions/ValueWhenUnsetOption" | fn.#StringExpression
+	ValueWhenUnsetOption?: _#defs."/$defs/Properties/definitions/ValueWhenUnsetOption"
 }) |
 fn.#ObjectExpression
 
@@ -1252,17 +1476,15 @@ _#defs: "/$defs/Properties/definitions/DecalPatternType": "SOLID" |
 
 _#defs: "/$defs/Properties/definitions/DecalSettings": close({
 	DecalColor?:       =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
-	DecalPatternType?: _#defs."/$defs/Properties/definitions/DecalPatternType" | fn.#StringExpression
-	DecalStyleType?:   _#defs."/$defs/Properties/definitions/DecalStyleType" | fn.#StringExpression
-	DecalVisibility?:  _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	DecalPatternType?: _#defs."/$defs/Properties/definitions/DecalPatternType"
+	DecalStyleType?:   _#defs."/$defs/Properties/definitions/DecalStyleType"
+	DecalVisibility?:  _#defs."/$defs/Properties/definitions/Visibility"
 	ElementValue?:     strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DecalSettingsConfiguration": close({
-	CustomDecalSettings?: list.MaxItems(50) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DecalSettings" | fn.#ObjectExpression
-	] |
+	CustomDecalSettings?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/DecalSettings"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -1270,143 +1492,248 @@ _#defs: "/$defs/Properties/definitions/DecalSettingsConfiguration": close({
 _#defs: "/$defs/Properties/definitions/DecalStyleType": "Manual" | "Auto" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DecimalDefaultValues": close({
-	DynamicValue?: _#defs."/$defs/Properties/definitions/DynamicDefaultValue" | fn.#ObjectExpression
-	StaticValues?: list.MaxItems(50000) & [...] & [...number | fn.#NumberExpression] | fn.#ListExpression
+	DynamicValue?: _#defs."/$defs/Properties/definitions/DynamicDefaultValue"
+	StaticValues?: list.MaxItems(50000) & [...] & [
+		...number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DecimalParameterDeclaration": close({
-	DefaultValues?: _#defs."/$defs/Properties/definitions/DecimalDefaultValues" | fn.#ObjectExpression
+	DefaultValues?: _#defs."/$defs/Properties/definitions/DecimalDefaultValues"
 	MappedDataSetParameters?: list.MaxItems(150) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MappedDataSetParameter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MappedDataSetParameter"
 	] |
 		fn.#ListExpression
 	Name!:               strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	ParameterValueType!: _#defs."/$defs/Properties/definitions/ParameterValueType" | fn.#StringExpression
-	ValueWhenUnset?: _#defs."/$defs/Properties/definitions/DecimalValueWhenUnsetConfiguration" | fn.#ObjectExpression
+	ParameterValueType!: _#defs."/$defs/Properties/definitions/ParameterValueType"
+	ValueWhenUnset?:     _#defs."/$defs/Properties/definitions/DecimalValueWhenUnsetConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DecimalPlacesConfiguration": close(
-	{DecimalPlaces!: <=20 & >=0 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/DecimalPlacesConfiguration": close({
+	DecimalPlaces!: <=20 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=20 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DecimalValueWhenUnsetConfiguration": close({
-	CustomValue?:          number | fn.#NumberExpression
-	ValueWhenUnsetOption?: _#defs."/$defs/Properties/definitions/ValueWhenUnsetOption" | fn.#StringExpression
+	CustomValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ValueWhenUnsetOption?: _#defs."/$defs/Properties/definitions/ValueWhenUnsetOption"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultDateTimePickerControlOptions": close({
-	CommitMode?:     _#defs."/$defs/Properties/definitions/CommitMode" | fn.#StringExpression
-	DisplayOptions?: _#defs."/$defs/Properties/definitions/DateTimePickerControlDisplayOptions" | fn.#ObjectExpression
-	Type?:           _#defs."/$defs/Properties/definitions/SheetControlDateTimePickerType" | fn.#StringExpression
+	CommitMode?:     _#defs."/$defs/Properties/definitions/CommitMode"
+	DisplayOptions?: _#defs."/$defs/Properties/definitions/DateTimePickerControlDisplayOptions"
+	Type?:           _#defs."/$defs/Properties/definitions/SheetControlDateTimePickerType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultFilterControlConfiguration": close({
-	ControlOptions!: _#defs."/$defs/Properties/definitions/DefaultFilterControlOptions" | fn.#ObjectExpression
+	ControlOptions!: _#defs."/$defs/Properties/definitions/DefaultFilterControlOptions"
 	Title!:          strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultFilterControlOptions": close({
-	DefaultDateTimePickerOptions?: _#defs."/$defs/Properties/definitions/DefaultDateTimePickerControlOptions" |
-		fn.#ObjectExpression
-	DefaultDropdownOptions?: _#defs."/$defs/Properties/definitions/DefaultFilterDropDownControlOptions" |
-		fn.#ObjectExpression
-	DefaultListOptions?: _#defs."/$defs/Properties/definitions/DefaultFilterListControlOptions" | fn.#ObjectExpression
-	DefaultRelativeDateTimeOptions?: _#defs."/$defs/Properties/definitions/DefaultRelativeDateTimeControlOptions" |
-		fn.#ObjectExpression
-	DefaultSliderOptions?:   _#defs."/$defs/Properties/definitions/DefaultSliderControlOptions" | fn.#ObjectExpression
-	DefaultTextAreaOptions?: _#defs."/$defs/Properties/definitions/DefaultTextAreaControlOptions" | fn.#ObjectExpression
-	DefaultTextFieldOptions?: _#defs."/$defs/Properties/definitions/DefaultTextFieldControlOptions" |
-		fn.#ObjectExpression
+	DefaultDateTimePickerOptions?:   _#defs."/$defs/Properties/definitions/DefaultDateTimePickerControlOptions"
+	DefaultDropdownOptions?:         _#defs."/$defs/Properties/definitions/DefaultFilterDropDownControlOptions"
+	DefaultListOptions?:             _#defs."/$defs/Properties/definitions/DefaultFilterListControlOptions"
+	DefaultRelativeDateTimeOptions?: _#defs."/$defs/Properties/definitions/DefaultRelativeDateTimeControlOptions"
+	DefaultSliderOptions?:           _#defs."/$defs/Properties/definitions/DefaultSliderControlOptions"
+	DefaultTextAreaOptions?:         _#defs."/$defs/Properties/definitions/DefaultTextAreaControlOptions"
+	DefaultTextFieldOptions?:        _#defs."/$defs/Properties/definitions/DefaultTextFieldControlOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultFilterDropDownControlOptions": close({
-	CommitMode?:       _#defs."/$defs/Properties/definitions/CommitMode" | fn.#StringExpression
-	DisplayOptions?:   _#defs."/$defs/Properties/definitions/DropDownControlDisplayOptions" | fn.#ObjectExpression
-	SelectableValues?: _#defs."/$defs/Properties/definitions/FilterSelectableValues" | fn.#ObjectExpression
-	Type?:             _#defs."/$defs/Properties/definitions/SheetControlListType" | fn.#StringExpression
+	CommitMode?:       _#defs."/$defs/Properties/definitions/CommitMode"
+	DisplayOptions?:   _#defs."/$defs/Properties/definitions/DropDownControlDisplayOptions"
+	SelectableValues?: _#defs."/$defs/Properties/definitions/FilterSelectableValues"
+	Type?:             _#defs."/$defs/Properties/definitions/SheetControlListType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultFilterListControlOptions": close({
-	DisplayOptions?:   _#defs."/$defs/Properties/definitions/ListControlDisplayOptions" | fn.#ObjectExpression
-	SelectableValues?: _#defs."/$defs/Properties/definitions/FilterSelectableValues" | fn.#ObjectExpression
-	Type?:             _#defs."/$defs/Properties/definitions/SheetControlListType" | fn.#StringExpression
+	DisplayOptions?:   _#defs."/$defs/Properties/definitions/ListControlDisplayOptions"
+	SelectableValues?: _#defs."/$defs/Properties/definitions/FilterSelectableValues"
+	Type?:             _#defs."/$defs/Properties/definitions/SheetControlListType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultFreeFormLayoutConfiguration": close(
-	{CanvasSizeOptions!: _#defs."/$defs/Properties/definitions/FreeFormLayoutCanvasSizeOptions" | fn.#ObjectExpression},
+	{CanvasSizeOptions!: _#defs."/$defs/Properties/definitions/FreeFormLayoutCanvasSizeOptions"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultGridLayoutConfiguration": close(
-	{CanvasSizeOptions!: _#defs."/$defs/Properties/definitions/GridLayoutCanvasSizeOptions" | fn.#ObjectExpression},
+	{CanvasSizeOptions!: _#defs."/$defs/Properties/definitions/GridLayoutCanvasSizeOptions"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultInteractiveLayoutConfiguration": close({
-	FreeForm?: _#defs."/$defs/Properties/definitions/DefaultFreeFormLayoutConfiguration" | fn.#ObjectExpression
-	Grid?:     _#defs."/$defs/Properties/definitions/DefaultGridLayoutConfiguration" | fn.#ObjectExpression
+	FreeForm?: _#defs."/$defs/Properties/definitions/DefaultFreeFormLayoutConfiguration"
+	Grid?:     _#defs."/$defs/Properties/definitions/DefaultGridLayoutConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultNewSheetConfiguration": close({
-	InteractiveLayoutConfiguration?: _#defs."/$defs/Properties/definitions/DefaultInteractiveLayoutConfiguration" |
-		fn.#ObjectExpression
-	PaginatedLayoutConfiguration?: _#defs."/$defs/Properties/definitions/DefaultPaginatedLayoutConfiguration" |
-		fn.#ObjectExpression
-	SheetContentType?: _#defs."/$defs/Properties/definitions/SheetContentType" | fn.#StringExpression
+	InteractiveLayoutConfiguration?: _#defs."/$defs/Properties/definitions/DefaultInteractiveLayoutConfiguration"
+	PaginatedLayoutConfiguration?:   _#defs."/$defs/Properties/definitions/DefaultPaginatedLayoutConfiguration"
+	SheetContentType?:               _#defs."/$defs/Properties/definitions/SheetContentType"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultPaginatedLayoutConfiguration": close({
-	SectionBased?: _#defs."/$defs/Properties/definitions/DefaultSectionBasedLayoutConfiguration" | fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/DefaultPaginatedLayoutConfiguration": close(
+	{SectionBased?: _#defs."/$defs/Properties/definitions/DefaultSectionBasedLayoutConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultRelativeDateTimeControlOptions": close({
-	CommitMode?:     _#defs."/$defs/Properties/definitions/CommitMode" | fn.#StringExpression
-	DisplayOptions?: _#defs."/$defs/Properties/definitions/RelativeDateTimeControlDisplayOptions" | fn.#ObjectExpression
+	CommitMode?:     _#defs."/$defs/Properties/definitions/CommitMode"
+	DisplayOptions?: _#defs."/$defs/Properties/definitions/RelativeDateTimeControlDisplayOptions"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultSectionBasedLayoutConfiguration": close({
-	CanvasSizeOptions!: _#defs."/$defs/Properties/definitions/SectionBasedLayoutCanvasSizeOptions" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/DefaultSectionBasedLayoutConfiguration": close(
+	{CanvasSizeOptions!: _#defs."/$defs/Properties/definitions/SectionBasedLayoutCanvasSizeOptions"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultSliderControlOptions": close({
-	DisplayOptions?: _#defs."/$defs/Properties/definitions/SliderControlDisplayOptions" | fn.#ObjectExpression
-	MaximumValue!:   number | fn.#NumberExpression
-	MinimumValue!:   number | fn.#NumberExpression
-	StepSize!:       number | fn.#NumberExpression
-	Type?:           _#defs."/$defs/Properties/definitions/SheetControlSliderType" | fn.#StringExpression
+	DisplayOptions?: _#defs."/$defs/Properties/definitions/SliderControlDisplayOptions"
+	MaximumValue!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinimumValue!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StepSize!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type?: _#defs."/$defs/Properties/definitions/SheetControlSliderType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultTextAreaControlOptions": close({
 	Delimiter?:      strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	DisplayOptions?: _#defs."/$defs/Properties/definitions/TextAreaControlDisplayOptions" | fn.#ObjectExpression
+	DisplayOptions?: _#defs."/$defs/Properties/definitions/TextAreaControlDisplayOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultTextFieldControlOptions": close(
-	{DisplayOptions?: _#defs."/$defs/Properties/definitions/TextFieldControlDisplayOptions" | fn.#ObjectExpression},
+	{DisplayOptions?: _#defs."/$defs/Properties/definitions/TextFieldControlDisplayOptions"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DestinationParameterValueConfiguration": close({
-	CustomValuesConfiguration?: _#defs."/$defs/Properties/definitions/CustomValuesConfiguration" | fn.#ObjectExpression
-	SelectAllValueOptions?:     _#defs."/$defs/Properties/definitions/SelectAllValueOptions" | fn.#StringExpression
-	SourceColumn?:              _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
+	CustomValuesConfiguration?: _#defs."/$defs/Properties/definitions/CustomValuesConfiguration"
+	SelectAllValueOptions?:     _#defs."/$defs/Properties/definitions/SelectAllValueOptions"
+	SourceColumn?:              _#defs."/$defs/Properties/definitions/ColumnIdentifier"
 	SourceField?:               strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	SourceParameterName?:       string | fn.#StringExpression
 }) |
@@ -1415,49 +1742,46 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/DigitGroupingStyle": "DEFAULT" | "LAKHS" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DimensionField": close({
-	CategoricalDimensionField?: _#defs."/$defs/Properties/definitions/CategoricalDimensionField" | fn.#ObjectExpression
-	DateDimensionField?:        _#defs."/$defs/Properties/definitions/DateDimensionField" | fn.#ObjectExpression
-	NumericalDimensionField?:   _#defs."/$defs/Properties/definitions/NumericalDimensionField" | fn.#ObjectExpression
+	CategoricalDimensionField?: _#defs."/$defs/Properties/definitions/CategoricalDimensionField"
+	DateDimensionField?:        _#defs."/$defs/Properties/definitions/DateDimensionField"
+	NumericalDimensionField?:   _#defs."/$defs/Properties/definitions/NumericalDimensionField"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DonutCenterOptions": close(
-	{LabelVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression},
+	{LabelVisibility?: _#defs."/$defs/Properties/definitions/Visibility"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DonutOptions": close({
-	ArcOptions?:         _#defs."/$defs/Properties/definitions/ArcOptions" | fn.#ObjectExpression
-	DonutCenterOptions?: _#defs."/$defs/Properties/definitions/DonutCenterOptions" | fn.#ObjectExpression
+	ArcOptions?:         _#defs."/$defs/Properties/definitions/ArcOptions"
+	DonutCenterOptions?: _#defs."/$defs/Properties/definitions/DonutCenterOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DrillDownFilter": close({
-	CategoryFilter?:        _#defs."/$defs/Properties/definitions/CategoryDrillDownFilter" | fn.#ObjectExpression
-	NumericEqualityFilter?: _#defs."/$defs/Properties/definitions/NumericEqualityDrillDownFilter" | fn.#ObjectExpression
-	TimeRangeFilter?:       _#defs."/$defs/Properties/definitions/TimeRangeDrillDownFilter" | fn.#ObjectExpression
+	CategoryFilter?:        _#defs."/$defs/Properties/definitions/CategoryDrillDownFilter"
+	NumericEqualityFilter?: _#defs."/$defs/Properties/definitions/NumericEqualityDrillDownFilter"
+	TimeRangeFilter?:       _#defs."/$defs/Properties/definitions/TimeRangeDrillDownFilter"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DropDownControlDisplayOptions": close({
-	InfoIconLabelOptions?: _#defs."/$defs/Properties/definitions/SheetControlInfoIconLabelOptions" |
-		fn.#ObjectExpression
-	SelectAllOptions?: _#defs."/$defs/Properties/definitions/ListControlSelectAllOptions" | fn.#ObjectExpression
-	TitleOptions?:     _#defs."/$defs/Properties/definitions/LabelOptions" | fn.#ObjectExpression
+	InfoIconLabelOptions?: _#defs."/$defs/Properties/definitions/SheetControlInfoIconLabelOptions"
+	SelectAllOptions?:     _#defs."/$defs/Properties/definitions/ListControlSelectAllOptions"
+	TitleOptions?:         _#defs."/$defs/Properties/definitions/LabelOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DynamicDefaultValue": close({
-	DefaultValueColumn!: _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	GroupNameColumn?:    _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	UserNameColumn?:     _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
+	DefaultValueColumn!: _#defs."/$defs/Properties/definitions/ColumnIdentifier"
+	GroupNameColumn?:    _#defs."/$defs/Properties/definitions/ColumnIdentifier"
+	UserNameColumn?:     _#defs."/$defs/Properties/definitions/ColumnIdentifier"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EmptyVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
 	DataSetIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	TopicIdentifier?:   strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
@@ -1468,20 +1792,34 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/Entity": close({Path?: =~"\\S" | fn.#StringExpression}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExcludePeriodConfiguration": close({
-	Amount!:      number | fn.#NumberExpression
-	Granularity!: _#defs."/$defs/Properties/definitions/TimeGranularity" | fn.#StringExpression
-	Status?:      _#defs."/$defs/Properties/definitions/WidgetStatus" | fn.#StringExpression
+	Amount!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Granularity!: _#defs."/$defs/Properties/definitions/TimeGranularity"
+	Status?:      _#defs."/$defs/Properties/definitions/WidgetStatus"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExplicitHierarchy": close({
-	Columns!: list.MaxItems(10) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	] |
+	Columns!: list.MaxItems(10) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/ColumnIdentifier"] |
 		fn.#ListExpression
-	DrillDownFilters?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DrillDownFilter" | fn.#ObjectExpression
-	] |
+	DrillDownFilters?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/DrillDownFilter"] |
 		fn.#ListExpression
 	HierarchyId!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 }) |
@@ -1489,193 +1827,178 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldBarSeriesItem": close({
 	FieldId!:  strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	Settings?: _#defs."/$defs/Properties/definitions/BarChartSeriesSettings" | fn.#ObjectExpression
+	Settings?: _#defs."/$defs/Properties/definitions/BarChartSeriesSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldBasedTooltip": close({
-	AggregationVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	TooltipFields?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/TooltipItem" | fn.#ObjectExpression
-	] |
+	AggregationVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
+	TooltipFields?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/TooltipItem"] |
 		fn.#ListExpression
-	TooltipTitleType?: _#defs."/$defs/Properties/definitions/TooltipTitleType" | fn.#StringExpression
+	TooltipTitleType?: _#defs."/$defs/Properties/definitions/TooltipTitleType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldComboSeriesItem": close({
 	FieldId!:  strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	Settings?: _#defs."/$defs/Properties/definitions/ComboChartSeriesSettings" | fn.#ObjectExpression
+	Settings?: _#defs."/$defs/Properties/definitions/ComboChartSeriesSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldLabelType": close({
 	FieldId?:    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	Visibility?: _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldSeriesItem": close({
-	AxisBinding!: _#defs."/$defs/Properties/definitions/AxisBinding" | fn.#StringExpression
+	AxisBinding!: _#defs."/$defs/Properties/definitions/AxisBinding"
 	FieldId!:     strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	Settings?:    _#defs."/$defs/Properties/definitions/LineChartSeriesSettings" | fn.#ObjectExpression
+	Settings?:    _#defs."/$defs/Properties/definitions/LineChartSeriesSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldSort": close({
-	Direction!: _#defs."/$defs/Properties/definitions/SortDirection" | fn.#StringExpression
+	Direction!: _#defs."/$defs/Properties/definitions/SortDirection"
 	FieldId!:   strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldSortOptions": close({
-	ColumnSort?: _#defs."/$defs/Properties/definitions/ColumnSort" | fn.#ObjectExpression
-	FieldSort?:  _#defs."/$defs/Properties/definitions/FieldSort" | fn.#ObjectExpression
+	ColumnSort?: _#defs."/$defs/Properties/definitions/ColumnSort"
+	FieldSort?:  _#defs."/$defs/Properties/definitions/FieldSort"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldTooltipItem": close({
 	FieldId!:       strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	Label?:         string | fn.#StringExpression
-	TooltipTarget?: _#defs."/$defs/Properties/definitions/TooltipTarget" | fn.#StringExpression
-	Visibility?:    _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	TooltipTarget?: _#defs."/$defs/Properties/definitions/TooltipTarget"
+	Visibility?:    _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilledMapAggregatedFieldWells": close({
-	Geospatial?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Geospatial?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Values?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Values?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilledMapConditionalFormatting": close({
 	ConditionalFormattingOptions!: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FilledMapConditionalFormattingOption" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/FilledMapConditionalFormattingOption"
 	] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilledMapConditionalFormattingOption": close(
-	{Shape!: _#defs."/$defs/Properties/definitions/FilledMapShapeConditionalFormatting" | fn.#ObjectExpression},
+	{Shape!: _#defs."/$defs/Properties/definitions/FilledMapShapeConditionalFormatting"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilledMapConfiguration": close({
-	FieldWells?:        _#defs."/$defs/Properties/definitions/FilledMapFieldWells" | fn.#ObjectExpression
-	Interactions?:      _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	Legend?:            _#defs."/$defs/Properties/definitions/LegendOptions" | fn.#ObjectExpression
-	MapStyleOptions?:   _#defs."/$defs/Properties/definitions/GeospatialMapStyleOptions" | fn.#ObjectExpression
-	SortConfiguration?: _#defs."/$defs/Properties/definitions/FilledMapSortConfiguration" | fn.#ObjectExpression
-	Tooltip?:           _#defs."/$defs/Properties/definitions/TooltipOptions" | fn.#ObjectExpression
-	WindowOptions?:     _#defs."/$defs/Properties/definitions/GeospatialWindowOptions" | fn.#ObjectExpression
+	FieldWells?:        _#defs."/$defs/Properties/definitions/FilledMapFieldWells"
+	Interactions?:      _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	Legend?:            _#defs."/$defs/Properties/definitions/LegendOptions"
+	MapStyleOptions?:   _#defs."/$defs/Properties/definitions/GeospatialMapStyleOptions"
+	SortConfiguration?: _#defs."/$defs/Properties/definitions/FilledMapSortConfiguration"
+	Tooltip?:           _#defs."/$defs/Properties/definitions/TooltipOptions"
+	WindowOptions?:     _#defs."/$defs/Properties/definitions/GeospatialWindowOptions"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilledMapFieldWells": close({
-	FilledMapAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/FilledMapAggregatedFieldWells" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/FilledMapFieldWells": close(
+	{FilledMapAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/FilledMapAggregatedFieldWells"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilledMapShapeConditionalFormatting": close({
 	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	Format?:  _#defs."/$defs/Properties/definitions/ShapeConditionalFormat" | fn.#ObjectExpression
+	Format?:  _#defs."/$defs/Properties/definitions/ShapeConditionalFormat"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilledMapSortConfiguration": close({
-	CategorySort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	CategorySort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilledMapVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?: _#defs."/$defs/Properties/definitions/FilledMapConfiguration" | fn.#ObjectExpression
-	ColumnHierarchies?: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnHierarchy" | fn.#ObjectExpression
-	] |
+	ChartConfiguration?: _#defs."/$defs/Properties/definitions/FilledMapConfiguration"
+	ColumnHierarchies?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnHierarchy"] |
 		fn.#ListExpression
-	ConditionalFormatting?: _#defs."/$defs/Properties/definitions/FilledMapConditionalFormatting" | fn.#ObjectExpression
-	Subtitle?:              _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                 _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	ConditionalFormatting?: _#defs."/$defs/Properties/definitions/FilledMapConditionalFormatting"
+	Subtitle?:              _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                 _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:              strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Filter": close({
-	CategoryFilter?:        _#defs."/$defs/Properties/definitions/CategoryFilter" | fn.#ObjectExpression
-	NestedFilter?:          _#defs."/$defs/Properties/definitions/NestedFilter" | fn.#ObjectExpression
-	NumericEqualityFilter?: _#defs."/$defs/Properties/definitions/NumericEqualityFilter" | fn.#ObjectExpression
-	NumericRangeFilter?:    _#defs."/$defs/Properties/definitions/NumericRangeFilter" | fn.#ObjectExpression
-	RelativeDatesFilter?:   _#defs."/$defs/Properties/definitions/RelativeDatesFilter" | fn.#ObjectExpression
-	TimeEqualityFilter?:    _#defs."/$defs/Properties/definitions/TimeEqualityFilter" | fn.#ObjectExpression
-	TimeRangeFilter?:       _#defs."/$defs/Properties/definitions/TimeRangeFilter" | fn.#ObjectExpression
-	TopBottomFilter?:       _#defs."/$defs/Properties/definitions/TopBottomFilter" | fn.#ObjectExpression
+	CategoryFilter?:        _#defs."/$defs/Properties/definitions/CategoryFilter"
+	NestedFilter?:          _#defs."/$defs/Properties/definitions/NestedFilter"
+	NumericEqualityFilter?: _#defs."/$defs/Properties/definitions/NumericEqualityFilter"
+	NumericRangeFilter?:    _#defs."/$defs/Properties/definitions/NumericRangeFilter"
+	RelativeDatesFilter?:   _#defs."/$defs/Properties/definitions/RelativeDatesFilter"
+	TimeEqualityFilter?:    _#defs."/$defs/Properties/definitions/TimeEqualityFilter"
+	TimeRangeFilter?:       _#defs."/$defs/Properties/definitions/TimeRangeFilter"
+	TopBottomFilter?:       _#defs."/$defs/Properties/definitions/TopBottomFilter"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilterControl": close({
-	CrossSheet?:       _#defs."/$defs/Properties/definitions/FilterCrossSheetControl" | fn.#ObjectExpression
-	DateTimePicker?:   _#defs."/$defs/Properties/definitions/FilterDateTimePickerControl" | fn.#ObjectExpression
-	Dropdown?:         _#defs."/$defs/Properties/definitions/FilterDropDownControl" | fn.#ObjectExpression
-	List?:             _#defs."/$defs/Properties/definitions/FilterListControl" | fn.#ObjectExpression
-	RelativeDateTime?: _#defs."/$defs/Properties/definitions/FilterRelativeDateTimeControl" | fn.#ObjectExpression
-	Slider?:           _#defs."/$defs/Properties/definitions/FilterSliderControl" | fn.#ObjectExpression
-	TextArea?:         _#defs."/$defs/Properties/definitions/FilterTextAreaControl" | fn.#ObjectExpression
-	TextField?:        _#defs."/$defs/Properties/definitions/FilterTextFieldControl" | fn.#ObjectExpression
+	CrossSheet?:       _#defs."/$defs/Properties/definitions/FilterCrossSheetControl"
+	DateTimePicker?:   _#defs."/$defs/Properties/definitions/FilterDateTimePickerControl"
+	Dropdown?:         _#defs."/$defs/Properties/definitions/FilterDropDownControl"
+	List?:             _#defs."/$defs/Properties/definitions/FilterListControl"
+	RelativeDateTime?: _#defs."/$defs/Properties/definitions/FilterRelativeDateTimeControl"
+	Slider?:           _#defs."/$defs/Properties/definitions/FilterSliderControl"
+	TextArea?:         _#defs."/$defs/Properties/definitions/FilterTextAreaControl"
+	TextField?:        _#defs."/$defs/Properties/definitions/FilterTextFieldControl"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilterCrossSheetControl": close({
-	CascadingControlConfiguration?: _#defs."/$defs/Properties/definitions/CascadingControlConfiguration" |
-		fn.#ObjectExpression
-	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SourceFilterId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	CascadingControlConfiguration?: _#defs."/$defs/Properties/definitions/CascadingControlConfiguration"
+	FilterControlId!:               strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	SourceFilterId!:                strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilterDateTimePickerControl": close({
-	CommitMode?:      _#defs."/$defs/Properties/definitions/CommitMode" | fn.#StringExpression
-	DisplayOptions?:  _#defs."/$defs/Properties/definitions/DateTimePickerControlDisplayOptions" | fn.#ObjectExpression
+	CommitMode?:      _#defs."/$defs/Properties/definitions/CommitMode"
+	DisplayOptions?:  _#defs."/$defs/Properties/definitions/DateTimePickerControlDisplayOptions"
 	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	SourceFilterId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	Title!:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Type?:            _#defs."/$defs/Properties/definitions/SheetControlDateTimePickerType" | fn.#StringExpression
+	Type?:            _#defs."/$defs/Properties/definitions/SheetControlDateTimePickerType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilterDropDownControl": close({
-	CascadingControlConfiguration?: _#defs."/$defs/Properties/definitions/CascadingControlConfiguration" |
-		fn.#ObjectExpression
-	CommitMode?:       _#defs."/$defs/Properties/definitions/CommitMode" | fn.#StringExpression
-	DisplayOptions?:   _#defs."/$defs/Properties/definitions/DropDownControlDisplayOptions" | fn.#ObjectExpression
-	FilterControlId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SelectableValues?: _#defs."/$defs/Properties/definitions/FilterSelectableValues" | fn.#ObjectExpression
-	SourceFilterId!:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Title!:            strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Type?:             _#defs."/$defs/Properties/definitions/SheetControlListType" | fn.#StringExpression
+	CascadingControlConfiguration?: _#defs."/$defs/Properties/definitions/CascadingControlConfiguration"
+	CommitMode?:                    _#defs."/$defs/Properties/definitions/CommitMode"
+	DisplayOptions?:                _#defs."/$defs/Properties/definitions/DropDownControlDisplayOptions"
+	FilterControlId!:               strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	SelectableValues?:              _#defs."/$defs/Properties/definitions/FilterSelectableValues"
+	SourceFilterId!:                strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Title!:                         strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	Type?:                          _#defs."/$defs/Properties/definitions/SheetControlListType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilterGroup": close({
-	CrossDataset!:  _#defs."/$defs/Properties/definitions/CrossDatasetTypes" | fn.#StringExpression
+	CrossDataset!:  _#defs."/$defs/Properties/definitions/CrossDatasetTypes"
 	FilterGroupId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Filters!: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/Filter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ScopeConfiguration!: _#defs."/$defs/Properties/definitions/FilterScopeConfiguration" | fn.#ObjectExpression
-	Status?:             _#defs."/$defs/Properties/definitions/WidgetStatus" | fn.#StringExpression
+	Filters!:       list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/Filter"] | fn.#ListExpression
+	ScopeConfiguration!: _#defs."/$defs/Properties/definitions/FilterScopeConfiguration"
+	Status?:             _#defs."/$defs/Properties/definitions/WidgetStatus"
 }) |
 fn.#ObjectExpression
 
@@ -1684,21 +2007,20 @@ _#defs: "/$defs/Properties/definitions/FilterListConfiguration": close({
 		...strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	MatchOperator!:    _#defs."/$defs/Properties/definitions/CategoryFilterMatchOperator" | fn.#StringExpression
-	NullOption?:       _#defs."/$defs/Properties/definitions/FilterNullOption" | fn.#StringExpression
-	SelectAllOptions?: _#defs."/$defs/Properties/definitions/CategoryFilterSelectAllOptions" | fn.#StringExpression
+	MatchOperator!:    _#defs."/$defs/Properties/definitions/CategoryFilterMatchOperator"
+	NullOption?:       _#defs."/$defs/Properties/definitions/FilterNullOption"
+	SelectAllOptions?: _#defs."/$defs/Properties/definitions/CategoryFilterSelectAllOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilterListControl": close({
-	CascadingControlConfiguration?: _#defs."/$defs/Properties/definitions/CascadingControlConfiguration" |
-		fn.#ObjectExpression
-	DisplayOptions?:   _#defs."/$defs/Properties/definitions/ListControlDisplayOptions" | fn.#ObjectExpression
-	FilterControlId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SelectableValues?: _#defs."/$defs/Properties/definitions/FilterSelectableValues" | fn.#ObjectExpression
-	SourceFilterId!:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Title!:            strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Type?:             _#defs."/$defs/Properties/definitions/SheetControlListType" | fn.#StringExpression
+	CascadingControlConfiguration?: _#defs."/$defs/Properties/definitions/CascadingControlConfiguration"
+	DisplayOptions?:                _#defs."/$defs/Properties/definitions/ListControlDisplayOptions"
+	FilterControlId!:               strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	SelectableValues?:              _#defs."/$defs/Properties/definitions/FilterSelectableValues"
+	SourceFilterId!:                strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Title!:                         strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	Type?:                          _#defs."/$defs/Properties/definitions/SheetControlListType"
 }) |
 fn.#ObjectExpression
 
@@ -1708,11 +2030,9 @@ _#defs: "/$defs/Properties/definitions/FilterNullOption": "ALL_VALUES" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/FilterOperationSelectedFieldsConfiguration": close({
-	SelectedColumns?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	] |
+	SelectedColumns?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnIdentifier"] |
 		fn.#ListExpression
-	SelectedFieldOptions?: _#defs."/$defs/Properties/definitions/SelectedFieldOptions" | fn.#StringExpression
+	SelectedFieldOptions?: _#defs."/$defs/Properties/definitions/SelectedFieldOptions"
 	SelectedFields?: list.MaxItems(20) & list.MinItems(1) & [
 		...strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -1720,15 +2040,14 @@ _#defs: "/$defs/Properties/definitions/FilterOperationSelectedFieldsConfiguratio
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilterOperationTargetVisualsConfiguration": close({
-	SameSheetTargetVisualConfiguration?: _#defs."/$defs/Properties/definitions/SameSheetTargetVisualConfiguration" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/FilterOperationTargetVisualsConfiguration": close(
+	{SameSheetTargetVisualConfiguration?: _#defs."/$defs/Properties/definitions/SameSheetTargetVisualConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilterRelativeDateTimeControl": close({
-	CommitMode?:     _#defs."/$defs/Properties/definitions/CommitMode" | fn.#StringExpression
-	DisplayOptions?: _#defs."/$defs/Properties/definitions/RelativeDateTimeControlDisplayOptions" | fn.#ObjectExpression
+	CommitMode?:      _#defs."/$defs/Properties/definitions/CommitMode"
+	DisplayOptions?:  _#defs."/$defs/Properties/definitions/RelativeDateTimeControlDisplayOptions"
 	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	SourceFilterId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	Title!:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
@@ -1736,11 +2055,8 @@ _#defs: "/$defs/Properties/definitions/FilterRelativeDateTimeControl": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilterScopeConfiguration": close({
-	AllSheets?: _#defs."/$defs/Properties/definitions/AllSheetsFilterScopeConfiguration" |
-		fn.#ObjectExpression |
-		fn.#StringExpression
-	SelectedSheets?: _#defs."/$defs/Properties/definitions/SelectedSheetsFilterScopeConfiguration" |
-		fn.#ObjectExpression
+	AllSheets?:      _#defs."/$defs/Properties/definitions/AllSheetsFilterScopeConfiguration"
+	SelectedSheets?: _#defs."/$defs/Properties/definitions/SelectedSheetsFilterScopeConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -1750,20 +2066,74 @@ _#defs: "/$defs/Properties/definitions/FilterSelectableValues": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilterSliderControl": close({
-	DisplayOptions?:  _#defs."/$defs/Properties/definitions/SliderControlDisplayOptions" | fn.#ObjectExpression
+	DisplayOptions?:  _#defs."/$defs/Properties/definitions/SliderControlDisplayOptions"
 	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	MaximumValue!:    number | fn.#NumberExpression
-	MinimumValue!:    number | fn.#NumberExpression
-	SourceFilterId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	StepSize!:        number | fn.#NumberExpression
-	Title!:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Type?:            _#defs."/$defs/Properties/definitions/SheetControlSliderType" | fn.#StringExpression
+	MaximumValue!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinimumValue!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SourceFilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	StepSize!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	Type?:  _#defs."/$defs/Properties/definitions/SheetControlSliderType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilterTextAreaControl": close({
 	Delimiter?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	DisplayOptions?:  _#defs."/$defs/Properties/definitions/TextAreaControlDisplayOptions" | fn.#ObjectExpression
+	DisplayOptions?:  _#defs."/$defs/Properties/definitions/TextAreaControlDisplayOptions"
 	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	SourceFilterId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	Title!:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
@@ -1771,7 +2141,7 @@ _#defs: "/$defs/Properties/definitions/FilterTextAreaControl": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilterTextFieldControl": close({
-	DisplayOptions?:  _#defs."/$defs/Properties/definitions/TextFieldControlDisplayOptions" | fn.#ObjectExpression
+	DisplayOptions?:  _#defs."/$defs/Properties/definitions/TextFieldControlDisplayOptions"
 	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	SourceFilterId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	Title!:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
@@ -1782,11 +2152,11 @@ _#defs: "/$defs/Properties/definitions/FilterVisualScope": "ALL_VISUALS" | "SELE
 
 _#defs: "/$defs/Properties/definitions/FontConfiguration": close({
 	FontColor?:      =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	FontDecoration?: _#defs."/$defs/Properties/definitions/FontDecoration" | fn.#StringExpression
+	FontDecoration?: _#defs."/$defs/Properties/definitions/FontDecoration"
 	FontFamily?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	FontSize?:       _#defs."/$defs/Properties/definitions/FontSize" | fn.#ObjectExpression
-	FontStyle?:      _#defs."/$defs/Properties/definitions/FontStyle" | fn.#StringExpression
-	FontWeight?:     _#defs."/$defs/Properties/definitions/FontWeight" | fn.#ObjectExpression
+	FontSize?:       _#defs."/$defs/Properties/definitions/FontSize"
+	FontStyle?:      _#defs."/$defs/Properties/definitions/FontStyle"
+	FontWeight?:     _#defs."/$defs/Properties/definitions/FontWeight"
 }) |
 fn.#ObjectExpression
 
@@ -1794,88 +2164,194 @@ _#defs: "/$defs/Properties/definitions/FontDecoration": "UNDERLINE" | "NONE" | f
 
 _#defs: "/$defs/Properties/definitions/FontSize": close({
 	Absolute?: string | fn.#StringExpression
-	Relative?: _#defs."/$defs/Properties/definitions/RelativeFontSize" | fn.#StringExpression
+	Relative?: _#defs."/$defs/Properties/definitions/RelativeFontSize"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FontStyle": "NORMAL" | "ITALIC" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/FontWeight": close(
-	{Name?: _#defs."/$defs/Properties/definitions/FontWeightName" | fn.#StringExpression},
+	{Name?: _#defs."/$defs/Properties/definitions/FontWeightName"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FontWeightName": "NORMAL" | "BOLD" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ForecastComputation": close({
-	ComputationId!:          strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	CustomSeasonalityValue?: <=180 & >=1 | fn.#NumberExpression
-	LowerBoundary?:          number | fn.#NumberExpression
-	Name?:                   string | fn.#StringExpression
-	PeriodsBackward?:        <=1000 & >=0 | fn.#NumberExpression
-	PeriodsForward?:         <=1000 & >=1 | fn.#NumberExpression
-	PredictionInterval?:     <=95 & >=50 | fn.#NumberExpression
-	Seasonality?:   _#defs."/$defs/Properties/definitions/ForecastComputationSeasonality" | fn.#StringExpression
-	Time?:          _#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	UpperBoundary?: number | fn.#NumberExpression
-	Value?:         _#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
+	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	CustomSeasonalityValue?: <=180 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=180 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	LowerBoundary?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name?: string | fn.#StringExpression
+	PeriodsBackward?: <=1000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1000 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PeriodsForward?: <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1000 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PredictionInterval?: <=95 & >=50 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=95 &
+							>=50,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Seasonality?: _#defs."/$defs/Properties/definitions/ForecastComputationSeasonality"
+	Time?:        _#defs."/$defs/Properties/definitions/DimensionField"
+	UpperBoundary?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Value?: _#defs."/$defs/Properties/definitions/MeasureField"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ForecastComputationSeasonality": "AUTOMATIC" | "CUSTOM" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ForecastConfiguration": close({
-	ForecastProperties?: _#defs."/$defs/Properties/definitions/TimeBasedForecastProperties" | fn.#ObjectExpression
-	Scenario?:           _#defs."/$defs/Properties/definitions/ForecastScenario" | fn.#ObjectExpression
+	ForecastProperties?: _#defs."/$defs/Properties/definitions/TimeBasedForecastProperties"
+	Scenario?:           _#defs."/$defs/Properties/definitions/ForecastScenario"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ForecastScenario": close({
-	WhatIfPointScenario?: _#defs."/$defs/Properties/definitions/WhatIfPointScenario" | fn.#ObjectExpression
-	WhatIfRangeScenario?: _#defs."/$defs/Properties/definitions/WhatIfRangeScenario" | fn.#ObjectExpression
+	WhatIfPointScenario?: _#defs."/$defs/Properties/definitions/WhatIfPointScenario"
+	WhatIfRangeScenario?: _#defs."/$defs/Properties/definitions/WhatIfRangeScenario"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FormatConfiguration": close({
-	DateTimeFormatConfiguration?: _#defs."/$defs/Properties/definitions/DateTimeFormatConfiguration" |
-		fn.#ObjectExpression
-	NumberFormatConfiguration?: _#defs."/$defs/Properties/definitions/NumberFormatConfiguration" | fn.#ObjectExpression
-	StringFormatConfiguration?: _#defs."/$defs/Properties/definitions/StringFormatConfiguration" | fn.#ObjectExpression
+	DateTimeFormatConfiguration?: _#defs."/$defs/Properties/definitions/DateTimeFormatConfiguration"
+	NumberFormatConfiguration?:   _#defs."/$defs/Properties/definitions/NumberFormatConfiguration"
+	StringFormatConfiguration?:   _#defs."/$defs/Properties/definitions/StringFormatConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FreeFormLayoutCanvasSizeOptions": close({
-	ScreenCanvasSizeOptions?: _#defs."/$defs/Properties/definitions/FreeFormLayoutScreenCanvasSizeOptions" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/FreeFormLayoutCanvasSizeOptions": close(
+	{ScreenCanvasSizeOptions?: _#defs."/$defs/Properties/definitions/FreeFormLayoutScreenCanvasSizeOptions"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FreeFormLayoutConfiguration": close({
-	CanvasSizeOptions?: _#defs."/$defs/Properties/definitions/FreeFormLayoutCanvasSizeOptions" | fn.#ObjectExpression
-	Elements!: list.MaxItems(430) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FreeFormLayoutElement" | fn.#ObjectExpression
-	] |
+	CanvasSizeOptions?: _#defs."/$defs/Properties/definitions/FreeFormLayoutCanvasSizeOptions"
+	Elements!: list.MaxItems(430) & [...] & [..._#defs."/$defs/Properties/definitions/FreeFormLayoutElement"] |
 		fn.#ListExpression
-	Groups?: list.MaxItems(215) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SheetLayoutGroup" | fn.#ObjectExpression
-	] |
+	Groups?: list.MaxItems(215) & [...] & [..._#defs."/$defs/Properties/definitions/SheetLayoutGroup"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FreeFormLayoutElement": close({
-	BackgroundStyle?: _#defs."/$defs/Properties/definitions/FreeFormLayoutElementBackgroundStyle" | fn.#ObjectExpression
-	BorderStyle?:     _#defs."/$defs/Properties/definitions/FreeFormLayoutElementBorderStyle" | fn.#ObjectExpression
-	ElementId!:       strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	ElementType!:     _#defs."/$defs/Properties/definitions/LayoutElementType" | fn.#StringExpression
-	Height!:          string | fn.#StringExpression
-	LoadingAnimation?: _#defs."/$defs/Properties/definitions/LoadingAnimation" | fn.#ObjectExpression
+	BackgroundStyle?:  _#defs."/$defs/Properties/definitions/FreeFormLayoutElementBackgroundStyle"
+	BorderStyle?:      _#defs."/$defs/Properties/definitions/FreeFormLayoutElementBorderStyle"
+	ElementId!:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	ElementType!:      _#defs."/$defs/Properties/definitions/LayoutElementType"
+	Height!:           string | fn.#StringExpression
+	LoadingAnimation?: _#defs."/$defs/Properties/definitions/LoadingAnimation"
 	RenderingRules?: list.MaxItems(10000) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SheetElementRenderingRule" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/SheetElementRenderingRule"
 	] |
 		fn.#ListExpression
-	SelectedBorderStyle?: _#defs."/$defs/Properties/definitions/FreeFormLayoutElementBorderStyle" | fn.#ObjectExpression
-	Visibility?:          _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	SelectedBorderStyle?: _#defs."/$defs/Properties/definitions/FreeFormLayoutElementBorderStyle"
+	Visibility?:          _#defs."/$defs/Properties/definitions/Visibility"
 	Width!:               string | fn.#StringExpression
 	XAxisLocation!:       string | fn.#StringExpression
 	YAxisLocation!:       string | fn.#StringExpression
@@ -1884,13 +2360,13 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FreeFormLayoutElementBackgroundStyle": close({
 	Color?:      =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
-	Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	Visibility?: _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FreeFormLayoutElementBorderStyle": close({
 	Color?:      =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
-	Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	Visibility?: _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
@@ -1900,51 +2376,44 @@ _#defs: "/$defs/Properties/definitions/FreeFormLayoutScreenCanvasSizeOptions": c
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FreeFormSectionLayoutConfiguration": close({
-	Elements!: list.MaxItems(430) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FreeFormLayoutElement" | fn.#ObjectExpression
-	] |
+	Elements!: list.MaxItems(430) & [...] & [..._#defs."/$defs/Properties/definitions/FreeFormLayoutElement"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FunnelChartAggregatedFieldWells": close({
-	Category?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Category?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Values?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Values?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FunnelChartConfiguration": close({
-	CategoryLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	DataLabelOptions?:     _#defs."/$defs/Properties/definitions/FunnelChartDataLabelOptions" | fn.#ObjectExpression
-	FieldWells?:           _#defs."/$defs/Properties/definitions/FunnelChartFieldWells" | fn.#ObjectExpression
-	Interactions?:         _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	SortConfiguration?:    _#defs."/$defs/Properties/definitions/FunnelChartSortConfiguration" | fn.#ObjectExpression
-	Tooltip?:              _#defs."/$defs/Properties/definitions/TooltipOptions" | fn.#ObjectExpression
-	ValueLabelOptions?:    _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	VisualPalette?:        _#defs."/$defs/Properties/definitions/VisualPalette" | fn.#ObjectExpression
+	CategoryLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	DataLabelOptions?:     _#defs."/$defs/Properties/definitions/FunnelChartDataLabelOptions"
+	FieldWells?:           _#defs."/$defs/Properties/definitions/FunnelChartFieldWells"
+	Interactions?:         _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	SortConfiguration?:    _#defs."/$defs/Properties/definitions/FunnelChartSortConfiguration"
+	Tooltip?:              _#defs."/$defs/Properties/definitions/TooltipOptions"
+	ValueLabelOptions?:    _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	VisualPalette?:        _#defs."/$defs/Properties/definitions/VisualPalette"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FunnelChartDataLabelOptions": close({
-	CategoryLabelVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	CategoryLabelVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
 	LabelColor?:              =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	LabelFontConfiguration?:  _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
-	MeasureDataLabelStyle?: _#defs."/$defs/Properties/definitions/FunnelChartMeasureDataLabelStyle" |
-		fn.#StringExpression
-	MeasureLabelVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	Position?:               _#defs."/$defs/Properties/definitions/DataLabelPosition" | fn.#StringExpression
-	Visibility?:             _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	LabelFontConfiguration?:  _#defs."/$defs/Properties/definitions/FontConfiguration"
+	MeasureDataLabelStyle?:   _#defs."/$defs/Properties/definitions/FunnelChartMeasureDataLabelStyle"
+	MeasureLabelVisibility?:  _#defs."/$defs/Properties/definitions/Visibility"
+	Position?:                _#defs."/$defs/Properties/definitions/DataLabelPosition"
+	Visibility?:              _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FunnelChartFieldWells": close({
-	FunnelChartAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/FunnelChartAggregatedFieldWells" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/FunnelChartFieldWells": close(
+	{FunnelChartAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/FunnelChartAggregatedFieldWells"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FunnelChartMeasureDataLabelStyle": "VALUE_ONLY" |
@@ -1955,33 +2424,27 @@ _#defs: "/$defs/Properties/definitions/FunnelChartMeasureDataLabelStyle": "VALUE
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/FunnelChartSortConfiguration": close({
-	CategoryItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" | fn.#ObjectExpression
-	CategorySort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	CategoryItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	CategorySort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FunnelChartVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?: _#defs."/$defs/Properties/definitions/FunnelChartConfiguration" | fn.#ObjectExpression
-	ColumnHierarchies?: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnHierarchy" | fn.#ObjectExpression
-	] |
+	ChartConfiguration?: _#defs."/$defs/Properties/definitions/FunnelChartConfiguration"
+	ColumnHierarchies?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnHierarchy"] |
 		fn.#ListExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GaugeChartArcConditionalFormatting": close(
-	{ForegroundColor?: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor" | fn.#ObjectExpression},
+	{ForegroundColor?: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor"},
 ) |
 	fn.#ObjectExpression
 
@@ -1993,80 +2456,87 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GaugeChartConditionalFormatting": close({
 	ConditionalFormattingOptions?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/GaugeChartConditionalFormattingOption" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/GaugeChartConditionalFormattingOption"
 	] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GaugeChartConditionalFormattingOption": close({
-	Arc?: _#defs."/$defs/Properties/definitions/GaugeChartArcConditionalFormatting" | fn.#ObjectExpression
-	PrimaryValue?: _#defs."/$defs/Properties/definitions/GaugeChartPrimaryValueConditionalFormatting" |
-		fn.#ObjectExpression
+	Arc?:          _#defs."/$defs/Properties/definitions/GaugeChartArcConditionalFormatting"
+	PrimaryValue?: _#defs."/$defs/Properties/definitions/GaugeChartPrimaryValueConditionalFormatting"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GaugeChartConfiguration": close({
-	ColorConfiguration?: _#defs."/$defs/Properties/definitions/GaugeChartColorConfiguration" | fn.#ObjectExpression
-	DataLabels?:         _#defs."/$defs/Properties/definitions/DataLabelOptions" | fn.#ObjectExpression
-	FieldWells?:         _#defs."/$defs/Properties/definitions/GaugeChartFieldWells" | fn.#ObjectExpression
-	GaugeChartOptions?:  _#defs."/$defs/Properties/definitions/GaugeChartOptions" | fn.#ObjectExpression
-	Interactions?:       _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	TooltipOptions?:     _#defs."/$defs/Properties/definitions/TooltipOptions" | fn.#ObjectExpression
-	VisualPalette?:      _#defs."/$defs/Properties/definitions/VisualPalette" | fn.#ObjectExpression
+	ColorConfiguration?: _#defs."/$defs/Properties/definitions/GaugeChartColorConfiguration"
+	DataLabels?:         _#defs."/$defs/Properties/definitions/DataLabelOptions"
+	FieldWells?:         _#defs."/$defs/Properties/definitions/GaugeChartFieldWells"
+	GaugeChartOptions?:  _#defs."/$defs/Properties/definitions/GaugeChartOptions"
+	Interactions?:       _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	TooltipOptions?:     _#defs."/$defs/Properties/definitions/TooltipOptions"
+	VisualPalette?:      _#defs."/$defs/Properties/definitions/VisualPalette"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GaugeChartFieldWells": close({
-	TargetValues?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
-	] |
+	TargetValues?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] |
 		fn.#ListExpression
-	Values?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Values?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GaugeChartOptions": close({
-	Arc?:                     _#defs."/$defs/Properties/definitions/ArcConfiguration" | fn.#ObjectExpression
-	ArcAxis?:                 _#defs."/$defs/Properties/definitions/ArcAxisConfiguration" | fn.#ObjectExpression
-	Comparison?:              _#defs."/$defs/Properties/definitions/ComparisonConfiguration" | fn.#ObjectExpression
-	PrimaryValueDisplayType?: _#defs."/$defs/Properties/definitions/PrimaryValueDisplayType" | fn.#StringExpression
-	PrimaryValueFontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
+	Arc?:                           _#defs."/$defs/Properties/definitions/ArcConfiguration"
+	ArcAxis?:                       _#defs."/$defs/Properties/definitions/ArcAxisConfiguration"
+	Comparison?:                    _#defs."/$defs/Properties/definitions/ComparisonConfiguration"
+	PrimaryValueDisplayType?:       _#defs."/$defs/Properties/definitions/PrimaryValueDisplayType"
+	PrimaryValueFontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GaugeChartPrimaryValueConditionalFormatting": close({
-	Icon?:      _#defs."/$defs/Properties/definitions/ConditionalFormattingIcon" | fn.#ObjectExpression
-	TextColor?: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor" | fn.#ObjectExpression
+	Icon?:      _#defs."/$defs/Properties/definitions/ConditionalFormattingIcon"
+	TextColor?: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GaugeChartVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?: _#defs."/$defs/Properties/definitions/GaugeChartConfiguration" | fn.#ObjectExpression
-	ConditionalFormatting?: _#defs."/$defs/Properties/definitions/GaugeChartConditionalFormatting" |
-		fn.#ObjectExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	ChartConfiguration?:    _#defs."/$defs/Properties/definitions/GaugeChartConfiguration"
+	ConditionalFormatting?: _#defs."/$defs/Properties/definitions/GaugeChartConditionalFormatting"
+	Subtitle?:              _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                 _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
+	VisualContentAltText?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	VisualId!:              strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialCategoricalColor": close({
-	CategoryDataColors!: [
-		..._#defs."/$defs/Properties/definitions/GeospatialCategoricalDataColor" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	DefaultOpacity?:     <=1 & >=0 | fn.#NumberExpression
-	NullDataSettings?:   _#defs."/$defs/Properties/definitions/GeospatialNullDataSettings" | fn.#ObjectExpression
-	NullDataVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	CategoryDataColors!: [..._#defs."/$defs/Properties/definitions/GeospatialCategoricalDataColor"] | fn.#ListExpression
+	DefaultOpacity?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	NullDataSettings?:   _#defs."/$defs/Properties/definitions/GeospatialNullDataSettings"
+	NullDataVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
@@ -2076,66 +2546,199 @@ _#defs: "/$defs/Properties/definitions/GeospatialCategoricalDataColor": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GeospatialCircleRadius": close({Radius?: >=0 | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/GeospatialCircleRadius": close({
+	Radius?: >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialCircleSymbolStyle": close({
-	CircleRadius?: _#defs."/$defs/Properties/definitions/GeospatialCircleRadius" | fn.#ObjectExpression
-	FillColor?:    _#defs."/$defs/Properties/definitions/GeospatialColor" | fn.#ObjectExpression
-	StrokeColor?:  _#defs."/$defs/Properties/definitions/GeospatialColor" | fn.#ObjectExpression
-	StrokeWidth?:  _#defs."/$defs/Properties/definitions/GeospatialLineWidth" | fn.#ObjectExpression
+	CircleRadius?: _#defs."/$defs/Properties/definitions/GeospatialCircleRadius"
+	FillColor?:    _#defs."/$defs/Properties/definitions/GeospatialColor"
+	StrokeColor?:  _#defs."/$defs/Properties/definitions/GeospatialColor"
+	StrokeWidth?:  _#defs."/$defs/Properties/definitions/GeospatialLineWidth"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialColor": close({
-	Categorical?: _#defs."/$defs/Properties/definitions/GeospatialCategoricalColor" | fn.#ObjectExpression
-	Gradient?:    _#defs."/$defs/Properties/definitions/GeospatialGradientColor" | fn.#ObjectExpression
-	Solid?:       _#defs."/$defs/Properties/definitions/GeospatialSolidColor" | fn.#ObjectExpression
+	Categorical?: _#defs."/$defs/Properties/definitions/GeospatialCategoricalColor"
+	Gradient?:    _#defs."/$defs/Properties/definitions/GeospatialGradientColor"
+	Solid?:       _#defs."/$defs/Properties/definitions/GeospatialSolidColor"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialColorState": "ENABLED" | "DISABLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialCoordinateBounds": close({
-	East!:  <=1800 & >=-1800 | fn.#NumberExpression
-	North!: <=90 & >=-90 | fn.#NumberExpression
-	South!: <=90 & >=-90 | fn.#NumberExpression
-	West!:  <=1800 & >=-1800 | fn.#NumberExpression
+	East!: <=1800 & >=-1800 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1800 &
+							>=-1800,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	North!: <=90 & >=-90 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=90 &
+							>=-90,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	South!: <=90 & >=-90 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=90 &
+							>=-90,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	West!: <=1800 & >=-1800 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1800 &
+							>=-1800,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialDataSourceItem": close(
-	{StaticFileDataSource?: _#defs."/$defs/Properties/definitions/GeospatialStaticFileSource" | fn.#ObjectExpression},
+	{StaticFileDataSource?: _#defs."/$defs/Properties/definitions/GeospatialStaticFileSource"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialGradientColor": close({
-	DefaultOpacity?:     <=1 & >=0 | fn.#NumberExpression
-	NullDataSettings?:   _#defs."/$defs/Properties/definitions/GeospatialNullDataSettings" | fn.#ObjectExpression
-	NullDataVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	DefaultOpacity?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	NullDataSettings?:   _#defs."/$defs/Properties/definitions/GeospatialNullDataSettings"
+	NullDataVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
 	StepColors!: list.MaxItems(3) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/GeospatialGradientStepColor" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/GeospatialGradientStepColor"
 	] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialGradientStepColor": close({
-	Color!:     =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
-	DataValue!: number | fn.#NumberExpression
+	Color!: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
+	DataValue!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialHeatmapColorScale": close({
 	Colors?: list.MaxItems(2) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/GeospatialHeatmapDataColor" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/GeospatialHeatmapDataColor"
 	] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialHeatmapConfiguration": close(
-	{HeatmapColor?: _#defs."/$defs/Properties/definitions/GeospatialHeatmapColorScale" | fn.#ObjectExpression},
+	{HeatmapColor?: _#defs."/$defs/Properties/definitions/GeospatialHeatmapColorScale"},
 ) |
 	fn.#ObjectExpression
 
@@ -2145,193 +2748,211 @@ _#defs: "/$defs/Properties/definitions/GeospatialHeatmapDataColor": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialLayerColorField": close({
-	ColorDimensionsFields?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	ColorDimensionsFields?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	ColorValuesFields?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
-	] |
+	ColorValuesFields?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialLayerDefinition": close({
-	LineLayer?:    _#defs."/$defs/Properties/definitions/GeospatialLineLayer" | fn.#ObjectExpression
-	PointLayer?:   _#defs."/$defs/Properties/definitions/GeospatialPointLayer" | fn.#ObjectExpression
-	PolygonLayer?: _#defs."/$defs/Properties/definitions/GeospatialPolygonLayer" | fn.#ObjectExpression
+	LineLayer?:    _#defs."/$defs/Properties/definitions/GeospatialLineLayer"
+	PointLayer?:   _#defs."/$defs/Properties/definitions/GeospatialPointLayer"
+	PolygonLayer?: _#defs."/$defs/Properties/definitions/GeospatialPolygonLayer"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialLayerItem": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/LayerCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/LayerCustomAction"] |
 		fn.#ListExpression
-	DataSource?:      _#defs."/$defs/Properties/definitions/GeospatialDataSourceItem" | fn.#ObjectExpression
-	JoinDefinition?:  _#defs."/$defs/Properties/definitions/GeospatialLayerJoinDefinition" | fn.#ObjectExpression
+	DataSource?:      _#defs."/$defs/Properties/definitions/GeospatialDataSourceItem"
+	JoinDefinition?:  _#defs."/$defs/Properties/definitions/GeospatialLayerJoinDefinition"
 	Label?:           string | fn.#StringExpression
-	LayerDefinition?: _#defs."/$defs/Properties/definitions/GeospatialLayerDefinition" | fn.#ObjectExpression
+	LayerDefinition?: _#defs."/$defs/Properties/definitions/GeospatialLayerDefinition"
 	LayerId!:         string | fn.#StringExpression
-	LayerType?:       _#defs."/$defs/Properties/definitions/GeospatialLayerType" | fn.#StringExpression
-	Tooltip?:         _#defs."/$defs/Properties/definitions/TooltipOptions" | fn.#ObjectExpression
-	Visibility?:      _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	LayerType?:       _#defs."/$defs/Properties/definitions/GeospatialLayerType"
+	Tooltip?:         _#defs."/$defs/Properties/definitions/TooltipOptions"
+	Visibility?:      _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialLayerJoinDefinition": close({
-	ColorField?:      _#defs."/$defs/Properties/definitions/GeospatialLayerColorField" | fn.#ObjectExpression
-	DatasetKeyField?: _#defs."/$defs/Properties/definitions/UnaggregatedField" | fn.#ObjectExpression
+	ColorField?:      _#defs."/$defs/Properties/definitions/GeospatialLayerColorField"
+	DatasetKeyField?: _#defs."/$defs/Properties/definitions/UnaggregatedField"
 	ShapeKeyField?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialLayerMapConfiguration": close({
-	Interactions?: _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	Legend?:       _#defs."/$defs/Properties/definitions/LegendOptions" | fn.#ObjectExpression
-	MapLayers?: [..._#defs."/$defs/Properties/definitions/GeospatialLayerItem" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	MapState?: _#defs."/$defs/Properties/definitions/GeospatialMapState" | fn.#ObjectExpression
-	MapStyle?: _#defs."/$defs/Properties/definitions/GeospatialMapStyle" | fn.#ObjectExpression
+	Interactions?: _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	Legend?:       _#defs."/$defs/Properties/definitions/LegendOptions"
+	MapLayers?:    [..._#defs."/$defs/Properties/definitions/GeospatialLayerItem"] | fn.#ListExpression
+	MapState?:     _#defs."/$defs/Properties/definitions/GeospatialMapState"
+	MapStyle?:     _#defs."/$defs/Properties/definitions/GeospatialMapStyle"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialLayerType": "POINT" | "LINE" | "POLYGON" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialLineLayer": close(
-	{Style!: _#defs."/$defs/Properties/definitions/GeospatialLineStyle" | fn.#ObjectExpression},
+	{Style!: _#defs."/$defs/Properties/definitions/GeospatialLineStyle"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialLineStyle": close(
-	{LineSymbolStyle?: _#defs."/$defs/Properties/definitions/GeospatialLineSymbolStyle" | fn.#ObjectExpression},
+	{LineSymbolStyle?: _#defs."/$defs/Properties/definitions/GeospatialLineSymbolStyle"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialLineSymbolStyle": close({
-	FillColor?: _#defs."/$defs/Properties/definitions/GeospatialColor" | fn.#ObjectExpression
-	LineWidth?: _#defs."/$defs/Properties/definitions/GeospatialLineWidth" | fn.#ObjectExpression
+	FillColor?: _#defs."/$defs/Properties/definitions/GeospatialColor"
+	LineWidth?: _#defs."/$defs/Properties/definitions/GeospatialLineWidth"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GeospatialLineWidth": close({LineWidth?: >=0 | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/GeospatialLineWidth": close({
+	LineWidth?: >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialMapAggregatedFieldWells": close({
-	Colors?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Colors?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Geospatial?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Geospatial?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Values?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Values?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialMapConfiguration": close({
-	FieldWells?:        _#defs."/$defs/Properties/definitions/GeospatialMapFieldWells" | fn.#ObjectExpression
-	Interactions?:      _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	Legend?:            _#defs."/$defs/Properties/definitions/LegendOptions" | fn.#ObjectExpression
-	MapStyleOptions?:   _#defs."/$defs/Properties/definitions/GeospatialMapStyleOptions" | fn.#ObjectExpression
-	PointStyleOptions?: _#defs."/$defs/Properties/definitions/GeospatialPointStyleOptions" | fn.#ObjectExpression
-	Tooltip?:           _#defs."/$defs/Properties/definitions/TooltipOptions" | fn.#ObjectExpression
-	VisualPalette?:     _#defs."/$defs/Properties/definitions/VisualPalette" | fn.#ObjectExpression
-	WindowOptions?:     _#defs."/$defs/Properties/definitions/GeospatialWindowOptions" | fn.#ObjectExpression
+	FieldWells?:        _#defs."/$defs/Properties/definitions/GeospatialMapFieldWells"
+	Interactions?:      _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	Legend?:            _#defs."/$defs/Properties/definitions/LegendOptions"
+	MapStyleOptions?:   _#defs."/$defs/Properties/definitions/GeospatialMapStyleOptions"
+	PointStyleOptions?: _#defs."/$defs/Properties/definitions/GeospatialPointStyleOptions"
+	Tooltip?:           _#defs."/$defs/Properties/definitions/TooltipOptions"
+	VisualPalette?:     _#defs."/$defs/Properties/definitions/VisualPalette"
+	WindowOptions?:     _#defs."/$defs/Properties/definitions/GeospatialWindowOptions"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GeospatialMapFieldWells": close({
-	GeospatialMapAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/GeospatialMapAggregatedFieldWells" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/GeospatialMapFieldWells": close(
+	{GeospatialMapAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/GeospatialMapAggregatedFieldWells"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialMapNavigation": "ENABLED" | "DISABLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialMapState": close({
-	Bounds?:        _#defs."/$defs/Properties/definitions/GeospatialCoordinateBounds" | fn.#ObjectExpression
-	MapNavigation?: _#defs."/$defs/Properties/definitions/GeospatialMapNavigation" | fn.#StringExpression
+	Bounds?:        _#defs."/$defs/Properties/definitions/GeospatialCoordinateBounds"
+	MapNavigation?: _#defs."/$defs/Properties/definitions/GeospatialMapNavigation"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialMapStyle": close({
 	BackgroundColor?:   =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
-	BaseMapStyle?:      _#defs."/$defs/Properties/definitions/BaseMapStyleType" | fn.#StringExpression
-	BaseMapVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	BaseMapStyle?:      _#defs."/$defs/Properties/definitions/BaseMapStyleType"
+	BaseMapVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialMapStyleOptions": close(
-	{BaseMapStyle?: _#defs."/$defs/Properties/definitions/BaseMapStyleType" | fn.#StringExpression},
+	{BaseMapStyle?: _#defs."/$defs/Properties/definitions/BaseMapStyleType"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialMapVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?: _#defs."/$defs/Properties/definitions/GeospatialMapConfiguration" | fn.#ObjectExpression
-	ColumnHierarchies?: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnHierarchy" | fn.#ObjectExpression
-	] |
+	ChartConfiguration?: _#defs."/$defs/Properties/definitions/GeospatialMapConfiguration"
+	ColumnHierarchies?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnHierarchy"] |
 		fn.#ListExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialNullDataSettings": close(
-	{SymbolStyle!: _#defs."/$defs/Properties/definitions/GeospatialNullSymbolStyle" | fn.#ObjectExpression},
+	{SymbolStyle!: _#defs."/$defs/Properties/definitions/GeospatialNullSymbolStyle"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialNullSymbolStyle": close({
 	FillColor?:   =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
 	StrokeColor?: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
-	StrokeWidth?: >=0 | fn.#NumberExpression
+	StrokeWidth?: >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialPointLayer": close(
-	{Style!: _#defs."/$defs/Properties/definitions/GeospatialPointStyle" | fn.#ObjectExpression},
+	{Style!: _#defs."/$defs/Properties/definitions/GeospatialPointStyle"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialPointStyle": close(
-	{CircleSymbolStyle?: _#defs."/$defs/Properties/definitions/GeospatialCircleSymbolStyle" | fn.#ObjectExpression},
+	{CircleSymbolStyle?: _#defs."/$defs/Properties/definitions/GeospatialCircleSymbolStyle"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialPointStyleOptions": close({
-	ClusterMarkerConfiguration?: _#defs."/$defs/Properties/definitions/ClusterMarkerConfiguration" |
-		fn.#ObjectExpression
-	HeatmapConfiguration?: _#defs."/$defs/Properties/definitions/GeospatialHeatmapConfiguration" | fn.#ObjectExpression
-	SelectedPointStyle?:   _#defs."/$defs/Properties/definitions/GeospatialSelectedPointStyle" | fn.#StringExpression
+	ClusterMarkerConfiguration?: _#defs."/$defs/Properties/definitions/ClusterMarkerConfiguration"
+	HeatmapConfiguration?:       _#defs."/$defs/Properties/definitions/GeospatialHeatmapConfiguration"
+	SelectedPointStyle?:         _#defs."/$defs/Properties/definitions/GeospatialSelectedPointStyle"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialPolygonLayer": close(
-	{Style!: _#defs."/$defs/Properties/definitions/GeospatialPolygonStyle" | fn.#ObjectExpression},
+	{Style!: _#defs."/$defs/Properties/definitions/GeospatialPolygonStyle"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialPolygonStyle": close(
-	{PolygonSymbolStyle?: _#defs."/$defs/Properties/definitions/GeospatialPolygonSymbolStyle" | fn.#ObjectExpression},
+	{PolygonSymbolStyle?: _#defs."/$defs/Properties/definitions/GeospatialPolygonSymbolStyle"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialPolygonSymbolStyle": close({
-	FillColor?:   _#defs."/$defs/Properties/definitions/GeospatialColor" | fn.#ObjectExpression
-	StrokeColor?: _#defs."/$defs/Properties/definitions/GeospatialColor" | fn.#ObjectExpression
-	StrokeWidth?: _#defs."/$defs/Properties/definitions/GeospatialLineWidth" | fn.#ObjectExpression
+	FillColor?:   _#defs."/$defs/Properties/definitions/GeospatialColor"
+	StrokeColor?: _#defs."/$defs/Properties/definitions/GeospatialColor"
+	StrokeWidth?: _#defs."/$defs/Properties/definitions/GeospatialLineWidth"
 }) |
 fn.#ObjectExpression
 
@@ -2342,7 +2963,7 @@ _#defs: "/$defs/Properties/definitions/GeospatialSelectedPointStyle": "POINT" |
 
 _#defs: "/$defs/Properties/definitions/GeospatialSolidColor": close({
 	Color!: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
-	State?: _#defs."/$defs/Properties/definitions/GeospatialColorState" | fn.#StringExpression
+	State?: _#defs."/$defs/Properties/definitions/GeospatialColorState"
 }) |
 fn.#ObjectExpression
 
@@ -2352,203 +2973,328 @@ _#defs: "/$defs/Properties/definitions/GeospatialStaticFileSource": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GeospatialWindowOptions": close({
-	Bounds?:      _#defs."/$defs/Properties/definitions/GeospatialCoordinateBounds" | fn.#ObjectExpression
-	MapZoomMode?: _#defs."/$defs/Properties/definitions/MapZoomMode" | fn.#StringExpression
+	Bounds?:      _#defs."/$defs/Properties/definitions/GeospatialCoordinateBounds"
+	MapZoomMode?: _#defs."/$defs/Properties/definitions/MapZoomMode"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GlobalTableBorderOptions": close({
-	SideSpecificBorder?: _#defs."/$defs/Properties/definitions/TableSideBorderOptions" | fn.#ObjectExpression
-	UniformBorder?:      _#defs."/$defs/Properties/definitions/TableBorderOptions" | fn.#ObjectExpression
+	SideSpecificBorder?: _#defs."/$defs/Properties/definitions/TableSideBorderOptions"
+	UniformBorder?:      _#defs."/$defs/Properties/definitions/TableBorderOptions"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GradientColor": close({
-	Stops?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/GradientStop" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/GradientColor": close(
+	{Stops?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/GradientStop"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GradientStop": close({
-	Color?:          =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	DataValue?:      number | fn.#NumberExpression
-	GradientOffset!: number | fn.#NumberExpression
+	Color?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	DataValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	GradientOffset!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GridLayoutCanvasSizeOptions": close({
-	ScreenCanvasSizeOptions?: _#defs."/$defs/Properties/definitions/GridLayoutScreenCanvasSizeOptions" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/GridLayoutCanvasSizeOptions": close(
+	{ScreenCanvasSizeOptions?: _#defs."/$defs/Properties/definitions/GridLayoutScreenCanvasSizeOptions"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GridLayoutConfiguration": close({
-	CanvasSizeOptions?: _#defs."/$defs/Properties/definitions/GridLayoutCanvasSizeOptions" | fn.#ObjectExpression
-	Elements!: list.MaxItems(430) & [...] & [
-		..._#defs."/$defs/Properties/definitions/GridLayoutElement" | fn.#ObjectExpression
-	] |
+	CanvasSizeOptions?: _#defs."/$defs/Properties/definitions/GridLayoutCanvasSizeOptions"
+	Elements!: list.MaxItems(430) & [...] & [..._#defs."/$defs/Properties/definitions/GridLayoutElement"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GridLayoutElement": close({
-	BackgroundStyle?:     _#defs."/$defs/Properties/definitions/GridLayoutElementBackgroundStyle" | fn.#ObjectExpression
-	BorderRadius?:        strings.MaxRunes(50) & strings.MinRunes(0) | fn.#StringExpression
-	BorderStyle?:         _#defs."/$defs/Properties/definitions/GridLayoutElementBorderStyle" | fn.#ObjectExpression
-	ColumnIndex?:         <=35 & >=0 | fn.#NumberExpression
-	ColumnSpan!:          <=36 & >=1 | fn.#NumberExpression
-	ElementId!:           strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	ElementType!:         _#defs."/$defs/Properties/definitions/LayoutElementType" | fn.#StringExpression
-	LoadingAnimation?:    _#defs."/$defs/Properties/definitions/LoadingAnimation" | fn.#ObjectExpression
-	Padding?:             strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-	RowIndex?:            <=9009 & >=0 | fn.#NumberExpression
-	RowSpan!:             <=21 & >=1 | fn.#NumberExpression
-	SelectedBorderStyle?: _#defs."/$defs/Properties/definitions/GridLayoutElementBorderStyle" | fn.#ObjectExpression
+	BackgroundStyle?: _#defs."/$defs/Properties/definitions/GridLayoutElementBackgroundStyle"
+	BorderRadius?:    strings.MaxRunes(50) & strings.MinRunes(0) | fn.#StringExpression
+	BorderStyle?:     _#defs."/$defs/Properties/definitions/GridLayoutElementBorderStyle"
+	ColumnIndex?: <=35 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=35 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ColumnSpan!: <=36 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=36 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ElementId!:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	ElementType!:      _#defs."/$defs/Properties/definitions/LayoutElementType"
+	LoadingAnimation?: _#defs."/$defs/Properties/definitions/LoadingAnimation"
+	Padding?:          strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+	RowIndex?: <=9009 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=9009 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RowSpan!: <=21 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=21 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SelectedBorderStyle?: _#defs."/$defs/Properties/definitions/GridLayoutElementBorderStyle"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GridLayoutElementBackgroundStyle": close({
 	Color?:      =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
-	Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	Visibility?: _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GridLayoutElementBorderStyle": close({
 	Color?:      =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
-	Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	Visibility?: _#defs."/$defs/Properties/definitions/Visibility"
 	Width?:      strings.MaxRunes(50) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GridLayoutScreenCanvasSizeOptions": close({
 	OptimizedViewPortWidth?: string | fn.#StringExpression
-	ResizeOption!:           _#defs."/$defs/Properties/definitions/ResizeOption" | fn.#StringExpression
+	ResizeOption!:           _#defs."/$defs/Properties/definitions/ResizeOption"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GrowthRateComputation": close({
 	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	Name?:          string | fn.#StringExpression
-	PeriodSize?:    <=52 & >=2 | fn.#NumberExpression
-	Time?:          _#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	Value?:         _#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
+	PeriodSize?: <=52 & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=52 &
+							>=2,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Time?:  _#defs."/$defs/Properties/definitions/DimensionField"
+	Value?: _#defs."/$defs/Properties/definitions/MeasureField"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HeaderFooterSectionConfiguration": close({
-	Layout!:    _#defs."/$defs/Properties/definitions/SectionLayoutConfiguration" | fn.#ObjectExpression
+	Layout!:    _#defs."/$defs/Properties/definitions/SectionLayoutConfiguration"
 	SectionId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Style?:     _#defs."/$defs/Properties/definitions/SectionStyle" | fn.#ObjectExpression
+	Style?:     _#defs."/$defs/Properties/definitions/SectionStyle"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HeatMapAggregatedFieldWells": close({
-	Columns?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Rows?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Values?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Columns?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] | fn.#ListExpression
+	Rows?:    list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] | fn.#ListExpression
+	Values?:  list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HeatMapConfiguration": close({
-	ColorScale?:         _#defs."/$defs/Properties/definitions/ColorScale" | fn.#ObjectExpression
-	ColumnLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	DataLabels?:         _#defs."/$defs/Properties/definitions/DataLabelOptions" | fn.#ObjectExpression
-	FieldWells?:         _#defs."/$defs/Properties/definitions/HeatMapFieldWells" | fn.#ObjectExpression
-	Interactions?:       _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	Legend?:             _#defs."/$defs/Properties/definitions/LegendOptions" | fn.#ObjectExpression
-	RowLabelOptions?:    _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	SortConfiguration?:  _#defs."/$defs/Properties/definitions/HeatMapSortConfiguration" | fn.#ObjectExpression
-	Tooltip?:            _#defs."/$defs/Properties/definitions/TooltipOptions" | fn.#ObjectExpression
+	ColorScale?:         _#defs."/$defs/Properties/definitions/ColorScale"
+	ColumnLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	DataLabels?:         _#defs."/$defs/Properties/definitions/DataLabelOptions"
+	FieldWells?:         _#defs."/$defs/Properties/definitions/HeatMapFieldWells"
+	Interactions?:       _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	Legend?:             _#defs."/$defs/Properties/definitions/LegendOptions"
+	RowLabelOptions?:    _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	SortConfiguration?:  _#defs."/$defs/Properties/definitions/HeatMapSortConfiguration"
+	Tooltip?:            _#defs."/$defs/Properties/definitions/TooltipOptions"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HeatMapFieldWells": close({
-	HeatMapAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/HeatMapAggregatedFieldWells" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/HeatMapFieldWells": close(
+	{HeatMapAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/HeatMapAggregatedFieldWells"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HeatMapSortConfiguration": close({
-	HeatMapColumnItemsLimitConfiguration?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" |
-		fn.#ObjectExpression
-	HeatMapColumnSort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	HeatMapColumnItemsLimitConfiguration?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	HeatMapColumnSort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
-	HeatMapRowItemsLimitConfiguration?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" |
-		fn.#ObjectExpression
-	HeatMapRowSort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	HeatMapRowItemsLimitConfiguration?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	HeatMapRowSort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HeatMapVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?: _#defs."/$defs/Properties/definitions/HeatMapConfiguration" | fn.#ObjectExpression
-	ColumnHierarchies?: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnHierarchy" | fn.#ObjectExpression
-	] |
+	ChartConfiguration?: _#defs."/$defs/Properties/definitions/HeatMapConfiguration"
+	ColumnHierarchies?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnHierarchy"] |
 		fn.#ListExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HistogramAggregatedFieldWells": close({
-	Values?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/HistogramAggregatedFieldWells": close(
+	{Values?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HistogramBinOptions": close({
-	BinCount?:        _#defs."/$defs/Properties/definitions/BinCountOptions" | fn.#ObjectExpression
-	BinWidth?:        _#defs."/$defs/Properties/definitions/BinWidthOptions" | fn.#ObjectExpression
-	SelectedBinType?: _#defs."/$defs/Properties/definitions/HistogramBinType" | fn.#StringExpression
-	StartValue?:      number | fn.#NumberExpression
+	BinCount?:        _#defs."/$defs/Properties/definitions/BinCountOptions"
+	BinWidth?:        _#defs."/$defs/Properties/definitions/BinWidthOptions"
+	SelectedBinType?: _#defs."/$defs/Properties/definitions/HistogramBinType"
+	StartValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HistogramBinType": "BIN_COUNT" | "BIN_WIDTH" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/HistogramConfiguration": close({
-	BinOptions?:          _#defs."/$defs/Properties/definitions/HistogramBinOptions" | fn.#ObjectExpression
-	DataLabels?:          _#defs."/$defs/Properties/definitions/DataLabelOptions" | fn.#ObjectExpression
-	FieldWells?:          _#defs."/$defs/Properties/definitions/HistogramFieldWells" | fn.#ObjectExpression
-	Interactions?:        _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	Tooltip?:             _#defs."/$defs/Properties/definitions/TooltipOptions" | fn.#ObjectExpression
-	VisualPalette?:       _#defs."/$defs/Properties/definitions/VisualPalette" | fn.#ObjectExpression
-	XAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions" | fn.#ObjectExpression
-	XAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	YAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions" | fn.#ObjectExpression
+	BinOptions?:          _#defs."/$defs/Properties/definitions/HistogramBinOptions"
+	DataLabels?:          _#defs."/$defs/Properties/definitions/DataLabelOptions"
+	FieldWells?:          _#defs."/$defs/Properties/definitions/HistogramFieldWells"
+	Interactions?:        _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	Tooltip?:             _#defs."/$defs/Properties/definitions/TooltipOptions"
+	VisualPalette?:       _#defs."/$defs/Properties/definitions/VisualPalette"
+	XAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions"
+	XAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	YAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HistogramFieldWells": close({
-	HistogramAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/HistogramAggregatedFieldWells" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/HistogramFieldWells": close(
+	{HistogramAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/HistogramAggregatedFieldWells"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HistogramVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?:   _#defs."/$defs/Properties/definitions/HistogramConfiguration" | fn.#ObjectExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	ChartConfiguration?:   _#defs."/$defs/Properties/definitions/HistogramConfiguration"
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
@@ -2590,66 +3336,61 @@ _#defs: "/$defs/Properties/definitions/Icon": "CARET_UP" |
 
 _#defs: "/$defs/Properties/definitions/ImageCustomAction": close({
 	ActionOperations!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ImageCustomActionOperation" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ImageCustomActionOperation"
 	] |
 		fn.#ListExpression
 	CustomActionId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	Name!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Status?:         _#defs."/$defs/Properties/definitions/WidgetStatus" | fn.#StringExpression
-	Trigger!:        _#defs."/$defs/Properties/definitions/ImageCustomActionTrigger" | fn.#StringExpression
+	Status?:         _#defs."/$defs/Properties/definitions/WidgetStatus"
+	Trigger!:        _#defs."/$defs/Properties/definitions/ImageCustomActionTrigger"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ImageCustomActionOperation": close({
-	NavigationOperation?: _#defs."/$defs/Properties/definitions/CustomActionNavigationOperation" | fn.#ObjectExpression
-	SetParametersOperation?: _#defs."/$defs/Properties/definitions/CustomActionSetParametersOperation" |
-		fn.#ObjectExpression
-	URLOperation?: _#defs."/$defs/Properties/definitions/CustomActionURLOperation" | fn.#ObjectExpression
+	NavigationOperation?:    _#defs."/$defs/Properties/definitions/CustomActionNavigationOperation"
+	SetParametersOperation?: _#defs."/$defs/Properties/definitions/CustomActionSetParametersOperation"
+	URLOperation?:           _#defs."/$defs/Properties/definitions/CustomActionURLOperation"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ImageCustomActionTrigger": "CLICK" | "MENU" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ImageInteractionOptions": close(
-	{ImageMenuOption?: _#defs."/$defs/Properties/definitions/ImageMenuOption" | fn.#ObjectExpression},
+	{ImageMenuOption?: _#defs."/$defs/Properties/definitions/ImageMenuOption"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ImageMenuOption": close(
-	{AvailabilityStatus?: _#defs."/$defs/Properties/definitions/DashboardBehavior" | fn.#StringExpression},
+	{AvailabilityStatus?: _#defs."/$defs/Properties/definitions/DashboardBehavior"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ImageStaticFile": close({
-	Source?:       _#defs."/$defs/Properties/definitions/StaticFileSource" | fn.#ObjectExpression
+	Source?:       _#defs."/$defs/Properties/definitions/StaticFileSource"
 	StaticFileId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InnerFilter": close(
-	{CategoryInnerFilter?: _#defs."/$defs/Properties/definitions/CategoryInnerFilter" | fn.#ObjectExpression},
+	{CategoryInnerFilter?: _#defs."/$defs/Properties/definitions/CategoryInnerFilter"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InsightConfiguration": close({
-	Computations?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/Computation" | fn.#ObjectExpression
-	] |
+	Computations?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Computation"] |
 		fn.#ListExpression
-	CustomNarrative?: _#defs."/$defs/Properties/definitions/CustomNarrativeOptions" | fn.#ObjectExpression
-	Interactions?:    _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
+	CustomNarrative?: _#defs."/$defs/Properties/definitions/CustomNarrativeOptions"
+	Interactions?:    _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InsightVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
 	DataSetIdentifier?:    strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	InsightConfiguration?: _#defs."/$defs/Properties/definitions/InsightConfiguration" | fn.#ObjectExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	InsightConfiguration?: _#defs."/$defs/Properties/definitions/InsightConfiguration"
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	TopicIdentifier?:      strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
@@ -2657,155 +3398,198 @@ _#defs: "/$defs/Properties/definitions/InsightVisual": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IntegerDefaultValues": close({
-	DynamicValue?: _#defs."/$defs/Properties/definitions/DynamicDefaultValue" | fn.#ObjectExpression
-	StaticValues?: list.MaxItems(50000) & [...] & [...number | fn.#NumberExpression] | fn.#ListExpression
+	DynamicValue?: _#defs."/$defs/Properties/definitions/DynamicDefaultValue"
+	StaticValues?: list.MaxItems(50000) & [...] & [
+		...number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IntegerParameterDeclaration": close({
-	DefaultValues?: _#defs."/$defs/Properties/definitions/IntegerDefaultValues" | fn.#ObjectExpression
+	DefaultValues?: _#defs."/$defs/Properties/definitions/IntegerDefaultValues"
 	MappedDataSetParameters?: list.MaxItems(150) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MappedDataSetParameter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MappedDataSetParameter"
 	] |
 		fn.#ListExpression
 	Name!:               strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	ParameterValueType!: _#defs."/$defs/Properties/definitions/ParameterValueType" | fn.#StringExpression
-	ValueWhenUnset?: _#defs."/$defs/Properties/definitions/IntegerValueWhenUnsetConfiguration" | fn.#ObjectExpression
+	ParameterValueType!: _#defs."/$defs/Properties/definitions/ParameterValueType"
+	ValueWhenUnset?:     _#defs."/$defs/Properties/definitions/IntegerValueWhenUnsetConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IntegerValueWhenUnsetConfiguration": close({
-	CustomValue?:          number | fn.#NumberExpression
-	ValueWhenUnsetOption?: _#defs."/$defs/Properties/definitions/ValueWhenUnsetOption" | fn.#StringExpression
+	CustomValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ValueWhenUnsetOption?: _#defs."/$defs/Properties/definitions/ValueWhenUnsetOption"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ItemsLimitConfiguration": close({
-	ItemsLimit?:      number | fn.#NumberExpression
-	OtherCategories?: _#defs."/$defs/Properties/definitions/OtherCategories" | fn.#StringExpression
+	ItemsLimit?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	OtherCategories?: _#defs."/$defs/Properties/definitions/OtherCategories"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KPIActualValueConditionalFormatting": close({
-	Icon?:      _#defs."/$defs/Properties/definitions/ConditionalFormattingIcon" | fn.#ObjectExpression
-	TextColor?: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor" | fn.#ObjectExpression
+	Icon?:      _#defs."/$defs/Properties/definitions/ConditionalFormattingIcon"
+	TextColor?: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KPIComparisonValueConditionalFormatting": close({
-	Icon?:      _#defs."/$defs/Properties/definitions/ConditionalFormattingIcon" | fn.#ObjectExpression
-	TextColor?: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor" | fn.#ObjectExpression
+	Icon?:      _#defs."/$defs/Properties/definitions/ConditionalFormattingIcon"
+	TextColor?: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KPIConditionalFormatting": close({
 	ConditionalFormattingOptions?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/KPIConditionalFormattingOption" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/KPIConditionalFormattingOption"
 	] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KPIConditionalFormattingOption": close({
-	ActualValue?: _#defs."/$defs/Properties/definitions/KPIActualValueConditionalFormatting" | fn.#ObjectExpression
-	ComparisonValue?: _#defs."/$defs/Properties/definitions/KPIComparisonValueConditionalFormatting" |
-		fn.#ObjectExpression
-	PrimaryValue?: _#defs."/$defs/Properties/definitions/KPIPrimaryValueConditionalFormatting" | fn.#ObjectExpression
-	ProgressBar?:  _#defs."/$defs/Properties/definitions/KPIProgressBarConditionalFormatting" | fn.#ObjectExpression
+	ActualValue?:     _#defs."/$defs/Properties/definitions/KPIActualValueConditionalFormatting"
+	ComparisonValue?: _#defs."/$defs/Properties/definitions/KPIComparisonValueConditionalFormatting"
+	PrimaryValue?:    _#defs."/$defs/Properties/definitions/KPIPrimaryValueConditionalFormatting"
+	ProgressBar?:     _#defs."/$defs/Properties/definitions/KPIProgressBarConditionalFormatting"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KPIConfiguration": close({
-	FieldWells?:        _#defs."/$defs/Properties/definitions/KPIFieldWells" | fn.#ObjectExpression
-	Interactions?:      _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	KPIOptions?:        _#defs."/$defs/Properties/definitions/KPIOptions" | fn.#ObjectExpression
-	SortConfiguration?: _#defs."/$defs/Properties/definitions/KPISortConfiguration" | fn.#ObjectExpression
+	FieldWells?:        _#defs."/$defs/Properties/definitions/KPIFieldWells"
+	Interactions?:      _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	KPIOptions?:        _#defs."/$defs/Properties/definitions/KPIOptions"
+	SortConfiguration?: _#defs."/$defs/Properties/definitions/KPISortConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KPIFieldWells": close({
-	TargetValues?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
-	] |
+	TargetValues?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] |
 		fn.#ListExpression
-	TrendGroups?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	TrendGroups?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Values?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Values?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KPIOptions": close({
-	Comparison?:              _#defs."/$defs/Properties/definitions/ComparisonConfiguration" | fn.#ObjectExpression
-	PrimaryValueDisplayType?: _#defs."/$defs/Properties/definitions/PrimaryValueDisplayType" | fn.#StringExpression
-	PrimaryValueFontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
-	ProgressBar?:                   _#defs."/$defs/Properties/definitions/ProgressBarOptions" | fn.#ObjectExpression
-	SecondaryValue?:                _#defs."/$defs/Properties/definitions/SecondaryValueOptions" | fn.#ObjectExpression
-	SecondaryValueFontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
-	Sparkline?:                       _#defs."/$defs/Properties/definitions/KPISparklineOptions" | fn.#ObjectExpression
-	TrendArrows?:                     _#defs."/$defs/Properties/definitions/TrendArrowOptions" | fn.#ObjectExpression
-	VisualLayoutOptions?: _#defs."/$defs/Properties/definitions/KPIVisualLayoutOptions" | fn.#ObjectExpression
+	Comparison?:                      _#defs."/$defs/Properties/definitions/ComparisonConfiguration"
+	PrimaryValueDisplayType?:         _#defs."/$defs/Properties/definitions/PrimaryValueDisplayType"
+	PrimaryValueFontConfiguration?:   _#defs."/$defs/Properties/definitions/FontConfiguration"
+	ProgressBar?:                     _#defs."/$defs/Properties/definitions/ProgressBarOptions"
+	SecondaryValue?:                  _#defs."/$defs/Properties/definitions/SecondaryValueOptions"
+	SecondaryValueFontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration"
+	Sparkline?:                       _#defs."/$defs/Properties/definitions/KPISparklineOptions"
+	TrendArrows?:                     _#defs."/$defs/Properties/definitions/TrendArrowOptions"
+	VisualLayoutOptions?:             _#defs."/$defs/Properties/definitions/KPIVisualLayoutOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KPIPrimaryValueConditionalFormatting": close({
-	Icon?:      _#defs."/$defs/Properties/definitions/ConditionalFormattingIcon" | fn.#ObjectExpression
-	TextColor?: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor" | fn.#ObjectExpression
+	Icon?:      _#defs."/$defs/Properties/definitions/ConditionalFormattingIcon"
+	TextColor?: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KPIProgressBarConditionalFormatting": close(
-	{ForegroundColor?: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor" | fn.#ObjectExpression},
+	{ForegroundColor?: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KPISortConfiguration": close({
-	TrendGroupSort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	TrendGroupSort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KPISparklineOptions": close({
 	Color?:             =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	TooltipVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	Type!:              _#defs."/$defs/Properties/definitions/KPISparklineType" | fn.#StringExpression
-	Visibility?:        _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	TooltipVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
+	Type!:              _#defs."/$defs/Properties/definitions/KPISparklineType"
+	Visibility?:        _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KPISparklineType": "LINE" | "AREA" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/KPIVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?: _#defs."/$defs/Properties/definitions/KPIConfiguration" | fn.#ObjectExpression
-	ColumnHierarchies?: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnHierarchy" | fn.#ObjectExpression
-	] |
+	ChartConfiguration?: _#defs."/$defs/Properties/definitions/KPIConfiguration"
+	ColumnHierarchies?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnHierarchy"] |
 		fn.#ListExpression
-	ConditionalFormatting?: _#defs."/$defs/Properties/definitions/KPIConditionalFormatting" | fn.#ObjectExpression
-	Subtitle?:              _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                 _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	ConditionalFormatting?: _#defs."/$defs/Properties/definitions/KPIConditionalFormatting"
+	Subtitle?:              _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                 _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:              strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KPIVisualLayoutOptions": close(
-	{StandardLayout?: _#defs."/$defs/Properties/definitions/KPIVisualStandardLayout" | fn.#ObjectExpression},
+	{StandardLayout?: _#defs."/$defs/Properties/definitions/KPIVisualStandardLayout"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KPIVisualStandardLayout": close(
-	{Type!: _#defs."/$defs/Properties/definitions/KPIVisualStandardLayoutType" | fn.#StringExpression},
+	{Type!: _#defs."/$defs/Properties/definitions/KPIVisualStandardLayoutType"},
 ) |
 	fn.#ObjectExpression
 
@@ -2813,29 +3597,28 @@ _#defs: "/$defs/Properties/definitions/KPIVisualStandardLayoutType": "CLASSIC" |
 
 _#defs: "/$defs/Properties/definitions/LabelOptions": close({
 	CustomLabel?:       string | fn.#StringExpression
-	FontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
-	Visibility?:        _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	FontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration"
+	Visibility?:        _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LayerCustomAction": close({
 	ActionOperations!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/LayerCustomActionOperation" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/LayerCustomActionOperation"
 	] |
 		fn.#ListExpression
 	CustomActionId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	Name!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Status?:         _#defs."/$defs/Properties/definitions/WidgetStatus" | fn.#StringExpression
-	Trigger!:        _#defs."/$defs/Properties/definitions/LayerCustomActionTrigger" | fn.#StringExpression
+	Status?:         _#defs."/$defs/Properties/definitions/WidgetStatus"
+	Trigger!:        _#defs."/$defs/Properties/definitions/LayerCustomActionTrigger"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LayerCustomActionOperation": close({
-	FilterOperation?:     _#defs."/$defs/Properties/definitions/CustomActionFilterOperation" | fn.#ObjectExpression
-	NavigationOperation?: _#defs."/$defs/Properties/definitions/CustomActionNavigationOperation" | fn.#ObjectExpression
-	SetParametersOperation?: _#defs."/$defs/Properties/definitions/CustomActionSetParametersOperation" |
-		fn.#ObjectExpression
-	URLOperation?: _#defs."/$defs/Properties/definitions/CustomActionURLOperation" | fn.#ObjectExpression
+	FilterOperation?:        _#defs."/$defs/Properties/definitions/CustomActionFilterOperation"
+	NavigationOperation?:    _#defs."/$defs/Properties/definitions/CustomActionNavigationOperation"
+	SetParametersOperation?: _#defs."/$defs/Properties/definitions/CustomActionSetParametersOperation"
+	URLOperation?:           _#defs."/$defs/Properties/definitions/CustomActionURLOperation"
 }) |
 fn.#ObjectExpression
 
@@ -2844,10 +3627,10 @@ _#defs: "/$defs/Properties/definitions/LayerCustomActionTrigger": "DATA_POINT_CL
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LayerMapVisual": close({
-	ChartConfiguration?:   _#defs."/$defs/Properties/definitions/GeospatialLayerMapConfiguration" | fn.#ObjectExpression
+	ChartConfiguration?:   _#defs."/$defs/Properties/definitions/GeospatialLayerMapConfiguration"
 	DataSetIdentifier?:    strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	TopicIdentifier?:      strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
@@ -2855,14 +3638,14 @@ _#defs: "/$defs/Properties/definitions/LayerMapVisual": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Layout": close(
-	{Configuration!: _#defs."/$defs/Properties/definitions/LayoutConfiguration" | fn.#ObjectExpression},
+	{Configuration!: _#defs."/$defs/Properties/definitions/LayoutConfiguration"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LayoutConfiguration": close({
-	FreeFormLayout?:     _#defs."/$defs/Properties/definitions/FreeFormLayoutConfiguration" | fn.#ObjectExpression
-	GridLayout?:         _#defs."/$defs/Properties/definitions/GridLayoutConfiguration" | fn.#ObjectExpression
-	SectionBasedLayout?: _#defs."/$defs/Properties/definitions/SectionBasedLayoutConfiguration" | fn.#ObjectExpression
+	FreeFormLayout?:     _#defs."/$defs/Properties/definitions/FreeFormLayoutConfiguration"
+	GridLayout?:         _#defs."/$defs/Properties/definitions/GridLayoutConfiguration"
+	SectionBasedLayout?: _#defs."/$defs/Properties/definitions/SectionBasedLayoutConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -2875,10 +3658,10 @@ _#defs: "/$defs/Properties/definitions/LayoutElementType": "VISUAL" |
 
 _#defs: "/$defs/Properties/definitions/LegendOptions": close({
 	Height?:                 string | fn.#StringExpression
-	Position?:               _#defs."/$defs/Properties/definitions/LegendPosition" | fn.#StringExpression
-	Title?:                  _#defs."/$defs/Properties/definitions/LabelOptions" | fn.#ObjectExpression
-	ValueFontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
-	Visibility?:             _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	Position?:               _#defs."/$defs/Properties/definitions/LegendPosition"
+	Title?:                  _#defs."/$defs/Properties/definitions/LabelOptions"
+	ValueFontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration"
+	Visibility?:             _#defs."/$defs/Properties/definitions/Visibility"
 	Width?:                  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -2886,82 +3669,67 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/LegendPosition": "AUTO" | "RIGHT" | "BOTTOM" | "TOP" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LineChartAggregatedFieldWells": close({
-	Category?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Category?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Colors?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Colors?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	SmallMultiples?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	SmallMultiples?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Values?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Values?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LineChartConfiguration": close({
 	ContributionAnalysisDefaults?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ContributionAnalysisDefault" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ContributionAnalysisDefault"
 	] |
 		fn.#ListExpression
-	DataLabels?:            _#defs."/$defs/Properties/definitions/DataLabelOptions" | fn.#ObjectExpression
-	DefaultSeriesSettings?: _#defs."/$defs/Properties/definitions/LineChartDefaultSeriesSettings" | fn.#ObjectExpression
-	FieldWells?:            _#defs."/$defs/Properties/definitions/LineChartFieldWells" | fn.#ObjectExpression
+	DataLabels?:            _#defs."/$defs/Properties/definitions/DataLabelOptions"
+	DefaultSeriesSettings?: _#defs."/$defs/Properties/definitions/LineChartDefaultSeriesSettings"
+	FieldWells?:            _#defs."/$defs/Properties/definitions/LineChartFieldWells"
 	ForecastConfigurations?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ForecastConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ForecastConfiguration"
 	] |
 		fn.#ListExpression
-	Interactions?: _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	Legend?:       _#defs."/$defs/Properties/definitions/LegendOptions" | fn.#ObjectExpression
-	PrimaryYAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/LineSeriesAxisDisplayOptions" |
-		fn.#ObjectExpression
-	PrimaryYAxisLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	ReferenceLines?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ReferenceLine" | fn.#ObjectExpression
-	] |
+	Interactions?:               _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	Legend?:                     _#defs."/$defs/Properties/definitions/LegendOptions"
+	PrimaryYAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/LineSeriesAxisDisplayOptions"
+	PrimaryYAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	ReferenceLines?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/ReferenceLine"] |
 		fn.#ListExpression
-	SecondaryYAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/LineSeriesAxisDisplayOptions" |
-		fn.#ObjectExpression
-	SecondaryYAxisLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	Series?: list.MaxItems(2000) & [...] & [..._#defs."/$defs/Properties/definitions/SeriesItem" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	SingleAxisOptions?:     _#defs."/$defs/Properties/definitions/SingleAxisOptions" | fn.#ObjectExpression
-	SmallMultiplesOptions?: _#defs."/$defs/Properties/definitions/SmallMultiplesOptions" | fn.#ObjectExpression
-	SortConfiguration?:     _#defs."/$defs/Properties/definitions/LineChartSortConfiguration" | fn.#ObjectExpression
-	Tooltip?:               _#defs."/$defs/Properties/definitions/TooltipOptions" | fn.#ObjectExpression
-	Type?:                  _#defs."/$defs/Properties/definitions/LineChartType" | fn.#StringExpression
-	VisualPalette?:         _#defs."/$defs/Properties/definitions/VisualPalette" | fn.#ObjectExpression
-	XAxisDisplayOptions?:   _#defs."/$defs/Properties/definitions/AxisDisplayOptions" | fn.#ObjectExpression
-	XAxisLabelOptions?:     _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
+	SecondaryYAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/LineSeriesAxisDisplayOptions"
+	SecondaryYAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	Series?: list.MaxItems(2000) & [...] & [..._#defs."/$defs/Properties/definitions/SeriesItem"] | fn.#ListExpression
+	SingleAxisOptions?:     _#defs."/$defs/Properties/definitions/SingleAxisOptions"
+	SmallMultiplesOptions?: _#defs."/$defs/Properties/definitions/SmallMultiplesOptions"
+	SortConfiguration?:     _#defs."/$defs/Properties/definitions/LineChartSortConfiguration"
+	Tooltip?:               _#defs."/$defs/Properties/definitions/TooltipOptions"
+	Type?:                  _#defs."/$defs/Properties/definitions/LineChartType"
+	VisualPalette?:         _#defs."/$defs/Properties/definitions/VisualPalette"
+	XAxisDisplayOptions?:   _#defs."/$defs/Properties/definitions/AxisDisplayOptions"
+	XAxisLabelOptions?:     _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LineChartDefaultSeriesSettings": close({
-	AxisBinding?:         _#defs."/$defs/Properties/definitions/AxisBinding" | fn.#StringExpression
-	DecalSettings?:       _#defs."/$defs/Properties/definitions/DecalSettings" | fn.#ObjectExpression
-	LineStyleSettings?:   _#defs."/$defs/Properties/definitions/LineChartLineStyleSettings" | fn.#ObjectExpression
-	MarkerStyleSettings?: _#defs."/$defs/Properties/definitions/LineChartMarkerStyleSettings" | fn.#ObjectExpression
+	AxisBinding?:         _#defs."/$defs/Properties/definitions/AxisBinding"
+	DecalSettings?:       _#defs."/$defs/Properties/definitions/DecalSettings"
+	LineStyleSettings?:   _#defs."/$defs/Properties/definitions/LineChartLineStyleSettings"
+	MarkerStyleSettings?: _#defs."/$defs/Properties/definitions/LineChartMarkerStyleSettings"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LineChartFieldWells": close({
-	LineChartAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/LineChartAggregatedFieldWells" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/LineChartFieldWells": close(
+	{LineChartAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/LineChartAggregatedFieldWells"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LineChartLineStyle": "SOLID" | "DOTTED" | "DASHED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LineChartLineStyleSettings": close({
-	LineInterpolation?: _#defs."/$defs/Properties/definitions/LineInterpolation" | fn.#StringExpression
-	LineStyle?:         _#defs."/$defs/Properties/definitions/LineChartLineStyle" | fn.#StringExpression
-	LineVisibility?:    _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	LineInterpolation?: _#defs."/$defs/Properties/definitions/LineInterpolation"
+	LineStyle?:         _#defs."/$defs/Properties/definitions/LineChartLineStyle"
+	LineVisibility?:    _#defs."/$defs/Properties/definitions/Visibility"
 	LineWidth?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -2975,32 +3743,26 @@ _#defs: "/$defs/Properties/definitions/LineChartMarkerShape": "CIRCLE" |
 
 _#defs: "/$defs/Properties/definitions/LineChartMarkerStyleSettings": close({
 	MarkerColor?:      =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	MarkerShape?:      _#defs."/$defs/Properties/definitions/LineChartMarkerShape" | fn.#StringExpression
+	MarkerShape?:      _#defs."/$defs/Properties/definitions/LineChartMarkerShape"
 	MarkerSize?:       string | fn.#StringExpression
-	MarkerVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	MarkerVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LineChartSeriesSettings": close({
-	DecalSettings?:       _#defs."/$defs/Properties/definitions/DecalSettings" | fn.#ObjectExpression
-	LineStyleSettings?:   _#defs."/$defs/Properties/definitions/LineChartLineStyleSettings" | fn.#ObjectExpression
-	MarkerStyleSettings?: _#defs."/$defs/Properties/definitions/LineChartMarkerStyleSettings" | fn.#ObjectExpression
+	DecalSettings?:       _#defs."/$defs/Properties/definitions/DecalSettings"
+	LineStyleSettings?:   _#defs."/$defs/Properties/definitions/LineChartLineStyleSettings"
+	MarkerStyleSettings?: _#defs."/$defs/Properties/definitions/LineChartMarkerStyleSettings"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LineChartSortConfiguration": close({
-	CategoryItemsLimitConfiguration?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" |
-		fn.#ObjectExpression
-	CategorySort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	CategoryItemsLimitConfiguration?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	CategorySort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
-	ColorItemsLimitConfiguration?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" | fn.#ObjectExpression
-	SmallMultiplesLimitConfiguration?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" |
-		fn.#ObjectExpression
-	SmallMultiplesSort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	ColorItemsLimitConfiguration?:     _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	SmallMultiplesLimitConfiguration?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	SmallMultiplesSort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -3008,17 +3770,13 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/LineChartType": "LINE" | "AREA" | "STACKED_AREA" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LineChartVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?: _#defs."/$defs/Properties/definitions/LineChartConfiguration" | fn.#ObjectExpression
-	ColumnHierarchies?: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnHierarchy" | fn.#ObjectExpression
-	] |
+	ChartConfiguration?: _#defs."/$defs/Properties/definitions/LineChartConfiguration"
+	ColumnHierarchies?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnHierarchy"] |
 		fn.#ListExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
@@ -3027,35 +3785,34 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/LineInterpolation": "LINEAR" | "SMOOTH" | "STEPPED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/LineSeriesAxisDisplayOptions": close({
-	AxisOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions" | fn.#ObjectExpression
+	AxisOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions"
 	MissingDataConfigurations?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MissingDataConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MissingDataConfiguration"
 	] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ListControlDisplayOptions": close({
-	InfoIconLabelOptions?: _#defs."/$defs/Properties/definitions/SheetControlInfoIconLabelOptions" |
-		fn.#ObjectExpression
-	SearchOptions?:    _#defs."/$defs/Properties/definitions/ListControlSearchOptions" | fn.#ObjectExpression
-	SelectAllOptions?: _#defs."/$defs/Properties/definitions/ListControlSelectAllOptions" | fn.#ObjectExpression
-	TitleOptions?:     _#defs."/$defs/Properties/definitions/LabelOptions" | fn.#ObjectExpression
+	InfoIconLabelOptions?: _#defs."/$defs/Properties/definitions/SheetControlInfoIconLabelOptions"
+	SearchOptions?:        _#defs."/$defs/Properties/definitions/ListControlSearchOptions"
+	SelectAllOptions?:     _#defs."/$defs/Properties/definitions/ListControlSelectAllOptions"
+	TitleOptions?:         _#defs."/$defs/Properties/definitions/LabelOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ListControlSearchOptions": close(
-	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression},
+	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ListControlSelectAllOptions": close(
-	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression},
+	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoadingAnimation": close(
-	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression},
+	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility"},
 ) |
 	fn.#ObjectExpression
 
@@ -3079,45 +3836,45 @@ _#defs: "/$defs/Properties/definitions/MappedDataSetParameter": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MaximumLabelType": close(
-	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression},
+	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MaximumMinimumComputation": close({
 	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	Name?:          string | fn.#StringExpression
-	Time?:          _#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	Type!:          _#defs."/$defs/Properties/definitions/MaximumMinimumComputationType" | fn.#StringExpression
-	Value?:         _#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
+	Time?:          _#defs."/$defs/Properties/definitions/DimensionField"
+	Type!:          _#defs."/$defs/Properties/definitions/MaximumMinimumComputationType"
+	Value?:         _#defs."/$defs/Properties/definitions/MeasureField"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MaximumMinimumComputationType": "MAXIMUM" | "MINIMUM" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/MeasureField": close({
-	CalculatedMeasureField?:  _#defs."/$defs/Properties/definitions/CalculatedMeasureField" | fn.#ObjectExpression
-	CategoricalMeasureField?: _#defs."/$defs/Properties/definitions/CategoricalMeasureField" | fn.#ObjectExpression
-	DateMeasureField?:        _#defs."/$defs/Properties/definitions/DateMeasureField" | fn.#ObjectExpression
-	NumericalMeasureField?:   _#defs."/$defs/Properties/definitions/NumericalMeasureField" | fn.#ObjectExpression
+	CalculatedMeasureField?:  _#defs."/$defs/Properties/definitions/CalculatedMeasureField"
+	CategoricalMeasureField?: _#defs."/$defs/Properties/definitions/CategoricalMeasureField"
+	DateMeasureField?:        _#defs."/$defs/Properties/definitions/DateMeasureField"
+	NumericalMeasureField?:   _#defs."/$defs/Properties/definitions/NumericalMeasureField"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MetricComparisonComputation": close({
 	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	FromValue?:     _#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
+	FromValue?:     _#defs."/$defs/Properties/definitions/MeasureField"
 	Name?:          string | fn.#StringExpression
-	TargetValue?:   _#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
-	Time?:          _#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
+	TargetValue?:   _#defs."/$defs/Properties/definitions/MeasureField"
+	Time?:          _#defs."/$defs/Properties/definitions/DimensionField"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MinimumLabelType": close(
-	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression},
+	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MissingDataConfiguration": close(
-	{TreatmentOption?: _#defs."/$defs/Properties/definitions/MissingDataTreatmentOption" | fn.#StringExpression},
+	{TreatmentOption?: _#defs."/$defs/Properties/definitions/MissingDataTreatmentOption"},
 ) |
 	fn.#ObjectExpression
 
@@ -3127,17 +3884,17 @@ _#defs: "/$defs/Properties/definitions/MissingDataTreatmentOption": "INTERPOLATE
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/NegativeValueConfiguration": close(
-	{DisplayMode!: _#defs."/$defs/Properties/definitions/NegativeValueDisplayMode" | fn.#StringExpression},
+	{DisplayMode!: _#defs."/$defs/Properties/definitions/NegativeValueDisplayMode"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NegativeValueDisplayMode": "POSITIVE" | "NEGATIVE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/NestedFilter": close({
-	Column!:          _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
+	Column!:          _#defs."/$defs/Properties/definitions/ColumnIdentifier"
 	FilterId!:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	IncludeInnerSet!: bool | fn.#BooleanExpression
-	InnerFilter!:     _#defs."/$defs/Properties/definitions/InnerFilter" | fn.#ObjectExpression
+	IncludeInnerSet!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InnerFilter!:     _#defs."/$defs/Properties/definitions/InnerFilter"
 }) |
 fn.#ObjectExpression
 
@@ -3147,21 +3904,18 @@ _#defs: "/$defs/Properties/definitions/NullValueFormatConfiguration": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NumberDisplayFormatConfiguration": close({
-	DecimalPlacesConfiguration?: _#defs."/$defs/Properties/definitions/DecimalPlacesConfiguration" |
-		fn.#ObjectExpression
-	NegativeValueConfiguration?: _#defs."/$defs/Properties/definitions/NegativeValueConfiguration" |
-		fn.#ObjectExpression
-	NullValueFormatConfiguration?: _#defs."/$defs/Properties/definitions/NullValueFormatConfiguration" |
-		fn.#ObjectExpression
-	NumberScale?:            _#defs."/$defs/Properties/definitions/NumberScale" | fn.#StringExpression
-	Prefix?:                 strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	SeparatorConfiguration?: _#defs."/$defs/Properties/definitions/NumericSeparatorConfiguration" | fn.#ObjectExpression
-	Suffix?:                 strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	DecimalPlacesConfiguration?:   _#defs."/$defs/Properties/definitions/DecimalPlacesConfiguration"
+	NegativeValueConfiguration?:   _#defs."/$defs/Properties/definitions/NegativeValueConfiguration"
+	NullValueFormatConfiguration?: _#defs."/$defs/Properties/definitions/NullValueFormatConfiguration"
+	NumberScale?:                  _#defs."/$defs/Properties/definitions/NumberScale"
+	Prefix?:                       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	SeparatorConfiguration?:       _#defs."/$defs/Properties/definitions/NumericSeparatorConfiguration"
+	Suffix?:                       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NumberFormatConfiguration": close(
-	{FormatConfiguration?: _#defs."/$defs/Properties/definitions/NumericFormatConfiguration" | fn.#ObjectExpression},
+	{FormatConfiguration?: _#defs."/$defs/Properties/definitions/NumericFormatConfiguration"},
 ) |
 	fn.#ObjectExpression
 
@@ -3176,28 +3930,63 @@ _#defs: "/$defs/Properties/definitions/NumberScale": "NONE" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/NumericAxisOptions": close({
-	Range?: _#defs."/$defs/Properties/definitions/AxisDisplayRange" | fn.#ObjectExpression
-	Scale?: _#defs."/$defs/Properties/definitions/AxisScale" | fn.#ObjectExpression
+	Range?: _#defs."/$defs/Properties/definitions/AxisDisplayRange"
+	Scale?: _#defs."/$defs/Properties/definitions/AxisScale"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NumericEqualityDrillDownFilter": close({
-	Column!: _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	Value!:  number | fn.#NumberExpression
+	Column!: _#defs."/$defs/Properties/definitions/ColumnIdentifier"
+	Value!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NumericEqualityFilter": close({
-	AggregationFunction?: _#defs."/$defs/Properties/definitions/AggregationFunction" | fn.#ObjectExpression
-	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	DefaultFilterControlConfiguration?: _#defs."/$defs/Properties/definitions/DefaultFilterControlConfiguration" |
-		fn.#ObjectExpression
+	AggregationFunction?:               _#defs."/$defs/Properties/definitions/AggregationFunction"
+	Column!:                            _#defs."/$defs/Properties/definitions/ColumnIdentifier"
+	DefaultFilterControlConfiguration?: _#defs."/$defs/Properties/definitions/DefaultFilterControlConfiguration"
 	FilterId!:         strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	MatchOperator!:    _#defs."/$defs/Properties/definitions/NumericEqualityMatchOperator" | fn.#StringExpression
-	NullOption!:       _#defs."/$defs/Properties/definitions/FilterNullOption" | fn.#StringExpression
+	MatchOperator!:    _#defs."/$defs/Properties/definitions/NumericEqualityMatchOperator"
+	NullOption!:       _#defs."/$defs/Properties/definitions/FilterNullOption"
 	ParameterName?:    strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	SelectAllOptions?: _#defs."/$defs/Properties/definitions/NumericFilterSelectAllOptions" | fn.#StringExpression
-	Value?:            number | fn.#NumberExpression
+	SelectAllOptions?: _#defs."/$defs/Properties/definitions/NumericFilterSelectAllOptions"
+	Value?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -3206,72 +3995,121 @@ _#defs: "/$defs/Properties/definitions/NumericEqualityMatchOperator": "EQUALS" |
 _#defs: "/$defs/Properties/definitions/NumericFilterSelectAllOptions": "FILTER_ALL_VALUES" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/NumericFormatConfiguration": close({
-	CurrencyDisplayFormatConfiguration?: _#defs."/$defs/Properties/definitions/CurrencyDisplayFormatConfiguration" |
-		fn.#ObjectExpression
-	NumberDisplayFormatConfiguration?: _#defs."/$defs/Properties/definitions/NumberDisplayFormatConfiguration" |
-		fn.#ObjectExpression
-	PercentageDisplayFormatConfiguration?: _#defs."/$defs/Properties/definitions/PercentageDisplayFormatConfiguration" |
-		fn.#ObjectExpression
+	CurrencyDisplayFormatConfiguration?:   _#defs."/$defs/Properties/definitions/CurrencyDisplayFormatConfiguration"
+	NumberDisplayFormatConfiguration?:     _#defs."/$defs/Properties/definitions/NumberDisplayFormatConfiguration"
+	PercentageDisplayFormatConfiguration?: _#defs."/$defs/Properties/definitions/PercentageDisplayFormatConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NumericRangeFilter": close({
-	AggregationFunction?: _#defs."/$defs/Properties/definitions/AggregationFunction" | fn.#ObjectExpression
-	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	DefaultFilterControlConfiguration?: _#defs."/$defs/Properties/definitions/DefaultFilterControlConfiguration" |
-		fn.#ObjectExpression
+	AggregationFunction?:               _#defs."/$defs/Properties/definitions/AggregationFunction"
+	Column!:                            _#defs."/$defs/Properties/definitions/ColumnIdentifier"
+	DefaultFilterControlConfiguration?: _#defs."/$defs/Properties/definitions/DefaultFilterControlConfiguration"
 	FilterId!:         strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	IncludeMaximum?:   bool | fn.#BooleanExpression
-	IncludeMinimum?:   bool | fn.#BooleanExpression
-	NullOption!:       _#defs."/$defs/Properties/definitions/FilterNullOption" | fn.#StringExpression
-	RangeMaximum?:     _#defs."/$defs/Properties/definitions/NumericRangeFilterValue" | fn.#ObjectExpression
-	RangeMinimum?:     _#defs."/$defs/Properties/definitions/NumericRangeFilterValue" | fn.#ObjectExpression
-	SelectAllOptions?: _#defs."/$defs/Properties/definitions/NumericFilterSelectAllOptions" | fn.#StringExpression
+	IncludeMaximum?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeMinimum?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NullOption!:       _#defs."/$defs/Properties/definitions/FilterNullOption"
+	RangeMaximum?:     _#defs."/$defs/Properties/definitions/NumericRangeFilterValue"
+	RangeMinimum?:     _#defs."/$defs/Properties/definitions/NumericRangeFilterValue"
+	SelectAllOptions?: _#defs."/$defs/Properties/definitions/NumericFilterSelectAllOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NumericRangeFilterValue": close({
-	Parameter?:   strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	StaticValue?: number | fn.#NumberExpression
+	Parameter?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	StaticValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NumericSeparatorConfiguration": close({
-	DecimalSeparator?:   _#defs."/$defs/Properties/definitions/NumericSeparatorSymbol" | fn.#StringExpression
-	ThousandsSeparator?: _#defs."/$defs/Properties/definitions/ThousandSeparatorOptions" | fn.#ObjectExpression
+	DecimalSeparator?:   _#defs."/$defs/Properties/definitions/NumericSeparatorSymbol"
+	ThousandsSeparator?: _#defs."/$defs/Properties/definitions/ThousandSeparatorOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NumericSeparatorSymbol": "COMMA" | "DOT" | "SPACE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/NumericalAggregationFunction": close({
-	PercentileAggregation?: _#defs."/$defs/Properties/definitions/PercentileAggregation" | fn.#ObjectExpression
-	SimpleNumericalAggregation?: _#defs."/$defs/Properties/definitions/SimpleNumericalAggregationFunction" |
-		fn.#StringExpression
+	PercentileAggregation?:      _#defs."/$defs/Properties/definitions/PercentileAggregation"
+	SimpleNumericalAggregation?: _#defs."/$defs/Properties/definitions/SimpleNumericalAggregationFunction"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NumericalDimensionField": close({
-	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
+	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier"
 	FieldId!:             strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	FormatConfiguration?: _#defs."/$defs/Properties/definitions/NumberFormatConfiguration" | fn.#ObjectExpression
+	FormatConfiguration?: _#defs."/$defs/Properties/definitions/NumberFormatConfiguration"
 	HierarchyId?:         strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NumericalMeasureField": close({
-	AggregationFunction?: _#defs."/$defs/Properties/definitions/NumericalAggregationFunction" | fn.#ObjectExpression
-	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
+	AggregationFunction?: _#defs."/$defs/Properties/definitions/NumericalAggregationFunction"
+	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier"
 	FieldId!:             strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	FormatConfiguration?: _#defs."/$defs/Properties/definitions/NumberFormatConfiguration" | fn.#ObjectExpression
+	FormatConfiguration?: _#defs."/$defs/Properties/definitions/NumberFormatConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OtherCategories": "INCLUDE" | "EXCLUDE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PaginationConfiguration": close({
-	PageNumber!: >=0 | fn.#NumberExpression
-	PageSize!:   number | fn.#NumberExpression
+	PageNumber!: >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PageSize!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -3279,21 +4117,21 @@ _#defs: "/$defs/Properties/definitions/PanelBorderStyle": "SOLID" | "DASHED" | "
 
 _#defs: "/$defs/Properties/definitions/PanelConfiguration": close({
 	BackgroundColor?:      =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
-	BackgroundVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	BackgroundVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
 	BorderColor?:          =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
-	BorderStyle?:          _#defs."/$defs/Properties/definitions/PanelBorderStyle" | fn.#StringExpression
+	BorderStyle?:          _#defs."/$defs/Properties/definitions/PanelBorderStyle"
 	BorderThickness?:      string | fn.#StringExpression
-	BorderVisibility?:     _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	BorderVisibility?:     _#defs."/$defs/Properties/definitions/Visibility"
 	GutterSpacing?:        string | fn.#StringExpression
-	GutterVisibility?:     _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	Title?:                _#defs."/$defs/Properties/definitions/PanelTitleOptions" | fn.#ObjectExpression
+	GutterVisibility?:     _#defs."/$defs/Properties/definitions/Visibility"
+	Title?:                _#defs."/$defs/Properties/definitions/PanelTitleOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PanelTitleOptions": close({
-	FontConfiguration?:       _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
-	HorizontalTextAlignment?: _#defs."/$defs/Properties/definitions/HorizontalTextAlignment" | fn.#StringExpression
-	Visibility?:              _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	FontConfiguration?:       _#defs."/$defs/Properties/definitions/FontConfiguration"
+	HorizontalTextAlignment?: _#defs."/$defs/Properties/definitions/HorizontalTextAlignment"
+	Visibility?:              _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
@@ -3313,17 +4151,17 @@ _#defs: "/$defs/Properties/definitions/PaperSize": "US_LETTER" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ParameterControl": close({
-	DateTimePicker?: _#defs."/$defs/Properties/definitions/ParameterDateTimePickerControl" | fn.#ObjectExpression
-	Dropdown?:       _#defs."/$defs/Properties/definitions/ParameterDropDownControl" | fn.#ObjectExpression
-	List?:           _#defs."/$defs/Properties/definitions/ParameterListControl" | fn.#ObjectExpression
-	Slider?:         _#defs."/$defs/Properties/definitions/ParameterSliderControl" | fn.#ObjectExpression
-	TextArea?:       _#defs."/$defs/Properties/definitions/ParameterTextAreaControl" | fn.#ObjectExpression
-	TextField?:      _#defs."/$defs/Properties/definitions/ParameterTextFieldControl" | fn.#ObjectExpression
+	DateTimePicker?: _#defs."/$defs/Properties/definitions/ParameterDateTimePickerControl"
+	Dropdown?:       _#defs."/$defs/Properties/definitions/ParameterDropDownControl"
+	List?:           _#defs."/$defs/Properties/definitions/ParameterListControl"
+	Slider?:         _#defs."/$defs/Properties/definitions/ParameterSliderControl"
+	TextArea?:       _#defs."/$defs/Properties/definitions/ParameterTextAreaControl"
+	TextField?:      _#defs."/$defs/Properties/definitions/ParameterTextFieldControl"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParameterDateTimePickerControl": close({
-	DisplayOptions?: _#defs."/$defs/Properties/definitions/DateTimePickerControlDisplayOptions" | fn.#ObjectExpression
+	DisplayOptions?:      _#defs."/$defs/Properties/definitions/DateTimePickerControlDisplayOptions"
 	ParameterControlId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
 	Title!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
@@ -3331,62 +4169,110 @@ _#defs: "/$defs/Properties/definitions/ParameterDateTimePickerControl": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParameterDeclaration": close({
-	DateTimeParameterDeclaration?: _#defs."/$defs/Properties/definitions/DateTimeParameterDeclaration" |
-		fn.#ObjectExpression
-	DecimalParameterDeclaration?: _#defs."/$defs/Properties/definitions/DecimalParameterDeclaration" |
-		fn.#ObjectExpression
-	IntegerParameterDeclaration?: _#defs."/$defs/Properties/definitions/IntegerParameterDeclaration" |
-		fn.#ObjectExpression
-	StringParameterDeclaration?: _#defs."/$defs/Properties/definitions/StringParameterDeclaration" |
-		fn.#ObjectExpression
+	DateTimeParameterDeclaration?: _#defs."/$defs/Properties/definitions/DateTimeParameterDeclaration"
+	DecimalParameterDeclaration?:  _#defs."/$defs/Properties/definitions/DecimalParameterDeclaration"
+	IntegerParameterDeclaration?:  _#defs."/$defs/Properties/definitions/IntegerParameterDeclaration"
+	StringParameterDeclaration?:   _#defs."/$defs/Properties/definitions/StringParameterDeclaration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParameterDropDownControl": close({
-	CascadingControlConfiguration?: _#defs."/$defs/Properties/definitions/CascadingControlConfiguration" |
-		fn.#ObjectExpression
-	CommitMode?:          _#defs."/$defs/Properties/definitions/CommitMode" | fn.#StringExpression
-	DisplayOptions?:      _#defs."/$defs/Properties/definitions/DropDownControlDisplayOptions" | fn.#ObjectExpression
-	ParameterControlId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SelectableValues?:    _#defs."/$defs/Properties/definitions/ParameterSelectableValues" | fn.#ObjectExpression
+	CascadingControlConfiguration?: _#defs."/$defs/Properties/definitions/CascadingControlConfiguration"
+	CommitMode?:                    _#defs."/$defs/Properties/definitions/CommitMode"
+	DisplayOptions?:                _#defs."/$defs/Properties/definitions/DropDownControlDisplayOptions"
+	ParameterControlId!:            strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	SelectableValues?:              _#defs."/$defs/Properties/definitions/ParameterSelectableValues"
 	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
 	Title!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Type?:                _#defs."/$defs/Properties/definitions/SheetControlListType" | fn.#StringExpression
+	Type?:                _#defs."/$defs/Properties/definitions/SheetControlListType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParameterListControl": close({
-	CascadingControlConfiguration?: _#defs."/$defs/Properties/definitions/CascadingControlConfiguration" |
-		fn.#ObjectExpression
-	DisplayOptions?:      _#defs."/$defs/Properties/definitions/ListControlDisplayOptions" | fn.#ObjectExpression
-	ParameterControlId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SelectableValues?:    _#defs."/$defs/Properties/definitions/ParameterSelectableValues" | fn.#ObjectExpression
+	CascadingControlConfiguration?: _#defs."/$defs/Properties/definitions/CascadingControlConfiguration"
+	DisplayOptions?:                _#defs."/$defs/Properties/definitions/ListControlDisplayOptions"
+	ParameterControlId!:            strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	SelectableValues?:              _#defs."/$defs/Properties/definitions/ParameterSelectableValues"
 	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
 	Title!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Type?:                _#defs."/$defs/Properties/definitions/SheetControlListType" | fn.#StringExpression
+	Type?:                _#defs."/$defs/Properties/definitions/SheetControlListType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParameterSelectableValues": close({
-	LinkToDataSetColumn?: _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
+	LinkToDataSetColumn?: _#defs."/$defs/Properties/definitions/ColumnIdentifier"
 	Values?:              list.MaxItems(50000) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParameterSliderControl": close({
-	DisplayOptions?:      _#defs."/$defs/Properties/definitions/SliderControlDisplayOptions" | fn.#ObjectExpression
-	MaximumValue!:        number | fn.#NumberExpression
-	MinimumValue!:        number | fn.#NumberExpression
+	DisplayOptions?: _#defs."/$defs/Properties/definitions/SliderControlDisplayOptions"
+	MaximumValue!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinimumValue!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ParameterControlId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	StepSize!:            number | fn.#NumberExpression
-	Title!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	StepSize!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParameterTextAreaControl": close({
 	Delimiter?:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	DisplayOptions?:      _#defs."/$defs/Properties/definitions/TextAreaControlDisplayOptions" | fn.#ObjectExpression
+	DisplayOptions?:      _#defs."/$defs/Properties/definitions/TextAreaControlDisplayOptions"
 	ParameterControlId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
 	Title!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
@@ -3394,7 +4280,7 @@ _#defs: "/$defs/Properties/definitions/ParameterTextAreaControl": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ParameterTextFieldControl": close({
-	DisplayOptions?:      _#defs."/$defs/Properties/definitions/TextFieldControlDisplayOptions" | fn.#ObjectExpression
+	DisplayOptions?:      _#defs."/$defs/Properties/definitions/TextFieldControlDisplayOptions"
 	ParameterControlId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
 	Title!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
@@ -3404,114 +4290,151 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ParameterValueType": "MULTI_VALUED" | "SINGLE_VALUED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PercentVisibleRange": close({
-	From?: <=100 & >=0 | fn.#NumberExpression
-	To?:   <=100 & >=0 | fn.#NumberExpression
+	From?: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	To?: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PercentageDisplayFormatConfiguration": close({
-	DecimalPlacesConfiguration?: _#defs."/$defs/Properties/definitions/DecimalPlacesConfiguration" |
-		fn.#ObjectExpression
-	NegativeValueConfiguration?: _#defs."/$defs/Properties/definitions/NegativeValueConfiguration" |
-		fn.#ObjectExpression
-	NullValueFormatConfiguration?: _#defs."/$defs/Properties/definitions/NullValueFormatConfiguration" |
-		fn.#ObjectExpression
-	Prefix?:                 strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	SeparatorConfiguration?: _#defs."/$defs/Properties/definitions/NumericSeparatorConfiguration" | fn.#ObjectExpression
-	Suffix?:                 strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	DecimalPlacesConfiguration?:   _#defs."/$defs/Properties/definitions/DecimalPlacesConfiguration"
+	NegativeValueConfiguration?:   _#defs."/$defs/Properties/definitions/NegativeValueConfiguration"
+	NullValueFormatConfiguration?: _#defs."/$defs/Properties/definitions/NullValueFormatConfiguration"
+	Prefix?:                       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	SeparatorConfiguration?:       _#defs."/$defs/Properties/definitions/NumericSeparatorConfiguration"
+	Suffix?:                       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PercentileAggregation": close(
-	{PercentileValue?: <=100 & >=0 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/PercentileAggregation": close({
+	PercentileValue?: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PeriodOverPeriodComputation": close({
 	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	Name?:          string | fn.#StringExpression
-	Time?:          _#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	Value?:         _#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
+	Time?:          _#defs."/$defs/Properties/definitions/DimensionField"
+	Value?:         _#defs."/$defs/Properties/definitions/MeasureField"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PeriodToDateComputation": close({
 	ComputationId!:         strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	Name?:                  string | fn.#StringExpression
-	PeriodTimeGranularity?: _#defs."/$defs/Properties/definitions/TimeGranularity" | fn.#StringExpression
-	Time?:                  _#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	Value?:                 _#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
+	PeriodTimeGranularity?: _#defs."/$defs/Properties/definitions/TimeGranularity"
+	Time?:                  _#defs."/$defs/Properties/definitions/DimensionField"
+	Value?:                 _#defs."/$defs/Properties/definitions/MeasureField"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PieChartAggregatedFieldWells": close({
-	Category?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Category?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	SmallMultiples?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	SmallMultiples?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Values?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Values?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PieChartConfiguration": close({
-	CategoryLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
+	CategoryLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
 	ContributionAnalysisDefaults?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ContributionAnalysisDefault" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ContributionAnalysisDefault"
 	] |
 		fn.#ListExpression
-	DataLabels?:            _#defs."/$defs/Properties/definitions/DataLabelOptions" | fn.#ObjectExpression
-	DonutOptions?:          _#defs."/$defs/Properties/definitions/DonutOptions" | fn.#ObjectExpression
-	FieldWells?:            _#defs."/$defs/Properties/definitions/PieChartFieldWells" | fn.#ObjectExpression
-	Interactions?:          _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	Legend?:                _#defs."/$defs/Properties/definitions/LegendOptions" | fn.#ObjectExpression
-	SmallMultiplesOptions?: _#defs."/$defs/Properties/definitions/SmallMultiplesOptions" | fn.#ObjectExpression
-	SortConfiguration?:     _#defs."/$defs/Properties/definitions/PieChartSortConfiguration" | fn.#ObjectExpression
-	Tooltip?:               _#defs."/$defs/Properties/definitions/TooltipOptions" | fn.#ObjectExpression
-	ValueLabelOptions?:     _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	VisualPalette?:         _#defs."/$defs/Properties/definitions/VisualPalette" | fn.#ObjectExpression
+	DataLabels?:            _#defs."/$defs/Properties/definitions/DataLabelOptions"
+	DonutOptions?:          _#defs."/$defs/Properties/definitions/DonutOptions"
+	FieldWells?:            _#defs."/$defs/Properties/definitions/PieChartFieldWells"
+	Interactions?:          _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	Legend?:                _#defs."/$defs/Properties/definitions/LegendOptions"
+	SmallMultiplesOptions?: _#defs."/$defs/Properties/definitions/SmallMultiplesOptions"
+	SortConfiguration?:     _#defs."/$defs/Properties/definitions/PieChartSortConfiguration"
+	Tooltip?:               _#defs."/$defs/Properties/definitions/TooltipOptions"
+	ValueLabelOptions?:     _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	VisualPalette?:         _#defs."/$defs/Properties/definitions/VisualPalette"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PieChartFieldWells": close({
-	PieChartAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/PieChartAggregatedFieldWells" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/PieChartFieldWells": close(
+	{PieChartAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/PieChartAggregatedFieldWells"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PieChartSortConfiguration": close({
-	CategoryItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" | fn.#ObjectExpression
-	CategorySort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	CategoryItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	CategorySort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
-	SmallMultiplesLimitConfiguration?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" |
-		fn.#ObjectExpression
-	SmallMultiplesSort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	SmallMultiplesLimitConfiguration?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	SmallMultiplesSort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PieChartVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?: _#defs."/$defs/Properties/definitions/PieChartConfiguration" | fn.#ObjectExpression
-	ColumnHierarchies?: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnHierarchy" | fn.#ObjectExpression
-	] |
+	ChartConfiguration?: _#defs."/$defs/Properties/definitions/PieChartConfiguration"
+	ColumnHierarchies?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnHierarchy"] |
 		fn.#ListExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
@@ -3519,48 +4442,42 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PivotFieldSortOptions": close({
 	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	SortBy!:  _#defs."/$defs/Properties/definitions/PivotTableSortBy" | fn.#ObjectExpression
+	SortBy!:  _#defs."/$defs/Properties/definitions/PivotTableSortBy"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableAggregatedFieldWells": close({
-	Columns?: list.MaxItems(40) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Columns?: list.MaxItems(40) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Rows?: list.MaxItems(40) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Values?: list.MaxItems(40) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Rows?:   list.MaxItems(40) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] | fn.#ListExpression
+	Values?: list.MaxItems(40) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableCellConditionalFormatting": close({
 	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	Scope?:   _#defs."/$defs/Properties/definitions/PivotTableConditionalFormattingScope" | fn.#ObjectExpression
-	Scopes?: list.MaxItems(3) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PivotTableConditionalFormattingScope" | fn.#ObjectExpression
-	] |
+	Scope?:   _#defs."/$defs/Properties/definitions/PivotTableConditionalFormattingScope"
+	Scopes?: list.MaxItems(3) & [...] & [..._#defs."/$defs/Properties/definitions/PivotTableConditionalFormattingScope"] |
 		fn.#ListExpression
-	TextFormat?: _#defs."/$defs/Properties/definitions/TextConditionalFormat" | fn.#ObjectExpression
+	TextFormat?: _#defs."/$defs/Properties/definitions/TextConditionalFormat"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableConditionalFormatting": close({
 	ConditionalFormattingOptions?: list.MaxItems(500) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PivotTableConditionalFormattingOption" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/PivotTableConditionalFormattingOption"
 	] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableConditionalFormattingOption": close(
-	{Cell?: _#defs."/$defs/Properties/definitions/PivotTableCellConditionalFormatting" | fn.#ObjectExpression},
+	{Cell?: _#defs."/$defs/Properties/definitions/PivotTableCellConditionalFormatting"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableConditionalFormattingScope": close(
-	{Role?: _#defs."/$defs/Properties/definitions/PivotTableConditionalFormattingScopeRole" | fn.#StringExpression},
+	{Role?: _#defs."/$defs/Properties/definitions/PivotTableConditionalFormattingScopeRole"},
 ) |
 	fn.#ObjectExpression
 
@@ -3570,21 +4487,18 @@ _#defs: "/$defs/Properties/definitions/PivotTableConditionalFormattingScopeRole"
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableConfiguration": close({
-	FieldOptions?: _#defs."/$defs/Properties/definitions/PivotTableFieldOptions" | fn.#ObjectExpression
-	FieldWells?:   _#defs."/$defs/Properties/definitions/PivotTableFieldWells" | fn.#ObjectExpression
-	Interactions?: _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	PaginatedReportOptions?: _#defs."/$defs/Properties/definitions/PivotTablePaginatedReportOptions" |
-		fn.#ObjectExpression
-	SortConfiguration?: _#defs."/$defs/Properties/definitions/PivotTableSortConfiguration" | fn.#ObjectExpression
-	TableOptions?:      _#defs."/$defs/Properties/definitions/PivotTableOptions" | fn.#ObjectExpression
-	TotalOptions?:      _#defs."/$defs/Properties/definitions/PivotTableTotalOptions" | fn.#ObjectExpression
+	FieldOptions?:           _#defs."/$defs/Properties/definitions/PivotTableFieldOptions"
+	FieldWells?:             _#defs."/$defs/Properties/definitions/PivotTableFieldWells"
+	Interactions?:           _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	PaginatedReportOptions?: _#defs."/$defs/Properties/definitions/PivotTablePaginatedReportOptions"
+	SortConfiguration?:      _#defs."/$defs/Properties/definitions/PivotTableSortConfiguration"
+	TableOptions?:           _#defs."/$defs/Properties/definitions/PivotTableOptions"
+	TotalOptions?:           _#defs."/$defs/Properties/definitions/PivotTableTotalOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableDataPathOption": close({
-	DataPathList!: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DataPathValue" | fn.#ObjectExpression
-	] |
+	DataPathList!: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/DataPathValue"] |
 		fn.#ListExpression
 	Width?: string | fn.#StringExpression
 }) |
@@ -3599,15 +4513,13 @@ _#defs: "/$defs/Properties/definitions/PivotTableDataPathType": "HIERARCHY_ROWS_
 _#defs: "/$defs/Properties/definitions/PivotTableFieldCollapseState": "COLLAPSED" | "EXPANDED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableFieldCollapseStateOption": close({
-	State?:  _#defs."/$defs/Properties/definitions/PivotTableFieldCollapseState" | fn.#StringExpression
-	Target!: _#defs."/$defs/Properties/definitions/PivotTableFieldCollapseStateTarget" | fn.#ObjectExpression
+	State?:  _#defs."/$defs/Properties/definitions/PivotTableFieldCollapseState"
+	Target!: _#defs."/$defs/Properties/definitions/PivotTableFieldCollapseStateTarget"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableFieldCollapseStateTarget": close({
-	FieldDataPathValues?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DataPathValue" | fn.#ObjectExpression
-	] |
+	FieldDataPathValues?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/DataPathValue"] |
 		fn.#ListExpression
 	FieldId?: string | fn.#StringExpression
 }) |
@@ -3616,21 +4528,17 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/PivotTableFieldOption": close({
 	CustomLabel?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	FieldId!:     strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	Visibility?:  _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	Visibility?:  _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableFieldOptions": close({
-	CollapseStateOptions?: [
-		..._#defs."/$defs/Properties/definitions/PivotTableFieldCollapseStateOption" | fn.#ObjectExpression
-	] |
+	CollapseStateOptions?: [..._#defs."/$defs/Properties/definitions/PivotTableFieldCollapseStateOption"] |
 		fn.#ListExpression
-	DataPathOptions?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PivotTableDataPathOption" | fn.#ObjectExpression
-	] |
+	DataPathOptions?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/PivotTableDataPathOption"] |
 		fn.#ListExpression
 	SelectedFieldOptions?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PivotTableFieldOption" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/PivotTableFieldOption"
 	] |
 		fn.#ListExpression
 }) |
@@ -3641,56 +4549,53 @@ _#defs: "/$defs/Properties/definitions/PivotTableFieldSubtotalOptions": close(
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PivotTableFieldWells": close({
-	PivotTableAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/PivotTableAggregatedFieldWells" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/PivotTableFieldWells": close(
+	{PivotTableAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/PivotTableAggregatedFieldWells"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableMetricPlacement": "ROW" | "COLUMN" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableOptions": close({
-	CellStyle?:                        _#defs."/$defs/Properties/definitions/TableCellStyle" | fn.#ObjectExpression
-	CollapsedRowDimensionsVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	ColumnHeaderStyle?:                _#defs."/$defs/Properties/definitions/TableCellStyle" | fn.#ObjectExpression
-	ColumnNamesVisibility?:            _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	CellStyle?:                        _#defs."/$defs/Properties/definitions/TableCellStyle"
+	CollapsedRowDimensionsVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
+	ColumnHeaderStyle?:                _#defs."/$defs/Properties/definitions/TableCellStyle"
+	ColumnNamesVisibility?:            _#defs."/$defs/Properties/definitions/Visibility"
 	DefaultCellWidth?:                 string | fn.#StringExpression
-	MetricPlacement?:          _#defs."/$defs/Properties/definitions/PivotTableMetricPlacement" | fn.#StringExpression
-	RowAlternateColorOptions?: _#defs."/$defs/Properties/definitions/RowAlternateColorOptions" | fn.#ObjectExpression
-	RowFieldNamesStyle?:       _#defs."/$defs/Properties/definitions/TableCellStyle" | fn.#ObjectExpression
-	RowHeaderStyle?:           _#defs."/$defs/Properties/definitions/TableCellStyle" | fn.#ObjectExpression
-	RowsLabelOptions?:         _#defs."/$defs/Properties/definitions/PivotTableRowsLabelOptions" | fn.#ObjectExpression
-	RowsLayout?:               _#defs."/$defs/Properties/definitions/PivotTableRowsLayout" | fn.#StringExpression
-	SingleMetricVisibility?:   _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	ToggleButtonsVisibility?:  _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	MetricPlacement?:                  _#defs."/$defs/Properties/definitions/PivotTableMetricPlacement"
+	RowAlternateColorOptions?:         _#defs."/$defs/Properties/definitions/RowAlternateColorOptions"
+	RowFieldNamesStyle?:               _#defs."/$defs/Properties/definitions/TableCellStyle"
+	RowHeaderStyle?:                   _#defs."/$defs/Properties/definitions/TableCellStyle"
+	RowsLabelOptions?:                 _#defs."/$defs/Properties/definitions/PivotTableRowsLabelOptions"
+	RowsLayout?:                       _#defs."/$defs/Properties/definitions/PivotTableRowsLayout"
+	SingleMetricVisibility?:           _#defs."/$defs/Properties/definitions/Visibility"
+	ToggleButtonsVisibility?:          _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTablePaginatedReportOptions": close({
-	OverflowColumnHeaderVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	VerticalOverflowVisibility?:     _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	OverflowColumnHeaderVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
+	VerticalOverflowVisibility?:     _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableRowsLabelOptions": close({
 	CustomLabel?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Visibility?:  _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	Visibility?:  _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableRowsLayout": "TABULAR" | "HIERARCHY" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableSortBy": close({
-	Column?:   _#defs."/$defs/Properties/definitions/ColumnSort" | fn.#ObjectExpression
-	DataPath?: _#defs."/$defs/Properties/definitions/DataPathSort" | fn.#ObjectExpression
-	Field?:    _#defs."/$defs/Properties/definitions/FieldSort" | fn.#ObjectExpression
+	Column?:   _#defs."/$defs/Properties/definitions/ColumnSort"
+	DataPath?: _#defs."/$defs/Properties/definitions/DataPathSort"
+	Field?:    _#defs."/$defs/Properties/definitions/FieldSort"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableSortConfiguration": close({
-	FieldSortOptions?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PivotFieldSortOptions" | fn.#ObjectExpression
-	] |
+	FieldSortOptions?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/PivotFieldSortOptions"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -3698,48 +4603,45 @@ _#defs: "/$defs/Properties/definitions/PivotTableSortConfiguration": close({
 _#defs: "/$defs/Properties/definitions/PivotTableSubtotalLevel": "ALL" | "CUSTOM" | "LAST" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableTotalOptions": close({
-	ColumnSubtotalOptions?: _#defs."/$defs/Properties/definitions/SubtotalOptions" | fn.#ObjectExpression
-	ColumnTotalOptions?:    _#defs."/$defs/Properties/definitions/PivotTotalOptions" | fn.#ObjectExpression
-	RowSubtotalOptions?:    _#defs."/$defs/Properties/definitions/SubtotalOptions" | fn.#ObjectExpression
-	RowTotalOptions?:       _#defs."/$defs/Properties/definitions/PivotTotalOptions" | fn.#ObjectExpression
+	ColumnSubtotalOptions?: _#defs."/$defs/Properties/definitions/SubtotalOptions"
+	ColumnTotalOptions?:    _#defs."/$defs/Properties/definitions/PivotTotalOptions"
+	RowSubtotalOptions?:    _#defs."/$defs/Properties/definitions/SubtotalOptions"
+	RowTotalOptions?:       _#defs."/$defs/Properties/definitions/PivotTotalOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTableVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?: _#defs."/$defs/Properties/definitions/PivotTableConfiguration" | fn.#ObjectExpression
-	ConditionalFormatting?: _#defs."/$defs/Properties/definitions/PivotTableConditionalFormatting" |
-		fn.#ObjectExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	ChartConfiguration?:    _#defs."/$defs/Properties/definitions/PivotTableConfiguration"
+	ConditionalFormatting?: _#defs."/$defs/Properties/definitions/PivotTableConditionalFormatting"
+	Subtitle?:              _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                 _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
+	VisualContentAltText?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	VisualId!:              strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PivotTotalOptions": close({
 	CustomLabel?:           string | fn.#StringExpression
-	MetricHeaderCellStyle?: _#defs."/$defs/Properties/definitions/TableCellStyle" | fn.#ObjectExpression
-	Placement?:             _#defs."/$defs/Properties/definitions/TableTotalsPlacement" | fn.#StringExpression
-	ScrollStatus?:          _#defs."/$defs/Properties/definitions/TableTotalsScrollStatus" | fn.#StringExpression
+	MetricHeaderCellStyle?: _#defs."/$defs/Properties/definitions/TableCellStyle"
+	Placement?:             _#defs."/$defs/Properties/definitions/TableTotalsPlacement"
+	ScrollStatus?:          _#defs."/$defs/Properties/definitions/TableTotalsScrollStatus"
 	TotalAggregationOptions?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/TotalAggregationOption" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/TotalAggregationOption"
 	] |
 		fn.#ListExpression
-	TotalCellStyle?:   _#defs."/$defs/Properties/definitions/TableCellStyle" | fn.#ObjectExpression
-	TotalsVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	ValueCellStyle?:   _#defs."/$defs/Properties/definitions/TableCellStyle" | fn.#ObjectExpression
+	TotalCellStyle?:   _#defs."/$defs/Properties/definitions/TableCellStyle"
+	TotalsVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
+	ValueCellStyle?:   _#defs."/$defs/Properties/definitions/TableCellStyle"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PluginVisual": close({
-	ChartConfiguration?:   _#defs."/$defs/Properties/definitions/PluginVisualConfiguration" | fn.#ObjectExpression
+	ChartConfiguration?:   _#defs."/$defs/Properties/definitions/PluginVisualConfiguration"
 	PluginArn!:            string | fn.#StringExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
@@ -3748,41 +4650,50 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/PluginVisualAxisName": "GROUP_BY" | "VALUE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PluginVisualConfiguration": close({
-	FieldWells?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PluginVisualFieldWell" | fn.#ObjectExpression
-	] |
+	FieldWells?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/PluginVisualFieldWell"] |
 		fn.#ListExpression
-	SortConfiguration?: _#defs."/$defs/Properties/definitions/PluginVisualSortConfiguration" | fn.#ObjectExpression
-	VisualOptions?:     _#defs."/$defs/Properties/definitions/PluginVisualOptions" | fn.#ObjectExpression
+	SortConfiguration?: _#defs."/$defs/Properties/definitions/PluginVisualSortConfiguration"
+	VisualOptions?:     _#defs."/$defs/Properties/definitions/PluginVisualOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PluginVisualFieldWell": close({
-	AxisName?: _#defs."/$defs/Properties/definitions/PluginVisualAxisName" | fn.#StringExpression
-	Dimensions?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	AxisName?: _#defs."/$defs/Properties/definitions/PluginVisualAxisName"
+	Dimensions?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Measures?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
-	] |
+	Measures?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] |
 		fn.#ListExpression
-	Unaggregated?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/UnaggregatedField" | fn.#ObjectExpression
-	] |
+	Unaggregated?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/UnaggregatedField"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PluginVisualItemsLimitConfiguration": close(
-	{ItemsLimit?: number | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/PluginVisualItemsLimitConfiguration": close({
+	ItemsLimit?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PluginVisualOptions": close({
-	VisualProperties?: [..._#defs."/$defs/Properties/definitions/PluginVisualProperty" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/PluginVisualOptions": close(
+	{VisualProperties?: [..._#defs."/$defs/Properties/definitions/PluginVisualProperty"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PluginVisualProperty": close({
@@ -3791,30 +4702,22 @@ _#defs: "/$defs/Properties/definitions/PluginVisualProperty": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PluginVisualSortConfiguration": close({
-	PluginVisualTableQuerySort?: _#defs."/$defs/Properties/definitions/PluginVisualTableQuerySort" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/PluginVisualSortConfiguration": close(
+	{PluginVisualTableQuerySort?: _#defs."/$defs/Properties/definitions/PluginVisualTableQuerySort"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PluginVisualTableQuerySort": close({
-	ItemsLimitConfiguration?: _#defs."/$defs/Properties/definitions/PluginVisualItemsLimitConfiguration" |
-		fn.#ObjectExpression
-	RowSort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	ItemsLimitConfiguration?: _#defs."/$defs/Properties/definitions/PluginVisualItemsLimitConfiguration"
+	RowSort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PredefinedHierarchy": close({
-	Columns!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	] |
+	Columns!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnIdentifier"] |
 		fn.#ListExpression
-	DrillDownFilters?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DrillDownFilter" | fn.#ObjectExpression
-	] |
+	DrillDownFilters?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/DrillDownFilter"] |
 		fn.#ListExpression
 	HierarchyId!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 }) |
@@ -3826,31 +4729,27 @@ _#defs: "/$defs/Properties/definitions/PrimaryValueDisplayType": "HIDDEN" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ProgressBarOptions": close(
-	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression},
+	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/QueryExecutionMode": "AUTO" | "MANUAL" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/QueryExecutionOptions": close(
-	{QueryExecutionMode?: _#defs."/$defs/Properties/definitions/QueryExecutionMode" | fn.#StringExpression},
+	{QueryExecutionMode?: _#defs."/$defs/Properties/definitions/QueryExecutionMode"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RadarChartAggregatedFieldWells": close({
-	Category?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Category?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Color?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Values?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Color?:  list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] | fn.#ListExpression
+	Values?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RadarChartAreaStyleSettings": close(
-	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression},
+	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility"},
 ) |
 	fn.#ObjectExpression
 
@@ -3860,79 +4759,89 @@ _#defs: "/$defs/Properties/definitions/RadarChartAxesRangeScale": "AUTO" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RadarChartConfiguration": close({
-	AlternateBandColorsVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	AlternateBandColorsVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
 	AlternateBandEvenColor?:        =~"^#[A-F0-9]{6}$" | fn.#StringExpression
 	AlternateBandOddColor?:         =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	AxesRangeScale?:       _#defs."/$defs/Properties/definitions/RadarChartAxesRangeScale" | fn.#StringExpression
-	BaseSeriesSettings?:   _#defs."/$defs/Properties/definitions/RadarChartSeriesSettings" | fn.#ObjectExpression
-	CategoryAxis?:         _#defs."/$defs/Properties/definitions/AxisDisplayOptions" | fn.#ObjectExpression
-	CategoryLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	ColorAxis?:            _#defs."/$defs/Properties/definitions/AxisDisplayOptions" | fn.#ObjectExpression
-	ColorLabelOptions?:    _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	FieldWells?:           _#defs."/$defs/Properties/definitions/RadarChartFieldWells" | fn.#ObjectExpression
-	Interactions?:         _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	Legend?:               _#defs."/$defs/Properties/definitions/LegendOptions" | fn.#ObjectExpression
-	Shape?:                _#defs."/$defs/Properties/definitions/RadarChartShape" | fn.#StringExpression
-	SortConfiguration?:    _#defs."/$defs/Properties/definitions/RadarChartSortConfiguration" | fn.#ObjectExpression
-	StartAngle?:           <=360 & >=-360 | fn.#NumberExpression
-	VisualPalette?:        _#defs."/$defs/Properties/definitions/VisualPalette" | fn.#ObjectExpression
+	AxesRangeScale?:                _#defs."/$defs/Properties/definitions/RadarChartAxesRangeScale"
+	BaseSeriesSettings?:            _#defs."/$defs/Properties/definitions/RadarChartSeriesSettings"
+	CategoryAxis?:                  _#defs."/$defs/Properties/definitions/AxisDisplayOptions"
+	CategoryLabelOptions?:          _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	ColorAxis?:                     _#defs."/$defs/Properties/definitions/AxisDisplayOptions"
+	ColorLabelOptions?:             _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	FieldWells?:                    _#defs."/$defs/Properties/definitions/RadarChartFieldWells"
+	Interactions?:                  _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	Legend?:                        _#defs."/$defs/Properties/definitions/LegendOptions"
+	Shape?:                         _#defs."/$defs/Properties/definitions/RadarChartShape"
+	SortConfiguration?:             _#defs."/$defs/Properties/definitions/RadarChartSortConfiguration"
+	StartAngle?: <=360 & >=-360 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=360 &
+							>=-360,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	VisualPalette?: _#defs."/$defs/Properties/definitions/VisualPalette"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RadarChartFieldWells": close({
-	RadarChartAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/RadarChartAggregatedFieldWells" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/RadarChartFieldWells": close(
+	{RadarChartAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/RadarChartAggregatedFieldWells"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RadarChartSeriesSettings": close(
-	{AreaStyleSettings?: _#defs."/$defs/Properties/definitions/RadarChartAreaStyleSettings" | fn.#ObjectExpression},
+	{AreaStyleSettings?: _#defs."/$defs/Properties/definitions/RadarChartAreaStyleSettings"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RadarChartShape": "CIRCLE" | "POLYGON" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RadarChartSortConfiguration": close({
-	CategoryItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" | fn.#ObjectExpression
-	CategorySort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	CategoryItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	CategorySort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
-	ColorItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" | fn.#ObjectExpression
-	ColorSort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	ColorItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	ColorSort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RadarChartVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?: _#defs."/$defs/Properties/definitions/RadarChartConfiguration" | fn.#ObjectExpression
-	ColumnHierarchies?: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnHierarchy" | fn.#ObjectExpression
-	] |
+	ChartConfiguration?: _#defs."/$defs/Properties/definitions/RadarChartConfiguration"
+	ColumnHierarchies?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnHierarchy"] |
 		fn.#ListExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RangeEndsLabelType": close(
-	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression},
+	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReferenceLine": close({
-	DataConfiguration!:  _#defs."/$defs/Properties/definitions/ReferenceLineDataConfiguration" | fn.#ObjectExpression
-	LabelConfiguration?: _#defs."/$defs/Properties/definitions/ReferenceLineLabelConfiguration" | fn.#ObjectExpression
-	Status?:             _#defs."/$defs/Properties/definitions/WidgetStatus" | fn.#StringExpression
-	StyleConfiguration?: _#defs."/$defs/Properties/definitions/ReferenceLineStyleConfiguration" | fn.#ObjectExpression
+	DataConfiguration!:  _#defs."/$defs/Properties/definitions/ReferenceLineDataConfiguration"
+	LabelConfiguration?: _#defs."/$defs/Properties/definitions/ReferenceLineLabelConfiguration"
+	Status?:             _#defs."/$defs/Properties/definitions/WidgetStatus"
+	StyleConfiguration?: _#defs."/$defs/Properties/definitions/ReferenceLineStyleConfiguration"
 }) |
 fn.#ObjectExpression
 
@@ -3942,32 +4851,27 @@ _#defs: "/$defs/Properties/definitions/ReferenceLineCustomLabelConfiguration": c
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReferenceLineDataConfiguration": close({
-	AxisBinding?: _#defs."/$defs/Properties/definitions/AxisBinding" | fn.#StringExpression
-	DynamicConfiguration?: _#defs."/$defs/Properties/definitions/ReferenceLineDynamicDataConfiguration" |
-		fn.#ObjectExpression
-	SeriesType?: _#defs."/$defs/Properties/definitions/ReferenceLineSeriesType" | fn.#StringExpression
-	StaticConfiguration?: _#defs."/$defs/Properties/definitions/ReferenceLineStaticDataConfiguration" |
-		fn.#ObjectExpression
+	AxisBinding?:          _#defs."/$defs/Properties/definitions/AxisBinding"
+	DynamicConfiguration?: _#defs."/$defs/Properties/definitions/ReferenceLineDynamicDataConfiguration"
+	SeriesType?:           _#defs."/$defs/Properties/definitions/ReferenceLineSeriesType"
+	StaticConfiguration?:  _#defs."/$defs/Properties/definitions/ReferenceLineStaticDataConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReferenceLineDynamicDataConfiguration": close({
-	Calculation!: _#defs."/$defs/Properties/definitions/NumericalAggregationFunction" | fn.#ObjectExpression
-	Column!:      _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	MeasureAggregationFunction?: _#defs."/$defs/Properties/definitions/AggregationFunction" | fn.#ObjectExpression
+	Calculation!:                _#defs."/$defs/Properties/definitions/NumericalAggregationFunction"
+	Column!:                     _#defs."/$defs/Properties/definitions/ColumnIdentifier"
+	MeasureAggregationFunction?: _#defs."/$defs/Properties/definitions/AggregationFunction"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReferenceLineLabelConfiguration": close({
-	CustomLabelConfiguration?: _#defs."/$defs/Properties/definitions/ReferenceLineCustomLabelConfiguration" |
-		fn.#ObjectExpression
-	FontColor?:         =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	FontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
-	HorizontalPosition?: _#defs."/$defs/Properties/definitions/ReferenceLineLabelHorizontalPosition" |
-		fn.#StringExpression
-	ValueLabelConfiguration?: _#defs."/$defs/Properties/definitions/ReferenceLineValueLabelConfiguration" |
-		fn.#ObjectExpression
-	VerticalPosition?: _#defs."/$defs/Properties/definitions/ReferenceLineLabelVerticalPosition" | fn.#StringExpression
+	CustomLabelConfiguration?: _#defs."/$defs/Properties/definitions/ReferenceLineCustomLabelConfiguration"
+	FontColor?:                =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	FontConfiguration?:        _#defs."/$defs/Properties/definitions/FontConfiguration"
+	HorizontalPosition?:       _#defs."/$defs/Properties/definitions/ReferenceLineLabelHorizontalPosition"
+	ValueLabelConfiguration?:  _#defs."/$defs/Properties/definitions/ReferenceLineValueLabelConfiguration"
+	VerticalPosition?:         _#defs."/$defs/Properties/definitions/ReferenceLineLabelVerticalPosition"
 }) |
 fn.#ObjectExpression
 
@@ -3982,21 +4886,38 @@ _#defs: "/$defs/Properties/definitions/ReferenceLinePatternType": "SOLID" | "DAS
 
 _#defs: "/$defs/Properties/definitions/ReferenceLineSeriesType": "BAR" | "LINE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ReferenceLineStaticDataConfiguration": close(
-	{Value!: number | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/ReferenceLineStaticDataConfiguration": close({
+	Value!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReferenceLineStyleConfiguration": close({
 	Color?:   =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	Pattern?: _#defs."/$defs/Properties/definitions/ReferenceLinePatternType" | fn.#StringExpression
+	Pattern?: _#defs."/$defs/Properties/definitions/ReferenceLinePatternType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReferenceLineValueLabelConfiguration": close({
-	FormatConfiguration?: _#defs."/$defs/Properties/definitions/NumericFormatConfiguration" | fn.#ObjectExpression
-	RelativePosition?: _#defs."/$defs/Properties/definitions/ReferenceLineValueLabelRelativePosition" |
-		fn.#StringExpression
+	FormatConfiguration?: _#defs."/$defs/Properties/definitions/NumericFormatConfiguration"
+	RelativePosition?:    _#defs."/$defs/Properties/definitions/ReferenceLineValueLabelRelativePosition"
 }) |
 fn.#ObjectExpression
 
@@ -4005,10 +4926,9 @@ _#defs: "/$defs/Properties/definitions/ReferenceLineValueLabelRelativePosition":
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RelativeDateTimeControlDisplayOptions": close({
-	DateTimeFormat?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	InfoIconLabelOptions?: _#defs."/$defs/Properties/definitions/SheetControlInfoIconLabelOptions" |
-		fn.#ObjectExpression
-	TitleOptions?: _#defs."/$defs/Properties/definitions/LabelOptions" | fn.#ObjectExpression
+	DateTimeFormat?:       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	InfoIconLabelOptions?: _#defs."/$defs/Properties/definitions/SheetControlInfoIconLabelOptions"
+	TitleOptions?:         _#defs."/$defs/Properties/definitions/LabelOptions"
 }) |
 fn.#ObjectExpression
 
@@ -4020,19 +4940,35 @@ _#defs: "/$defs/Properties/definitions/RelativeDateType": "PREVIOUS" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RelativeDatesFilter": close({
-	AnchorDateConfiguration!: _#defs."/$defs/Properties/definitions/AnchorDateConfiguration" | fn.#ObjectExpression
-	Column!:                  _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	DefaultFilterControlConfiguration?: _#defs."/$defs/Properties/definitions/DefaultFilterControlConfiguration" |
-		fn.#ObjectExpression
-	ExcludePeriodConfiguration?: _#defs."/$defs/Properties/definitions/ExcludePeriodConfiguration" |
-		fn.#ObjectExpression
+	AnchorDateConfiguration!:           _#defs."/$defs/Properties/definitions/AnchorDateConfiguration"
+	Column!:                            _#defs."/$defs/Properties/definitions/ColumnIdentifier"
+	DefaultFilterControlConfiguration?: _#defs."/$defs/Properties/definitions/DefaultFilterControlConfiguration"
+	ExcludePeriodConfiguration?:        _#defs."/$defs/Properties/definitions/ExcludePeriodConfiguration"
 	FilterId!:           strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	MinimumGranularity?: _#defs."/$defs/Properties/definitions/TimeGranularity" | fn.#StringExpression
-	NullOption!:         _#defs."/$defs/Properties/definitions/FilterNullOption" | fn.#StringExpression
+	MinimumGranularity?: _#defs."/$defs/Properties/definitions/TimeGranularity"
+	NullOption!:         _#defs."/$defs/Properties/definitions/FilterNullOption"
 	ParameterName?:      strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	RelativeDateType!:   _#defs."/$defs/Properties/definitions/RelativeDateType" | fn.#StringExpression
-	RelativeDateValue?:  number | fn.#NumberExpression
-	TimeGranularity!:    _#defs."/$defs/Properties/definitions/TimeGranularity" | fn.#StringExpression
+	RelativeDateType!:   _#defs."/$defs/Properties/definitions/RelativeDateType"
+	RelativeDateValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TimeGranularity!: _#defs."/$defs/Properties/definitions/TimeGranularity"
 }) |
 fn.#ObjectExpression
 
@@ -4069,13 +5005,13 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RowAlternateColorOptions": close({
 	RowAlternateColors?: list.MaxItems(1) & [...] & [...=~"^#[A-F0-9]{6}$" | fn.#StringExpression] | fn.#ListExpression
-	Status?:             _#defs."/$defs/Properties/definitions/WidgetStatus" | fn.#StringExpression
-	UsePrimaryBackgroundColor?: _#defs."/$defs/Properties/definitions/WidgetStatus" | fn.#StringExpression
+	Status?:             _#defs."/$defs/Properties/definitions/WidgetStatus"
+	UsePrimaryBackgroundColor?: _#defs."/$defs/Properties/definitions/WidgetStatus"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SameSheetTargetVisualConfiguration": close({
-	TargetVisualOptions?: _#defs."/$defs/Properties/definitions/TargetVisualOptions" | fn.#StringExpression
+	TargetVisualOptions?: _#defs."/$defs/Properties/definitions/TargetVisualOptions"
 	TargetVisuals?: list.MaxItems(50) & list.MinItems(1) & [
 		...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	] |
@@ -4084,198 +5020,156 @@ _#defs: "/$defs/Properties/definitions/SameSheetTargetVisualConfiguration": clos
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SankeyDiagramAggregatedFieldWells": close({
-	Destination?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Destination?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Source?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Source?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Weight?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Weight?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SankeyDiagramChartConfiguration": close({
-	DataLabels?:        _#defs."/$defs/Properties/definitions/DataLabelOptions" | fn.#ObjectExpression
-	FieldWells?:        _#defs."/$defs/Properties/definitions/SankeyDiagramFieldWells" | fn.#ObjectExpression
-	Interactions?:      _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	SortConfiguration?: _#defs."/$defs/Properties/definitions/SankeyDiagramSortConfiguration" | fn.#ObjectExpression
+	DataLabels?:        _#defs."/$defs/Properties/definitions/DataLabelOptions"
+	FieldWells?:        _#defs."/$defs/Properties/definitions/SankeyDiagramFieldWells"
+	Interactions?:      _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	SortConfiguration?: _#defs."/$defs/Properties/definitions/SankeyDiagramSortConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SankeyDiagramFieldWells": close({
-	SankeyDiagramAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/SankeyDiagramAggregatedFieldWells" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/SankeyDiagramFieldWells": close(
+	{SankeyDiagramAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/SankeyDiagramAggregatedFieldWells"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SankeyDiagramSortConfiguration": close({
-	DestinationItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" | fn.#ObjectExpression
-	SourceItemsLimit?:      _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" | fn.#ObjectExpression
-	WeightSort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	DestinationItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	SourceItemsLimit?:      _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	WeightSort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SankeyDiagramVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?:   _#defs."/$defs/Properties/definitions/SankeyDiagramChartConfiguration" | fn.#ObjectExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	ChartConfiguration?:   _#defs."/$defs/Properties/definitions/SankeyDiagramChartConfiguration"
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScatterPlotCategoricallyAggregatedFieldWells": close({
-	Category?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Category?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Label?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Size?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	XAxis?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	YAxis?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Label?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] | fn.#ListExpression
+	Size?:  list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
+	XAxis?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
+	YAxis?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScatterPlotConfiguration": close({
-	DataLabels?:          _#defs."/$defs/Properties/definitions/DataLabelOptions" | fn.#ObjectExpression
-	FieldWells?:          _#defs."/$defs/Properties/definitions/ScatterPlotFieldWells" | fn.#ObjectExpression
-	Interactions?:        _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	Legend?:              _#defs."/$defs/Properties/definitions/LegendOptions" | fn.#ObjectExpression
-	SortConfiguration?:   _#defs."/$defs/Properties/definitions/ScatterPlotSortConfiguration" | fn.#ObjectExpression
-	Tooltip?:             _#defs."/$defs/Properties/definitions/TooltipOptions" | fn.#ObjectExpression
-	VisualPalette?:       _#defs."/$defs/Properties/definitions/VisualPalette" | fn.#ObjectExpression
-	XAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions" | fn.#ObjectExpression
-	XAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	YAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions" | fn.#ObjectExpression
-	YAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
+	DataLabels?:          _#defs."/$defs/Properties/definitions/DataLabelOptions"
+	FieldWells?:          _#defs."/$defs/Properties/definitions/ScatterPlotFieldWells"
+	Interactions?:        _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	Legend?:              _#defs."/$defs/Properties/definitions/LegendOptions"
+	SortConfiguration?:   _#defs."/$defs/Properties/definitions/ScatterPlotSortConfiguration"
+	Tooltip?:             _#defs."/$defs/Properties/definitions/TooltipOptions"
+	VisualPalette?:       _#defs."/$defs/Properties/definitions/VisualPalette"
+	XAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions"
+	XAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	YAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions"
+	YAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScatterPlotFieldWells": close({
-	ScatterPlotCategoricallyAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/ScatterPlotCategoricallyAggregatedFieldWells" |
-		fn.#ObjectExpression
-	ScatterPlotUnaggregatedFieldWells?: _#defs."/$defs/Properties/definitions/ScatterPlotUnaggregatedFieldWells" |
-		fn.#ObjectExpression
+	ScatterPlotCategoricallyAggregatedFieldWells?:
+		_#defs."/$defs/Properties/definitions/ScatterPlotCategoricallyAggregatedFieldWells"
+	ScatterPlotUnaggregatedFieldWells?: _#defs."/$defs/Properties/definitions/ScatterPlotUnaggregatedFieldWells"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScatterPlotSortConfiguration": close({
-	ScatterPlotLimitConfiguration?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/ScatterPlotSortConfiguration": close(
+	{ScatterPlotLimitConfiguration?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScatterPlotUnaggregatedFieldWells": close({
-	Category?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Category?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Label?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Size?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	XAxis?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	YAxis?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Label?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] | fn.#ListExpression
+	Size?:  list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
+	XAxis?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] | fn.#ListExpression
+	YAxis?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScatterPlotVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?: _#defs."/$defs/Properties/definitions/ScatterPlotConfiguration" | fn.#ObjectExpression
-	ColumnHierarchies?: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnHierarchy" | fn.#ObjectExpression
-	] |
+	ChartConfiguration?: _#defs."/$defs/Properties/definitions/ScatterPlotConfiguration"
+	ColumnHierarchies?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnHierarchy"] |
 		fn.#ListExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScrollBarOptions": close({
-	Visibility?:   _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	VisibleRange?: _#defs."/$defs/Properties/definitions/VisibleRangeOptions" | fn.#ObjectExpression
+	Visibility?:   _#defs."/$defs/Properties/definitions/Visibility"
+	VisibleRange?: _#defs."/$defs/Properties/definitions/VisibleRangeOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SecondaryValueOptions": close(
-	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression},
+	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SectionAfterPageBreak": close(
-	{Status?: _#defs."/$defs/Properties/definitions/SectionPageBreakStatus" | fn.#StringExpression},
+	{Status?: _#defs."/$defs/Properties/definitions/SectionPageBreakStatus"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SectionBasedLayoutCanvasSizeOptions": close({
-	PaperCanvasSizeOptions?: _#defs."/$defs/Properties/definitions/SectionBasedLayoutPaperCanvasSizeOptions" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/SectionBasedLayoutCanvasSizeOptions": close(
+	{PaperCanvasSizeOptions?: _#defs."/$defs/Properties/definitions/SectionBasedLayoutPaperCanvasSizeOptions"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SectionBasedLayoutConfiguration": close({
-	BodySections!: list.MaxItems(28) & [...] & [
-		..._#defs."/$defs/Properties/definitions/BodySectionConfiguration" | fn.#ObjectExpression
-	] |
+	BodySections!: list.MaxItems(28) & [...] & [..._#defs."/$defs/Properties/definitions/BodySectionConfiguration"] |
 		fn.#ListExpression
-	CanvasSizeOptions!: _#defs."/$defs/Properties/definitions/SectionBasedLayoutCanvasSizeOptions" |
-		fn.#ObjectExpression
+	CanvasSizeOptions!: _#defs."/$defs/Properties/definitions/SectionBasedLayoutCanvasSizeOptions"
 	FooterSections!: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/HeaderFooterSectionConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/HeaderFooterSectionConfiguration"
 	] |
 		fn.#ListExpression
 	HeaderSections!: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/HeaderFooterSectionConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/HeaderFooterSectionConfiguration"
 	] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SectionBasedLayoutPaperCanvasSizeOptions": close({
-	PaperMargin?:      _#defs."/$defs/Properties/definitions/Spacing" | fn.#ObjectExpression
-	PaperOrientation?: _#defs."/$defs/Properties/definitions/PaperOrientation" | fn.#StringExpression
-	PaperSize?:        _#defs."/$defs/Properties/definitions/PaperSize" | fn.#StringExpression
+	PaperMargin?:      _#defs."/$defs/Properties/definitions/Spacing"
+	PaperOrientation?: _#defs."/$defs/Properties/definitions/PaperOrientation"
+	PaperSize?:        _#defs."/$defs/Properties/definitions/PaperSize"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SectionLayoutConfiguration": close(
-	{FreeFormLayout!: _#defs."/$defs/Properties/definitions/FreeFormSectionLayoutConfiguration" | fn.#ObjectExpression},
+	{FreeFormLayout!: _#defs."/$defs/Properties/definitions/FreeFormSectionLayoutConfiguration"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SectionPageBreakConfiguration": close(
-	{After?: _#defs."/$defs/Properties/definitions/SectionAfterPageBreak" | fn.#ObjectExpression},
+	{After?: _#defs."/$defs/Properties/definitions/SectionAfterPageBreak"},
 ) |
 	fn.#ObjectExpression
 
@@ -4283,7 +5177,7 @@ _#defs: "/$defs/Properties/definitions/SectionPageBreakStatus": "ENABLED" | "DIS
 
 _#defs: "/$defs/Properties/definitions/SectionStyle": close({
 	Height?:  string | fn.#StringExpression
-	Padding?: _#defs."/$defs/Properties/definitions/Spacing" | fn.#ObjectExpression
+	Padding?: _#defs."/$defs/Properties/definitions/Spacing"
 }) |
 fn.#ObjectExpression
 
@@ -4293,7 +5187,7 @@ _#defs: "/$defs/Properties/definitions/SelectedFieldOptions": "ALL_FIELDS" | fn.
 
 _#defs: "/$defs/Properties/definitions/SelectedSheetsFilterScopeConfiguration": close({
 	SheetVisualScopingConfigurations?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/SheetVisualScopingConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/SheetVisualScopingConfiguration"
 	] |
 		fn.#ListExpression
 }) |
@@ -4302,19 +5196,19 @@ _#defs: "/$defs/Properties/definitions/SelectedSheetsFilterScopeConfiguration": 
 _#defs: "/$defs/Properties/definitions/SelectedTooltipType": "BASIC" | "DETAILED" | "SHEET" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SeriesItem": close({
-	DataFieldSeriesItem?: _#defs."/$defs/Properties/definitions/DataFieldSeriesItem" | fn.#ObjectExpression
-	FieldSeriesItem?:     _#defs."/$defs/Properties/definitions/FieldSeriesItem" | fn.#ObjectExpression
+	DataFieldSeriesItem?: _#defs."/$defs/Properties/definitions/DataFieldSeriesItem"
+	FieldSeriesItem?:     _#defs."/$defs/Properties/definitions/FieldSeriesItem"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SetParameterValueConfiguration": close({
 	DestinationParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	Value!: _#defs."/$defs/Properties/definitions/DestinationParameterValueConfiguration" | fn.#ObjectExpression
+	Value!:                    _#defs."/$defs/Properties/definitions/DestinationParameterValueConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ShapeConditionalFormat": close(
-	{BackgroundColor!: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor" | fn.#ObjectExpression},
+	{BackgroundColor!: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor"},
 ) |
 	fn.#ObjectExpression
 
@@ -4332,17 +5226,17 @@ _#defs: "/$defs/Properties/definitions/SheetControlDateTimePickerType": "SINGLE_
 
 _#defs: "/$defs/Properties/definitions/SheetControlInfoIconLabelOptions": close({
 	InfoIconText?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Visibility?:   _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	Visibility?:   _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SheetControlLayout": close(
-	{Configuration!: _#defs."/$defs/Properties/definitions/SheetControlLayoutConfiguration" | fn.#ObjectExpression},
+	{Configuration!: _#defs."/$defs/Properties/definitions/SheetControlLayoutConfiguration"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SheetControlLayoutConfiguration": close(
-	{GridLayout?: _#defs."/$defs/Properties/definitions/GridLayoutConfiguration" | fn.#ObjectExpression},
+	{GridLayout?: _#defs."/$defs/Properties/definitions/GridLayoutConfiguration"},
 ) |
 	fn.#ObjectExpression
 
@@ -4351,66 +5245,51 @@ _#defs: "/$defs/Properties/definitions/SheetControlListType": "MULTI_SELECT" | "
 _#defs: "/$defs/Properties/definitions/SheetControlSliderType": "SINGLE_POINT" | "RANGE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SheetDefinition": close({
-	ContentType?: _#defs."/$defs/Properties/definitions/SheetContentType" | fn.#StringExpression
+	ContentType?: _#defs."/$defs/Properties/definitions/SheetContentType"
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	FilterControls?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FilterControl" | fn.#ObjectExpression
-	] |
+	FilterControls?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/FilterControl"] |
 		fn.#ListExpression
-	Images?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/SheetImage" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Layouts?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Layout" | fn.#ObjectExpression
-	] |
+	Images?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/SheetImage"] | fn.#ListExpression
+	Layouts?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Layout"] |
 		fn.#ListExpression
 	Name?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ParameterControls?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ParameterControl" | fn.#ObjectExpression
-	] |
+	ParameterControls?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/ParameterControl"] |
 		fn.#ListExpression
-	SheetControlLayouts?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SheetControlLayout" | fn.#ObjectExpression
-	] |
+	SheetControlLayouts?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/SheetControlLayout"] |
 		fn.#ListExpression
 	SheetId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	TextBoxes?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SheetTextBox" | fn.#ObjectExpression
-	] |
+	TextBoxes?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/SheetTextBox"] |
 		fn.#ListExpression
-	Title?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Visuals?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Visual" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Title?:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Visuals?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Visual"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SheetElementConfigurationOverrides": close(
-	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression},
+	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SheetElementRenderingRule": close({
-	ConfigurationOverrides!: _#defs."/$defs/Properties/definitions/SheetElementConfigurationOverrides" |
-		fn.#ObjectExpression
-	Expression!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	ConfigurationOverrides!: _#defs."/$defs/Properties/definitions/SheetElementConfigurationOverrides"
+	Expression!:             strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SheetImage": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ImageCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/ImageCustomAction"] |
 		fn.#ListExpression
 	ImageContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Interactions?:        _#defs."/$defs/Properties/definitions/ImageInteractionOptions" | fn.#ObjectExpression
-	Scaling?:             _#defs."/$defs/Properties/definitions/SheetImageScalingConfiguration" | fn.#ObjectExpression
+	Interactions?:        _#defs."/$defs/Properties/definitions/ImageInteractionOptions"
+	Scaling?:             _#defs."/$defs/Properties/definitions/SheetImageScalingConfiguration"
 	SheetImageId!:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Source!:              _#defs."/$defs/Properties/definitions/SheetImageSource" | fn.#ObjectExpression
-	Tooltip?:             _#defs."/$defs/Properties/definitions/SheetImageTooltipConfiguration" | fn.#ObjectExpression
+	Source!:              _#defs."/$defs/Properties/definitions/SheetImageSource"
+	Tooltip?:             _#defs."/$defs/Properties/definitions/SheetImageTooltipConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SheetImageScalingConfiguration": close(
-	{ScalingType?: _#defs."/$defs/Properties/definitions/SheetImageScalingType" | fn.#StringExpression},
+	{ScalingType?: _#defs."/$defs/Properties/definitions/SheetImageScalingType"},
 ) |
 	fn.#ObjectExpression
 
@@ -4420,10 +5299,9 @@ _#defs: "/$defs/Properties/definitions/SheetImageScalingType": "SCALE_TO_WIDTH" 
 	"SCALE_NONE" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SheetImageSource": close({
-	SheetImageStaticFileSource?: _#defs."/$defs/Properties/definitions/SheetImageStaticFileSource" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/SheetImageSource": close(
+	{SheetImageStaticFileSource?: _#defs."/$defs/Properties/definitions/SheetImageStaticFileSource"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SheetImageStaticFileSource": close(
@@ -4432,8 +5310,8 @@ _#defs: "/$defs/Properties/definitions/SheetImageStaticFileSource": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SheetImageTooltipConfiguration": close({
-	TooltipText?: _#defs."/$defs/Properties/definitions/SheetImageTooltipText" | fn.#ObjectExpression
-	Visibility?:  _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	TooltipText?: _#defs."/$defs/Properties/definitions/SheetImageTooltipText"
+	Visibility?:  _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
@@ -4444,16 +5322,14 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SheetLayoutGroup": close({
 	Id!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Members!: list.MaxItems(430) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/SheetLayoutGroupMember" | fn.#ObjectExpression
-	] |
+	Members!: list.MaxItems(430) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/SheetLayoutGroupMember"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SheetLayoutGroupMember": close({
 	Id!:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Type!: _#defs."/$defs/Properties/definitions/SheetLayoutGroupMemberType" | fn.#StringExpression
+	Type!: _#defs."/$defs/Properties/definitions/SheetLayoutGroupMemberType"
 }) |
 fn.#ObjectExpression
 
@@ -4466,7 +5342,7 @@ _#defs: "/$defs/Properties/definitions/SheetTextBox": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SheetVisualScopingConfiguration": close({
-	Scope!:   _#defs."/$defs/Properties/definitions/FilterVisualScope" | fn.#StringExpression
+	Scope!:   _#defs."/$defs/Properties/definitions/FilterVisualScope"
 	SheetId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	VisualIds?: list.MaxItems(50) & [...] & [
 		...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
@@ -4514,7 +5390,7 @@ _#defs: "/$defs/Properties/definitions/SingleAxisOptions": close({
 	string |
 	[...] |
 	{
-		YAxis?: _#defs."/$defs/Properties/definitions/SingleYAxisOption" | fn.#StringExpression
+		YAxis?: _#defs."/$defs/Properties/definitions/SingleYAxisOption"
 		...
 	} |
 	fn.#ValueExpression
@@ -4524,28 +5400,65 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/SingleYAxisOption": "PRIMARY_Y_AXIS" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SliderControlDisplayOptions": close({
-	InfoIconLabelOptions?: _#defs."/$defs/Properties/definitions/SheetControlInfoIconLabelOptions" |
-		fn.#ObjectExpression
-	TitleOptions?: _#defs."/$defs/Properties/definitions/LabelOptions" | fn.#ObjectExpression
+	InfoIconLabelOptions?: _#defs."/$defs/Properties/definitions/SheetControlInfoIconLabelOptions"
+	TitleOptions?:         _#defs."/$defs/Properties/definitions/LabelOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SmallMultiplesAxisPlacement": "OUTSIDE" | "INSIDE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SmallMultiplesAxisProperties": close({
-	Placement?: _#defs."/$defs/Properties/definitions/SmallMultiplesAxisPlacement" | fn.#StringExpression
-	Scale?:     _#defs."/$defs/Properties/definitions/SmallMultiplesAxisScale" | fn.#StringExpression
+	Placement?: _#defs."/$defs/Properties/definitions/SmallMultiplesAxisPlacement"
+	Scale?:     _#defs."/$defs/Properties/definitions/SmallMultiplesAxisScale"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SmallMultiplesAxisScale": "SHARED" | "INDEPENDENT" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SmallMultiplesOptions": close({
-	MaxVisibleColumns?:  <=10 & >=1 | fn.#NumberExpression
-	MaxVisibleRows?:     <=10 & >=1 | fn.#NumberExpression
-	PanelConfiguration?: _#defs."/$defs/Properties/definitions/PanelConfiguration" | fn.#ObjectExpression
-	XAxis?:              _#defs."/$defs/Properties/definitions/SmallMultiplesAxisProperties" | fn.#ObjectExpression
-	YAxis?:              _#defs."/$defs/Properties/definitions/SmallMultiplesAxisProperties" | fn.#ObjectExpression
+	MaxVisibleColumns?: <=10 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=10 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxVisibleRows?: <=10 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=10 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PanelConfiguration?: _#defs."/$defs/Properties/definitions/PanelConfiguration"
+	XAxis?:              _#defs."/$defs/Properties/definitions/SmallMultiplesAxisProperties"
+	YAxis?:              _#defs."/$defs/Properties/definitions/SmallMultiplesAxisProperties"
 }) |
 fn.#ObjectExpression
 
@@ -4564,20 +5477,20 @@ _#defs: "/$defs/Properties/definitions/SparklineAxisBehavior": "SHARED" | "INDEP
 _#defs: "/$defs/Properties/definitions/SparklineVisualType": "LINE" | "AREA_LINE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SparklinesOptions": close({
-	AllPointsMarker?:   _#defs."/$defs/Properties/definitions/LineChartMarkerStyleSettings" | fn.#ObjectExpression
+	AllPointsMarker?:   _#defs."/$defs/Properties/definitions/LineChartMarkerStyleSettings"
 	FieldId!:           strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	LineColor?:         =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	LineInterpolation?: _#defs."/$defs/Properties/definitions/LineInterpolation" | fn.#StringExpression
-	MaxValueMarker?:    _#defs."/$defs/Properties/definitions/LineChartMarkerStyleSettings" | fn.#ObjectExpression
-	MinValueMarker?:    _#defs."/$defs/Properties/definitions/LineChartMarkerStyleSettings" | fn.#ObjectExpression
-	VisualType?:        _#defs."/$defs/Properties/definitions/SparklineVisualType" | fn.#StringExpression
-	XAxisField!:        _#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	YAxisBehavior?:     _#defs."/$defs/Properties/definitions/SparklineAxisBehavior" | fn.#StringExpression
+	LineInterpolation?: _#defs."/$defs/Properties/definitions/LineInterpolation"
+	MaxValueMarker?:    _#defs."/$defs/Properties/definitions/LineChartMarkerStyleSettings"
+	MinValueMarker?:    _#defs."/$defs/Properties/definitions/LineChartMarkerStyleSettings"
+	VisualType?:        _#defs."/$defs/Properties/definitions/SparklineVisualType"
+	XAxisField!:        _#defs."/$defs/Properties/definitions/DimensionField"
+	YAxisBehavior?:     _#defs."/$defs/Properties/definitions/SparklineAxisBehavior"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SpatialStaticFile": close({
-	Source?:       _#defs."/$defs/Properties/definitions/StaticFileSource" | fn.#ObjectExpression
+	Source?:       _#defs."/$defs/Properties/definitions/StaticFileSource"
 	StaticFileId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -4585,8 +5498,8 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/SpecialValue": "EMPTY" | "NULL" | "OTHER" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/StaticFile": close({
-	ImageStaticFile?:   _#defs."/$defs/Properties/definitions/ImageStaticFile" | fn.#ObjectExpression
-	SpatialStaticFile?: _#defs."/$defs/Properties/definitions/SpatialStaticFile" | fn.#ObjectExpression
+	ImageStaticFile?:   _#defs."/$defs/Properties/definitions/ImageStaticFile"
+	SpatialStaticFile?: _#defs."/$defs/Properties/definitions/SpatialStaticFile"
 }) |
 fn.#ObjectExpression
 
@@ -4598,8 +5511,8 @@ _#defs: "/$defs/Properties/definitions/StaticFileS3SourceOptions": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StaticFileSource": close({
-	S3Options?:  _#defs."/$defs/Properties/definitions/StaticFileS3SourceOptions" | fn.#ObjectExpression
-	UrlOptions?: _#defs."/$defs/Properties/definitions/StaticFileUrlSourceOptions" | fn.#ObjectExpression
+	S3Options?:  _#defs."/$defs/Properties/definitions/StaticFileS3SourceOptions"
+	UrlOptions?: _#defs."/$defs/Properties/definitions/StaticFileUrlSourceOptions"
 }) |
 fn.#ObjectExpression
 
@@ -4607,34 +5520,32 @@ _#defs: "/$defs/Properties/definitions/StaticFileUrlSourceOptions": close({Url!:
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StringDefaultValues": close({
-	DynamicValue?: _#defs."/$defs/Properties/definitions/DynamicDefaultValue" | fn.#ObjectExpression
+	DynamicValue?: _#defs."/$defs/Properties/definitions/DynamicDefaultValue"
 	StaticValues?: list.MaxItems(50000) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StringFormatConfiguration": close({
-	NullValueFormatConfiguration?: _#defs."/$defs/Properties/definitions/NullValueFormatConfiguration" |
-		fn.#ObjectExpression
-	NumericFormatConfiguration?: _#defs."/$defs/Properties/definitions/NumericFormatConfiguration" |
-		fn.#ObjectExpression
+	NullValueFormatConfiguration?: _#defs."/$defs/Properties/definitions/NullValueFormatConfiguration"
+	NumericFormatConfiguration?:   _#defs."/$defs/Properties/definitions/NumericFormatConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StringParameterDeclaration": close({
-	DefaultValues?: _#defs."/$defs/Properties/definitions/StringDefaultValues" | fn.#ObjectExpression
+	DefaultValues?: _#defs."/$defs/Properties/definitions/StringDefaultValues"
 	MappedDataSetParameters?: list.MaxItems(150) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MappedDataSetParameter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/MappedDataSetParameter"
 	] |
 		fn.#ListExpression
 	Name!:               strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	ParameterValueType!: _#defs."/$defs/Properties/definitions/ParameterValueType" | fn.#StringExpression
-	ValueWhenUnset?:     _#defs."/$defs/Properties/definitions/StringValueWhenUnsetConfiguration" | fn.#ObjectExpression
+	ParameterValueType!: _#defs."/$defs/Properties/definitions/ParameterValueType"
+	ValueWhenUnset?:     _#defs."/$defs/Properties/definitions/StringValueWhenUnsetConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StringValueWhenUnsetConfiguration": close({
 	CustomValue?:          string | fn.#StringExpression
-	ValueWhenUnsetOption?: _#defs."/$defs/Properties/definitions/ValueWhenUnsetOption" | fn.#StringExpression
+	ValueWhenUnsetOption?: _#defs."/$defs/Properties/definitions/ValueWhenUnsetOption"
 }) |
 fn.#ObjectExpression
 
@@ -4642,38 +5553,50 @@ _#defs: "/$defs/Properties/definitions/StyledCellType": "TOTAL" | "METRIC_HEADER
 
 _#defs: "/$defs/Properties/definitions/SubtotalOptions": close({
 	CustomLabel?: string | fn.#StringExpression
-	FieldLevel?:  _#defs."/$defs/Properties/definitions/PivotTableSubtotalLevel" | fn.#StringExpression
+	FieldLevel?:  _#defs."/$defs/Properties/definitions/PivotTableSubtotalLevel"
 	FieldLevelOptions?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PivotTableFieldSubtotalOptions" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/PivotTableFieldSubtotalOptions"
 	] |
 		fn.#ListExpression
-	MetricHeaderCellStyle?: _#defs."/$defs/Properties/definitions/TableCellStyle" | fn.#ObjectExpression
-	StyleTargets?: list.MaxItems(3) & [...] & [
-		..._#defs."/$defs/Properties/definitions/TableStyleTarget" | fn.#ObjectExpression
-	] |
+	MetricHeaderCellStyle?: _#defs."/$defs/Properties/definitions/TableCellStyle"
+	StyleTargets?: list.MaxItems(3) & [...] & [..._#defs."/$defs/Properties/definitions/TableStyleTarget"] |
 		fn.#ListExpression
-	TotalCellStyle?:   _#defs."/$defs/Properties/definitions/TableCellStyle" | fn.#ObjectExpression
-	TotalsVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	ValueCellStyle?:   _#defs."/$defs/Properties/definitions/TableCellStyle" | fn.#ObjectExpression
+	TotalCellStyle?:   _#defs."/$defs/Properties/definitions/TableCellStyle"
+	TotalsVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
+	ValueCellStyle?:   _#defs."/$defs/Properties/definitions/TableCellStyle"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableAggregatedFieldWells": close({
-	GroupBy?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	GroupBy?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Values?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Values?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableBorderOptions": close({
-	Color?:     =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	Style?:     _#defs."/$defs/Properties/definitions/TableBorderStyle" | fn.#StringExpression
-	Thickness?: <=4 & >=1 | fn.#NumberExpression
+	Color?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	Style?: _#defs."/$defs/Properties/definitions/TableBorderStyle"
+	Thickness?: <=4 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=4 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -4681,7 +5604,7 @@ _#defs: "/$defs/Properties/definitions/TableBorderStyle": "NONE" | "SOLID" | fn.
 
 _#defs: "/$defs/Properties/definitions/TableCellConditionalFormatting": close({
 	FieldId!:    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	TextFormat?: _#defs."/$defs/Properties/definitions/TextConditionalFormat" | fn.#ObjectExpression
+	TextFormat?: _#defs."/$defs/Properties/definitions/TextConditionalFormat"
 }) |
 fn.#ObjectExpression
 
@@ -4690,60 +5613,78 @@ _#defs: "/$defs/Properties/definitions/TableCellImageScalingConfiguration": "FIT
 	"DO_NOT_SCALE" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TableCellImageSizingConfiguration": close({
-	TableCellImageScalingConfiguration?: _#defs."/$defs/Properties/definitions/TableCellImageScalingConfiguration" |
-		fn.#StringExpression
-}) |
+_#defs: "/$defs/Properties/definitions/TableCellImageSizingConfiguration": close(
+	{TableCellImageScalingConfiguration?: _#defs."/$defs/Properties/definitions/TableCellImageScalingConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableCellStyle": close({
-	BackgroundColor?:         =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	Border?:                  _#defs."/$defs/Properties/definitions/GlobalTableBorderOptions" | fn.#ObjectExpression
-	FontConfiguration?:       _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
-	Height?:                  <=500 & >=8 | fn.#NumberExpression
-	HorizontalTextAlignment?: _#defs."/$defs/Properties/definitions/HorizontalTextAlignment" | fn.#StringExpression
-	TextWrap?:                _#defs."/$defs/Properties/definitions/TextWrap" | fn.#StringExpression
-	VerticalTextAlignment?:   _#defs."/$defs/Properties/definitions/VerticalTextAlignment" | fn.#StringExpression
-	Visibility?:              _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	BackgroundColor?:   =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	Border?:            _#defs."/$defs/Properties/definitions/GlobalTableBorderOptions"
+	FontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration"
+	Height?: <=500 & >=8 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=500 &
+							>=8,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	HorizontalTextAlignment?: _#defs."/$defs/Properties/definitions/HorizontalTextAlignment"
+	TextWrap?:                _#defs."/$defs/Properties/definitions/TextWrap"
+	VerticalTextAlignment?:   _#defs."/$defs/Properties/definitions/VerticalTextAlignment"
+	Visibility?:              _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableConditionalFormatting": close({
 	ConditionalFormattingOptions?: list.MaxItems(500) & [...] & [
-		..._#defs."/$defs/Properties/definitions/TableConditionalFormattingOption" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/TableConditionalFormattingOption"
 	] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableConditionalFormattingOption": close({
-	Cell?: _#defs."/$defs/Properties/definitions/TableCellConditionalFormatting" | fn.#ObjectExpression
-	Row?:  _#defs."/$defs/Properties/definitions/TableRowConditionalFormatting" | fn.#ObjectExpression
+	Cell?: _#defs."/$defs/Properties/definitions/TableCellConditionalFormatting"
+	Row?:  _#defs."/$defs/Properties/definitions/TableRowConditionalFormatting"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableConfiguration": close({
-	FieldOptions?:           _#defs."/$defs/Properties/definitions/TableFieldOptions" | fn.#ObjectExpression
-	FieldWells?:             _#defs."/$defs/Properties/definitions/TableFieldWells" | fn.#ObjectExpression
-	Interactions?:           _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	PaginatedReportOptions?: _#defs."/$defs/Properties/definitions/TablePaginatedReportOptions" | fn.#ObjectExpression
-	SortConfiguration?:      _#defs."/$defs/Properties/definitions/TableSortConfiguration" | fn.#ObjectExpression
+	FieldOptions?:           _#defs."/$defs/Properties/definitions/TableFieldOptions"
+	FieldWells?:             _#defs."/$defs/Properties/definitions/TableFieldWells"
+	Interactions?:           _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	PaginatedReportOptions?: _#defs."/$defs/Properties/definitions/TablePaginatedReportOptions"
+	SortConfiguration?:      _#defs."/$defs/Properties/definitions/TableSortConfiguration"
 	TableInlineVisualizations?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/TableInlineVisualization" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/TableInlineVisualization"
 	] |
 		fn.#ListExpression
-	TableOptions?: _#defs."/$defs/Properties/definitions/TableOptions" | fn.#ObjectExpression
-	TotalOptions?: _#defs."/$defs/Properties/definitions/TotalOptions" | fn.#ObjectExpression
+	TableOptions?: _#defs."/$defs/Properties/definitions/TableOptions"
+	TotalOptions?: _#defs."/$defs/Properties/definitions/TotalOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableFieldCustomIconContent": close(
-	{Icon?: _#defs."/$defs/Properties/definitions/TableFieldIconSetType" | fn.#StringExpression},
+	{Icon?: _#defs."/$defs/Properties/definitions/TableFieldIconSetType"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableFieldCustomTextContent": close({
-	FontConfiguration!: _#defs."/$defs/Properties/definitions/FontConfiguration" | fn.#ObjectExpression
+	FontConfiguration!: _#defs."/$defs/Properties/definitions/FontConfiguration"
 	Value?:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -4751,27 +5692,27 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/TableFieldIconSetType": "LINK" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TableFieldImageConfiguration": close(
-	{SizingOptions?: _#defs."/$defs/Properties/definitions/TableCellImageSizingConfiguration" | fn.#ObjectExpression},
+	{SizingOptions?: _#defs."/$defs/Properties/definitions/TableCellImageSizingConfiguration"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableFieldLinkConfiguration": close({
-	Content!: _#defs."/$defs/Properties/definitions/TableFieldLinkContentConfiguration" | fn.#ObjectExpression
-	Target!:  _#defs."/$defs/Properties/definitions/URLTargetConfiguration" | fn.#StringExpression
+	Content!: _#defs."/$defs/Properties/definitions/TableFieldLinkContentConfiguration"
+	Target!:  _#defs."/$defs/Properties/definitions/URLTargetConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableFieldLinkContentConfiguration": close({
-	CustomIconContent?: _#defs."/$defs/Properties/definitions/TableFieldCustomIconContent" | fn.#ObjectExpression
-	CustomTextContent?: _#defs."/$defs/Properties/definitions/TableFieldCustomTextContent" | fn.#ObjectExpression
+	CustomIconContent?: _#defs."/$defs/Properties/definitions/TableFieldCustomIconContent"
+	CustomTextContent?: _#defs."/$defs/Properties/definitions/TableFieldCustomTextContent"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableFieldOption": close({
 	CustomLabel?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	FieldId!:     strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	URLStyling?:  _#defs."/$defs/Properties/definitions/TableFieldURLConfiguration" | fn.#ObjectExpression
-	Visibility?:  _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	URLStyling?:  _#defs."/$defs/Properties/definitions/TableFieldURLConfiguration"
+	Visibility?:  _#defs."/$defs/Properties/definitions/Visibility"
 	Width?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -4779,50 +5720,47 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/TableFieldOptions": close({
 	Order?: list.MaxItems(200) & [...] & [...strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
-	PinnedFieldOptions?: _#defs."/$defs/Properties/definitions/TablePinnedFieldOptions" | fn.#ObjectExpression
-	SelectedFieldOptions?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/TableFieldOption" | fn.#ObjectExpression
-	] |
+	PinnedFieldOptions?: _#defs."/$defs/Properties/definitions/TablePinnedFieldOptions"
+	SelectedFieldOptions?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/TableFieldOption"] |
 		fn.#ListExpression
 	TransposedTableOptions?: list.MaxItems(10001) & [...] & [
-		..._#defs."/$defs/Properties/definitions/TransposedTableOption" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/TransposedTableOption"
 	] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableFieldURLConfiguration": close({
-	ImageConfiguration?: _#defs."/$defs/Properties/definitions/TableFieldImageConfiguration" | fn.#ObjectExpression
-	LinkConfiguration?:  _#defs."/$defs/Properties/definitions/TableFieldLinkConfiguration" | fn.#ObjectExpression
+	ImageConfiguration?: _#defs."/$defs/Properties/definitions/TableFieldImageConfiguration"
+	LinkConfiguration?:  _#defs."/$defs/Properties/definitions/TableFieldLinkConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableFieldWells": close({
-	TableAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/TableAggregatedFieldWells" | fn.#ObjectExpression
-	TableUnaggregatedFieldWells?: _#defs."/$defs/Properties/definitions/TableUnaggregatedFieldWells" |
-		fn.#ObjectExpression
+	TableAggregatedFieldWells?:   _#defs."/$defs/Properties/definitions/TableAggregatedFieldWells"
+	TableUnaggregatedFieldWells?: _#defs."/$defs/Properties/definitions/TableUnaggregatedFieldWells"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableInlineVisualization": close({
-	DataBars?:   _#defs."/$defs/Properties/definitions/DataBarsOptions" | fn.#ObjectExpression
-	Sparklines?: _#defs."/$defs/Properties/definitions/SparklinesOptions" | fn.#ObjectExpression
+	DataBars?:   _#defs."/$defs/Properties/definitions/DataBarsOptions"
+	Sparklines?: _#defs."/$defs/Properties/definitions/SparklinesOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableOptions": close({
-	CellStyle?:                _#defs."/$defs/Properties/definitions/TableCellStyle" | fn.#ObjectExpression
-	HeaderStyle?:              _#defs."/$defs/Properties/definitions/TableCellStyle" | fn.#ObjectExpression
-	Orientation?:              _#defs."/$defs/Properties/definitions/TableOrientation" | fn.#StringExpression
-	RowAlternateColorOptions?: _#defs."/$defs/Properties/definitions/RowAlternateColorOptions" | fn.#ObjectExpression
+	CellStyle?:                _#defs."/$defs/Properties/definitions/TableCellStyle"
+	HeaderStyle?:              _#defs."/$defs/Properties/definitions/TableCellStyle"
+	Orientation?:              _#defs."/$defs/Properties/definitions/TableOrientation"
+	RowAlternateColorOptions?: _#defs."/$defs/Properties/definitions/RowAlternateColorOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableOrientation": "VERTICAL" | "HORIZONTAL" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TablePaginatedReportOptions": close({
-	OverflowColumnHeaderVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-	VerticalOverflowVisibility?:     _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	OverflowColumnHeaderVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
+	VerticalOverflowVisibility?:     _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
@@ -4835,32 +5773,30 @@ _#defs: "/$defs/Properties/definitions/TablePinnedFieldOptions": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableRowConditionalFormatting": close({
-	BackgroundColor?: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor" | fn.#ObjectExpression
-	TextColor?:       _#defs."/$defs/Properties/definitions/ConditionalFormattingColor" | fn.#ObjectExpression
+	BackgroundColor?: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor"
+	TextColor?:       _#defs."/$defs/Properties/definitions/ConditionalFormattingColor"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableSideBorderOptions": close({
-	Bottom?:          _#defs."/$defs/Properties/definitions/TableBorderOptions" | fn.#ObjectExpression
-	InnerHorizontal?: _#defs."/$defs/Properties/definitions/TableBorderOptions" | fn.#ObjectExpression
-	InnerVertical?:   _#defs."/$defs/Properties/definitions/TableBorderOptions" | fn.#ObjectExpression
-	Left?:            _#defs."/$defs/Properties/definitions/TableBorderOptions" | fn.#ObjectExpression
-	Right?:           _#defs."/$defs/Properties/definitions/TableBorderOptions" | fn.#ObjectExpression
-	Top?:             _#defs."/$defs/Properties/definitions/TableBorderOptions" | fn.#ObjectExpression
+	Bottom?:          _#defs."/$defs/Properties/definitions/TableBorderOptions"
+	InnerHorizontal?: _#defs."/$defs/Properties/definitions/TableBorderOptions"
+	InnerVertical?:   _#defs."/$defs/Properties/definitions/TableBorderOptions"
+	Left?:            _#defs."/$defs/Properties/definitions/TableBorderOptions"
+	Right?:           _#defs."/$defs/Properties/definitions/TableBorderOptions"
+	Top?:             _#defs."/$defs/Properties/definitions/TableBorderOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableSortConfiguration": close({
-	PaginationConfiguration?: _#defs."/$defs/Properties/definitions/PaginationConfiguration" | fn.#ObjectExpression
-	RowSort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	PaginationConfiguration?: _#defs."/$defs/Properties/definitions/PaginationConfiguration"
+	RowSort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableStyleTarget": close(
-	{CellType!: _#defs."/$defs/Properties/definitions/StyledCellType" | fn.#StringExpression},
+	{CellType!: _#defs."/$defs/Properties/definitions/StyledCellType"},
 ) |
 	fn.#ObjectExpression
 
@@ -4869,22 +5805,18 @@ _#defs: "/$defs/Properties/definitions/TableTotalsPlacement": "START" | "END" | 
 _#defs: "/$defs/Properties/definitions/TableTotalsScrollStatus": "PINNED" | "SCROLLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TableUnaggregatedFieldWells": close({
-	Values?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/UnaggregatedField" | fn.#ObjectExpression
-	] |
+	Values?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/UnaggregatedField"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?:    _#defs."/$defs/Properties/definitions/TableConfiguration" | fn.#ObjectExpression
-	ConditionalFormatting?: _#defs."/$defs/Properties/definitions/TableConditionalFormatting" | fn.#ObjectExpression
-	Subtitle?:              _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                 _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	ChartConfiguration?:    _#defs."/$defs/Properties/definitions/TableConfiguration"
+	ConditionalFormatting?: _#defs."/$defs/Properties/definitions/TableConditionalFormatting"
+	Subtitle?:              _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                 _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:              strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
@@ -4900,10 +5832,8 @@ _#defs: "/$defs/Properties/definitions/TargetVisualOptions": "ALL_VISUALS" | fn.
 
 _#defs: "/$defs/Properties/definitions/TemplateError": close({
 	Message?: =~"\\S" | fn.#StringExpression
-	Type?:    _#defs."/$defs/Properties/definitions/TemplateErrorType" | fn.#StringExpression
-	ViolatedEntities?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/Entity" | fn.#ObjectExpression
-	] |
+	Type?:    _#defs."/$defs/Properties/definitions/TemplateErrorType"
+	ViolatedEntities?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Entity"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -4915,19 +5845,15 @@ _#defs: "/$defs/Properties/definitions/TemplateErrorType": "SOURCE_NOT_FOUND" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TemplateSourceAnalysis": close({
-	Arn!: string | fn.#StringExpression
-	DataSetReferences!: [...] & [..._#defs."/$defs/Properties/definitions/DataSetReference" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TopicReferences?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TopicReference" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Arn!:               string | fn.#StringExpression
+	DataSetReferences!: [...] & [..._#defs."/$defs/Properties/definitions/DataSetReference"] | fn.#ListExpression
+	TopicReferences?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TopicReference"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TemplateSourceEntity": close({
-	SourceAnalysis?: _#defs."/$defs/Properties/definitions/TemplateSourceAnalysis" | fn.#ObjectExpression
-	SourceTemplate?: _#defs."/$defs/Properties/definitions/TemplateSourceTemplate" | fn.#ObjectExpression
+	SourceAnalysis?: _#defs."/$defs/Properties/definitions/TemplateSourceAnalysis"
+	SourceTemplate?: _#defs."/$defs/Properties/definitions/TemplateSourceTemplate"
 }) |
 fn.#ObjectExpression
 
@@ -4936,116 +5862,225 @@ _#defs: "/$defs/Properties/definitions/TemplateSourceTemplate": close({Arn!: str
 
 _#defs: "/$defs/Properties/definitions/TemplateVersion": close({
 	CreatedTime?: time.Time | fn.#StringExpression
-	DataSetConfigurations?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DataSetConfiguration" | fn.#ObjectExpression
-	] |
+	DataSetConfigurations?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/DataSetConfiguration"] |
 		fn.#ListExpression
-	Description?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	Errors?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TemplateError" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Sheets?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/Sheet" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Description?:     strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	Errors?:          list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TemplateError"] | fn.#ListExpression
+	Sheets?:          list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/Sheet"] | fn.#ListExpression
 	SourceEntityArn?: string | fn.#StringExpression
-	Status?:          _#defs."/$defs/Properties/definitions/ResourceStatus" | fn.#StringExpression
+	Status?:          _#defs."/$defs/Properties/definitions/ResourceStatus"
 	ThemeArn?:        string | fn.#StringExpression
-	VersionNumber?:   >=1 | fn.#NumberExpression
+	VersionNumber?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TemplateVersionDefinition": close({
-	AnalysisDefaults?: _#defs."/$defs/Properties/definitions/AnalysisDefaults" | fn.#ObjectExpression
-	CalculatedFields?: list.MaxItems(500) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CalculatedField" | fn.#ObjectExpression
-	] |
+	AnalysisDefaults?: _#defs."/$defs/Properties/definitions/AnalysisDefaults"
+	CalculatedFields?: list.MaxItems(500) & [...] & [..._#defs."/$defs/Properties/definitions/CalculatedField"] |
 		fn.#ListExpression
-	ColumnConfigurations?: list.MaxItems(2000) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnConfiguration" | fn.#ObjectExpression
-	] |
+	ColumnConfigurations?: list.MaxItems(2000) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnConfiguration"] |
 		fn.#ListExpression
-	DataSetConfigurations!: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DataSetConfiguration" | fn.#ObjectExpression
-	] |
+	DataSetConfigurations!: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/DataSetConfiguration"] |
 		fn.#ListExpression
-	FilterGroups?: list.MaxItems(2000) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FilterGroup" | fn.#ObjectExpression
-	] |
+	FilterGroups?: list.MaxItems(2000) & [...] & [..._#defs."/$defs/Properties/definitions/FilterGroup"] |
 		fn.#ListExpression
-	Options?: _#defs."/$defs/Properties/definitions/AssetOptions" | fn.#ObjectExpression
+	Options?: _#defs."/$defs/Properties/definitions/AssetOptions"
 	ParameterDeclarations?: list.MaxItems(400) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ParameterDeclaration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ParameterDeclaration"
 	] |
 		fn.#ListExpression
-	QueryExecutionOptions?: _#defs."/$defs/Properties/definitions/QueryExecutionOptions" | fn.#ObjectExpression
-	Sheets?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SheetDefinition" | fn.#ObjectExpression
-	] |
+	QueryExecutionOptions?: _#defs."/$defs/Properties/definitions/QueryExecutionOptions"
+	Sheets?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/SheetDefinition"] |
 		fn.#ListExpression
-	StaticFiles?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StaticFile" | fn.#ObjectExpression
-	] |
+	StaticFiles?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/StaticFile"] |
 		fn.#ListExpression
-	TopicConfigurations?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/TopicConfiguration" | fn.#ObjectExpression
-	] |
+	TopicConfigurations?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/TopicConfiguration"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TextAreaControlDisplayOptions": close({
-	InfoIconLabelOptions?: _#defs."/$defs/Properties/definitions/SheetControlInfoIconLabelOptions" |
-		fn.#ObjectExpression
-	PlaceholderOptions?: _#defs."/$defs/Properties/definitions/TextControlPlaceholderOptions" | fn.#ObjectExpression
-	TitleOptions?:       _#defs."/$defs/Properties/definitions/LabelOptions" | fn.#ObjectExpression
+	InfoIconLabelOptions?: _#defs."/$defs/Properties/definitions/SheetControlInfoIconLabelOptions"
+	PlaceholderOptions?:   _#defs."/$defs/Properties/definitions/TextControlPlaceholderOptions"
+	TitleOptions?:         _#defs."/$defs/Properties/definitions/LabelOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TextConditionalFormat": close({
-	BackgroundColor?: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor" | fn.#ObjectExpression
-	Icon?:            _#defs."/$defs/Properties/definitions/ConditionalFormattingIcon" | fn.#ObjectExpression
-	TextColor?:       _#defs."/$defs/Properties/definitions/ConditionalFormattingColor" | fn.#ObjectExpression
+	BackgroundColor?: _#defs."/$defs/Properties/definitions/ConditionalFormattingColor"
+	Icon?:            _#defs."/$defs/Properties/definitions/ConditionalFormattingIcon"
+	TextColor?:       _#defs."/$defs/Properties/definitions/ConditionalFormattingColor"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TextControlPlaceholderOptions": close(
-	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression},
+	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TextFieldControlDisplayOptions": close({
-	InfoIconLabelOptions?: _#defs."/$defs/Properties/definitions/SheetControlInfoIconLabelOptions" |
-		fn.#ObjectExpression
-	PlaceholderOptions?: _#defs."/$defs/Properties/definitions/TextControlPlaceholderOptions" | fn.#ObjectExpression
-	TitleOptions?:       _#defs."/$defs/Properties/definitions/LabelOptions" | fn.#ObjectExpression
+	InfoIconLabelOptions?: _#defs."/$defs/Properties/definitions/SheetControlInfoIconLabelOptions"
+	PlaceholderOptions?:   _#defs."/$defs/Properties/definitions/TextControlPlaceholderOptions"
+	TitleOptions?:         _#defs."/$defs/Properties/definitions/LabelOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TextWrap": "NONE" | "WRAP" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ThousandSeparatorOptions": close({
-	GroupingStyle?: _#defs."/$defs/Properties/definitions/DigitGroupingStyle" | fn.#StringExpression
-	Symbol?:        _#defs."/$defs/Properties/definitions/NumericSeparatorSymbol" | fn.#StringExpression
-	Visibility?:    _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	GroupingStyle?: _#defs."/$defs/Properties/definitions/DigitGroupingStyle"
+	Symbol?:        _#defs."/$defs/Properties/definitions/NumericSeparatorSymbol"
+	Visibility?:    _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TimeBasedForecastProperties": close({
-	LowerBoundary?:      number | fn.#NumberExpression
-	PeriodsBackward?:    <=1000 & >=0 | fn.#NumberExpression
-	PeriodsForward?:     <=1000 & >=1 | fn.#NumberExpression
-	PredictionInterval?: <=95 & >=50 | fn.#NumberExpression
-	Seasonality?:        <=180 & >=1 | fn.#NumberExpression
-	UpperBoundary?:      number | fn.#NumberExpression
+	LowerBoundary?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PeriodsBackward?: <=1000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1000 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PeriodsForward?: <=1000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1000 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PredictionInterval?: <=95 & >=50 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=95 &
+							>=50,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Seasonality?: <=180 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=180 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UpperBoundary?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TimeEqualityFilter": close({
-	Column!: _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	DefaultFilterControlConfiguration?: _#defs."/$defs/Properties/definitions/DefaultFilterControlConfiguration" |
-		fn.#ObjectExpression
+	Column!:                            _#defs."/$defs/Properties/definitions/ColumnIdentifier"
+	DefaultFilterControlConfiguration?: _#defs."/$defs/Properties/definitions/DefaultFilterControlConfiguration"
 	FilterId!:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	ParameterName?:   strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	RollingDate?:     _#defs."/$defs/Properties/definitions/RollingDateConfiguration" | fn.#ObjectExpression
-	TimeGranularity?: _#defs."/$defs/Properties/definitions/TimeGranularity" | fn.#StringExpression
+	RollingDate?:     _#defs."/$defs/Properties/definitions/RollingDateConfiguration"
+	TimeGranularity?: _#defs."/$defs/Properties/definitions/TimeGranularity"
 	Value?:           time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -5062,46 +6097,44 @@ _#defs: "/$defs/Properties/definitions/TimeGranularity": "YEAR" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TimeRangeDrillDownFilter": close({
-	Column!:          _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
+	Column!:          _#defs."/$defs/Properties/definitions/ColumnIdentifier"
 	RangeMaximum!:    time.Time | fn.#StringExpression
 	RangeMinimum!:    time.Time | fn.#StringExpression
-	TimeGranularity!: _#defs."/$defs/Properties/definitions/TimeGranularity" | fn.#StringExpression
+	TimeGranularity!: _#defs."/$defs/Properties/definitions/TimeGranularity"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TimeRangeFilter": close({
-	Column!: _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	DefaultFilterControlConfiguration?: _#defs."/$defs/Properties/definitions/DefaultFilterControlConfiguration" |
-		fn.#ObjectExpression
-	ExcludePeriodConfiguration?: _#defs."/$defs/Properties/definitions/ExcludePeriodConfiguration" |
-		fn.#ObjectExpression
+	Column!:                            _#defs."/$defs/Properties/definitions/ColumnIdentifier"
+	DefaultFilterControlConfiguration?: _#defs."/$defs/Properties/definitions/DefaultFilterControlConfiguration"
+	ExcludePeriodConfiguration?:        _#defs."/$defs/Properties/definitions/ExcludePeriodConfiguration"
 	FilterId!:          strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	IncludeMaximum?:    bool | fn.#BooleanExpression
-	IncludeMinimum?:    bool | fn.#BooleanExpression
-	NullOption!:        _#defs."/$defs/Properties/definitions/FilterNullOption" | fn.#StringExpression
-	RangeMaximumValue?: _#defs."/$defs/Properties/definitions/TimeRangeFilterValue" | fn.#ObjectExpression
-	RangeMinimumValue?: _#defs."/$defs/Properties/definitions/TimeRangeFilterValue" | fn.#ObjectExpression
-	TimeGranularity?:   _#defs."/$defs/Properties/definitions/TimeGranularity" | fn.#StringExpression
+	IncludeMaximum?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeMinimum?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NullOption!:        _#defs."/$defs/Properties/definitions/FilterNullOption"
+	RangeMaximumValue?: _#defs."/$defs/Properties/definitions/TimeRangeFilterValue"
+	RangeMinimumValue?: _#defs."/$defs/Properties/definitions/TimeRangeFilterValue"
+	TimeGranularity?:   _#defs."/$defs/Properties/definitions/TimeGranularity"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TimeRangeFilterValue": close({
 	Parameter?:   strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	RollingDate?: _#defs."/$defs/Properties/definitions/RollingDateConfiguration" | fn.#ObjectExpression
+	RollingDate?: _#defs."/$defs/Properties/definitions/RollingDateConfiguration"
 	StaticValue?: time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TooltipItem": close({
-	ColumnTooltipItem?: _#defs."/$defs/Properties/definitions/ColumnTooltipItem" | fn.#ObjectExpression
-	FieldTooltipItem?:  _#defs."/$defs/Properties/definitions/FieldTooltipItem" | fn.#ObjectExpression
+	ColumnTooltipItem?: _#defs."/$defs/Properties/definitions/ColumnTooltipItem"
+	FieldTooltipItem?:  _#defs."/$defs/Properties/definitions/FieldTooltipItem"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TooltipOptions": close({
-	FieldBasedTooltip?:   _#defs."/$defs/Properties/definitions/FieldBasedTooltip" | fn.#ObjectExpression
-	SelectedTooltipType?: _#defs."/$defs/Properties/definitions/SelectedTooltipType" | fn.#StringExpression
-	TooltipVisibility?:   _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	FieldBasedTooltip?:   _#defs."/$defs/Properties/definitions/FieldBasedTooltip"
+	SelectedTooltipType?: _#defs."/$defs/Properties/definitions/SelectedTooltipType"
+	TooltipVisibility?:   _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
@@ -5113,38 +6146,93 @@ _#defs: "/$defs/Properties/definitions/TopBottomComputationType": "TOP" | "BOTTO
 
 _#defs: "/$defs/Properties/definitions/TopBottomFilter": close({
 	AggregationSortConfigurations!: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/AggregationSortConfiguration" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/AggregationSortConfiguration"
 	] |
 		fn.#ListExpression
-	Column!: _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
-	DefaultFilterControlConfiguration?: _#defs."/$defs/Properties/definitions/DefaultFilterControlConfiguration" |
-		fn.#ObjectExpression
-	FilterId!:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Limit?:           number | fn.#NumberExpression
+	Column!:                            _#defs."/$defs/Properties/definitions/ColumnIdentifier"
+	DefaultFilterControlConfiguration?: _#defs."/$defs/Properties/definitions/DefaultFilterControlConfiguration"
+	FilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Limit?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ParameterName?:   strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	TimeGranularity?: _#defs."/$defs/Properties/definitions/TimeGranularity" | fn.#StringExpression
+	TimeGranularity?: _#defs."/$defs/Properties/definitions/TimeGranularity"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopBottomMoversComputation": close({
-	Category?:      _#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
+	Category?:      _#defs."/$defs/Properties/definitions/DimensionField"
 	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	MoverSize?:     <=20 & >=1 | fn.#NumberExpression
-	Name?:          string | fn.#StringExpression
-	SortOrder?:     _#defs."/$defs/Properties/definitions/TopBottomSortOrder" | fn.#StringExpression
-	Time?:          _#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	Type!:          _#defs."/$defs/Properties/definitions/TopBottomComputationType" | fn.#StringExpression
-	Value?:         _#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
+	MoverSize?: <=20 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=20 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name?:      string | fn.#StringExpression
+	SortOrder?: _#defs."/$defs/Properties/definitions/TopBottomSortOrder"
+	Time?:      _#defs."/$defs/Properties/definitions/DimensionField"
+	Type!:      _#defs."/$defs/Properties/definitions/TopBottomComputationType"
+	Value?:     _#defs."/$defs/Properties/definitions/MeasureField"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopBottomRankedComputation": close({
-	Category?:      _#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
+	Category?:      _#defs."/$defs/Properties/definitions/DimensionField"
 	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	Name?:          string | fn.#StringExpression
-	ResultSize?:    <=20 & >=1 | fn.#NumberExpression
-	Type!:          _#defs."/$defs/Properties/definitions/TopBottomComputationType" | fn.#StringExpression
-	Value?:         _#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
+	ResultSize?: <=20 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=20 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type!:  _#defs."/$defs/Properties/definitions/TopBottomComputationType"
+	Value?: _#defs."/$defs/Properties/definitions/MeasureField"
 }) |
 fn.#ObjectExpression
 
@@ -5153,17 +6241,16 @@ _#defs: "/$defs/Properties/definitions/TopBottomSortOrder": "PERCENT_DIFFERENCE"
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TopicConfiguration": close({
-	ColumnGroupSchemaList?: list.MaxItems(500) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnGroupSchema" | fn.#ObjectExpression
-	] |
+	ColumnGroupSchemaList?: list.MaxItems(500) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnGroupSchema"] |
 		fn.#ListExpression
-	DataSetSchema?: _#defs."/$defs/Properties/definitions/DataSetSchema" | fn.#ObjectExpression
+	DataSetSchema?: _#defs."/$defs/Properties/definitions/DataSetSchema"
 	Placeholder?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopicReference": close({
-	TopicArn!:         string | fn.#StringExpression
+	TopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	TopicPlaceholder!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -5171,32 +6258,31 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/TotalAggregationComputation": close({
 	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	Name?:          string | fn.#StringExpression
-	Value?:         _#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
+	Value?:         _#defs."/$defs/Properties/definitions/MeasureField"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TotalAggregationFunction": close({
-	SimpleTotalAggregationFunction?: _#defs."/$defs/Properties/definitions/SimpleTotalAggregationFunction" |
-		fn.#StringExpression
-}) |
+_#defs: "/$defs/Properties/definitions/TotalAggregationFunction": close(
+	{SimpleTotalAggregationFunction?: _#defs."/$defs/Properties/definitions/SimpleTotalAggregationFunction"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TotalAggregationOption": close({
 	FieldId!:                  strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	TotalAggregationFunction!: _#defs."/$defs/Properties/definitions/TotalAggregationFunction" | fn.#ObjectExpression
+	TotalAggregationFunction!: _#defs."/$defs/Properties/definitions/TotalAggregationFunction"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TotalOptions": close({
 	CustomLabel?:  string | fn.#StringExpression
-	Placement?:    _#defs."/$defs/Properties/definitions/TableTotalsPlacement" | fn.#StringExpression
-	ScrollStatus?: _#defs."/$defs/Properties/definitions/TableTotalsScrollStatus" | fn.#StringExpression
+	Placement?:    _#defs."/$defs/Properties/definitions/TableTotalsPlacement"
+	ScrollStatus?: _#defs."/$defs/Properties/definitions/TableTotalsScrollStatus"
 	TotalAggregationOptions?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/TotalAggregationOption" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/TotalAggregationOption"
 	] |
 		fn.#ListExpression
-	TotalCellStyle?:   _#defs."/$defs/Properties/definitions/TableCellStyle" | fn.#ObjectExpression
-	TotalsVisibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	TotalCellStyle?:   _#defs."/$defs/Properties/definitions/TableCellStyle"
+	TotalsVisibility?: _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
@@ -5205,73 +6291,79 @@ _#defs: "/$defs/Properties/definitions/TransposedColumnType": "ROW_HEADER_COLUMN
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TransposedTableOption": close({
-	ColumnIndex?: <=9999 & >=0 | fn.#NumberExpression
-	ColumnType!:  _#defs."/$defs/Properties/definitions/TransposedColumnType" | fn.#StringExpression
+	ColumnIndex?: <=9999 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=9999 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ColumnType!:  _#defs."/$defs/Properties/definitions/TransposedColumnType"
 	ColumnWidth?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TreeMapAggregatedFieldWells": close({
-	Colors?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Groups?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Sizes?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Colors?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
+	Groups?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] | fn.#ListExpression
+	Sizes?:  list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TreeMapConfiguration": close({
-	ColorLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	ColorScale?:        _#defs."/$defs/Properties/definitions/ColorScale" | fn.#ObjectExpression
-	DataLabels?:        _#defs."/$defs/Properties/definitions/DataLabelOptions" | fn.#ObjectExpression
-	FieldWells?:        _#defs."/$defs/Properties/definitions/TreeMapFieldWells" | fn.#ObjectExpression
-	GroupLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	Interactions?:      _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	Legend?:            _#defs."/$defs/Properties/definitions/LegendOptions" | fn.#ObjectExpression
-	SizeLabelOptions?:  _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	SortConfiguration?: _#defs."/$defs/Properties/definitions/TreeMapSortConfiguration" | fn.#ObjectExpression
-	Tooltip?:           _#defs."/$defs/Properties/definitions/TooltipOptions" | fn.#ObjectExpression
+	ColorLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	ColorScale?:        _#defs."/$defs/Properties/definitions/ColorScale"
+	DataLabels?:        _#defs."/$defs/Properties/definitions/DataLabelOptions"
+	FieldWells?:        _#defs."/$defs/Properties/definitions/TreeMapFieldWells"
+	GroupLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	Interactions?:      _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	Legend?:            _#defs."/$defs/Properties/definitions/LegendOptions"
+	SizeLabelOptions?:  _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	SortConfiguration?: _#defs."/$defs/Properties/definitions/TreeMapSortConfiguration"
+	Tooltip?:           _#defs."/$defs/Properties/definitions/TooltipOptions"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TreeMapFieldWells": close({
-	TreeMapAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/TreeMapAggregatedFieldWells" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/TreeMapFieldWells": close(
+	{TreeMapAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/TreeMapAggregatedFieldWells"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TreeMapSortConfiguration": close({
-	TreeMapGroupItemsLimitConfiguration?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" |
-		fn.#ObjectExpression
-	TreeMapSort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	TreeMapGroupItemsLimitConfiguration?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	TreeMapSort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TreeMapVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?: _#defs."/$defs/Properties/definitions/TreeMapConfiguration" | fn.#ObjectExpression
-	ColumnHierarchies?: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnHierarchy" | fn.#ObjectExpression
-	] |
+	ChartConfiguration?: _#defs."/$defs/Properties/definitions/TreeMapConfiguration"
+	ColumnHierarchies?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnHierarchy"] |
 		fn.#ListExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TrendArrowOptions": close(
-	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression},
+	{Visibility?: _#defs."/$defs/Properties/definitions/Visibility"},
 ) |
 	fn.#ObjectExpression
 
@@ -5281,21 +6373,21 @@ _#defs: "/$defs/Properties/definitions/URLTargetConfiguration": "NEW_TAB" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/UnaggregatedField": close({
-	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier" | fn.#ObjectExpression
+	Column!:              _#defs."/$defs/Properties/definitions/ColumnIdentifier"
 	FieldId!:             strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	FormatConfiguration?: _#defs."/$defs/Properties/definitions/FormatConfiguration" | fn.#ObjectExpression
+	FormatConfiguration?: _#defs."/$defs/Properties/definitions/FormatConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UniqueValuesComputation": close({
-	Category?:      _#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
+	Category?:      _#defs."/$defs/Properties/definitions/DimensionField"
 	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	Name?:          string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ValidationStrategy": close(
-	{Mode!: _#defs."/$defs/Properties/definitions/ValidationStrategyMode" | fn.#StringExpression},
+	{Mode!: _#defs."/$defs/Properties/definitions/ValidationStrategyMode"},
 ) |
 	fn.#ObjectExpression
 
@@ -5312,57 +6404,56 @@ _#defs: "/$defs/Properties/definitions/VerticalTextAlignment": "TOP" |
 _#defs: "/$defs/Properties/definitions/Visibility": "HIDDEN" | "VISIBLE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/VisibleRangeOptions": close(
-	{PercentRange?: _#defs."/$defs/Properties/definitions/PercentVisibleRange" | fn.#ObjectExpression},
+	{PercentRange?: _#defs."/$defs/Properties/definitions/PercentVisibleRange"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Visual": close({
-	BarChartVisual?:      _#defs."/$defs/Properties/definitions/BarChartVisual" | fn.#ObjectExpression
-	BoxPlotVisual?:       _#defs."/$defs/Properties/definitions/BoxPlotVisual" | fn.#ObjectExpression
-	ComboChartVisual?:    _#defs."/$defs/Properties/definitions/ComboChartVisual" | fn.#ObjectExpression
-	CustomContentVisual?: _#defs."/$defs/Properties/definitions/CustomContentVisual" | fn.#ObjectExpression
-	EmptyVisual?:         _#defs."/$defs/Properties/definitions/EmptyVisual" | fn.#ObjectExpression
-	FilledMapVisual?:     _#defs."/$defs/Properties/definitions/FilledMapVisual" | fn.#ObjectExpression
-	FunnelChartVisual?:   _#defs."/$defs/Properties/definitions/FunnelChartVisual" | fn.#ObjectExpression
-	GaugeChartVisual?:    _#defs."/$defs/Properties/definitions/GaugeChartVisual" | fn.#ObjectExpression
-	GeospatialMapVisual?: _#defs."/$defs/Properties/definitions/GeospatialMapVisual" | fn.#ObjectExpression
-	HeatMapVisual?:       _#defs."/$defs/Properties/definitions/HeatMapVisual" | fn.#ObjectExpression
-	HistogramVisual?:     _#defs."/$defs/Properties/definitions/HistogramVisual" | fn.#ObjectExpression
-	InsightVisual?:       _#defs."/$defs/Properties/definitions/InsightVisual" | fn.#ObjectExpression
-	KPIVisual?:           _#defs."/$defs/Properties/definitions/KPIVisual" | fn.#ObjectExpression
-	LayerMapVisual?:      _#defs."/$defs/Properties/definitions/LayerMapVisual" | fn.#ObjectExpression
-	LineChartVisual?:     _#defs."/$defs/Properties/definitions/LineChartVisual" | fn.#ObjectExpression
-	PieChartVisual?:      _#defs."/$defs/Properties/definitions/PieChartVisual" | fn.#ObjectExpression
-	PivotTableVisual?:    _#defs."/$defs/Properties/definitions/PivotTableVisual" | fn.#ObjectExpression
-	PluginVisual?:        _#defs."/$defs/Properties/definitions/PluginVisual" | fn.#ObjectExpression
-	RadarChartVisual?:    _#defs."/$defs/Properties/definitions/RadarChartVisual" | fn.#ObjectExpression
-	SankeyDiagramVisual?: _#defs."/$defs/Properties/definitions/SankeyDiagramVisual" | fn.#ObjectExpression
-	ScatterPlotVisual?:   _#defs."/$defs/Properties/definitions/ScatterPlotVisual" | fn.#ObjectExpression
-	TableVisual?:         _#defs."/$defs/Properties/definitions/TableVisual" | fn.#ObjectExpression
-	TreeMapVisual?:       _#defs."/$defs/Properties/definitions/TreeMapVisual" | fn.#ObjectExpression
-	WaterfallVisual?:     _#defs."/$defs/Properties/definitions/WaterfallVisual" | fn.#ObjectExpression
-	WordCloudVisual?:     _#defs."/$defs/Properties/definitions/WordCloudVisual" | fn.#ObjectExpression
+	BarChartVisual?:      _#defs."/$defs/Properties/definitions/BarChartVisual"
+	BoxPlotVisual?:       _#defs."/$defs/Properties/definitions/BoxPlotVisual"
+	ComboChartVisual?:    _#defs."/$defs/Properties/definitions/ComboChartVisual"
+	CustomContentVisual?: _#defs."/$defs/Properties/definitions/CustomContentVisual"
+	EmptyVisual?:         _#defs."/$defs/Properties/definitions/EmptyVisual"
+	FilledMapVisual?:     _#defs."/$defs/Properties/definitions/FilledMapVisual"
+	FunnelChartVisual?:   _#defs."/$defs/Properties/definitions/FunnelChartVisual"
+	GaugeChartVisual?:    _#defs."/$defs/Properties/definitions/GaugeChartVisual"
+	GeospatialMapVisual?: _#defs."/$defs/Properties/definitions/GeospatialMapVisual"
+	HeatMapVisual?:       _#defs."/$defs/Properties/definitions/HeatMapVisual"
+	HistogramVisual?:     _#defs."/$defs/Properties/definitions/HistogramVisual"
+	InsightVisual?:       _#defs."/$defs/Properties/definitions/InsightVisual"
+	KPIVisual?:           _#defs."/$defs/Properties/definitions/KPIVisual"
+	LayerMapVisual?:      _#defs."/$defs/Properties/definitions/LayerMapVisual"
+	LineChartVisual?:     _#defs."/$defs/Properties/definitions/LineChartVisual"
+	PieChartVisual?:      _#defs."/$defs/Properties/definitions/PieChartVisual"
+	PivotTableVisual?:    _#defs."/$defs/Properties/definitions/PivotTableVisual"
+	PluginVisual?:        _#defs."/$defs/Properties/definitions/PluginVisual"
+	RadarChartVisual?:    _#defs."/$defs/Properties/definitions/RadarChartVisual"
+	SankeyDiagramVisual?: _#defs."/$defs/Properties/definitions/SankeyDiagramVisual"
+	ScatterPlotVisual?:   _#defs."/$defs/Properties/definitions/ScatterPlotVisual"
+	TableVisual?:         _#defs."/$defs/Properties/definitions/TableVisual"
+	TreeMapVisual?:       _#defs."/$defs/Properties/definitions/TreeMapVisual"
+	WaterfallVisual?:     _#defs."/$defs/Properties/definitions/WaterfallVisual"
+	WordCloudVisual?:     _#defs."/$defs/Properties/definitions/WordCloudVisual"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VisualCustomAction": close({
 	ActionOperations!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomActionOperation" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/VisualCustomActionOperation"
 	] |
 		fn.#ListExpression
 	CustomActionId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 	Name!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Status?:         _#defs."/$defs/Properties/definitions/WidgetStatus" | fn.#StringExpression
-	Trigger!:        _#defs."/$defs/Properties/definitions/VisualCustomActionTrigger" | fn.#StringExpression
+	Status?:         _#defs."/$defs/Properties/definitions/WidgetStatus"
+	Trigger!:        _#defs."/$defs/Properties/definitions/VisualCustomActionTrigger"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VisualCustomActionOperation": close({
-	FilterOperation?:     _#defs."/$defs/Properties/definitions/CustomActionFilterOperation" | fn.#ObjectExpression
-	NavigationOperation?: _#defs."/$defs/Properties/definitions/CustomActionNavigationOperation" | fn.#ObjectExpression
-	SetParametersOperation?: _#defs."/$defs/Properties/definitions/CustomActionSetParametersOperation" |
-		fn.#ObjectExpression
-	URLOperation?: _#defs."/$defs/Properties/definitions/CustomActionURLOperation" | fn.#ObjectExpression
+	FilterOperation?:        _#defs."/$defs/Properties/definitions/CustomActionFilterOperation"
+	NavigationOperation?:    _#defs."/$defs/Properties/definitions/CustomActionNavigationOperation"
+	SetParametersOperation?: _#defs."/$defs/Properties/definitions/CustomActionSetParametersOperation"
+	URLOperation?:           _#defs."/$defs/Properties/definitions/CustomActionURLOperation"
 }) |
 fn.#ObjectExpression
 
@@ -5371,79 +6462,68 @@ _#defs: "/$defs/Properties/definitions/VisualCustomActionTrigger": "DATA_POINT_C
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/VisualInteractionOptions": close({
-	ContextMenuOption?: _#defs."/$defs/Properties/definitions/ContextMenuOption" | fn.#ObjectExpression
-	VisualMenuOption?:  _#defs."/$defs/Properties/definitions/VisualMenuOption" | fn.#ObjectExpression
+	ContextMenuOption?: _#defs."/$defs/Properties/definitions/ContextMenuOption"
+	VisualMenuOption?:  _#defs."/$defs/Properties/definitions/VisualMenuOption"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VisualMenuOption": close(
-	{AvailabilityStatus?: _#defs."/$defs/Properties/definitions/DashboardBehavior" | fn.#StringExpression},
+	{AvailabilityStatus?: _#defs."/$defs/Properties/definitions/DashboardBehavior"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VisualPalette": close({
 	ChartColor?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	ColorMap?: list.MaxItems(5000) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DataPathColor" | fn.#ObjectExpression
-	] |
+	ColorMap?: list.MaxItems(5000) & [...] & [..._#defs."/$defs/Properties/definitions/DataPathColor"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VisualSubtitleLabelOptions": close({
-	FormatText?: _#defs."/$defs/Properties/definitions/LongFormatText" | fn.#ObjectExpression
-	Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	FormatText?: _#defs."/$defs/Properties/definitions/LongFormatText"
+	Visibility?: _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VisualTitleLabelOptions": close({
-	FormatText?: _#defs."/$defs/Properties/definitions/ShortFormatText" | fn.#ObjectExpression
-	Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
+	FormatText?: _#defs."/$defs/Properties/definitions/ShortFormatText"
+	Visibility?: _#defs."/$defs/Properties/definitions/Visibility"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WaterfallChartAggregatedFieldWells": close({
-	Breakdowns?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Breakdowns?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Categories?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	Categories?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Values?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Values?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WaterfallChartColorConfiguration": close({
-	GroupColorConfiguration?: _#defs."/$defs/Properties/definitions/WaterfallChartGroupColorConfiguration" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/WaterfallChartColorConfiguration": close(
+	{GroupColorConfiguration?: _#defs."/$defs/Properties/definitions/WaterfallChartGroupColorConfiguration"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WaterfallChartConfiguration": close({
-	CategoryAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions" | fn.#ObjectExpression
-	CategoryAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	ColorConfiguration?: _#defs."/$defs/Properties/definitions/WaterfallChartColorConfiguration" | fn.#ObjectExpression
-	DataLabels?:         _#defs."/$defs/Properties/definitions/DataLabelOptions" | fn.#ObjectExpression
-	FieldWells?:         _#defs."/$defs/Properties/definitions/WaterfallChartFieldWells" | fn.#ObjectExpression
-	Interactions?:       _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	Legend?:             _#defs."/$defs/Properties/definitions/LegendOptions" | fn.#ObjectExpression
-	PrimaryYAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions" | fn.#ObjectExpression
-	PrimaryYAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	SortConfiguration?: _#defs."/$defs/Properties/definitions/WaterfallChartSortConfiguration" | fn.#ObjectExpression
-	VisualPalette?:     _#defs."/$defs/Properties/definitions/VisualPalette" | fn.#ObjectExpression
-	WaterfallChartOptions?: _#defs."/$defs/Properties/definitions/WaterfallChartOptions" | fn.#ObjectExpression
+	CategoryAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions"
+	CategoryAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	ColorConfiguration?:         _#defs."/$defs/Properties/definitions/WaterfallChartColorConfiguration"
+	DataLabels?:                 _#defs."/$defs/Properties/definitions/DataLabelOptions"
+	FieldWells?:                 _#defs."/$defs/Properties/definitions/WaterfallChartFieldWells"
+	Interactions?:               _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	Legend?:                     _#defs."/$defs/Properties/definitions/LegendOptions"
+	PrimaryYAxisDisplayOptions?: _#defs."/$defs/Properties/definitions/AxisDisplayOptions"
+	PrimaryYAxisLabelOptions?:   _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	SortConfiguration?:          _#defs."/$defs/Properties/definitions/WaterfallChartSortConfiguration"
+	VisualPalette?:              _#defs."/$defs/Properties/definitions/VisualPalette"
+	WaterfallChartOptions?:      _#defs."/$defs/Properties/definitions/WaterfallChartOptions"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WaterfallChartFieldWells": close({
-	WaterfallChartAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/WaterfallChartAggregatedFieldWells" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/WaterfallChartFieldWells": close(
+	{WaterfallChartAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/WaterfallChartAggregatedFieldWells"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WaterfallChartGroupColorConfiguration": close({
@@ -5457,104 +6537,143 @@ _#defs: "/$defs/Properties/definitions/WaterfallChartOptions": close({TotalBarLa
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WaterfallChartSortConfiguration": close({
-	BreakdownItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" | fn.#ObjectExpression
-	CategorySort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	BreakdownItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	CategorySort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WaterfallVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?: _#defs."/$defs/Properties/definitions/WaterfallChartConfiguration" | fn.#ObjectExpression
-	ColumnHierarchies?: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnHierarchy" | fn.#ObjectExpression
-	] |
+	ChartConfiguration?: _#defs."/$defs/Properties/definitions/WaterfallChartConfiguration"
+	ColumnHierarchies?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnHierarchy"] |
 		fn.#ListExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WhatIfPointScenario": close({
-	Date!:  time.Time | fn.#StringExpression
-	Value!: number | fn.#NumberExpression
+	Date!: time.Time | fn.#StringExpression
+	Value!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WhatIfRangeScenario": close({
 	EndDate!:   time.Time | fn.#StringExpression
 	StartDate!: time.Time | fn.#StringExpression
-	Value!:     number | fn.#NumberExpression
+	Value!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WidgetStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/WordCloudAggregatedFieldWells": close({
-	GroupBy?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DimensionField" | fn.#ObjectExpression
-	] |
+	GroupBy?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/DimensionField"] |
 		fn.#ListExpression
-	Size?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Size?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/MeasureField"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WordCloudChartConfiguration": close({
-	CategoryLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions" | fn.#ObjectExpression
-	FieldWells?:           _#defs."/$defs/Properties/definitions/WordCloudFieldWells" | fn.#ObjectExpression
-	Interactions?:         _#defs."/$defs/Properties/definitions/VisualInteractionOptions" | fn.#ObjectExpression
-	SortConfiguration?:    _#defs."/$defs/Properties/definitions/WordCloudSortConfiguration" | fn.#ObjectExpression
-	WordCloudOptions?:     _#defs."/$defs/Properties/definitions/WordCloudOptions" | fn.#ObjectExpression
+	CategoryLabelOptions?: _#defs."/$defs/Properties/definitions/ChartAxisLabelOptions"
+	FieldWells?:           _#defs."/$defs/Properties/definitions/WordCloudFieldWells"
+	Interactions?:         _#defs."/$defs/Properties/definitions/VisualInteractionOptions"
+	SortConfiguration?:    _#defs."/$defs/Properties/definitions/WordCloudSortConfiguration"
+	WordCloudOptions?:     _#defs."/$defs/Properties/definitions/WordCloudOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WordCloudCloudLayout": "FLUID" | "NORMAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WordCloudFieldWells": close({
-	WordCloudAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/WordCloudAggregatedFieldWells" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/WordCloudFieldWells": close(
+	{WordCloudAggregatedFieldWells?: _#defs."/$defs/Properties/definitions/WordCloudAggregatedFieldWells"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WordCloudOptions": close({
-	CloudLayout?:         _#defs."/$defs/Properties/definitions/WordCloudCloudLayout" | fn.#StringExpression
-	MaximumStringLength?: <=100 & >=1 | fn.#NumberExpression
-	WordCasing?:          _#defs."/$defs/Properties/definitions/WordCloudWordCasing" | fn.#StringExpression
-	WordOrientation?:     _#defs."/$defs/Properties/definitions/WordCloudWordOrientation" | fn.#StringExpression
-	WordPadding?:         _#defs."/$defs/Properties/definitions/WordCloudWordPadding" | fn.#StringExpression
-	WordScaling?:         _#defs."/$defs/Properties/definitions/WordCloudWordScaling" | fn.#StringExpression
+	CloudLayout?: _#defs."/$defs/Properties/definitions/WordCloudCloudLayout"
+	MaximumStringLength?: <=100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	WordCasing?:      _#defs."/$defs/Properties/definitions/WordCloudWordCasing"
+	WordOrientation?: _#defs."/$defs/Properties/definitions/WordCloudWordOrientation"
+	WordPadding?:     _#defs."/$defs/Properties/definitions/WordCloudWordPadding"
+	WordScaling?:     _#defs."/$defs/Properties/definitions/WordCloudWordScaling"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WordCloudSortConfiguration": close({
-	CategoryItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration" | fn.#ObjectExpression
-	CategorySort?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FieldSortOptions" | fn.#ObjectExpression
-	] |
+	CategoryItemsLimit?: _#defs."/$defs/Properties/definitions/ItemsLimitConfiguration"
+	CategorySort?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldSortOptions"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WordCloudVisual": close({
-	Actions?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/VisualCustomAction" | fn.#ObjectExpression
-	] |
+	Actions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/VisualCustomAction"] |
 		fn.#ListExpression
-	ChartConfiguration?: _#defs."/$defs/Properties/definitions/WordCloudChartConfiguration" | fn.#ObjectExpression
-	ColumnHierarchies?: list.MaxItems(2) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ColumnHierarchy" | fn.#ObjectExpression
-	] |
+	ChartConfiguration?: _#defs."/$defs/Properties/definitions/WordCloudChartConfiguration"
+	ColumnHierarchies?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnHierarchy"] |
 		fn.#ListExpression
-	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions" | fn.#ObjectExpression
-	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions" | fn.#ObjectExpression
+	Subtitle?:             _#defs."/$defs/Properties/definitions/VisualSubtitleLabelOptions"
+	Title?:                _#defs."/$defs/Properties/definitions/VisualTitleLabelOptions"
 	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 }) |
@@ -5575,7 +6694,7 @@ _#defs: "/$defs/Properties/definitions/WordCloudWordPadding": "NONE" |
 _#defs: "/$defs/Properties/definitions/WordCloudWordScaling": "EMPHASIZE" | "NORMAL" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/YAxisOptions": close(
-	{YAxis!: _#defs."/$defs/Properties/definitions/SingleYAxisOption" | fn.#StringExpression},
+	{YAxis!: _#defs."/$defs/Properties/definitions/SingleYAxisOption"},
 ) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

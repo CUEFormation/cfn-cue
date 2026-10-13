@@ -14,15 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::DirectoryService::SimpleAD
 #Properties: close({
-	CreateAlias?: bool | fn.#BooleanExpression
+	CreateAlias?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Description?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^([a-zA-Z0-9_])[\\\\a-zA-Z0-9_@#%*+=:?./!\\s-]*$" |
 	fn.#StringExpression
-	EnableSso?:   bool | fn.#BooleanExpression
+	EnableSso?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!:        =~"^([a-zA-Z0-9]+[\\\\.-])+([a-zA-Z0-9])+$" | fn.#StringExpression
 	Password?:    string | fn.#StringExpression
 	ShortName?:   =~"^[^\\\\/:*?\"<>|.]+[^\\\\/:*?\"<>|]*$" | fn.#StringExpression
 	Size!:        "Large" | "Small" | fn.#StringExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VpcSettings!: _#defs."/$defs/Properties/definitions/VpcSettings" | fn.#ObjectExpression
 })
 
@@ -35,7 +35,9 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/VpcSettings": close({
 	SubnetIds!: list.UniqueItems() & [...=~"^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17})$" | fn.#StringExpression] |
 		fn.#ListExpression
-	VpcId!: =~"^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17})$" | fn.#StringExpression
+	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17})$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ObjectLambdaAccessPoint!: strings.MaxRunes(45) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" |
 	fn.#StringExpression
-	PolicyDocument!: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::S3ObjectLambda::AccessPointPolicy"

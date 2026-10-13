@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -21,18 +25,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:     strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 	EvaluatorConfig!: _#defs."/$defs/Properties/definitions/EvaluatorConfig" | fn.#ObjectExpression
 	EvaluatorName!:   =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]+:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
 	fn.#StringExpression
 	Level!: _#defs."/$defs/Properties/definitions/EvaluatorLevel" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:  list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/BedrockEvaluatorModelConfig": close({
-	AdditionalModelRequestFields?: {[string]: fn.#Value} | fn.#ObjectExpression
-	InferenceConfig?:              _#defs."/$defs/Properties/definitions/InferenceConfiguration" | fn.#ObjectExpression
+	AdditionalModelRequestFields?: fn.#Object & {...} | fn.#ObjectExpression
+	InferenceConfig?:              _#defs."/$defs/Properties/definitions/InferenceConfiguration"
 	ModelId!:                      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -44,14 +48,14 @@ _#defs: "/$defs/Properties/definitions/CategoricalScaleDefinition": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CodeBasedEvaluatorConfig": close(
-	{LambdaConfig!: _#defs."/$defs/Properties/definitions/LambdaEvaluatorConfig" | fn.#ObjectExpression},
+	{LambdaConfig!: _#defs."/$defs/Properties/definitions/LambdaEvaluatorConfig"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DerivedEvaluatorConfig": close({
 	BaseEvaluatorId!: =~"^(Builtin\\.[a-zA-Z0-9._-]+|ThirdParty\\.[a-zA-Z0-9._-]+|[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10})$" |
 		fn.#StringExpression
-	ModelConfig!: _#defs."/$defs/Properties/definitions/EvaluatorModelConfig" | fn.#ObjectExpression
+	ModelConfig!: _#defs."/$defs/Properties/definitions/EvaluatorModelConfig"
 }) |
 fn.#ObjectExpression
 
@@ -65,9 +69,9 @@ _#defs: "/$defs/Properties/definitions/EvaluatorConfig": matchN(1, [{
 	Derived!: _
 	...
 }]) & close({
-	CodeBased?:   _#defs."/$defs/Properties/definitions/CodeBasedEvaluatorConfig" | fn.#ObjectExpression
-	Derived?:     _#defs."/$defs/Properties/definitions/DerivedEvaluatorConfig" | fn.#ObjectExpression
-	LlmAsAJudge?: _#defs."/$defs/Properties/definitions/LlmAsAJudgeEvaluatorConfig" | fn.#ObjectExpression
+	CodeBased?:   _#defs."/$defs/Properties/definitions/CodeBasedEvaluatorConfig"
+	Derived?:     _#defs."/$defs/Properties/definitions/DerivedEvaluatorConfig"
+	LlmAsAJudge?: _#defs."/$defs/Properties/definitions/LlmAsAJudgeEvaluatorConfig"
 }) |
 fn.#ObjectExpression
 
@@ -80,10 +84,8 @@ _#defs: "/$defs/Properties/definitions/EvaluatorModelConfig": matchN(1, [{
 	ResponsesEvaluatorModelConfig!: _
 	...
 }]) & close({
-	BedrockEvaluatorModelConfig?: _#defs."/$defs/Properties/definitions/BedrockEvaluatorModelConfig" |
-		fn.#ObjectExpression
-	ResponsesEvaluatorModelConfig?: _#defs."/$defs/Properties/definitions/OpenResponsesEvaluatorModelConfig" |
-		fn.#ObjectExpression
+	BedrockEvaluatorModelConfig?:   _#defs."/$defs/Properties/definitions/BedrockEvaluatorModelConfig"
+	ResponsesEvaluatorModelConfig?: _#defs."/$defs/Properties/definitions/OpenResponsesEvaluatorModelConfig"
 }) |
 fn.#ObjectExpression
 
@@ -103,39 +105,177 @@ _#defs: "/$defs/Properties/definitions/EvaluatorType": "Builtin" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceConfiguration": close({
-	MaxTokens?:   int & >=1 | fn.#NumberExpression
-	Temperature?: <=1 & >=0 | fn.#NumberExpression
-	TopP?:        <=1 & >=0 | fn.#NumberExpression
+	MaxTokens?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Temperature?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TopP?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LambdaEvaluatorConfig": close({
-	LambdaArn!: =~"^arn:(aws[a-zA-Z-]*)?:lambda:([a-z]{2}(-gov)?-[a-z]+-\\d{1}):(\\d{12}):function:([a-zA-Z0-9-_.]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
+	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:(aws[a-zA-Z-]*)?:lambda:([a-z]{2}(-gov)?-[a-z]+-\\d{1}):(\\d{12}):function:([a-zA-Z0-9-_.]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
 		fn.#StringExpression
-	LambdaTimeoutInSeconds?: int & <=300 & >=1 | fn.#NumberExpression
+	LambdaTimeoutInSeconds?: int & <=300 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=300 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LlmAsAJudgeEvaluatorConfig": close({
 	Instructions!: string | fn.#StringExpression
-	ModelConfig!:  _#defs."/$defs/Properties/definitions/EvaluatorModelConfig" | fn.#ObjectExpression
-	RatingScale!:  _#defs."/$defs/Properties/definitions/RatingScale" | fn.#ObjectExpression
+	ModelConfig!:  _#defs."/$defs/Properties/definitions/EvaluatorModelConfig"
+	RatingScale!:  _#defs."/$defs/Properties/definitions/RatingScale"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NumericalScaleDefinition": close({
 	Definition!: string | fn.#StringExpression
 	Label!:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Value!:      >=0 | fn.#NumberExpression
+	Value!: >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OpenResponsesEvaluatorModelConfig": close({
-	MaxOutputTokens?: int & >=1 | fn.#NumberExpression
-	ModelId!:         string | fn.#StringExpression
-	Reasoning?:       _#defs."/$defs/Properties/definitions/ReasoningConfiguration" | fn.#ObjectExpression
-	Temperature?:     <=2 & >=0 | fn.#NumberExpression
-	TopP?:            <=1 & >=0 | fn.#NumberExpression
+	MaxOutputTokens?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ModelId!:   string | fn.#StringExpression
+	Reasoning?: _#defs."/$defs/Properties/definitions/ReasoningConfiguration"
+	Temperature?: <=2 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=2 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TopP?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -148,10 +288,8 @@ _#defs: "/$defs/Properties/definitions/RatingScale": matchN(1, [{
 	Categorical!: _
 	...
 }]) & close({
-	Categorical?: [..._#defs."/$defs/Properties/definitions/CategoricalScaleDefinition" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Numerical?: [..._#defs."/$defs/Properties/definitions/NumericalScaleDefinition" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Categorical?: [..._#defs."/$defs/Properties/definitions/CategoricalScaleDefinition"] | fn.#ListExpression
+	Numerical?:   [..._#defs."/$defs/Properties/definitions/NumericalScaleDefinition"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

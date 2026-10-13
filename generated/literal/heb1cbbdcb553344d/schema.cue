@@ -118,7 +118,7 @@ import (
 	Username?: strings.MaxRunes(64) & strings.MinRunes(1)
 
 	// A list of Amazon EC2 VPC security groups to associate with this InfluxDB cluster.
-	VpcSecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [...string]
+	VpcSecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// A list of EC2 subnet IDs for this InfluxDB cluster.
 	VpcSubnetIds?: list.MaxItems(3) & list.MinItems(1) & [...string]

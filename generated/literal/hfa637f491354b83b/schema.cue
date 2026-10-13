@@ -11,7 +11,7 @@ import (
 
 // Resource Type definition for AWS::Lightsail::Certificate.
 #Properties: close({
-	CertificateArn?: string
+	CertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"
 
 	// The name for the certificate.
 	CertificateName!: string

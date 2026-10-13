@@ -22,9 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	AuthType!:   "oauth2" | "apiKey" | fn.#StringExpression
 	Credential?: _#defs."/$defs/Properties/definitions/Credential" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	Tenant!: _#defs."/$defs/Properties/definitions/Tenant" | fn.#ObjectExpression
 })
@@ -35,8 +33,8 @@ _#defs: "/$defs/Properties/definitions/ApiKeyCredential": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Credential": close({
-	ApiKeyCredential?: _#defs."/$defs/Properties/definitions/ApiKeyCredential" | fn.#ObjectExpression
-	Oauth2Credential?: _#defs."/$defs/Properties/definitions/Oauth2Credential" | fn.#ObjectExpression
+	ApiKeyCredential?: _#defs."/$defs/Properties/definitions/ApiKeyCredential"
+	Oauth2Credential?: _#defs."/$defs/Properties/definitions/Oauth2Credential"
 }) |
 fn.#ObjectExpression
 

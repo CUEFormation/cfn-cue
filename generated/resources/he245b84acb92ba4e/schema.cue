@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,30 +18,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Bedrock::Guardrail Resource Type
 #Properties: close({
-	AutomatedReasoningPolicyConfig?: _#defs."/$defs/Properties/definitions/AutomatedReasoningPolicyConfig" |
-		fn.#ObjectExpression
-	BlockedInputMessaging!:   strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	BlockedOutputsMessaging!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	ContentPolicyConfig?:     _#defs."/$defs/Properties/definitions/ContentPolicyConfig" | fn.#ObjectExpression
-	ContextualGroundingPolicyConfig?: _#defs."/$defs/Properties/definitions/ContextualGroundingPolicyConfig" |
-		fn.#ObjectExpression
-	CrossRegionConfig?: _#defs."/$defs/Properties/definitions/GuardrailCrossRegionConfig" | fn.#ObjectExpression
-	Description?:       strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	AutomatedReasoningPolicyConfig?:  _#defs."/$defs/Properties/definitions/AutomatedReasoningPolicyConfig"
+	BlockedInputMessaging!:           strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+	BlockedOutputsMessaging!:         strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+	ContentPolicyConfig?:             _#defs."/$defs/Properties/definitions/ContentPolicyConfig"
+	ContextualGroundingPolicyConfig?: _#defs."/$defs/Properties/definitions/ContextualGroundingPolicyConfig"
+	CrossRegionConfig?:               _#defs."/$defs/Properties/definitions/GuardrailCrossRegionConfig"
+	Description?:                     strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
 	fn.#StringExpression
 	Name!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_]+$" | fn.#StringExpression
-	SensitiveInformationPolicyConfig?: _#defs."/$defs/Properties/definitions/SensitiveInformationPolicyConfig" |
-		fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TopicPolicyConfig?: _#defs."/$defs/Properties/definitions/TopicPolicyConfig" | fn.#ObjectExpression
-	WordPolicyConfig?:  _#defs."/$defs/Properties/definitions/WordPolicyConfig" | fn.#ObjectExpression
+	SensitiveInformationPolicyConfig?: _#defs."/$defs/Properties/definitions/SensitiveInformationPolicyConfig"
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TopicPolicyConfig?: _#defs."/$defs/Properties/definitions/TopicPolicyConfig"
+	WordPolicyConfig?:  _#defs."/$defs/Properties/definitions/WordPolicyConfig"
 })
 
 _#defs: "/$defs/Properties/definitions/AutomatedReasoningPolicyConfig": close({
-	ConfidenceThreshold?: <=1 & >=0 | fn.#NumberExpression
+	ConfidenceThreshold?: <=1 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Policies!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(2048) &
 		strings.MinRunes(15) &
@@ -51,21 +71,17 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ContentFilterAction": "BLOCK" | "NONE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ContentFilterConfig": close({
-	InputAction?:  _#defs."/$defs/Properties/definitions/ContentFilterAction" | fn.#StringExpression
-	InputEnabled?: bool | fn.#BooleanExpression
-	InputModalities?: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Modality" | fn.#StringExpression
-	] |
+	InputAction?:  _#defs."/$defs/Properties/definitions/ContentFilterAction"
+	InputEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InputModalities?: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Modality"] |
 		fn.#ListExpression
-	InputStrength!: _#defs."/$defs/Properties/definitions/FilterStrength" | fn.#StringExpression
-	OutputAction?:  _#defs."/$defs/Properties/definitions/ContentFilterAction" | fn.#StringExpression
-	OutputEnabled?: bool | fn.#BooleanExpression
-	OutputModalities?: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Modality" | fn.#StringExpression
-	] |
+	InputStrength!: _#defs."/$defs/Properties/definitions/FilterStrength"
+	OutputAction?:  _#defs."/$defs/Properties/definitions/ContentFilterAction"
+	OutputEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	OutputModalities?: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Modality"] |
 		fn.#ListExpression
-	OutputStrength!: _#defs."/$defs/Properties/definitions/FilterStrength" | fn.#StringExpression
-	Type!:           _#defs."/$defs/Properties/definitions/ContentFilterType" | fn.#StringExpression
+	OutputStrength!: _#defs."/$defs/Properties/definitions/FilterStrength"
+	Type!:           _#defs."/$defs/Properties/definitions/ContentFilterType"
 }) |
 fn.#ObjectExpression
 
@@ -80,12 +96,10 @@ _#defs: "/$defs/Properties/definitions/ContentFilterType": "SEXUAL" |
 _#defs: "/$defs/Properties/definitions/ContentFiltersTierName": "CLASSIC" | "STANDARD" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ContentPolicyConfig": close({
-	ContentFiltersTierConfig?: close(
-		{TierName!: _#defs."/$defs/Properties/definitions/ContentFiltersTierName" | fn.#StringExpression},
-	) |
+	ContentFiltersTierConfig?: close({TierName!: _#defs."/$defs/Properties/definitions/ContentFiltersTierName"}) |
 		fn.#ObjectExpression
 	FiltersConfig!: list.MaxItems(6) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ContentFilterConfig" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ContentFilterConfig"
 	] |
 		fn.#ListExpression
 }) |
@@ -94,19 +108,35 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ContextualGroundingAction": "BLOCK" | "NONE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ContextualGroundingFilterConfig": close({
-	Action?:    _#defs."/$defs/Properties/definitions/ContextualGroundingAction" | fn.#StringExpression
-	Enabled?:   bool | fn.#BooleanExpression
-	Threshold!: >=0 | fn.#NumberExpression
-	Type!:      _#defs."/$defs/Properties/definitions/ContextualGroundingFilterType" | fn.#StringExpression
+	Action?:  _#defs."/$defs/Properties/definitions/ContextualGroundingAction"
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Threshold!: >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type!: _#defs."/$defs/Properties/definitions/ContextualGroundingFilterType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ContextualGroundingFilterType": "GROUNDING" | "RELEVANCE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ContextualGroundingPolicyConfig": close({
-	FiltersConfig!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ContextualGroundingFilterConfig" | fn.#ObjectExpression
-	] |
+	FiltersConfig!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ContextualGroundingFilterConfig"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -130,11 +160,11 @@ _#defs: "/$defs/Properties/definitions/GuardrailStatus": "CREATING" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ManagedWordsConfig": close({
-	InputAction?:   _#defs."/$defs/Properties/definitions/WordAction" | fn.#StringExpression
-	InputEnabled?:  bool | fn.#BooleanExpression
-	OutputAction?:  _#defs."/$defs/Properties/definitions/WordAction" | fn.#StringExpression
-	OutputEnabled?: bool | fn.#BooleanExpression
-	Type!:          _#defs."/$defs/Properties/definitions/ManagedWordsType" | fn.#StringExpression
+	InputAction?:   _#defs."/$defs/Properties/definitions/WordAction"
+	InputEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	OutputAction?:  _#defs."/$defs/Properties/definitions/WordAction"
+	OutputEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Type!:          _#defs."/$defs/Properties/definitions/ManagedWordsType"
 }) |
 fn.#ObjectExpression
 
@@ -143,12 +173,12 @@ _#defs: "/$defs/Properties/definitions/ManagedWordsType": "PROFANITY" | fn.#Stri
 _#defs: "/$defs/Properties/definitions/Modality": "TEXT" | "IMAGE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PiiEntityConfig": close({
-	Action!:        _#defs."/$defs/Properties/definitions/SensitiveInformationAction" | fn.#StringExpression
-	InputAction?:   _#defs."/$defs/Properties/definitions/SensitiveInformationAction" | fn.#StringExpression
-	InputEnabled?:  bool | fn.#BooleanExpression
-	OutputAction?:  _#defs."/$defs/Properties/definitions/SensitiveInformationAction" | fn.#StringExpression
-	OutputEnabled?: bool | fn.#BooleanExpression
-	Type!:          _#defs."/$defs/Properties/definitions/PiiEntityType" | fn.#StringExpression
+	Action!:        _#defs."/$defs/Properties/definitions/SensitiveInformationAction"
+	InputAction?:   _#defs."/$defs/Properties/definitions/SensitiveInformationAction"
+	InputEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	OutputAction?:  _#defs."/$defs/Properties/definitions/SensitiveInformationAction"
+	OutputEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Type!:          _#defs."/$defs/Properties/definitions/PiiEntityType"
 }) |
 fn.#ObjectExpression
 
@@ -186,13 +216,13 @@ _#defs: "/$defs/Properties/definitions/PiiEntityType": "ADDRESS" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RegexConfig": close({
-	Action!:        _#defs."/$defs/Properties/definitions/SensitiveInformationAction" | fn.#StringExpression
+	Action!:        _#defs."/$defs/Properties/definitions/SensitiveInformationAction"
 	Description?:   strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	InputAction?:   _#defs."/$defs/Properties/definitions/SensitiveInformationAction" | fn.#StringExpression
-	InputEnabled?:  bool | fn.#BooleanExpression
+	InputAction?:   _#defs."/$defs/Properties/definitions/SensitiveInformationAction"
+	InputEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!:          strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	OutputAction?:  _#defs."/$defs/Properties/definitions/SensitiveInformationAction" | fn.#StringExpression
-	OutputEnabled?: bool | fn.#BooleanExpression
+	OutputAction?:  _#defs."/$defs/Properties/definitions/SensitiveInformationAction"
+	OutputEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Pattern!:       strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -204,12 +234,10 @@ _#defs: "/$defs/Properties/definitions/SensitiveInformationAction": "BLOCK" |
 
 _#defs: "/$defs/Properties/definitions/SensitiveInformationPolicyConfig": close({
 	PiiEntitiesConfig?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PiiEntityConfig" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/PiiEntityConfig"
 	] |
 		fn.#ListExpression
-	RegexesConfig?: list.MaxItems(30) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RegexConfig" | fn.#ObjectExpression
-	] |
+	RegexesConfig?: list.MaxItems(30) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RegexConfig"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -226,22 +254,19 @@ _#defs: "/$defs/Properties/definitions/TopicConfig": close({
 	Definition!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 	Examples?: list.MaxItems(5) & [...] & [...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
-	InputAction?:   _#defs."/$defs/Properties/definitions/TopicAction" | fn.#StringExpression
-	InputEnabled?:  bool | fn.#BooleanExpression
+	InputAction?:   _#defs."/$defs/Properties/definitions/TopicAction"
+	InputEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!:          strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ !?.]+$" | fn.#StringExpression
-	OutputAction?:  _#defs."/$defs/Properties/definitions/TopicAction" | fn.#StringExpression
-	OutputEnabled?: bool | fn.#BooleanExpression
-	Type!:          _#defs."/$defs/Properties/definitions/TopicType" | fn.#StringExpression
+	OutputAction?:  _#defs."/$defs/Properties/definitions/TopicAction"
+	OutputEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Type!:          _#defs."/$defs/Properties/definitions/TopicType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TopicPolicyConfig": close({
-	TopicsConfig!: list.MaxItems(30) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TopicConfig" | fn.#ObjectExpression
-	] |
+	TopicsConfig!: list.MaxItems(30) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TopicConfig"] |
 		fn.#ListExpression
-	TopicsTierConfig?: close({TierName!: _#defs."/$defs/Properties/definitions/TopicsTierName" | fn.#StringExpression}) |
-		fn.#ObjectExpression
+	TopicsTierConfig?: close({TierName!: _#defs."/$defs/Properties/definitions/TopicsTierName"}) | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
@@ -252,20 +277,17 @@ _#defs: "/$defs/Properties/definitions/TopicsTierName": "CLASSIC" | "STANDARD" |
 _#defs: "/$defs/Properties/definitions/WordAction": "BLOCK" | "NONE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/WordConfig": close({
-	InputAction?:   _#defs."/$defs/Properties/definitions/WordAction" | fn.#StringExpression
-	InputEnabled?:  bool | fn.#BooleanExpression
-	OutputAction?:  _#defs."/$defs/Properties/definitions/WordAction" | fn.#StringExpression
-	OutputEnabled?: bool | fn.#BooleanExpression
+	InputAction?:   _#defs."/$defs/Properties/definitions/WordAction"
+	InputEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	OutputAction?:  _#defs."/$defs/Properties/definitions/WordAction"
+	OutputEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Text!:          strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WordPolicyConfig": close({
-	ManagedWordListsConfig?: [..._#defs."/$defs/Properties/definitions/ManagedWordsConfig" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	WordsConfig?: list.MaxItems(10000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/WordConfig" | fn.#ObjectExpression
-	] |
+	ManagedWordListsConfig?: [..._#defs."/$defs/Properties/definitions/ManagedWordsConfig"] | fn.#ListExpression
+	WordsConfig?: list.MaxItems(10000) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/WordConfig"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression

@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,10 +18,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::RTBFabric::InboundExternalLink Resource Type
 #Properties: close({
-	GatewayId!:       _#defs."/$defs/Properties/definitions/GatewayId" | fn.#StringExpression
-	LinkAttributes?:  _#defs."/$defs/Properties/definitions/LinkAttributes" | fn.#ObjectExpression
-	LinkLogSettings!: _#defs."/$defs/Properties/definitions/LinkLogSettings" | fn.#ObjectExpression
-	Tags?:            _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	GatewayId!:       _#defs."/$defs/Properties/definitions/GatewayId"
+	LinkAttributes?:  _#defs."/$defs/Properties/definitions/LinkAttributes"
+	LinkLogSettings!: _#defs."/$defs/Properties/definitions/LinkLogSettings"
+	Tags?:            _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
@@ -35,7 +39,7 @@ _#defs: "/$defs/Properties/definitions/GatewayId": =~"^rtb-gw-[a-z0-9-]{1,25}$" 
 _#defs: "/$defs/Properties/definitions/LinkAttributes": close({
 	CustomerProvidedId?: string | fn.#StringExpression
 	ResponderErrorMasking?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ResponderErrorMaskingForHttpCode" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ResponderErrorMaskingForHttpCode"
 	] |
 		fn.#ListExpression
 }) |
@@ -46,8 +50,46 @@ _#defs: "/$defs/Properties/definitions/LinkId": =~"^link-[a-z0-9-]{1,25}$" | fn.
 _#defs: "/$defs/Properties/definitions/LinkLogSettings": close({
 	ApplicationLogs!: close({
 		LinkApplicationLogSampling!: close({
-			ErrorLog!:  <=100 & >=0 | fn.#NumberExpression
-			FilterLog!: <=100 & >=0 | fn.#NumberExpression
+			ErrorLog!: <=100 & >=0 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatFloat(
+								cfnScalarStrconv.ParseFloat(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+									64,
+								) &
+									<=100 &
+									>=0,
+								"g",
+								-1,
+								64,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			FilterLog!: <=100 & >=0 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatFloat(
+								cfnScalarStrconv.ParseFloat(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+									64,
+								) &
+									<=100 &
+									>=0,
+								"g",
+								-1,
+								64,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
 		}) |
 		fn.#ObjectExpression
 	}) |
@@ -75,10 +117,29 @@ _#defs: "/$defs/Properties/definitions/ResponderErrorMaskingForHttpCode": close(
 	Action!:   "NO_BID" | "PASSTHROUGH" | fn.#StringExpression
 	HttpCode!: strings.MaxRunes(7) & strings.MinRunes(3) & =~"^DEFAULT|4XX|5XX|\\d{3}$" | fn.#StringExpression
 	LoggingTypes!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ResponderErrorMaskingLoggingType" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/ResponderErrorMaskingLoggingType"
 	] |
 		fn.#ListExpression
-	ResponseLoggingPercentage?: <=100 & >=0 | fn.#NumberExpression
+	ResponseLoggingPercentage?: <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -95,7 +156,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 

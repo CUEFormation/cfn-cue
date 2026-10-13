@@ -16,7 +16,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // assume the provided IAM role to write API logs to CloudWatch Logs. To deny
 // API Gateway access to write API logs to CloudWatch logs, update the
 // permissions policies or change the IAM role to deny access.
-#Properties: close({CloudWatchRoleArn?: string | fn.#StringExpression})
+#Properties: close({
+	CloudWatchRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+})
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ApiGateway::Account"
 	Properties?: #Properties

@@ -16,16 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	NotebookInstanceLifecycleConfigName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
 	fn.#StringExpression
-	OnCreate?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/NotebookInstanceLifecycleHook" | fn.#ObjectExpression
-	] |
+	OnCreate?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/NotebookInstanceLifecycleHook"] |
 		fn.#ListExpression
-	OnStart?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/NotebookInstanceLifecycleHook" | fn.#ObjectExpression
-	] |
+	OnStart?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/NotebookInstanceLifecycleHook"] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/NotebookInstanceLifecycleHook": close(

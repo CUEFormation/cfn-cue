@@ -20,7 +20,7 @@ import (
 	FargateProfileName?: strings.MinRunes(1)
 
 	// The IAM policy arn for pods
-	PodExecutionRoleArn!: strings.MinRunes(1)
+	PodExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1)
 	Selectors!:           list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Selector"]
 	Subnets?:             [...string]
 

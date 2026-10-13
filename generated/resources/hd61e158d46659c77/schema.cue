@@ -10,10 +10,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::LakeFormation::Permissions
 #Properties: close({
-	DataLakePrincipal!:          _#defs."/$defs/Properties/definitions/DataLakePrincipal" | fn.#ObjectExpression
+	DataLakePrincipal!:          _#defs."/$defs/Properties/definitions/DataLakePrincipal"
 	Permissions?:                [...string | fn.#StringExpression] | fn.#ListExpression
 	PermissionsWithGrantOption?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Resource!:                   _#defs."/$defs/Properties/definitions/Resource" | fn.#ObjectExpression
+	Resource!:                   _#defs."/$defs/Properties/definitions/Resource"
 })
 
 _#defs: "/$defs/Properties/definitions/ColumnWildcard": close(
@@ -39,10 +39,10 @@ _#defs: "/$defs/Properties/definitions/DatabaseResource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Resource": close({
-	DataLocationResource?:     _#defs."/$defs/Properties/definitions/DataLocationResource" | fn.#ObjectExpression
-	DatabaseResource?:         _#defs."/$defs/Properties/definitions/DatabaseResource" | fn.#ObjectExpression
-	TableResource?:            _#defs."/$defs/Properties/definitions/TableResource" | fn.#ObjectExpression
-	TableWithColumnsResource?: _#defs."/$defs/Properties/definitions/TableWithColumnsResource" | fn.#ObjectExpression
+	DataLocationResource?:     _#defs."/$defs/Properties/definitions/DataLocationResource"
+	DatabaseResource?:         _#defs."/$defs/Properties/definitions/DatabaseResource"
+	TableResource?:            _#defs."/$defs/Properties/definitions/TableResource"
+	TableWithColumnsResource?: _#defs."/$defs/Properties/definitions/TableWithColumnsResource"
 }) |
 fn.#ObjectExpression
 
@@ -50,19 +50,16 @@ _#defs: "/$defs/Properties/definitions/TableResource": close({
 	CatalogId?:     string | fn.#StringExpression
 	DatabaseName?:  string | fn.#StringExpression
 	Name?:          string | fn.#StringExpression
-	TableWildcard?: _#defs."/$defs/Properties/definitions/TableWildcard" | fn.#ObjectExpression | fn.#StringExpression
+	TableWildcard?: _#defs."/$defs/Properties/definitions/TableWildcard"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TableWildcard": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/TableWildcard": fn.#Object & {...} | string | fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TableWithColumnsResource": close({
 	CatalogId?:      string | fn.#StringExpression
 	ColumnNames?:    [...string | fn.#StringExpression] | fn.#ListExpression
-	ColumnWildcard?: _#defs."/$defs/Properties/definitions/ColumnWildcard" | fn.#ObjectExpression
+	ColumnWildcard?: _#defs."/$defs/Properties/definitions/ColumnWildcard"
 	DatabaseName?:   string | fn.#StringExpression
 	Name?:           string | fn.#StringExpression
 }) |

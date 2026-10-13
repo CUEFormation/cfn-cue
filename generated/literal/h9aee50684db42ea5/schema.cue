@@ -84,7 +84,7 @@ import (
 	// If you enable the StorageEncrypted property but don't specify this property,
 	// the default KMS key is used. If you specify this property, you must set the
 	// StorageEncrypted property to true.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The network type of the DB cluster.
 	NetworkType?: "IPV4" | "DUAL"
@@ -191,7 +191,7 @@ import (
 	UseLatestRestorableTime?: bool
 
 	// Provides a list of VPC security groups that the DB cluster belongs to.
-	VpcSecurityGroupIds?: list.UniqueItems() & [...string]
+	VpcSecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 })
 
 // Describes an AWS Identity and Access Management (IAM) role that is associated with a DB cluster.
@@ -202,7 +202,7 @@ _#defs: "/$defs/Properties/definitions/DBClusterRole": close({
 	FeatureName?: string
 
 	// The Amazon Resource Name (ARN) of the IAM role that is associated with the DB cluster.
-	RoleArn!: string
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 // Contains the scaling configuration of an Neptune Serverless DB cluster.

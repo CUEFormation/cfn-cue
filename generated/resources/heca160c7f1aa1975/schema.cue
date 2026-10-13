@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,7 +23,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DataSourceName!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
 	Description?:    string | fn.#StringExpression
 	FunctionVersion?: string | fn.#StringExpression
-	MaxBatchSize?:    int & <=2000 & >=0 | fn.#NumberExpression
+	MaxBatchSize?: int & <=2000 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2000 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Name!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
 	RequestMappingTemplate?:            strings.MaxRunes(65536) & strings.MinRunes(0) | fn.#StringExpression
 	RequestMappingTemplateS3Location?:  string | fn.#StringExpression
@@ -41,10 +60,9 @@ _#defs: "/$defs/Properties/definitions/LambdaConflictHandlerConfig": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SyncConfig": close({
-	ConflictDetection!: "NONE" | "VERSION" | fn.#StringExpression
-	ConflictHandler?:   "AUTOMERGE" | "LAMBDA" | "NONE" | "OPTIMISTIC_CONCURRENCY" | fn.#StringExpression
-	LambdaConflictHandlerConfig?: _#defs."/$defs/Properties/definitions/LambdaConflictHandlerConfig" |
-		fn.#ObjectExpression
+	ConflictDetection!:           "NONE" | "VERSION" | fn.#StringExpression
+	ConflictHandler?:             "AUTOMERGE" | "LAMBDA" | "NONE" | "OPTIMISTIC_CONCURRENCY" | fn.#StringExpression
+	LambdaConflictHandlerConfig?: _#defs."/$defs/Properties/definitions/LambdaConflictHandlerConfig"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

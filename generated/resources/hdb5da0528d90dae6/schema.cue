@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,17 +20,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Alias!:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Configuration!: _#defs."/$defs/Properties/definitions/AnomalyDetectorConfiguration" | fn.#ObjectExpression
-	EvaluationIntervalInSeconds?: int | fn.#NumberExpression
-	Labels?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Label" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	EvaluationIntervalInSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Labels?:            list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Label"] | fn.#ListExpression
 	MissingDataAction?: _#defs."/$defs/Properties/definitions/MissingDataAction" | fn.#ValueExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Workspace!: =~"^arn:(aws|aws-us-gov|aws-cn):aps:[a-z0-9-]+:[0-9]+:workspace/[a-zA-Z0-9-]+$" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AnomalyDetectorConfiguration": close(
-	{RandomCutForest!: _#defs."/$defs/Properties/definitions/RandomCutForestConfiguration" | fn.#ObjectExpression},
+	{RandomCutForest!: _#defs."/$defs/Properties/definitions/RandomCutForestConfiguration"},
 ) |
 	fn.#ObjectExpression
 
@@ -79,11 +94,41 @@ close({
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/RandomCutForestConfiguration": close({
-	IgnoreNearExpectedFromAbove?: _#defs."/$defs/Properties/definitions/IgnoreNearExpected" | fn.#ValueExpression
-	IgnoreNearExpectedFromBelow?: _#defs."/$defs/Properties/definitions/IgnoreNearExpected" | fn.#ValueExpression
+	IgnoreNearExpectedFromAbove?: _#defs."/$defs/Properties/definitions/IgnoreNearExpected"
+	IgnoreNearExpectedFromBelow?: _#defs."/$defs/Properties/definitions/IgnoreNearExpected"
 	Query!:                       strings.MinRunes(1) | fn.#StringExpression
-	SampleSize?:                  int & <=1024 & >=256 | fn.#NumberExpression
-	ShingleSize?:                 int & <=1024 & >=2 | fn.#NumberExpression
+	SampleSize?: int & <=1024 & >=256 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1024 &
+							>=256,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ShingleSize?: int & <=1024 & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1024 &
+							>=2,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

@@ -14,22 +14,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Document Classifier enables training document classifier models.
 #Properties: close({
-	DataAccessRoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" |
+	DataAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" |
 	fn.#StringExpression
 	DocumentClassifierName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
 	fn.#StringExpression
-	InputDataConfig!: _#defs."/$defs/Properties/definitions/DocumentClassifierInputDataConfig" | fn.#ObjectExpression
+	InputDataConfig!: _#defs."/$defs/Properties/definitions/DocumentClassifierInputDataConfig"
 	LanguageCode!:    "en" | "es" | "fr" | "it" | "de" | "pt" | fn.#StringExpression
 	Mode?:            "MULTI_CLASS" | "MULTI_LABEL" | fn.#StringExpression
-	ModelKmsKeyId?:   _#defs."/$defs/Properties/definitions/KmsKeyId" | fn.#StringExpression
+	ModelKmsKeyId?:   _#defs."/$defs/Properties/definitions/KmsKeyId"
 	ModelPolicy?: strings.MaxRunes(20000) & strings.MinRunes(1) & =~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
 	fn.#StringExpression
-	OutputDataConfig?: _#defs."/$defs/Properties/definitions/DocumentClassifierOutputDataConfig" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	OutputDataConfig?: _#defs."/$defs/Properties/definitions/DocumentClassifierOutputDataConfig"
+	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VersionName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
-	VolumeKmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId" | fn.#StringExpression
-	VpcConfig?:      _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
+	VolumeKmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId"
+	VpcConfig?:      _#defs."/$defs/Properties/definitions/VpcConfig"
 })
 
 _#defs: "/$defs/Properties/definitions/AugmentedManifestsListItem": close({
@@ -37,36 +39,34 @@ _#defs: "/$defs/Properties/definitions/AugmentedManifestsListItem": close({
 		...strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	S3Uri!: _#defs."/$defs/Properties/definitions/S3Uri" | fn.#StringExpression
+	S3Uri!: _#defs."/$defs/Properties/definitions/S3Uri"
 	Split?: "TRAIN" | "TEST" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DocumentClassifierDocuments": close({
-	S3Uri!:     _#defs."/$defs/Properties/definitions/S3Uri" | fn.#StringExpression
-	TestS3Uri?: _#defs."/$defs/Properties/definitions/S3Uri" | fn.#StringExpression
+	S3Uri!:     _#defs."/$defs/Properties/definitions/S3Uri"
+	TestS3Uri?: _#defs."/$defs/Properties/definitions/S3Uri"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DocumentClassifierInputDataConfig": close({
-	AugmentedManifests?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AugmentedManifestsListItem" | fn.#ObjectExpression
-	] |
+	AugmentedManifests?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AugmentedManifestsListItem"] |
 		fn.#ListExpression
 	DataFormat?:           "COMPREHEND_CSV" | "AUGMENTED_MANIFEST" | fn.#StringExpression
-	DocumentReaderConfig?: _#defs."/$defs/Properties/definitions/DocumentReaderConfig" | fn.#ObjectExpression
+	DocumentReaderConfig?: _#defs."/$defs/Properties/definitions/DocumentReaderConfig"
 	DocumentType?:         "PLAIN_TEXT_DOCUMENT" | "SEMI_STRUCTURED_DOCUMENT" | fn.#StringExpression
-	Documents?:            _#defs."/$defs/Properties/definitions/DocumentClassifierDocuments" | fn.#ObjectExpression
+	Documents?:            _#defs."/$defs/Properties/definitions/DocumentClassifierDocuments"
 	LabelDelimiter?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[ ~!@#$%^*\\-_+=|\\\\:;\\t>?/]$" |
 	fn.#StringExpression
-	S3Uri?:     _#defs."/$defs/Properties/definitions/S3Uri" | fn.#StringExpression
-	TestS3Uri?: _#defs."/$defs/Properties/definitions/S3Uri" | fn.#StringExpression
+	S3Uri?:     _#defs."/$defs/Properties/definitions/S3Uri"
+	TestS3Uri?: _#defs."/$defs/Properties/definitions/S3Uri"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DocumentClassifierOutputDataConfig": close({
-	KmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId" | fn.#StringExpression
-	S3Uri?:    _#defs."/$defs/Properties/definitions/S3Uri" | fn.#StringExpression
+	KmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId"
+	S3Uri?:    _#defs."/$defs/Properties/definitions/S3Uri"
 }) |
 fn.#ObjectExpression
 
@@ -80,7 +80,8 @@ _#defs: "/$defs/Properties/definitions/DocumentReaderConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKeyId": (string | string | string) &
+_#defs: "/$defs/Properties/definitions/KmsKeyId": (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+	string) &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^\\p{ASCII}+$" |
@@ -99,7 +100,11 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"[-0-9a-zA-Z]+" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(1) &
+		=~"[-0-9a-zA-Z]+" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	Subnets!: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [

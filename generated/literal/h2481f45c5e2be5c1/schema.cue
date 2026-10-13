@@ -63,7 +63,7 @@ import "list"
 	LogConfig?: _#defs."/$defs/Properties/definitions/LogConfig"
 
 	// The AWS Identity and Access Management service role ARN for a merged API.
-	MergedApiExecutionRoleArn?: string
+	MergedApiExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The API name
 	Name!: string
@@ -147,7 +147,7 @@ _#defs: "/$defs/Properties/definitions/LambdaAuthorizerConfig": close({
 _#defs: "/$defs/Properties/definitions/LogConfig": close({
 	// The service role that AWS AppSync will assume to publish to Amazon CloudWatch
 	// Logs in your account.
-	CloudWatchLogsRoleArn!: string
+	CloudWatchLogsRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Set to TRUE to exclude sections that contain information such as headers,
 	// context, and evaluated mapping templates, regardless of logging level.

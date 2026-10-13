@@ -8,27 +8,37 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a runtime environment that can run migrated mainframe applications.
 #Properties: close({
-	Description?:                strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	EngineType!:                 _#defs."/$defs/Properties/definitions/EngineType" | fn.#StringExpression
-	EngineVersion?:              =~"^\\S{1,10}$" | fn.#StringExpression
-	HighAvailabilityConfig?:     _#defs."/$defs/Properties/definitions/HighAvailabilityConfig" | fn.#ObjectExpression
-	InstanceType!:               =~"^\\S{1,20}$" | fn.#StringExpression
-	KmsKeyId?:                   (string | string | string) & strings.MaxRunes(2048) | fn.#StringExpression
+	Description?:            strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
+	EngineType!:             _#defs."/$defs/Properties/definitions/EngineType"
+	EngineVersion?:          =~"^\\S{1,10}$" | fn.#StringExpression
+	HighAvailabilityConfig?: _#defs."/$defs/Properties/definitions/HighAvailabilityConfig"
+	InstanceType!:           =~"^\\S{1,20}$" | fn.#StringExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & strings.MaxRunes(2048) |
+	fn.#StringExpression
 	Name!:                       =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-	NetworkType?:                _#defs."/$defs/Properties/definitions/NetworkType" | fn.#StringExpression
+	NetworkType?:                _#defs."/$defs/Properties/definitions/NetworkType"
 	PreferredMaintenanceWindow?: =~"^\\S{1,50}$" | fn.#StringExpression
-	PubliclyAccessible?:         bool | fn.#BooleanExpression
-	SecurityGroupIds?:           [...=~"^\\S{1,50}$" | fn.#StringExpression] | fn.#ListExpression
-	StorageConfigurations?: [..._#defs."/$defs/Properties/definitions/StorageConfiguration" | fn.#ObjectExpression] |
+	PubliclyAccessible?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SecurityGroupIds?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^\\S{1,50}$" |
+			fn.#StringExpression
+	] |
 		fn.#ListExpression
-	SubnetIds?: [...=~"^\\S{1,50}$" | fn.#StringExpression] | fn.#ListExpression
-	Tags?:      _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
+	StorageConfigurations?: [..._#defs."/$defs/Properties/definitions/StorageConfiguration"] | fn.#ListExpression
+	SubnetIds?:             [...=~"^\\S{1,50}$" | fn.#StringExpression] | fn.#ListExpression
+	Tags?:                  _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EfsStorageConfiguration": close({
@@ -45,18 +55,33 @@ _#defs: "/$defs/Properties/definitions/FsxStorageConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HighAvailabilityConfig": close(
-	{DesiredCapacity!: int & <=100 & >=1 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/HighAvailabilityConfig": close({
+	DesiredCapacity!: int & <=100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkType": "ipv4" | "dual" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StorageConfiguration": matchN(1, [close(
-	{Efs!: _#defs."/$defs/Properties/definitions/EfsStorageConfiguration" | fn.#ObjectExpression},
+_#defs: "/$defs/Properties/definitions/StorageConfiguration": fn.#Object & {...} & matchN(1, [close(
+	{Efs!: _#defs."/$defs/Properties/definitions/EfsStorageConfiguration"},
 ), close(
-	{Fsx!: _#defs."/$defs/Properties/definitions/FsxStorageConfiguration" | fn.#ObjectExpression},
-)]) & {[string]: fn.#Value} |
+	{Fsx!: _#defs."/$defs/Properties/definitions/FsxStorageConfiguration"},
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TagMap": struct.MaxFields(200) & struct.MinFields(0) & {...} |

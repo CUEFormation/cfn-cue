@@ -16,11 +16,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Names and it enables the certificate to be used by the ACM for
 // Nitro Enclaves application inside an enclave.
 #Properties: close({
-	CertificateArn!: strings.MaxRunes(1283) &
+	CertificateArn!: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(1283) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[A-Za-z0-9-]{0,64}:acm:[A-Za-z0-9-]{1,64}:([0-9]{12})?:certificate/.+$" |
 	fn.#StringExpression
-	RoleArn!: strings.MaxRunes(1283) & strings.MinRunes(1) & =~"^arn:aws[A-Za-z0-9-]{0,64}:iam:.*:([0-9]{12})?:role/.+$" |
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(1283) &
+	strings.MinRunes(1) &
+	=~"^arn:aws[A-Za-z0-9-]{0,64}:iam:.*:([0-9]{12})?:role/.+$" |
 	fn.#StringExpression
 })
 #Resource: base.#ResourceAttributes & {

@@ -8,32 +8,57 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Backup::RestoreTestingPlan Resource Type
 #Properties: close({
-	RecoveryPointSelection!: _#defs."/$defs/Properties/definitions/RestoreTestingRecoveryPointSelection" |
-		fn.#ObjectExpression
+	RecoveryPointSelection!:     _#defs."/$defs/Properties/definitions/RestoreTestingRecoveryPointSelection"
 	RestoreTestingPlanName!:     string | fn.#StringExpression
 	ScheduleExpression!:         string | fn.#StringExpression
 	ScheduleExpressionTimezone?: string | fn.#StringExpression
-	StartWindowHours?:           int | fn.#NumberExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	StartWindowHours?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/RestoreTestingRecoveryPointSelection": close({
-	Algorithm!: _#defs."/$defs/Properties/definitions/RestoreTestingRecoveryPointSelectionAlgorithm" |
-		fn.#StringExpression
+	Algorithm!:     _#defs."/$defs/Properties/definitions/RestoreTestingRecoveryPointSelectionAlgorithm"
 	ExcludeVaults?: [...string | fn.#StringExpression] | fn.#ListExpression
 	IncludeVaults!: [...string | fn.#StringExpression] | fn.#ListExpression
-	RecoveryPointTypes!: [
-		..._#defs."/$defs/Properties/definitions/RestoreTestingRecoveryPointType" | fn.#StringExpression
-	] |
+	RecoveryPointTypes!: [..._#defs."/$defs/Properties/definitions/RestoreTestingRecoveryPointType"] |
 		fn.#ListExpression
-	SelectionWindowDays?: int | fn.#NumberExpression
+	SelectionWindowDays?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

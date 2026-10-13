@@ -30,7 +30,7 @@ import "list"
 	SourceArn!: string
 
 	// The IAM role_arn used to access the source S3 bucket.
-	SourceRoleArn!: string
+	SourceRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// A collection of tags associated with a resource
 	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]

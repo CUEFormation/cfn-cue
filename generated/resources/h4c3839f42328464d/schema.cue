@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,18 +21,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // profile is immutable once created; to change its template content, replace
 // the resource. Only its tags can be updated in place.
 #Properties: close({
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) | fn.#StringExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	fn.#StringExpression
 	ProfileDescription?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
 	ProfileName!:        strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Source?:             _#defs."/$defs/Properties/definitions/Source" | fn.#ObjectExpression
+	Source?:             _#defs."/$defs/Properties/definitions/Source"
 	SourceFormat!:       "CCDA" | "CSV" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ExistingVersionedProfileSource": close({
 	ProfileId!: string | fn.#StringExpression
-	Version!:   int | fn.#NumberExpression
+	Version!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -41,10 +59,9 @@ _#defs: "/$defs/Properties/definitions/ProfileMappingSource": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Source": close({
-	ExistingVersionedProfileId?: _#defs."/$defs/Properties/definitions/ExistingVersionedProfileSource" |
-		fn.#ObjectExpression
-	ProfileMapping?: _#defs."/$defs/Properties/definitions/ProfileMappingSource" | fn.#ObjectExpression
-	StarterProfile?: _#defs."/$defs/Properties/definitions/StarterProfileSource" | fn.#ObjectExpression
+	ExistingVersionedProfileId?: _#defs."/$defs/Properties/definitions/ExistingVersionedProfileSource"
+	ProfileMapping?:             _#defs."/$defs/Properties/definitions/ProfileMappingSource"
+	StarterProfile?:             _#defs."/$defs/Properties/definitions/StarterProfileSource"
 }) |
 fn.#ObjectExpression
 

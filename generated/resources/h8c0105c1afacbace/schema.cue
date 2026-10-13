@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,14 +23,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	EndpointName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 	fn.#StringExpression
-	ExcludeRetainedVariantProperties?: [
-		..._#defs."/$defs/Properties/definitions/VariantProperty" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	RetainAllVariantProperties?: bool | fn.#BooleanExpression
-	RetainDeploymentConfig?:     bool | fn.#BooleanExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ExcludeRetainedVariantProperties?: [..._#defs."/$defs/Properties/definitions/VariantProperty"] | fn.#ListExpression
+	RetainAllVariantProperties?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RetainDeploymentConfig?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Alarm": close(
@@ -34,22 +34,65 @@ _#defs: "/$defs/Properties/definitions/Alarm": close(
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoRollbackConfig": close({
-	Alarms!: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Alarm" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/AutoRollbackConfig": close(
+	{Alarms!: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Alarm"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BlueGreenUpdatePolicy": close({
-	MaximumExecutionTimeoutInSeconds?: int & <=28800 & >=600 | fn.#NumberExpression
-	TerminationWaitInSeconds?:         int & <=3600 & >=0 | fn.#NumberExpression
+	MaximumExecutionTimeoutInSeconds?: int & <=28800 & >=600 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=28800 &
+							>=600,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TerminationWaitInSeconds?: int & <=3600 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=3600 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	TrafficRoutingConfiguration!: _#defs."/$defs/Properties/definitions/TrafficRoutingConfig" | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CapacitySize": close({
-	Type!:  "CAPACITY_PERCENT" | "INSTANCE_COUNT" | fn.#StringExpression
-	Value!: int & >=1 | fn.#NumberExpression
+	Type!: "CAPACITY_PERCENT" | "INSTANCE_COUNT" | fn.#StringExpression
+	Value!: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -61,10 +104,40 @@ _#defs: "/$defs/Properties/definitions/DeploymentConfig": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RollingUpdatePolicy": close({
-	MaximumBatchSize!:                 _#defs."/$defs/Properties/definitions/CapacitySize" | fn.#ObjectExpression
-	MaximumExecutionTimeoutInSeconds?: int & <=28800 & >=600 | fn.#NumberExpression
-	RollbackMaximumBatchSize?:         _#defs."/$defs/Properties/definitions/CapacitySize" | fn.#ObjectExpression
-	WaitIntervalInSeconds!:            int & <=3600 & >=0 | fn.#NumberExpression
+	MaximumBatchSize!: _#defs."/$defs/Properties/definitions/CapacitySize" | fn.#ObjectExpression
+	MaximumExecutionTimeoutInSeconds?: int & <=28800 & >=600 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=28800 &
+							>=600,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RollbackMaximumBatchSize?: _#defs."/$defs/Properties/definitions/CapacitySize" | fn.#ObjectExpression
+	WaitIntervalInSeconds!: int & <=3600 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=3600 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -75,10 +148,25 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TrafficRoutingConfig": close({
-	CanarySize?:            _#defs."/$defs/Properties/definitions/CapacitySize" | fn.#ObjectExpression
-	LinearStepSize?:        _#defs."/$defs/Properties/definitions/CapacitySize" | fn.#ObjectExpression
-	Type!:                  "ALL_AT_ONCE" | "CANARY" | "LINEAR" | fn.#StringExpression
-	WaitIntervalInSeconds?: int & <=3600 & >=0 | fn.#NumberExpression
+	CanarySize?:     _#defs."/$defs/Properties/definitions/CapacitySize" | fn.#ObjectExpression
+	LinearStepSize?: _#defs."/$defs/Properties/definitions/CapacitySize" | fn.#ObjectExpression
+	Type!:           "ALL_AT_ONCE" | "CANARY" | "LINEAR" | fn.#StringExpression
+	WaitIntervalInSeconds?: int & <=3600 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=3600 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

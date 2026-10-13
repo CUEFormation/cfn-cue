@@ -9,6 +9,10 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,16 +21,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:        =~"^[A-Za-z][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-	Steps!: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Step" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
+	Steps!: list.MaxItems(20) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Step"] | fn.#ListExpression
+	Tags?:  _#defs."/$defs/Properties/definitions/TagMap"
 })
 
 _#defs: "/$defs/Properties/definitions/Batch": close({
 	BatchJobName!:       =~"^\\S{1,1000}$" | fn.#StringExpression
-	BatchJobParameters?: _#defs."/$defs/Properties/definitions/BatchJobParameters" | fn.#ObjectExpression
+	BatchJobParameters?: _#defs."/$defs/Properties/definitions/BatchJobParameters"
 	ExportDataSetNames?: [...=~"^\\S{1,100}$" | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -39,7 +40,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/CaptureTool": "Precisely" | "AWS DMS" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CloudFormationAction": close({
-	ActionType?: _#defs."/$defs/Properties/definitions/CloudFormationActionType" | fn.#StringExpression
+	ActionType?: _#defs."/$defs/Properties/definitions/CloudFormationActionType"
 	Resource!:   =~"^\\S{1,1000}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -47,51 +48,67 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/CloudFormationActionType": "Create" | "Delete" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CompareAction": close({
-	Input!:  _#defs."/$defs/Properties/definitions/Input" | fn.#ValueExpression
-	Output?: _#defs."/$defs/Properties/definitions/Output" | fn.#ValueExpression
+	Input!:  _#defs."/$defs/Properties/definitions/Input"
+	Output?: _#defs."/$defs/Properties/definitions/Output"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSet": close({
 	Ccsid!:  =~"^\\S{1,50}$" | fn.#StringExpression
-	Format!: _#defs."/$defs/Properties/definitions/Format" | fn.#StringExpression
-	Length!: number | fn.#NumberExpression
-	Name!:   =~"^\\S{1,100}$" | fn.#StringExpression
-	Type!:   _#defs."/$defs/Properties/definitions/DataSetType" | fn.#StringExpression
+	Format!: _#defs."/$defs/Properties/definitions/Format"
+	Length!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name!: =~"^\\S{1,100}$" | fn.#StringExpression
+	Type!: _#defs."/$defs/Properties/definitions/DataSetType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSetType": "PS" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DatabaseCDC": close({
-	SourceMetadata!: _#defs."/$defs/Properties/definitions/SourceDatabaseMetadata" | fn.#ObjectExpression
-	TargetMetadata!: _#defs."/$defs/Properties/definitions/TargetDatabaseMetadata" | fn.#ObjectExpression
+	SourceMetadata!: _#defs."/$defs/Properties/definitions/SourceDatabaseMetadata"
+	TargetMetadata!: _#defs."/$defs/Properties/definitions/TargetDatabaseMetadata"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FileMetadata": matchN(1, [close(
-	{DataSets!: [..._#defs."/$defs/Properties/definitions/DataSet" | fn.#ObjectExpression] | fn.#ListExpression},
+	{DataSets!: [..._#defs."/$defs/Properties/definitions/DataSet"] | fn.#ListExpression},
 ), close(
-	{DatabaseCDC!: _#defs."/$defs/Properties/definitions/DatabaseCDC" | fn.#ObjectExpression},
+	{DatabaseCDC!: _#defs."/$defs/Properties/definitions/DatabaseCDC"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/Format": "FIXED" | "VARIABLE" | "LINE_SEQUENTIAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Input": close(
-	{File!: _#defs."/$defs/Properties/definitions/InputFile" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/Input": close({File!: _#defs."/$defs/Properties/definitions/InputFile"}) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/InputFile": close({
-	FileMetadata!:   _#defs."/$defs/Properties/definitions/FileMetadata" | fn.#ValueExpression
+	FileMetadata!:   _#defs."/$defs/Properties/definitions/FileMetadata"
 	SourceLocation!: =~"^\\S{1,1000}$" | fn.#StringExpression
 	TargetLocation!: =~"^\\S{1,1000}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/M2ManagedActionProperties": close({
-	ForceStop?:             bool | fn.#BooleanExpression
+	ForceStop?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ImportDataSetLocation?: =~"^\\S{1,1000}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -99,8 +116,8 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/M2ManagedActionType": "Configure" | "Deconfigure" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/M2ManagedApplicationAction": close({
-	ActionType!: _#defs."/$defs/Properties/definitions/M2ManagedActionType" | fn.#StringExpression
-	Properties?: _#defs."/$defs/Properties/definitions/M2ManagedActionProperties" | fn.#ObjectExpression
+	ActionType!: _#defs."/$defs/Properties/definitions/M2ManagedActionType"
+	Properties?: _#defs."/$defs/Properties/definitions/M2ManagedActionProperties"
 	Resource!:   =~"^\\S{1,1000}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -108,14 +125,14 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/M2NonManagedActionType": "Configure" | "Deconfigure" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/M2NonManagedApplicationAction": close({
-	ActionType!: _#defs."/$defs/Properties/definitions/M2NonManagedActionType" | fn.#StringExpression
+	ActionType!: _#defs."/$defs/Properties/definitions/M2NonManagedActionType"
 	Resource!:   =~"^\\S{1,1000}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MainframeAction": close({
-	ActionType!: _#defs."/$defs/Properties/definitions/MainframeActionType" | fn.#ValueExpression
-	Properties?: _#defs."/$defs/Properties/definitions/MainframeActionProperties" | fn.#ObjectExpression
+	ActionType!: _#defs."/$defs/Properties/definitions/MainframeActionType"
+	Properties?: _#defs."/$defs/Properties/definitions/MainframeActionProperties"
 	Resource!:   =~"^\\S{1,1000}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -126,15 +143,13 @@ _#defs: "/$defs/Properties/definitions/MainframeActionProperties": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MainframeActionType": matchN(1, [close(
-	{Batch!: _#defs."/$defs/Properties/definitions/Batch" | fn.#ObjectExpression},
+	{Batch!: _#defs."/$defs/Properties/definitions/Batch"},
 ), close(
-	{Tn3270!: _#defs."/$defs/Properties/definitions/TN3270" | fn.#ObjectExpression},
+	{Tn3270!: _#defs."/$defs/Properties/definitions/TN3270"},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Output": close(
-	{File!: _#defs."/$defs/Properties/definitions/OutputFile" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/Output": close({File!: _#defs."/$defs/Properties/definitions/OutputFile"}) |
 	fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/OutputFile": close(
@@ -142,20 +157,18 @@ _#defs: "/$defs/Properties/definitions/OutputFile": close(
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceAction": matchN(1, [close({
-	M2ManagedApplicationAction!: _#defs."/$defs/Properties/definitions/M2ManagedApplicationAction" |
-		fn.#ObjectExpression
-}), close({
-	M2NonManagedApplicationAction!: _#defs."/$defs/Properties/definitions/M2NonManagedApplicationAction" |
-		fn.#ObjectExpression
-}), close(
-	{CloudFormationAction!: _#defs."/$defs/Properties/definitions/CloudFormationAction" | fn.#ObjectExpression},
+_#defs: "/$defs/Properties/definitions/ResourceAction": matchN(1, [close(
+	{M2ManagedApplicationAction!: _#defs."/$defs/Properties/definitions/M2ManagedApplicationAction"},
+), close(
+	{M2NonManagedApplicationAction!: _#defs."/$defs/Properties/definitions/M2NonManagedApplicationAction"},
+), close(
+	{CloudFormationAction!: _#defs."/$defs/Properties/definitions/CloudFormationAction"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/Script": close({
 	ScriptLocation!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Type!:           _#defs."/$defs/Properties/definitions/ScriptType" | fn.#StringExpression
+	Type!:           _#defs."/$defs/Properties/definitions/ScriptType"
 }) |
 fn.#ObjectExpression
 
@@ -164,30 +177,30 @@ _#defs: "/$defs/Properties/definitions/ScriptType": "Selenium" | fn.#StringExpre
 _#defs: "/$defs/Properties/definitions/SourceDatabase": "z/OS-DB2" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SourceDatabaseMetadata": close({
-	CaptureTool!: _#defs."/$defs/Properties/definitions/CaptureTool" | fn.#StringExpression
-	Type!:        _#defs."/$defs/Properties/definitions/SourceDatabase" | fn.#StringExpression
+	CaptureTool!: _#defs."/$defs/Properties/definitions/CaptureTool"
+	Type!:        _#defs."/$defs/Properties/definitions/SourceDatabase"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Step": close({
-	Action!:      _#defs."/$defs/Properties/definitions/StepAction" | fn.#ValueExpression
+	Action!:      _#defs."/$defs/Properties/definitions/StepAction"
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:        =~"^[A-Za-z][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StepAction": matchN(1, [close(
-	{ResourceAction!: _#defs."/$defs/Properties/definitions/ResourceAction" | fn.#ValueExpression},
+	{ResourceAction!: _#defs."/$defs/Properties/definitions/ResourceAction"},
 ), close(
-	{MainframeAction!: _#defs."/$defs/Properties/definitions/MainframeAction" | fn.#ObjectExpression},
+	{MainframeAction!: _#defs."/$defs/Properties/definitions/MainframeAction"},
 ), close(
-	{CompareAction!: _#defs."/$defs/Properties/definitions/CompareAction" | fn.#ObjectExpression},
+	{CompareAction!: _#defs."/$defs/Properties/definitions/CompareAction"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/TN3270": close({
 	ExportDataSetNames?: [...=~"^\\S{1,100}$" | fn.#StringExpression] | fn.#ListExpression
-	Script!:             _#defs."/$defs/Properties/definitions/Script" | fn.#ObjectExpression
+	Script!:             _#defs."/$defs/Properties/definitions/Script"
 }) |
 fn.#ObjectExpression
 
@@ -197,14 +210,32 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/TargetDatabase": "PostgreSQL" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TargetDatabaseMetadata": close({
-	CaptureTool!: _#defs."/$defs/Properties/definitions/CaptureTool" | fn.#StringExpression
-	Type!:        _#defs."/$defs/Properties/definitions/TargetDatabase" | fn.#StringExpression
+	CaptureTool!: _#defs."/$defs/Properties/definitions/CaptureTool"
+	Type!:        _#defs."/$defs/Properties/definitions/TargetDatabase"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TestCaseLatestVersion": close({
-	Status!:  _#defs."/$defs/Properties/definitions/TestCaseLifecycle" | fn.#StringExpression
-	Version!: number | fn.#NumberExpression
+	Status!: _#defs."/$defs/Properties/definitions/TestCaseLifecycle"
+	Version!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

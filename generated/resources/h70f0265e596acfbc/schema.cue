@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,39 +18,64 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::IVS::Stage.
 #Properties: close({
-	AutoParticipantRecordingConfiguration?: _#defs."/$defs/Properties/definitions/AutoParticipantRecordingConfiguration" |
-		fn.#ObjectExpression
+	AutoParticipantRecordingConfiguration?: _#defs."/$defs/Properties/definitions/AutoParticipantRecordingConfiguration"
 	Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AutoParticipantRecordingConfiguration": close({
-	HlsConfiguration?: _#defs."/$defs/Properties/definitions/HlsConfiguration" | fn.#ObjectExpression
+	HlsConfiguration?: _#defs."/$defs/Properties/definitions/HlsConfiguration"
 	MediaTypes?: list.MaxItems(1) & list.UniqueItems() & [...] & [
 		..."AUDIO_VIDEO" | "AUDIO_ONLY" | fn.#StringExpression
 	] |
 		fn.#ListExpression
-	RecordingReconnectWindowSeconds?: int & <=300 & >=0 | fn.#NumberExpression
+	RecordingReconnectWindowSeconds?: int & <=300 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=300 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	StorageConfigurationArn!: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^$|^arn:aws:ivs:[a-z0-9-]+:[0-9]+:storage-configuration/[a-zA-Z0-9-]+$" |
 	fn.#StringExpression
-	ThumbnailConfiguration?: _#defs."/$defs/Properties/definitions/ThumbnailConfiguration" | fn.#ObjectExpression
+	ThumbnailConfiguration?: _#defs."/$defs/Properties/definitions/ThumbnailConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HlsConfiguration": close({
-	ParticipantRecordingHlsConfiguration?: _#defs."/$defs/Properties/definitions/ParticipantRecordingHlsConfiguration" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/HlsConfiguration": close(
+	{ParticipantRecordingHlsConfiguration?: _#defs."/$defs/Properties/definitions/ParticipantRecordingHlsConfiguration"},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParticipantRecordingHlsConfiguration": close(
-	{TargetSegmentDurationSeconds?: int & <=10 & >=2 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/ParticipantRecordingHlsConfiguration": close({
+	TargetSegmentDurationSeconds?: int & <=10 & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10 &
+							>=2,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
@@ -60,7 +89,24 @@ _#defs: "/$defs/Properties/definitions/ThumbnailConfiguration": close({
 		RecordingMode?: "INTERVAL" | "DISABLED" | fn.#StringExpression
 		Storage?: list.MaxItems(2) & list.UniqueItems() & [...] & [..."SEQUENTIAL" | "LATEST" | fn.#StringExpression] |
 			fn.#ListExpression
-		TargetIntervalSeconds?: int & <=86400 & >=1 | fn.#NumberExpression
+		TargetIntervalSeconds?: int & <=86400 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=86400 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
 }) |

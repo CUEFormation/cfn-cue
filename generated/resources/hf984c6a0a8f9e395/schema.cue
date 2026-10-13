@@ -19,14 +19,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/Action": close({
-	AddHeaderAction?: _#defs."/$defs/Properties/definitions/AddHeaderAction" | fn.#ObjectExpression
-	BounceAction?:    _#defs."/$defs/Properties/definitions/BounceAction" | fn.#ObjectExpression
-	ConnectAction?:   _#defs."/$defs/Properties/definitions/ConnectAction" | fn.#ObjectExpression
-	LambdaAction?:    _#defs."/$defs/Properties/definitions/LambdaAction" | fn.#ObjectExpression
-	S3Action?:        _#defs."/$defs/Properties/definitions/S3Action" | fn.#ObjectExpression
-	SNSAction?:       _#defs."/$defs/Properties/definitions/SNSAction" | fn.#ObjectExpression
-	StopAction?:      _#defs."/$defs/Properties/definitions/StopAction" | fn.#ObjectExpression
-	WorkmailAction?:  _#defs."/$defs/Properties/definitions/WorkmailAction" | fn.#ObjectExpression
+	AddHeaderAction?: _#defs."/$defs/Properties/definitions/AddHeaderAction"
+	BounceAction?:    _#defs."/$defs/Properties/definitions/BounceAction"
+	ConnectAction?:   _#defs."/$defs/Properties/definitions/ConnectAction"
+	LambdaAction?:    _#defs."/$defs/Properties/definitions/LambdaAction"
+	S3Action?:        _#defs."/$defs/Properties/definitions/S3Action"
+	SNSAction?:       _#defs."/$defs/Properties/definitions/SNSAction"
+	StopAction?:      _#defs."/$defs/Properties/definitions/StopAction"
+	WorkmailAction?:  _#defs."/$defs/Properties/definitions/WorkmailAction"
 }) |
 fn.#ObjectExpression
 
@@ -41,12 +41,14 @@ _#defs: "/$defs/Properties/definitions/BounceAction": close({
 	Sender!:        string | fn.#StringExpression
 	SmtpReplyCode!: string | fn.#StringExpression
 	StatusCode?:    string | fn.#StringExpression
-	TopicArn?:      string | fn.#StringExpression
+	TopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConnectAction": close({
-	IAMRoleARN!: strings.MaxRunes(2048) &
+	IAMRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w-]+:iam::[0-9]+:role(\\x{002F})([\\x{0021}-\\x{007E}]+\\x{002F})?([\\w+=,.@-]+)$" |
 	fn.#StringExpression
@@ -56,49 +58,57 @@ _#defs: "/$defs/Properties/definitions/ConnectAction": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LambdaAction": close({
-	FunctionArn!:    string | fn.#StringExpression
+	FunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	InvocationType?: "Event" | "RequestResponse" | fn.#StringExpression
-	TopicArn?:       string | fn.#StringExpression
+	TopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Rule": close({
-	Actions?:     [..._#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression] | fn.#ListExpression
-	Enabled?:     bool | fn.#BooleanExpression
+	Actions?:     [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
+	Enabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name?:        string | fn.#StringExpression
 	Recipients?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	ScanEnabled?: bool | fn.#BooleanExpression
+	ScanEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TlsPolicy?:   "Optional" | "Require" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3Action": close({
 	BucketName!: string | fn.#StringExpression
-	IamRoleArn?: strings.MaxRunes(2048) &
+	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w-]+:iam::[0-9]+:role(\\x{002F})([\\x{0021}-\\x{007E}]+\\x{002F})?([\\w+=,.@-]+)$" |
 	fn.#StringExpression
-	KmsKeyArn?:       string | fn.#StringExpression
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	ObjectKeyPrefix?: string | fn.#StringExpression
-	TopicArn?:        string | fn.#StringExpression
+	TopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SNSAction": close({
 	Encoding?: "Base64" | "UTF-8" | fn.#StringExpression
-	TopicArn?: string | fn.#StringExpression
+	TopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StopAction": close({
-	Scope!:    "RuleSet" | fn.#StringExpression
-	TopicArn?: string | fn.#StringExpression
+	Scope!: "RuleSet" | fn.#StringExpression
+	TopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WorkmailAction": close({
 	OrganizationArn!: string | fn.#StringExpression
-	TopicArn?:        string | fn.#StringExpression
+	TopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

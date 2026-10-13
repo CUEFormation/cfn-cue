@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -65,11 +69,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // CFN are supported. You can use the ``AWS::KMS::Key`` resource to create and
 // manage all KMS key types that are supported in a Region.
 #Properties: close({
-	BypassPolicyLockoutSafetyCheck?: bool | fn.#BooleanExpression
-	Description?:                    strings.MaxRunes(8192) & strings.MinRunes(0) | fn.#StringExpression
-	EnableKeyRotation?:              bool | fn.#BooleanExpression
-	Enabled?:                        bool | fn.#BooleanExpression
-	KeyPolicy?:                      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	BypassPolicyLockoutSafetyCheck?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	Description?:       strings.MaxRunes(8192) & strings.MinRunes(0) | fn.#StringExpression
+	EnableKeyRotation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Enabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KeyPolicy?:         fn.#Object & {...} | string | fn.#StringObjectExpression
 	KeySpec?: "SYMMETRIC_DEFAULT" |
 		"RSA_2048" |
 		"RSA_3072" |
@@ -89,12 +100,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"ECC_NIST_EDWARDS25519" |
 		fn.#StringExpression
 	KeyUsage?:    "ENCRYPT_DECRYPT" | "SIGN_VERIFY" | "GENERATE_VERIFY_MAC" | "KEY_AGREEMENT" | fn.#StringExpression
-	MultiRegion?: bool | fn.#BooleanExpression
+	MultiRegion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Origin?:      "AWS_KMS" | "EXTERNAL" | fn.#StringExpression
-	PendingWindowInDays?:  int & <=30 & >=7 | fn.#NumberExpression
-	RotationPeriodInDays?: int & <=2560 & >=90 | fn.#NumberExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	PendingWindowInDays?: int & <=30 & >=7 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=30 &
+							>=7,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RotationPeriodInDays?: int & <=2560 & >=90 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2560 &
+							>=90,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

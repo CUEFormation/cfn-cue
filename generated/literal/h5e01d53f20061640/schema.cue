@@ -33,7 +33,7 @@ import (
 	Policy?: strings.MinRunes(1)
 
 	// The IAM role ARN that the pod identity association is created for.
-	RoleArn!: string
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The Kubernetes service account that the pod identity association is created for.
 	ServiceAccount!: string
@@ -42,7 +42,7 @@ import (
 	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
 
 	// The Target Role Arn of the pod identity association.
-	TargetRoleArn?: strings.MinRunes(1)
+	TargetRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1)
 })
 
 // A key-value pair to associate with a resource.

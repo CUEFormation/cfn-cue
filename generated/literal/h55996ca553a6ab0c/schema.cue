@@ -65,7 +65,7 @@ import (
 	// For more examples, see ``KeyId`` in the *API Reference*.
 	// This property applies only to
 	// [server-side-encryption](https://docs.aws.amazon.com/sns/latest/dg/sns-server-side-encryption.html).
-	KmsMasterKeyId?:     string | string | string
+	KmsMasterKeyId?:     =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 	MaximumMessageSize?: int & <=1048576 & >=1024
 
 	// The signature version corresponds to the hashing algorithm used while
@@ -85,7 +85,7 @@ import (
 	// To be able to tag a topic on creation, you must have the ``sns:CreateTopic``
 	// and ``sns:TagResource`` permissions.
 	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag"]
-	TopicArn?: string
+	TopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 
 	// The name of the topic you want to create. Topic names must include only
 	// uppercase and lowercase ASCII letters, numbers, underscores, and hyphens,
@@ -112,7 +112,7 @@ import (
 // [AWS::SNS::Topic](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-sns-topic.html).
 _#defs: "/$defs/Properties/definitions/LoggingConfig": close({
 	// The IAM role ARN to be used when logging failed message deliveries in Amazon CloudWatch.
-	FailureFeedbackRoleArn?: string
+	FailureFeedbackRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Indicates one of the supported protocols for the Amazon SNS topic.
 	// At least one of the other three ``LoggingConfig`` properties is recommend
@@ -120,7 +120,7 @@ _#defs: "/$defs/Properties/definitions/LoggingConfig": close({
 	Protocol!: "http/s" | "sqs" | "lambda" | "firehose" | "application"
 
 	// The IAM role ARN to be used when logging successful message deliveries in Amazon CloudWatch.
-	SuccessFeedbackRoleArn?: string
+	SuccessFeedbackRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The percentage of successful message deliveries to be logged in Amazon
 	// CloudWatch. Valid percentage values range from 0 to 100.

@@ -15,14 +15,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::APS::Scraper
 #Properties: close({
 	Alias?:       strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][-.0-9A-Z_a-z]*$" | fn.#StringExpression
-	Destination!: _#defs."/$defs/Properties/definitions/Destination" | fn.#ObjectExpression
-	RoleConfiguration?:   _#defs."/$defs/Properties/definitions/RoleConfiguration" | fn.#ObjectExpression
-	ScrapeConfiguration!: _#defs."/$defs/Properties/definitions/ScrapeConfiguration" | fn.#ObjectExpression
-	ScraperLoggingConfiguration?: _#defs."/$defs/Properties/definitions/ScraperLoggingConfiguration" |
-		fn.#ObjectExpression
-	Source!: _#defs."/$defs/Properties/definitions/Source" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Destination!: _#defs."/$defs/Properties/definitions/Destination"
+	RoleConfiguration?:           _#defs."/$defs/Properties/definitions/RoleConfiguration"
+	ScrapeConfiguration!:         _#defs."/$defs/Properties/definitions/ScrapeConfiguration"
+	ScraperLoggingConfiguration?: _#defs."/$defs/Properties/definitions/ScraperLoggingConfiguration"
+	Source!:                      _#defs."/$defs/Properties/definitions/Source"
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CloudWatchLogDestination": close(
@@ -57,8 +55,10 @@ _#defs: "/$defs/Properties/definitions/Destination": matchN(1, [{
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RoleConfiguration": close({
-	SourceRoleArn?: string | fn.#StringExpression
-	TargetRoleArn?: string | fn.#StringExpression
+	SourceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	TargetRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -69,8 +69,8 @@ _#defs: "/$defs/Properties/definitions/ScrapeConfiguration": {
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScraperComponent": close({
-	Config?: _#defs."/$defs/Properties/definitions/ComponentConfig" | fn.#ObjectExpression
-	Type!:   _#defs."/$defs/Properties/definitions/ScraperComponentType" | fn.#StringExpression
+	Config?: _#defs."/$defs/Properties/definitions/ComponentConfig"
+	Type!:   _#defs."/$defs/Properties/definitions/ScraperComponentType"
 }) |
 fn.#ObjectExpression
 
@@ -80,20 +80,22 @@ _#defs: "/$defs/Properties/definitions/ScraperComponentType": "SERVICE_DISCOVERY
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ScraperLoggingConfiguration": close({
-	LoggingDestination!: _#defs."/$defs/Properties/definitions/ScraperLoggingDestination" | fn.#ObjectExpression
+	LoggingDestination!: _#defs."/$defs/Properties/definitions/ScraperLoggingDestination"
 	ScraperComponents!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ScraperComponent" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ScraperComponent"
 	] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScraperLoggingDestination": close(
-	{CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogDestination" | fn.#ObjectExpression},
+	{CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogDestination"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-[0-9a-z]+$" | fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	=~"^sg-[0-9a-z]+$" |
+	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Source": matchN(1, [{
 	EksConfiguration!: _
@@ -103,16 +105,14 @@ _#defs: "/$defs/Properties/definitions/Source": matchN(1, [{
 	...
 }]) & close({
 	EksConfiguration?: close({
-		ClusterArn!: =~"^arn:aws[-a-z]*:eks:[-a-z0-9]+:[0-9]{12}:cluster/.+$" | fn.#StringExpression
-		SecurityGroupIds?: [..._#defs."/$defs/Properties/definitions/SecurityGroupId" | fn.#StringExpression] |
-			fn.#ListExpression
-		SubnetIds!: [..._#defs."/$defs/Properties/definitions/SubnetId" | fn.#StringExpression] | fn.#ListExpression
+		ClusterArn!:       =~"^arn:aws[-a-z]*:eks:[-a-z0-9]+:[0-9]{12}:cluster/.+$" | fn.#StringExpression
+		SecurityGroupIds?: [..._#defs."/$defs/Properties/definitions/SecurityGroupId"] | fn.#ListExpression
+		SubnetIds!:        [..._#defs."/$defs/Properties/definitions/SubnetId"] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
 	VpcConfiguration?: close({
-		SecurityGroupIds!: [..._#defs."/$defs/Properties/definitions/SecurityGroupId" | fn.#StringExpression] |
-			fn.#ListExpression
-		SubnetIds!: [..._#defs."/$defs/Properties/definitions/SubnetId" | fn.#StringExpression] | fn.#ListExpression
+		SecurityGroupIds!: [..._#defs."/$defs/Properties/definitions/SecurityGroupId"] | fn.#ListExpression
+		SubnetIds!:        [..._#defs."/$defs/Properties/definitions/SubnetId"] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
 }) |

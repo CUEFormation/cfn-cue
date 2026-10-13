@@ -152,7 +152,7 @@ _#defs: "/$defs/Properties/definitions/DefaultWorkspaceCreationProperties": clos
 	EnableMaintenanceMode?: bool
 
 	// Indicates the IAM role ARN of the instance.
-	InstanceIamRoleArn?: string
+	InstanceIamRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Specifies whether WorkSpace users are local administrators on their WorkSpaces.
 	UserEnabledAsLocalAdministrator?: bool

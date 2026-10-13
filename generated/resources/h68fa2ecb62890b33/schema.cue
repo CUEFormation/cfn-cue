@@ -16,18 +16,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AwsAccountId?:    strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 	FolderId?:        strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	FolderType?:      _#defs."/$defs/Properties/definitions/FolderType" | fn.#StringExpression
+	FolderType?:      _#defs."/$defs/Properties/definitions/FolderType"
 	Name?:            strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 	ParentFolderArn?: string | fn.#StringExpression
-	Permissions?: list.MaxItems(64) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ResourcePermission" | fn.#ObjectExpression
-	] |
+	Permissions?: list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"] |
 		fn.#ListExpression
-	SharingModel?: _#defs."/$defs/Properties/definitions/SharingModel" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	SharingModel?: _#defs."/$defs/Properties/definitions/SharingModel"
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/FolderType": "SHARED" | "RESTRICTED" | fn.#StringExpression

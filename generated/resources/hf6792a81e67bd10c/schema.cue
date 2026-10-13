@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,30 +20,103 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AvailabilityZone?:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	AvailabilityZoneId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	ComputeCount?:       int | fn.#NumberExpression
-	CustomerContactsToSendToOCI?: [..._#defs."/$defs/Properties/definitions/CustomerContact" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ComputeCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CustomerContactsToSendToOCI?: [..._#defs."/$defs/Properties/definitions/CustomerContact"] | fn.#ListExpression
 	DatabaseServerType?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\/.=-]+$" | fn.#StringExpression
 	DisplayName?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	MaintenanceWindow?:  _#defs."/$defs/Properties/definitions/MaintenanceWindow" | fn.#ObjectExpression
 	Shape?:              strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\/.=-]+$" | fn.#StringExpression
-	StorageCount?:       int | fn.#NumberExpression
-	StorageServerType?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\/.=-]+$" | fn.#StringExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	StorageCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StorageServerType?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\/.=-]+$" | fn.#StringExpression
+	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CustomerContact": close({Email?: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
-	CustomActionTimeoutInMins?: int & <=120 & >=15 | fn.#NumberExpression
+	CustomActionTimeoutInMins?: int & <=120 & >=15 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=120 &
+							>=15,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	DaysOfWeek?: list.UniqueItems() & [
 		..."MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY" | fn.#StringExpression
 	] |
 		fn.#ListExpression
-	HoursOfDay?:                   list.UniqueItems() & [...int | fn.#NumberExpression] | fn.#ListExpression
-	IsCustomActionTimeoutEnabled?: bool | fn.#BooleanExpression
-	LeadTimeInWeeks?:              int & <=4 & >=1 | fn.#NumberExpression
+	HoursOfDay?: list.UniqueItems() & [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	IsCustomActionTimeoutEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	LeadTimeInWeeks?: int & <=4 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=4 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Months?: list.UniqueItems() & [
 		..."JANUARY" |
 			"FEBRUARY" |
@@ -58,7 +135,25 @@ _#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
 		fn.#ListExpression
 	PatchingMode?: "NONROLLING" | "ROLLING" | fn.#StringExpression
 	Preference?:   "CUSTOM_PREFERENCE" | "NO_PREFERENCE" | fn.#StringExpression
-	WeeksOfMonth?: list.UniqueItems() & [...int | fn.#NumberExpression] | fn.#ListExpression
+	WeeksOfMonth?: list.UniqueItems() & [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

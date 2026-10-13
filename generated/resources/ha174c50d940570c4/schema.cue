@@ -8,61 +8,107 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Files::FileSystem
 #Properties: close({
-	AcceptBucketWarning?: bool | fn.#BooleanExpression
+	AcceptBucketWarning?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Bucket!:              =~"^(arn:aws[a-zA-Z0-9-]*:s3:::.+)$" | fn.#StringExpression
 	ClientToken?:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(.+)$" | fn.#StringExpression
-	KmsKeyId?: (string | string | string) &
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) &
 	strings.MaxRunes(2048) &
 	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+|(arn:aws[-a-z]*:kms:[a-z0-9-]+:\\d{12}:((key/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})|(key/mrk-[0-9a-f]{32})|(alias/[a-zA-Z0-9/_-]+))))$" |
 	fn.#StringExpression
 	Prefix?: strings.MaxRunes(1024) & =~"^(|.*/)$" | fn.#StringExpression
-	RoleArn!: strings.MaxRunes(2048) & =~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
+	=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
 	SynchronizationConfiguration?: close({
 		ExpirationDataRules!: list.MaxItems(1) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/ExpirationDataRule" | fn.#ObjectExpression
+			..._#defs."/$defs/Properties/definitions/ExpirationDataRule"
 		] |
 			fn.#ListExpression
 		ImportDataRules!: list.MaxItems(10) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/ImportDataRule" | fn.#ObjectExpression
+			..._#defs."/$defs/Properties/definitions/ImportDataRule"
 		] |
 			fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ExpirationDataRule": close(
-	{DaysAfterLastAccess!: int & <=365 & >=1 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/ExpirationDataRule": close({
+	DaysAfterLastAccess!: int & <=365 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=365 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ImportDataRule": close({
-	Prefix!:       strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|.*/)$" | fn.#StringExpression
-	SizeLessThan!: int & <=52673613135872 & >=0 | fn.#NumberExpression
-	Trigger!:      "ON_DIRECTORY_FIRST_ACCESS" | "ON_FILE_ACCESS" | fn.#StringExpression
+	Prefix!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|.*/)$" | fn.#StringExpression
+	SizeLessThan!: int & <=52673613135872 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=52673613135872 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Trigger!: "ON_DIRECTORY_FIRST_ACCESS" | "ON_FILE_ACCESS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SynchronizationConfiguration": close({
 	ExpirationDataRules!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ExpirationDataRule" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ExpirationDataRule"
 	] |
 		fn.#ListExpression
-	ImportDataRules!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ImportDataRule" | fn.#ObjectExpression
-	] |
+	ImportDataRules!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ImportDataRule"] |
 		fn.#ListExpression
-	LatestVersionNumber?: int | fn.#NumberExpression
+	LatestVersionNumber?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

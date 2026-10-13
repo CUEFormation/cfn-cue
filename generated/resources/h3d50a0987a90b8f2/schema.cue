@@ -14,10 +14,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::ECR::SigningConfiguration resource creates or updates the signing
 // configuration for an Amazon ECR registry.
-#Properties: close({
-	Rules!: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Rule" | fn.#ObjectExpression] |
-		fn.#ListExpression
-})
+#Properties: close(
+	{Rules!: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression},
+)
 
 _#defs: "/$defs/Properties/definitions/Filter": strings.MaxRunes(256) &
 strings.MinRunes(1) &
@@ -27,14 +26,14 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/FilterType": "WILDCARD_MATCH" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RepositoryFilter": close({
-	Filter!:     _#defs."/$defs/Properties/definitions/Filter" | fn.#StringExpression
-	FilterType!: _#defs."/$defs/Properties/definitions/FilterType" | fn.#StringExpression
+	Filter!:     _#defs."/$defs/Properties/definitions/Filter"
+	FilterType!: _#defs."/$defs/Properties/definitions/FilterType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Rule": close({
 	RepositoryFilters?: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RepositoryFilter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/RepositoryFilter"
 	] |
 		fn.#ListExpression
 	SigningProfileArn!: strings.MaxRunes(200) &

@@ -55,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/KinesisStreamConfig": close({
 	// For more information the IAM role, see [Real-time log configuration IAM
 	// role](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/real-time-logs.html#understand-real-time-log-config-iam-role)
 	// in the *Amazon CloudFront Developer Guide*.
-	RoleArn!: string
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The Amazon Resource Name (ARN) of the Kinesis data stream where you are
 	// sending real-time log data.

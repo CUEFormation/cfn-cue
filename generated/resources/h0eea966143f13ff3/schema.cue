@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,35 +21,62 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // ([AWS::EFS::MountTarget](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-efs-mounttarget.html))
 // to mount your EFS file system on an EC2 or other AWS cloud compute resource.
 #Properties: close({
-	AvailabilityZoneName?:           strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	BackupPolicy?:                   _#defs."/$defs/Properties/definitions/BackupPolicy" | fn.#ObjectExpression
-	BypassPolicyLockoutSafetyCheck?: bool | fn.#BooleanExpression
-	Encrypted?:                      bool | fn.#BooleanExpression
-	FileSystemPolicy?:               string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	FileSystemProtection?:           _#defs."/$defs/Properties/definitions/FileSystemProtection" | fn.#ObjectExpression
-	FileSystemTags?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ElasticFileSystemTag" | fn.#ObjectExpression
-	] |
+	AvailabilityZoneName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+	BackupPolicy?:         _#defs."/$defs/Properties/definitions/BackupPolicy" | fn.#ObjectExpression
+	BypassPolicyLockoutSafetyCheck?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	Encrypted?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	FileSystemPolicy?:     fn.#Object & {...} | string | fn.#StringObjectExpression
+	FileSystemProtection?: _#defs."/$defs/Properties/definitions/FileSystemProtection" | fn.#ObjectExpression
+	FileSystemTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ElasticFileSystemTag"] |
 		fn.#ListExpression
-	KmsKeyId?: (string | string | string) &
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+|(arn:aws[-a-z]*:kms:[a-z0-9-]+:\\d{12}:((key/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})|(key/mrk-[0-9a-f]{32})|(alias/[a-zA-Z0-9/_-]+))))$" |
 	fn.#StringExpression
 	LifecyclePolicies?: list.MaxItems(3) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/LifecyclePolicy" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/LifecyclePolicy"
 	] |
 		fn.#ListExpression
-	PerformanceMode?:              "generalPurpose" | "maxIO" | fn.#StringExpression
-	ProvisionedThroughputInMibps?: >=1 | fn.#NumberExpression
+	PerformanceMode?: "generalPurpose" | "maxIO" | fn.#StringExpression
+	ProvisionedThroughputInMibps?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ReplicationConfiguration?: close({
 		Destinations?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...close({
 			AvailabilityZoneName?: string | fn.#StringExpression
 			FileSystemId?: =~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$" |
 				fn.#StringExpression
-			KmsKeyId?: string | string | string | fn.#StringExpression
-			Region?:   string | fn.#StringExpression
-			RoleArn?:  string | fn.#StringExpression
+			KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				string |
+				fn.#StringExpression
+			Region?: string | fn.#StringExpression
+			RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
@@ -97,7 +128,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReplicationConfiguration": close({
 	Destinations?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ReplicationDestination" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ReplicationDestination"
 	] |
 		fn.#ListExpression
 }) |
@@ -107,9 +138,12 @@ _#defs: "/$defs/Properties/definitions/ReplicationDestination": close({
 	AvailabilityZoneName?: string | fn.#StringExpression
 	FileSystemId?: =~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$" |
 		fn.#StringExpression
-	KmsKeyId?:      string | string | string | fn.#StringExpression
-	Region?:        string | fn.#StringExpression
-	RoleArn?:       string | fn.#StringExpression
+	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string |
+		fn.#StringExpression
+	Region?: string | fn.#StringExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	Status?:        string | fn.#StringExpression
 	StatusMessage?: string | fn.#StringExpression
 }) |

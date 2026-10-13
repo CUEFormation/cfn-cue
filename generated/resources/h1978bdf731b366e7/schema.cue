@@ -8,30 +8,31 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates an AWS Firewall Manager policy.
 #Properties: close({
-	DeleteAllPolicyResources?: bool | fn.#BooleanExpression
-	ExcludeMap?:               _#defs."/$defs/Properties/definitions/IEMap" | fn.#ObjectExpression
-	ExcludeResourceTags!:      bool | fn.#BooleanExpression
-	IncludeMap?:               _#defs."/$defs/Properties/definitions/IEMap" | fn.#ObjectExpression
+	DeleteAllPolicyResources?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExcludeMap?:               _#defs."/$defs/Properties/definitions/IEMap"
+	ExcludeResourceTags!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeMap?:               _#defs."/$defs/Properties/definitions/IEMap"
 	PolicyDescription?:        strings.MaxRunes(256) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" | fn.#StringExpression
 	PolicyName!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" | fn.#StringExpression
-	RemediationEnabled!: bool | fn.#BooleanExpression
-	ResourceSetIds?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Base62Id" | fn.#StringExpression] |
-		fn.#ListExpression
+	RemediationEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ResourceSetIds?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Base62Id"] | fn.#ListExpression
 	ResourceTagLogicalOperator?: "AND" | "OR" | fn.#StringExpression
-	ResourceTags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/ResourceTag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	ResourceType?: _#defs."/$defs/Properties/definitions/ResourceType" | fn.#StringExpression
-	ResourceTypeList?: [..._#defs."/$defs/Properties/definitions/ResourceType" | fn.#StringExpression] |
-		fn.#ListExpression
-	ResourcesCleanUp?:          bool | fn.#BooleanExpression
-	SecurityServicePolicyData!: _#defs."/$defs/Properties/definitions/SecurityServicePolicyData" | fn.#ObjectExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/PolicyTag" | fn.#ObjectExpression] | fn.#ListExpression
+	ResourceTags?:     list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/ResourceTag"] | fn.#ListExpression
+	ResourceType?:     _#defs."/$defs/Properties/definitions/ResourceType"
+	ResourceTypeList?: [..._#defs."/$defs/Properties/definitions/ResourceType"] | fn.#ListExpression
+	ResourcesCleanUp?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SecurityServicePolicyData!: _#defs."/$defs/Properties/definitions/SecurityServicePolicyData"
+	Tags?:                      [..._#defs."/$defs/Properties/definitions/PolicyTag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccountId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^([0-9]*)$" |
@@ -43,9 +44,8 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/FirewallDeploymentModel": "DISTRIBUTED" | "CENTRALIZED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/IEMap": close({
-	ACCOUNT?: [..._#defs."/$defs/Properties/definitions/AccountId" | fn.#StringExpression] | fn.#ListExpression
-	ORGUNIT?: [..._#defs."/$defs/Properties/definitions/OrganizationalUnitId" | fn.#StringExpression] |
-		fn.#ListExpression
+	ACCOUNT?: [..._#defs."/$defs/Properties/definitions/AccountId"] | fn.#ListExpression
+	ORGUNIT?: [..._#defs."/$defs/Properties/definitions/OrganizationalUnitId"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -53,24 +53,92 @@ _#defs: "/$defs/Properties/definitions/ManagedServiceData": strings.MaxRunes(300
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkAclCommonPolicy": close(
-	{NetworkAclEntrySet!: _#defs."/$defs/Properties/definitions/NetworkAclEntrySet" | fn.#ObjectExpression},
+	{NetworkAclEntrySet!: _#defs."/$defs/Properties/definitions/NetworkAclEntrySet"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkAclEntry": close({
 	CidrBlock?: =~"^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$" |
 		fn.#StringExpression
-	Egress!: bool | fn.#BooleanExpression
+	Egress!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IcmpTypeCode?: close({
-		Code!: int & <=255 & >=0 | fn.#NumberExpression
-		Type!: int & <=255 & >=0 | fn.#NumberExpression
+		Code!: int & <=255 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=255 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Type!: int & <=255 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=255 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
 	Ipv6CidrBlock?: =~"^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))(/(1[0-2]|[0-9]))?$" |
 		fn.#StringExpression
 	PortRange?: close({
-		From!: int & <=65535 & >=0 | fn.#NumberExpression
-		To!:   int & <=65535 & >=0 | fn.#NumberExpression
+		From!: int & <=65535 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=65535 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		To!: int & <=65535 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=65535 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
 	Protocol!:   =~"^(tcp|udp|icmp|-1|([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))$" | fn.#StringExpression
@@ -78,27 +146,32 @@ _#defs: "/$defs/Properties/definitions/NetworkAclEntry": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkAclEntryList": [
-	..._#defs."/$defs/Properties/definitions/NetworkAclEntry" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/NetworkAclEntryList": [..._#defs."/$defs/Properties/definitions/NetworkAclEntry"] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkAclEntrySet": ({
+_#defs: "/$defs/Properties/definitions/NetworkAclEntrySet": matchN(>=1, [{
 	FirstEntries!: _
 	...
-} | {
+}, {
 	LastEntries!: _
 	...
-}) & close({
-	FirstEntries?:                  _#defs."/$defs/Properties/definitions/NetworkAclEntryList" | fn.#ListExpression
-	ForceRemediateForFirstEntries!: bool | fn.#BooleanExpression
-	ForceRemediateForLastEntries!:  bool | fn.#BooleanExpression
-	LastEntries?:                   _#defs."/$defs/Properties/definitions/NetworkAclEntryList" | fn.#ListExpression
+}]) & close({
+	FirstEntries?: _#defs."/$defs/Properties/definitions/NetworkAclEntryList"
+	ForceRemediateForFirstEntries!: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	ForceRemediateForLastEntries!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	LastEntries?:                  _#defs."/$defs/Properties/definitions/NetworkAclEntryList"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkFirewallPolicy": close(
-	{FirewallDeploymentModel!: _#defs."/$defs/Properties/definitions/FirewallDeploymentModel" | fn.#StringExpression},
+	{FirewallDeploymentModel!: _#defs."/$defs/Properties/definitions/FirewallDeploymentModel"},
 ) |
 	fn.#ObjectExpression
 
@@ -117,9 +190,9 @@ _#defs: "/$defs/Properties/definitions/PolicyOption": matchN(1, [{
 	NetworkAclCommonPolicy!: _
 	...
 }]) & close({
-	NetworkAclCommonPolicy?:   _#defs."/$defs/Properties/definitions/NetworkAclCommonPolicy" | fn.#ObjectExpression
-	NetworkFirewallPolicy?:    _#defs."/$defs/Properties/definitions/NetworkFirewallPolicy" | fn.#ObjectExpression
-	ThirdPartyFirewallPolicy?: _#defs."/$defs/Properties/definitions/ThirdPartyFirewallPolicy" | fn.#ObjectExpression
+	NetworkAclCommonPolicy?:   _#defs."/$defs/Properties/definitions/NetworkAclCommonPolicy"
+	NetworkFirewallPolicy?:    _#defs."/$defs/Properties/definitions/NetworkFirewallPolicy"
+	ThirdPartyFirewallPolicy?: _#defs."/$defs/Properties/definitions/ThirdPartyFirewallPolicy"
 }) |
 fn.#ObjectExpression
 
@@ -155,14 +228,14 @@ _#defs: "/$defs/Properties/definitions/ResourceType": strings.MaxRunes(128) & st
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SecurityServicePolicyData": close({
-	ManagedServiceData?: _#defs."/$defs/Properties/definitions/ManagedServiceData" | fn.#StringExpression
-	PolicyOption?:       _#defs."/$defs/Properties/definitions/PolicyOption" | fn.#ObjectExpression
-	Type!:               _#defs."/$defs/Properties/definitions/PolicyType" | fn.#StringExpression
+	ManagedServiceData?: _#defs."/$defs/Properties/definitions/ManagedServiceData"
+	PolicyOption?:       _#defs."/$defs/Properties/definitions/PolicyOption"
+	Type!:               _#defs."/$defs/Properties/definitions/PolicyType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ThirdPartyFirewallPolicy": close(
-	{FirewallDeploymentModel!: _#defs."/$defs/Properties/definitions/FirewallDeploymentModel" | fn.#StringExpression},
+	{FirewallDeploymentModel!: _#defs."/$defs/Properties/definitions/FirewallDeploymentModel"},
 ) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

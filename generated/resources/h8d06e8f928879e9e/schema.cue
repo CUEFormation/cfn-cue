@@ -12,7 +12,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ChannelArn!: =~"^arn:[a-z-]{3,10}:(chatbot|consoleapp|notifications-contacts):[a-zA-Z0-9-]*:[0-9]{12}:[a-zA-Z0-9-_.@]+/[a-zA-Z0-9/_.@:-]+$" |
 		fn.#StringExpression
-	IsSensitiveEventsSubscribed?: bool | fn.#BooleanExpression
+	IsSensitiveEventsSubscribed?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ManagedNotificationConfigurationArn!: =~"^arn:[a-z-]{3,10}:notifications::([0-9]{12}|):managed-notification-configuration/category/[a-zA-Z0-9\\-]{3,64}/sub-category/[a-zA-Z0-9\\-]{3,64}$" |
 		fn.#StringExpression
 })

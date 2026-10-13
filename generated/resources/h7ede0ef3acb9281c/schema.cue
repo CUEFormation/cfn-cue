@@ -15,16 +15,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::WorkSpacesWeb::NetworkSettings Resource Type
 #Properties: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+\\-]+$" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"^[\\w+\\-]+$" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SubnetIds!: list.MaxItems(3) & list.MinItems(2) & [
 		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"^subnet-([0-9a-f]{8}|[0-9a-f]{17})$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	VpcId!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^vpc-[0-9a-z]*$" | fn.#StringExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1) &
+	=~"^vpc-[0-9a-z]*$" |
+	fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

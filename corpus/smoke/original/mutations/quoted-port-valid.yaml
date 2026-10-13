@@ -1,0 +1,9 @@
+Resources:
+  Thing:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: sg-12345678
+      IpProtocol: tcp
+      FromPort: '22'
+      ToPort: '22'
+      CidrIp: 10.0.0.0/24

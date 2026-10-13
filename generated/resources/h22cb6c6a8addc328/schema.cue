@@ -15,13 +15,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	MetricName!: string | fn.#StringExpression
 	Name!:       string | fn.#StringExpression
-	Predicates?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Predicate" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Predicates?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Predicate"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Predicate": close({
 	DataId!:  string | fn.#StringExpression
-	Negated!: bool | fn.#BooleanExpression
+	Negated!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Type!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

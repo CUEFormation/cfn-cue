@@ -4,38 +4,42 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaLive::Input
 #Properties: close({
-	Destinations?: [..._#defs."/$defs/Properties/definitions/InputDestinationRequest" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	InputDevices?: [..._#defs."/$defs/Properties/definitions/InputDeviceSettings" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Destinations?:         [..._#defs."/$defs/Properties/definitions/InputDestinationRequest"] | fn.#ListExpression
+	InputDevices?:         [..._#defs."/$defs/Properties/definitions/InputDeviceSettings"] | fn.#ListExpression
 	InputNetworkLocation?: string | fn.#StringExpression
-	InputSecurityGroups?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	MediaConnectFlows?: [..._#defs."/$defs/Properties/definitions/MediaConnectFlowRequest" | fn.#ObjectExpression] |
+	InputSecurityGroups?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
 		fn.#ListExpression
-	MulticastSettings?: _#defs."/$defs/Properties/definitions/MulticastSettingsCreateRequest" | fn.#ObjectExpression
+	MediaConnectFlows?: [..._#defs."/$defs/Properties/definitions/MediaConnectFlowRequest"] | fn.#ListExpression
+	MulticastSettings?: _#defs."/$defs/Properties/definitions/MulticastSettingsCreateRequest"
 	Name?:              string | fn.#StringExpression
-	RoleArn?:           string | fn.#StringExpression
-	RouterSettings?:    _#defs."/$defs/Properties/definitions/RouterSettings" | fn.#ObjectExpression
-	SdiSources?:        [...string | fn.#StringExpression] | fn.#ListExpression
-	Smpte2110ReceiverGroupSettings?: _#defs."/$defs/Properties/definitions/Smpte2110ReceiverGroupSettings" |
-		fn.#ObjectExpression
-	Sources?: [..._#defs."/$defs/Properties/definitions/InputSourceRequest" | fn.#ObjectExpression] | fn.#ListExpression
-	SrtSettings?: _#defs."/$defs/Properties/definitions/SrtSettingsRequest" | fn.#ObjectExpression
-	Tags?:        string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	Type?:        string | fn.#StringExpression
-	Vpc?:         _#defs."/$defs/Properties/definitions/InputVpcRequest" | fn.#ObjectExpression
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	RouterSettings?:                 _#defs."/$defs/Properties/definitions/RouterSettings"
+	SdiSources?:                     [...string | fn.#StringExpression] | fn.#ListExpression
+	Smpte2110ReceiverGroupSettings?: _#defs."/$defs/Properties/definitions/Smpte2110ReceiverGroupSettings"
+	Sources?:                        [..._#defs."/$defs/Properties/definitions/InputSourceRequest"] | fn.#ListExpression
+	SrtSettings?:                    _#defs."/$defs/Properties/definitions/SrtSettingsRequest"
+	Tags?:                           fn.#Object & {...} | string | fn.#StringObjectExpression
+	Type?:                           string | fn.#StringExpression
+	Vpc?:                            _#defs."/$defs/Properties/definitions/InputVpcRequest"
 })
 
 _#defs: "/$defs/Properties/definitions/InputDestinationRequest": close({
-	Network?: string | fn.#StringExpression
-	NetworkRoutes?: [..._#defs."/$defs/Properties/definitions/InputRequestDestinationRoute" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Network?:         string | fn.#StringExpression
+	NetworkRoutes?:   [..._#defs."/$defs/Properties/definitions/InputRequestDestinationRoute"] | fn.#ListExpression
 	StaticIpAddress?: string | fn.#StringExpression
 	StreamName?:      string | fn.#StringExpression
 }) |
@@ -51,8 +55,21 @@ _#defs: "/$defs/Properties/definitions/InputRequestDestinationRoute": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InputSdpLocation": close({
-	MediaIndex?: int | fn.#NumberExpression
-	SdpUrl?:     string | fn.#StringExpression
+	MediaIndex?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SdpUrl?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -64,18 +81,21 @@ _#defs: "/$defs/Properties/definitions/InputSourceRequest": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InputVpcRequest": close({
-	SecurityGroupIds?: [...string | fn.#StringExpression] | fn.#ListExpression
-	SubnetIds?:        [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	SubnetIds?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MediaConnectFlowRequest": close({FlowArn?: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MulticastSettingsCreateRequest": close({
-	Sources?: [..._#defs."/$defs/Properties/definitions/MulticastSourceCreateRequest" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/MulticastSettingsCreateRequest": close(
+	{Sources?: [..._#defs."/$defs/Properties/definitions/MulticastSourceCreateRequest"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MulticastSourceCreateRequest": close({
@@ -90,30 +110,27 @@ _#defs: "/$defs/Properties/definitions/RouterDestinationSettings": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RouterSettings": close({
-	Destinations?: [..._#defs."/$defs/Properties/definitions/RouterDestinationSettings" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Destinations?:   [..._#defs."/$defs/Properties/definitions/RouterDestinationSettings"] | fn.#ListExpression
 	EncryptionType?: string | fn.#StringExpression
 	SecretArn?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Smpte2110ReceiverGroup": close(
-	{SdpSettings?: _#defs."/$defs/Properties/definitions/Smpte2110ReceiverGroupSdpSettings" | fn.#ObjectExpression},
+	{SdpSettings?: _#defs."/$defs/Properties/definitions/Smpte2110ReceiverGroupSdpSettings"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Smpte2110ReceiverGroupSdpSettings": close({
-	AncillarySdps?: [..._#defs."/$defs/Properties/definitions/InputSdpLocation" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	AudioSdps?: [..._#defs."/$defs/Properties/definitions/InputSdpLocation" | fn.#ObjectExpression] | fn.#ListExpression
-	VideoSdp?:  _#defs."/$defs/Properties/definitions/InputSdpLocation" | fn.#ObjectExpression
+	AncillarySdps?: [..._#defs."/$defs/Properties/definitions/InputSdpLocation"] | fn.#ListExpression
+	AudioSdps?:     [..._#defs."/$defs/Properties/definitions/InputSdpLocation"] | fn.#ListExpression
+	VideoSdp?:      _#defs."/$defs/Properties/definitions/InputSdpLocation"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Smpte2110ReceiverGroupSettings": close({
-	Smpte2110ReceiverGroups?: [..._#defs."/$defs/Properties/definitions/Smpte2110ReceiverGroup" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/Smpte2110ReceiverGroupSettings": close(
+	{Smpte2110ReceiverGroups?: [..._#defs."/$defs/Properties/definitions/Smpte2110ReceiverGroup"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SrtCallerDecryptionRequest": close({
@@ -123,8 +140,21 @@ _#defs: "/$defs/Properties/definitions/SrtCallerDecryptionRequest": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SrtCallerSourceRequest": close({
-	Decryption?:         _#defs."/$defs/Properties/definitions/SrtCallerDecryptionRequest" | fn.#ObjectExpression
-	MinimumLatency?:     int | fn.#NumberExpression
+	Decryption?: _#defs."/$defs/Properties/definitions/SrtCallerDecryptionRequest"
+	MinimumLatency?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	SrtListenerAddress?: string | fn.#StringExpression
 	SrtListenerPort?:    string | fn.#StringExpression
 	StreamId?:           string | fn.#StringExpression
@@ -138,16 +168,28 @@ _#defs: "/$defs/Properties/definitions/SrtListenerDecryptionRequest": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SrtListenerSettingsRequest": close({
-	Decryption?:     _#defs."/$defs/Properties/definitions/SrtListenerDecryptionRequest" | fn.#ObjectExpression
-	MinimumLatency?: int | fn.#NumberExpression
-	StreamId?:       string | fn.#StringExpression
+	Decryption?: _#defs."/$defs/Properties/definitions/SrtListenerDecryptionRequest"
+	MinimumLatency?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	StreamId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SrtSettingsRequest": close({
-	SrtCallerSources?: [..._#defs."/$defs/Properties/definitions/SrtCallerSourceRequest" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	SrtListenerSettings?: _#defs."/$defs/Properties/definitions/SrtListenerSettingsRequest" | fn.#ObjectExpression
+	SrtCallerSources?:    [..._#defs."/$defs/Properties/definitions/SrtCallerSourceRequest"] | fn.#ListExpression
+	SrtListenerSettings?: _#defs."/$defs/Properties/definitions/SrtListenerSettingsRequest"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -20,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	Name?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	RegexString?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:        string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:        fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Glue::CustomEntityType"

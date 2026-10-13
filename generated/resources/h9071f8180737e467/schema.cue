@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,26 +19,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::ElastiCache::GlobalReplicationGroup resource creates an Amazon
 // ElastiCache Global Replication Group.
 #Properties: close({
-	AutomaticFailoverEnabled?:          bool | fn.#BooleanExpression
-	CacheNodeType?:                     string | fn.#StringExpression
-	CacheParameterGroupName?:           string | fn.#StringExpression
-	Engine?:                            string | fn.#StringExpression
-	EngineVersion?:                     string | fn.#StringExpression
-	GlobalNodeGroupCount?:              int | fn.#NumberExpression
+	AutomaticFailoverEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CacheNodeType?:            string | fn.#StringExpression
+	CacheParameterGroupName?:  string | fn.#StringExpression
+	Engine?:                   string | fn.#StringExpression
+	EngineVersion?:            string | fn.#StringExpression
+	GlobalNodeGroupCount?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	GlobalReplicationGroupDescription?: string | fn.#StringExpression
 	GlobalReplicationGroupIdSuffix?:    string | fn.#StringExpression
 	Members!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/GlobalReplicationGroupMember" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/GlobalReplicationGroupMember"
 	] |
 		fn.#ListExpression
-	RegionalConfigurations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/RegionalConfiguration" | fn.#ObjectExpression
-	] |
+	RegionalConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RegionalConfiguration"] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/GlobalReplicationGroupMember": close({
@@ -47,9 +59,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/RegionalConfiguration": close({
 	ReplicationGroupId?:     string | fn.#StringExpression
 	ReplicationGroupRegion?: string | fn.#StringExpression
-	ReshardingConfigurations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ReshardingConfiguration" | fn.#ObjectExpression
-	] |
+	ReshardingConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ReshardingConfiguration"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression

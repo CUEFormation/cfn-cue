@@ -8,22 +8,25 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::SES::ConfigurationSet.
 #Properties: close({
-	ArchivingOptions?:   _#defs."/$defs/Properties/definitions/ArchivingOptions" | fn.#ObjectExpression
-	DeliveryOptions?:    _#defs."/$defs/Properties/definitions/DeliveryOptions" | fn.#ObjectExpression
+	ArchivingOptions?:   _#defs."/$defs/Properties/definitions/ArchivingOptions"
+	DeliveryOptions?:    _#defs."/$defs/Properties/definitions/DeliveryOptions"
 	Name?:               =~"^[a-zA-Z0-9_-]{1,64}$" | fn.#StringExpression
-	ReputationOptions?:  _#defs."/$defs/Properties/definitions/ReputationOptions" | fn.#ObjectExpression
-	SendingOptions?:     _#defs."/$defs/Properties/definitions/SendingOptions" | fn.#ObjectExpression
-	SuppressionOptions?: _#defs."/$defs/Properties/definitions/SuppressionOptions" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TrackingOptions?: _#defs."/$defs/Properties/definitions/TrackingOptions" | fn.#ObjectExpression
-	VdmOptions?:      _#defs."/$defs/Properties/definitions/VdmOptions" | fn.#ObjectExpression
+	ReputationOptions?:  _#defs."/$defs/Properties/definitions/ReputationOptions"
+	SendingOptions?:     _#defs."/$defs/Properties/definitions/SendingOptions"
+	SuppressionOptions?: _#defs."/$defs/Properties/definitions/SuppressionOptions"
+	Tags?:            list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TrackingOptions?: _#defs."/$defs/Properties/definitions/TrackingOptions"
+	VdmOptions?:      _#defs."/$defs/Properties/definitions/VdmOptions"
 })
 
 _#defs: "/$defs/Properties/definitions/ArchivingOptions": close({ArchiveArn?: string | fn.#StringExpression}) |
@@ -35,9 +38,28 @@ _#defs: "/$defs/Properties/definitions/DashboardOptions": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DeliveryOptions": close({
-	MaxDeliverySeconds?: <=50400 & >=300 | fn.#NumberExpression
-	SendingPoolName?:    string | fn.#StringExpression
-	TlsPolicy?:          =~"REQUIRE|OPTIONAL" | fn.#StringExpression
+	MaxDeliverySeconds?: <=50400 & >=300 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=50400 &
+							>=300,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SendingPoolName?: string | fn.#StringExpression
+	TlsPolicy?:       =~"REQUIRE|OPTIONAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -47,11 +69,13 @@ _#defs: "/$defs/Properties/definitions/GuardianOptions": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReputationOptions": close(
-	{ReputationMetricsEnabled?: bool | fn.#BooleanExpression},
+	{ReputationMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SendingOptions": close({SendingEnabled?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/SendingOptions": close(
+	{SendingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SuppressionOptions": close({
@@ -83,8 +107,8 @@ _#defs: "/$defs/Properties/definitions/TrackingOptions": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VdmOptions": close({
-	DashboardOptions?: _#defs."/$defs/Properties/definitions/DashboardOptions" | fn.#ObjectExpression
-	GuardianOptions?:  _#defs."/$defs/Properties/definitions/GuardianOptions" | fn.#ObjectExpression
+	DashboardOptions?: _#defs."/$defs/Properties/definitions/DashboardOptions"
+	GuardianOptions?:  _#defs."/$defs/Properties/definitions/GuardianOptions"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

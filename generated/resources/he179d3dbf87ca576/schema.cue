@@ -17,11 +17,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // enriched with AWS resource tags and metadata.
 #Properties: close({
 	ExcludeFilters?: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/OTelEnrichmentMetricSelector" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/OTelEnrichmentMetricSelector"
 	] |
 		fn.#ListExpression
 	IncludeFilters?: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/OTelEnrichmentMetricSelector" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/OTelEnrichmentMetricSelector"
 	] |
 		fn.#ListExpression
 })

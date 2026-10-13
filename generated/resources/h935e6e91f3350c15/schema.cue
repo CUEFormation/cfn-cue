@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -11,52 +15,102 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Pinpoint::Segment
 #Properties: close({
 	ApplicationId!: string | fn.#StringExpression
-	Dimensions?:    _#defs."/$defs/Properties/definitions/SegmentDimensions" | fn.#ObjectExpression
+	Dimensions?:    _#defs."/$defs/Properties/definitions/SegmentDimensions"
 	Name!:          string | fn.#StringExpression
-	SegmentGroups?: _#defs."/$defs/Properties/definitions/SegmentGroups" | fn.#ObjectExpression
-	Tags?:          string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	SegmentGroups?: _#defs."/$defs/Properties/definitions/SegmentGroups"
+	Tags?:          fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Behavior": close(
-	{Recency?: _#defs."/$defs/Properties/definitions/Recency" | fn.#ObjectExpression},
-) |
+_#defs: "/$defs/Properties/definitions/Behavior": close({Recency?: _#defs."/$defs/Properties/definitions/Recency"}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Coordinates": close({
-	Latitude!:  number | fn.#NumberExpression
-	Longitude!: number | fn.#NumberExpression
+	Latitude!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Longitude!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Demographic": close({
-	AppVersion?: _#defs."/$defs/Properties/definitions/SetDimension" | fn.#ObjectExpression
-	Channel?:    _#defs."/$defs/Properties/definitions/SetDimension" | fn.#ObjectExpression
-	DeviceType?: _#defs."/$defs/Properties/definitions/SetDimension" | fn.#ObjectExpression
-	Make?:       _#defs."/$defs/Properties/definitions/SetDimension" | fn.#ObjectExpression
-	Model?:      _#defs."/$defs/Properties/definitions/SetDimension" | fn.#ObjectExpression
-	Platform?:   _#defs."/$defs/Properties/definitions/SetDimension" | fn.#ObjectExpression
+	AppVersion?: _#defs."/$defs/Properties/definitions/SetDimension"
+	Channel?:    _#defs."/$defs/Properties/definitions/SetDimension"
+	DeviceType?: _#defs."/$defs/Properties/definitions/SetDimension"
+	Make?:       _#defs."/$defs/Properties/definitions/SetDimension"
+	Model?:      _#defs."/$defs/Properties/definitions/SetDimension"
+	Platform?:   _#defs."/$defs/Properties/definitions/SetDimension"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GPSPoint": close({
-	Coordinates!:       _#defs."/$defs/Properties/definitions/Coordinates" | fn.#ObjectExpression
-	RangeInKilometers!: number | fn.#NumberExpression
+	Coordinates!: _#defs."/$defs/Properties/definitions/Coordinates"
+	RangeInKilometers!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Groups": close({
-	Dimensions?: [..._#defs."/$defs/Properties/definitions/SegmentDimensions" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	SourceSegments?: [..._#defs."/$defs/Properties/definitions/SourceSegments" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	SourceType?: string | fn.#StringExpression
-	Type?:       string | fn.#StringExpression
+	Dimensions?:     [..._#defs."/$defs/Properties/definitions/SegmentDimensions"] | fn.#ListExpression
+	SourceSegments?: [..._#defs."/$defs/Properties/definitions/SourceSegments"] | fn.#ListExpression
+	SourceType?:     string | fn.#StringExpression
+	Type?:           string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Location": close({
-	Country?:  _#defs."/$defs/Properties/definitions/SetDimension" | fn.#ObjectExpression
-	GPSPoint?: _#defs."/$defs/Properties/definitions/GPSPoint" | fn.#ObjectExpression
+	Country?:  _#defs."/$defs/Properties/definitions/SetDimension"
+	GPSPoint?: _#defs."/$defs/Properties/definitions/GPSPoint"
 }) |
 fn.#ObjectExpression
 
@@ -67,17 +121,17 @@ _#defs: "/$defs/Properties/definitions/Recency": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SegmentDimensions": close({
-	Attributes?:     string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	Behavior?:       _#defs."/$defs/Properties/definitions/Behavior" | fn.#ObjectExpression
-	Demographic?:    _#defs."/$defs/Properties/definitions/Demographic" | fn.#ObjectExpression
-	Location?:       _#defs."/$defs/Properties/definitions/Location" | fn.#ObjectExpression
-	Metrics?:        string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	UserAttributes?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Attributes?:     fn.#Object & {...} | string | fn.#StringObjectExpression
+	Behavior?:       _#defs."/$defs/Properties/definitions/Behavior"
+	Demographic?:    _#defs."/$defs/Properties/definitions/Demographic"
+	Location?:       _#defs."/$defs/Properties/definitions/Location"
+	Metrics?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+	UserAttributes?: fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SegmentGroups": close({
-	Groups?:  [..._#defs."/$defs/Properties/definitions/Groups" | fn.#ObjectExpression] | fn.#ListExpression
+	Groups?:  [..._#defs."/$defs/Properties/definitions/Groups"] | fn.#ListExpression
 	Include?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -89,8 +143,21 @@ _#defs: "/$defs/Properties/definitions/SetDimension": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SourceSegments": close({
-	Id!:      string | fn.#StringExpression
-	Version?: int | fn.#NumberExpression
+	Id!: string | fn.#StringExpression
+	Version?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

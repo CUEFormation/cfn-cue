@@ -18,7 +18,7 @@ import "strings"
 	RecipeName!: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// Role arn
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20)
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 	// Sample
 	Sample?: _#defs."/$defs/Properties/definitions/Sample"

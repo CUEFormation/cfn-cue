@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	EmailAddress!: strings.MaxRunes(254) & strings.MinRunes(6) & =~"^(.+)@(.+)$" | fn.#StringExpression
 	Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\w-.~]+" | fn.#StringExpression
-	Tags?:         _#defs."/$defs/Properties/definitions/TagMap" | fn.#ListExpression
+	Tags?:         _#defs."/$defs/Properties/definitions/TagMap"
 })
 
 _#defs: "/$defs/Properties/definitions/EmailContact": close({
@@ -24,7 +24,7 @@ _#defs: "/$defs/Properties/definitions/EmailContact": close({
 	Arn!:          =~"^arn:aws:notifications-contacts::[0-9]{12}:emailcontact/[a-z0-9]{27}$" | fn.#StringExpression
 	CreationTime!: time.Time | fn.#StringExpression
 	Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\w-.~]+" | fn.#StringExpression
-	Status!:       _#defs."/$defs/Properties/definitions/EmailContactStatus" | fn.#StringExpression
+	Status!:       _#defs."/$defs/Properties/definitions/EmailContactStatus"
 	UpdateTime!:   time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -37,8 +37,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-	fn.#ListExpression
+_#defs: "/$defs/Properties/definitions/TagMap": [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::NotificationsContacts::EmailContact"
 	Properties!: #Properties

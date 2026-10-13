@@ -29,12 +29,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	IdpRelayStateParameterName?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:                       strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
 	ServiceRole!:                _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	SubnetIds!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SubnetId" | fn.#StringExpression] |
-		fn.#ListExpression
-	Tags?:                              _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
-	TrustedIdentityPropagationEnabled?: bool | fn.#BooleanExpression
-	UserRole?:                          _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	VpcId!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17})$" |
+	SubnetIds!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SubnetId"] | fn.#ListExpression
+	Tags?:      _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	TrustedIdentityPropagationEnabled?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	UserRole?: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
+	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(256) &
+	strings.MinRunes(0) &
+	=~"^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17})$" |
 	fn.#StringExpression
 	WorkspaceSecurityGroupId!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^sg-[a-zA-Z0-9\\-._]+$" |
 	fn.#StringExpression
@@ -53,9 +62,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EMR::Studio"

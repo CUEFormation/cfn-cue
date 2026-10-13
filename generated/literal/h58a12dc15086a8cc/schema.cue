@@ -30,7 +30,8 @@ import (
 	ExchangeUrlPrivateConnectionName?: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$"
 
 	// The ARN of the KMS key to use for encryption.
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
 
@@ -103,7 +104,8 @@ _#defs: "/$defs/Properties/definitions/AzureIdentityServiceDetails": close({
 	TenantId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
 
 	// ARN of the IAM role for web identity token exchange
-	WebIdentityRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+$"
+	WebIdentityRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+$"
 
 	// List of audiences for the web identity token
 	WebIdentityTokenAudiences!: list.MinItems(1) & [...string]
@@ -273,7 +275,8 @@ _#defs: "/$defs/Properties/definitions/MCPServerSigV4AuthorizationConfig": close
 
 	// IAM role ARN to assume for SigV4 signing. Optional - when omitted,
 	// credentials are resolved at runtime via a monitor account association.
-	McpRoleArn?: =~"^arn:aws:iam::\\d{12}:role/[a-zA-Z0-9+=,.@_/-]+$"
+	McpRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:aws:iam::\\d{12}:role/[a-zA-Z0-9+=,.@_/-]+$"
 
 	// AWS region for SigV4 signing. Use '*' for SigV4a multi-region signing.
 	Region!: =~"^(\\*|[a-z]{2,4}(-[a-z]+)+-\\d+)$"
@@ -281,7 +284,8 @@ _#defs: "/$defs/Properties/definitions/MCPServerSigV4AuthorizationConfig": close
 	// Deprecated - use McpRoleArn instead. IAM role ARN to assume for SigV4
 	// signing. Set to an empty string to remove a previously configured role and
 	// make the server role-less (cross-account).
-	RoleArn?: =~"^$|^arn:aws:iam::\\d{12}:role/[a-zA-Z0-9+=,.@_/-]+$"
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^$|^arn:aws:iam::\\d{12}:role/[a-zA-Z0-9+=,.@_/-]+$"
 
 	// AWS service name for SigV4 signing
 	Service!: strings.MaxRunes(100) & strings.MinRunes(1)
@@ -388,7 +392,8 @@ _#defs: "/$defs/Properties/definitions/RegisteredAzureIdentityDetails": close({
 	TenantId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
 
 	// ARN of the IAM role for web identity token exchange
-	WebIdentityRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+$"
+	WebIdentityRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+$"
 
 	// List of audiences for the web identity token
 	WebIdentityTokenAudiences!: [...string]
@@ -481,7 +486,7 @@ _#defs: "/$defs/Properties/definitions/RegisteredMCPServerSigV4Details": close({
 	Endpoint!: string
 
 	// IAM role ARN for SigV4 signing. Absent when no dedicated role is configured.
-	McpRoleArn?: string
+	McpRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The MCP server name
 	Name!: string
@@ -490,7 +495,7 @@ _#defs: "/$defs/Properties/definitions/RegisteredMCPServerSigV4Details": close({
 	Region!: string
 
 	// Deprecated - use McpRoleArn instead. IAM role ARN for SigV4 signing
-	RoleArn!: string
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// AWS service name for SigV4 signing
 	Service!: string

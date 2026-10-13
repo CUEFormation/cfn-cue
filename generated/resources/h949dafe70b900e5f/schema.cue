@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,30 +23,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Category!: "Approval" | "Build" | "Compute" | "Deploy" | "Invoke" | "Source" | "Test" | fn.#StringExpression
 	ConfigurationProperties?: list.MaxItems(10) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/ConfigurationProperties" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ConfigurationProperties"
 	] |
 		fn.#ListExpression
 	InputArtifactDetails!:  _#defs."/$defs/Properties/definitions/ArtifactDetails" | fn.#ObjectExpression
 	OutputArtifactDetails!: _#defs."/$defs/Properties/definitions/ArtifactDetails" | fn.#ObjectExpression
 	Provider!:              strings.MaxRunes(35) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
 	Settings?:              _#defs."/$defs/Properties/definitions/Settings" | fn.#ObjectExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Version!:               strings.MaxRunes(9) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ArtifactDetails": close({
-	MaximumCount!: int & <=5 & >=0 | fn.#NumberExpression
-	MinimumCount!: int & <=5 & >=0 | fn.#NumberExpression
+	MaximumCount!: int & <=5 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=5 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinimumCount!: int & <=5 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=5 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfigurationProperties": close({
 	Description?: strings.MaxRunes(160) & strings.MinRunes(1) | fn.#StringExpression
-	Key!:         bool | fn.#BooleanExpression
+	Key!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!:        strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	Queryable?:   bool | fn.#BooleanExpression
-	Required!:    bool | fn.#BooleanExpression
-	Secret!:      bool | fn.#BooleanExpression
+	Queryable?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Required!:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Secret!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Type?:        "Boolean" | "Number" | "String" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

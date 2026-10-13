@@ -16,13 +16,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	FilterExpression?:      string | fn.#StringExpression
 	GroupName!:             strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
-	InsightsConfiguration?: _#defs."/$defs/Properties/definitions/InsightsConfiguration" | fn.#ObjectExpression
-	Tags?:                  _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	InsightsConfiguration?: _#defs."/$defs/Properties/definitions/InsightsConfiguration"
+	Tags?:                  _#defs."/$defs/Properties/definitions/Tags"
 })
 
 _#defs: "/$defs/Properties/definitions/InsightsConfiguration": close({
-	InsightsEnabled?:      bool | fn.#BooleanExpression
-	NotificationsEnabled?: bool | fn.#BooleanExpression
+	InsightsEnabled?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NotificationsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -33,7 +33,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {

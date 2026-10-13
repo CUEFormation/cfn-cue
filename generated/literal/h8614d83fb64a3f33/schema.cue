@@ -61,7 +61,7 @@ import (
 	// Log group data is always encrypted in CWL. If you omit this key, the
 	// encryption does not use KMS. For more information, see [Encrypt log data in
 	// using](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/encrypt-log-data-kms.html)
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(256) & strings.MinRunes(0))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(256) & strings.MinRunes(0))
 
 	// Specifies the log group class for this log group. There are two classes:
 	// + The ``Standard`` log class supports all CWL features.

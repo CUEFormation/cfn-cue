@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,7 +20,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	PoolName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
 	StreamConfiguration!: close({
-		DataRetentionInHours?: int & >=0 | fn.#NumberExpression
+		DataRetentionInHours?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 		Region!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^([a-z]+-){2,}\\d+$" | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression

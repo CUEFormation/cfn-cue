@@ -258,7 +258,7 @@ _#defs: "/$defs/Properties/definitions/Ebs": close({
 
 	// Identifier (key ID, key alias, key ARN, or alias ARN) of the customer managed
 	// KMS key to use for EBS encryption.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The ID of the snapshot.
 	SnapshotId?: string
@@ -789,7 +789,7 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateData": close({
 	// For more information, see [Use a Systems Manager parameter to find an
 	// AMI](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html#using-systems-manager-parameter-to-find-AMI)
 	// in the *Amazon Elastic Compute Cloud User Guide*.
-	ImageId?: string
+	ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|(?s:^resolve:ssm.*$)"
 
 	// Indicates whether an instance stops or terminates when you initiate shutdown
 	// from the instance (using the operating system command for system shutdown).
@@ -898,12 +898,12 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateData": close({
 	// groups and references to resources created by the stack template.
 	// If you specify a network interface, you must specify any security groups as
 	// part of the network interface instead.
-	SecurityGroupIds?: [...string]
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// The names of the security groups. For a nondefault VPC, you must use security group IDs instead.
 	// If you specify a network interface, you must specify any security groups as
 	// part of the network interface instead of using this parameter.
-	SecurityGroups?: [...string]
+	SecurityGroups?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// The tags to apply to resources that are created during instance launch.
 	// To tag the launch template itself, use

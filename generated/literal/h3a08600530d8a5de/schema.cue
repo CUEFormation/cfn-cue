@@ -40,7 +40,7 @@ package schema
 _#defs: "/$defs/Properties/definitions/DomainNameConfiguration": close({
 	// An AWS-managed certificate that will be used by the edge-optimized endpoint
 	// for this domain name. AWS Certificate Manager is the only supported source.
-	CertificateArn?: string
+	CertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"
 
 	// The user-friendly name of the certificate that will be used by the
 	// edge-optimized endpoint for this domain name.

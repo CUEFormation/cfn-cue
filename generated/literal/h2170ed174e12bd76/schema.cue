@@ -35,7 +35,9 @@ import (
 	// The ARN of the IAM role with permissions to invoke API operations on the
 	// knowledge base. The ARN must begin with
 	// AmazonBedrockExecutionRoleForKnowledgeBase_
-	RoleArn!:              strings.MaxRunes(2048) & =~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$"
 	Status?:               _#defs."/$defs/Properties/definitions/KnowledgeBaseStatus"
 	StorageConfiguration?: _#defs."/$defs/Properties/definitions/StorageConfiguration"
 	Tags?:                 _#defs."/$defs/Properties/definitions/TagsMap"
@@ -166,7 +168,8 @@ _#defs: "/$defs/Properties/definitions/ManagedKnowledgeBaseConfiguration": close
 // Contains details about the server-side encryption for the managed knowledge base.
 _#defs: "/$defs/Properties/definitions/ManagedKnowledgeBaseServerSideEncryptionConfiguration": close({
 	// The ARN of the AWS KMS key used to encrypt the managed knowledge base.
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$"
 })

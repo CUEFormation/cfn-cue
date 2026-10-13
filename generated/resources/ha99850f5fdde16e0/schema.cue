@@ -4,38 +4,40 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Budgets::Budget
 #Properties: close({
-	Budget!: _#defs."/$defs/Properties/definitions/BudgetData" | fn.#ObjectExpression
-	NotificationsWithSubscribers?: [
-		..._#defs."/$defs/Properties/definitions/NotificationWithSubscribers" | fn.#ObjectExpression
-	] |
+	Budget!: _#defs."/$defs/Properties/definitions/BudgetData"
+	NotificationsWithSubscribers?: [..._#defs."/$defs/Properties/definitions/NotificationWithSubscribers"] |
 		fn.#ListExpression
-	ResourceTags?: [..._#defs."/$defs/Properties/definitions/ResourceTag" | fn.#ObjectExpression] | fn.#ListExpression
+	ResourceTags?: [..._#defs."/$defs/Properties/definitions/ResourceTag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AutoAdjustData": close({
 	AutoAdjustType!:    string | fn.#StringExpression
-	HistoricalOptions?: _#defs."/$defs/Properties/definitions/HistoricalOptions" | fn.#ObjectExpression
+	HistoricalOptions?: _#defs."/$defs/Properties/definitions/HistoricalOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BudgetData": close({
-	AutoAdjustData?:      _#defs."/$defs/Properties/definitions/AutoAdjustData" | fn.#ObjectExpression
+	AutoAdjustData?:      _#defs."/$defs/Properties/definitions/AutoAdjustData"
 	BillingViewArn?:      string | fn.#StringExpression
-	BudgetLimit?:         _#defs."/$defs/Properties/definitions/Spend" | fn.#ObjectExpression
+	BudgetLimit?:         _#defs."/$defs/Properties/definitions/Spend"
 	BudgetName?:          string | fn.#StringExpression
 	BudgetType!:          string | fn.#StringExpression
-	CostFilters?:         string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	CostTypes?:           _#defs."/$defs/Properties/definitions/CostTypes" | fn.#ObjectExpression
-	FilterExpression?:    _#defs."/$defs/Properties/definitions/Expression" | fn.#ObjectExpression
+	CostFilters?:         fn.#Object & {...} | string | fn.#StringObjectExpression
+	CostTypes?:           _#defs."/$defs/Properties/definitions/CostTypes"
+	FilterExpression?:    _#defs."/$defs/Properties/definitions/Expression"
 	Metrics?:             [...string | fn.#StringExpression] | fn.#ListExpression
-	PlannedBudgetLimits?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	TimePeriod?:          _#defs."/$defs/Properties/definitions/TimePeriod" | fn.#ObjectExpression
+	PlannedBudgetLimits?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	TimePeriod?:          _#defs."/$defs/Properties/definitions/TimePeriod"
 	TimeUnit!:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -48,27 +50,27 @@ _#defs: "/$defs/Properties/definitions/CostCategoryValues": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CostTypes": close({
-	IncludeCredit?:            bool | fn.#BooleanExpression
-	IncludeDiscount?:          bool | fn.#BooleanExpression
-	IncludeOtherSubscription?: bool | fn.#BooleanExpression
-	IncludeRecurring?:         bool | fn.#BooleanExpression
-	IncludeRefund?:            bool | fn.#BooleanExpression
-	IncludeSubscription?:      bool | fn.#BooleanExpression
-	IncludeSupport?:           bool | fn.#BooleanExpression
-	IncludeTax?:               bool | fn.#BooleanExpression
-	IncludeUpfront?:           bool | fn.#BooleanExpression
-	UseAmortized?:             bool | fn.#BooleanExpression
-	UseBlended?:               bool | fn.#BooleanExpression
+	IncludeCredit?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeDiscount?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeOtherSubscription?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeRecurring?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeRefund?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeSubscription?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeSupport?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeTax?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IncludeUpfront?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UseAmortized?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UseBlended?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Expression": close({
-	And?:            [..._#defs."/$defs/Properties/definitions/Expression" | fn.#ObjectExpression] | fn.#ListExpression
-	CostCategories?: _#defs."/$defs/Properties/definitions/CostCategoryValues" | fn.#ObjectExpression
-	Dimensions?:     _#defs."/$defs/Properties/definitions/ExpressionDimensionValues" | fn.#ObjectExpression
-	Not?:            _#defs."/$defs/Properties/definitions/Expression" | fn.#ObjectExpression
-	Or?:             [..._#defs."/$defs/Properties/definitions/Expression" | fn.#ObjectExpression] | fn.#ListExpression
-	Tags?:           _#defs."/$defs/Properties/definitions/TagValues" | fn.#ObjectExpression
+	And?:            [..._#defs."/$defs/Properties/definitions/Expression"] | fn.#ListExpression
+	CostCategories?: _#defs."/$defs/Properties/definitions/CostCategoryValues"
+	Dimensions?:     _#defs."/$defs/Properties/definitions/ExpressionDimensionValues"
+	Not?:            _#defs."/$defs/Properties/definitions/Expression"
+	Or?:             [..._#defs."/$defs/Properties/definitions/Expression"] | fn.#ListExpression
+	Tags?:           _#defs."/$defs/Properties/definitions/TagValues"
 }) |
 fn.#ObjectExpression
 
@@ -79,20 +81,54 @@ _#defs: "/$defs/Properties/definitions/ExpressionDimensionValues": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HistoricalOptions": close({BudgetAdjustmentPeriod!: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/HistoricalOptions": close({
+	BudgetAdjustmentPeriod!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Notification": close({
 	ComparisonOperator!: string | fn.#StringExpression
 	NotificationType!:   string | fn.#StringExpression
-	Threshold!:          <=1000000000 & >=0.1 | fn.#NumberExpression
-	ThresholdType?:      string | fn.#StringExpression
+	Threshold!: <=1000000000 & >=0.1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1000000000 &
+							>=0.1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ThresholdType?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NotificationWithSubscribers": close({
-	Notification!: _#defs."/$defs/Properties/definitions/Notification" | fn.#ObjectExpression
-	Subscribers!:  [..._#defs."/$defs/Properties/definitions/Subscriber" | fn.#ObjectExpression] | fn.#ListExpression
+	Notification!: _#defs."/$defs/Properties/definitions/Notification"
+	Subscribers!:  [..._#defs."/$defs/Properties/definitions/Subscriber"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -103,8 +139,26 @@ _#defs: "/$defs/Properties/definitions/ResourceTag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Spend": close({
-	Amount!: number | fn.#NumberExpression
-	Unit!:   string | fn.#StringExpression
+	Amount!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Unit!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

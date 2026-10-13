@@ -25,16 +25,16 @@ _#defs: "/$defs/Properties/definitions/OwnerGroupProperties": close({
 _#defs: "/$defs/Properties/definitions/OwnerGroupPropertiesOutput": close({GroupId?: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OwnerProperties": matchN(1, [close(
-	{Group?: _#defs."/$defs/Properties/definitions/OwnerGroupProperties" | fn.#ObjectExpression},
+_#defs: "/$defs/Properties/definitions/OwnerProperties": fn.#Object & {...} & matchN(1, [close(
+	{Group?: _#defs."/$defs/Properties/definitions/OwnerGroupProperties"},
 ), close(
-	{User?: _#defs."/$defs/Properties/definitions/OwnerUserProperties" | fn.#ObjectExpression},
-)]) & {[string]: fn.#Value} |
+	{User?: _#defs."/$defs/Properties/definitions/OwnerUserProperties"},
+)]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OwnerPropertiesOutput": close({
-	Group?: _#defs."/$defs/Properties/definitions/OwnerGroupPropertiesOutput" | fn.#ObjectExpression
-	User?:  _#defs."/$defs/Properties/definitions/OwnerUserPropertiesOutput" | fn.#ObjectExpression
+	Group?: _#defs."/$defs/Properties/definitions/OwnerGroupPropertiesOutput"
+	User?:  _#defs."/$defs/Properties/definitions/OwnerUserPropertiesOutput"
 }) |
 fn.#ObjectExpression
 

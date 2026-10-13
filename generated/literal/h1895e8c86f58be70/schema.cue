@@ -110,7 +110,7 @@ import (
 	// roles](https://docs.aws.amazon.com/autoscaling/application/userguide/application-auto-scaling-service-linked-roles.html)
 	// topic in the *Application Auto Scaling User Guide*. Look for the ARN in the
 	// table at the bottom of the page.
-	RoleARN?: strings.MaxRunes(1600) & strings.MinRunes(1)
+	RoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1600) & strings.MinRunes(1))
 
 	// The scalable dimension associated with the scalable target. This string
 	// consists of the service namespace, resource type, and scaling property.

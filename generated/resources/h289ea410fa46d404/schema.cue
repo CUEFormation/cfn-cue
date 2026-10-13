@@ -11,14 +11,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::PinpointEmail::ConfigurationSetEventDestination
 #Properties: close({
 	ConfigurationSetName!: string | fn.#StringExpression
-	EventDestination?:     _#defs."/$defs/Properties/definitions/EventDestination" | fn.#ObjectExpression
+	EventDestination?:     _#defs."/$defs/Properties/definitions/EventDestination"
 	EventDestinationName!: string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchDestination": close({
-	DimensionConfigurations?: [..._#defs."/$defs/Properties/definitions/DimensionConfiguration" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/CloudWatchDestination": close(
+	{DimensionConfigurations?: [..._#defs."/$defs/Properties/definitions/DimensionConfiguration"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DimensionConfiguration": close({
@@ -29,26 +28,29 @@ _#defs: "/$defs/Properties/definitions/DimensionConfiguration": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EventDestination": close({
-	CloudWatchDestination?: _#defs."/$defs/Properties/definitions/CloudWatchDestination" | fn.#ObjectExpression
-	Enabled?:               bool | fn.#BooleanExpression
-	KinesisFirehoseDestination?: _#defs."/$defs/Properties/definitions/KinesisFirehoseDestination" |
-		fn.#ObjectExpression
-	MatchingEventTypes!:  [...string | fn.#StringExpression] | fn.#ListExpression
-	PinpointDestination?: _#defs."/$defs/Properties/definitions/PinpointDestination" | fn.#ObjectExpression
-	SnsDestination?:      _#defs."/$defs/Properties/definitions/SnsDestination" | fn.#ObjectExpression
+	CloudWatchDestination?:      _#defs."/$defs/Properties/definitions/CloudWatchDestination"
+	Enabled?:                    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KinesisFirehoseDestination?: _#defs."/$defs/Properties/definitions/KinesisFirehoseDestination"
+	MatchingEventTypes!:         [...string | fn.#StringExpression] | fn.#ListExpression
+	PinpointDestination?:        _#defs."/$defs/Properties/definitions/PinpointDestination"
+	SnsDestination?:             _#defs."/$defs/Properties/definitions/SnsDestination"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KinesisFirehoseDestination": close({
 	DeliveryStreamArn!: string | fn.#StringExpression
-	IamRoleArn!:        string | fn.#StringExpression
+	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PinpointDestination": close({ApplicationArn?: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnsDestination": close({TopicArn!: string | fn.#StringExpression}) |
+_#defs: "/$defs/Properties/definitions/SnsDestination": close({
+	TopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+}) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::PinpointEmail::ConfigurationSetEventDestination"

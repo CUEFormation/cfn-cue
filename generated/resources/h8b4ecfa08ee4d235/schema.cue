@@ -7,21 +7,24 @@ import (
 	"time"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaTailor::PrefetchSchedule Resource Type
 #Properties: close({
-	Consumption?:               _#defs."/$defs/Properties/definitions/PrefetchConsumption" | fn.#ObjectExpression
-	Name!:                      string | fn.#StringExpression
-	PlaybackConfigurationName!: string | fn.#StringExpression
-	RecurringPrefetchConfiguration?: _#defs."/$defs/Properties/definitions/RecurringPrefetchConfiguration" |
-		fn.#ObjectExpression
-	Retrieval?:    _#defs."/$defs/Properties/definitions/PrefetchRetrieval" | fn.#ObjectExpression
-	ScheduleType?: "SINGLE" | "RECURRING" | fn.#StringExpression
-	StreamId?:     string | fn.#StringExpression
-	Tags?:         [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Consumption?:                    _#defs."/$defs/Properties/definitions/PrefetchConsumption"
+	Name!:                           string | fn.#StringExpression
+	PlaybackConfigurationName!:      string | fn.#StringExpression
+	RecurringPrefetchConfiguration?: _#defs."/$defs/Properties/definitions/RecurringPrefetchConfiguration"
+	Retrieval?:                      _#defs."/$defs/Properties/definitions/PrefetchRetrieval"
+	ScheduleType?:                   "SINGLE" | "RECURRING" | fn.#StringExpression
+	StreamId?:                       string | fn.#StringExpression
+	Tags?:                           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AvailMatchingCriteria": close({
@@ -31,10 +34,9 @@ _#defs: "/$defs/Properties/definitions/AvailMatchingCriteria": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrefetchConsumption": close({
-	AvailMatchingCriteria?: [..._#defs."/$defs/Properties/definitions/AvailMatchingCriteria" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	EndTime!:   time.Time | fn.#StringExpression
-	StartTime?: time.Time | fn.#StringExpression
+	AvailMatchingCriteria?: [..._#defs."/$defs/Properties/definitions/AvailMatchingCriteria"] | fn.#ListExpression
+	EndTime!:               time.Time | fn.#StringExpression
+	StartTime?:             time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -43,42 +45,63 @@ _#defs: "/$defs/Properties/definitions/PrefetchRetrieval": close({
 
 		{[=~".+"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	EndTime!:   time.Time | fn.#StringExpression
-	StartTime?: time.Time | fn.#StringExpression
-	TrafficShapingRetrievalWindow?: _#defs."/$defs/Properties/definitions/TrafficShapingRetrievalWindow" |
-		fn.#ObjectExpression
-	TrafficShapingTpsConfiguration?: _#defs."/$defs/Properties/definitions/TrafficShapingTpsConfiguration" |
-		fn.#ObjectExpression
-	TrafficShapingType?: "RETRIEVAL_WINDOW" | "TPS" | fn.#StringExpression
+	EndTime!:                        time.Time | fn.#StringExpression
+	StartTime?:                      time.Time | fn.#StringExpression
+	TrafficShapingRetrievalWindow?:  _#defs."/$defs/Properties/definitions/TrafficShapingRetrievalWindow"
+	TrafficShapingTpsConfiguration?: _#defs."/$defs/Properties/definitions/TrafficShapingTpsConfiguration"
+	TrafficShapingType?:             "RETRIEVAL_WINDOW" | "TPS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RecurringConsumption": close({
-	AvailMatchingCriteria?: [..._#defs."/$defs/Properties/definitions/AvailMatchingCriteria" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	RetrievedAdExpirationSeconds?: int | fn.#NumberExpression
+	AvailMatchingCriteria?: [..._#defs."/$defs/Properties/definitions/AvailMatchingCriteria"] | fn.#ListExpression
+	RetrievedAdExpirationSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RecurringPrefetchConfiguration": close({
 	EndTime!:              time.Time | fn.#StringExpression
-	RecurringConsumption!: _#defs."/$defs/Properties/definitions/RecurringConsumption" | fn.#ObjectExpression
-	RecurringRetrieval!:   _#defs."/$defs/Properties/definitions/RecurringRetrieval" | fn.#ObjectExpression
+	RecurringConsumption!: _#defs."/$defs/Properties/definitions/RecurringConsumption"
+	RecurringRetrieval!:   _#defs."/$defs/Properties/definitions/RecurringRetrieval"
 	StartTime?:            time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RecurringRetrieval": close({
-	DelayAfterAvailEndSeconds?: int | fn.#NumberExpression
+	DelayAfterAvailEndSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	DynamicVariables?: close({
 
 		{[=~".+"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	TrafficShapingRetrievalWindow?: _#defs."/$defs/Properties/definitions/TrafficShapingRetrievalWindow" |
-		fn.#ObjectExpression
-	TrafficShapingTpsConfiguration?: _#defs."/$defs/Properties/definitions/TrafficShapingTpsConfiguration" |
-		fn.#ObjectExpression
-	TrafficShapingType?: "RETRIEVAL_WINDOW" | "TPS" | fn.#StringExpression
+	TrafficShapingRetrievalWindow?:  _#defs."/$defs/Properties/definitions/TrafficShapingRetrievalWindow"
+	TrafficShapingTpsConfiguration?: _#defs."/$defs/Properties/definitions/TrafficShapingTpsConfiguration"
+	TrafficShapingType?:             "RETRIEVAL_WINDOW" | "TPS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -88,14 +111,53 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficShapingRetrievalWindow": close(
-	{RetrievalWindowDurationSeconds?: int | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/TrafficShapingRetrievalWindow": close({
+	RetrievalWindowDurationSeconds?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TrafficShapingTpsConfiguration": close({
-	PeakConcurrentUsers?: int | fn.#NumberExpression
-	PeakTps?:             int | fn.#NumberExpression
+	PeakConcurrentUsers?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PeakTps?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

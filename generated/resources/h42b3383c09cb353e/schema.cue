@@ -16,9 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Content!:     strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
 	Description?: strings.MaxRunes(500) & strings.MinRunes(0) & =~".*\\S.*" | fn.#StringExpression
-	ExternalInvocationConfiguration?: close(
-		{Enabled?: _#defs."/$defs/Properties/definitions/Enabled" | fn.#BooleanExpression},
-	) |
+	ExternalInvocationConfiguration?: close({Enabled?: _#defs."/$defs/Properties/definitions/Enabled"}) |
 		fn.#ObjectExpression
 	InstanceArn!: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
@@ -27,13 +25,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!:     strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 	Settings?: strings.MaxRunes(256000) | fn.#StringExpression
 	State?:    strings.MaxRunes(500) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Enabled": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/Enabled": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

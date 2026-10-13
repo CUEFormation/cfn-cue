@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,14 +23,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApiKeySelectionExpression?: string | fn.#StringExpression
 	BasePath?:                  string | fn.#StringExpression
-	Body?:                      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Body?:                      fn.#Object & {...} | string | fn.#StringObjectExpression
 	BodyS3Location?:            _#defs."/$defs/Properties/definitions/BodyS3Location" | fn.#ObjectExpression
 	CorsConfiguration?:         _#defs."/$defs/Properties/definitions/Cors" | fn.#ObjectExpression
 	CredentialsArn?:            string | fn.#StringExpression
 	Description?:               string | fn.#StringExpression
-	DisableExecuteApiEndpoint?: bool | fn.#BooleanExpression
-	DisableSchemaValidation?:   bool | fn.#BooleanExpression
-	FailOnWarnings?:            bool | fn.#BooleanExpression
+	DisableExecuteApiEndpoint?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DisableSchemaValidation?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	FailOnWarnings?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IpAddressType?:             string | fn.#StringExpression
 	Name?:                      string | fn.#StringExpression
 	ProtocolType?:              string | fn.#StringExpression
@@ -49,12 +53,25 @@ _#defs: "/$defs/Properties/definitions/BodyS3Location": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Cors": close({
-	AllowCredentials?: bool | fn.#BooleanExpression
+	AllowCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AllowHeaders?:     [...string | fn.#StringExpression] | fn.#ListExpression
 	AllowMethods?:     [...string | fn.#StringExpression] | fn.#ListExpression
 	AllowOrigins?:     [...string | fn.#StringExpression] | fn.#ListExpression
 	ExposeHeaders?:    [...string | fn.#StringExpression] | fn.#ListExpression
-	MaxAge?:           int | fn.#NumberExpression
+	MaxAge?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

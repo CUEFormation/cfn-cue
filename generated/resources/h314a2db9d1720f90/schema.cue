@@ -15,16 +15,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::BedrockAgentCore::ConsentPortal
 #Properties: close({
-	Description?:      strings.MaxRunes(512) | fn.#StringExpression
-	ExecutionRoleArn!: =~"^arn:aws(-[a-z-]+)?:iam::[0-9]{12}:role/[a-zA-Z0-9+=,.@\\-_/]+$" | fn.#StringExpression
-	IdpConfig!:        _#defs."/$defs/Properties/definitions/IdpConfig" | fn.#ObjectExpression
-	Name!:             strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,50}$" | fn.#StringExpression
-	Sources!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ConsentPortalSource" | fn.#ObjectExpression
-	] |
+	Description?: strings.MaxRunes(512) | fn.#StringExpression
+	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:aws(-[a-z-]+)?:iam::[0-9]{12}:role/[a-zA-Z0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+	IdpConfig!: _#defs."/$defs/Properties/definitions/IdpConfig"
+	Name!:      strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,50}$" | fn.#StringExpression
+	Sources!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ConsentPortalSource"] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ConsentPortalSource": close({

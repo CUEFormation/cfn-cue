@@ -39,7 +39,7 @@ _#defs: "/$defs/Properties/definitions/DatabaseInput": close({
 	FederatedDatabase?: _#defs."/$defs/Properties/definitions/FederatedDatabase" | fn.#ObjectExpression
 	LocationUri?:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Name?:              strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters?:        string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Parameters?:        fn.#Object & {...} | string | fn.#StringObjectExpression
 	TargetDatabase?:    _#defs."/$defs/Properties/definitions/DatabaseIdentifier" | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression

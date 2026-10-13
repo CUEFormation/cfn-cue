@@ -15,12 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource type definition for AWS::Route53Resolver::ResolverEndpoint
 #Properties: close({
 	Direction!:    =~"(?i)^(?:inbound|inbound_delegation|outbound)$" | fn.#StringExpression
-	Dns64Enabled?: bool | fn.#BooleanExpression
-	IpAddresses!: list.MaxItems(20) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/IpAddressRequest" | fn.#ObjectExpression
-	] |
+	Dns64Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IpAddresses!: list.MaxItems(20) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/IpAddressRequest"] |
 		fn.#ListExpression
-	Ipv6InternetAccessEnabled?: bool | fn.#BooleanExpression
+	Ipv6InternetAccessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name?:                      strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 	OutpostArn?: strings.MaxRunes(255) &
 	strings.MinRunes(1) &
@@ -30,11 +28,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Protocols?: list.MaxItems(2) & list.MinItems(1) & [...=~"(?i)^(?:do53|doh|doh-fips)$" | fn.#StringExpression] |
 		fn.#ListExpression
 	ResolverEndpointType?:      =~"(?i)^(?:dualstack|ipv4|ipv6)$" | fn.#StringExpression
-	RniEnhancedMetricsEnabled?: bool | fn.#BooleanExpression
-	SecurityGroupIds!: [...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TargetNameServerMetricsEnabled?: bool | fn.#BooleanExpression
+	RniEnhancedMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SecurityGroupIds!: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+		fn.#StringExpression
+	] |
+	fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TargetNameServerMetricsEnabled?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 })
 
 _#defs: "/$defs/Properties/definitions/IpAddressRequest": close({

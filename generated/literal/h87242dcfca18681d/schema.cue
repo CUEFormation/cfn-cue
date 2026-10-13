@@ -16,7 +16,8 @@ import (
 	Description?:     strings.MaxRunes(100) & strings.MinRunes(0)
 	DisplayName!:     strings.MaxRunes(100) & strings.MinRunes(1)
 	FarmId?:          =~"^farm-[0-9a-f]{32}$"
-	KmsKeyArn?:       =~"^arn:aws[-a-z]*:kms:.*:key/.*"
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		=~"^arn:aws[-a-z]*:kms:.*:key/.*"
 
 	// An array of key-value pairs to apply to this resource.
 	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]

@@ -20,18 +20,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Engine!: _
 	...
 }]) & close({
-	DeletionProtection?:     bool | fn.#BooleanExpression
+	DeletionProtection?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Engine?:                 "aurora" | "aurora-mysql" | "aurora-postgresql" | fn.#StringExpression
 	EngineLifecycleSupport?: string | fn.#StringExpression
 	EngineVersion?:          string | fn.#StringExpression
 	GlobalClusterIdentifier?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" |
 	fn.#StringExpression
 	SourceDBClusterIdentifier?: matchN(1, [=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$", string]) | fn.#StringExpression
-	StorageEncrypted?:          bool | fn.#BooleanExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	StorageEncrypted?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/GlobalEndpoint": close({Address?: string | fn.#StringExpression}) |

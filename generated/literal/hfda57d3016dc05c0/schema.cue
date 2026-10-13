@@ -113,7 +113,10 @@ import (
 	// The ARN of the KMSlong (KMS) customer managed key that Lambda uses to encrypt
 	// your function's [filter
 	// criteria](https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html#filtering-basics).
-	KmsKeyArn?: strings.MaxRunes(2048) & strings.MinRunes(12) & =~"(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()"
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(12) &
+	=~"(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()"
 
 	// (Amazon MSK, and self-managed Apache Kafka only) The logging configuration
 	// for your event source. For more information, see [Event source mapping

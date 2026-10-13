@@ -16,9 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	LogGroupNames?: [..._#defs."/$defs/Properties/definitions/LogGroup" | fn.#StringExpression] | fn.#ListExpression
 	Name!:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/QueryParameter" | fn.#ObjectExpression
-	] |
+	Parameters?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/QueryParameter"] |
 		fn.#ListExpression
 	QueryLanguage?: "CWLI" | "SQL" | "PPL" | fn.#StringExpression
 	QueryString!:   strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression

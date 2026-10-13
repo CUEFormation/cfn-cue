@@ -63,7 +63,7 @@ package schema
 	// The ID of the security group.
 	// You must specify exactly one of the following: ``CidrIp``, ``CidrIpv6``,
 	// ``DestinationPrefixListId``, or ``DestinationSecurityGroupId``.
-	DestinationSecurityGroupId?: string
+	DestinationSecurityGroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 
 	// If the protocol is TCP or UDP, this is the start of the port range. If the
 	// protocol is ICMP or ICMPv6, this is the ICMP type or -1 (all ICMP types).
@@ -72,7 +72,7 @@ package schema
 	// The ID of the security group. You must specify either the security group ID
 	// or the security group name in the request. For security groups in a
 	// nondefault VPC, you must specify the security group ID.
-	GroupId!: string
+	GroupId!: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 	Id?:      string
 
 	// The IP protocol name (``tcp``, ``udp``, ``icmp``, ``icmpv6``) or number (see

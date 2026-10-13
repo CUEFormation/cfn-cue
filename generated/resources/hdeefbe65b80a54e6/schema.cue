@@ -15,7 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: string | fn.#StringExpression
 	Name?:        string | fn.#StringExpression
 	RestApiId!:   string | fn.#StringExpression
-	Schema?:      string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Schema?:      fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ApiGateway::Model"

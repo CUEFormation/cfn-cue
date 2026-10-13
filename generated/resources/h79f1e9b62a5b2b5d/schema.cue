@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // ``NetworkInterfaceId``, or ``PrivateIpAddress``.
 #Properties: close({
 	AllocationId?:       string | fn.#StringExpression
-	EIP?:                string | string | fn.#StringExpression
+	EIP?:                string & string | fn.#StringExpression
 	InstanceId?:         string | fn.#StringExpression
 	NetworkInterfaceId?: string | fn.#StringExpression
 	PrivateIpAddress?:   string | fn.#StringExpression

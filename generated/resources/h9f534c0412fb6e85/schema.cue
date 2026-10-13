@@ -25,8 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!:        string | fn.#StringExpression
 	ServiceRole?: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" | fn.#StringExpression
 	SingleSignOn?: _#defs."/$defs/Properties/definitions/SingleSignOn" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:         list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AuthType": "IAM_IDC" | "DISABLED" | fn.#StringExpression
@@ -45,9 +44,9 @@ strings.MinRunes(10) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SingleSignOn": close({
-	IdcInstanceArn?: _#defs."/$defs/Properties/definitions/IdcInstanceArn" | fn.#StringExpression
-	Type?:           _#defs."/$defs/Properties/definitions/AuthType" | fn.#StringExpression
-	UserAssignment?: _#defs."/$defs/Properties/definitions/UserAssignment" | fn.#StringExpression
+	IdcInstanceArn?: _#defs."/$defs/Properties/definitions/IdcInstanceArn"
+	Type?:           _#defs."/$defs/Properties/definitions/AuthType"
+	UserAssignment?: _#defs."/$defs/Properties/definitions/UserAssignment"
 }) |
 fn.#ObjectExpression
 

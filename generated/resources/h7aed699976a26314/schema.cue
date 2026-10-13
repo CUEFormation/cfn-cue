@@ -20,8 +20,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Entitlement!: close({
 		PrincipalRole!: close({
-			Principal!: _#defs."/$defs/Properties/definitions/Principal" | fn.#ObjectExpression
-			RoleArn!: =~"^arn:[a-z0-9-]+:iam::[0-9]{12}:role\\/([a-zA-Z0-9+=,.@_-]+\\/)*[a-zA-Z0-9+=,.@_-]+$" |
+			Principal!: _#defs."/$defs/Properties/definitions/Principal"
+			RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+				=~"^arn:[a-z0-9-]+:iam::[0-9]{12}:role\\/([a-zA-Z0-9+=,.@_-]+\\/)*[a-zA-Z0-9+=,.@_-]+$" |
 				fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
@@ -30,7 +31,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/Entitlement": close(
-	{PrincipalRole!: _#defs."/$defs/Properties/definitions/PrincipalRoleEntitlement" | fn.#ObjectExpression},
+	{PrincipalRole!: _#defs."/$defs/Properties/definitions/PrincipalRoleEntitlement"},
 ) |
 	fn.#ObjectExpression
 
@@ -53,14 +54,15 @@ _#defs: "/$defs/Properties/definitions/IdentityCenterPrincipal": matchN(1, [{
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Principal": close(
-	{IdentityCenter!: _#defs."/$defs/Properties/definitions/IdentityCenterPrincipal" | fn.#ObjectExpression},
+	{IdentityCenter!: _#defs."/$defs/Properties/definitions/IdentityCenterPrincipal"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PrincipalRoleEntitlement": close({
 	Account?:   strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	Principal!: _#defs."/$defs/Properties/definitions/Principal" | fn.#ObjectExpression
-	RoleArn!: =~"^arn:[a-z0-9-]+:iam::[0-9]{12}:role\\/([a-zA-Z0-9+=,.@_-]+\\/)*[a-zA-Z0-9+=,.@_-]+$" |
+	Principal!: _#defs."/$defs/Properties/definitions/Principal"
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:[a-z0-9-]+:iam::[0-9]{12}:role\\/([a-zA-Z0-9+=,.@_-]+\\/)*[a-zA-Z0-9+=,.@_-]+$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression

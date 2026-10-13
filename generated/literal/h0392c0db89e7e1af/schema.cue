@@ -59,10 +59,15 @@ _#defs: "/$defs/Properties/definitions/Domain": "S3" | "EFS"
 
 _#defs: "/$defs/Properties/definitions/EndpointDetails": close({
 	AddressAllocationIds?: [...string]
-	SecurityGroupIds?:     [...strings.MaxRunes(20) & strings.MinRunes(11) & =~"^sg-[0-9a-f]{8,17}$"]
-	SubnetIds?:            [...string]
-	VpcEndpointId?:        strings.MaxRunes(22) & strings.MinRunes(22) & =~"^vpce-[0-9a-f]{17}$"
-	VpcId?:                string
+	SecurityGroupIds?: [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(20) &
+		strings.MinRunes(11) &
+		=~"^sg-[0-9a-f]{8,17}$"
+	]
+	SubnetIds?:     [...string]
+	VpcEndpointId?: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^vpce-[0-9a-f]{17}$"
+	VpcId?:         =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/EndpointType": "PUBLIC" | "VPC" | "VPC_ENDPOINT"

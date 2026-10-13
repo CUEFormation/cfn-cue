@@ -22,7 +22,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Ipv6Address?: strings.MaxRunes(39) & strings.MinRunes(3) | fn.#StringExpression
 	SecurityGroups?: list.MaxItems(100) & list.UniqueItems() & [
-		...strings.MaxRunes(43) & strings.MinRunes(11) & =~"^(sg-[0-9a-f]{8,40})$" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(43) &
+		strings.MinRunes(11) &
+		=~"^(sg-[0-9a-f]{8,40})$" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SubnetId!: strings.MaxRunes(47) & strings.MinRunes(15) & =~"^subnet-[0-9a-f]{8,40}$" | fn.#StringExpression

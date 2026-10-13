@@ -20,9 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
 	fn.#StringExpression
 	Name!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

@@ -56,5 +56,6 @@ _#defs: "/$defs/Properties/definitions/PrincipalRoleEntitlement": close({
 	Principal!: _#defs."/$defs/Properties/definitions/Principal"
 
 	// The ARN of the IAM role
-	RoleArn!: =~"^arn:[a-z0-9-]+:iam::[0-9]{12}:role\\/([a-zA-Z0-9+=,.@_-]+\\/)*[a-zA-Z0-9+=,.@_-]+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:[a-z0-9-]+:iam::[0-9]{12}:role\\/([a-zA-Z0-9+=,.@_-]+\\/)*[a-zA-Z0-9+=,.@_-]+$"
 })

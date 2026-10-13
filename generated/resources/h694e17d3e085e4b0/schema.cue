@@ -16,13 +16,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApiId!:                    string | fn.#StringExpression
 	ModelSelectionExpression?: string | fn.#StringExpression
-	ResponseModels?:           string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	ResponseModels?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 	ResponseParameters?:       _#defs."/$defs/Properties/definitions/RouteParameters" | fn.#ValueExpression
 	RouteId!:                  string | fn.#StringExpression
 	RouteResponseKey!:         string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ParameterConstraints": close({Required!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/ParameterConstraints": close(
+	{Required!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RouteParameters": null |
@@ -32,7 +34,7 @@ string |
 [...] |
 close({
 
-	{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/ParameterConstraints" | fn.#ObjectExpression}}) |
+	{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/ParameterConstraints"}}) |
 fn.#ValueExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ApiGatewayV2::RouteResponse"

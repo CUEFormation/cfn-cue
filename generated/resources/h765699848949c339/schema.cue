@@ -13,11 +13,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::WAF::XssMatchSet
 #Properties: close({
-	Name!: string | fn.#StringExpression
-	XssMatchTuples!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/XssMatchTuple" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Name!:           string | fn.#StringExpression
+	XssMatchTuples!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/XssMatchTuple"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/FieldToMatch": close({
@@ -27,7 +24,7 @@ _#defs: "/$defs/Properties/definitions/FieldToMatch": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/XssMatchTuple": close({
-	FieldToMatch!:       _#defs."/$defs/Properties/definitions/FieldToMatch" | fn.#ObjectExpression
+	FieldToMatch!:       _#defs."/$defs/Properties/definitions/FieldToMatch"
 	TextTransformation!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

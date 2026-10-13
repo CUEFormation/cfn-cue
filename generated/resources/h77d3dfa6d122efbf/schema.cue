@@ -16,8 +16,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CaCertificatesBundleSource?: _#defs."/$defs/Properties/definitions/CaCertificatesBundleSource" |
 		fn.#ObjectExpression
 	Name!: string | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
-	UseClientCertificateOCSPEndpoint?: bool | fn.#BooleanExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	UseClientCertificateOCSPEndpoint?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CaCertificatesBundleS3Location": close({

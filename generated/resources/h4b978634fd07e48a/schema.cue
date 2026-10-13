@@ -17,15 +17,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // delivered.
 #Properties: close({
 	AppBundleArn!:             strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+$" | fn.#StringExpression
-	DestinationConfiguration!: _#defs."/$defs/Properties/definitions/DestinationConfiguration" | fn.#ObjectExpression
+	DestinationConfiguration!: _#defs."/$defs/Properties/definitions/DestinationConfiguration"
 	IngestionArn!:             strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+$" | fn.#StringExpression
-	ProcessingConfiguration!:  _#defs."/$defs/Properties/definitions/ProcessingConfiguration" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ProcessingConfiguration!:  _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AuditLogDestinationConfiguration": close(
-	{Destination!: _#defs."/$defs/Properties/definitions/Destination" | fn.#ObjectExpression},
+	{Destination!: _#defs."/$defs/Properties/definitions/Destination"},
 ) |
 	fn.#ObjectExpression
 
@@ -42,13 +41,13 @@ _#defs: "/$defs/Properties/definitions/Destination": matchN(1, [{
 	FirehoseStream!: _
 	...
 }]) & close({
-	FirehoseStream?: _#defs."/$defs/Properties/definitions/FirehoseStream" | fn.#ObjectExpression
-	S3Bucket?:       _#defs."/$defs/Properties/definitions/S3Bucket" | fn.#ObjectExpression
+	FirehoseStream?: _#defs."/$defs/Properties/definitions/FirehoseStream"
+	S3Bucket?:       _#defs."/$defs/Properties/definitions/S3Bucket"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DestinationConfiguration": close(
-	{AuditLog!: _#defs."/$defs/Properties/definitions/AuditLogDestinationConfiguration" | fn.#ObjectExpression},
+	{AuditLog!: _#defs."/$defs/Properties/definitions/AuditLogDestinationConfiguration"},
 ) |
 	fn.#ObjectExpression
 
@@ -58,7 +57,7 @@ _#defs: "/$defs/Properties/definitions/FirehoseStream": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ProcessingConfiguration": close(
-	{AuditLog!: _#defs."/$defs/Properties/definitions/AuditLogProcessingConfiguration" | fn.#ObjectExpression},
+	{AuditLog!: _#defs."/$defs/Properties/definitions/AuditLogProcessingConfiguration"},
 ) |
 	fn.#ObjectExpression
 

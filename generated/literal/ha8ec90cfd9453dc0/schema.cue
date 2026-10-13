@@ -26,7 +26,9 @@ _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.Mi
 _#defs: "/$defs/Properties/definitions/OpenSearchResourceConfig": close({
 	ApplicationARN?:            _#defs."/$defs/Properties/definitions/Arn"
 	DashboardViewerPrincipals!: [..._#defs."/$defs/Properties/definitions/Arn"]
-	DataSourceRoleArn!:         _#defs."/$defs/Properties/definitions/Arn"
-	KmsKeyArn?:                 _#defs."/$defs/Properties/definitions/Arn"
-	RetentionDays?:             int & <=3650 & >=1
+	DataSourceRoleArn!: _#defs."/$defs/Properties/definitions/Arn" &
+		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
+	KmsKeyArn?: _#defs."/$defs/Properties/definitions/Arn" &
+		=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
+	RetentionDays?: int & <=3650 & >=1
 })

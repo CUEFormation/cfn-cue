@@ -10,6 +10,6 @@ package schema
 	FunctionName!: string
 	Id?:           string
 	LogGroupName?: string
-	LogRoleARN?:   string
+	LogRoleARN?:   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Name!:         string
 })

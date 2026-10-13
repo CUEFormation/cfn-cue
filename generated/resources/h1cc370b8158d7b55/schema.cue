@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -16,10 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Collection. A collection is a logical grouping of information about detected
 // faces which can later be referenced for searches on the group
 #Properties: close({
-	CollectionId!: _#defs."/$defs/Properties/definitions/CollectionId" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	CollectionId!: _#defs."/$defs/Properties/definitions/CollectionId"
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

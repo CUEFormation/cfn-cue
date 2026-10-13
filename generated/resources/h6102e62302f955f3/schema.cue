@@ -16,37 +16,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ControlIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
 	fn.#StringExpression
-	Parameters?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EnabledControlParameter" | fn.#ObjectExpression
-	] |
+	Parameters?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EnabledControlParameter"] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
 	fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EnabledControlParameter": close({
 	Key!: string | fn.#StringExpression
-	Value!: bool |
-		number |
-		string |
-		list.MinItems(1) & [
-			...bool |
-				number |
-				string |
-				{[string]: fn.#Value} |
-				fn.#StringExpression |
-				fn.#NumberExpression |
-				fn.#ObjectExpression |
-				fn.#BooleanExpression
-		] |
-		{[string]: fn.#Value} |
-		fn.#ListExpression |
-		fn.#StringExpression |
-		fn.#NumberExpression |
-		fn.#ObjectExpression |
-		fn.#BooleanExpression
+	Value!: fn.#Object & {...} |
+	bool |
+	number |
+	string |
+	list.MinItems(1) & [...fn.#Object & {...} | bool | number | string | fn.#StringNumberBooleanObjectExpression] |
+	fn.#StringNumberBooleanListObjectExpression
 }) |
 fn.#ObjectExpression
 

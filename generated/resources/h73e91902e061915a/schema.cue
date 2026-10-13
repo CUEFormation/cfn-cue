@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,34 +14,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::BedrockAgentCore::PaymentCredentialProvider
 #Properties: close({
-	CredentialProviderVendor!: _#defs."/$defs/Properties/definitions/PaymentCredentialProviderVendorType" |
-		fn.#StringExpression
+	CredentialProviderVendor!: _#defs."/$defs/Properties/definitions/PaymentCredentialProviderVendorType"
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
-	ProviderConfigurationInput?: _#defs."/$defs/Properties/definitions/PaymentProviderConfigurationInput" |
-		fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ProviderConfigurationInput?: _#defs."/$defs/Properties/definitions/PaymentProviderConfigurationInput"
+	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CoinbaseCdpConfigurationInput": close({
 	ApiKeyId!:           strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	ApiKeySecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ApiKeySecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference" | fn.#ObjectExpression
-	ApiKeySecretSource?: _#defs."/$defs/Properties/definitions/SecretSourceType" | fn.#StringExpression
+	ApiKeySecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
+	ApiKeySecretSource?: _#defs."/$defs/Properties/definitions/SecretSourceType"
 	WalletSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	WalletSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference" | fn.#ObjectExpression
-	WalletSecretSource?: _#defs."/$defs/Properties/definitions/SecretSourceType" | fn.#StringExpression
+	WalletSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
+	WalletSecretSource?: _#defs."/$defs/Properties/definitions/SecretSourceType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CoinbaseCdpConfigurationOutput": close({
 	ApiKeyId!:            strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	ApiKeySecretArn!:     _#defs."/$defs/Properties/definitions/SecretInfo" | fn.#ObjectExpression
+	ApiKeySecretArn!:     _#defs."/$defs/Properties/definitions/SecretInfo"
 	ApiKeySecretJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	ApiKeySecretSource?:  _#defs."/$defs/Properties/definitions/SecretSourceType" | fn.#StringExpression
-	WalletSecretArn?:     _#defs."/$defs/Properties/definitions/SecretInfo" | fn.#ObjectExpression
+	ApiKeySecretSource?:  _#defs."/$defs/Properties/definitions/SecretSourceType"
+	WalletSecretArn?:     _#defs."/$defs/Properties/definitions/SecretInfo"
 	WalletSecretJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	WalletSecretSource?:  _#defs."/$defs/Properties/definitions/SecretSourceType" | fn.#StringExpression
+	WalletSecretSource?:  _#defs."/$defs/Properties/definitions/SecretSourceType"
 }) |
 fn.#ObjectExpression
 
@@ -50,18 +47,14 @@ _#defs: "/$defs/Properties/definitions/PaymentCredentialProviderVendorType": "Co
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PaymentProviderConfigurationInput": close({
-	CoinbaseCdpConfiguration?: _#defs."/$defs/Properties/definitions/CoinbaseCdpConfigurationInput" |
-		fn.#ObjectExpression
-	StripePrivyConfiguration?: _#defs."/$defs/Properties/definitions/StripePrivyConfigurationInput" |
-		fn.#ObjectExpression
+	CoinbaseCdpConfiguration?: _#defs."/$defs/Properties/definitions/CoinbaseCdpConfigurationInput"
+	StripePrivyConfiguration?: _#defs."/$defs/Properties/definitions/StripePrivyConfigurationInput"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PaymentProviderConfigurationOutput": close({
-	CoinbaseCdpConfiguration?: _#defs."/$defs/Properties/definitions/CoinbaseCdpConfigurationOutput" |
-		fn.#ObjectExpression
-	StripePrivyConfiguration?: _#defs."/$defs/Properties/definitions/StripePrivyConfigurationOutput" |
-		fn.#ObjectExpression
+	CoinbaseCdpConfiguration?: _#defs."/$defs/Properties/definitions/CoinbaseCdpConfigurationOutput"
+	StripePrivyConfiguration?: _#defs."/$defs/Properties/definitions/StripePrivyConfigurationOutput"
 }) |
 fn.#ObjectExpression
 
@@ -82,24 +75,24 @@ _#defs: "/$defs/Properties/definitions/SecretSourceType": "MANAGED" | "EXTERNAL"
 _#defs: "/$defs/Properties/definitions/StripePrivyConfigurationInput": close({
 	AppId!:                         strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	AppSecret?:                     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	AppSecretConfig?:               _#defs."/$defs/Properties/definitions/SecretReference" | fn.#ObjectExpression
-	AppSecretSource?:               _#defs."/$defs/Properties/definitions/SecretSourceType" | fn.#StringExpression
+	AppSecretConfig?:               _#defs."/$defs/Properties/definitions/SecretReference"
+	AppSecretSource?:               _#defs."/$defs/Properties/definitions/SecretSourceType"
 	AuthorizationId!:               strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	AuthorizationPrivateKey?:       strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	AuthorizationPrivateKeyConfig?: _#defs."/$defs/Properties/definitions/SecretReference" | fn.#ObjectExpression
-	AuthorizationPrivateKeySource?: _#defs."/$defs/Properties/definitions/SecretSourceType" | fn.#StringExpression
+	AuthorizationPrivateKeyConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
+	AuthorizationPrivateKeySource?: _#defs."/$defs/Properties/definitions/SecretSourceType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StripePrivyConfigurationOutput": close({
 	AppId!:                          strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	AppSecretArn!:                   _#defs."/$defs/Properties/definitions/SecretInfo" | fn.#ObjectExpression
+	AppSecretArn!:                   _#defs."/$defs/Properties/definitions/SecretInfo"
 	AppSecretJsonKey?:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	AppSecretSource?:                _#defs."/$defs/Properties/definitions/SecretSourceType" | fn.#StringExpression
+	AppSecretSource?:                _#defs."/$defs/Properties/definitions/SecretSourceType"
 	AuthorizationId!:                strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	AuthorizationPrivateKeyArn!:     _#defs."/$defs/Properties/definitions/SecretInfo" | fn.#ObjectExpression
+	AuthorizationPrivateKeyArn!:     _#defs."/$defs/Properties/definitions/SecretInfo"
 	AuthorizationPrivateKeyJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	AuthorizationPrivateKeySource?:  _#defs."/$defs/Properties/definitions/SecretSourceType" | fn.#StringExpression
+	AuthorizationPrivateKeySource?:  _#defs."/$defs/Properties/definitions/SecretSourceType"
 }) |
 fn.#ObjectExpression
 

@@ -8,14 +8,32 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeBuild::Fleet
 #Properties: close({
-	BaseCapacity?:         int & >=0 | fn.#NumberExpression
-	ComputeConfiguration?: _#defs."/$defs/Properties/definitions/ComputeConfiguration" | fn.#ObjectExpression
+	BaseCapacity?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ComputeConfiguration?: _#defs."/$defs/Properties/definitions/ComputeConfiguration"
 	ComputeType?: "BUILD_GENERAL1_SMALL" |
 		"BUILD_GENERAL1_MEDIUM" |
 		"BUILD_GENERAL1_LARGE" |
@@ -34,23 +52,62 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"ARM_EC2" |
 		"WINDOWS_EC2" |
 		fn.#StringExpression
-	FleetProxyConfiguration?: _#defs."/$defs/Properties/definitions/ProxyConfiguration" | fn.#ObjectExpression
+	FleetProxyConfiguration?: _#defs."/$defs/Properties/definitions/ProxyConfiguration"
 	FleetServiceRole?:        strings.MinRunes(1) & =~"^(?:arn:)[a-zA-Z+-=,._:/@]+$" | fn.#StringExpression
-	FleetVpcConfig?:          _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
-	ImageId?:                 strings.MinRunes(1) | fn.#StringExpression
+	FleetVpcConfig?:          _#defs."/$defs/Properties/definitions/VpcConfig"
+	ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
+	fn.#StringExpression
 	Name?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"^[A-Za-z0-9][A-Za-z0-9\\-_]{1,127}$" | fn.#StringExpression
 	OverflowBehavior?:     "QUEUE" | "ON_DEMAND" | fn.#StringExpression
-	ScalingConfiguration?: _#defs."/$defs/Properties/definitions/ScalingConfigurationInput" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ScalingConfiguration?: _#defs."/$defs/Properties/definitions/ScalingConfigurationInput"
+	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ComputeConfiguration": close({
-	disk?:         int | fn.#NumberExpression
+	disk?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	instanceType?: strings.MinRunes(1) | fn.#StringExpression
 	machineType?:  "GENERAL" | "NVME" | fn.#StringExpression
-	memory?:       int | fn.#NumberExpression
-	vCpu?:         int | fn.#NumberExpression
+	memory?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	vCpu?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -62,18 +119,29 @@ _#defs: "/$defs/Properties/definitions/FleetProxyRule": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ProxyConfiguration": close({
-	DefaultBehavior?: "ALLOW_ALL" | "DENY_ALL" | fn.#StringExpression
-	OrderedProxyRules?: [..._#defs."/$defs/Properties/definitions/FleetProxyRule" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	DefaultBehavior?:   "ALLOW_ALL" | "DENY_ALL" | fn.#StringExpression
+	OrderedProxyRules?: [..._#defs."/$defs/Properties/definitions/FleetProxyRule"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScalingConfigurationInput": close({
-	MaxCapacity?: int & >=1 | fn.#NumberExpression
+	MaxCapacity?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ScalingType?: "TARGET_TRACKING_SCALING" | fn.#StringExpression
-	TargetTrackingScalingConfigs?: [
-		..._#defs."/$defs/Properties/definitions/TargetTrackingScalingConfiguration" | fn.#ObjectExpression
-	] |
+	TargetTrackingScalingConfigs?: [..._#defs."/$defs/Properties/definitions/TargetTrackingScalingConfiguration"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -85,15 +153,38 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TargetTrackingScalingConfiguration": close({
-	MetricType?:  "FLEET_UTILIZATION_RATE" | fn.#StringExpression
-	TargetValue?: number | fn.#NumberExpression
+	MetricType?: "FLEET_UTILIZATION_RATE" | fn.#StringExpression
+	TargetValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroupIds?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Subnets?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	VpcId?:            string | fn.#StringExpression
+	SecurityGroupIds?: [
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	] |
+		fn.#ListExpression
+	Subnets?: [...string | fn.#StringExpression] | fn.#ListExpression
+	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

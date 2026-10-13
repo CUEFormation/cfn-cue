@@ -15,9 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::GameLift::Location resource creates an Amazon GameLift (GameLift) custom location.
 #Properties: close({
 	LocationName!: strings.MaxRunes(64) & strings.MinRunes(8) & =~"^custom-[A-Za-z0-9\\-]+" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

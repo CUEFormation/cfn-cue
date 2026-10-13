@@ -26,5 +26,6 @@ _#defs: "/$defs/Properties/definitions/CdnAuthConfiguration": close({
 
 	// <p>The ARN for the IAM role that gives MediaPackage read access to Secrets
 	// Manager and KMS for CDN authorization.</p>
-	SecretsRoleArn!: strings.MaxRunes(2048) & strings.MinRunes(20)
+	SecretsRoleArn!:
+		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })

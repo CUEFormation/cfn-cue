@@ -4,24 +4,41 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAFRegional::WebACL
 #Properties: close({
-	DefaultAction!: _#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression
+	DefaultAction!: _#defs."/$defs/Properties/definitions/Action"
 	MetricName!:    string | fn.#StringExpression
 	Name!:          string | fn.#StringExpression
-	Rules?:         [..._#defs."/$defs/Properties/definitions/Rule" | fn.#ObjectExpression] | fn.#ListExpression
+	Rules?:         [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Action": close({Type!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Rule": close({
-	Action!:   _#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression
-	Priority!: int | fn.#NumberExpression
-	RuleId!:   string | fn.#StringExpression
+	Action!: _#defs."/$defs/Properties/definitions/Action"
+	Priority!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RuleId!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

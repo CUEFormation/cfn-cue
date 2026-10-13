@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,12 +14,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Evidently::Project
 #Properties: close({
-	AppConfigResource?: _#defs."/$defs/Properties/definitions/AppConfigResourceObject" | fn.#ObjectExpression
-	DataDelivery?:      _#defs."/$defs/Properties/definitions/DataDeliveryObject" | fn.#ObjectExpression
+	AppConfigResource?: _#defs."/$defs/Properties/definitions/AppConfigResourceObject"
+	DataDelivery?:      _#defs."/$defs/Properties/definitions/DataDeliveryObject"
 	Description?:       strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:              strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AppConfigResourceObject": close({
@@ -36,7 +35,7 @@ _#defs: "/$defs/Properties/definitions/DataDeliveryObject": matchN(1, [{
 	...
 }]) & close({
 	LogGroup?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9._/]+$" | fn.#StringExpression
-	S3?:       _#defs."/$defs/Properties/definitions/S3Destination" | fn.#ObjectExpression
+	S3?:       _#defs."/$defs/Properties/definitions/S3Destination"
 }) |
 fn.#ObjectExpression
 

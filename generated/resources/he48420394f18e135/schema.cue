@@ -14,18 +14,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::EC2::VerifiedAccessGroup resource creates an AWS EC2 Verified Access Group.
 #Properties: close({
-	Description?:      string | fn.#StringExpression
-	PolicyDocument?:   string | fn.#StringExpression
-	PolicyEnabled?:    bool | fn.#BooleanExpression
-	SseSpecification?: _#defs."/$defs/Properties/definitions/SseSpecification" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Description?:              string | fn.#StringExpression
+	PolicyDocument?:           string | fn.#StringExpression
+	PolicyEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SseSpecification?:         _#defs."/$defs/Properties/definitions/SseSpecification" | fn.#ObjectExpression
+	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VerifiedAccessInstanceId!: string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/SseSpecification": close({
-	CustomerManagedKeyEnabled?: bool | fn.#BooleanExpression
-	KmsKeyArn?:                 string | fn.#StringExpression
+	CustomerManagedKeyEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

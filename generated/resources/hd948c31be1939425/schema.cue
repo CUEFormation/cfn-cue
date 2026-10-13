@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,16 +23,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CrawlerSecurityConfiguration?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	DatabaseName?:                 string | fn.#StringExpression
 	Description?:                  strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	LakeFormationConfiguration?: _#defs."/$defs/Properties/definitions/LakeFormationConfiguration" |
-		fn.#ObjectExpression
-	Name?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	RecrawlPolicy?:      _#defs."/$defs/Properties/definitions/RecrawlPolicy" | fn.#ObjectExpression
-	Role!:               string | fn.#StringExpression
-	Schedule?:           _#defs."/$defs/Properties/definitions/Schedule" | fn.#ObjectExpression
-	SchemaChangePolicy?: _#defs."/$defs/Properties/definitions/SchemaChangePolicy" | fn.#ObjectExpression
-	TablePrefix?:        strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?:               string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	Targets!:            _#defs."/$defs/Properties/definitions/Targets" | fn.#ObjectExpression
+	LakeFormationConfiguration?:   _#defs."/$defs/Properties/definitions/LakeFormationConfiguration"
+	Name?:                         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	RecrawlPolicy?:                _#defs."/$defs/Properties/definitions/RecrawlPolicy"
+	Role!:                         string | fn.#StringExpression
+	Schedule?:                     _#defs."/$defs/Properties/definitions/Schedule"
+	SchemaChangePolicy?:           _#defs."/$defs/Properties/definitions/SchemaChangePolicy"
+	TablePrefix?:                  strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+	Tags?:                         fn.#Object & {...} | string | fn.#StringObjectExpression
+	Targets!:                      _#defs."/$defs/Properties/definitions/Targets"
 })
 
 _#defs: "/$defs/Properties/definitions/CatalogTarget": close({
@@ -43,32 +46,76 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DeltaTarget": close({
 	ConnectionName?:         string | fn.#StringExpression
-	CreateNativeDeltaTable?: bool | fn.#BooleanExpression
+	CreateNativeDeltaTable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DeltaTables?:            [...string | fn.#StringExpression] | fn.#ListExpression
-	WriteManifest?:          bool | fn.#BooleanExpression
+	WriteManifest?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DynamoDBTarget": close({
-	Path?:     string | fn.#StringExpression
-	ScanAll?:  bool | fn.#BooleanExpression
-	ScanRate?: number | fn.#NumberExpression
+	Path?:    string | fn.#StringExpression
+	ScanAll?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ScanRate?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HudiTarget": close({
-	ConnectionName?:        string | fn.#StringExpression
-	Exclusions?:            [...string | fn.#StringExpression] | fn.#ListExpression
-	MaximumTraversalDepth?: int | fn.#NumberExpression
-	Paths?:                 [...string | fn.#StringExpression] | fn.#ListExpression
+	ConnectionName?: string | fn.#StringExpression
+	Exclusions?:     [...string | fn.#StringExpression] | fn.#ListExpression
+	MaximumTraversalDepth?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Paths?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergTarget": close({
-	ConnectionName?:        string | fn.#StringExpression
-	Exclusions?:            [...string | fn.#StringExpression] | fn.#ListExpression
-	MaximumTraversalDepth?: int | fn.#NumberExpression
-	Paths?:                 [...string | fn.#StringExpression] | fn.#ListExpression
+	ConnectionName?: string | fn.#StringExpression
+	Exclusions?:     [...string | fn.#StringExpression] | fn.#ListExpression
+	MaximumTraversalDepth?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Paths?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -82,7 +129,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LakeFormationConfiguration": close({
 	AccountId?:                   strings.MaxRunes(12) & strings.MinRunes(0) | fn.#StringExpression
-	UseLakeFormationCredentials?: bool | fn.#BooleanExpression
+	UseLakeFormationCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -103,7 +150,20 @@ _#defs: "/$defs/Properties/definitions/S3Target": close({
 	EventQueueArn?:    string | fn.#StringExpression
 	Exclusions?:       [...string | fn.#StringExpression] | fn.#ListExpression
 	Path?:             string | fn.#StringExpression
-	SampleSize?:       int | fn.#NumberExpression
+	SampleSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -117,18 +177,14 @@ _#defs: "/$defs/Properties/definitions/SchemaChangePolicy": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Targets": close({
-	CatalogTargets?: [..._#defs."/$defs/Properties/definitions/CatalogTarget" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	DeltaTargets?: [..._#defs."/$defs/Properties/definitions/DeltaTarget" | fn.#ObjectExpression] | fn.#ListExpression
-	DynamoDBTargets?: [..._#defs."/$defs/Properties/definitions/DynamoDBTarget" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	HudiTargets?: [..._#defs."/$defs/Properties/definitions/HudiTarget" | fn.#ObjectExpression] | fn.#ListExpression
-	IcebergTargets?: [..._#defs."/$defs/Properties/definitions/IcebergTarget" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	JdbcTargets?: [..._#defs."/$defs/Properties/definitions/JdbcTarget" | fn.#ObjectExpression] | fn.#ListExpression
-	MongoDBTargets?: [..._#defs."/$defs/Properties/definitions/MongoDBTarget" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	S3Targets?: [..._#defs."/$defs/Properties/definitions/S3Target" | fn.#ObjectExpression] | fn.#ListExpression
+	CatalogTargets?:  [..._#defs."/$defs/Properties/definitions/CatalogTarget"] | fn.#ListExpression
+	DeltaTargets?:    [..._#defs."/$defs/Properties/definitions/DeltaTarget"] | fn.#ListExpression
+	DynamoDBTargets?: [..._#defs."/$defs/Properties/definitions/DynamoDBTarget"] | fn.#ListExpression
+	HudiTargets?:     [..._#defs."/$defs/Properties/definitions/HudiTarget"] | fn.#ListExpression
+	IcebergTargets?:  [..._#defs."/$defs/Properties/definitions/IcebergTarget"] | fn.#ListExpression
+	JdbcTargets?:     [..._#defs."/$defs/Properties/definitions/JdbcTarget"] | fn.#ListExpression
+	MongoDBTargets?:  [..._#defs."/$defs/Properties/definitions/MongoDBTarget"] | fn.#ListExpression
+	S3Targets?:       [..._#defs."/$defs/Properties/definitions/S3Target"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -37,7 +37,7 @@ import (
 	FederationEnabled?: bool
 
 	// The ARN of the role used for event data store federation.
-	FederationRoleArn?: string
+	FederationRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Indicates whether the event data store is ingesting events.
 	IngestionEnabled?: bool
@@ -57,7 +57,10 @@ import (
 	// CloudTrail. The value can be an alias name prefixed by 'alias/', a fully
 	// specified ARN to an alias, a fully specified ARN to a key, or a globally
 	// unique identifier.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(350) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._/\\-:]+$"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(350) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9._/\\-:]+$"
 
 	// Specifies the maximum size allowed for the event. Valid values are Standard
 	// and Large. If you add ContextKeySelectors, this value must be set to Large.

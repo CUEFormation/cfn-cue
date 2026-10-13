@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::VerifiedPermissions::Policy Resource Type
 #Properties: close({
-	Definition!:    _#defs."/$defs/Properties/definitions/PolicyDefinition" | fn.#ValueExpression
+	Definition!:    _#defs."/$defs/Properties/definitions/PolicyDefinition"
 	Name?:          strings.MaxRunes(150) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-/_]*$" | fn.#StringExpression
 	PolicyStoreId!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
 })
@@ -25,9 +25,9 @@ _#defs: "/$defs/Properties/definitions/EntityIdentifier": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PolicyDefinition": matchN(1, [close(
-	{Static!: _#defs."/$defs/Properties/definitions/StaticPolicyDefinition" | fn.#ObjectExpression},
+	{Static!: _#defs."/$defs/Properties/definitions/StaticPolicyDefinition"},
 ), close(
-	{TemplateLinked!: _#defs."/$defs/Properties/definitions/TemplateLinkedPolicyDefinition" | fn.#ObjectExpression},
+	{TemplateLinked!: _#defs."/$defs/Properties/definitions/TemplateLinkedPolicyDefinition"},
 )]) |
 fn.#ValueExpression
 
@@ -41,8 +41,8 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TemplateLinkedPolicyDefinition": close({
 	PolicyTemplateId!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
-	Principal?:        _#defs."/$defs/Properties/definitions/EntityIdentifier" | fn.#ObjectExpression
-	Resource?:         _#defs."/$defs/Properties/definitions/EntityIdentifier" | fn.#ObjectExpression
+	Principal?:        _#defs."/$defs/Properties/definitions/EntityIdentifier"
+	Resource?:         _#defs."/$defs/Properties/definitions/EntityIdentifier"
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -19,10 +19,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name?:               strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 	ResolverEndpointId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	RuleType!:           =~"(?i)^(?:delegate|forward|recursive|system)$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TargetIps?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TargetAddress" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:      list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TargetIps?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TargetAddress"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

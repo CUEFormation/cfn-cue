@@ -85,7 +85,7 @@ import (
 
 	// [Application Load Balancers and Network Load Balancers] The IDs of the
 	// security groups for the load balancer.
-	SecurityGroups?: list.UniqueItems() & [...string]
+	SecurityGroups?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// The IDs of the subnets. You can specify only one subnet per Availability
 	// Zone. You must specify either subnets or subnet mappings, but not both.

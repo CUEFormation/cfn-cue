@@ -42,12 +42,16 @@ import (
 	EnableIamSessionBasedIdentity?: bool
 
 	// The execution role for the user.
-	ExecutionRoleArn!: strings.MaxRunes(2048) &
+	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
 	// The AWS KMS customer managed key used to encrypt the data associated with the PartnerApp.
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*"
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~".*"
 
 	// A collection of settings that specify the maintenance schedule for the PartnerApp.
 	MaintenanceConfig?: _#defs."/$defs/Properties/definitions/PartnerAppMaintenanceConfig"

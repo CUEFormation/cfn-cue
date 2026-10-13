@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,13 +16,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	MeshName!:          string | fn.#StringExpression
 	MeshOwner?:         string | fn.#StringExpression
-	Spec!:              _#defs."/$defs/Properties/definitions/VirtualRouterSpec" | fn.#ObjectExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Spec!:              _#defs."/$defs/Properties/definitions/VirtualRouterSpec"
+	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VirtualRouterName?: string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/PortMapping": close({
-	Port!:     int | fn.#NumberExpression
+	Port!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Protocol!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -30,14 +47,13 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VirtualRouterListener": close(
-	{PortMapping!: _#defs."/$defs/Properties/definitions/PortMapping" | fn.#ObjectExpression},
+	{PortMapping!: _#defs."/$defs/Properties/definitions/PortMapping"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualRouterSpec": close({
-	Listeners!: [..._#defs."/$defs/Properties/definitions/VirtualRouterListener" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/VirtualRouterSpec": close(
+	{Listeners!: [..._#defs."/$defs/Properties/definitions/VirtualRouterListener"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::AppMesh::VirtualRouter"

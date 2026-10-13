@@ -8,26 +8,27 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaTailor::Function
 #Properties: close({
-	AwsServiceRequestConfiguration?: _#defs."/$defs/Properties/definitions/AwsServiceRequestConfiguration" |
-		fn.#ObjectExpression
+	AwsServiceRequestConfiguration?: _#defs."/$defs/Properties/definitions/AwsServiceRequestConfiguration"
 	ConcurrentExecutorConfiguration?: _#defs."/$defs/Properties/definitions/ConcurrentExecutorConfiguration" |
 		fn.#ObjectExpression
-	CustomOutputConfiguration?: _#defs."/$defs/Properties/definitions/CustomOutputConfiguration" | fn.#ObjectExpression
-	Description?:               string | fn.#StringExpression
-	FunctionId!:                string | fn.#StringExpression
-	FunctionType!:              _#defs."/$defs/Properties/definitions/FunctionType" | fn.#StringExpression
-	HttpRequestConfiguration?:  _#defs."/$defs/Properties/definitions/HttpRequestConfiguration" | fn.#ObjectExpression
-	SequentialExecutorConfiguration?: _#defs."/$defs/Properties/definitions/SequentialExecutorConfiguration" |
-		fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	VastRequestConfiguration?: _#defs."/$defs/Properties/definitions/VastRequestConfiguration" | fn.#ObjectExpression
+	CustomOutputConfiguration?:       _#defs."/$defs/Properties/definitions/CustomOutputConfiguration"
+	Description?:                     string | fn.#StringExpression
+	FunctionId!:                      string | fn.#StringExpression
+	FunctionType!:                    _#defs."/$defs/Properties/definitions/FunctionType" | fn.#StringExpression
+	HttpRequestConfiguration?:        _#defs."/$defs/Properties/definitions/HttpRequestConfiguration"
+	SequentialExecutorConfiguration?: _#defs."/$defs/Properties/definitions/SequentialExecutorConfiguration"
+	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VastRequestConfiguration?: _#defs."/$defs/Properties/definitions/VastRequestConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/AwsServiceRequestConfiguration": close({
@@ -36,31 +37,74 @@ _#defs: "/$defs/Properties/definitions/AwsServiceRequestConfiguration": close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	MethodType!: _#defs."/$defs/Properties/definitions/MethodType" | fn.#StringExpression
+	MethodType!: _#defs."/$defs/Properties/definitions/MethodType"
 	Output?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	RequestTimeoutMilliseconds!: int & <=2000 & >=100 | fn.#NumberExpression
-	Runtime!:                    _#defs."/$defs/Properties/definitions/RuntimeType" | fn.#StringExpression
-	TargetRegion!:               strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	TargetService!:              strings.MaxRunes(63) & strings.MinRunes(1) & =~"[a-z0-9-]+" | fn.#StringExpression
-	Url!:                        string | fn.#StringExpression
+	RequestTimeoutMilliseconds!: int & <=2000 & >=100 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2000 &
+							>=100,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Runtime!:       _#defs."/$defs/Properties/definitions/RuntimeType"
+	TargetRegion!:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	TargetService!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"[a-z0-9-]+" | fn.#StringExpression
+	Url!:           string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConcurrentExecutorConfiguration": close({
-	FunctionList!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FunctionRef" | fn.#ObjectExpression
-	] |
+	FunctionList!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/FunctionRef"] |
 		fn.#ListExpression
-	MaxConcurrency!: int & <=2 & >=1 | fn.#NumberExpression
+	MaxConcurrency!: int & <=2 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Output!: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Runtime!:             _#defs."/$defs/Properties/definitions/RuntimeType" | fn.#StringExpression
-	TimeoutMilliseconds!: int & <=2000 & >=100 | fn.#NumberExpression
+	Runtime!: _#defs."/$defs/Properties/definitions/RuntimeType"
+	TimeoutMilliseconds!: int & <=2000 & >=100 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2000 &
+							>=100,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -86,13 +130,26 @@ _#defs: "/$defs/Properties/definitions/FunctionType": "HTTP_REQUEST" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/HttpRequestConfiguration": close({
-	Body?:                       string | fn.#StringExpression
-	Headers?:                    _#defs."/$defs/Properties/definitions/StringMap" | fn.#ObjectExpression
-	MethodType!:                 _#defs."/$defs/Properties/definitions/MethodType" | fn.#StringExpression
-	Output?:                     _#defs."/$defs/Properties/definitions/StringMap" | fn.#ObjectExpression
-	RequestTimeoutMilliseconds!: int | fn.#NumberExpression
-	Runtime!:                    _#defs."/$defs/Properties/definitions/RuntimeType" | fn.#StringExpression
-	Url!:                        string | fn.#StringExpression
+	Body?:       string | fn.#StringExpression
+	Headers?:    _#defs."/$defs/Properties/definitions/StringMap" | fn.#ObjectExpression
+	MethodType!: _#defs."/$defs/Properties/definitions/MethodType" | fn.#StringExpression
+	Output?:     _#defs."/$defs/Properties/definitions/StringMap" | fn.#ObjectExpression
+	RequestTimeoutMilliseconds!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Runtime!: _#defs."/$defs/Properties/definitions/RuntimeType" | fn.#StringExpression
+	Url!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -101,13 +158,26 @@ _#defs: "/$defs/Properties/definitions/MethodType": "GET" | "POST" | fn.#StringE
 _#defs: "/$defs/Properties/definitions/RuntimeType": "JSONATA" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SequentialExecutorConfiguration": close({
-	FunctionList!: [..._#defs."/$defs/Properties/definitions/FunctionRef" | fn.#ObjectExpression] | fn.#ListExpression
+	FunctionList!: [..._#defs."/$defs/Properties/definitions/FunctionRef"] | fn.#ListExpression
 	Output?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Runtime!:             _#defs."/$defs/Properties/definitions/RuntimeType" | fn.#StringExpression
-	TimeoutMilliseconds!: int | fn.#NumberExpression
+	Runtime!: _#defs."/$defs/Properties/definitions/RuntimeType"
+	TimeoutMilliseconds!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -128,14 +198,29 @@ _#defs: "/$defs/Properties/definitions/VastRequestConfiguration": close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	MethodType!: _#defs."/$defs/Properties/definitions/MethodType" | fn.#StringExpression
+	MethodType!: _#defs."/$defs/Properties/definitions/MethodType"
 	Output?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	RequestTimeoutMilliseconds!: int & <=2000 & >=100 | fn.#NumberExpression
-	Runtime!:                    _#defs."/$defs/Properties/definitions/RuntimeType" | fn.#StringExpression
-	Url!:                        string | fn.#StringExpression
+	RequestTimeoutMilliseconds!: int & <=2000 & >=100 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2000 &
+							>=100,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Runtime!: _#defs."/$defs/Properties/definitions/RuntimeType"
+	Url!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

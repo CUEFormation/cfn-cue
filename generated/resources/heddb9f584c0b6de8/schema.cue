@@ -9,6 +9,10 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -21,54 +25,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Specifications!: _
 	...
 }]) & close({
-	DeploymentConfig?: _#defs."/$defs/Properties/definitions/InferenceComponentDeploymentConfig" | fn.#ObjectExpression
-	EndpointArn?:      _#defs."/$defs/Properties/definitions/EndpointArn" | fn.#StringExpression
-	EndpointName!:     _#defs."/$defs/Properties/definitions/EndpointName" | fn.#StringExpression
-	InferenceComponentName?: _#defs."/$defs/Properties/definitions/InferenceComponentName" | fn.#StringExpression
-	RuntimeConfig?: close(
-		{CopyCount?: _#defs."/$defs/Properties/definitions/InferenceComponentCopyCount" | fn.#NumberExpression},
-	) |
+	DeploymentConfig?:       _#defs."/$defs/Properties/definitions/InferenceComponentDeploymentConfig"
+	EndpointArn?:            _#defs."/$defs/Properties/definitions/EndpointArn"
+	EndpointName!:           _#defs."/$defs/Properties/definitions/EndpointName"
+	InferenceComponentName?: _#defs."/$defs/Properties/definitions/InferenceComponentName"
+	RuntimeConfig?: close({CopyCount?: _#defs."/$defs/Properties/definitions/InferenceComponentCopyCount"}) |
 		fn.#ObjectExpression
 	Specification?: close({
-		BaseInferenceComponentName?: _#defs."/$defs/Properties/definitions/BaseInferenceComponentName" |
-			fn.#StringExpression
-		ComputeResourceRequirements?: _#defs."/$defs/Properties/definitions/InferenceComponentComputeResourceRequirements" |
-			fn.#ObjectExpression
+		BaseInferenceComponentName?: _#defs."/$defs/Properties/definitions/BaseInferenceComponentName"
+		ComputeResourceRequirements?:
+			_#defs."/$defs/Properties/definitions/InferenceComponentComputeResourceRequirements"
 		Container?: close({
-			ArtifactUrl?: _#defs."/$defs/Properties/definitions/Url" | fn.#StringExpression
-			ContainerMetricsConfig?: _#defs."/$defs/Properties/definitions/ContainerMetricsConfig" |
-				fn.#ObjectExpression
-			Environment?: _#defs."/$defs/Properties/definitions/EnvironmentMap" | fn.#ObjectExpression
-			Image?:       _#defs."/$defs/Properties/definitions/ContainerImage" | fn.#StringExpression
+			ArtifactUrl?:            _#defs."/$defs/Properties/definitions/Url"
+			ContainerMetricsConfig?: _#defs."/$defs/Properties/definitions/ContainerMetricsConfig"
+			Environment?:            _#defs."/$defs/Properties/definitions/EnvironmentMap"
+			Image?:                  _#defs."/$defs/Properties/definitions/ContainerImage"
 		}) |
 		fn.#ObjectExpression
-		DataCacheConfig?: _#defs."/$defs/Properties/definitions/InferenceComponentDataCacheConfig" |
-			fn.#ObjectExpression
-		ModelName?: _#defs."/$defs/Properties/definitions/ModelName" | fn.#StringExpression
-		SchedulingConfig?: _#defs."/$defs/Properties/definitions/InferenceComponentSchedulingConfig" |
-			fn.#ObjectExpression
-		StartupParameters?: _#defs."/$defs/Properties/definitions/InferenceComponentStartupParameters" |
-			fn.#ObjectExpression
+		DataCacheConfig?:   _#defs."/$defs/Properties/definitions/InferenceComponentDataCacheConfig"
+		ModelName?:         _#defs."/$defs/Properties/definitions/ModelName"
+		SchedulingConfig?:  _#defs."/$defs/Properties/definitions/InferenceComponentSchedulingConfig"
+		StartupParameters?: _#defs."/$defs/Properties/definitions/InferenceComponentStartupParameters"
 	}) |
 	fn.#ObjectExpression
 	Specifications?: list.MaxItems(5) & list.MinItems(2) & [...close({
-		ComputeResourceRequirements?: _#defs."/$defs/Properties/definitions/InferenceComponentComputeResourceRequirements" |
-			fn.#ObjectExpression
-		Container?: _#defs."/$defs/Properties/definitions/InferenceComponentContainerSpecificationForInstanceType" |
-			fn.#ObjectExpression
-		DataCacheConfig?: _#defs."/$defs/Properties/definitions/InferenceComponentDataCacheConfig" |
-			fn.#ObjectExpression
-		InstanceType!: _#defs."/$defs/Properties/definitions/InstanceType" | fn.#StringExpression
-		ModelName?:    _#defs."/$defs/Properties/definitions/ModelName" | fn.#StringExpression
-		SchedulingConfig?: _#defs."/$defs/Properties/definitions/InferenceComponentSchedulingConfig" |
-			fn.#ObjectExpression
-		StartupParameters?: _#defs."/$defs/Properties/definitions/InferenceComponentStartupParameters" |
-			fn.#ObjectExpression
+		ComputeResourceRequirements?:
+			_#defs."/$defs/Properties/definitions/InferenceComponentComputeResourceRequirements"
+		Container?:         _#defs."/$defs/Properties/definitions/InferenceComponentContainerSpecificationForInstanceType"
+		DataCacheConfig?:   _#defs."/$defs/Properties/definitions/InferenceComponentDataCacheConfig"
+		InstanceType!:      _#defs."/$defs/Properties/definitions/InstanceType"
+		ModelName?:         _#defs."/$defs/Properties/definitions/ModelName"
+		SchedulingConfig?:  _#defs."/$defs/Properties/definitions/InferenceComponentSchedulingConfig"
+		StartupParameters?: _#defs."/$defs/Properties/definitions/InferenceComponentStartupParameters"
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/TagList" | fn.#ListExpression
-	VariantName?: _#defs."/$defs/Properties/definitions/VariantName" | fn.#StringExpression
+	Tags?:        _#defs."/$defs/Properties/definitions/TagList"
+	VariantName?: _#defs."/$defs/Properties/definitions/VariantName"
 })
 
 _#defs: "/$defs/Properties/definitions/Alarm": close(
@@ -77,9 +70,7 @@ _#defs: "/$defs/Properties/definitions/Alarm": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AutoRollbackConfiguration": close({
-	Alarms!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Alarm" | fn.#ObjectExpression
-	] |
+	Alarms!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Alarm"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -91,23 +82,33 @@ strings.MinRunes(0) &
 =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CapacitySizeValue": int | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/CapacitySizeValue": int |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/ContainerImage": strings.MaxRunes(255) & strings.MinRunes(0) & =~"[\\S]+" |
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ContainerMetricsConfig": close({
-	MetricsEndpoints!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MetricsEndpoint" | fn.#ObjectExpression
-	] |
+	MetricsEndpoints!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/MetricsEndpoint"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DeployedImage": close({
-	ResolutionTime?: _#defs."/$defs/Properties/definitions/Timestamp" | fn.#StringExpression
-	ResolvedImage?:  _#defs."/$defs/Properties/definitions/ContainerImage" | fn.#StringExpression
-	SpecifiedImage?: _#defs."/$defs/Properties/definitions/ContainerImage" | fn.#StringExpression
+	ResolutionTime?: _#defs."/$defs/Properties/definitions/Timestamp"
+	ResolvedImage?:  _#defs."/$defs/Properties/definitions/ContainerImage"
+	SpecifiedImage?: _#defs."/$defs/Properties/definitions/ContainerImage"
 }) |
 fn.#ObjectExpression
 
@@ -126,15 +127,29 @@ _#defs: "/$defs/Properties/definitions/InferenceComponentArn": strings.MaxRunes(
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceComponentAvailabilityZoneBalance": close({
-	EnforcementMode!: _#defs."/$defs/Properties/definitions/AvailabilityZoneBalanceEnforcementMode" |
-		fn.#StringExpression
-	MaxImbalance?: int & <=100 & >=0 | fn.#NumberExpression
+	EnforcementMode!: _#defs."/$defs/Properties/definitions/AvailabilityZoneBalanceEnforcementMode"
+	MaxImbalance?: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceComponentCapacitySize": close({
-	Type!:  _#defs."/$defs/Properties/definitions/InferenceComponentCapacitySizeType" | fn.#StringExpression
-	Value!: _#defs."/$defs/Properties/definitions/CapacitySizeValue" | fn.#NumberExpression
+	Type!:  _#defs."/$defs/Properties/definitions/InferenceComponentCapacitySizeType"
+	Value!: _#defs."/$defs/Properties/definitions/CapacitySizeValue"
 }) |
 fn.#ObjectExpression
 
@@ -143,42 +158,54 @@ _#defs: "/$defs/Properties/definitions/InferenceComponentCapacitySizeType": "COP
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceComponentComputeResourceRequirements": close({
-	MaxMemoryRequiredInMb?: _#defs."/$defs/Properties/definitions/MemoryInMb" | fn.#NumberExpression
-	MinMemoryRequiredInMb?: _#defs."/$defs/Properties/definitions/MemoryInMb" | fn.#NumberExpression
-	NumberOfAcceleratorDevicesRequired?: _#defs."/$defs/Properties/definitions/NumberOfAcceleratorDevices" |
-		fn.#NumberExpression
-	NumberOfCpuCoresRequired?: _#defs."/$defs/Properties/definitions/NumberOfCpuCores" | fn.#NumberExpression
+	MaxMemoryRequiredInMb?:              _#defs."/$defs/Properties/definitions/MemoryInMb"
+	MinMemoryRequiredInMb?:              _#defs."/$defs/Properties/definitions/MemoryInMb"
+	NumberOfAcceleratorDevicesRequired?: _#defs."/$defs/Properties/definitions/NumberOfAcceleratorDevices"
+	NumberOfCpuCoresRequired?:           _#defs."/$defs/Properties/definitions/NumberOfCpuCores"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceComponentContainerSpecification": close({
-	ArtifactUrl?:            _#defs."/$defs/Properties/definitions/Url" | fn.#StringExpression
-	ContainerMetricsConfig?: _#defs."/$defs/Properties/definitions/ContainerMetricsConfig" | fn.#ObjectExpression
-	DeployedImage?:          _#defs."/$defs/Properties/definitions/DeployedImage" | fn.#ObjectExpression
-	Environment?:            _#defs."/$defs/Properties/definitions/EnvironmentMap" | fn.#ObjectExpression
-	Image?:                  _#defs."/$defs/Properties/definitions/ContainerImage" | fn.#StringExpression
+	ArtifactUrl?:            _#defs."/$defs/Properties/definitions/Url"
+	ContainerMetricsConfig?: _#defs."/$defs/Properties/definitions/ContainerMetricsConfig"
+	DeployedImage?:          _#defs."/$defs/Properties/definitions/DeployedImage"
+	Environment?:            _#defs."/$defs/Properties/definitions/EnvironmentMap"
+	Image?:                  _#defs."/$defs/Properties/definitions/ContainerImage"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceComponentContainerSpecificationForInstanceType": close({
-	ArtifactUrl?:            _#defs."/$defs/Properties/definitions/Url" | fn.#StringExpression
-	ContainerMetricsConfig?: _#defs."/$defs/Properties/definitions/ContainerMetricsConfig" | fn.#ObjectExpression
-	Environment?:            _#defs."/$defs/Properties/definitions/EnvironmentMap" | fn.#ObjectExpression
-	Image?:                  _#defs."/$defs/Properties/definitions/ContainerImage" | fn.#StringExpression
+	ArtifactUrl?:            _#defs."/$defs/Properties/definitions/Url"
+	ContainerMetricsConfig?: _#defs."/$defs/Properties/definitions/ContainerMetricsConfig"
+	Environment?:            _#defs."/$defs/Properties/definitions/EnvironmentMap"
+	Image?:                  _#defs."/$defs/Properties/definitions/ContainerImage"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentCopyCount": int & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/InferenceComponentCopyCount": int & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceComponentDataCacheConfig": close(
-	{EnableCaching!: bool | fn.#BooleanExpression},
+	{EnableCaching!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceComponentDeploymentConfig": close({
-	AutoRollbackConfiguration?: _#defs."/$defs/Properties/definitions/AutoRollbackConfiguration" | fn.#ObjectExpression
-	RollingUpdatePolicy?: _#defs."/$defs/Properties/definitions/InferenceComponentRollingUpdatePolicy" |
-		fn.#ObjectExpression
+	AutoRollbackConfiguration?: _#defs."/$defs/Properties/definitions/AutoRollbackConfiguration"
+	RollingUpdatePolicy?:       _#defs."/$defs/Properties/definitions/InferenceComponentRollingUpdatePolicy"
 }) |
 fn.#ObjectExpression
 
@@ -188,84 +215,70 @@ strings.MinRunes(0) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceComponentPlacementStatus": close({
-	CurrentCopyCount!: _#defs."/$defs/Properties/definitions/InferenceComponentCopyCount" | fn.#NumberExpression
-	InstanceType!:     _#defs."/$defs/Properties/definitions/InstanceType" | fn.#StringExpression
+	CurrentCopyCount!: _#defs."/$defs/Properties/definitions/InferenceComponentCopyCount"
+	InstanceType!:     _#defs."/$defs/Properties/definitions/InstanceType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceComponentPlacementStrategy": "SPREAD" | "BINPACK" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceComponentRollingUpdatePolicy": close({
-	MaximumBatchSize?: _#defs."/$defs/Properties/definitions/InferenceComponentCapacitySize" | fn.#ObjectExpression
-	MaximumExecutionTimeoutInSeconds?: _#defs."/$defs/Properties/definitions/MaximumExecutionTimeoutInSeconds" |
-		fn.#NumberExpression
-	RollbackMaximumBatchSize?: _#defs."/$defs/Properties/definitions/InferenceComponentCapacitySize" |
-		fn.#ObjectExpression
-	WaitIntervalInSeconds?: _#defs."/$defs/Properties/definitions/WaitIntervalInSeconds" | fn.#NumberExpression
+	MaximumBatchSize?:                 _#defs."/$defs/Properties/definitions/InferenceComponentCapacitySize"
+	MaximumExecutionTimeoutInSeconds?: _#defs."/$defs/Properties/definitions/MaximumExecutionTimeoutInSeconds"
+	RollbackMaximumBatchSize?:         _#defs."/$defs/Properties/definitions/InferenceComponentCapacitySize"
+	WaitIntervalInSeconds?:            _#defs."/$defs/Properties/definitions/WaitIntervalInSeconds"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceComponentRuntimeConfig": close({
-	CopyCount?:        _#defs."/$defs/Properties/definitions/InferenceComponentCopyCount" | fn.#NumberExpression
-	CurrentCopyCount?: _#defs."/$defs/Properties/definitions/InferenceComponentCopyCount" | fn.#NumberExpression
-	DesiredCopyCount?: _#defs."/$defs/Properties/definitions/InferenceComponentCopyCount" | fn.#NumberExpression
-	PlacementStatus?: [
-		..._#defs."/$defs/Properties/definitions/InferenceComponentPlacementStatus" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	CopyCount?:        _#defs."/$defs/Properties/definitions/InferenceComponentCopyCount"
+	CurrentCopyCount?: _#defs."/$defs/Properties/definitions/InferenceComponentCopyCount"
+	DesiredCopyCount?: _#defs."/$defs/Properties/definitions/InferenceComponentCopyCount"
+	PlacementStatus?: [..._#defs."/$defs/Properties/definitions/InferenceComponentPlacementStatus"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceComponentSchedulingConfig": close({
-	AvailabilityZoneBalance!: _#defs."/$defs/Properties/definitions/InferenceComponentAvailabilityZoneBalance" |
-		fn.#ObjectExpression
-	PlacementStrategy!: _#defs."/$defs/Properties/definitions/InferenceComponentPlacementStrategy" |
-		fn.#StringExpression
+	AvailabilityZoneBalance!: _#defs."/$defs/Properties/definitions/InferenceComponentAvailabilityZoneBalance"
+	PlacementStrategy!:       _#defs."/$defs/Properties/definitions/InferenceComponentPlacementStrategy"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceComponentSpecification": close({
-	BaseInferenceComponentName?: _#defs."/$defs/Properties/definitions/BaseInferenceComponentName" |
-		fn.#StringExpression
-	ComputeResourceRequirements?: _#defs."/$defs/Properties/definitions/InferenceComponentComputeResourceRequirements" |
-		fn.#ObjectExpression
-	Container?: _#defs."/$defs/Properties/definitions/InferenceComponentContainerSpecification" | fn.#ObjectExpression
+	BaseInferenceComponentName?:  _#defs."/$defs/Properties/definitions/BaseInferenceComponentName"
+	ComputeResourceRequirements?: _#defs."/$defs/Properties/definitions/InferenceComponentComputeResourceRequirements"
+	Container?:                   _#defs."/$defs/Properties/definitions/InferenceComponentContainerSpecification"
 	CurrentDataCacheConfig?: _#defs."/$defs/Properties/definitions/InferenceComponentDataCacheConfig" |
 		fn.#ObjectExpression
-	DataCacheConfig?:  _#defs."/$defs/Properties/definitions/InferenceComponentDataCacheConfig" | fn.#ObjectExpression
-	ModelName?:        _#defs."/$defs/Properties/definitions/ModelName" | fn.#StringExpression
-	SchedulingConfig?: _#defs."/$defs/Properties/definitions/InferenceComponentSchedulingConfig" | fn.#ObjectExpression
-	StartupParameters?: _#defs."/$defs/Properties/definitions/InferenceComponentStartupParameters" |
-		fn.#ObjectExpression
+	DataCacheConfig?:   _#defs."/$defs/Properties/definitions/InferenceComponentDataCacheConfig"
+	ModelName?:         _#defs."/$defs/Properties/definitions/ModelName"
+	SchedulingConfig?:  _#defs."/$defs/Properties/definitions/InferenceComponentSchedulingConfig"
+	StartupParameters?: _#defs."/$defs/Properties/definitions/InferenceComponentStartupParameters"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceComponentSpecificationForInstanceType": close({
-	ComputeResourceRequirements?: _#defs."/$defs/Properties/definitions/InferenceComponentComputeResourceRequirements" |
-		fn.#ObjectExpression
-	Container?: _#defs."/$defs/Properties/definitions/InferenceComponentContainerSpecificationForInstanceType" |
-		fn.#ObjectExpression
+	ComputeResourceRequirements?: _#defs."/$defs/Properties/definitions/InferenceComponentComputeResourceRequirements"
+	Container?:                   _#defs."/$defs/Properties/definitions/InferenceComponentContainerSpecificationForInstanceType"
 	CurrentDataCacheConfig?: _#defs."/$defs/Properties/definitions/InferenceComponentDataCacheConfig" |
 		fn.#ObjectExpression
-	DataCacheConfig?:  _#defs."/$defs/Properties/definitions/InferenceComponentDataCacheConfig" | fn.#ObjectExpression
-	InstanceType!:     _#defs."/$defs/Properties/definitions/InstanceType" | fn.#StringExpression
-	ModelName?:        _#defs."/$defs/Properties/definitions/ModelName" | fn.#StringExpression
-	SchedulingConfig?: _#defs."/$defs/Properties/definitions/InferenceComponentSchedulingConfig" | fn.#ObjectExpression
-	StartupParameters?: _#defs."/$defs/Properties/definitions/InferenceComponentStartupParameters" |
-		fn.#ObjectExpression
+	DataCacheConfig?:   _#defs."/$defs/Properties/definitions/InferenceComponentDataCacheConfig"
+	InstanceType!:      _#defs."/$defs/Properties/definitions/InstanceType"
+	ModelName?:         _#defs."/$defs/Properties/definitions/ModelName"
+	SchedulingConfig?:  _#defs."/$defs/Properties/definitions/InferenceComponentSchedulingConfig"
+	StartupParameters?: _#defs."/$defs/Properties/definitions/InferenceComponentStartupParameters"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceComponentSpecificationList": list.MaxItems(5) & list.MinItems(2) & [
-	..._#defs."/$defs/Properties/definitions/InferenceComponentSpecificationForInstanceType" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/InferenceComponentSpecificationForInstanceType"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/InferenceComponentStartupParameters": close({
-	ContainerStartupHealthCheckTimeoutInSeconds?: _#defs."/$defs/Properties/definitions/StartupParameterTimeoutInSeconds" |
-		fn.#NumberExpression
-	ModelDataDownloadTimeoutInSeconds?: _#defs."/$defs/Properties/definitions/StartupParameterTimeoutInSeconds" |
-		fn.#NumberExpression
+	ContainerStartupHealthCheckTimeoutInSeconds?:
+		_#defs."/$defs/Properties/definitions/StartupParameterTimeoutInSeconds"
+	ModelDataDownloadTimeoutInSeconds?: _#defs."/$defs/Properties/definitions/StartupParameterTimeoutInSeconds"
 }) |
 fn.#ObjectExpression
 
@@ -278,13 +291,57 @@ _#defs: "/$defs/Properties/definitions/InferenceComponentStatus": "InService" |
 
 _#defs: "/$defs/Properties/definitions/InstanceType": strings.MaxRunes(64) & =~"^ml\\..*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MaximumExecutionTimeoutInSeconds": int & <=28800 & >=600 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/MaximumExecutionTimeoutInSeconds": int & <=28800 & >=600 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=28800 &
+						>=600,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryInMb": int & >=128 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/MemoryInMb": int & >=128 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						>=128,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/MetricsEndpoint": close({
-	MetricPublishFrequencyInSeconds?: int & <=300 & >=10 | fn.#NumberExpression
-	MetricsEndpointPath!:             strings.MaxRunes(256) | fn.#StringExpression
+	MetricPublishFrequencyInSeconds?: int & <=300 & >=10 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=300 &
+							>=10,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MetricsEndpointPath!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -293,11 +350,62 @@ strings.MinRunes(0) &
 =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NumberOfAcceleratorDevices": >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/NumberOfAcceleratorDevices": >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						>=1,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/NumberOfCpuCores": >=0.25 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/NumberOfCpuCores": >=0.25 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						>=0.25,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/StartupParameterTimeoutInSeconds": int & <=3600 & >=60 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/StartupParameterTimeoutInSeconds": int & <=3600 & >=60 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=3600 &
+						>=60,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
@@ -306,7 +414,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TagList": list.MaxItems(50) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 
@@ -322,7 +430,22 @@ strings.MinRunes(0) &
 =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WaitIntervalInSeconds": int & <=3600 & >=0 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/WaitIntervalInSeconds": int & <=3600 & >=0 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=3600 &
+						>=0,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SageMaker::InferenceComponent"
 	Properties!: #Properties

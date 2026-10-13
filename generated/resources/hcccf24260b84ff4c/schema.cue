@@ -19,8 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DefaultValue!: string | fn.#StringExpression
 	Description?:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:         =~"^[a-z_][a-z0-9_]{0,99}?$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:         list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VariableType?: "AUTH_CODE" |
 		"AVS" |
 		"BILLING_ADDRESS_L1" |

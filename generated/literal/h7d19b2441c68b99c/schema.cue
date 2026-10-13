@@ -382,7 +382,8 @@ _#defs: "/$defs/Properties/definitions/FSxLustreConfig": close({
 })
 
 // AMI Id to be used for launching EC2 instances - HyperPodPublicAmiId or CustomAmiId
-_#defs: "/$defs/Properties/definitions/ImageId": strings.MaxRunes(21) &
+_#defs: "/$defs/Properties/definitions/ImageId": =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" &
+strings.MaxRunes(21) &
 strings.MinRunes(7) &
 =~"^ami-[0-9a-fA-F]{8,17}|default$"
 
@@ -486,7 +487,10 @@ _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	// The VPC security group IDs, in the form sg-xxxxxxxx. Specify the security
 	// groups for the VPC that is specified in the Subnets field.
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+"
 	]
 
 	// The ID of the subnets in the VPC to which you want to connect your training job or model.

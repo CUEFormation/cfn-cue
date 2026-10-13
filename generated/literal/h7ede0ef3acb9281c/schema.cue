@@ -20,13 +20,19 @@ import (
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$"
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+\\-]+$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"^[\\w+\\-]+$"
 	]
 	SubnetIds!: list.MaxItems(3) & list.MinItems(2) & [
 		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"^subnet-([0-9a-f]{8}|[0-9a-f]{17})$"
 	]
-	Tags?:  list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	VpcId!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^vpc-[0-9a-z]*$"
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1) &
+	=~"^vpc-[0-9a-z]*$"
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

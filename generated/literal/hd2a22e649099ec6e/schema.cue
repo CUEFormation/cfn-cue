@@ -57,7 +57,10 @@ _#defs: "/$defs/Properties/definitions/MembershipProtectedJobOutputConfiguration
 
 _#defs: "/$defs/Properties/definitions/MembershipProtectedJobResultConfiguration": close({
 	OutputConfiguration!: _#defs."/$defs/Properties/definitions/MembershipProtectedJobOutputConfiguration"
-	RoleArn!:             strings.MaxRunes(512) & strings.MinRunes(32) & =~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(32) &
+	=~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$"
 })
 
 _#defs: "/$defs/Properties/definitions/MembershipProtectedQueryOutputConfiguration": close(
@@ -66,7 +69,10 @@ _#defs: "/$defs/Properties/definitions/MembershipProtectedQueryOutputConfigurati
 
 _#defs: "/$defs/Properties/definitions/MembershipProtectedQueryResultConfiguration": close({
 	OutputConfiguration!: _#defs."/$defs/Properties/definitions/MembershipProtectedQueryOutputConfiguration"
-	RoleArn?:             strings.MaxRunes(512) & strings.MinRunes(32) & =~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$"
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(32) &
+	=~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$"
 })
 
 _#defs: "/$defs/Properties/definitions/MembershipQueryComputePaymentConfig": close({IsResponsible!: bool})

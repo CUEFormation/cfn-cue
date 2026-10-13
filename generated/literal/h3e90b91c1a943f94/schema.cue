@@ -64,7 +64,7 @@ _#defs: "/$defs/Properties/definitions/Event": close(
 _#defs: "/$defs/Properties/definitions/ExportServerSideEncryption": close({
 	// The Amazon Resource Name (ARN) of the AWS KMS key you want to use to encrypt
 	// the Amazon S3 objects.
-	KmsKeyArn?: string
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 
 	// The type of server side encryption used for encrypting the objects in Amazon S3.
 	Type!: "aws:kms" | "AES256"

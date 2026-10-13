@@ -14,8 +14,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource definition for AWS::BedrockAgentCore::BrowserProfile
 #Properties: close({
-	Description?: _#defs."/$defs/Properties/definitions/BrowserProfileDescription" | fn.#StringExpression
-	Name!:        _#defs."/$defs/Properties/definitions/BrowserProfileName" | fn.#StringExpression
+	Description?: _#defs."/$defs/Properties/definitions/BrowserProfileDescription"
+	Name!:        _#defs."/$defs/Properties/definitions/BrowserProfileName"
 	Tags?:        _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
 })
 
@@ -36,21 +36,21 @@ _#defs: "/$defs/Properties/definitions/BrowserProfileStatus": "READY" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/BrowserProfileSummaries": [
-	..._#defs."/$defs/Properties/definitions/BrowserProfileSummary" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/BrowserProfileSummary"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/BrowserProfileSummary": close({
-	CreatedAt!:                 _#defs."/$defs/Properties/definitions/CreatedAt" | fn.#StringExpression
-	Description?:               _#defs."/$defs/Properties/definitions/BrowserProfileDescription" | fn.#StringExpression
-	LastSavedAt?:               _#defs."/$defs/Properties/definitions/LastSavedAt" | fn.#StringExpression
-	LastSavedBrowserId?:        _#defs."/$defs/Properties/definitions/LastSavedBrowserId" | fn.#StringExpression
-	LastSavedBrowserSessionId?: _#defs."/$defs/Properties/definitions/LastSavedBrowserSessionId" | fn.#StringExpression
-	LastUpdatedAt!:             _#defs."/$defs/Properties/definitions/LastUpdatedAt" | fn.#StringExpression
-	Name!:                      _#defs."/$defs/Properties/definitions/BrowserProfileName" | fn.#StringExpression
-	ProfileArn!:                _#defs."/$defs/Properties/definitions/BrowserProfileArn" | fn.#StringExpression
-	ProfileId!:                 _#defs."/$defs/Properties/definitions/BrowserProfileId" | fn.#StringExpression
-	Status!:                    _#defs."/$defs/Properties/definitions/BrowserProfileStatus" | fn.#StringExpression
+	CreatedAt!:                 _#defs."/$defs/Properties/definitions/CreatedAt"
+	Description?:               _#defs."/$defs/Properties/definitions/BrowserProfileDescription"
+	LastSavedAt?:               _#defs."/$defs/Properties/definitions/LastSavedAt"
+	LastSavedBrowserId?:        _#defs."/$defs/Properties/definitions/LastSavedBrowserId"
+	LastSavedBrowserSessionId?: _#defs."/$defs/Properties/definitions/LastSavedBrowserSessionId"
+	LastUpdatedAt!:             _#defs."/$defs/Properties/definitions/LastUpdatedAt"
+	Name!:                      _#defs."/$defs/Properties/definitions/BrowserProfileName"
+	ProfileArn!:                _#defs."/$defs/Properties/definitions/BrowserProfileArn"
+	ProfileId!:                 _#defs."/$defs/Properties/definitions/BrowserProfileId"
+	Status!:                    _#defs."/$defs/Properties/definitions/BrowserProfileStatus"
 }) |
 fn.#ObjectExpression
 

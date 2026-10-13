@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,16 +20,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w\\- ]*$" | fn.#StringExpression
 	OnExceptionSteps?: list.MaxItems(8) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/WorkflowStep" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/WorkflowStep"
 	] |
 		fn.#ListExpression
-	Steps!: list.MaxItems(8) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/WorkflowStep" | fn.#ObjectExpression
-	] |
+	Steps!: list.MaxItems(8) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/WorkflowStep"] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
@@ -39,13 +39,13 @@ _#defs: "/$defs/Properties/definitions/EfsInputFileLocation": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InputFileLocation": close({
-	EfsFileLocation?: _#defs."/$defs/Properties/definitions/EfsInputFileLocation" | fn.#ObjectExpression
-	S3FileLocation?:  _#defs."/$defs/Properties/definitions/S3InputFileLocation" | fn.#ObjectExpression
+	EfsFileLocation?: _#defs."/$defs/Properties/definitions/EfsInputFileLocation"
+	S3FileLocation?:  _#defs."/$defs/Properties/definitions/S3InputFileLocation"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/S3FileLocation": close(
-	{S3FileLocation?: _#defs."/$defs/Properties/definitions/S3InputFileLocation" | fn.#ObjectExpression},
+	{S3FileLocation?: _#defs."/$defs/Properties/definitions/S3InputFileLocation"},
 ) |
 	fn.#ObjectExpression
 
@@ -70,7 +70,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WorkflowStep": close({
 	CopyStepDetails?: close({
-		DestinationFileLocation?: _#defs."/$defs/Properties/definitions/S3FileLocation" | fn.#ObjectExpression
+		DestinationFileLocation?: _#defs."/$defs/Properties/definitions/S3FileLocation"
 		Name?:                    strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" | fn.#StringExpression
 		OverwriteExisting?:       "TRUE" | "FALSE" | fn.#StringExpression
 		SourceFileLocation?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" |
@@ -81,12 +81,29 @@ _#defs: "/$defs/Properties/definitions/WorkflowStep": close({
 		Name?: strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" | fn.#StringExpression
 		SourceFileLocation?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" |
 		fn.#StringExpression
-		Target?:         strings.MaxRunes(170) & strings.MinRunes(0) & =~"arn:[a-z-]+:lambda:.*$" | fn.#StringExpression
-		TimeoutSeconds?: int & <=1800 & >=1 | fn.#NumberExpression
+		Target?: strings.MaxRunes(170) & strings.MinRunes(0) & =~"arn:[a-z-]+:lambda:.*$" | fn.#StringExpression
+		TimeoutSeconds?: int & <=1800 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=1800 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
 	DecryptStepDetails?: close({
-		DestinationFileLocation!: _#defs."/$defs/Properties/definitions/InputFileLocation" | fn.#ObjectExpression
+		DestinationFileLocation!: _#defs."/$defs/Properties/definitions/InputFileLocation"
 		Name?:                    strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" | fn.#StringExpression
 		OverwriteExisting?:       "TRUE" | "FALSE" | fn.#StringExpression
 		SourceFileLocation?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" |
@@ -105,7 +122,7 @@ _#defs: "/$defs/Properties/definitions/WorkflowStep": close({
 		SourceFileLocation?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" |
 		fn.#StringExpression
 		Tags?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-			..._#defs."/$defs/Properties/definitions/S3Tag" | fn.#ObjectExpression
+			..._#defs."/$defs/Properties/definitions/S3Tag"
 		] |
 			fn.#ListExpression
 	}) |

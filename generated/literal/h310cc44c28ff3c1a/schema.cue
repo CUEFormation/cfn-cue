@@ -14,7 +14,8 @@ import (
 	// The Amazon Resource Name (ARN) of the role to allocate the
 	// TransitVifAllocation. Needs directconnect:AllocateTransitVirtualInterface
 	// permissions and tag permissions if applicable.
-	AllocateTransitVirtualInterfaceRoleArn?: =~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$"
+	AllocateTransitVirtualInterfaceRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$"
 
 	// The BGP peers configured on this virtual interface..
 	BgpPeers!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
@@ -22,11 +23,11 @@ import (
 	]
 
 	// The ID or ARN of the connection or LAG.
-	ConnectionId!: (string | string | string | string) &
+	ConnectionId!: string &
 		=~"^((arn:aws[a-z-]*:directconnect:[a-z0-9-]+:[0-9]{12}:(dxcon/dxcon|dxlag/dxlag))|dx(con|lag))-[a-z0-9A-Z]{8,21}$"
 
 	// The ID or ARN of the Direct Connect gateway.
-	DirectConnectGatewayId!: (string | string) &
+	DirectConnectGatewayId!: string &
 		=~"^(arn:aws[a-z-]*:directconnect::[0-9]{12}:dx-gateway/)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 
 	// Indicates whether to enable or disable SiteLink.

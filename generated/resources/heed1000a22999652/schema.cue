@@ -24,11 +24,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"GitLabSelfManaged" |
 		"AzureDevOps" |
 		fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration" | fn.#ObjectExpression
+	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
@@ -39,7 +37,11 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
 	SecurityGroupIds!: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(20) & strings.MinRunes(11) & =~"^sg-\\w{8}(\\w{9})?$" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(20) &
+		strings.MinRunes(11) &
+		=~"^sg-\\w{8}(\\w{9})?$" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SubnetIds!: list.MaxItems(10) & list.MinItems(1) & [
@@ -47,7 +49,11 @@ _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
 	] |
 	fn.#ListExpression
 	TlsCertificate?: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	VpcId!:          strings.MaxRunes(21) & strings.MinRunes(12) & =~"^vpc-\\w{8}(\\w{9})?$" | fn.#StringExpression
+	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(21) &
+	strings.MinRunes(12) &
+	=~"^vpc-\\w{8}(\\w{9})?$" |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

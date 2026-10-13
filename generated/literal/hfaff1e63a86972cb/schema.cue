@@ -48,7 +48,8 @@ import (
 
 _#defs: "/$defs/Properties/definitions/ChatbotNotificationChannel": close({
 	ChatConfigurationArns?: list.UniqueItems() & [...string]
-	SNSTopicArn?:           strings.MaxRunes(2048) & strings.MinRunes(20)
+	SNSTopicArn?:
+		=~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
 _#defs: "/$defs/Properties/definitions/CrossAccountConfiguration": close(
@@ -57,14 +58,17 @@ _#defs: "/$defs/Properties/definitions/CrossAccountConfiguration": close(
 
 _#defs: "/$defs/Properties/definitions/EncryptionConfigMap": close({
 	EncryptionConfigurationType?: strings.MaxRunes(128) & strings.MinRunes(1)
-	KmsKeyId?:                    (string | string | string) & (strings.MaxRunes(256) & strings.MinRunes(1))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(256) & strings.MinRunes(1))
 })
 
 // The Investigation Group's ARN.
 _#defs: "/$defs/Properties/definitions/InvestigationGroupArn": strings.MaxRunes(2048) & strings.MinRunes(20)
 
 // The Investigation Role's ARN.
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*$"
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+strings.MaxRunes(2048) &
+strings.MinRunes(20) &
+=~"^arn:.*$"
 
 // User friendly name for resources.
 _#defs: "/$defs/Properties/definitions/StringWithPatternAndLengthLimits": strings.MaxRunes(512) &

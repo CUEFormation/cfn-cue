@@ -33,7 +33,7 @@ strings.MinRunes(0) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TagValueList": list.MaxItems(1000) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/LFTagValue" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/LFTagValue"
 ] |
 	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {

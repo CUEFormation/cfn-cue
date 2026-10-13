@@ -15,16 +15,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Location::Tracker Resource Type
 #Properties: close({
-	Description?:                   strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	EventBridgeEnabled?:            bool | fn.#BooleanExpression
-	KmsKeyEnableGeospatialQueries?: bool | fn.#BooleanExpression
-	KmsKeyId?: (string | string | string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) | fn.#StringExpression
-	PositionFiltering?:     _#defs."/$defs/Properties/definitions/PositionFiltering" | fn.#StringExpression
-	PricingPlan?:           _#defs."/$defs/Properties/definitions/PricingPlan" | fn.#StringExpression
+	Description?:        strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
+	EventBridgeEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KmsKeyEnableGeospatialQueries?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	fn.#StringExpression
+	PositionFiltering?:     _#defs."/$defs/Properties/definitions/PositionFiltering"
+	PricingPlan?:           _#defs."/$defs/Properties/definitions/PricingPlan"
 	PricingPlanDataSource?: string | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	TrackerName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
 })

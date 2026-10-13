@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,82 +18,191 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::S3Tables::Table
 #Properties: close({
-	Compaction?:                _#defs."/$defs/Properties/definitions/Compaction" | fn.#ObjectExpression
-	IcebergMetadata?:           _#defs."/$defs/Properties/definitions/IcebergMetadata" | fn.#ObjectExpression
-	Namespace!:                 _#defs."/$defs/Properties/definitions/Namespace" | fn.#StringExpression
-	OpenTableFormat!:           _#defs."/$defs/Properties/definitions/OpenTableFormat" | fn.#StringExpression
-	SnapshotManagement?:        _#defs."/$defs/Properties/definitions/SnapshotManagement" | fn.#ObjectExpression
-	StorageClassConfiguration?: _#defs."/$defs/Properties/definitions/StorageClassConfiguration" | fn.#ObjectExpression
-	TableBucketARN!:            _#defs."/$defs/Properties/definitions/TableBucketARN" | fn.#StringExpression
-	TableName!:                 _#defs."/$defs/Properties/definitions/TableName" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	WithoutMetadata?: _#defs."/$defs/Properties/definitions/WithoutMetadata" | fn.#StringExpression
+	Compaction?:                _#defs."/$defs/Properties/definitions/Compaction"
+	IcebergMetadata?:           _#defs."/$defs/Properties/definitions/IcebergMetadata"
+	Namespace!:                 _#defs."/$defs/Properties/definitions/Namespace"
+	OpenTableFormat!:           _#defs."/$defs/Properties/definitions/OpenTableFormat"
+	SnapshotManagement?:        _#defs."/$defs/Properties/definitions/SnapshotManagement"
+	StorageClassConfiguration?: _#defs."/$defs/Properties/definitions/StorageClassConfiguration"
+	TableBucketARN!:            _#defs."/$defs/Properties/definitions/TableBucketARN"
+	TableName!:                 _#defs."/$defs/Properties/definitions/TableName"
+	Tags?:            list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	WithoutMetadata?: _#defs."/$defs/Properties/definitions/WithoutMetadata"
 })
 
 _#defs: "/$defs/Properties/definitions/Compaction": close({
-	Status?:           "enabled" | "disabled" | fn.#StringExpression
-	TargetFileSizeMB?: int & >=64 | fn.#NumberExpression
+	Status?: "enabled" | "disabled" | fn.#StringExpression
+	TargetFileSizeMB?: int & >=64 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=64,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergMetadata": close({
-	IcebergPartitionSpec?: _#defs."/$defs/Properties/definitions/IcebergPartitionSpec" | fn.#ObjectExpression
+	IcebergPartitionSpec?: _#defs."/$defs/Properties/definitions/IcebergPartitionSpec"
 	IcebergSchema?:        _#defs."/$defs/Properties/definitions/IcebergSchema" | fn.#ObjectExpression
 	IcebergSchemaV2?:      _#defs."/$defs/Properties/definitions/IcebergSchemaV2" | fn.#ObjectExpression
-	IcebergSortOrder?:     _#defs."/$defs/Properties/definitions/IcebergSortOrder" | fn.#ObjectExpression
-	TableProperties?:      _#defs."/$defs/Properties/definitions/TableProperties" | fn.#ObjectExpression
+	IcebergSortOrder?:     _#defs."/$defs/Properties/definitions/IcebergSortOrder"
+	TableProperties?:      _#defs."/$defs/Properties/definitions/TableProperties"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergPartitionField": close({
-	FieldId?:   int | fn.#NumberExpression
-	Name!:      string | fn.#StringExpression
-	SourceId!:  int | fn.#NumberExpression
+	FieldId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name!: string | fn.#StringExpression
+	SourceId!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Transform!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergPartitionFieldList": [
-	..._#defs."/$defs/Properties/definitions/IcebergPartitionField" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/IcebergPartitionField"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergPartitionSpec": close({
 	Fields!: _#defs."/$defs/Properties/definitions/IcebergPartitionFieldList" | fn.#ListExpression
-	SpecId?: int | fn.#NumberExpression
+	SpecId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergSchema": close(
-	{SchemaFieldList!: _#defs."/$defs/Properties/definitions/SchemaFieldList" | fn.#ListExpression},
+	{SchemaFieldList!: _#defs."/$defs/Properties/definitions/SchemaFieldList"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergSchemaV2": close({
-	IdentifierFieldIds?: [...int | fn.#NumberExpression] | fn.#ListExpression
-	SchemaId?:           int | fn.#NumberExpression
-	SchemaV2FieldList!:  _#defs."/$defs/Properties/definitions/SchemaV2FieldList" | fn.#ListExpression
-	SchemaV2FieldType!:  "struct" | fn.#StringExpression
+	IdentifierFieldIds?: [
+		...int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	] |
+		fn.#ListExpression
+	SchemaId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SchemaV2FieldList!: _#defs."/$defs/Properties/definitions/SchemaV2FieldList" | fn.#ListExpression
+	SchemaV2FieldType!: "struct" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergSortField": close({
 	Direction!: "asc" | "desc" | fn.#StringExpression
 	NullOrder!: "nulls-first" | "nulls-last" | fn.#StringExpression
-	SourceId!:  int | fn.#NumberExpression
+	SourceId!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Transform!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergSortFieldList": [
-	..._#defs."/$defs/Properties/definitions/IcebergSortField" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/IcebergSortField"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/IcebergSortOrder": close({
-	Fields!:  _#defs."/$defs/Properties/definitions/IcebergSortFieldList" | fn.#ListExpression
-	OrderId?: int | fn.#NumberExpression
+	Fields!: _#defs."/$defs/Properties/definitions/IcebergSortFieldList" | fn.#ListExpression
+	OrderId?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -99,36 +212,86 @@ fn.#StringExpression
 _#defs: "/$defs/Properties/definitions/OpenTableFormat": "ICEBERG" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/SchemaField": close({
-	Id?:       int | fn.#NumberExpression
+	Id?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Name!:     string | fn.#StringExpression
-	Required?: bool | fn.#BooleanExpression
+	Required?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Type!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaFieldList": [
-	..._#defs."/$defs/Properties/definitions/SchemaField" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/SchemaFieldList": [..._#defs."/$defs/Properties/definitions/SchemaField"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/SchemaV2Field": close({
-	Doc?:      string | fn.#StringExpression
-	Id!:       int | fn.#NumberExpression
+	Doc?: string | fn.#StringExpression
+	Id!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Name!:     string | fn.#StringExpression
-	Required!: bool | fn.#BooleanExpression
+	Required!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Type!:     string | {...} | fn.#ValueExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaV2FieldList": [
-	..._#defs."/$defs/Properties/definitions/SchemaV2Field" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/SchemaV2FieldList": [..._#defs."/$defs/Properties/definitions/SchemaV2Field"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/SnapshotManagement": close({
-	MaxSnapshotAgeHours?: int & >=1 | fn.#NumberExpression
-	MinSnapshotsToKeep?:  int & >=1 | fn.#NumberExpression
-	Status?:              "enabled" | "disabled" | fn.#StringExpression
+	MaxSnapshotAgeHours?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinSnapshotsToKeep?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Status?: "enabled" | "disabled" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

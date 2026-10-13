@@ -13,13 +13,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::MediaLive::EventBridgeRuleTemplate Resource Type
 #Properties: close({
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	EventTargets?: [..._#defs."/$defs/Properties/definitions/EventBridgeRuleTemplateTarget" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	EventType!:       _#defs."/$defs/Properties/definitions/EventBridgeRuleTemplateEventType" | fn.#StringExpression
+	Description?:     strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	EventTargets?:    [..._#defs."/$defs/Properties/definitions/EventBridgeRuleTemplateTarget"] | fn.#ListExpression
+	EventType!:       _#defs."/$defs/Properties/definitions/EventBridgeRuleTemplateEventType"
 	GroupIdentifier?: =~"^[^\\s]+$" | fn.#StringExpression
 	Name!:            strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-	Tags?:            _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
+	Tags?:            _#defs."/$defs/Properties/definitions/TagMap"
 })
 
 _#defs: "/$defs/Properties/definitions/EventBridgeRuleTemplateEventType": "MEDIALIVE_MULTIPLEX_ALERT" |

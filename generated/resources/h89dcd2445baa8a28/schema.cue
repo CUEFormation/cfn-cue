@@ -22,7 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	InputDefinition!:  _#defs."/$defs/Properties/definitions/InputDefinition" | fn.#ObjectExpression
 	InputDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	InputName?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Attribute": close({
@@ -35,7 +35,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InputDefinition": close({
 	Attributes!: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Attribute" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/Attribute"
 	] |
 		fn.#ListExpression
 }) |

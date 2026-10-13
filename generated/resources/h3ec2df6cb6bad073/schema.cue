@@ -28,75 +28,71 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	close({
 		InputParams?: matchN(1, [
 			_#defs."/$defs/Properties/definitions/S3Location",
-			list.MaxItems(10) & list.MinItems(1) & [
-				..._#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
-			],
+			list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/S3Location"],
 		]) |
 		fn.#ValueExpression
 	}) |
 	fn.#ValueExpression
-	RuleLocation!: _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
+	RuleLocation!: _#defs."/$defs/Properties/definitions/S3Location"
 	StackFilters?: close({
 		FilteringCriteria!: "ALL" | "ANY" | fn.#StringExpression
 		StackNames?: struct.MinFields(1) & close({
 			Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/StackName" | fn.#StringExpression
+				..._#defs."/$defs/Properties/definitions/StackName"
 			] |
 				fn.#ListExpression
 			Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/StackName" | fn.#StringExpression
+				..._#defs."/$defs/Properties/definitions/StackName"
 			] |
 				fn.#ListExpression
 		}) |
 		fn.#ObjectExpression
 		StackRoles?: struct.MinFields(1) & close({
 			Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/StackRole" | fn.#StringExpression
+				..._#defs."/$defs/Properties/definitions/StackRole"
 			] |
 				fn.#ListExpression
 			Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/StackRole" | fn.#StringExpression
+				..._#defs."/$defs/Properties/definitions/StackRole"
 			] |
 				fn.#ListExpression
 		}) |
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
-	TargetFilters?: matchN(1, [
+	TargetFilters?: fn.#Object & {...} & matchN(1, [
 		struct.MinFields(1) & close({
 			Actions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/Action" | fn.#StringExpression
+				..._#defs."/$defs/Properties/definitions/Action"
 			] |
 				fn.#ListExpression
 			InvocationPoints?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/InvocationPoint" | fn.#StringExpression
+				..._#defs."/$defs/Properties/definitions/InvocationPoint"
 			] |
 				fn.#ListExpression
 			TargetNames?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/TargetName" | fn.#StringExpression
+				..._#defs."/$defs/Properties/definitions/TargetName"
 			] |
 				fn.#ListExpression
 		}),
 		close({
 			Targets!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/HookTarget" | fn.#ObjectExpression
+				..._#defs."/$defs/Properties/definitions/HookTarget"
 			] |
 				fn.#ListExpression
 		})
-	]) & {[string]: fn.#Value} |
+	]) |
 	fn.#ObjectExpression
-	TargetOperations!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TargetOperation" | fn.#StringExpression
-	] |
+	TargetOperations!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetOperation"] |
 		fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Action": "CREATE" | "UPDATE" | "DELETE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/HookTarget": close({
-	Action!:          _#defs."/$defs/Properties/definitions/Action" | fn.#StringExpression
-	InvocationPoint!: _#defs."/$defs/Properties/definitions/InvocationPoint" | fn.#StringExpression
-	TargetName!:      _#defs."/$defs/Properties/definitions/TargetName" | fn.#StringExpression
+	Action!:          _#defs."/$defs/Properties/definitions/Action"
+	InvocationPoint!: _#defs."/$defs/Properties/definitions/InvocationPoint"
+	TargetName!:      _#defs."/$defs/Properties/definitions/TargetName"
 }) |
 fn.#ObjectExpression
 

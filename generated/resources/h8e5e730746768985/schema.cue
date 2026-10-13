@@ -16,21 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ClusterName!:                string | fn.#StringExpression
 	IdentityProviderConfigName?: string | fn.#StringExpression
-	Oidc?: _#defs."/$defs/Properties/definitions/OidcIdentityProviderConfig" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Oidc?:                       _#defs."/$defs/Properties/definitions/OidcIdentityProviderConfig"
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Type!: "oidc" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/OidcIdentityProviderConfig": close({
-	ClientId!:     string | fn.#StringExpression
-	GroupsClaim?:  string | fn.#StringExpression
-	GroupsPrefix?: string | fn.#StringExpression
-	IssuerUrl!:    string | fn.#StringExpression
-	RequiredClaims?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/RequiredClaim" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	ClientId!:       string | fn.#StringExpression
+	GroupsClaim?:    string | fn.#StringExpression
+	GroupsPrefix?:   string | fn.#StringExpression
+	IssuerUrl!:      string | fn.#StringExpression
+	RequiredClaims?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RequiredClaim"] | fn.#ListExpression
 	UsernameClaim?:  string | fn.#StringExpression
 	UsernamePrefix?: string | fn.#StringExpression
 }) |

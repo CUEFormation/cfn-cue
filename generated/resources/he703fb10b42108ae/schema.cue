@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -37,10 +41,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"WINDOWS_FULL_2022_x86_64" |
 		"WINDOWS_FULL_2025_x86_64" |
 		fn.#StringExpression
-	CapacityType?:       "CAPACITY_BLOCK" | "ON_DEMAND" | "OnDemand" | "SPOT" | fn.#StringExpression
-	ClusterName!:        strings.MinRunes(1) | fn.#StringExpression
-	DiskSize?:           int | fn.#NumberExpression
-	ForceUpdateEnabled?: bool | fn.#BooleanExpression
+	CapacityType?: "CAPACITY_BLOCK" | "ON_DEMAND" | "OnDemand" | "SPOT" | fn.#StringExpression
+	ClusterName!:  strings.MinRunes(1) | fn.#StringExpression
+	DiskSize?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ForceUpdateEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InstanceTypes?:      [...string | fn.#StringExpression] | fn.#ListExpression
 	Labels?: close({
 
@@ -58,7 +75,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Taints?:         [..._#defs."/$defs/Properties/definitions/Taint" | fn.#ObjectExpression] | fn.#ListExpression
+	Taints?:         [..._#defs."/$defs/Properties/definitions/Taint"] | fn.#ListExpression
 	UpdateConfig?:   _#defs."/$defs/Properties/definitions/UpdateConfig" | fn.#ObjectExpression
 	Version?:        string | fn.#StringExpression
 	WarmPoolConfig?: _#defs."/$defs/Properties/definitions/WarmPoolConfig" | fn.#ObjectExpression
@@ -72,20 +89,90 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NodeRepairConfig": close({
-	Enabled?:                             bool | fn.#BooleanExpression
-	MaxParallelNodesRepairedCount?:       int & >=1 | fn.#NumberExpression
-	MaxParallelNodesRepairedPercentage?:  int & <=100 & >=1 | fn.#NumberExpression
-	MaxUnhealthyNodeThresholdCount?:      int & >=1 | fn.#NumberExpression
-	MaxUnhealthyNodeThresholdPercentage?: int & <=100 & >=1 | fn.#NumberExpression
-	NodeRepairConfigOverrides?: [
-		..._#defs."/$defs/Properties/definitions/NodeRepairConfigOverrides" | fn.#ObjectExpression
-	] |
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MaxParallelNodesRepairedCount?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxParallelNodesRepairedPercentage?: int & <=100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxUnhealthyNodeThresholdCount?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxUnhealthyNodeThresholdPercentage?: int & <=100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	NodeRepairConfigOverrides?: [..._#defs."/$defs/Properties/definitions/NodeRepairConfigOverrides"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NodeRepairConfigOverrides": close({
-	MinRepairWaitTimeMins?:   int & >=1 | fn.#NumberExpression
+	MinRepairWaitTimeMins?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	NodeMonitoringCondition?: string | fn.#StringExpression
 	NodeUnhealthyReason?:     string | fn.#StringExpression
 	RepairAction?:            "Replace" | "Reboot" | "NoAction" | fn.#StringExpression
@@ -99,9 +186,51 @@ _#defs: "/$defs/Properties/definitions/RemoteAccess": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScalingConfig": close({
-	DesiredSize?: int & >=0 | fn.#NumberExpression
-	MaxSize?:     int & >=1 | fn.#NumberExpression
-	MinSize?:     int & >=0 | fn.#NumberExpression
+	DesiredSize?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxSize?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinSize?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -113,18 +242,83 @@ _#defs: "/$defs/Properties/definitions/Taint": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UpdateConfig": close({
-	MaxUnavailable?:           >=1 | fn.#NumberExpression
-	MaxUnavailablePercentage?: <=100 & >=1 | fn.#NumberExpression
-	UpdateStrategy?:           "DEFAULT" | "MINIMAL" | fn.#StringExpression
+	MaxUnavailable?: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxUnavailablePercentage?: <=100 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=100 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	UpdateStrategy?: "DEFAULT" | "MINIMAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WarmPoolConfig": close({
-	Enabled?:                  bool | fn.#BooleanExpression
-	MaxGroupPreparedCapacity?: int & >=-1 | fn.#NumberExpression
-	MinSize?:                  int & >=0 | fn.#NumberExpression
-	PoolState?:                "HIBERNATED" | "RUNNING" | "STOPPED" | fn.#StringExpression
-	ReuseOnScaleIn?:           bool | fn.#BooleanExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MaxGroupPreparedCapacity?: int & >=-1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=-1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinSize?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PoolState?:      "HIBERNATED" | "RUNNING" | "STOPPED" | fn.#StringExpression
+	ReuseOnScaleIn?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

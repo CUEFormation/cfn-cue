@@ -763,7 +763,7 @@ import (
 	// in the *Amazon RDS User Guide*.
 	// *Amazon Aurora*
 	// Not applicable. The KMS key identifier is managed by the DB cluster.
-	KmsKeyId?:             string | string | string
+	KmsKeyId?:             =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 	LatestRestorableTime?: time.Time
 
 	// License model information for this DB instance.
@@ -904,7 +904,7 @@ import (
 	// If ``MonitoringInterval`` is set to a value other than ``0``, then you must
 	// supply a ``MonitoringRoleArn`` value.
 	// This setting doesn't apply to RDS Custom DB instances.
-	MonitoringRoleArn?: string
+	MonitoringRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Specifies whether the DB instance is a Multi-AZ deployment. You can't set the
 	// ``AvailabilityZone`` parameter if the DB instance is a Multi-AZ deployment.
@@ -1313,7 +1313,7 @@ _#defs: "/$defs/Properties/definitions/DBInstanceRole": close({
 	FeatureName!: string
 
 	// The Amazon Resource Name (ARN) of the IAM role that is associated with the DB instance.
-	RoleArn!: string
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 // Provides a list of status information for a DB instance.
@@ -1363,7 +1363,7 @@ _#defs: "/$defs/Properties/definitions/Endpoint": close({
 // in the *Amazon Aurora User Guide.*
 _#defs: "/$defs/Properties/definitions/MasterUserSecret": close({
 	// The AWS KMS key identifier that is used to encrypt the secret.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The Amazon Resource Name (ARN) of the secret. This parameter is a return
 	// value that you can retrieve using the ``Fn::GetAtt`` intrinsic function. For

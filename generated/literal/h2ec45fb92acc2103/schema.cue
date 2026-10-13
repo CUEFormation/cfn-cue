@@ -122,7 +122,10 @@ strings.MinRunes(32) &
 =~"^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|.*\\S.*)$"
 
 // The Amazon Resource Name (ARN) of the IAM user or role.
-_#defs: "/$defs/Properties/definitions/IamArn": strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*:iam:.*"
+_#defs: "/$defs/Properties/definitions/IamArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+strings.MaxRunes(2048) &
+strings.MinRunes(20) &
+=~"^arn:.*:iam:.*"
 
 // The wrapper that contains AWS Audit Manager role information, such as the role type and IAM ARN.
 _#defs: "/$defs/Properties/definitions/Role": close({

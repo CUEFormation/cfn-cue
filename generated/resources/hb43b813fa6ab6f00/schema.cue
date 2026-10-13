@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -32,13 +36,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Ipv4IpamPoolId!: _
 	}
 	{}
-	CidrBlock?:           string | fn.#StringExpression
-	EnableDnsHostnames?:  bool | fn.#BooleanExpression
-	EnableDnsSupport?:    bool | fn.#BooleanExpression
-	InstanceTenancy?:     "dedicated" | "default" | "host" | fn.#StringExpression
-	"Ipv4IpamPoolId"?:    string | fn.#StringExpression
-	"Ipv4NetmaskLength"?: int | fn.#NumberExpression
-	Tags?:                [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	CidrBlock?:          string | fn.#StringExpression
+	EnableDnsHostnames?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableDnsSupport?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InstanceTenancy?:    "dedicated" | "default" | "host" | fn.#StringExpression
+	"Ipv4IpamPoolId"?:   string | fn.#StringExpression
+	"Ipv4NetmaskLength"?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VpcEncryptionControl?: close({
 		EgressOnlyInternetGatewayExclusion?: "enable" | "disable" | fn.#StringExpression
 		ElasticFileSystemExclusion?:         "enable" | "disable" | fn.#StringExpression
@@ -71,9 +88,10 @@ _#defs: "/$defs/Properties/definitions/VpcEncryptionControl": close({
 	StateMessage?:       string | fn.#StringExpression
 	VirtualPrivateGatewayExclusion?: "enable" | "disable" | fn.#StringExpression
 	VpcEncryptionControlId?:         string | fn.#StringExpression
-	VpcId?:                          string | fn.#StringExpression
-	VpcLatticeExclusion?:            "enable" | "disable" | fn.#StringExpression
-	VpcPeeringExclusion?:            "enable" | "disable" | fn.#StringExpression
+	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	VpcLatticeExclusion?: "enable" | "disable" | fn.#StringExpression
+	VpcPeeringExclusion?: "enable" | "disable" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

@@ -18,7 +18,7 @@ import (
 	DisplayName!:   strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
 	RetrieverArn?:  strings.MaxRunes(1284) & strings.MinRunes(0)
 	RetrieverId?:   strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"
-	RoleArn?:       strings.MaxRunes(1284) & strings.MinRunes(0)
+	RoleArn?:       =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
 	Status?:        _#defs."/$defs/Properties/definitions/RetrieverStatus"
 	Tags?:          list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
 	Type!:          _#defs."/$defs/Properties/definitions/RetrieverType"

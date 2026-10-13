@@ -8,42 +8,60 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::FSx::DataRepositoryAssociation
 #Properties: close({
-	BatchImportMetaDataOnCreate?: bool | fn.#BooleanExpression
+	BatchImportMetaDataOnCreate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DataRepositoryPath!:          strings.MaxRunes(4357) & strings.MinRunes(3) | fn.#StringExpression
-	FileSystemId!:          strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" | fn.#StringExpression
-	FileSystemPath!:        strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	ImportedFileChunkSize?: int & <=512000 & >=1 | fn.#NumberExpression
-	S3?:                    _#defs."/$defs/Properties/definitions/S3" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	FileSystemId!:   strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" | fn.#StringExpression
+	FileSystemPath!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	ImportedFileChunkSize?: int & <=512000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=512000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	S3?:   _#defs."/$defs/Properties/definitions/S3" | fn.#ObjectExpression
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AutoExportPolicy": close(
-	{Events!: _#defs."/$defs/Properties/definitions/EventTypes" | fn.#ListExpression},
+	{Events!: _#defs."/$defs/Properties/definitions/EventTypes"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AutoImportPolicy": close(
-	{Events!: _#defs."/$defs/Properties/definitions/EventTypes" | fn.#ListExpression},
+	{Events!: _#defs."/$defs/Properties/definitions/EventTypes"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EventType": "NEW" | "CHANGED" | "DELETED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/EventTypes": list.MaxItems(3) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/EventType" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/EventType"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/S3": close({
-	AutoExportPolicy?: _#defs."/$defs/Properties/definitions/AutoExportPolicy" | fn.#ObjectExpression
-	AutoImportPolicy?: _#defs."/$defs/Properties/definitions/AutoImportPolicy" | fn.#ObjectExpression
+	AutoExportPolicy?: _#defs."/$defs/Properties/definitions/AutoExportPolicy"
+	AutoImportPolicy?: _#defs."/$defs/Properties/definitions/AutoImportPolicy"
 }) |
 fn.#ObjectExpression
 

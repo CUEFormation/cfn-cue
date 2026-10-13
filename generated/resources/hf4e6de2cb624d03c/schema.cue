@@ -7,26 +7,60 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53GlobalResolver::FirewallRule
 #Properties: close({
-	Action!:                _#defs."/$defs/Properties/definitions/FirewallRuleAction" | fn.#StringExpression
-	BlockOverrideDnsType?:  _#defs."/$defs/Properties/definitions/BlockOverrideDnsQueryType" | fn.#StringExpression
-	BlockOverrideDomain?:   _#defs."/$defs/Properties/definitions/Domain" | fn.#StringExpression
-	BlockOverrideTtl?:      int & <=604800 & >=0 | fn.#NumberExpression
-	BlockResponse?:         _#defs."/$defs/Properties/definitions/FirewallBlockResponse" | fn.#StringExpression
+	Action!:               _#defs."/$defs/Properties/definitions/FirewallRuleAction"
+	BlockOverrideDnsType?: _#defs."/$defs/Properties/definitions/BlockOverrideDnsQueryType"
+	BlockOverrideDomain?:  _#defs."/$defs/Properties/definitions/Domain"
+	BlockOverrideTtl?: int & <=604800 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=604800 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	BlockResponse?:         _#defs."/$defs/Properties/definitions/FirewallBlockResponse"
 	ClientToken?:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ConfidenceThreshold?:   _#defs."/$defs/Properties/definitions/ConfidenceThreshold" | fn.#StringExpression
-	Description?:           _#defs."/$defs/Properties/definitions/ResourceDescription" | fn.#StringExpression
-	DnsAdvancedProtection?: _#defs."/$defs/Properties/definitions/DnsAdvancedProtection" | fn.#StringExpression
+	ConfidenceThreshold?:   _#defs."/$defs/Properties/definitions/ConfidenceThreshold"
+	Description?:           _#defs."/$defs/Properties/definitions/ResourceDescription"
+	DnsAdvancedProtection?: _#defs."/$defs/Properties/definitions/DnsAdvancedProtection"
 	DnsViewId!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
 	FirewallDomainListId?:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
-	Name!:                  _#defs."/$defs/Properties/definitions/ResourceName" | fn.#StringExpression
-	Priority?:              int & <=10000 & >=1 | fn.#NumberExpression
-	QType?:                 strings.MaxRunes(16) & strings.MinRunes(0) | fn.#StringExpression
+	Name!:                  _#defs."/$defs/Properties/definitions/ResourceName"
+	Priority?: int & <=10000 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=10000 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	QType?: strings.MaxRunes(16) & strings.MinRunes(0) | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/BlockOverrideDnsQueryType": "CNAME" | fn.#StringExpression

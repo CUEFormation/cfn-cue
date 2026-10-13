@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -34,7 +38,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/CertificatePolicyList": [
-	..._#defs."/$defs/Properties/definitions/PolicyInformation" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/PolicyInformation"
 ] |
 	fn.#ListExpression
 
@@ -44,21 +48,17 @@ _#defs: "/$defs/Properties/definitions/CustomAttribute": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomAttributeList": [
-	..._#defs."/$defs/Properties/definitions/CustomAttribute" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/CustomAttributeList": [..._#defs."/$defs/Properties/definitions/CustomAttribute"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/CustomExtension": close({
-	Critical?:         bool | fn.#BooleanExpression
+	Critical?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ObjectIdentifier!: _#defs."/$defs/Properties/definitions/CustomObjectIdentifier" | fn.#StringExpression
 	Value!:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomExtensionList": [
-	..._#defs."/$defs/Properties/definitions/CustomExtension" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/CustomExtensionList": [..._#defs."/$defs/Properties/definitions/CustomExtension"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/CustomObjectIdentifier": string | fn.#StringExpression
@@ -79,7 +79,7 @@ _#defs: "/$defs/Properties/definitions/ExtendedKeyUsage": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExtendedKeyUsageList": [
-	..._#defs."/$defs/Properties/definitions/ExtendedKeyUsage" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/ExtendedKeyUsage"
 ] |
 	fn.#ListExpression
 
@@ -104,23 +104,21 @@ _#defs: "/$defs/Properties/definitions/GeneralName": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GeneralNameList": [
-	..._#defs."/$defs/Properties/definitions/GeneralName" | fn.#ObjectExpression
-] |
+_#defs: "/$defs/Properties/definitions/GeneralNameList": [..._#defs."/$defs/Properties/definitions/GeneralName"] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/IpAddress": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/KeyUsage": close({
-	CRLSign?:          bool | fn.#BooleanExpression
-	DataEncipherment?: bool | fn.#BooleanExpression
-	DecipherOnly?:     bool | fn.#BooleanExpression
-	DigitalSignature?: bool | fn.#BooleanExpression
-	EncipherOnly?:     bool | fn.#BooleanExpression
-	KeyAgreement?:     bool | fn.#BooleanExpression
-	KeyCertSign?:      bool | fn.#BooleanExpression
-	KeyEncipherment?:  bool | fn.#BooleanExpression
-	NonRepudiation?:   bool | fn.#BooleanExpression
+	CRLSign?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DataEncipherment?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DecipherOnly?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DigitalSignature?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EncipherOnly?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KeyAgreement?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KeyCertSign?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KeyEncipherment?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NonRepudiation?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -143,7 +141,7 @@ _#defs: "/$defs/Properties/definitions/PolicyQualifierInfo": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PolicyQualifierInfoList": [
-	..._#defs."/$defs/Properties/definitions/PolicyQualifierInfo" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/PolicyQualifierInfo"
 ] |
 	fn.#ListExpression
 
@@ -174,8 +172,26 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/UniformResourceIdentifier": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Validity": close({
-	Type!:  string | fn.#StringExpression
-	Value!: number | fn.#NumberExpression
+	Type!: string | fn.#StringExpression
+	Value!: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

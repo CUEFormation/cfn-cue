@@ -15,10 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // default one will be associated with your distribution tenant.
 #Properties: close({
 	AnycastIpListId?: string | fn.#StringExpression
-	Enabled?:         bool | fn.#BooleanExpression
-	Ipv6Enabled?:     bool | fn.#BooleanExpression
+	Enabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Ipv6Enabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!:            string | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

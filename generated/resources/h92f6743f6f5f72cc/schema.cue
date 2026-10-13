@@ -3,11 +3,15 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"time"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -15,11 +19,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::IoTFleetWise::Campaign Resource Type
 #Properties: close({
-	Action?:           _#defs."/$defs/Properties/definitions/UpdateCampaignAction" | fn.#StringExpression
-	CollectionScheme!: _#defs."/$defs/Properties/definitions/CollectionScheme" | fn.#ValueExpression
-	Compression?:      _#defs."/$defs/Properties/definitions/Compression" | fn.#StringExpression
+	Action?:           _#defs."/$defs/Properties/definitions/UpdateCampaignAction"
+	CollectionScheme!: _#defs."/$defs/Properties/definitions/CollectionScheme"
+	Compression?:      _#defs."/$defs/Properties/definitions/Compression"
 	DataDestinationConfigs?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataDestinationConfig" | fn.#ValueExpression
+		..._#defs."/$defs/Properties/definitions/DataDestinationConfig"
 	] |
 		fn.#ListExpression
 	DataExtraDimensions?: list.MaxItems(5) & [...] & [
@@ -27,30 +31,57 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	] |
 	fn.#ListExpression
 	DataPartitions?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/DataPartition" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/DataPartition"
 	] |
 		fn.#ListExpression
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression
-	DiagnosticsMode?: _#defs."/$defs/Properties/definitions/DiagnosticsMode" | fn.#StringExpression
+	DiagnosticsMode?: _#defs."/$defs/Properties/definitions/DiagnosticsMode"
 	ExpiryTime?:      time.Time | fn.#StringExpression
 	Name!:            strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
-	PostTriggerCollectionDuration?: <=4294967295 & >=0 | fn.#NumberExpression
-	Priority?:                      int & >=0 | fn.#NumberExpression
-	SignalCatalogArn!:              string | fn.#StringExpression
-	SignalsToCollect?: list.MaxItems(1000) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SignalInformation" | fn.#ObjectExpression
-	] |
+	PostTriggerCollectionDuration?: <=4294967295 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=4294967295 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Priority?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	SignalCatalogArn!: string | fn.#StringExpression
+	SignalsToCollect?: list.MaxItems(1000) & [...] & [..._#defs."/$defs/Properties/definitions/SignalInformation"] |
 		fn.#ListExpression
-	SignalsToFetch?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SignalFetchInformation" | fn.#ObjectExpression
-	] |
+	SignalsToFetch?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/SignalFetchInformation"] |
 		fn.#ListExpression
-	SpoolingMode?: _#defs."/$defs/Properties/definitions/SpoolingMode" | fn.#StringExpression
+	SpoolingMode?: _#defs."/$defs/Properties/definitions/SpoolingMode"
 	StartTime?:    time.Time | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	TargetArn!: string | fn.#StringExpression
 })
@@ -61,45 +92,63 @@ _#defs: "/$defs/Properties/definitions/CampaignStatus": "CREATING" |
 	"SUSPENDED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CollectionScheme": matchN(1, [close({
-	TimeBasedCollectionScheme!: _#defs."/$defs/Properties/definitions/TimeBasedCollectionScheme" | fn.#ObjectExpression
-}), close({
-	ConditionBasedCollectionScheme!: _#defs."/$defs/Properties/definitions/ConditionBasedCollectionScheme" |
-		fn.#ObjectExpression
-})]) |
+_#defs: "/$defs/Properties/definitions/CollectionScheme": matchN(1, [close(
+	{TimeBasedCollectionScheme!: _#defs."/$defs/Properties/definitions/TimeBasedCollectionScheme"},
+), close(
+	{ConditionBasedCollectionScheme!: _#defs."/$defs/Properties/definitions/ConditionBasedCollectionScheme"},
+)]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/Compression": "OFF" | "SNAPPY" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ConditionBasedCollectionScheme": close({
-	ConditionLanguageVersion?: _#defs."/$defs/Properties/definitions/LanguageVersion" | fn.#NumberExpression
-	Expression!:               _#defs."/$defs/Properties/definitions/EventExpression" | fn.#StringExpression
-	MinimumTriggerIntervalMs?: <=4294967295 & >=0 | fn.#NumberExpression
-	TriggerMode?:              _#defs."/$defs/Properties/definitions/TriggerMode" | fn.#StringExpression
+	ConditionLanguageVersion?: _#defs."/$defs/Properties/definitions/LanguageVersion"
+	Expression!:               _#defs."/$defs/Properties/definitions/EventExpression"
+	MinimumTriggerIntervalMs?: <=4294967295 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=4294967295 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TriggerMode?: _#defs."/$defs/Properties/definitions/TriggerMode"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConditionBasedSignalFetchConfig": close({
 	ConditionExpression!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	TriggerMode!:         _#defs."/$defs/Properties/definitions/TriggerMode" | fn.#StringExpression
+	TriggerMode!:         _#defs."/$defs/Properties/definitions/TriggerMode"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataDestinationConfig": matchN(1, [close(
-	{S3Config!: _#defs."/$defs/Properties/definitions/S3Config" | fn.#ObjectExpression},
+	{S3Config!: _#defs."/$defs/Properties/definitions/S3Config"},
 ), close(
-	{TimestreamConfig!: _#defs."/$defs/Properties/definitions/TimestreamConfig" | fn.#ObjectExpression},
+	{TimestreamConfig!: _#defs."/$defs/Properties/definitions/TimestreamConfig"},
 ), close(
-	{MqttTopicConfig!: _#defs."/$defs/Properties/definitions/MqttTopicConfig" | fn.#ObjectExpression},
+	{MqttTopicConfig!: _#defs."/$defs/Properties/definitions/MqttTopicConfig"},
 )]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/DataFormat": "JSON" | "PARQUET" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DataPartition": close({
-	Id!:             _#defs."/$defs/Properties/definitions/DataPartitionId" | fn.#StringExpression
-	StorageOptions!: _#defs."/$defs/Properties/definitions/DataPartitionStorageOptions" | fn.#ObjectExpression
-	UploadOptions?:  _#defs."/$defs/Properties/definitions/DataPartitionUploadOptions" | fn.#ObjectExpression
+	Id!:             _#defs."/$defs/Properties/definitions/DataPartitionId"
+	StorageOptions!: _#defs."/$defs/Properties/definitions/DataPartitionStorageOptions"
+	UploadOptions?:  _#defs."/$defs/Properties/definitions/DataPartitionUploadOptions"
 }) |
 fn.#ObjectExpression
 
@@ -109,15 +158,15 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/DataPartitionStorageOptions": close({
-	MaximumSize!:       _#defs."/$defs/Properties/definitions/StorageMaximumSize" | fn.#ObjectExpression
-	MinimumTimeToLive!: _#defs."/$defs/Properties/definitions/StorageMinimumTimeToLive" | fn.#ObjectExpression
-	StorageLocation!:   _#defs."/$defs/Properties/definitions/StorageLocation" | fn.#StringExpression
+	MaximumSize!:       _#defs."/$defs/Properties/definitions/StorageMaximumSize"
+	MinimumTimeToLive!: _#defs."/$defs/Properties/definitions/StorageMinimumTimeToLive"
+	StorageLocation!:   _#defs."/$defs/Properties/definitions/StorageLocation"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataPartitionUploadOptions": close({
-	ConditionLanguageVersion?: _#defs."/$defs/Properties/definitions/LanguageVersion" | fn.#NumberExpression
-	Expression!:               _#defs."/$defs/Properties/definitions/EventExpression" | fn.#StringExpression
+	ConditionLanguageVersion?: _#defs."/$defs/Properties/definitions/LanguageVersion"
+	Expression!:               _#defs."/$defs/Properties/definitions/EventExpression"
 }) |
 fn.#ObjectExpression
 
@@ -126,10 +175,26 @@ _#defs: "/$defs/Properties/definitions/DiagnosticsMode": "OFF" | "SEND_ACTIVE_DT
 _#defs: "/$defs/Properties/definitions/EventExpression": strings.MaxRunes(2048) & strings.MinRunes(1) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LanguageVersion": int & <=1 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/LanguageVersion": int & <=1 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=1 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/MqttTopicConfig": close({
-	ExecutionRoleArn!: strings.MaxRunes(2048) &
+	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$" |
 	fn.#StringExpression
@@ -140,16 +205,16 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/S3Config": close({
 	BucketArn!: strings.MaxRunes(100) & strings.MinRunes(16) & =~"^arn:(aws[a-zA-Z0-9-]*):s3:::.+$" |
 	fn.#StringExpression
-	DataFormat?: _#defs."/$defs/Properties/definitions/DataFormat" | fn.#StringExpression
+	DataFormat?: _#defs."/$defs/Properties/definitions/DataFormat"
 	Prefix?:     strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_:./!*'()]+$" | fn.#StringExpression
-	StorageCompressionFormat?: _#defs."/$defs/Properties/definitions/StorageCompressionFormat" | fn.#StringExpression
+	StorageCompressionFormat?: _#defs."/$defs/Properties/definitions/StorageCompressionFormat"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SignalFetchConfig": matchN(1, [close(
-	{TimeBased!: _#defs."/$defs/Properties/definitions/TimeBasedSignalFetchConfig" | fn.#ObjectExpression},
+	{TimeBased!: _#defs."/$defs/Properties/definitions/TimeBasedSignalFetchConfig"},
 ), close(
-	{ConditionBased!: _#defs."/$defs/Properties/definitions/ConditionBasedSignalFetchConfig" | fn.#ObjectExpression},
+	{ConditionBased!: _#defs."/$defs/Properties/definitions/ConditionBasedSignalFetchConfig"},
 )]) |
 fn.#ValueExpression
 
@@ -158,16 +223,73 @@ _#defs: "/$defs/Properties/definitions/SignalFetchInformation": close({
 		...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	ConditionLanguageVersion?: <=1 & >=1 | fn.#NumberExpression
-	FullyQualifiedName!:       strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" | fn.#StringExpression
-	SignalFetchConfig!:        _#defs."/$defs/Properties/definitions/SignalFetchConfig" | fn.#ValueExpression
+	ConditionLanguageVersion?: <=1 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=1 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FullyQualifiedName!: strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" | fn.#StringExpression
+	SignalFetchConfig!:  _#defs."/$defs/Properties/definitions/SignalFetchConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SignalInformation": close({
-	DataPartitionId?:           _#defs."/$defs/Properties/definitions/DataPartitionId" | fn.#StringExpression
-	MaxSampleCount?:            <=4294967295 & >=1 | fn.#NumberExpression
-	MinimumSamplingIntervalMs?: <=4294967295 & >=0 | fn.#NumberExpression
+	DataPartitionId?: _#defs."/$defs/Properties/definitions/DataPartitionId"
+	MaxSampleCount?: <=4294967295 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=4294967295 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinimumSamplingIntervalMs?: <=4294967295 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=4294967295 &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Name!: strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[\\w|*|-]+(\\.[\\w|*|-]+)*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -180,24 +302,54 @@ _#defs: "/$defs/Properties/definitions/StorageLocation": strings.MaxRunes(4096) 
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/StorageMaximumSize": close({
-	Unit!:  _#defs."/$defs/Properties/definitions/StorageMaximumSizeUnit" | fn.#StringExpression
-	Value!: _#defs."/$defs/Properties/definitions/StorageMaximumSizeValue" | fn.#NumberExpression
+	Unit!:  _#defs."/$defs/Properties/definitions/StorageMaximumSizeUnit"
+	Value!: _#defs."/$defs/Properties/definitions/StorageMaximumSizeValue"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StorageMaximumSizeUnit": "MB" | "GB" | "TB" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StorageMaximumSizeValue": int & <=1073741824 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/StorageMaximumSizeValue": int & <=1073741824 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=1073741824 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/StorageMinimumTimeToLive": close({
-	Unit!:  _#defs."/$defs/Properties/definitions/StorageMinimumTimeToLiveUnit" | fn.#StringExpression
-	Value!: _#defs."/$defs/Properties/definitions/StorageMinimumTimeToLiveValue" | fn.#NumberExpression
+	Unit!:  _#defs."/$defs/Properties/definitions/StorageMinimumTimeToLiveUnit"
+	Value!: _#defs."/$defs/Properties/definitions/StorageMinimumTimeToLiveValue"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StorageMinimumTimeToLiveUnit": "HOURS" | "DAYS" | "WEEKS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StorageMinimumTimeToLiveValue": int & <=10000 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/StorageMinimumTimeToLiveValue": int & <=10000 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=10000 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -205,26 +357,82 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeBasedCollectionScheme": close(
-	{PeriodMs!: <=86400000 & >=10000 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/TimeBasedCollectionScheme": close({
+	PeriodMs!: <=86400000 & >=10000 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=86400000 &
+							>=10000,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeBasedSignalFetchConfig": close(
-	{ExecutionFrequencyMs!: >=1 | fn.#NumberExpression},
-) |
+_#defs: "/$defs/Properties/definitions/TimeBasedSignalFetchConfig": close({
+	ExecutionFrequencyMs!: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TimePeriod": close({
-	Unit!:  _#defs."/$defs/Properties/definitions/TimeUnit" | fn.#StringExpression
-	Value!: >=1 | fn.#NumberExpression
+	Unit!: _#defs."/$defs/Properties/definitions/TimeUnit"
+	Value!: >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TimeUnit": "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TimestreamConfig": close({
-	ExecutionRoleArn!: strings.MaxRunes(2048) &
+	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$" |
 	fn.#StringExpression

@@ -8,35 +8,72 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An OpenSearch Ingestion Service Data Prepper pipeline running Data Prepper.
 #Properties: close({
-	BufferOptions?:             _#defs."/$defs/Properties/definitions/BufferOptions" | fn.#ObjectExpression
-	EncryptionAtRestOptions?:   _#defs."/$defs/Properties/definitions/EncryptionAtRestOptions" | fn.#ObjectExpression
-	LogPublishingOptions?:      _#defs."/$defs/Properties/definitions/LogPublishingOptions" | fn.#ObjectExpression
-	MaxUnits!:                  int & <=384 & >=1 | fn.#NumberExpression
-	MinUnits!:                  int & <=384 & >=1 | fn.#NumberExpression
+	BufferOptions?:           _#defs."/$defs/Properties/definitions/BufferOptions"
+	EncryptionAtRestOptions?: _#defs."/$defs/Properties/definitions/EncryptionAtRestOptions"
+	LogPublishingOptions?:    _#defs."/$defs/Properties/definitions/LogPublishingOptions"
+	MaxUnits!: int & <=384 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=384 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinUnits!: int & <=384 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=384 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	PipelineConfigurationBody!: strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression
 	PipelineName!: strings.MaxRunes(28) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+" | fn.#StringExpression
-	PipelineRoleArn?: strings.MaxRunes(2048) &
+	PipelineRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws\\-cn|aws\\-us\\-gov|aws\\-iso|aws\\-iso\\-b|aws\\-iso\\-e|aws\\-iso\\-f):iam::[0-9]+:role\\/.*$" |
 	fn.#StringExpression
-	ResourcePolicy?: _#defs."/$defs/Properties/definitions/ResourcePolicy" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	VpcOptions?: _#defs."/$defs/Properties/definitions/VpcOptions" | fn.#ObjectExpression
+	ResourcePolicy?: _#defs."/$defs/Properties/definitions/ResourcePolicy"
+	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	VpcOptions?:     _#defs."/$defs/Properties/definitions/VpcOptions"
 })
 
-_#defs: "/$defs/Properties/definitions/BufferOptions": close({PersistentBufferEnabled!: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/BufferOptions": close(
+	{PersistentBufferEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionAtRestOptions": close(
-	{KmsKeyArn!: strings.MaxRunes(2048) & strings.MinRunes(7) | fn.#StringExpression},
-) |
+_#defs: "/$defs/Properties/definitions/EncryptionAtRestOptions": close({
+	KmsKeyArn!: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(7)) |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LogPublishingOptions": close({
@@ -45,12 +82,12 @@ _#defs: "/$defs/Properties/definitions/LogPublishingOptions": close({
 		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	IsLoggingEnabled?: bool | fn.#BooleanExpression
+	IsLoggingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourcePolicy": close({Policy!: {[string]: fn.#Value} | fn.#ObjectExpression}) |
-	fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/ResourcePolicy": close({Policy!: fn.#Object & {...} | fn.#ObjectExpression}) |
+fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -60,14 +97,19 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcEndpoint": close({
 	VpcEndpointId?: string | fn.#StringExpression
-	VpcId?:         string | fn.#StringExpression
-	VpcOptions?:    _#defs."/$defs/Properties/definitions/VpcOptions" | fn.#ObjectExpression
+	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
+	VpcOptions?: _#defs."/$defs/Properties/definitions/VpcOptions"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcOptions": close({
 	SecurityGroupIds?: list.MaxItems(12) & list.MinItems(1) & [
-		...strings.MaxRunes(20) & strings.MinRunes(11) & =~"sg-\\w{8}(\\w{9})?" | fn.#StringExpression
+		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(20) &
+		strings.MinRunes(11) &
+		=~"sg-\\w{8}(\\w{9})?" |
+		fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SubnetIds!: list.MaxItems(12) & list.MinItems(1) & [
@@ -75,7 +117,7 @@ _#defs: "/$defs/Properties/definitions/VpcOptions": close({
 	] |
 	fn.#ListExpression
 	VpcAttachmentOptions?: close({
-		AttachToVpc!: bool | fn.#BooleanExpression
+		AttachToVpc!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		CidrBlock!: =~"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[12]?[0-9])$" |
 			fn.#StringExpression
 	}) |

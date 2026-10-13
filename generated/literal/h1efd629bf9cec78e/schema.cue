@@ -25,7 +25,10 @@ import (
 	InstanceRequirements?: _#defs."/$defs/Properties/definitions/InstanceRequirements"
 
 	// The ARN of the KMS key used to encrypt the capacity provider's resources.
-	KmsKeyArn?: strings.MaxRunes(10000) & strings.MinRunes(0) & =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(10000) &
+	strings.MinRunes(0) &
+	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
 
 	// The permissions configuration for the capacity provider.
 	PermissionsConfig!: _#defs."/$defs/Properties/definitions/CapacityProviderPermissionsConfig"
@@ -68,7 +71,8 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderLoggingConfig": close({
 _#defs: "/$defs/Properties/definitions/CapacityProviderPermissionsConfig": close({
 	// The ARN of the IAM role that the capacity provider uses to manage compute
 	// instances and other AWS resources.
-	CapacityProviderOperatorRoleArn!: strings.MaxRunes(10000) &
+	CapacityProviderOperatorRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(10000) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 })
@@ -112,7 +116,10 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderVpcConfig": close({
 	// A list of security group IDs that control network access for compute
 	// instances managed by the capacity provider.
 	SecurityGroupIds!: list.MaxItems(5) & [...] & [
-		...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^sg-[0-9a-zA-Z]*$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(0) &
+		=~"^sg-[0-9a-zA-Z]*$"
 	]
 
 	// A list of subnet IDs where the capacity provider launches compute instances.

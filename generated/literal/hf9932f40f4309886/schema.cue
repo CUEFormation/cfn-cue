@@ -168,7 +168,7 @@ _#defs: "/$defs/Properties/definitions/RdsOptions": close({
 })
 
 // The ID of a security group for the endpoint.
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": string
+_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 
 // The configuration options for customer provided KMS encryption.
 _#defs: "/$defs/Properties/definitions/SseSpecification": close({
@@ -176,7 +176,7 @@ _#defs: "/$defs/Properties/definitions/SseSpecification": close({
 	CustomerManagedKeyEnabled?: bool
 
 	// KMS Key Arn used to encrypt the group policy
-	KmsKeyArn?: string
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 })
 
 // The IDs of the subnet.

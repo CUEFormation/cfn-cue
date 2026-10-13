@@ -34,8 +34,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	KeyName!:           string | fn.#StringExpression
 	KeyType?:           "rsa" | "ed25519" | fn.#StringExpression
 	PublicKeyMaterial?: string | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

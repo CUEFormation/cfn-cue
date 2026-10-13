@@ -47,9 +47,10 @@ _#defs: "/$defs/Properties/definitions/OrganizationCustomPolicyRuleMetadata": cl
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OrganizationCustomRuleMetadata": close({
-	Description?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	InputParameters?:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	LambdaFunctionArn!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Description?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	InputParameters?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	LambdaFunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(256) & strings.MinRunes(1)) |
+	fn.#StringExpression
 	MaximumExecutionFrequency?: "One_Hour" |
 		"Six_Hours" |
 		"Three_Hours" |

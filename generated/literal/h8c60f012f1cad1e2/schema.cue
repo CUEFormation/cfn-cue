@@ -48,7 +48,7 @@ import (
 		VmManagement!:    _#defs."/$defs/Properties/definitions/InitialVlanInfo"
 		VmkManagement!:   _#defs."/$defs/Properties/definitions/InitialVlanInfo"
 	})
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The license information for an EVS environment
 	LicenseInfo?: close({
@@ -78,7 +78,10 @@ import (
 		VCenter!:      _#defs."/$defs/Properties/definitions/HostName"
 	})
 	VcfVersion!: "VCF-5.2.1" | "VCF-5.2.2" | "SELF_DEPLOYED"
-	VpcId!:      strings.MaxRunes(21) & strings.MinRunes(12) & =~"^vpc-[a-f0-9]{8}([a-f0-9]{9})?$"
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(21) &
+	strings.MinRunes(12) &
+	=~"^vpc-[a-f0-9]{8}([a-f0-9]{9})?$"
 })
 
 _#defs: "/$defs/Properties/definitions/Check": close({
@@ -129,7 +132,8 @@ _#defs: "/$defs/Properties/definitions/RouteServerPeering": strings.MaxRunes(21)
 
 _#defs: "/$defs/Properties/definitions/Secret": close({SecretArn?: string})
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": strings.MaxRunes(25) &
+_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+strings.MaxRunes(25) &
 strings.MinRunes(3) &
 =~"^sg-[0-9a-zA-Z]*$"
 

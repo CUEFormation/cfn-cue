@@ -15,252 +15,239 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of the AWS::QuickSight::CustomPermissions Resource Type.
 #Properties: close({
 	AwsAccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	Capabilities?: _#defs."/$defs/Properties/definitions/Capabilities" | fn.#ObjectExpression
+	Capabilities?: _#defs."/$defs/Properties/definitions/Capabilities"
 	CustomPermissionsName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9+=,.@_-]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Capabilities": close({
-	AccessAppsNativeDataStore?:           _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	Action?:                              _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	AddOrRunAnomalyDetectionForAnalyses?: _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	AmazonBedrockARSAction?:              _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	AmazonBedrockFSAction?:               _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	AmazonBedrockKRSAction?:              _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	AmazonSThreeAction?:                  _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	Analysis?:                            _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ApproveFlowShareRequests?:            _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	Apps?:                                _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	AsanaAction?:                         _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	Automate?:                            _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	BambooHRAction?:                      _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	BoxAgentAction?:                      _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	BuildCalculatedFieldWithQ?:           _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CanvaAgentAction?:                    _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ChatAgent?:                           _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ComprehendAction?:                    _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ComprehendMedicalAction?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ConfluenceAction?:                    _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateAmazonBedrockARSAction?: _#defs."/$defs/Properties/definitions/CapabilityState" |
-		fn.#StringExpression
-	CreateAndUpdateAmazonBedrockFSAction?: _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateAmazonBedrockKRSAction?: _#defs."/$defs/Properties/definitions/CapabilityState" |
-		fn.#StringExpression
-	CreateAndUpdateAmazonSThreeAction?: _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateApps?:               _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateAsanaAction?:        _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateBambooHRAction?:     _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateBoxAgentAction?:     _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateCanvaAgentAction?:   _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateComprehendAction?:   _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateComprehendMedicalAction?: _#defs."/$defs/Properties/definitions/CapabilityState" |
-		fn.#StringExpression
-	CreateAndUpdateConfluenceAction?:      _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateDashboardEmailReports?: _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateDataSources?:           _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateDatasets?:              _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateFactSetAction?:         _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateGenericHTTPAction?:     _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateGithubAction?:          _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateGoogleCalendarAction?:  _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateHubspotAction?:         _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateHuggingFaceAction?:     _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateIntercomAction?:        _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateJiraAction?:            _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateKnowledgeBases?:        _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateLinearAction?:          _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateMCPAction?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateMSExchangeAction?:      _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateMSTeamsAction?:         _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateMondayAction?:          _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateNewRelicAction?:        _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateNotionAction?:          _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateOneDriveAction?:        _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateOpenAPIAction?:         _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdatePagerDutyAction?:       _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateSAPBillOfMaterialAction?: _#defs."/$defs/Properties/definitions/CapabilityState" |
-		fn.#StringExpression
-	CreateAndUpdateSAPBusinessPartnerAction?: _#defs."/$defs/Properties/definitions/CapabilityState" |
-		fn.#StringExpression
-	CreateAndUpdateSAPMaterialStockAction?: _#defs."/$defs/Properties/definitions/CapabilityState" |
-		fn.#StringExpression
-	CreateAndUpdateSAPPhysicalInventoryAction?: _#defs."/$defs/Properties/definitions/CapabilityState" |
-		fn.#StringExpression
-	CreateAndUpdateSAPProductMasterDataAction?: _#defs."/$defs/Properties/definitions/CapabilityState" |
-		fn.#StringExpression
-	CreateAndUpdateSalesforceAction?: _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateSandPGMIAction?:   _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateSandPGlobalEnergyAction?: _#defs."/$defs/Properties/definitions/CapabilityState" |
-		fn.#StringExpression
-	CreateAndUpdateServiceNowAction?:      _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateSharePointAction?:      _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateSlackAction?:           _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateSmartsheetAction?:      _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateTextractAction?:        _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateThemes?:                _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateThresholdAlerts?:       _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateAndUpdateZendeskAction?:         _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateChatAgents?:                     _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateDashboardExecutiveSummaryWithQ?: _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateSPICEDataset?:                   _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateSharedFolders?:                  _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	CreateSpaces?:                         _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	Dashboard?:                            _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	EditVisualWithQ?:                      _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ExportToCsv?:                          _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ExportToCsvInScheduledReports?:        _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ExportToExcel?:                        _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ExportToExcelInScheduledReports?:      _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ExportToPdf?:                          _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ExportToPdfInScheduledReports?:        _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	Extension?:                            _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	FactSetAction?:                        _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	Flow?:                                 _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	GenericHTTPAction?:                    _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	GithubAction?:                         _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	GoogleCalendarAction?:                 _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	HubspotAction?:                        _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	HuggingFaceAction?:                    _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	IncludeContentInScheduledReportsEmail?: _#defs."/$defs/Properties/definitions/CapabilityState" |
-		fn.#StringExpression
-	IntercomAction?:                  _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	InvokeAppsAIInference?:           _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	JiraAction?:                      _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	KnowledgeBase?:                   _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	LinearAction?:                    _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	MCPAction?:                       _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	MSExchangeAction?:                _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	MSTeamsAction?:                   _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ManageSharedFolders?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	MondayAction?:                    _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	NewRelicAction?:                  _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	NotionAction?:                    _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	OneDriveAction?:                  _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	OpenAPIAction?:                   _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	PagerDutyAction?:                 _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	PerformFlowUiTask?:               _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	PrintReports?:                    _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	PublishWithoutApproval?:          _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	RenameSharedFolders?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	Research?:                        _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	SAPBillOfMaterialAction?:         _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	SAPBusinessPartnerAction?:        _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	SAPMaterialStockAction?:          _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	SAPPhysicalInventoryAction?:      _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	SAPProductMasterDataAction?:      _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	SalesforceAction?:                _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	SandPGMIAction?:                  _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	SandPGlobalEnergyAction?:         _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ServiceNowAction?:                _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareAmazonBedrockARSAction?:     _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareAmazonBedrockFSAction?:      _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareAmazonBedrockKRSAction?:     _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareAmazonSThreeAction?:         _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareAnalyses?:                   _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareApps?:                       _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareAsanaAction?:                _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareBambooHRAction?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareBoxAgentAction?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareCanvaAgentAction?:           _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareChatAgents?:                 _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareComprehendAction?:           _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareComprehendMedicalAction?:    _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareConfluenceAction?:           _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareDashboards?:                 _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareDataSources?:                _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareDatasets?:                   _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareFactSetAction?:              _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareGenericHTTPAction?:          _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareGithubAction?:               _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareGoogleCalendarAction?:       _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareHubspotAction?:              _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareHuggingFaceAction?:          _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareIntercomAction?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareJiraAction?:                 _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareKnowledgeBases?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareLinearAction?:               _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareMCPAction?:                  _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareMSExchangeAction?:           _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareMSTeamsAction?:              _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareMondayAction?:               _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareNewRelicAction?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareNotionAction?:               _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareOneDriveAction?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareOpenAPIAction?:              _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	SharePagerDutyAction?:            _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	SharePointAction?:                _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareSAPBillOfMaterialAction?:    _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareSAPBusinessPartnerAction?:   _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareSAPMaterialStockAction?:     _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareSAPPhysicalInventoryAction?: _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareSAPProductMasterDataAction?: _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareSalesforceAction?:           _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareSandPGMIAction?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareSandPGlobalEnergyAction?:    _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareServiceNowAction?:           _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareSharePointAction?:           _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareSlackAction?:                _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareSmartsheetAction?:           _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareSpaces?:                     _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareTextractAction?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ShareZendeskAction?:              _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	SlackAction?:                     _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	SmartsheetAction?:                _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	Space?:                           _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	SubscribeDashboardEmailReports?:  _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	TextractAction?:                  _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	Topic?:                           _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseAgentWebSearch?:               _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseAmazonBedrockARSAction?:       _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseAmazonBedrockFSAction?:        _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseAmazonBedrockKRSAction?:       _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseAmazonSThreeAction?:           _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseAsanaAction?:                  _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseBambooHRAction?:               _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseBedrockModels?:                _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseBoxAgentAction?:               _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseCanvaAgentAction?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseComprehendAction?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseComprehendMedicalAction?:      _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseConfluenceAction?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseFactSetAction?:                _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseGenericHTTPAction?:            _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseGithubAction?:                 _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseGoogleCalendarAction?:         _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseHubspotAction?:                _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseHuggingFaceAction?:            _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseIntercomAction?:               _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseJiraAction?:                   _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseLinearAction?:                 _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseMCPAction?:                    _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseMSExchangeAction?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseMSTeamsAction?:                _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseMondayAction?:                 _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseNewRelicAction?:               _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseNotionAction?:                 _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseOneDriveAction?:               _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseOpenAPIAction?:                _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UsePagerDutyAction?:              _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseSAPBillOfMaterialAction?:      _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseSAPBusinessPartnerAction?:     _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseSAPMaterialStockAction?:       _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseSAPPhysicalInventoryAction?:   _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseSAPProductMasterDataAction?:   _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseSalesforceAction?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseSandPGMIAction?:               _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseSandPGlobalEnergyAction?:      _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseServiceNowAction?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseSharePointAction?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseSlackAction?:                  _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseSmartsheetAction?:             _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseTextractAction?:               _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	UseZendeskAction?:                _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ViewAccountSPICECapacity?:        _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
-	ZendeskAction?:                   _#defs."/$defs/Properties/definitions/CapabilityState" | fn.#StringExpression
+	AccessAppsNativeDataStore?:                 _#defs."/$defs/Properties/definitions/CapabilityState"
+	Action?:                                    _#defs."/$defs/Properties/definitions/CapabilityState"
+	AddOrRunAnomalyDetectionForAnalyses?:       _#defs."/$defs/Properties/definitions/CapabilityState"
+	AmazonBedrockARSAction?:                    _#defs."/$defs/Properties/definitions/CapabilityState"
+	AmazonBedrockFSAction?:                     _#defs."/$defs/Properties/definitions/CapabilityState"
+	AmazonBedrockKRSAction?:                    _#defs."/$defs/Properties/definitions/CapabilityState"
+	AmazonSThreeAction?:                        _#defs."/$defs/Properties/definitions/CapabilityState"
+	Analysis?:                                  _#defs."/$defs/Properties/definitions/CapabilityState"
+	ApproveFlowShareRequests?:                  _#defs."/$defs/Properties/definitions/CapabilityState"
+	Apps?:                                      _#defs."/$defs/Properties/definitions/CapabilityState"
+	AsanaAction?:                               _#defs."/$defs/Properties/definitions/CapabilityState"
+	Automate?:                                  _#defs."/$defs/Properties/definitions/CapabilityState"
+	BambooHRAction?:                            _#defs."/$defs/Properties/definitions/CapabilityState"
+	BoxAgentAction?:                            _#defs."/$defs/Properties/definitions/CapabilityState"
+	BuildCalculatedFieldWithQ?:                 _#defs."/$defs/Properties/definitions/CapabilityState"
+	CanvaAgentAction?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	ChatAgent?:                                 _#defs."/$defs/Properties/definitions/CapabilityState"
+	ComprehendAction?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	ComprehendMedicalAction?:                   _#defs."/$defs/Properties/definitions/CapabilityState"
+	ConfluenceAction?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateAmazonBedrockARSAction?:     _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateAmazonBedrockFSAction?:      _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateAmazonBedrockKRSAction?:     _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateAmazonSThreeAction?:         _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateApps?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateAsanaAction?:                _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateBambooHRAction?:             _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateBoxAgentAction?:             _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateCanvaAgentAction?:           _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateComprehendAction?:           _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateComprehendMedicalAction?:    _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateConfluenceAction?:           _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateDashboardEmailReports?:      _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateDataSources?:                _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateDatasets?:                   _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateFactSetAction?:              _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateGenericHTTPAction?:          _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateGithubAction?:               _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateGoogleCalendarAction?:       _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateHubspotAction?:              _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateHuggingFaceAction?:          _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateIntercomAction?:             _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateJiraAction?:                 _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateKnowledgeBases?:             _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateLinearAction?:               _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateMCPAction?:                  _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateMSExchangeAction?:           _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateMSTeamsAction?:              _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateMondayAction?:               _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateNewRelicAction?:             _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateNotionAction?:               _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateOneDriveAction?:             _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateOpenAPIAction?:              _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdatePagerDutyAction?:            _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateSAPBillOfMaterialAction?:    _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateSAPBusinessPartnerAction?:   _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateSAPMaterialStockAction?:     _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateSAPPhysicalInventoryAction?: _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateSAPProductMasterDataAction?: _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateSalesforceAction?:           _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateSandPGMIAction?:             _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateSandPGlobalEnergyAction?:    _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateServiceNowAction?:           _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateSharePointAction?:           _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateSlackAction?:                _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateSmartsheetAction?:           _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateTextractAction?:             _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateThemes?:                     _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateThresholdAlerts?:            _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateAndUpdateZendeskAction?:              _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateChatAgents?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateDashboardExecutiveSummaryWithQ?:      _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateSPICEDataset?:                        _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateSharedFolders?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	CreateSpaces?:                              _#defs."/$defs/Properties/definitions/CapabilityState"
+	Dashboard?:                                 _#defs."/$defs/Properties/definitions/CapabilityState"
+	EditVisualWithQ?:                           _#defs."/$defs/Properties/definitions/CapabilityState"
+	ExportToCsv?:                               _#defs."/$defs/Properties/definitions/CapabilityState"
+	ExportToCsvInScheduledReports?:             _#defs."/$defs/Properties/definitions/CapabilityState"
+	ExportToExcel?:                             _#defs."/$defs/Properties/definitions/CapabilityState"
+	ExportToExcelInScheduledReports?:           _#defs."/$defs/Properties/definitions/CapabilityState"
+	ExportToPdf?:                               _#defs."/$defs/Properties/definitions/CapabilityState"
+	ExportToPdfInScheduledReports?:             _#defs."/$defs/Properties/definitions/CapabilityState"
+	Extension?:                                 _#defs."/$defs/Properties/definitions/CapabilityState"
+	FactSetAction?:                             _#defs."/$defs/Properties/definitions/CapabilityState"
+	Flow?:                                      _#defs."/$defs/Properties/definitions/CapabilityState"
+	GenericHTTPAction?:                         _#defs."/$defs/Properties/definitions/CapabilityState"
+	GithubAction?:                              _#defs."/$defs/Properties/definitions/CapabilityState"
+	GoogleCalendarAction?:                      _#defs."/$defs/Properties/definitions/CapabilityState"
+	HubspotAction?:                             _#defs."/$defs/Properties/definitions/CapabilityState"
+	HuggingFaceAction?:                         _#defs."/$defs/Properties/definitions/CapabilityState"
+	IncludeContentInScheduledReportsEmail?:     _#defs."/$defs/Properties/definitions/CapabilityState"
+	IntercomAction?:                            _#defs."/$defs/Properties/definitions/CapabilityState"
+	InvokeAppsAIInference?:                     _#defs."/$defs/Properties/definitions/CapabilityState"
+	JiraAction?:                                _#defs."/$defs/Properties/definitions/CapabilityState"
+	KnowledgeBase?:                             _#defs."/$defs/Properties/definitions/CapabilityState"
+	LinearAction?:                              _#defs."/$defs/Properties/definitions/CapabilityState"
+	MCPAction?:                                 _#defs."/$defs/Properties/definitions/CapabilityState"
+	MSExchangeAction?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	MSTeamsAction?:                             _#defs."/$defs/Properties/definitions/CapabilityState"
+	ManageSharedFolders?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	MondayAction?:                              _#defs."/$defs/Properties/definitions/CapabilityState"
+	NewRelicAction?:                            _#defs."/$defs/Properties/definitions/CapabilityState"
+	NotionAction?:                              _#defs."/$defs/Properties/definitions/CapabilityState"
+	OneDriveAction?:                            _#defs."/$defs/Properties/definitions/CapabilityState"
+	OpenAPIAction?:                             _#defs."/$defs/Properties/definitions/CapabilityState"
+	PagerDutyAction?:                           _#defs."/$defs/Properties/definitions/CapabilityState"
+	PerformFlowUiTask?:                         _#defs."/$defs/Properties/definitions/CapabilityState"
+	PrintReports?:                              _#defs."/$defs/Properties/definitions/CapabilityState"
+	PublishWithoutApproval?:                    _#defs."/$defs/Properties/definitions/CapabilityState"
+	RenameSharedFolders?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	Research?:                                  _#defs."/$defs/Properties/definitions/CapabilityState"
+	SAPBillOfMaterialAction?:                   _#defs."/$defs/Properties/definitions/CapabilityState"
+	SAPBusinessPartnerAction?:                  _#defs."/$defs/Properties/definitions/CapabilityState"
+	SAPMaterialStockAction?:                    _#defs."/$defs/Properties/definitions/CapabilityState"
+	SAPPhysicalInventoryAction?:                _#defs."/$defs/Properties/definitions/CapabilityState"
+	SAPProductMasterDataAction?:                _#defs."/$defs/Properties/definitions/CapabilityState"
+	SalesforceAction?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	SandPGMIAction?:                            _#defs."/$defs/Properties/definitions/CapabilityState"
+	SandPGlobalEnergyAction?:                   _#defs."/$defs/Properties/definitions/CapabilityState"
+	ServiceNowAction?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareAmazonBedrockARSAction?:               _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareAmazonBedrockFSAction?:                _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareAmazonBedrockKRSAction?:               _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareAmazonSThreeAction?:                   _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareAnalyses?:                             _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareApps?:                                 _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareAsanaAction?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareBambooHRAction?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareBoxAgentAction?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareCanvaAgentAction?:                     _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareChatAgents?:                           _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareComprehendAction?:                     _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareComprehendMedicalAction?:              _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareConfluenceAction?:                     _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareDashboards?:                           _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareDataSources?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareDatasets?:                             _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareFactSetAction?:                        _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareGenericHTTPAction?:                    _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareGithubAction?:                         _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareGoogleCalendarAction?:                 _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareHubspotAction?:                        _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareHuggingFaceAction?:                    _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareIntercomAction?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareJiraAction?:                           _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareKnowledgeBases?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareLinearAction?:                         _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareMCPAction?:                            _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareMSExchangeAction?:                     _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareMSTeamsAction?:                        _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareMondayAction?:                         _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareNewRelicAction?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareNotionAction?:                         _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareOneDriveAction?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareOpenAPIAction?:                        _#defs."/$defs/Properties/definitions/CapabilityState"
+	SharePagerDutyAction?:                      _#defs."/$defs/Properties/definitions/CapabilityState"
+	SharePointAction?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareSAPBillOfMaterialAction?:              _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareSAPBusinessPartnerAction?:             _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareSAPMaterialStockAction?:               _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareSAPPhysicalInventoryAction?:           _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareSAPProductMasterDataAction?:           _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareSalesforceAction?:                     _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareSandPGMIAction?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareSandPGlobalEnergyAction?:              _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareServiceNowAction?:                     _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareSharePointAction?:                     _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareSlackAction?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareSmartsheetAction?:                     _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareSpaces?:                               _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareTextractAction?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	ShareZendeskAction?:                        _#defs."/$defs/Properties/definitions/CapabilityState"
+	SlackAction?:                               _#defs."/$defs/Properties/definitions/CapabilityState"
+	SmartsheetAction?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	Space?:                                     _#defs."/$defs/Properties/definitions/CapabilityState"
+	SubscribeDashboardEmailReports?:            _#defs."/$defs/Properties/definitions/CapabilityState"
+	TextractAction?:                            _#defs."/$defs/Properties/definitions/CapabilityState"
+	Topic?:                                     _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseAgentWebSearch?:                         _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseAmazonBedrockARSAction?:                 _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseAmazonBedrockFSAction?:                  _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseAmazonBedrockKRSAction?:                 _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseAmazonSThreeAction?:                     _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseAsanaAction?:                            _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseBambooHRAction?:                         _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseBedrockModels?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseBoxAgentAction?:                         _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseCanvaAgentAction?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseComprehendAction?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseComprehendMedicalAction?:                _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseConfluenceAction?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseFactSetAction?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseGenericHTTPAction?:                      _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseGithubAction?:                           _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseGoogleCalendarAction?:                   _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseHubspotAction?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseHuggingFaceAction?:                      _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseIntercomAction?:                         _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseJiraAction?:                             _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseLinearAction?:                           _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseMCPAction?:                              _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseMSExchangeAction?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseMSTeamsAction?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseMondayAction?:                           _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseNewRelicAction?:                         _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseNotionAction?:                           _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseOneDriveAction?:                         _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseOpenAPIAction?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	UsePagerDutyAction?:                        _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseSAPBillOfMaterialAction?:                _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseSAPBusinessPartnerAction?:               _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseSAPMaterialStockAction?:                 _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseSAPPhysicalInventoryAction?:             _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseSAPProductMasterDataAction?:             _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseSalesforceAction?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseSandPGMIAction?:                         _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseSandPGlobalEnergyAction?:                _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseServiceNowAction?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseSharePointAction?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseSlackAction?:                            _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseSmartsheetAction?:                       _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseTextractAction?:                         _#defs."/$defs/Properties/definitions/CapabilityState"
+	UseZendeskAction?:                          _#defs."/$defs/Properties/definitions/CapabilityState"
+	ViewAccountSPICECapacity?:                  _#defs."/$defs/Properties/definitions/CapabilityState"
+	ZendeskAction?:                             _#defs."/$defs/Properties/definitions/CapabilityState"
 }) |
 fn.#ObjectExpression
 

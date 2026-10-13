@@ -17,15 +17,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AddressFamily!: "ipv4" | "ipv6" | fn.#StringExpression
 	Description?:   string | fn.#StringExpression
 	IpamId?:        string | fn.#StringExpression
-	Rules?: [..._#defs."/$defs/Properties/definitions/IpamPrefixListResolverRule" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Rules?:         [..._#defs."/$defs/Properties/definitions/IpamPrefixListResolverRule"] | fn.#ListExpression
+	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/IpamPrefixListResolverRule": close({
-	Conditions?: [..._#defs."/$defs/Properties/definitions/IpamPrefixListResolverRuleCondition" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Conditions?:   [..._#defs."/$defs/Properties/definitions/IpamPrefixListResolverRuleCondition"] | fn.#ListExpression
 	IpamScopeId?:  string | fn.#StringExpression
 	ResourceType?: "vpc" | "subnet" | "eip" | "public-ipv4-pool" | fn.#StringExpression
 	RuleType!:     "static-cidr" | "ipam-resource-cidr" | "ipam-pool-cidr" | fn.#StringExpression

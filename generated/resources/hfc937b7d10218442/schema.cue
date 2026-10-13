@@ -17,17 +17,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // acyclic graph (DAG) of compute nodes, where each node references a task
 // definition and can declare dependencies on other nodes.
 #Properties: close({
-	Computations!: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ComputeNode" | fn.#ObjectExpression
-	] |
+	Computations!: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ComputeNode"] |
 		fn.#ListExpression
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression
 	EnvironmentVariables?: _#defs."/$defs/Properties/definitions/EnvironmentVariablesMap" | fn.#ObjectExpression
 	PipelineName!:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	WorkspaceName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	Tags?:                 list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	WorkspaceName!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ComputeNode": close({
@@ -36,7 +33,7 @@ _#defs: "/$defs/Properties/definitions/ComputeNode": close({
 		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	EnvironmentVariables?: _#defs."/$defs/Properties/definitions/EnvironmentVariablesMap" | fn.#ObjectExpression
+	EnvironmentVariables?: _#defs."/$defs/Properties/definitions/EnvironmentVariablesMap"
 	TaskName!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

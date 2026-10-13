@@ -16,7 +16,7 @@ package schema
 	StateReason?: string
 
 	// The ID of the VPC in the security group vpc association.
-	VpcId!: string
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 
 	// The owner of the VPC in the security group vpc association.
 	VpcOwnerId?: string

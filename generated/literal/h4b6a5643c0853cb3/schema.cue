@@ -49,7 +49,7 @@ import (
 	IAMDatabaseAuthenticationEnabled?: bool
 
 	// If StorageEncrypted is true, the AWS KMS key identifier for the encrypted DB cluster snapshot.
-	KmsKeyId?: string | string | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The license model information for this DB cluster snapshot.
 	LicenseModel?: string
@@ -76,7 +76,7 @@ import (
 	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
 
 	// The VPC ID associated with the DB cluster snapshot.
-	VpcId?: string
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -25,11 +29,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [](https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html)
 // to manage API requests.
 #Properties: close({
-	ApiStages?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ApiStage" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ApiStages?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ApiStage"] | fn.#ListExpression
 	Description?:   string | fn.#StringExpression
 	Quota?:         _#defs."/$defs/Properties/definitions/QuotaSettings" | fn.#ObjectExpression
-	Tags?:          [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:          [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Throttle?:      _#defs."/$defs/Properties/definitions/ThrottleSettings" | fn.#ObjectExpression
 	UsagePlanName?: string | fn.#StringExpression
 })
@@ -39,14 +42,42 @@ _#defs: "/$defs/Properties/definitions/ApiStage": close({
 	Stage?: string | fn.#StringExpression
 	Throttle?: close({
 
-		{[=~".*"]: _#defs."/$defs/Properties/definitions/ThrottleSettings" | fn.#ObjectExpression}}) |
+		{[=~".*"]: _#defs."/$defs/Properties/definitions/ThrottleSettings"}}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/QuotaSettings": close({
-	Limit?:  int & >=0 | fn.#NumberExpression
-	Offset?: int & >=0 | fn.#NumberExpression
+	Limit?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Offset?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	Period?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -58,8 +89,40 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ThrottleSettings": close({
-	BurstLimit?: int & >=0 | fn.#NumberExpression
-	RateLimit?:  >=0 | fn.#NumberExpression
+	BurstLimit?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RateLimit?: >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=0,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

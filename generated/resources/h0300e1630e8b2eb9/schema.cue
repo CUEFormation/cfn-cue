@@ -20,9 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Identifier!:  strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
 	ServiceType!: "RDS" | "DOCDB" | fn.#StringExpression
 	StartTime!:   time.Time | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

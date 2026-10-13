@@ -35,7 +35,8 @@ import (
 	Description?: strings.MaxRunes(256) & strings.MinRunes(0)
 
 	// The Amazon Resource Name (ARN) of the function.
-	FunctionArn?: strings.MaxRunes(2048) &
+	FunctionArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-z-]*):lambda:[a-z0-9-]+:[0-9]{12}:web-function/.+$"
 
@@ -45,7 +46,8 @@ import (
 	FunctionName!: strings.MaxRunes(256) & strings.MinRunes(1)
 
 	// The ARN of the KMS key used to encrypt the revision.
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws[a-z-]*){1}:kms:[a-z0-9-]+:[0-9]{12}:key/.*$"
 

@@ -90,7 +90,8 @@ _#defs: "/$defs/Properties/definitions/KinesisDataStreamData": close({
 
 _#defs: "/$defs/Properties/definitions/Polarization": "LEFT_HAND" | "RIGHT_HAND" | "NONE"
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:[^:\\n]+:iam::[^:\\n]+:role\\/.+$"
+_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	=~"^arn:[^:\\n]+:iam::[^:\\n]+:role\\/.+$"
 
 _#defs: "/$defs/Properties/definitions/S3KeyPrefix": =~"^([a-zA-Z0-9_\\-=/]|\\{satellite_id\\}|\\{config\\-name}|\\{s3\\-config-id}|\\{year\\}|\\{month\\}|\\{day\\}){1,900}$"
 

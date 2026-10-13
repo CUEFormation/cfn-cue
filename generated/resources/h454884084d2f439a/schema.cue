@@ -15,15 +15,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Use the AWS::IoT::CertificateProvider resource to declare an AWS IoT Certificate Provider.
 #Properties: close({
 	AccountDefaultForOperations!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/CertificateProviderOperation" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/CertificateProviderOperation"
 	] |
 		fn.#ListExpression
 	CertificateProviderName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w=,@-]+" | fn.#StringExpression
-	LambdaFunctionArn!:       strings.MaxRunes(170) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	LambdaFunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(170) &
+	strings.MinRunes(1) &
+	=~"^[\\s\\S]*$" |
+	fn.#StringExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CertificateProviderOperation": "CreateCertificateFromCsr" | fn.#StringExpression

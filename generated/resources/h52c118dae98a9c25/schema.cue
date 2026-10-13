@@ -17,15 +17,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // region or across an entire AWS Organization.
 #Properties: close({
 	ConformancePackInputParameters?: list.MaxItems(60) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ConformancePackInputParameter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/ConformancePackInputParameter"
 	] |
 		fn.#ListExpression
 	ConformancePackName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][-a-zA-Z0-9]*" | fn.#StringExpression
 	DeliveryS3Bucket?:    strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
 	DeliveryS3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	TemplateBody?:  strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
 	TemplateS3Uri?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"s3://.*" | fn.#StringExpression
@@ -39,8 +37,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/ConformancePackInputParameter": close({
-	ParameterName!:  _#defs."/$defs/Properties/definitions/ParameterName" | fn.#StringExpression
-	ParameterValue!: _#defs."/$defs/Properties/definitions/ParameterValue" | fn.#StringExpression
+	ParameterName!:  _#defs."/$defs/Properties/definitions/ParameterName"
+	ParameterValue!: _#defs."/$defs/Properties/definitions/ParameterValue"
 }) |
 fn.#ObjectExpression
 

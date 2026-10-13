@@ -9,6 +9,10 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,13 +23,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	EventType?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:          strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*" | fn.#StringExpression
-	PerformAutoML?: bool | fn.#BooleanExpression
-	PerformHPO?:    bool | fn.#BooleanExpression
+	PerformAutoML?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PerformHPO?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RecipeArn?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
 	fn.#StringExpression
-	SolutionConfig?: _#defs."/$defs/Properties/definitions/SolutionConfig" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	SolutionConfig?: _#defs."/$defs/Properties/definitions/SolutionConfig"
+	Tags?:           list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CategoricalHyperParameterRange": close({
@@ -36,16 +39,80 @@ _#defs: "/$defs/Properties/definitions/CategoricalHyperParameterRange": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ContinuousHyperParameterRange": close({
-	MaxValue?: >=-1000000 | fn.#NumberExpression
-	MinValue?: >=-1000000 | fn.#NumberExpression
-	Name?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	MaxValue?: >=-1000000 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=-1000000,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinValue?: >=-1000000 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							>=-1000000,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IntegerHyperParameterRange": close({
-	MaxValue?: int & <=1000000 | fn.#NumberExpression
-	MinValue?: int & >=-1000000 | fn.#NumberExpression
-	Name?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	MaxValue?: int & <=1000000 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000000,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinValue?: int & >=-1000000 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=-1000000,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Name?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -74,15 +141,15 @@ _#defs: "/$defs/Properties/definitions/SolutionConfig": close({
 	HpoConfig?: close({
 		AlgorithmHyperParameterRanges?: close({
 			CategoricalHyperParameterRanges?: list.MaxItems(100) & [...] & [
-				..._#defs."/$defs/Properties/definitions/CategoricalHyperParameterRange" | fn.#ObjectExpression
+				..._#defs."/$defs/Properties/definitions/CategoricalHyperParameterRange"
 			] |
 				fn.#ListExpression
 			ContinuousHyperParameterRanges?: list.MaxItems(100) & [...] & [
-				..._#defs."/$defs/Properties/definitions/ContinuousHyperParameterRange" | fn.#ObjectExpression
+				..._#defs."/$defs/Properties/definitions/ContinuousHyperParameterRange"
 			] |
 				fn.#ListExpression
 			IntegerHyperParameterRanges?: list.MaxItems(100) & [...] & [
-				..._#defs."/$defs/Properties/definitions/IntegerHyperParameterRange" | fn.#ObjectExpression
+				..._#defs."/$defs/Properties/definitions/IntegerHyperParameterRange"
 			] |
 				fn.#ListExpression
 		}) |

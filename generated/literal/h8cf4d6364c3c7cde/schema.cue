@@ -16,10 +16,13 @@ import (
 	EnvironmentVariables?: list.MaxItems(32) & list.MinItems(1) & list.UniqueItems() & [
 		..._#defs."/$defs/Properties/definitions/EnvironmentVariable"
 	]
-	ExecutionRoleArn?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:[^:]*:iam::[0-9]{12}:role/.+"
-	Name!:             strings.MaxRunes(256) & strings.MinRunes(1)
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"]
-	VpcConfig?:        _#defs."/$defs/Properties/definitions/VpcConfig"
+	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:[^:]*:iam::[0-9]{12}:role/.+"
+	Name!:      strings.MaxRunes(256) & strings.MinRunes(1)
+	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"]
+	VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
 })
 
 _#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
@@ -36,7 +39,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	// An array of security group Ids in your Amazon VPC
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^sg-[0-9a-fA-F]{8,}$"
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(4096) &
+		strings.MinRunes(1) &
+		=~"^sg-[0-9a-fA-F]{8,}$"
 	]
 
 	// A array of subnet IDs in your Amazon VPC.
@@ -45,5 +51,8 @@ _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	]
 
 	// The ID of the Amazon VPC
-	VpcId!: strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*\\S.*"
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(4096) &
+	strings.MinRunes(1) &
+	=~".*\\S.*"
 })

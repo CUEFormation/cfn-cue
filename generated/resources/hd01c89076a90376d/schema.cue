@@ -18,10 +18,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CalculatorName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
 	DataSource!:     string | fn.#StringExpression
 	Description?:    strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	PricingPlan?:    _#defs."/$defs/Properties/definitions/PricingPlan" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	PricingPlan?:    _#defs."/$defs/Properties/definitions/PricingPlan"
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

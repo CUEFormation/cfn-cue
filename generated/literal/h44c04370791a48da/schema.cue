@@ -12,6 +12,6 @@ package schema
 	FromAddress!:                 string
 	Id?:                          string
 	Identity!:                    string
-	OrchestrationSendingRoleArn?: string
-	RoleArn?:                     string
+	OrchestrationSendingRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
+	RoleArn?:                     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })

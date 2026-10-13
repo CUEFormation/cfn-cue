@@ -4,6 +4,10 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,51 +17,89 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	MeshName!:          string | fn.#StringExpression
 	MeshOwner?:         string | fn.#StringExpression
 	RouteName?:         string | fn.#StringExpression
-	Spec!:              _#defs."/$defs/Properties/definitions/RouteSpec" | fn.#ObjectExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Spec!:              _#defs."/$defs/Properties/definitions/RouteSpec"
+	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VirtualRouterName!: string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Duration": close({
-	Unit!:  string | fn.#StringExpression
-	Value!: int | fn.#NumberExpression
+	Unit!: string | fn.#StringExpression
+	Value!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GrpcRetryPolicy": close({
 	GrpcRetryEvents?: [...string | fn.#StringExpression] | fn.#ListExpression
 	HttpRetryEvents?: [...string | fn.#StringExpression] | fn.#ListExpression
-	MaxRetries!:      int | fn.#NumberExpression
-	PerRetryTimeout!: _#defs."/$defs/Properties/definitions/Duration" | fn.#ObjectExpression
+	MaxRetries!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PerRetryTimeout!: _#defs."/$defs/Properties/definitions/Duration"
 	TcpRetryEvents?:  [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GrpcRoute": close({
-	Action!:      _#defs."/$defs/Properties/definitions/GrpcRouteAction" | fn.#ObjectExpression
-	Match!:       _#defs."/$defs/Properties/definitions/GrpcRouteMatch" | fn.#ObjectExpression
-	RetryPolicy?: _#defs."/$defs/Properties/definitions/GrpcRetryPolicy" | fn.#ObjectExpression
-	Timeout?:     _#defs."/$defs/Properties/definitions/GrpcTimeout" | fn.#ObjectExpression
+	Action!:      _#defs."/$defs/Properties/definitions/GrpcRouteAction"
+	Match!:       _#defs."/$defs/Properties/definitions/GrpcRouteMatch"
+	RetryPolicy?: _#defs."/$defs/Properties/definitions/GrpcRetryPolicy"
+	Timeout?:     _#defs."/$defs/Properties/definitions/GrpcTimeout"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrpcRouteAction": close({
-	WeightedTargets!: [..._#defs."/$defs/Properties/definitions/WeightedTarget" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/GrpcRouteAction": close(
+	{WeightedTargets!: [..._#defs."/$defs/Properties/definitions/WeightedTarget"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GrpcRouteMatch": close({
-	Metadata?: [..._#defs."/$defs/Properties/definitions/GrpcRouteMetadata" | fn.#ObjectExpression] | fn.#ListExpression
-	MethodName?:  string | fn.#StringExpression
-	Port?:        int | fn.#NumberExpression
+	Metadata?:   [..._#defs."/$defs/Properties/definitions/GrpcRouteMetadata"] | fn.#ListExpression
+	MethodName?: string | fn.#StringExpression
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	ServiceName?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GrpcRouteMetadata": close({
-	Invert?: bool | fn.#BooleanExpression
-	Match?:  _#defs."/$defs/Properties/definitions/GrpcRouteMetadataMatchMethod" | fn.#ObjectExpression
+	Invert?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Match?:  _#defs."/$defs/Properties/definitions/GrpcRouteMetadataMatchMethod"
 	Name!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -65,22 +107,22 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/GrpcRouteMetadataMatchMethod": close({
 	Exact?:  string | fn.#StringExpression
 	Prefix?: string | fn.#StringExpression
-	Range?:  _#defs."/$defs/Properties/definitions/MatchRange" | fn.#ObjectExpression
+	Range?:  _#defs."/$defs/Properties/definitions/MatchRange"
 	Regex?:  string | fn.#StringExpression
 	Suffix?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GrpcTimeout": close({
-	Idle?:       _#defs."/$defs/Properties/definitions/Duration" | fn.#ObjectExpression
-	PerRequest?: _#defs."/$defs/Properties/definitions/Duration" | fn.#ObjectExpression
+	Idle?:       _#defs."/$defs/Properties/definitions/Duration"
+	PerRequest?: _#defs."/$defs/Properties/definitions/Duration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HeaderMatchMethod": close({
 	Exact?:  string | fn.#StringExpression
 	Prefix?: string | fn.#StringExpression
-	Range?:  _#defs."/$defs/Properties/definitions/MatchRange" | fn.#ObjectExpression
+	Range?:  _#defs."/$defs/Properties/definitions/MatchRange"
 	Regex?:  string | fn.#StringExpression
 	Suffix?: string | fn.#StringExpression
 }) |
@@ -97,69 +139,132 @@ _#defs: "/$defs/Properties/definitions/HttpQueryParameterMatch": close({Exact?: 
 
 _#defs: "/$defs/Properties/definitions/HttpRetryPolicy": close({
 	HttpRetryEvents?: [...string | fn.#StringExpression] | fn.#ListExpression
-	MaxRetries!:      int | fn.#NumberExpression
-	PerRetryTimeout!: _#defs."/$defs/Properties/definitions/Duration" | fn.#ObjectExpression
+	MaxRetries!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	PerRetryTimeout!: _#defs."/$defs/Properties/definitions/Duration"
 	TcpRetryEvents?:  [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HttpRoute": close({
-	Action!:      _#defs."/$defs/Properties/definitions/HttpRouteAction" | fn.#ObjectExpression
-	Match!:       _#defs."/$defs/Properties/definitions/HttpRouteMatch" | fn.#ObjectExpression
-	RetryPolicy?: _#defs."/$defs/Properties/definitions/HttpRetryPolicy" | fn.#ObjectExpression
-	Timeout?:     _#defs."/$defs/Properties/definitions/HttpTimeout" | fn.#ObjectExpression
+	Action!:      _#defs."/$defs/Properties/definitions/HttpRouteAction"
+	Match!:       _#defs."/$defs/Properties/definitions/HttpRouteMatch"
+	RetryPolicy?: _#defs."/$defs/Properties/definitions/HttpRetryPolicy"
+	Timeout?:     _#defs."/$defs/Properties/definitions/HttpTimeout"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpRouteAction": close({
-	WeightedTargets!: [..._#defs."/$defs/Properties/definitions/WeightedTarget" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/HttpRouteAction": close(
+	{WeightedTargets!: [..._#defs."/$defs/Properties/definitions/WeightedTarget"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HttpRouteHeader": close({
-	Invert?: bool | fn.#BooleanExpression
-	Match?:  _#defs."/$defs/Properties/definitions/HeaderMatchMethod" | fn.#ObjectExpression
+	Invert?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Match?:  _#defs."/$defs/Properties/definitions/HeaderMatchMethod"
 	Name!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HttpRouteMatch": close({
-	Headers?: [..._#defs."/$defs/Properties/definitions/HttpRouteHeader" | fn.#ObjectExpression] | fn.#ListExpression
+	Headers?: [..._#defs."/$defs/Properties/definitions/HttpRouteHeader"] | fn.#ListExpression
 	Method?:  string | fn.#StringExpression
-	Path?:    _#defs."/$defs/Properties/definitions/HttpPathMatch" | fn.#ObjectExpression
-	Port?:    int | fn.#NumberExpression
-	Prefix?:  string | fn.#StringExpression
-	QueryParameters?: [..._#defs."/$defs/Properties/definitions/QueryParameter" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Scheme?: string | fn.#StringExpression
+	Path?:    _#defs."/$defs/Properties/definitions/HttpPathMatch"
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Prefix?:          string | fn.#StringExpression
+	QueryParameters?: [..._#defs."/$defs/Properties/definitions/QueryParameter"] | fn.#ListExpression
+	Scheme?:          string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HttpTimeout": close({
-	Idle?:       _#defs."/$defs/Properties/definitions/Duration" | fn.#ObjectExpression
-	PerRequest?: _#defs."/$defs/Properties/definitions/Duration" | fn.#ObjectExpression
+	Idle?:       _#defs."/$defs/Properties/definitions/Duration"
+	PerRequest?: _#defs."/$defs/Properties/definitions/Duration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MatchRange": close({
-	End!:   int | fn.#NumberExpression
-	Start!: int | fn.#NumberExpression
+	End!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Start!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/QueryParameter": close({
-	Match?: _#defs."/$defs/Properties/definitions/HttpQueryParameterMatch" | fn.#ObjectExpression
+	Match?: _#defs."/$defs/Properties/definitions/HttpQueryParameterMatch"
 	Name!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RouteSpec": close({
-	GrpcRoute?:  _#defs."/$defs/Properties/definitions/GrpcRoute" | fn.#ObjectExpression
-	Http2Route?: _#defs."/$defs/Properties/definitions/HttpRoute" | fn.#ObjectExpression
-	HttpRoute?:  _#defs."/$defs/Properties/definitions/HttpRoute" | fn.#ObjectExpression
-	Priority?:   int | fn.#NumberExpression
-	TcpRoute?:   _#defs."/$defs/Properties/definitions/TcpRoute" | fn.#ObjectExpression
+	GrpcRoute?:  _#defs."/$defs/Properties/definitions/GrpcRoute"
+	Http2Route?: _#defs."/$defs/Properties/definitions/HttpRoute"
+	HttpRoute?:  _#defs."/$defs/Properties/definitions/HttpRoute"
+	Priority?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TcpRoute?: _#defs."/$defs/Properties/definitions/TcpRoute"
 }) |
 fn.#ObjectExpression
 
@@ -170,29 +275,68 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TcpRoute": close({
-	Action!:  _#defs."/$defs/Properties/definitions/TcpRouteAction" | fn.#ObjectExpression
-	Match?:   _#defs."/$defs/Properties/definitions/TcpRouteMatch" | fn.#ObjectExpression
-	Timeout?: _#defs."/$defs/Properties/definitions/TcpTimeout" | fn.#ObjectExpression
+	Action!:  _#defs."/$defs/Properties/definitions/TcpRouteAction"
+	Match?:   _#defs."/$defs/Properties/definitions/TcpRouteMatch"
+	Timeout?: _#defs."/$defs/Properties/definitions/TcpTimeout"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TcpRouteAction": close({
-	WeightedTargets!: [..._#defs."/$defs/Properties/definitions/WeightedTarget" | fn.#ObjectExpression] |
-		fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/TcpRouteMatch": close({Port?: int | fn.#NumberExpression}) | fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/TcpTimeout": close(
-	{Idle?: _#defs."/$defs/Properties/definitions/Duration" | fn.#ObjectExpression},
+_#defs: "/$defs/Properties/definitions/TcpRouteAction": close(
+	{WeightedTargets!: [..._#defs."/$defs/Properties/definitions/WeightedTarget"] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
+_#defs: "/$defs/Properties/definitions/TcpRouteMatch": close({
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
+	fn.#ObjectExpression
+
+_#defs: "/$defs/Properties/definitions/TcpTimeout": close({Idle?: _#defs."/$defs/Properties/definitions/Duration"}) |
+	fn.#ObjectExpression
+
 _#defs: "/$defs/Properties/definitions/WeightedTarget": close({
-	Port?:        int | fn.#NumberExpression
+	Port?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	VirtualNode!: string | fn.#StringExpression
-	Weight!:      int | fn.#NumberExpression
+	Weight!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

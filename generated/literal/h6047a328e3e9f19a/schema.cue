@@ -72,7 +72,7 @@ _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
 	// specify a security group, the default security group for the VPC is used.
 	// There is a limit of 5 security groups that can be specified per
 	// AwsVpcConfiguration.
-	SecurityGroups?: list.MaxItems(5) & [...string]
+	SecurityGroups?: list.MaxItems(5) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// The subnets associated with the task or service. There is a limit of 16
 	// subnets that can be specified per AwsVpcConfiguration.

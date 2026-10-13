@@ -29,7 +29,7 @@ _#defs: "/$defs/Properties/definitions/Execution": close({
 })
 
 _#defs: "/$defs/Properties/definitions/Function": close({
-	FunctionArn!:           string
+	FunctionArn!:           =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
 	FunctionConfiguration!: _#defs."/$defs/Properties/definitions/FunctionConfiguration"
 	Id!:                    string
 })

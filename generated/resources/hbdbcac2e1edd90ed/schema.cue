@@ -17,13 +17,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // enabling discovery and control of third-party cloud devices.
 #Properties: close({
 	Description?:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\- ]+$" | fn.#StringExpression
-	EndpointConfig!: _#defs."/$defs/Properties/definitions/EndpointConfig" | fn.#ObjectExpression
+	EndpointConfig!: _#defs."/$defs/Properties/definitions/EndpointConfig"
 	EndpointType?:   "LAMBDA" | fn.#StringExpression
 	Name!:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/EndpointConfig": close(
-	{Lambda?: _#defs."/$defs/Properties/definitions/LambdaConfig" | fn.#ObjectExpression},
+	{Lambda?: _#defs."/$defs/Properties/definitions/LambdaConfig"},
 ) |
 	fn.#ObjectExpression
 

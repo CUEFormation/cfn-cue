@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	InstanceFamily?:   string | fn.#StringExpression
 	InstanceType?:     string | fn.#StringExpression
 	OutpostArn?:       string | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

@@ -13,16 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::GuardDuty::PublishingDestination.
 #Properties: close({
-	DestinationProperties!: _#defs."/$defs/Properties/definitions/CFNDestinationProperties" & {[string]: fn.#Value} |
-		fn.#ObjectExpression
+	DestinationProperties!: _#defs."/$defs/Properties/definitions/CFNDestinationProperties" & fn.#Object & {...} |
+	fn.#ObjectExpression
 	DestinationType!: "S3" | fn.#StringExpression
 	DetectorId!:      strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/TagItem" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:            [..._#defs."/$defs/Properties/definitions/TagItem"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CFNDestinationProperties": close({
 	DestinationArn?: string | fn.#StringExpression
-	KmsKeyArn?:      string | fn.#StringExpression
+	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

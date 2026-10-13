@@ -4,15 +4,18 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::InAppTemplate
 #Properties: close({
-	Content?: [..._#defs."/$defs/Properties/definitions/InAppMessageContent" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	CustomConfig?: {[string]: fn.#Value} | fn.#ObjectExpression
+	Content?:      [..._#defs."/$defs/Properties/definitions/InAppMessageContent"] | fn.#ListExpression
+	CustomConfig?: fn.#Object & {...} | fn.#ObjectExpression
 	Layout?: "BOTTOM_BANNER" |
 		"TOP_BANNER" |
 		"OVERLAYS" |
@@ -20,7 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"MIDDLE_BANNER" |
 		"CAROUSEL" |
 		fn.#StringExpression
-	Tags?:                string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Tags?:                fn.#Object & {...} | string | fn.#StringObjectExpression
 	TemplateDescription?: string | fn.#StringExpression
 	TemplateName!:        string | fn.#StringExpression
 })
@@ -28,7 +31,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 _#defs: "/$defs/Properties/definitions/Alignment": "LEFT" | "CENTER" | "RIGHT" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/BodyConfig": close({
-	Alignment?: _#defs."/$defs/Properties/definitions/Alignment" | fn.#StringExpression
+	Alignment?: _#defs."/$defs/Properties/definitions/Alignment"
 	Body?:      string | fn.#StringExpression
 	TextColor?: string | fn.#StringExpression
 }) |
@@ -37,25 +40,38 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/ButtonAction": "LINK" | "DEEP_LINK" | "CLOSE" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ButtonConfig": close({
-	Android?:       _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration" | fn.#ObjectExpression
-	DefaultConfig?: _#defs."/$defs/Properties/definitions/DefaultButtonConfiguration" | fn.#ObjectExpression
-	IOS?:           _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration" | fn.#ObjectExpression
-	Web?:           _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration" | fn.#ObjectExpression
+	Android?:       _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration"
+	DefaultConfig?: _#defs."/$defs/Properties/definitions/DefaultButtonConfiguration"
+	IOS?:           _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration"
+	Web?:           _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DefaultButtonConfiguration": close({
 	BackgroundColor?: string | fn.#StringExpression
-	BorderRadius?:    int | fn.#NumberExpression
-	ButtonAction?:    _#defs."/$defs/Properties/definitions/ButtonAction" | fn.#StringExpression
-	Link?:            string | fn.#StringExpression
-	Text?:            string | fn.#StringExpression
-	TextColor?:       string | fn.#StringExpression
+	BorderRadius?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	ButtonAction?: _#defs."/$defs/Properties/definitions/ButtonAction"
+	Link?:         string | fn.#StringExpression
+	Text?:         string | fn.#StringExpression
+	TextColor?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HeaderConfig": close({
-	Alignment?: _#defs."/$defs/Properties/definitions/Alignment" | fn.#StringExpression
+	Alignment?: _#defs."/$defs/Properties/definitions/Alignment"
 	Header?:    string | fn.#StringExpression
 	TextColor?: string | fn.#StringExpression
 }) |
@@ -63,16 +79,16 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InAppMessageContent": close({
 	BackgroundColor?: string | fn.#StringExpression
-	BodyConfig?:      _#defs."/$defs/Properties/definitions/BodyConfig" | fn.#ObjectExpression
-	HeaderConfig?:    _#defs."/$defs/Properties/definitions/HeaderConfig" | fn.#ObjectExpression
+	BodyConfig?:      _#defs."/$defs/Properties/definitions/BodyConfig"
+	HeaderConfig?:    _#defs."/$defs/Properties/definitions/HeaderConfig"
 	ImageUrl?:        string | fn.#StringExpression
-	PrimaryBtn?:      _#defs."/$defs/Properties/definitions/ButtonConfig" | fn.#ObjectExpression
-	SecondaryBtn?:    _#defs."/$defs/Properties/definitions/ButtonConfig" | fn.#ObjectExpression
+	PrimaryBtn?:      _#defs."/$defs/Properties/definitions/ButtonConfig"
+	SecondaryBtn?:    _#defs."/$defs/Properties/definitions/ButtonConfig"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OverrideButtonConfiguration": close({
-	ButtonAction?: _#defs."/$defs/Properties/definitions/ButtonAction" | fn.#StringExpression
+	ButtonAction?: _#defs."/$defs/Properties/definitions/ButtonAction"
 	Link?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

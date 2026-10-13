@@ -19,19 +19,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ApplicationConfig?: _#defs."/$defs/Properties/definitions/PartnerAppConfig" | fn.#ObjectExpression
 	AuthType!:          "IAM" | fn.#StringExpression
 	ClientToken?:       strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	EnableAutoMinorVersionUpgrade?: bool | fn.#BooleanExpression
-	EnableIamSessionBasedIdentity?: bool | fn.#BooleanExpression
-	ExecutionRoleArn!: strings.MaxRunes(2048) &
+	EnableAutoMinorVersionUpgrade?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	EnableIamSessionBasedIdentity?: bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		fn.#BooleanExpression
+	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
-	KmsKeyId?: (string | string | string) & strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		string) &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~".*" |
+	fn.#StringExpression
 	MaintenanceConfig?: _#defs."/$defs/Properties/definitions/PartnerAppMaintenanceConfig" | fn.#ObjectExpression
 	Name!:              strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	Tier!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Type!: "lakera-guard" | "comet" | "deepchecks-llm-evaluation" | "fiddler" | fn.#StringExpression
+	Tags?:              list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tier!:              strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Type!:              "lakera-guard" | "comet" | "deepchecks-llm-evaluation" | "fiddler" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/PartnerAppAdminUserList": strings.MaxRunes(256) & strings.MinRunes(1) |
@@ -39,7 +58,7 @@ fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PartnerAppConfig": close({
 	AdminUsers?: list.MaxItems(5) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/PartnerAppAdminUserList" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/PartnerAppAdminUserList"
 	] |
 		fn.#ListExpression
 	Arguments?: struct.MaxFields(5) & {...} | fn.#ObjectExpression

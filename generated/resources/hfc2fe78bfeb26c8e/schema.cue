@@ -12,8 +12,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	IdentityPoolId!:       string | fn.#StringExpression
 	IdentityProviderName!: string | fn.#StringExpression
-	PrincipalTags?:        {[string]: fn.#Value} | fn.#ObjectExpression
-	UseDefaults?:          bool | fn.#BooleanExpression
+	PrincipalTags?:        fn.#Object & {...} | fn.#ObjectExpression
+	UseDefaults?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Cognito::IdentityPoolPrincipalTag"

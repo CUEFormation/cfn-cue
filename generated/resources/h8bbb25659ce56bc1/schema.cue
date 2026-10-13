@@ -15,10 +15,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::CertificateManager::AcmeEndpoint
 #Properties: close({
 	AuthorizationBehavior!: "PRE_APPROVED" | fn.#StringExpression
-	CertificateAuthority!:  _#defs."/$defs/Properties/definitions/CertificateAuthority" | fn.#ObjectExpression
-	CertificateTags?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	CertificateAuthority!:  _#defs."/$defs/Properties/definitions/CertificateAuthority"
+	CertificateTags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	Contact?: "NOT_REQUIRED" | "REQUIRED" | fn.#StringExpression
 	Tags?: list.MaxItems(50) & list.MinItems(1) & [...close({
@@ -31,10 +29,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CertificateAuthority": close({
-	PublicCertificateAuthority!: _#defs."/$defs/Properties/definitions/PublicCertificateAuthority" |
-		fn.#ObjectExpression
-}) |
+_#defs: "/$defs/Properties/definitions/CertificateAuthority": close(
+	{PublicCertificateAuthority!: _#defs."/$defs/Properties/definitions/PublicCertificateAuthority"},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PublicCertificateAuthority": close(

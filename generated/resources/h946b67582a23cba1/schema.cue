@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,15 +14,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::WorkSpacesWeb::BrowserSettings Resource Type
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap" | fn.#ObjectExpression
+	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap"
 	BrowserPolicy?: strings.MaxRunes(131072) & strings.MinRunes(2) & =~"^\\{[\\S\\s]*\\}\\s*$" | fn.#StringExpression
 	CustomerManagedKey?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	WebContentFilteringPolicy?: _#defs."/$defs/Properties/definitions/WebContentFilteringPolicy" | fn.#ObjectExpression
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	WebContentFilteringPolicy?: _#defs."/$defs/Properties/definitions/WebContentFilteringPolicy"
 })
 
 _#defs: "/$defs/Properties/definitions/Category": "Cults" |
@@ -74,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/WebContentFilteringPolicy": close({
 	] |
 		fn.#ListExpression
 	BlockedCategories?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Category" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/Category"
 	] |
 		fn.#ListExpression
 	BlockedUrls?: list.MaxItems(1000) & list.MinItems(1) & [

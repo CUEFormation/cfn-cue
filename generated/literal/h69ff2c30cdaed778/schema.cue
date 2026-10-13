@@ -768,7 +768,7 @@ _#defs: "/$defs/Properties/definitions/MetadataTableEncryptionConfiguration": cl
 	// must also specify the KMS key Amazon Resource Name (ARN). You must specify a
 	// customer-managed KMS key that's located in the same Region as the general
 	// purpose bucket that corresponds to the metadata table configuration.
-	KmsKeyArn?: string
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 
 	// The encryption type specified for a metadata table. To specify server-side
 	// encryption with KMSlong (KMS) keys (SSE-KMS), use the ``aws:kms`` value. To
@@ -1352,13 +1352,13 @@ _#defs: "/$defs/Properties/definitions/RoutingRule": close({
 // folder, redirect to the ``/documents`` folder. 2. If request results in HTTP
 // error 4xx, redirect request to another host where you might process the
 // error.
-_#defs: "/$defs/Properties/definitions/RoutingRuleCondition": ({
+_#defs: "/$defs/Properties/definitions/RoutingRuleCondition": matchN(>=1, [{
 	HttpErrorCodeReturnedEquals!: _
 	...
-} | {
+}, {
 	KeyPrefixEquals!: _
 	...
-}) & close({
+}]) & close({
 	// The HTTP error code when the redirect is applied. In the event of an error,
 	// if the error code equals this value, then the specified redirect is applied.
 	// Required when parent element ``Condition`` is specified and sibling
@@ -1582,7 +1582,7 @@ _#defs: "/$defs/Properties/definitions/ServerSideEncryptionByDefault": close({
 	// see [Asymmetric keys in
 	// KMS](https://docs.aws.amazon.com//kms/latest/developerguide/symmetric-asymmetric.html)
 	// in the *Key Management Service Developer Guide*.
-	KMSMasterKeyID?: string | string | string
+	KMSMasterKeyID?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// Server-side encryption algorithm to use for the default encryption.
 	// For directory buckets, there are only two supported values for server-side

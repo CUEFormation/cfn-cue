@@ -82,7 +82,7 @@ _#defs: "/$defs/Properties/definitions/KmsEncryptionConfig": close({
 	CmkType!: "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KMS_KEY"
 
 	// The KMS encryption key id/alias used to encrypt the Data Store contents at rest.
-	KmsKeyId?: (string | string | string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
 	strings.MaxRunes(400) &
 	strings.MinRunes(1) &
 	=~"(arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:kms:)?([a-z]{2}-[a-z]+(-[a-z]+)?-\\d:)?(\\d{12}:)?(((key/)?[a-zA-Z0-9-_]+)|(alias/[a-zA-Z0-9:/_-]+))"

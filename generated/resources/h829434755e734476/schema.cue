@@ -17,20 +17,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Bucket!:          strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
 	BucketAccountId?: strings.MaxRunes(64) & =~"^\\d{12}$" | fn.#StringExpression
 	Name?:   strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" | fn.#StringExpression
-	Policy?: string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	Policy?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	PublicAccessBlockConfiguration?: _#defs."/$defs/Properties/definitions/PublicAccessBlockConfiguration" |
 		fn.#ObjectExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration" | fn.#ObjectExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": {
-	BlockPublicAcls?:       bool | fn.#BooleanExpression
-	BlockPublicPolicy?:     bool | fn.#BooleanExpression
-	IgnorePublicAcls?:      bool | fn.#BooleanExpression
-	RestrictPublicBuckets?: bool | fn.#BooleanExpression
+	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	BlockPublicPolicy?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IgnorePublicAcls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RestrictPublicBuckets?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	...
 } | fn.#ObjectExpression
 
@@ -41,7 +41,8 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/VpcConfiguration": {
-	VpcId?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

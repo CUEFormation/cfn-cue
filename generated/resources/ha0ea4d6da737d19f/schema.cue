@@ -17,9 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Identifier!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" |
 	fn.#StringExpression
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" | fn.#StringExpression
-	Scopes?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ResourceServerScopeType" | fn.#ObjectExpression
-	] |
+	Scopes?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceServerScopeType"] |
 		fn.#ListExpression
 	UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
 })

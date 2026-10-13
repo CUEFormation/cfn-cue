@@ -13,7 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Register as a publisher in the CloudFormation Registry.
 #Properties: close({
-	AcceptTermsAndConditions!: bool | fn.#BooleanExpression
+	AcceptTermsAndConditions!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ConnectionArn?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:aws(-[w]+)*:.+:.+:[0-9]{12}:.+" |
 	fn.#StringExpression
 })

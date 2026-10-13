@@ -19,12 +19,12 @@ package schema
 })
 
 _#defs: "/$defs/Properties/definitions/CustomEmailSender": close({
-	LambdaArn?:     string
+	LambdaArn?:     =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
 	LambdaVersion?: string
 })
 
 _#defs: "/$defs/Properties/definitions/CustomSMSSender": close({
-	LambdaArn?:     string
+	LambdaArn?:     =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
 	LambdaVersion?: string
 })
 
@@ -47,7 +47,7 @@ _#defs: "/$defs/Properties/definitions/EumsSmsConfiguration": close({
 })
 
 _#defs: "/$defs/Properties/definitions/InboundFederation": close({
-	LambdaArn?:     string
+	LambdaArn?:     =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
 	LambdaVersion?: string
 })
 
@@ -70,7 +70,7 @@ _#defs: "/$defs/Properties/definitions/LambdaConfig": close({
 })
 
 _#defs: "/$defs/Properties/definitions/PreTokenGenerationConfig": close({
-	LambdaArn?:     string
+	LambdaArn?:     =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
 	LambdaVersion?: string
 })
 

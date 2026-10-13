@@ -16,12 +16,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-custom-domains.html)
 // in the *API Gateway Developer Guide*.
 #Properties: close({
-	DomainName!: string | fn.#StringExpression
-	DomainNameConfigurations?: [
-		..._#defs."/$defs/Properties/definitions/DomainNameConfiguration" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	MutualTlsAuthentication?: _#defs."/$defs/Properties/definitions/MutualTlsAuthentication" | fn.#ObjectExpression
+	DomainName!:               string | fn.#StringExpression
+	DomainNameConfigurations?: [..._#defs."/$defs/Properties/definitions/DomainNameConfiguration"] | fn.#ListExpression
+	MutualTlsAuthentication?:  _#defs."/$defs/Properties/definitions/MutualTlsAuthentication" | fn.#ObjectExpression
 	RoutingMode?: "API_MAPPING_ONLY" | "ROUTING_RULE_THEN_API_MAPPING" | "ROUTING_RULE_ONLY" | fn.#StringExpression
 	Tags?: close({
 
@@ -30,7 +27,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/DomainNameConfiguration": close({
-	CertificateArn?:                      string | fn.#StringExpression
+	CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		fn.#StringExpression
 	CertificateName?:                     string | fn.#StringExpression
 	EndpointType?:                        string | fn.#StringExpression
 	IpAddressType?:                       string | fn.#StringExpression

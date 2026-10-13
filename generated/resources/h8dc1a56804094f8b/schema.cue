@@ -20,28 +20,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	TemplateProviderDetails!: _
 	...
 }]) & close({
-	ProjectDescription?: _#defs."/$defs/Properties/definitions/ProjectDescription" | fn.#StringExpression
-	ProjectName!:        _#defs."/$defs/Properties/definitions/ProjectName" | fn.#StringExpression
+	ProjectDescription?: _#defs."/$defs/Properties/definitions/ProjectDescription"
+	ProjectName!:        _#defs."/$defs/Properties/definitions/ProjectName"
 	ServiceCatalogProvisionedProductDetails?: close({
-		ProvisionedProductId?: _#defs."/$defs/Properties/definitions/ProvisioningArtifactId" | fn.#StringExpression
-		ProvisionedProductStatusMessage?: _#defs."/$defs/Properties/definitions/ProvisionedProductStatusMessage" |
-			fn.#StringExpression
+		ProvisionedProductId?:            _#defs."/$defs/Properties/definitions/ProvisioningArtifactId"
+		ProvisionedProductStatusMessage?: _#defs."/$defs/Properties/definitions/ProvisionedProductStatusMessage"
 	}) |
 	fn.#ObjectExpression
 	ServiceCatalogProvisioningDetails?: close({
-		PathId?:                 _#defs."/$defs/Properties/definitions/PathId" | fn.#StringExpression
-		ProductId!:              _#defs."/$defs/Properties/definitions/ProductId" | fn.#StringExpression
-		ProvisioningArtifactId?: _#defs."/$defs/Properties/definitions/ProvisioningArtifactId" | fn.#StringExpression
-		ProvisioningParameters?: [
-			..._#defs."/$defs/Properties/definitions/ProvisioningParameter" | fn.#ObjectExpression
-		] |
-			fn.#ListExpression
+		PathId?:                 _#defs."/$defs/Properties/definitions/PathId"
+		ProductId!:              _#defs."/$defs/Properties/definitions/ProductId"
+		ProvisioningArtifactId?: _#defs."/$defs/Properties/definitions/ProvisioningArtifactId"
+		ProvisioningParameters?: [..._#defs."/$defs/Properties/definitions/ProvisioningParameter"] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.MaxItems(40) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(40) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TemplateProviderDetails?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TemplateProviderDetail" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/TemplateProviderDetail"
 	] |
 		fn.#ListExpression
 })
@@ -53,13 +48,14 @@ _#defs: "/$defs/Properties/definitions/CfnStackParameter": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CfnStackParameters": list.MaxItems(180) & [...] & [
-	..._#defs."/$defs/Properties/definitions/CfnStackParameter" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/CfnStackParameter"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/CfnTemplateProviderDetail": close({
-	Parameters?: _#defs."/$defs/Properties/definitions/CfnStackParameters" | fn.#ListExpression
-	RoleARN?: strings.MaxRunes(2048) &
+	Parameters?: _#defs."/$defs/Properties/definitions/CfnStackParameters"
+	RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+" |
 	fn.#StringExpression
@@ -116,9 +112,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/TemplateProviderDetail": {
 	CfnTemplateProviderDetail!: _
 	...
-} & close({
-	CfnTemplateProviderDetail?: _#defs."/$defs/Properties/definitions/CfnTemplateProviderDetail" | fn.#ObjectExpression
-}) |
+} & close({CfnTemplateProviderDetail?: _#defs."/$defs/Properties/definitions/CfnTemplateProviderDetail"}) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SageMaker::Project"

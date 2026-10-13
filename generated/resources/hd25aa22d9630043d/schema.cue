@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"struct"
 )
@@ -15,13 +15,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Location::Map Resource Type
 #Properties: close({
-	Configuration!: _#defs."/$defs/Properties/definitions/MapConfiguration" | fn.#ObjectExpression
+	Configuration!: _#defs."/$defs/Properties/definitions/MapConfiguration"
 	Description?:   strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
 	MapName!:       strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
-	PricingPlan?:   _#defs."/$defs/Properties/definitions/PricingPlan" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	PricingPlan?:   _#defs."/$defs/Properties/definitions/PricingPlan"
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

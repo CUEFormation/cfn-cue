@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,28 +21,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AdditionalOsCapabilities!: list.UniqueItems() & [..."ALL" | fn.#StringExpression] | fn.#ListExpression
 	BaseImageArn!:             strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
 	BaseImageVersion!:         strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-	BuildRoleArn!:             =~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" | fn.#StringExpression
-	CodeArtifact!:             _#defs."/$defs/Properties/definitions/CodeArtifact" | fn.#ObjectExpression
-	CpuConfigurations!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/CpuConfiguration" | fn.#ObjectExpression
-	] |
+	BuildRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		=~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+	CodeArtifact!: _#defs."/$defs/Properties/definitions/CodeArtifact" | fn.#ObjectExpression
+	CpuConfigurations!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CpuConfiguration"] |
 		fn.#ListExpression
 	Description!: string | fn.#StringExpression
 	EgressNetworkConnectors!: list.MaxItems(10) & list.UniqueItems() & [...string | fn.#StringExpression] |
 		fn.#ListExpression
 	EnvironmentVariables!: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/EnvironmentVariable" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/EnvironmentVariable"
 	] |
 		fn.#ListExpression
-	Hooks!:   _#defs."/$defs/Properties/definitions/Hooks" | fn.#ObjectExpression
+	Hooks!:   _#defs."/$defs/Properties/definitions/Hooks"
 	Logging!: _#defs."/$defs/Properties/definitions/Logging" | fn.#ObjectExpression
 	Name!:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-	Resources!: list.MaxItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Resources" | fn.#ObjectExpression
-	] |
+	Resources!: list.MaxItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Resources"] |
 		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CloudWatchLogging": close({
@@ -64,35 +65,140 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/HookState": "DISABLED" | "ENABLED" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Hooks": close({
-	MicrovmHooks?:      _#defs."/$defs/Properties/definitions/MicrovmHooks" | fn.#ObjectExpression
-	MicrovmImageHooks?: _#defs."/$defs/Properties/definitions/MicrovmImageHooks" | fn.#ObjectExpression
-	Port?:              int & <=65535 & >=1 | fn.#NumberExpression
+	MicrovmHooks?:      _#defs."/$defs/Properties/definitions/MicrovmHooks"
+	MicrovmImageHooks?: _#defs."/$defs/Properties/definitions/MicrovmImageHooks"
+	Port?: int & <=65535 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=65535 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Logging": close({
-	CloudWatch?: _#defs."/$defs/Properties/definitions/CloudWatchLogging" | fn.#ObjectExpression
-	Disabled?:   bool | fn.#BooleanExpression
+	CloudWatch?: _#defs."/$defs/Properties/definitions/CloudWatchLogging"
+	Disabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MicrovmHooks": close({
-	Resume?:                    _#defs."/$defs/Properties/definitions/HookState" | fn.#StringExpression
-	ResumeTimeoutInSeconds?:    int & <=60 & >=1 | fn.#NumberExpression
-	Run?:                       _#defs."/$defs/Properties/definitions/HookState" | fn.#StringExpression
-	RunTimeoutInSeconds?:       int & <=60 & >=1 | fn.#NumberExpression
-	Suspend?:                   _#defs."/$defs/Properties/definitions/HookState" | fn.#StringExpression
-	SuspendTimeoutInSeconds?:   int & <=60 & >=1 | fn.#NumberExpression
-	Terminate?:                 _#defs."/$defs/Properties/definitions/HookState" | fn.#StringExpression
-	TerminateTimeoutInSeconds?: int & <=60 & >=1 | fn.#NumberExpression
+	Resume?: _#defs."/$defs/Properties/definitions/HookState"
+	ResumeTimeoutInSeconds?: int & <=60 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=60 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Run?: _#defs."/$defs/Properties/definitions/HookState"
+	RunTimeoutInSeconds?: int & <=60 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=60 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Suspend?: _#defs."/$defs/Properties/definitions/HookState"
+	SuspendTimeoutInSeconds?: int & <=60 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=60 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Terminate?: _#defs."/$defs/Properties/definitions/HookState"
+	TerminateTimeoutInSeconds?: int & <=60 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=60 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/MicrovmImageHooks": close({
-	Ready?:                    _#defs."/$defs/Properties/definitions/HookState" | fn.#StringExpression
-	ReadyTimeoutInSeconds?:    int & <=3600 & >=1 | fn.#NumberExpression
-	Validate?:                 _#defs."/$defs/Properties/definitions/HookState" | fn.#StringExpression
-	ValidateTimeoutInSeconds?: int & <=3600 & >=1 | fn.#NumberExpression
+	Ready?: _#defs."/$defs/Properties/definitions/HookState"
+	ReadyTimeoutInSeconds?: int & <=3600 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=3600 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Validate?: _#defs."/$defs/Properties/definitions/HookState"
+	ValidateTimeoutInSeconds?: int & <=3600 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=3600 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -107,7 +213,22 @@ _#defs: "/$defs/Properties/definitions/MicrovmImageState": "CREATING" |
 	"DELETED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Resources": close({MinimumMemoryInMiB!: int | fn.#NumberExpression}) |
+_#defs: "/$defs/Properties/definitions/Resources": close({
+	MinimumMemoryInMiB!: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+}) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

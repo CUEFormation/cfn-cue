@@ -18,11 +18,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DomainName!: strings.MaxRunes(50) & strings.MinRunes(2) & =~"^([a-z][a-z0-9\\-]{0,48}[a-z0-9])$" |
 	fn.#StringExpression
 	ExternalConnections?:       [...string | fn.#StringExpression] | fn.#ListExpression
-	PermissionsPolicyDocument?: {[string]: fn.#Value} | fn.#ObjectExpression
+	PermissionsPolicyDocument?: fn.#Object & {...} | fn.#ObjectExpression
 	RepositoryName!: strings.MaxRunes(100) & strings.MinRunes(2) & =~"^([A-Za-z0-9][A-Za-z0-9._\\-]{1,99})$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:      list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Upstreams?: [...string | fn.#StringExpression] | fn.#ListExpression
 })
 

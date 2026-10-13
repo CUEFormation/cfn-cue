@@ -8,36 +8,40 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A calculated attribute definition for Customer Profiles
 #Properties: close({
-	AttributeDetails!:        _#defs."/$defs/Properties/definitions/AttributeDetails" | fn.#ObjectExpression
-	CalculatedAttributeName!: _#defs."/$defs/Properties/definitions/CalculatedAttributeName" | fn.#StringExpression
-	Conditions?:              _#defs."/$defs/Properties/definitions/Conditions" | fn.#ObjectExpression
-	Description?:             _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	DisplayName?:             _#defs."/$defs/Properties/definitions/DisplayName" | fn.#StringExpression
-	DomainName!:              _#defs."/$defs/Properties/definitions/DomainName" | fn.#StringExpression
-	Statistic!:               _#defs."/$defs/Properties/definitions/Statistic" | fn.#StringExpression
-	Tags?:                    _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
-	UseHistoricalData?:       bool | fn.#BooleanExpression
+	AttributeDetails!:        _#defs."/$defs/Properties/definitions/AttributeDetails"
+	CalculatedAttributeName!: _#defs."/$defs/Properties/definitions/CalculatedAttributeName"
+	Conditions?:              _#defs."/$defs/Properties/definitions/Conditions"
+	Description?:             _#defs."/$defs/Properties/definitions/Description"
+	DisplayName?:             _#defs."/$defs/Properties/definitions/DisplayName"
+	DomainName!:              _#defs."/$defs/Properties/definitions/DomainName"
+	Statistic!:               _#defs."/$defs/Properties/definitions/Statistic"
+	Tags?:                    _#defs."/$defs/Properties/definitions/Tags"
+	UseHistoricalData?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AttributeDetails": close({
-	Attributes!: _#defs."/$defs/Properties/definitions/AttributeList" | fn.#ListExpression
-	Expression!: _#defs."/$defs/Properties/definitions/Expression" | fn.#StringExpression
+	Attributes!: _#defs."/$defs/Properties/definitions/AttributeList"
+	Expression!: _#defs."/$defs/Properties/definitions/Expression"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AttributeItem": close(
-	{Name!: _#defs."/$defs/Properties/definitions/AttributeName" | fn.#StringExpression},
+	{Name!: _#defs."/$defs/Properties/definitions/AttributeName"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AttributeList": list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/AttributeItem" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/AttributeItem"
 ] |
 	fn.#ListExpression
 
@@ -52,9 +56,9 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Conditions": close({
-	ObjectCount?: _#defs."/$defs/Properties/definitions/ObjectCount" | fn.#NumberExpression
-	Range?:       _#defs."/$defs/Properties/definitions/Range" | fn.#ObjectExpression
-	Threshold?:   _#defs."/$defs/Properties/definitions/Threshold" | fn.#ObjectExpression
+	ObjectCount?: _#defs."/$defs/Properties/definitions/ObjectCount"
+	Range?:       _#defs."/$defs/Properties/definitions/Range"
+	Threshold?:   _#defs."/$defs/Properties/definitions/Threshold"
 }) |
 fn.#ObjectExpression
 
@@ -70,24 +74,69 @@ fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Expression": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectCount": int & <=300 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/ObjectCount": int & <=300 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=300 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Range": close({
 	TimestampFormat?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	TimestampSource?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Unit!:            _#defs."/$defs/Properties/definitions/RangeUnit" | fn.#StringExpression
-	Value?:           _#defs."/$defs/Properties/definitions/RangeValue" | fn.#NumberExpression
-	ValueRange?:      _#defs."/$defs/Properties/definitions/ValueRange" | fn.#ObjectExpression
+	Unit!:            _#defs."/$defs/Properties/definitions/RangeUnit"
+	Value?:           _#defs."/$defs/Properties/definitions/RangeValue"
+	ValueRange?:      _#defs."/$defs/Properties/definitions/ValueRange"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RangeUnit": "DAYS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RangeValue": int & <=2147483647 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/RangeValue": int & <=2147483647 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=2147483647 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Readiness": close({
-	Message?:            string | fn.#StringExpression
-	ProgressPercentage?: int & <=100 & >=0 | fn.#NumberExpression
+	Message?: string | fn.#StringExpression
+	ProgressPercentage?: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
@@ -108,13 +157,13 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Tag"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/Threshold": close({
-	Operator!: _#defs."/$defs/Properties/definitions/ThresholdOperator" | fn.#StringExpression
-	Value!:    _#defs."/$defs/Properties/definitions/ThresholdValue" | fn.#StringExpression
+	Operator!: _#defs."/$defs/Properties/definitions/ThresholdOperator"
+	Value!:    _#defs."/$defs/Properties/definitions/ThresholdValue"
 }) |
 fn.#ObjectExpression
 
@@ -128,8 +177,38 @@ _#defs: "/$defs/Properties/definitions/ThresholdValue": strings.MaxRunes(255) & 
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ValueRange": close({
-	End!:   int & <=2147483647 & >=-2147483648 | fn.#NumberExpression
-	Start!: int & <=2147483647 & >=-2147483648 | fn.#NumberExpression
+	End!: int & <=2147483647 & >=-2147483648 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=-2147483648,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Start!: int & <=2147483647 & >=-2147483648 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=2147483647 &
+							>=-2147483648,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

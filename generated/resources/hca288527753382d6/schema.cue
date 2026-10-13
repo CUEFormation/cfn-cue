@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -15,10 +19,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::ObservabilityAdmin::TelemetryRule resource defines a CloudWatch
 // Observability Admin Telemetry Rule.
 #Properties: close({
-	Rule!:     _#defs."/$defs/Properties/definitions/TelemetryRule" | fn.#ObjectExpression
+	Rule!:     _#defs."/$defs/Properties/definitions/TelemetryRule"
 	RuleName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z-]+$" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Action": "ALLOW" |
@@ -30,14 +33,12 @@ _#defs: "/$defs/Properties/definitions/Action": "ALLOW" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/ActionCondition": {
-	Action?: _#defs."/$defs/Properties/definitions/Action" | fn.#StringExpression
+	Action?: _#defs."/$defs/Properties/definitions/Action"
 	...
 } | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AdvancedEventSelector": close({
-	FieldSelectors!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AdvancedFieldSelector" | fn.#ObjectExpression
-	] |
+	FieldSelectors!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AdvancedFieldSelector"] |
 		fn.#ListExpression
 	Name?: string | fn.#StringExpression
 }) |
@@ -54,24 +55,29 @@ _#defs: "/$defs/Properties/definitions/AdvancedFieldSelector": {
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AllowFieldUpdates": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/AllowFieldUpdates": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/CloudtrailParameters": close({
-	AdvancedEventSelectors!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AdvancedEventSelector" | fn.#ObjectExpression
-	] |
+	AdvancedEventSelectors!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AdvancedEventSelector"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Condition": {
-	ActionCondition?:    _#defs."/$defs/Properties/definitions/ActionCondition" | fn.#ObjectExpression
-	LabelNameCondition?: _#defs."/$defs/Properties/definitions/LabelNameCondition" | fn.#ObjectExpression
+	ActionCondition?:    _#defs."/$defs/Properties/definitions/ActionCondition"
+	LabelNameCondition?: _#defs."/$defs/Properties/definitions/LabelNameCondition"
 	...
 } | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Conditions": list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Condition" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Condition"
 ] |
 	fn.#ListExpression
 
@@ -88,15 +94,15 @@ _#defs: "/$defs/Properties/definitions/ELBLoadBalancerLoggingParameters": {
 _#defs: "/$defs/Properties/definitions/FieldToMatch": {
 	Method?:       string | fn.#StringExpression
 	QueryString?:  string | fn.#StringExpression
-	SingleHeader?: _#defs."/$defs/Properties/definitions/SingleHeader" | fn.#ObjectExpression
+	SingleHeader?: _#defs."/$defs/Properties/definitions/SingleHeader"
 	UriPath?:      string | fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Filter": {
-	Behavior?:    _#defs."/$defs/Properties/definitions/FilterBehavior" | fn.#StringExpression
-	Conditions?:  _#defs."/$defs/Properties/definitions/Conditions" | fn.#ListExpression
-	Requirement?: _#defs."/$defs/Properties/definitions/FilterRequirement" | fn.#StringExpression
+	Behavior?:    _#defs."/$defs/Properties/definitions/FilterBehavior"
+	Conditions?:  _#defs."/$defs/Properties/definitions/Conditions"
+	Requirement?: _#defs."/$defs/Properties/definitions/FilterRequirement"
 	...
 } | fn.#ObjectExpression
 
@@ -105,11 +111,12 @@ _#defs: "/$defs/Properties/definitions/FilterBehavior": "KEEP" | "DROP" | fn.#St
 _#defs: "/$defs/Properties/definitions/FilterRequirement": "MEETS_ALL" | "MEETS_ANY" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Filters": list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Filter" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Filter"
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKeyArn": strings.MaxRunes(2048) &
+_#defs: "/$defs/Properties/definitions/KmsKeyArn": =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\d{12}:key/(mrk-)?[a-f0-9-]+$" |
 fn.#StringExpression
@@ -120,8 +127,8 @@ _#defs: "/$defs/Properties/definitions/LabelNameCondition": {
 } | fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LoggingFilter": {
-	DefaultBehavior?: _#defs."/$defs/Properties/definitions/FilterBehavior" | fn.#StringExpression
-	Filters?:         _#defs."/$defs/Properties/definitions/Filters" | fn.#ListExpression
+	DefaultBehavior?: _#defs."/$defs/Properties/definitions/FilterBehavior"
+	Filters?:         _#defs."/$defs/Properties/definitions/Filters"
 	...
 } | fn.#ObjectExpression
 
@@ -135,7 +142,7 @@ _#defs: "/$defs/Properties/definitions/MskMonitoringParameters": close({
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RedactedFields": list.MaxItems(100) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/FieldToMatch" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/FieldToMatch"
 ] |
 	fn.#ListExpression
 
@@ -167,7 +174,22 @@ _#defs: "/$defs/Properties/definitions/ResourceType": "AWS::EC2::VPC" |
 	"AWS::BedrockAgentCore::WorkloadIdentity" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RetentionInDays": int & <=3653 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/RetentionInDays": int & <=3653 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=3653 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/Scope": string | fn.#StringExpression
 
@@ -185,12 +207,11 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TelemetryDestinationConfiguration": close({
-	CloudtrailParameters?: _#defs."/$defs/Properties/definitions/CloudtrailParameters" | fn.#ObjectExpression
-	DestinationPattern?:   _#defs."/$defs/Properties/definitions/DestinationPattern" | fn.#StringExpression
-	DestinationType?:      _#defs."/$defs/Properties/definitions/DestinationType" | fn.#StringExpression
-	ELBLoadBalancerLoggingParameters?: _#defs."/$defs/Properties/definitions/ELBLoadBalancerLoggingParameters" |
-		fn.#ObjectExpression
-	KmsKeyArn?: _#defs."/$defs/Properties/definitions/KmsKeyArn" | fn.#StringExpression
+	CloudtrailParameters?:             _#defs."/$defs/Properties/definitions/CloudtrailParameters"
+	DestinationPattern?:               _#defs."/$defs/Properties/definitions/DestinationPattern"
+	DestinationType?:                  _#defs."/$defs/Properties/definitions/DestinationType"
+	ELBLoadBalancerLoggingParameters?: _#defs."/$defs/Properties/definitions/ELBLoadBalancerLoggingParameters"
+	KmsKeyArn?:                        _#defs."/$defs/Properties/definitions/KmsKeyArn"
 	LogDeliveryParameters?: close({
 		LogTypes?: list.MinItems(1) & list.UniqueItems() & [
 			..."APPLICATION_LOGS" |
@@ -207,24 +228,23 @@ _#defs: "/$defs/Properties/definitions/TelemetryDestinationConfiguration": close
 			fn.#ListExpression
 	}) |
 		fn.#ObjectExpression
-	MskMonitoringParameters?: _#defs."/$defs/Properties/definitions/MskMonitoringParameters" | fn.#ObjectExpression
-	RetentionInDays?:         _#defs."/$defs/Properties/definitions/RetentionInDays" | fn.#NumberExpression
-	VPCFlowLogParameters?:    _#defs."/$defs/Properties/definitions/VPCFlowLogParameters" | fn.#ObjectExpression
-	WAFLoggingParameters?:    _#defs."/$defs/Properties/definitions/WAFLoggingParameters" | fn.#ObjectExpression
+	MskMonitoringParameters?: _#defs."/$defs/Properties/definitions/MskMonitoringParameters"
+	RetentionInDays?:         _#defs."/$defs/Properties/definitions/RetentionInDays"
+	VPCFlowLogParameters?:    _#defs."/$defs/Properties/definitions/VPCFlowLogParameters"
+	WAFLoggingParameters?:    _#defs."/$defs/Properties/definitions/WAFLoggingParameters"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TelemetryRule": close({
-	AllRegions?:        bool | fn.#BooleanExpression
-	AllowFieldUpdates?: _#defs."/$defs/Properties/definitions/AllowFieldUpdates" | fn.#BooleanExpression
-	DestinationConfiguration?: _#defs."/$defs/Properties/definitions/TelemetryDestinationConfiguration" |
-		fn.#ObjectExpression
+	AllRegions?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AllowFieldUpdates?:        _#defs."/$defs/Properties/definitions/AllowFieldUpdates"
+	DestinationConfiguration?: _#defs."/$defs/Properties/definitions/TelemetryDestinationConfiguration"
 	Regions?: list.MinItems(1) & list.UniqueItems() & [...strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
-	ResourceType!:         _#defs."/$defs/Properties/definitions/ResourceType" | fn.#StringExpression
-	SelectionCriteria?:    _#defs."/$defs/Properties/definitions/SelectionCriteria" | fn.#StringExpression
-	TelemetrySourceTypes?: _#defs."/$defs/Properties/definitions/TelemetrySourceTypes" | fn.#ListExpression
-	TelemetryType!:        _#defs."/$defs/Properties/definitions/TelemetryType" | fn.#StringExpression
+	ResourceType!:         _#defs."/$defs/Properties/definitions/ResourceType"
+	SelectionCriteria?:    _#defs."/$defs/Properties/definitions/SelectionCriteria"
+	TelemetrySourceTypes?: _#defs."/$defs/Properties/definitions/TelemetrySourceTypes"
+	TelemetryType!:        _#defs."/$defs/Properties/definitions/TelemetryType"
 }) |
 fn.#ObjectExpression
 
@@ -238,24 +258,37 @@ _#defs: "/$defs/Properties/definitions/TelemetrySourceType": "VPC_FLOW_LOGS" |
 	fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/TelemetrySourceTypes": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/TelemetrySourceType" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/TelemetrySourceType"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/TelemetryType": "Logs" | "Traces" | "Metrics" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/VPCFlowLogParameters": close({
-	LogFormat?:              string | fn.#StringExpression
-	MaxAggregationInterval?: int | fn.#NumberExpression
-	TrafficType?:            string | fn.#StringExpression
+	LogFormat?: string | fn.#StringExpression
+	MaxAggregationInterval?: int |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TrafficType?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/WAFLogType": "WAF_LOGS" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/WAFLoggingParameters": {
-	LogType?:        _#defs."/$defs/Properties/definitions/WAFLogType" | fn.#StringExpression
-	LoggingFilter?:  _#defs."/$defs/Properties/definitions/LoggingFilter" | fn.#ObjectExpression
+	LogType?:        _#defs."/$defs/Properties/definitions/WAFLogType"
+	LoggingFilter?:  _#defs."/$defs/Properties/definitions/LoggingFilter"
 	RedactedFields?: _#defs."/$defs/Properties/definitions/RedactedFields" | fn.#ListExpression
 	...
 } | fn.#ObjectExpression

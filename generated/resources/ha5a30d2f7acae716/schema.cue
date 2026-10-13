@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,10 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	InstanceArn!:   =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 	Name!:          =~"^[a-zA-Z0-9._-]{1,200}$" | fn.#StringExpression
 	PublishStatus!: "DRAFT" | "PUBLISHED" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TriggerEventSource!: _#defs."/$defs/Properties/definitions/RuleTriggerEventSource" | fn.#ObjectExpression
 })
 
@@ -41,13 +42,12 @@ _#defs: "/$defs/Properties/definitions/Actions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssignContactCategoryAction": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/AssignContactCategoryAction": fn.#Object & {...} |
+string |
+fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AssignContactCategoryActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/AssignContactCategoryAction" | fn.#ObjectExpression | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/AssignContactCategoryAction"
 ] |
 	fn.#ListExpression
 
@@ -55,12 +55,29 @@ _#defs: "/$defs/Properties/definitions/AssignSlaAction": close({
 	CaseSlaConfiguration!: close({
 		FieldId?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
 		Name!:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-		TargetFieldValues?: list.MaxItems(1) & [
-			..._#defs."/$defs/Properties/definitions/SlaTargetFieldValue" | fn.#ObjectExpression
-		] |
+		TargetFieldValues?: list.MaxItems(1) & [..._#defs."/$defs/Properties/definitions/SlaTargetFieldValue"] |
 			fn.#ListExpression
-		TargetSlaMinutes!: <=1051200 & >=1 | fn.#NumberExpression
-		Type!:             "CaseField" | fn.#StringExpression
+		TargetSlaMinutes!: <=1051200 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=1051200 &
+								>=1,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Type!: "CaseField" | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	SlaAssignmentType!: "CASES" | fn.#StringExpression
@@ -68,7 +85,7 @@ _#defs: "/$defs/Properties/definitions/AssignSlaAction": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AssignSlaActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/AssignSlaAction" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/AssignSlaAction"
 ] |
 	fn.#ListExpression
 
@@ -79,17 +96,16 @@ _#defs: "/$defs/Properties/definitions/CreateCaseAction": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CreateCaseActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/CreateCaseAction" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/CreateCaseAction"
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/EndAssociatedTasksAction": string |
-	{[string]: fn.#Value} |
-	fn.#ObjectExpression |
-	fn.#StringExpression
+_#defs: "/$defs/Properties/definitions/EndAssociatedTasksAction": fn.#Object & {...} |
+string |
+fn.#StringObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EndAssociatedTasksActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/EndAssociatedTasksAction" | fn.#ObjectExpression | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/EndAssociatedTasksAction"
 ] |
 	fn.#ListExpression
 
@@ -99,7 +115,7 @@ _#defs: "/$defs/Properties/definitions/EventBridgeAction": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EventBridgeActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/EventBridgeAction" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/EventBridgeAction"
 ] |
 	fn.#ListExpression
 
@@ -110,21 +126,39 @@ _#defs: "/$defs/Properties/definitions/Field": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FieldValue": close({
-	BooleanValue?: bool | fn.#BooleanExpression
-	DoubleValue?:  number | fn.#NumberExpression
-	EmptyValue?:   string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
-	StringValue?:  string | fn.#StringExpression
+	BooleanValue?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DoubleValue?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	EmptyValue?:  fn.#Object & {...} | string | fn.#StringObjectExpression
+	StringValue?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Fields": list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Field" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/Field"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/NotificationRecipientType": close({
 	UserArns?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/UserArn" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/UserArn"
 	] |
 		fn.#ListExpression
 	UserTags?: null |
@@ -179,7 +213,7 @@ _#defs: "/$defs/Properties/definitions/SendNotificationAction": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SendNotificationActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/SendNotificationAction" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/SendNotificationAction"
 ] |
 	fn.#ListExpression
 
@@ -193,7 +227,7 @@ _#defs: "/$defs/Properties/definitions/SubmitAutoEvaluationAction": close({
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SubmitAutoEvaluationActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/SubmitAutoEvaluationAction" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/SubmitAutoEvaluationAction"
 ] |
 	fn.#ListExpression
 
@@ -215,13 +249,13 @@ _#defs: "/$defs/Properties/definitions/TaskAction": close({
 	[...] |
 	close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/Reference" | fn.#ObjectExpression}}) |
+		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/Reference"}}) |
 	fn.#ValueExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TaskActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/TaskAction" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/TaskAction"
 ] |
 	fn.#ListExpression
 
@@ -231,7 +265,7 @@ _#defs: "/$defs/Properties/definitions/UpdateCaseAction": close(
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/UpdateCaseActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/UpdateCaseAction" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/UpdateCaseAction"
 ] |
 	fn.#ListExpression
 

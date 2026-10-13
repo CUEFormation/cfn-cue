@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,11 +14,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource type definition for AWS::AWSExternalAnthropic::Workspace
 #Properties: close({
-	DataResidency?: _#defs."/$defs/Properties/definitions/DataResidency" | fn.#ObjectExpression
+	DataResidency?: _#defs."/$defs/Properties/definitions/DataResidency"
 	Name!:          strings.MaxRunes(40) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

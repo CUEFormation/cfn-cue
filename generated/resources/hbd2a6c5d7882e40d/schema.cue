@@ -13,32 +13,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Cognito::UserPoolRiskConfigurationAttachment
 #Properties: close({
-	AccountTakeoverRiskConfiguration?: _#defs."/$defs/Properties/definitions/AccountTakeoverRiskConfigurationType" |
-		fn.#ObjectExpression
-	ClientId!: string | fn.#StringExpression
-	CompromisedCredentialsRiskConfiguration?: _#defs."/$defs/Properties/definitions/CompromisedCredentialsRiskConfigurationType" |
-		fn.#ObjectExpression
-	RiskExceptionConfiguration?: _#defs."/$defs/Properties/definitions/RiskExceptionConfigurationType" |
-		fn.#ObjectExpression
-	UserPoolId!: string | fn.#StringExpression
+	AccountTakeoverRiskConfiguration?: _#defs."/$defs/Properties/definitions/AccountTakeoverRiskConfigurationType"
+	ClientId!:                         string | fn.#StringExpression
+	CompromisedCredentialsRiskConfiguration?:
+		_#defs."/$defs/Properties/definitions/CompromisedCredentialsRiskConfigurationType"
+	RiskExceptionConfiguration?: _#defs."/$defs/Properties/definitions/RiskExceptionConfigurationType"
+	UserPoolId!:                 string | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AccountTakeoverActionType": close({
 	EventAction!: string | fn.#StringExpression
-	Notify!:      bool | fn.#BooleanExpression
+	Notify!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AccountTakeoverActionsType": close({
-	HighAction?:   _#defs."/$defs/Properties/definitions/AccountTakeoverActionType" | fn.#ObjectExpression
-	LowAction?:    _#defs."/$defs/Properties/definitions/AccountTakeoverActionType" | fn.#ObjectExpression
-	MediumAction?: _#defs."/$defs/Properties/definitions/AccountTakeoverActionType" | fn.#ObjectExpression
+	HighAction?:   _#defs."/$defs/Properties/definitions/AccountTakeoverActionType"
+	LowAction?:    _#defs."/$defs/Properties/definitions/AccountTakeoverActionType"
+	MediumAction?: _#defs."/$defs/Properties/definitions/AccountTakeoverActionType"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/AccountTakeoverRiskConfigurationType": close({
-	Actions!:             _#defs."/$defs/Properties/definitions/AccountTakeoverActionsType" | fn.#ObjectExpression
-	NotifyConfiguration?: _#defs."/$defs/Properties/definitions/NotifyConfigurationType" | fn.#ObjectExpression
+	Actions!:             _#defs."/$defs/Properties/definitions/AccountTakeoverActionsType"
+	NotifyConfiguration?: _#defs."/$defs/Properties/definitions/NotifyConfigurationType"
 }) |
 fn.#ObjectExpression
 
@@ -48,16 +46,16 @@ _#defs: "/$defs/Properties/definitions/CompromisedCredentialsActionsType": close
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CompromisedCredentialsRiskConfigurationType": close({
-	Actions!:     _#defs."/$defs/Properties/definitions/CompromisedCredentialsActionsType" | fn.#ObjectExpression
+	Actions!:     _#defs."/$defs/Properties/definitions/CompromisedCredentialsActionsType"
 	EventFilter?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NotifyConfigurationType": close({
-	BlockEmail?:    _#defs."/$defs/Properties/definitions/NotifyEmailType" | fn.#ObjectExpression
+	BlockEmail?:    _#defs."/$defs/Properties/definitions/NotifyEmailType"
 	From?:          string | fn.#StringExpression
-	MfaEmail?:      _#defs."/$defs/Properties/definitions/NotifyEmailType" | fn.#ObjectExpression
-	NoActionEmail?: _#defs."/$defs/Properties/definitions/NotifyEmailType" | fn.#ObjectExpression
+	MfaEmail?:      _#defs."/$defs/Properties/definitions/NotifyEmailType"
+	NoActionEmail?: _#defs."/$defs/Properties/definitions/NotifyEmailType"
 	ReplyTo?:       string | fn.#StringExpression
 	SourceArn!:     string | fn.#StringExpression
 }) |

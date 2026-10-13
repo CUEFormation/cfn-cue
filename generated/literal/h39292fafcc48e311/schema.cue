@@ -617,7 +617,7 @@ _#defs: "/$defs/Properties/definitions/SpekeKeyProvider": close({
 	// <code>arn:aws:iam::{accountID}:role/{name}</code>. The following example
 	// shows a role ARN: <code>arn:aws:iam::444455556666:role/SpekeAccess</code>
 	// </p>
-	RoleArn!: strings.MaxRunes(2048) & strings.MinRunes(1)
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 	// <p>The URL of the API Gateway proxy that you set up to talk to your key
 	// server. The API Gateway proxy must reside in the same AWS Region as

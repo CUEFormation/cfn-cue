@@ -103,7 +103,8 @@ _#defs: "/$defs/Properties/definitions/EventExpression": strings.MaxRunes(2048) 
 _#defs: "/$defs/Properties/definitions/LanguageVersion": int & <=1 & >=1
 
 _#defs: "/$defs/Properties/definitions/MqttTopicConfig": close({
-	ExecutionRoleArn!: strings.MaxRunes(2048) &
+	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$"
 	MqttTopicArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*"
@@ -177,7 +178,8 @@ _#defs: "/$defs/Properties/definitions/TimePeriod": close({
 _#defs: "/$defs/Properties/definitions/TimeUnit": "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR"
 
 _#defs: "/$defs/Properties/definitions/TimestreamConfig": close({
-	ExecutionRoleArn!: strings.MaxRunes(2048) &
+	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$"
 	TimestreamTableArn!: strings.MaxRunes(2048) &

@@ -13,7 +13,7 @@ package schema
 	AlarmRule!:             _#defs."/$defs/Properties/definitions/AlarmRule"
 	Id?:                    string
 	Key?:                   string
-	RoleArn!:               string
+	RoleArn!:               =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Severity?:              int
 	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"]
 })
@@ -108,7 +108,7 @@ _#defs: "/$defs/Properties/definitions/IotTopicPublish": close({
 })
 
 _#defs: "/$defs/Properties/definitions/Lambda": close({
-	FunctionArn!: string
+	FunctionArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
 	Payload?:     _#defs."/$defs/Properties/definitions/Payload"
 })
 

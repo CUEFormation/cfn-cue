@@ -17,13 +17,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DestinationName!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-_]+" | fn.#StringExpression
 	Sidewalk!: close({
 		DeviceCreationFile?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Role?:                    _#defs."/$defs/Properties/definitions/Role" | fn.#StringExpression
+		Role?:                    _#defs."/$defs/Properties/definitions/Role"
 		SidewalkManufacturingSn?: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

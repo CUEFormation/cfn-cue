@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,21 +19,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource type definition for AWS::NetworkFirewall::FirewallPolicy
 #Properties: close({
 	Description?:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	FirewallPolicy!:     _#defs."/$defs/Properties/definitions/FirewallPolicy" | fn.#ObjectExpression
+	FirewallPolicy!:     _#defs."/$defs/Properties/definitions/FirewallPolicy"
 	FirewallPolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ActionDefinition": close(
-	{PublishMetricAction?: _#defs."/$defs/Properties/definitions/PublishMetricAction" | fn.#ObjectExpression},
+	{PublishMetricAction?: _#defs."/$defs/Properties/definitions/PublishMetricAction"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomAction": close({
-	ActionDefinition!: _#defs."/$defs/Properties/definitions/ActionDefinition" | fn.#ObjectExpression
+	ActionDefinition!: _#defs."/$defs/Properties/definitions/ActionDefinition"
 	ActionName!:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -40,43 +42,48 @@ _#defs: "/$defs/Properties/definitions/Dimension": close(
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FirewallPolicy": close({
-	EnableTLSSessionHolding?: bool | fn.#BooleanExpression
-	PolicyVariables?: close(
-		{RuleVariables?: _#defs."/$defs/Properties/definitions/RuleVariables" | fn.#ObjectExpression},
-	) |
+	EnableTLSSessionHolding?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PolicyVariables?: close({RuleVariables?: _#defs."/$defs/Properties/definitions/RuleVariables"}) |
 		fn.#ObjectExpression
 	StatefulDefaultActions?: [...string | fn.#StringExpression] | fn.#ListExpression
-	StatefulEngineOptions?:  _#defs."/$defs/Properties/definitions/StatefulEngineOptions" | fn.#ObjectExpression
-	StatefulRuleGroupReferences?: [
-		..._#defs."/$defs/Properties/definitions/StatefulRuleGroupReference" | fn.#ObjectExpression
-	] |
+	StatefulEngineOptions?:  _#defs."/$defs/Properties/definitions/StatefulEngineOptions"
+	StatefulRuleGroupReferences?: [..._#defs."/$defs/Properties/definitions/StatefulRuleGroupReference"] |
 		fn.#ListExpression
-	StatelessCustomActions?: [..._#defs."/$defs/Properties/definitions/CustomAction" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	StatelessCustomActions?:          [..._#defs."/$defs/Properties/definitions/CustomAction"] | fn.#ListExpression
 	StatelessDefaultActions!:         [...string | fn.#StringExpression] | fn.#ListExpression
 	StatelessFragmentDefaultActions!: [...string | fn.#StringExpression] | fn.#ListExpression
-	StatelessRuleGroupReferences?: [
-		..._#defs."/$defs/Properties/definitions/StatelessRuleGroupReference" | fn.#ObjectExpression
-	] |
+	StatelessRuleGroupReferences?: [..._#defs."/$defs/Properties/definitions/StatelessRuleGroupReference"] |
 		fn.#ListExpression
-	TLSInspectionConfigurationArn?: _#defs."/$defs/Properties/definitions/ResourceArn" | fn.#StringExpression
+	TLSInspectionConfigurationArn?: _#defs."/$defs/Properties/definitions/ResourceArn"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IPSet": close({
-	Definition?: [..._#defs."/$defs/Properties/definitions/VariableDefinition" | fn.#StringExpression] |
-		fn.#ListExpression
-}) |
+_#defs: "/$defs/Properties/definitions/IPSet": close(
+	{Definition?: [..._#defs."/$defs/Properties/definitions/VariableDefinition"] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OverrideAction": "DROP_TO_ALERT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Priority": int & <=65535 & >=1 | fn.#NumberExpression
+_#defs: "/$defs/Properties/definitions/Priority": int & <=65535 & >=1 |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatInt(
+					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+						int &
+						<=65535 &
+						>=1,
+					10,
+				))*0 + 1,
+			)
+	} |
+	fn.#NumberExpression
 
 _#defs: "/$defs/Properties/definitions/PublishMetricAction": close({
-	Dimensions!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/Dimension" | fn.#ObjectExpression
-	] |
+	Dimensions!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Dimension"] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
@@ -88,32 +95,52 @@ _#defs: "/$defs/Properties/definitions/RuleOrder": "DEFAULT_ACTION_ORDER" | "STR
 
 _#defs: "/$defs/Properties/definitions/RuleVariables": close({
 
-	{[=~"^[A-Za-z0-9_]{1,32}$"]: _#defs."/$defs/Properties/definitions/IPSet" | fn.#ObjectExpression}}) |
+	{[=~"^[A-Za-z0-9_]{1,32}$"]: _#defs."/$defs/Properties/definitions/IPSet"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StatefulEngineOptions": close({
-	FlowTimeouts?: close({TcpIdleTimeoutSeconds?: int & <=6000 & >=60 | fn.#NumberExpression}) | fn.#ObjectExpression
-	RuleOrder?:    _#defs."/$defs/Properties/definitions/RuleOrder" | fn.#StringExpression
-	StreamExceptionPolicy?: _#defs."/$defs/Properties/definitions/StreamExceptionPolicy" | fn.#StringExpression
+	FlowTimeouts?: close({
+		TcpIdleTimeoutSeconds?: int & <=6000 & >=60 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=6000 &
+								>=60,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	}) |
+		fn.#ObjectExpression
+	RuleOrder?:             _#defs."/$defs/Properties/definitions/RuleOrder"
+	StreamExceptionPolicy?: _#defs."/$defs/Properties/definitions/StreamExceptionPolicy"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StatefulRuleGroupOverride": close(
-	{Action?: _#defs."/$defs/Properties/definitions/OverrideAction" | fn.#StringExpression},
+	{Action?: _#defs."/$defs/Properties/definitions/OverrideAction"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StatefulRuleGroupReference": close({
-	DeepThreatInspection?: bool | fn.#BooleanExpression
-	Override?:             _#defs."/$defs/Properties/definitions/StatefulRuleGroupOverride" | fn.#ObjectExpression
-	Priority?:             _#defs."/$defs/Properties/definitions/Priority" | fn.#NumberExpression
-	ResourceArn!:          _#defs."/$defs/Properties/definitions/ResourceArn" | fn.#StringExpression
+	DeepThreatInspection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Override?:             _#defs."/$defs/Properties/definitions/StatefulRuleGroupOverride"
+	Priority?:             _#defs."/$defs/Properties/definitions/Priority"
+	ResourceArn!:          _#defs."/$defs/Properties/definitions/ResourceArn"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/StatelessRuleGroupReference": close({
-	Priority!:    _#defs."/$defs/Properties/definitions/Priority" | fn.#NumberExpression
-	ResourceArn!: _#defs."/$defs/Properties/definitions/ResourceArn" | fn.#StringExpression
+	Priority!:    _#defs."/$defs/Properties/definitions/Priority"
+	ResourceArn!: _#defs."/$defs/Properties/definitions/ResourceArn"
 }) |
 fn.#ObjectExpression
 

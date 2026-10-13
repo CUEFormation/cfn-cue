@@ -20,9 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	MonitorName!:          strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
 	MonitorSpecification?: string | fn.#StringExpression
 	MonitorType!:          "DIMENSIONAL" | "CUSTOM" | fn.#StringExpression
-	ResourceTags?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ResourceTag" | fn.#ObjectExpression
-	] |
+	ResourceTags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceTag"] |
 		fn.#ListExpression
 })
 

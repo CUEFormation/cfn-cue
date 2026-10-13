@@ -12,7 +12,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	MemberId?:          string | fn.#StringExpression
 	NetworkId!:         string | fn.#StringExpression
-	NodeConfiguration!: _#defs."/$defs/Properties/definitions/NodeConfiguration" | fn.#ObjectExpression
+	NodeConfiguration!: _#defs."/$defs/Properties/definitions/NodeConfiguration"
 })
 
 _#defs: "/$defs/Properties/definitions/NodeConfiguration": close({

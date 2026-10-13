@@ -17,9 +17,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^([0-9a-zA-Z:.][ _-]?)+$" | fn.#StringExpression
 	InferenceProfileName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][ _-]?)+$" |
 	fn.#StringExpression
-	ModelSource?: _#defs."/$defs/Properties/definitions/InferenceProfileModelSource" | fn.#ValueExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ModelSource?: _#defs."/$defs/Properties/definitions/InferenceProfileModelSource"
+	Tags?:        list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/InferenceProfileModel": close({

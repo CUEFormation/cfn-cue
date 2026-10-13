@@ -12,7 +12,8 @@ import "strings"
 	HypervisorArn?: strings.MaxRunes(500) &
 	strings.MinRunes(50) &
 	=~"^arn:(aws|aws-cn|aws-us-gov):backup-gateway(:[a-zA-Z-0-9]+){3}\\/[a-zA-Z-0-9]+$"
-	KmsKeyArn?: strings.MaxRunes(500) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(500) &
 	strings.MinRunes(50) &
 	=~"^(^arn:(aws|aws-cn|aws-us-gov):kms:([a-zA-Z0-9-]+):([0-9]+):(key|alias)/(\\S+)$)|(^alias/(\\S+)$)$"
 	LogGroupArn?: strings.MaxRunes(2048) &

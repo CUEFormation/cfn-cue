@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -21,27 +25,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	TemplateBody!: _
 	...
 }]) & close({
-	AdministrationRoleARN?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	AutoDeployment?:        _#defs."/$defs/Properties/definitions/AutoDeployment" | fn.#ObjectExpression
-	CallAs?:                "SELF" | "DELEGATED_ADMIN" | fn.#StringExpression
-	Capabilities?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Capability" | fn.#StringExpression] |
-		fn.#ListExpression
+	AdministrationRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
+	AutoDeployment?:    _#defs."/$defs/Properties/definitions/AutoDeployment" | fn.#ObjectExpression
+	CallAs?:            "SELF" | "DELEGATED_ADMIN" | fn.#StringExpression
+	Capabilities?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Capability"] | fn.#ListExpression
 	Description?:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	ExecutionRoleName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9+=,.@/-]+$" | fn.#StringExpression
-	ManagedExecution?: close({Active?: _#defs."/$defs/Properties/definitions/Active" | fn.#BooleanExpression}) |
-		fn.#ObjectExpression
-	OperationPreferences?: _#defs."/$defs/Properties/definitions/OperationPreferences" | fn.#ObjectExpression
-	Parameters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Parameter" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	ManagedExecution?:  close({Active?: _#defs."/$defs/Properties/definitions/Active"}) | fn.#ObjectExpression
+	OperationPreferences?: _#defs."/$defs/Properties/definitions/OperationPreferences"
+	Parameters?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Parameter"] | fn.#ListExpression
 	PermissionModel!: "SERVICE_MANAGED" | "SELF_MANAGED" | fn.#StringExpression
-	StackInstancesGroup?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StackInstances" | fn.#ObjectExpression
-	] |
+	StackInstancesGroup?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StackInstances"] |
 		fn.#ListExpression
 	StackSetName!: strings.MaxRunes(128) & =~"^[a-zA-Z][a-zA-Z0-9\\-]{0,127}$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 	TemplateBody?: strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
 	TemplateURL?:  strings.MaxRunes(5120) & strings.MinRunes(1) | fn.#StringExpression
@@ -49,13 +47,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 _#defs: "/$defs/Properties/definitions/Account": =~"^[0-9]{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Active": bool | fn.#BooleanExpression
+_#defs: "/$defs/Properties/definitions/Active": bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	fn.#BooleanExpression
 
 _#defs: "/$defs/Properties/definitions/AutoDeployment": close({
-	DependsOn?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StackSetArn" | fn.#StringExpression] |
-		fn.#ListExpression
-	Enabled?:                      bool | fn.#BooleanExpression
-	RetainStacksOnAccountRemoval?: bool | fn.#BooleanExpression
+	DependsOn?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StackSetArn"] | fn.#ListExpression
+	Enabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RetainStacksOnAccountRemoval?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -70,26 +74,82 @@ _#defs: "/$defs/Properties/definitions/ConcurrencyMode": "STRICT_FAILURE_TOLERAN
 
 _#defs: "/$defs/Properties/definitions/DeploymentTargets": close({
 	AccountFilterType?: "NONE" | "UNION" | "INTERSECTION" | "DIFFERENCE" | fn.#StringExpression
-	Accounts?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Account" | fn.#StringExpression
-	] |
+	Accounts?: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Account"] |
 		fn.#ListExpression
 	AccountsUrl?: strings.MaxRunes(5120) & strings.MinRunes(1) & =~"(s3://|http(s?)://).+" | fn.#StringExpression
 	OrganizationalUnitIds?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/OrganizationalUnitId" | fn.#StringExpression
+		..._#defs."/$defs/Properties/definitions/OrganizationalUnitId"
 	] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OperationPreferences": close({
-	ConcurrencyMode?:            _#defs."/$defs/Properties/definitions/ConcurrencyMode" | fn.#StringExpression
-	FailureToleranceCount?:      int & >=0 | fn.#NumberExpression
-	FailureTolerancePercentage?: int & <=100 & >=0 | fn.#NumberExpression
-	MaxConcurrentCount?:         int & >=1 | fn.#NumberExpression
-	MaxConcurrentPercentage?:    int & <=100 & >=0 | fn.#NumberExpression
-	RegionConcurrencyType?:      _#defs."/$defs/Properties/definitions/RegionConcurrencyType" | fn.#StringExpression
-	RegionOrder?: [..._#defs."/$defs/Properties/definitions/Region" | fn.#StringExpression] | fn.#ListExpression
+	ConcurrencyMode?: _#defs."/$defs/Properties/definitions/ConcurrencyMode"
+	FailureToleranceCount?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	FailureTolerancePercentage?: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxConcurrentCount?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MaxConcurrentPercentage?: int & <=100 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=100 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	RegionConcurrencyType?: _#defs."/$defs/Properties/definitions/RegionConcurrencyType"
+	RegionOrder?:           [..._#defs."/$defs/Properties/definitions/Region"] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -107,14 +167,9 @@ _#defs: "/$defs/Properties/definitions/Region": =~"^[a-zA-Z0-9-]{1,128}$" | fn.#
 _#defs: "/$defs/Properties/definitions/RegionConcurrencyType": "SEQUENTIAL" | "PARALLEL" | fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/StackInstances": close({
-	DeploymentTargets!: _#defs."/$defs/Properties/definitions/DeploymentTargets" | fn.#ObjectExpression
-	ParameterOverrides?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Parameter" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Regions!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Region" | fn.#StringExpression
-	] |
+	DeploymentTargets!:  _#defs."/$defs/Properties/definitions/DeploymentTargets"
+	ParameterOverrides?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Parameter"] | fn.#ListExpression
+	Regions!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Region"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression

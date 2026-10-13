@@ -10,13 +10,13 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::ImageBuilder
-#Properties: ({
+#Properties: matchN(>=1, [{
 	ImageName!: _
 	...
-} | {
+}, {
 	ImageArn!: _
 	...
-}) & close({
+}]) & close({
 	AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AccessEndpoint"]
 	AppstreamAgentVersion?:       strings.MaxRunes(100) & strings.MinRunes(1)
 	Description?:                 strings.MaxRunes(256) & strings.MinRunes(0)
@@ -24,7 +24,7 @@ import (
 	DisplayName?:                 strings.MaxRunes(100) & strings.MinRunes(0)
 	DomainJoinInfo?:              _#defs."/$defs/Properties/definitions/DomainJoinInfo"
 	EnableDefaultInternetAccess?: bool
-	IamRoleArn?:                  string
+	IamRoleArn?:                  =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	ImageArn?:                    string
 	ImageName?:                   strings.MinRunes(1)
 	InstanceType!:                strings.MinRunes(1)
@@ -55,6 +55,8 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 _#defs: "/$defs/Properties/definitions/VolumeConfig": close({VolumeSizeInGb?: int})
 
 _#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroupIds?: list.MaxItems(5) & [...] & [...strings.MinRunes(1)]
-	SubnetIds?:        [...strings.MinRunes(1)]
+	SecurityGroupIds?: list.MaxItems(5) & [...] & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & strings.MinRunes(1)
+	]
+	SubnetIds?: [...strings.MinRunes(1)]
 })

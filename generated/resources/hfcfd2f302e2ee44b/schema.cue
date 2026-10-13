@@ -15,16 +15,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Events::Endpoint.
 #Properties: close({
 	Description?:       strings.MaxRunes(512) & =~".*" | fn.#StringExpression
-	EventBuses!:        _#defs."/$defs/Properties/definitions/EventBuses" | fn.#ListExpression
+	EventBuses!:        _#defs."/$defs/Properties/definitions/EventBuses"
 	Name?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" | fn.#StringExpression
-	ReplicationConfig?: _#defs."/$defs/Properties/definitions/ReplicationConfig" | fn.#ObjectExpression
-	RoleArn?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws[a-z-]*:iam::\\d{12}:role\\/[\\w+=,.@/-]+$" |
+	ReplicationConfig?: _#defs."/$defs/Properties/definitions/ReplicationConfig"
+	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"^arn:aws[a-z-]*:iam::\\d{12}:role\\/[\\w+=,.@/-]+$" |
 	fn.#StringExpression
-	RoutingConfig!: _#defs."/$defs/Properties/definitions/RoutingConfig" | fn.#ObjectExpression
+	RoutingConfig!: _#defs."/$defs/Properties/definitions/RoutingConfig"
 })
 
 _#defs: "/$defs/Properties/definitions/EndpointEventBus": close(
-	{EventBusArn!: _#defs."/$defs/Properties/definitions/EventBusArn" | fn.#StringExpression},
+	{EventBusArn!: _#defs."/$defs/Properties/definitions/EventBusArn"},
 ) |
 	fn.#ObjectExpression
 
@@ -34,13 +37,13 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/EventBuses": list.MaxItems(2) & list.MinItems(2) & [
-	..._#defs."/$defs/Properties/definitions/EndpointEventBus" | fn.#ObjectExpression
+	..._#defs."/$defs/Properties/definitions/EndpointEventBus"
 ] |
 	fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/FailoverConfig": close({
-	Primary!:   _#defs."/$defs/Properties/definitions/Primary" | fn.#ObjectExpression
-	Secondary!: _#defs."/$defs/Properties/definitions/Secondary" | fn.#ObjectExpression
+	Primary!:   _#defs."/$defs/Properties/definitions/Primary"
+	Secondary!: _#defs."/$defs/Properties/definitions/Secondary"
 }) |
 fn.#ObjectExpression
 
@@ -50,12 +53,12 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/Primary": close(
-	{HealthCheck!: _#defs."/$defs/Properties/definitions/HealthCheck" | fn.#StringExpression},
+	{HealthCheck!: _#defs."/$defs/Properties/definitions/HealthCheck"},
 ) |
 	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ReplicationConfig": close(
-	{State!: _#defs."/$defs/Properties/definitions/ReplicationState" | fn.#StringExpression},
+	{State!: _#defs."/$defs/Properties/definitions/ReplicationState"},
 ) |
 	fn.#ObjectExpression
 
@@ -65,13 +68,11 @@ _#defs: "/$defs/Properties/definitions/Route": strings.MaxRunes(20) & strings.Mi
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/RoutingConfig": close(
-	{FailoverConfig!: _#defs."/$defs/Properties/definitions/FailoverConfig" | fn.#ObjectExpression},
+	{FailoverConfig!: _#defs."/$defs/Properties/definitions/FailoverConfig"},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Secondary": close(
-	{Route!: _#defs."/$defs/Properties/definitions/Route" | fn.#StringExpression},
-) |
+_#defs: "/$defs/Properties/definitions/Secondary": close({Route!: _#defs."/$defs/Properties/definitions/Route"}) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Events::Endpoint"

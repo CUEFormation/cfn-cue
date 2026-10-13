@@ -7,6 +7,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,15 +18,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The ``AWS::ApiGateway::Method`` resource creates API Gateway methods that
 // define the parameters and body that clients must send in their requests.
 #Properties: close({
-	ApiKeyRequired?:      bool | fn.#BooleanExpression
+	ApiKeyRequired?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AuthorizationScopes?: [...string | fn.#StringExpression] | fn.#ListExpression
 	AuthorizationType?:   string | fn.#StringExpression
 	AuthorizerId?:        string | fn.#StringExpression
 	HttpMethod!:          string | fn.#StringExpression
 	Integration?:         _#defs."/$defs/Properties/definitions/Integration" | fn.#ObjectExpression
-	MethodResponses?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MethodResponse" | fn.#ObjectExpression
-	] |
+	MethodResponses?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MethodResponse"] |
 		fn.#ListExpression
 	OperationName?: string | fn.#StringExpression
 	RequestModels?: close({
@@ -31,7 +33,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 	RequestParameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: bool | string | fn.#BooleanExpression | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: bool | string | fn.#StringBooleanExpression}}) |
 	fn.#ObjectExpression
 	RequestValidatorId?: string | fn.#StringExpression
 	ResourceId!:         string | fn.#StringExpression
@@ -46,9 +48,7 @@ _#defs: "/$defs/Properties/definitions/Integration": close({
 	ContentHandling?:       "CONVERT_TO_BINARY" | "CONVERT_TO_TEXT" | fn.#StringExpression
 	Credentials?:           string | fn.#StringExpression
 	IntegrationHttpMethod?: string | fn.#StringExpression
-	IntegrationResponses?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IntegrationResponse" | fn.#ObjectExpression
-	] |
+	IntegrationResponses?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/IntegrationResponse"] |
 		fn.#ListExpression
 	IntegrationTarget?:   string | fn.#StringExpression
 	PassthroughBehavior?: "WHEN_NO_MATCH" | "WHEN_NO_TEMPLATES" | "NEVER" | fn.#StringExpression
@@ -61,9 +61,23 @@ _#defs: "/$defs/Properties/definitions/Integration": close({
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
 	ResponseTransferMode?: "BUFFERED" | "STREAM" | fn.#StringExpression
-	TimeoutInMillis?:      int & >=50 | fn.#NumberExpression
-	Type!:                 "AWS" | "AWS_PROXY" | "HTTP" | "HTTP_PROXY" | "MOCK" | fn.#StringExpression
-	Uri?:                  string | fn.#StringExpression
+	TimeoutInMillis?: int & >=50 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=50,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Type!: "AWS" | "AWS_PROXY" | "HTTP" | "HTTP_PROXY" | "MOCK" | fn.#StringExpression
+	Uri?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -89,7 +103,7 @@ _#defs: "/$defs/Properties/definitions/MethodResponse": close({
 	fn.#ObjectExpression
 	ResponseParameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: bool | string | fn.#BooleanExpression | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: bool | string | fn.#StringBooleanExpression}}) |
 	fn.#ObjectExpression
 	StatusCode!: string | fn.#StringExpression
 }) |

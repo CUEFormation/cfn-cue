@@ -17,9 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Name!:        strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-\\.]*" | fn.#StringExpression
 	RuleSetBody!: strings.MaxRunes(65535) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
+	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
 		fn.#ListExpression
 })
 

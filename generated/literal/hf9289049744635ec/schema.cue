@@ -30,7 +30,7 @@ _#defs: "/$defs/Properties/definitions/HttpsNotificationConfiguration": close({
 	HttpMethod?: "POST" | "PUT"
 
 	// The Amazon Resource Name (ARN) of the EventBridge API destinations IAM role that you created.
-	TargetRoleArn!: =~"^arn:.*$"
+	TargetRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:.*$"
 })
 
 _#defs: "/$defs/Properties/definitions/NotificationConfiguration": matchN(1, [{

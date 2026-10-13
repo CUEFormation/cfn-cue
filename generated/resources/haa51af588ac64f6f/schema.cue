@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -22,10 +26,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^[A-Za-z0-9]([A-Za-z0-9\\:\\-\\_\\.\\@]{0,62}[A-Za-z0-9])?$" |
 	fn.#StringExpression
-	ChimeBearer!: strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
-	ElasticChannelConfiguration?: _#defs."/$defs/Properties/definitions/ElasticChannelConfiguration" |
-		fn.#ObjectExpression
-	ExpirationSettings?: _#defs."/$defs/Properties/definitions/ExpirationSettings" | fn.#ObjectExpression
+	ChimeBearer!:                 strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
+	ElasticChannelConfiguration?: _#defs."/$defs/Properties/definitions/ElasticChannelConfiguration"
+	ExpirationSettings?:          _#defs."/$defs/Properties/definitions/ExpirationSettings"
 	MemberArns?: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
 	] |
@@ -41,20 +44,77 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{0085}\\x{00A0}-\\x{D7FF}\\x{E000}-\\x{FFFD}𐀀-\U0010ffff]*$" |
 	fn.#StringExpression
 	Privacy?: "PUBLIC" | "PRIVATE" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:    list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/ElasticChannelConfiguration": close({
-	MaximumSubChannels!:             int & >=2 | fn.#NumberExpression
-	MinimumMembershipPercentage!:    int & <=40 & >=1 | fn.#NumberExpression
-	TargetMembershipsPerSubChannel!: int & >=2 | fn.#NumberExpression
+	MaximumSubChannels!: int & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=2,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	MinimumMembershipPercentage!: int & <=40 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=40 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	TargetMembershipsPerSubChannel!: int & >=2 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=2,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ExpirationSettings": close({
 	ExpirationCriterion!: "CREATED_TIMESTAMP" | "LAST_MESSAGE_TIMESTAMP" | fn.#StringExpression
-	ExpirationDays!:      int & <=5475 & >=1 | fn.#NumberExpression
+	ExpirationDays!: int & <=5475 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=5475 &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

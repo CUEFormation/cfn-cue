@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	InputStorageLocation?: _#defs."/$defs/Properties/definitions/StorageLocation" | fn.#ObjectExpression
 	LogsStorageLocation?:  _#defs."/$defs/Properties/definitions/StorageLocation" | fn.#ObjectExpression
 	Name?:                 string | fn.#StringExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/StorageLocation": close({

@@ -36,14 +36,14 @@ _#defs: "/$defs/Properties/definitions/CognitoIdentityProvider": close({
 })
 
 _#defs: "/$defs/Properties/definitions/CognitoStreams": close({
-	RoleArn?:         string
+	RoleArn?:         =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	StreamName?:      string
 	StreamingStatus?: string
 })
 
 _#defs: "/$defs/Properties/definitions/PushSync": close({
 	ApplicationArns?: [...string]
-	RoleArn?:         string
+	RoleArn?:         =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 // A key-value pair to associate with a resource.

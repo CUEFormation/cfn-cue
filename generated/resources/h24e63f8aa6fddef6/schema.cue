@@ -10,13 +10,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Pinpoint::PushTemplate
 #Properties: close({
-	ADM?:                  _#defs."/$defs/Properties/definitions/AndroidPushNotificationTemplate" | fn.#ObjectExpression
-	APNS?:                 _#defs."/$defs/Properties/definitions/APNSPushNotificationTemplate" | fn.#ObjectExpression
-	Baidu?:                _#defs."/$defs/Properties/definitions/AndroidPushNotificationTemplate" | fn.#ObjectExpression
-	Default?:              _#defs."/$defs/Properties/definitions/DefaultPushNotificationTemplate" | fn.#ObjectExpression
+	ADM?:                  _#defs."/$defs/Properties/definitions/AndroidPushNotificationTemplate"
+	APNS?:                 _#defs."/$defs/Properties/definitions/APNSPushNotificationTemplate"
+	Baidu?:                _#defs."/$defs/Properties/definitions/AndroidPushNotificationTemplate"
+	Default?:              _#defs."/$defs/Properties/definitions/DefaultPushNotificationTemplate"
 	DefaultSubstitutions?: string | fn.#StringExpression
-	GCM?:                  _#defs."/$defs/Properties/definitions/AndroidPushNotificationTemplate" | fn.#ObjectExpression
-	Tags?:                 string | {[string]: fn.#Value} | fn.#ObjectExpression | fn.#StringExpression
+	GCM?:                  _#defs."/$defs/Properties/definitions/AndroidPushNotificationTemplate"
+	Tags?:                 fn.#Object & {...} | string | fn.#StringObjectExpression
 	TemplateDescription?:  string | fn.#StringExpression
 	TemplateName!:         string | fn.#StringExpression
 })

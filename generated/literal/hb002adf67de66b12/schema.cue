@@ -25,14 +25,18 @@ import (
 	InterceptorConfigurations?: list.MaxItems(2) & list.MinItems(1) & [
 		..._#defs."/$defs/Properties/definitions/GatewayInterceptorConfiguration"
 	]
-	KmsKeyArn?: strings.MaxRunes(2048) &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$"
 	Name!:                      =~"^([0-9a-zA-Z][-]?){1,48}$"
 	PolicyEngineConfiguration?: _#defs."/$defs/Properties/definitions/GatewayPolicyEngineConfiguration"
 	ProtocolConfiguration?:     _#defs."/$defs/Properties/definitions/GatewayProtocolConfiguration"
 	ProtocolType?:              _#defs."/$defs/Properties/definitions/GatewayProtocolType"
-	RoleArn!:          strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$"
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$"
 	Status?:           _#defs."/$defs/Properties/definitions/GatewayStatus"
 	StatusReasons?:    list.MaxItems(100) & [...strings.MaxRunes(2048)]
 	Tags?:             _#defs."/$defs/Properties/definitions/TagsMap"
@@ -165,10 +169,12 @@ _#defs: "/$defs/Properties/definitions/MCPGatewayConfiguration": close({
 _#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
 	EndpointIpAddressType!: _#defs."/$defs/Properties/definitions/EndpointIpAddressType"
 	RoutingDomain?:         strings.MaxRunes(255) & strings.MinRunes(3)
-	SecurityGroupIds?:      list.MaxItems(5) & [...] & [...=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$"]
-	SubnetIds!:             [...=~"^subnet-[0-9a-zA-Z]{8,17}$"]
-	Tags?:                  _#defs."/$defs/Properties/definitions/TagsMap"
-	VpcIdentifier!:         =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$"
+	SecurityGroupIds?: list.MaxItems(5) & [...] & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$"
+	]
+	SubnetIds!:     [...=~"^subnet-[0-9a-zA-Z]{8,17}$"]
+	Tags?:          _#defs."/$defs/Properties/definitions/TagsMap"
+	VpcIdentifier!: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$"
 })
 
 _#defs: "/$defs/Properties/definitions/PrivateEndpoint": matchN(1, [close(

@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,9 +23,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CronExpression?: string | fn.#StringExpression
 	Name?:           string | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	TimeRanges?: [..._#defs."/$defs/Properties/definitions/TimeRange" | fn.#ObjectExpression] | fn.#ListExpression
+	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	TimeRanges?:     [..._#defs."/$defs/Properties/definitions/TimeRange"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
@@ -31,7 +34,22 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TimeRange": close({
-	EndHour?: int & <=23 & >=0 | fn.#NumberExpression
+	EndHour?: int & <=23 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=23 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	EndWeekDay?: "sunday" |
 		"monday" |
 		"tuesday" |
@@ -40,7 +58,22 @@ _#defs: "/$defs/Properties/definitions/TimeRange": close({
 		"friday" |
 		"saturday" |
 		fn.#StringExpression
-	StartHour?: int & <=23 & >=0 | fn.#NumberExpression
+	StartHour?: int & <=23 & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=23 &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	StartWeekDay?: "sunday" |
 		"monday" |
 		"tuesday" |

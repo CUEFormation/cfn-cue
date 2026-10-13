@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,12 +14,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Policy Statement defined in AWS Entity Resolution Service
 #Properties: close({
-	Action?:      _#defs."/$defs/Properties/definitions/StatementActionList" | fn.#ListExpression
-	Arn!:         _#defs."/$defs/Properties/definitions/VeniceGlobalArn" | fn.#StringExpression
-	Condition?:   _#defs."/$defs/Properties/definitions/StatementCondition" | fn.#StringExpression
-	Effect?:      _#defs."/$defs/Properties/definitions/StatementEffect" | fn.#StringExpression
-	Principal?:   _#defs."/$defs/Properties/definitions/StatementPrincipalList" | fn.#ListExpression
-	StatementId!: _#defs."/$defs/Properties/definitions/StatementId" | fn.#StringExpression
+	Action?:      _#defs."/$defs/Properties/definitions/StatementActionList"
+	Arn!:         _#defs."/$defs/Properties/definitions/VeniceGlobalArn"
+	Condition?:   _#defs."/$defs/Properties/definitions/StatementCondition"
+	Effect?:      _#defs."/$defs/Properties/definitions/StatementEffect"
+	Principal?:   _#defs."/$defs/Properties/definitions/StatementPrincipalList"
+	StatementId!: _#defs."/$defs/Properties/definitions/StatementId"
 })
 
 _#defs: "/$defs/Properties/definitions/StatementAction": strings.MaxRunes(64) &
@@ -28,7 +28,7 @@ strings.MinRunes(3) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/StatementActionList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/StatementAction" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/StatementAction"
 ] |
 	fn.#ListExpression
 
@@ -46,7 +46,7 @@ strings.MinRunes(12) &
 fn.#StringExpression
 
 _#defs: "/$defs/Properties/definitions/StatementPrincipalList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/StatementPrincipal" | fn.#StringExpression
+	..._#defs."/$defs/Properties/definitions/StatementPrincipal"
 ] |
 	fn.#ListExpression
 

@@ -8,6 +8,10 @@ import (
 	"list"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,17 +19,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // An aggregated metric of certain devices in your fleet
 #Properties: close({
 	AggregationField?: strings.MinRunes(1) | fn.#StringExpression
-	AggregationType?:  _#defs."/$defs/Properties/definitions/AggregationType" | fn.#ObjectExpression
+	AggregationType?:  _#defs."/$defs/Properties/definitions/AggregationType"
 	Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	IndexName?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" | fn.#StringExpression
 	MetricName!:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-\\.]+$" | fn.#StringExpression
-	Period?:           int & <=86400 & >=60 | fn.#NumberExpression
-	QueryString?:      strings.MinRunes(1) | fn.#StringExpression
-	QueryVersion?:     string | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	Period?: int & <=86400 & >=60 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=86400 &
+							>=60,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	QueryString?:  strings.MinRunes(1) | fn.#StringExpression
+	QueryVersion?: string | fn.#StringExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Unit?: "Bits" |
 		"Bits/Second" |
 		"Bytes" |

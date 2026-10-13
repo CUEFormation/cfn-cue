@@ -9,42 +9,91 @@ import (
 	"struct"
 )
 
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
+
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Account level Launch Configuration Template for AWS Application Migration Service.
 #Properties: close({
-	AssociatePublicIpAddress?:   bool | fn.#BooleanExpression
+	AssociatePublicIpAddress?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	BootMode?:                   "LEGACY_BIOS" | "UEFI" | "USE_SOURCE" | fn.#StringExpression
-	CopyPrivateIp?:              bool | fn.#BooleanExpression
-	CopyTags?:                   bool | fn.#BooleanExpression
-	EnableMapAutoTagging?:       bool | fn.#BooleanExpression
-	EnableParametersEncryption?: bool | fn.#BooleanExpression
-	LargeVolumeConf?:            _#defs."/$defs/Properties/definitions/LaunchTemplateDiskConf" | fn.#ObjectExpression
+	CopyPrivateIp?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CopyTags?:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableMapAutoTagging?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableParametersEncryption?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	LargeVolumeConf?:            _#defs."/$defs/Properties/definitions/LaunchTemplateDiskConf"
 	LaunchDisposition?:          "STOPPED" | "STARTED" | fn.#StringExpression
-	Licensing?:                  _#defs."/$defs/Properties/definitions/Licensing" | fn.#ObjectExpression
+	Licensing?:                  _#defs."/$defs/Properties/definitions/Licensing"
 	MapAutoTaggingMpeID?:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	ParametersEncryptionKey?: strings.MaxRunes(276) &
 	strings.MinRunes(20) &
 	=~"^((arn:[\\w-]+:kms:([a-z]{2}-(gov-)?[a-z]+-\\d{1})?:(\\d{12})?:((alias|key)/[a-zA-Z0-9:/_-]{1,256}))|())$" |
 	fn.#StringExpression
-	PostLaunchActions?:  _#defs."/$defs/Properties/definitions/PostLaunchActions" | fn.#ObjectExpression
-	SmallVolumeConf?:    _#defs."/$defs/Properties/definitions/LaunchTemplateDiskConf" | fn.#ObjectExpression
-	SmallVolumeMaxSize?: int & >=0 | fn.#NumberExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	PostLaunchActions?: _#defs."/$defs/Properties/definitions/PostLaunchActions"
+	SmallVolumeConf?:   _#defs."/$defs/Properties/definitions/LaunchTemplateDiskConf"
+	SmallVolumeMaxSize?: int & >=0 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=0,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	TargetInstanceTypeRightSizingMethod?: "NONE" | "BASIC" | fn.#StringExpression
 })
 
 _#defs: "/$defs/Properties/definitions/LaunchTemplateDiskConf": struct.MinFields(1) & close({
-	Iops?:       int & <=64000 & >=100 | fn.#NumberExpression
-	Throughput?: int & <=1000 & >=125 | fn.#NumberExpression
+	Iops?: int & <=64000 & >=100 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=64000 &
+							>=100,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Throughput?: int & <=1000 & >=125 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							<=1000 &
+							>=125,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	VolumeType?: "io1" | "io2" | "gp3" | "gp2" | "st1" | "sc1" | "standard" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Licensing": struct.MinFields(1) & close({OsByol?: bool | fn.#BooleanExpression}) |
+_#defs: "/$defs/Properties/definitions/Licensing": struct.MinFields(1) & close(
+	{OsByol?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PostLaunchActions": struct.MinFields(1) & close({
@@ -53,32 +102,44 @@ _#defs: "/$defs/Properties/definitions/PostLaunchActions": struct.MinFields(1) &
 	Deployment?:        "TEST_AND_CUTOVER" | "CUTOVER_ONLY" | "TEST_ONLY" | fn.#StringExpression
 	S3LogBucket?:       strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 	S3OutputKeyPrefix?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	SsmDocuments?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SsmDocument" | fn.#ObjectExpression
-	] |
+	SsmDocuments?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/SsmDocument"] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SsmDocument": close({
 	ActionName!:            strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	ExternalParameters?:    _#defs."/$defs/Properties/definitions/SsmDocumentExternalParameters" | fn.#ObjectExpression
-	MustSucceedForCutover?: bool | fn.#BooleanExpression
-	Parameters?:            _#defs."/$defs/Properties/definitions/SsmDocumentParameters" | fn.#ObjectExpression
+	ExternalParameters?:    _#defs."/$defs/Properties/definitions/SsmDocumentExternalParameters"
+	MustSucceedForCutover?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Parameters?:            _#defs."/$defs/Properties/definitions/SsmDocumentParameters"
 	SsmDocumentName!: strings.MaxRunes(172) & strings.MinRunes(3) & =~"^([A-Za-z0-9/:_\\.-])+$" | fn.#StringExpression
-	TimeoutSeconds?:  int & >=1 | fn.#NumberExpression
+	TimeoutSeconds?: int & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatInt(
+						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
+							int &
+							>=1,
+						10,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SsmDocumentExternalParameters": struct.MaxFields(20) & struct.MinFields(0) & close({
 
-	{[=~"^([A-Za-z0-9])+$"]: _#defs."/$defs/Properties/definitions/SsmExternalParameter" | fn.#ObjectExpression}}) |
+	{[=~"^([A-Za-z0-9])+$"]: _#defs."/$defs/Properties/definitions/SsmExternalParameter"}}) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SsmDocumentParameters": struct.MaxFields(20) & struct.MinFields(0) & close({
 
 	{[=~"^([A-Za-z0-9])+$"]: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/SsmParameterStoreParameter" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/SsmParameterStoreParameter"
 	] |
 		fn.#ListExpression}}) |
 fn.#ObjectExpression

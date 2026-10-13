@@ -25,7 +25,7 @@ import (
 	// The Amazon Resource Name (ARN) of the task execution role that grants the
 	// Amazon ECS container agent permission to make Amazon Web Services API calls
 	// on your behalf.
-	ExecutionRoleArn?: string
+	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The name of a family that this daemon task definition is registered to.
 	Family?: string
@@ -55,7 +55,7 @@ import (
 	// The short name or full Amazon Resource Name (ARN) of the IAM role that grants
 	// containers in the daemon task permission to call Amazon Web Services APIs on
 	// your behalf.
-	TaskRoleArn?: string
+	TaskRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The list of data volume definitions for the daemon task.
 	Volumes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Volume"]

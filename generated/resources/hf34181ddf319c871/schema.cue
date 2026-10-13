@@ -3,10 +3,14 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
+
+import cfnScalarStrings "strings"
+
+import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -14,17 +18,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::WorkSpacesWeb::DataProtectionSettings Resource Type
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap" | fn.#ObjectExpression
+	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap"
 	CustomerManagedKey?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
 	fn.#StringExpression
 	Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" | fn.#StringExpression
 	DisplayName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" | fn.#StringExpression
-	InlineRedactionConfiguration?: _#defs."/$defs/Properties/definitions/InlineRedactionConfiguration" |
-		fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	InlineRedactionConfiguration?: _#defs."/$defs/Properties/definitions/InlineRedactionConfiguration"
+	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/CustomPattern": close({
@@ -43,7 +45,26 @@ _#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InlineRedactionConfiguration": close({
-	GlobalConfidenceLevel?: <=3 & >=1 | fn.#NumberExpression
+	GlobalConfidenceLevel?: <=3 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=3 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	GlobalEnforcedUrls?: list.MaxItems(100) & list.MinItems(1) & [
 		...=~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" |
 			fn.#StringExpression
@@ -55,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/InlineRedactionConfiguration": close({
 	] |
 		fn.#ListExpression
 	InlineRedactionPatterns!: list.MaxItems(150) & [...] & [
-		..._#defs."/$defs/Properties/definitions/InlineRedactionPattern" | fn.#ObjectExpression
+		..._#defs."/$defs/Properties/definitions/InlineRedactionPattern"
 	] |
 		fn.#ListExpression
 }) |
@@ -63,8 +84,27 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/InlineRedactionPattern": close({
 	BuiltInPatternId?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[_\\-\\d\\w]+$" | fn.#StringExpression
-	ConfidenceLevel?:  <=3 & >=1 | fn.#NumberExpression
-	CustomPattern?:    _#defs."/$defs/Properties/definitions/CustomPattern" | fn.#ObjectExpression
+	ConfidenceLevel?: <=3 & >=1 |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							<=3 &
+							>=1,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	CustomPattern?: _#defs."/$defs/Properties/definitions/CustomPattern"
 	EnforcedUrls?: list.MaxItems(20) & list.MinItems(1) & [
 		...=~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" |
 			fn.#StringExpression
@@ -75,13 +115,13 @@ _#defs: "/$defs/Properties/definitions/InlineRedactionPattern": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	RedactionPlaceHolder!: _#defs."/$defs/Properties/definitions/RedactionPlaceHolder" | fn.#ObjectExpression
+	RedactionPlaceHolder!: _#defs."/$defs/Properties/definitions/RedactionPlaceHolder"
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RedactionPlaceHolder": close({
 	RedactionPlaceHolderText?: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[*_\\-\\d\\w]+$" | fn.#StringExpression
-	RedactionPlaceHolderType!: _#defs."/$defs/Properties/definitions/RedactionPlaceHolderType" | fn.#StringExpression
+	RedactionPlaceHolderType!: _#defs."/$defs/Properties/definitions/RedactionPlaceHolderType"
 }) |
 fn.#ObjectExpression
 

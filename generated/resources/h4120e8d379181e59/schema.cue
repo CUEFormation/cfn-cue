@@ -15,14 +15,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
 	DesiredDeliveryMediums?: [...string | fn.#StringExpression] | fn.#ListExpression
-	ForceAliasCreation?:     bool | fn.#BooleanExpression
+	ForceAliasCreation?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MessageAction?:          string | fn.#StringExpression
-	UserAttributes?: [..._#defs."/$defs/Properties/definitions/AttributeType" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	UserPoolId!: string | fn.#StringExpression
-	Username?:   string | fn.#StringExpression
-	ValidationData?: [..._#defs."/$defs/Properties/definitions/AttributeType" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	UserAttributes?:         [..._#defs."/$defs/Properties/definitions/AttributeType"] | fn.#ListExpression
+	UserPoolId!:             string | fn.#StringExpression
+	Username?:               string | fn.#StringExpression
+	ValidationData?:         [..._#defs."/$defs/Properties/definitions/AttributeType"] | fn.#ListExpression
 })
 
 _#defs: "/$defs/Properties/definitions/AttributeType": close({
