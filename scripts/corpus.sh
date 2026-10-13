@@ -119,7 +119,10 @@ case "$corpus_command" in
         build_tools
         printf '%s\n' 'Checking Go formatting, unit tests, and vet...'
         [ -z "$(gofmt -l cmd internal)" ] || die 'Go formatting differs; run gofmt on cmd/ and internal/.'
-        go test ./... -timeout 90s
+        # Budget the complete regression suite separately from the explicitly
+        # bounded regional performance measurements. Linux CI is slower than
+        # the local arm64 runner, and the dual-package coverage adds CUE builds.
+        go test ./... -timeout 3m
         go vet ./...
         printf '%s\n' 'Checking the pinned S3/IAM schema integration...'
         CFN_CUE_INTEGRATION=1 go test ./internal/generate -run '^TestCurrentResources$' -v -timeout 3m
