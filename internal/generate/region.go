@@ -1,7 +1,7 @@
 package generate
 
 import (
-	"fmt"
+	"strings"
 
 	"github.com/cueformation/cfn-cue/internal/cfn"
 
@@ -14,8 +14,8 @@ func Region(module string, resources map[string]string, extensions bool) *ast.Fi
 	addImport(f, "base", module+"/template:template")
 	types := &ast.StructLit{}
 	alternatives := []ast.Expr{}
-	for i, typ := range sortedStringKeys(resources) {
-		alias := fmt.Sprintf("r%d", i)
+	for _, typ := range sortedStringKeys(resources) {
+		alias := strings.ReplaceAll(typ, "::", "_")
 		addImport(f, alias, module+"/resources/h"+resources[typ]+":schema")
 		v := sel(alias, "Resource")
 		alternatives = append(alternatives, v)
