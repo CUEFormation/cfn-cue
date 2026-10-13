@@ -1,0 +1,2 @@
+-r requirements.in
+cfn-flip==1.3.0

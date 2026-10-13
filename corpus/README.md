@@ -15,7 +15,76 @@ standalone linting with today's schemas. Some rely on test-specific configuratio
 AWS's examples use `.yaml` as the source of truth; generated JSON copies and
 unrelated `.yml` configuration files are excluded.
 
-## Install
+## Quick start
+
+The readable entry point is [`scripts/corpus.sh`](../scripts/corpus.sh). Run
+these two commands from a fresh checkout; CI runs the same commands:
+
+```sh
+./scripts/corpus.sh setup
+./scripts/corpus.sh test
+```
+
+Setup creates `.venv/`, installs dependencies with version and package hashes,
+downloads the pinned Go dependencies, and builds the two Go tools. Subsequent
+tests use the checked-in schemas and examples; they do not download templates
+or newer dependencies. An offline version check rejects stale or manually
+upgraded Python packages and points back to setup.
+
+`test` runs formatting checks, Go tests and vet, the pinned S3/IAM integration,
+Python parser/provenance tests, and the 20-template contract in two regions.
+Expected failures remain explicit. The final report is
+`.corpus-smoke-report/report.md`; a changed expectation makes the command fail.
+
+To reproduce the larger investigation:
+
+```sh
+./scripts/corpus.sh fetch
+./scripts/corpus.sh full
+./scripts/corpus.sh diagnose
+```
+
+| Command | Fixed defaults | Result |
+| --- | --- | --- |
+| `fetch` | Pinned source archives and normalizer | `.corpus/` data; `.corpus-cache/` archives |
+| `sample` | 50 coverage-selected templates; us-east-1; 6-second deadline | `.corpus-sample-report/` |
+| `full` | Every template; us-east-1; 6-second deadline | `.corpus-full-report/` |
+| `resume` | Same full profile and existing binary | Continues `.corpus-full-report/` |
+| `diagnose` | EMR, CloudWatch Agent, SQS FIFO, and EFS examples; 10-second deadline; all 13 resources | `.corpus-resources-report/` |
+| `schemas` | Checked-in schema ZIP; all regions and types | `.corpus-generated/` scratch bundle |
+| `regenerate` | Downloaded locked examples and authored mutations | Updates `corpus/smoke/`; review the diff |
+| `setup-flip`, then `flip` | Hash-locked optional CFN Flip comparison | `.corpus-flip/` |
+
+The example survey is a discovery run and can exit successfully while reporting
+disagreements or timeouts. Its results depend on the machine's evaluation speed;
+the six-second deadline reproduces the original configuration, not an exact
+promise of identical timing or counts. No stacks are deployed.
+
+All paths are relative to the repository root, even when invoking the script
+from another directory. Additional options are forwarded to the underlying
+harness and can override profile defaults:
+
+```sh
+./scripts/corpus.sh full --timeout 10 --report .corpus-full-10s
+./scripts/corpus.sh resume --timeout 10 --report .corpus-full-10s
+./scripts/corpus.sh sample --regions us-east-1,us-west-2 --limit 10
+./scripts/corpus.sh schemas
+./scripts/corpus.sh test --schemas .corpus-generated
+```
+
+Repeat every override when resuming. The resume command deliberately reuses the
+binary from the original run; the harness checks its hash and rejects changed
+inputs, dependency versions, or options. Other profiles rebuild with checkout
+paths and Git metadata excluded, so identical Go sources and toolchains produce
+stable binary hashes. Changing Go source or toolchain requires a new report.
+
+`CORPUS_PYTHON` selects the setup interpreter, `CORPUS_VENV` selects the virtual
+environment, and `CORPUS_DIR` selects downloaded data. Defaults are `python3`,
+`.venv/`, and `.corpus/`. `./scripts/corpus.sh help` lists the commands. The
+underlying commands are documented below for users who want to run stages
+individually.
+
+## Individual setup commands
 
 Requires Go 1.26+ and Python 3.12+. Run from the repository root:
 
@@ -52,7 +121,7 @@ same normalized JSON.
 Its optional comparison can check that both parsers produce equivalent values:
 
 ```sh
-.venv/bin/python -m pip install -r corpus/requirements-flip.txt
+.venv/bin/python -m pip install --require-hashes -r corpus/requirements-flip.txt
 .venv/bin/python corpus/corpus.py fetch --compare-flip --out .corpus-flip
 ```
 

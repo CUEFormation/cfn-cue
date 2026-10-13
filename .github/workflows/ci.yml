@@ -19,31 +19,10 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
-      - name: Check formatting
-        run: test -z "$(gofmt -l cmd internal)"
-      - name: Test
-        run: go test ./... -timeout 90s
-      - name: Vet
-        run: go vet ./...
-      - name: Build
-        run: |
-          go build ./cmd/cfn-cue
-          go build -o bin/cfn-cue-validate ./cmd/cfn-cue-validate
-      - name: Validate upstream S3 and IAM schemas
-        env:
-          CFN_CUE_INTEGRATION: "1"
-        run: go test ./internal/generate -run '^TestCurrentResources$' -v -timeout 3m
-      - name: Install locked corpus tools
-        run: |
-          python3 -m venv .venv
-          .venv/bin/python -m pip install --require-hashes -r corpus/requirements.txt
-      - name: Test corpus normalization and provenance
-        run: .venv/bin/python -m unittest discover -s corpus -v
-      - name: Check pinned examples and negative mutations in two regions
-        run: |
-          .venv/bin/python corpus/corpus.py run --corpus corpus/smoke --limit 0 \
-            --regions us-east-1,us-west-2 --resources none --timeout 15 \
-            --expect corpus/smoke/expectations.json --report .corpus-smoke-report
+      - name: Set up the reproducible test environment
+        run: ./scripts/corpus.sh setup
+      - name: Run the same checks as local development
+        run: ./scripts/corpus.sh test
       - name: Preserve corpus diagnostics
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

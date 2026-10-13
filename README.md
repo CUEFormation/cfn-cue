@@ -38,13 +38,31 @@ go run ./cmd/cfn-cue -source snapshots/schemas-2026-10-12.zip \
 
 Output is generated in a staging directory. A failed run leaves the previous output intact. Only directories containing this generator's manifest marker may be replaced. Treat the entire generated directory as disposable; put authored templates elsewhere.
 
-## Generated module
+## Reproduce the tests
 
-To download AWS YAML examples and validate concrete templates against the CUE
-bundle, see the [example corpus harness](corpus/README.md). It preserves pinned
-source files, normalizes intrinsic tags, compares CUE with cfn-lint, and records
-resource coverage, disagreements, and evaluation timeouts. The
+Requires Go 1.26+ and Python 3.12+. These are the same entry points used in CI:
+
+```sh
+./scripts/corpus.sh setup
+./scripts/corpus.sh test
+```
+
+`test` runs Go checks, the pinned S3/IAM integration, parser tests, and all 40
+offline corpus expectations. To repeat the downloaded-example investigation:
+
+```sh
+./scripts/corpus.sh fetch
+./scripts/corpus.sh full
+./scripts/corpus.sh diagnose
+```
+
+The full survey uses the original six-second deadline and writes
+`.corpus-full-report/report.md`. `resume` continues an interrupted full run;
+`sample` checks 50 examples. See the [corpus guide](corpus/README.md) for each
+profile, report locations, prerequisites, and advanced options. The
 `cmd/cfn-cue-validate` Go tool imports only resource schemas used by each input.
+
+## Generated module
 
 ```text
 generated/
