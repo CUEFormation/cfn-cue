@@ -31,8 +31,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Arn: string | fn.#StringExpression
-
 #PackagingType: "APPSTREAM2" | "CUSTOM" | fn.#StringExpression
 
 #S3Location: close({

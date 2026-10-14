@@ -66,12 +66,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#S3Location: close({
-	Bucket?:    string | fn.#StringExpression
-	KeyPrefix?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression

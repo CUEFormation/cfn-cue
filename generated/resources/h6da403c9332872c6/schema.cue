@@ -27,8 +27,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Document: fn.#Object & {...} | string | fn.#StringObjectExpression
-
 #IdMappingConfig: close(
 	{AllowUseAsDimensionColumn!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
@@ -39,12 +37,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^arn:aws:entityresolution:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:idnamespace/[\\d\\w-]+$" |
 	fn.#StringExpression
 	ManageResourcePolicies!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-}) |
-fn.#ObjectExpression
-
-#IdNamespaceAssociationInputReferenceProperties: close({
-	IdMappingWorkflowsSupported?: [...#Document] | fn.#ListExpression
-	IdNamespaceType?:             "SOURCE" | "TARGET" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

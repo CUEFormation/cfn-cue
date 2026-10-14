@@ -7,7 +7,6 @@ import (
 	"list"
 	"strings"
 	"struct"
-	"time"
 )
 
 import cfnScalarStrings "strings"
@@ -126,9 +125,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#BooleanFilter: close({Value!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
-	fn.#ObjectExpression
-
 #DateFilter: matchN(1, [
 	{
 		DateRange!: _
@@ -192,8 +188,6 @@ fn.#ObjectExpression
 	Value!:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#NonEmptyString: strings.MinRunes(1) | fn.#StringExpression
 
 #NoteUpdate: close({
 	Text!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
@@ -433,7 +427,3 @@ fn.#ValueExpression
 
 	{[=~"^[-_+=.:/@\\w\\s]{1,128}$"]: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
-
-#timestamp: time.Time &
-	=~"(\\d\\d\\d\\d)-[0-1](\\d)-[0-3](\\d)[Tt](?:[0-2](\\d):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?(?:[Zz]|[+-](\\d\\d)(?::?(\\d\\d))?)$" |
-	fn.#StringExpression

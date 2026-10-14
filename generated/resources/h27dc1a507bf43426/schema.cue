@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -34,8 +34,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	})
 }
-
-#LicenseEndpointStatus: "CREATE_IN_PROGRESS" | "DELETE_IN_PROGRESS" | "READY" | "NOT_READY" | fn.#StringExpression
 
 #Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression

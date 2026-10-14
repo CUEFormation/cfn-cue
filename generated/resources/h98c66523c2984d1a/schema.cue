@@ -6,7 +6,6 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"time"
 )
 
 import cfnScalarStrings "strings"
@@ -173,8 +172,6 @@ fn.#ObjectExpression
 	StringValue?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#DateTimeFormat: time.Time | fn.#StringExpression
 
 #Definition: close({
 	// An object that specifies information about a property configuration.

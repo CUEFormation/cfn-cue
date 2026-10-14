@@ -32,25 +32,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#IamUserProfileDetails: close({
-	Arn?:            string | fn.#StringExpression
-	GroupProfileId?: string | fn.#StringExpression
-	SessionName?:    string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#SsoUserProfileDetails: close({
-	FirstName?: string | fn.#StringExpression
-	LastName?:  string | fn.#StringExpression
-	Username?:  strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9+=,.@-]+$" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#UserProfileDetails: matchN(1, [close({Iam!: #IamUserProfileDetails}), close({Sso!: #SsoUserProfileDetails})]) |
-fn.#ValueExpression
-
 #UserProfileStatus: "ASSIGNED" | "NOT_ASSIGNED" | "ACTIVATED" | "DEACTIVATED" | fn.#StringExpression
-
-#UserProfileType: "IAM" | "SSO" | fn.#StringExpression
 
 #UserType: "IAM_USER" | "IAM_ROLE" | "SSO_USER" | "IAM_ROLE_SESSION" | fn.#StringExpression

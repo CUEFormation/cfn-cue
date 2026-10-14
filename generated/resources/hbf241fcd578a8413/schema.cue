@@ -139,8 +139,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#AttributeId: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-
 #Description: strings.MaxRunes(250) &
 strings.MinRunes(0) &
 =~"""

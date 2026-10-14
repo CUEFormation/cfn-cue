@@ -56,5 +56,3 @@ fn.#ObjectExpression
 
 	{[=~".+"]: #ProfileLimitValue}}) |
 fn.#ObjectExpression
-
-#ResourceType: "INDEX_STORAGE" | "AGENT_HOURS" | fn.#StringExpression

@@ -135,12 +135,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Endpoint: close({
-	Address?: string | fn.#StringExpression
-	Port?:    string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #NetworkType: =~"(?i)^(?:dual_stack|ipv4|ipv6)$" | fn.#StringExpression
 
 #Tag: close({

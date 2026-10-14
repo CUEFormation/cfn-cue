@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -52,12 +52,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		VirtualClusterId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z]+$" | fn.#StringExpression
 	})
 }
-
-#Certificate: close({
-	CertificateArn?:  string | fn.#StringExpression
-	CertificateData?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #CloudWatchMonitoringConfiguration: close({
 	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression

@@ -85,8 +85,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DaemonStatus: "ACTIVE" | "DELETE_IN_PROGRESS" | fn.#StringExpression
-
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression

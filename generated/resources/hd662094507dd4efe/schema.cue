@@ -19,14 +19,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#ChannelPlacementGroupState: "UNASSIGNED" |
-	"ASSIGNING" |
-	"ASSIGNED" |
-	"DELETING" |
-	"DELETED" |
-	"UNASSIGNING" |
-	fn.#StringExpression
-
 #Tags: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression

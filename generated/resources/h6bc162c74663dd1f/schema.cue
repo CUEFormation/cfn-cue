@@ -27,17 +27,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 	fn.#ObjectExpression
 
-#OwnerGroupPropertiesOutput: close({GroupId?: string | fn.#StringExpression}) | fn.#ObjectExpression
-
 #OwnerProperties: fn.#Object & {...} & matchN(1, [
 	close({Group?: #OwnerGroupProperties}), close({User?: #OwnerUserProperties}),
 ]) |
-fn.#ObjectExpression
-
-#OwnerPropertiesOutput: close({
-	Group?: #OwnerGroupPropertiesOutput
-	User?:  #OwnerUserPropertiesOutput
-}) |
 fn.#ObjectExpression
 
 #OwnerUserProperties: close({
@@ -45,5 +37,3 @@ fn.#ObjectExpression
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
-
-#OwnerUserPropertiesOutput: close({UserId?: string | fn.#StringExpression}) | fn.#ObjectExpression

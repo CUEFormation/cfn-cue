@@ -3,9 +3,8 @@
 package schema
 
 import (
-	"time"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -23,20 +22,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#CreatedAt: time.Time | fn.#StringExpression
-
 #DefinitionHash: strings.MaxRunes(128) & strings.MinRunes(128) & =~"^[0-9a-z]{128}$" | fn.#StringExpression
-
-#Description: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" | fn.#StringExpression
-
-#Name: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$" | fn.#StringExpression
 
 #PolicyArn: strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:automated-reasoning-policy\\/[a-z0-9]{12}$" |
 fn.#StringExpression
-
-#PolicyId: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-z0-9]{12}$" | fn.#StringExpression
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
@@ -45,7 +36,3 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-
-#UpdatedAt: time.Time | fn.#StringExpression
-
-#Version: strings.MaxRunes(12) & =~"^([1-9][0-9]{0,11})$" | fn.#StringExpression

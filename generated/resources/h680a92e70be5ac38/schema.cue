@@ -7,10 +7,6 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -39,21 +35,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #BaseImage: strings.MaxRunes(255) & strings.MinRunes(1) & =~".+" | fn.#StringExpression
 
-#ContainerImage: strings.MaxRunes(255) & strings.MinRunes(1) & =~".+" | fn.#StringExpression
-
 #Horovod: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-#ImageArn: strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"^arn:aws(-[\\w]+)*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:image\\/[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$" |
-fn.#StringExpression
-
 #ImageName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[A-Za-z0-9]([-.]?[A-Za-z0-9])*$" | fn.#StringExpression
-
-#ImageVersionArn: strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"^arn:aws(-[\\w]+)*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:image-version\\/[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*\\/[0-9]+$" |
-fn.#StringExpression
 
 #JobType: "TRAINING" | "INFERENCE" | "NOTEBOOK_KERNEL" | fn.#StringExpression
 
@@ -68,19 +52,3 @@ fn.#StringExpression
 #ReleaseNotes: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
 
 #VendorGuidance: "NOT_PROVIDED" | "STABLE" | "TO_BE_ARCHIVED" | "ARCHIVED" | fn.#StringExpression
-
-#Version: int & >=1 |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-						int &
-						>=1,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression

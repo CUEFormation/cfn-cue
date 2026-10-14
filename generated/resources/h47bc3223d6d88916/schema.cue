@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -72,8 +72,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
-
-#AlarmActionARN: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

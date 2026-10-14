@@ -126,5 +126,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Timestamp: string | fn.#StringExpression

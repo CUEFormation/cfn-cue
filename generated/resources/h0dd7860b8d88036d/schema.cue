@@ -43,21 +43,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Arn: string | fn.#StringExpression
-
 #CapacityAssignment: close({WorkgroupNames!: #WorkgroupNames}) | fn.#ObjectExpression
 
 #CapacityAssignmentConfiguration: close({CapacityAssignments!: #CapacityAssignments}) | fn.#ObjectExpression
 
 #CapacityAssignments: [...#CapacityAssignment] | fn.#ListExpression
-
-#CapacityReservationStatus: "PENDING" |
-	"ACTIVE" |
-	"CANCELLING" |
-	"CANCELLED" |
-	"FAILED" |
-	"UPDATE_PENDING" |
-	fn.#StringExpression
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

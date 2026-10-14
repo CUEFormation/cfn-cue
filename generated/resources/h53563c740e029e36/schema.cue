@@ -29,8 +29,6 @@ fn.#StringExpression
 
 #FilterType: "WILDCARD" | fn.#StringExpression
 
-#RegistryId: =~"^[0-9]{12}$" | fn.#StringExpression
-
 #RepositoryFilter: close({
 	// The filter to use when scanning.
 	Filter!: #Filter

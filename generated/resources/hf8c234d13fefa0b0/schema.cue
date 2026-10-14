@@ -5,7 +5,6 @@ package schema
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"time"
 	"strings"
 )
 
@@ -49,11 +48,6 @@ fn.#ObjectExpression
 }) |
 	fn.#ObjectExpression
 
-#CodeInterpreterArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):code-interpreter(-custom)?\\/(aws\\.codeinterpreter\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" |
-	fn.#StringExpression
-
-#CodeInterpreterId: =~"^(aws\\.codeinterpreter\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" | fn.#StringExpression
-
 #CodeInterpreterNetworkConfiguration: close({
 	NetworkMode!: #CodeInterpreterNetworkMode
 	VpcConfig?:   #VpcConfig
@@ -61,27 +55,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CodeInterpreterNetworkMode: "PUBLIC" | "SANDBOX" | "VPC" | fn.#StringExpression
-
-#CodeInterpreterStatus: "CREATING" |
-	"CREATE_FAILED" |
-	"READY" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	"DELETED" |
-	fn.#StringExpression
-
-#CodeInterpreterSummaries: [...#CodeInterpreterSummary] | fn.#ListExpression
-
-#CodeInterpreterSummary: close({
-	CodeInterpreterArn!: #CodeInterpreterArn
-	CodeInterpreterId!:  #CodeInterpreterId
-	CreatedAt!:          time.Time | fn.#StringExpression
-	Description?:        #Description
-	LastUpdatedAt?:      time.Time | fn.#StringExpression
-	Name?:               #SandboxName
-	Status!:             #CodeInterpreterStatus
-}) |
-fn.#ObjectExpression
 
 #Description: string | fn.#StringExpression
 

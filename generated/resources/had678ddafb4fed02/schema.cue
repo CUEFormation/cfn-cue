@@ -185,12 +185,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Endpoint: close({
-	Address?: string | fn.#StringExpression
-	Port?:    string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #LoggingProperties: close({
 	BucketName?:         string | fn.#StringExpression
 	LogDestinationType?: string | fn.#StringExpression

@@ -23,10 +23,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Arn: strings.MaxRunes(2048) &
-=~"(^arn:[a-z\\d-]+:rekognition:[a-z\\d-]+:\\d{12}:project/[a-zA-Z0-9_.\\-]{1,255}/[0-9]+$)" |
-fn.#StringExpression
-
 #ProjectName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9][a-zA-Z0-9_\\-]*" | fn.#StringExpression
 
 #Tag: close({

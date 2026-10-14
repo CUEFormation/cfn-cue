@@ -50,19 +50,6 @@ strings.MinRunes(2) &
 =~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*\\/?|ROOT)$" |
 fn.#StringExpression
 
-#PullThroughCacheRule: close({
-	CredentialArn?:            #CredentialArn
-	CustomRoleArn?:            #CustomRoleArn
-	EcrRepositoryPrefix!:      #EcrRepositoryPrefix
-	RegistryId?:               #RegistryId
-	UpstreamRegistry?:         #UpstreamRegistry
-	UpstreamRegistryUrl!:      #UpstreamRegistryUrl
-	UpstreamRepositoryPrefix?: #UpstreamRepositoryPrefix
-}) |
-fn.#ObjectExpression
-
-#RegistryId: =~"^[0-9]{12}$" | fn.#StringExpression
-
 #UpstreamRegistry: "azure-container-registry" |
 	"chainguard" |
 	"docker-hub" |

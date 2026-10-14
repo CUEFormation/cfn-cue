@@ -176,8 +176,6 @@ fn.#ObjectExpression
 #EntityDescription: =~"^[a-zA-Z0-9=:#@/\\-,.][a-zA-Z0-9+=:#@/\\-,.\\s]+[a-zA-Z0-9+=:#@/\\-,.]{1,256}$" |
 	fn.#StringExpression
 
-#EntityId: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" | fn.#StringExpression
-
 #EntityName: =~"^[0-9A-Za-z_-]{1,128}$" | fn.#StringExpression
 
 #EvaluationWindowSec: (==60 | ==120 | ==300 | ==600) & int | fn.#NumberExpression
@@ -558,8 +556,6 @@ fn.#ObjectExpression
 
 #LabelName: string | fn.#StringExpression
 
-#LabelSummary: close({Name?: #LabelName}) | fn.#ObjectExpression
-
 #MapMatchScope: "ALL" | "KEY" | "VALUE" | fn.#StringExpression
 
 #MonetizationConfig: close({
@@ -770,31 +766,6 @@ fn.#ObjectExpression
 	Challenge?: #ChallengeAction
 	Count?:     #CountAction
 	Monetize?:  #MonetizeAction
-}) |
-fn.#ObjectExpression
-
-#RuleGroup: close({
-	Arn?: #ResourceArn
-	Capacity?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Description?:      #EntityDescription
-	Id?:               #EntityId
-	Name?:             #EntityName
-	Rules?:            [...#Rule] | fn.#ListExpression
-	VisibilityConfig?: #VisibilityConfig
 }) |
 fn.#ObjectExpression
 

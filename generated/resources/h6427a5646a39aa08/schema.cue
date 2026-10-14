@@ -62,22 +62,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#EndpointMetadata: close({
-	EndpointConfigName?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" | fn.#StringExpression
-	EndpointName!:       #EndpointName
-	EndpointStatus?: ("Creating" |
-		"Updating" |
-		"SystemUpdating" |
-		"RollingBack" |
-		"InService" |
-		"OutOfService" |
-		"Deleting" |
-		"Failed") &
-		=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" |
-		fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #EndpointName: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" | fn.#StringExpression
 
 #InferenceExperimentSchedule: close({

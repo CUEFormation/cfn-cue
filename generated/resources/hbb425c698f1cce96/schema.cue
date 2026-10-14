@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -27,16 +27,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Arn: strings.MaxRunes(2048) &
-strings.MinRunes(20) &
-=~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+/link/[a-zA-Z0-9-]+$" |
-fn.#StringExpression
-
-#CreatedTimestamp: string | fn.#StringExpression
-
-#DomainName: =~"^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$" |
-	fn.#StringExpression
-
 #GatewayId: =~"^rtb-gw-[a-z0-9-]{1,25}$" | fn.#StringExpression
 
 #LinkAttributes: close({
@@ -45,8 +35,6 @@ fn.#StringExpression
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
-
-#LinkId: =~"^link-[a-z0-9-]{1,25}$" | fn.#StringExpression
 
 #LinkLogSettings: close({
 	ApplicationLogs!: close({
@@ -98,22 +86,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LinkStatus: "PENDING_CREATION" |
-	"PENDING_REQUEST" |
-	"REQUESTED" |
-	"ACCEPTED" |
-	"ACTIVE" |
-	"REJECTED" |
-	"FAILED" |
-	"PENDING_DELETION" |
-	"DELETED" |
-	"PENDING_UPDATE" |
-	"PENDING_ISOLATION" |
-	"ISOLATED" |
-	"PENDING_RESTORATION" |
-	"UNKNOWN_TO_SDK_VERSION" |
-	fn.#StringExpression
-
 #ResponderErrorMaskingForHttpCode: close({
 	Action!:   "NO_BID" | "PASSTHROUGH" | fn.#StringExpression
 	HttpCode!: strings.MaxRunes(7) & strings.MinRunes(3) & =~"^DEFAULT|4XX|5XX|\\d{3}$" | fn.#StringExpression
@@ -152,5 +124,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-
-#UpdatedTimestamp: string | fn.#StringExpression

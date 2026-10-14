@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -25,12 +25,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:               list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
 }
-
-#ApiKeySecretArn: close({
-	SecretArn!: =~"^arn:(aws|aws-us-gov):secretsmanager:[A-Za-z0-9-]{1,64}:[0-9]{12}:secret:[a-zA-Z0-9-_/+=.@!]+$" |
-		fn.#StringExpression
-}) |
-	fn.#ObjectExpression
 
 #SecretReference: close({
 	JsonKey!:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

@@ -45,8 +45,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#StoreStatus: "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "FAILED" | fn.#StringExpression
-
 #TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |

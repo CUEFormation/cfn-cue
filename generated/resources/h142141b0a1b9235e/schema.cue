@@ -18,5 +18,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }
 
 #Scope: "ACCOUNT" | fn.#StringExpression
-
-#Status: "RUNNING" | "STOPPED" | "IMPAIRED" | fn.#StringExpression

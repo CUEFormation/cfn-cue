@@ -41,6 +41,4 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#ResourceArn: string | fn.#StringExpression
-
 #ResourceType: "REPLENISHABLE" | "NON_REPLENISHABLE" | fn.#StringExpression

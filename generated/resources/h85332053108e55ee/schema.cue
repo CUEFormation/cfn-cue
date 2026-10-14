@@ -31,8 +31,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#AccessGrantArn: string | fn.#StringExpression
-
 #AccessGrantsLocationConfiguration: close({S3SubPrefix!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Grantee: close({

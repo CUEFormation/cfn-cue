@@ -20,12 +20,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#PeeringAttachmentStatus: close({
-	Code?:    string | fn.#StringExpression
-	Message?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression

@@ -79,8 +79,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#InvestigationGroupArn: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-
 #RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(20) &
@@ -97,5 +95,3 @@ fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Timestamp: string | fn.#StringExpression

@@ -58,10 +58,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & =~"^.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TestingAgentInformation: close({
-	RegistrationId!:     string | fn.#StringExpression
-	TestingAgentId?:     string | fn.#StringExpression
-	TestingAgentStatus!: "CREATED" | "PENDING" | "ACTIVE" | fn.#StringExpression
-}) |
-fn.#ObjectExpression

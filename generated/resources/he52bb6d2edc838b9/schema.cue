@@ -28,18 +28,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#PermissionArnTemplateParameters: close({
-	PermissionArn!:                string | fn.#StringExpression
-	PermissionTemplateParameters?: [...#PermissionTemplateParameter] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#PermissionTemplateParameter: close({
-	Name!:   string | fn.#StringExpression
-	Values!: [...string | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
 #ResourceShareConfiguration: close({
 	ExclusiveAccountAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RetainSharingOnAccountLeaveOrganization?: bool |

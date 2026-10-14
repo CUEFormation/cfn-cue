@@ -30,15 +30,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Certificate: close({
-	CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"\"^arn:aws:acm:[a-z0-9-]+:\\d{12}:certificate\\/.+$\"" |
-		fn.#StringExpression
-	CertificateType?:                  "AMPLIFY_MANAGED" | "CUSTOM" | fn.#StringExpression
-	CertificateVerificationDNSRecord?: strings.MaxRunes(1000) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #CertificateSettings: close({
 	CertificateType?: "AMPLIFY_MANAGED" | "CUSTOM" | fn.#StringExpression
 	CustomCertificateArn?: strings.MaxRunes(1000) &

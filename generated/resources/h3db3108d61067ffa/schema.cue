@@ -2,11 +2,6 @@
 
 package schema
 
-import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
-)
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,5 +11,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!:       "AWS::ApplicationSignals::Discovery"
 	Properties?: close({})
 }
-
-#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression

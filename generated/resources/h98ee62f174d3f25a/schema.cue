@@ -167,14 +167,6 @@ fn.#ObjectExpression
 
 #MonitorConfigState: "PENDING" | "ACTIVE" | "INACTIVE" | "ERROR" | fn.#StringExpression
 
-#MonitorProcessingStatusCode: "OK" |
-	"INACTIVE" |
-	"COLLECTING_DATA" |
-	"INSUFFICIENT_DATA" |
-	"FAULT_SERVICE" |
-	"FAULT_ACCESS_CLOUDWATCH" |
-	fn.#StringExpression
-
 #S3Config: close({
 	BucketName?:        strings.MinRunes(3) | fn.#StringExpression
 	BucketPrefix?:      string | fn.#StringExpression
@@ -187,6 +179,3 @@ fn.#ObjectExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
-	fn.#StringExpression

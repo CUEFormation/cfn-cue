@@ -101,14 +101,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#VpcEndpoint: close({
-	VpcEndpointId?: string | fn.#StringExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	VpcOptions?: #VpcOptions
-}) |
-fn.#ObjectExpression
-
 #VpcOptions: close({
 	SecurityGroupIds?: list.MaxItems(12) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &

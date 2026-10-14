@@ -25,8 +25,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #AggregationDuration: "LONG" | "SHORT" | "NONE" | fn.#StringExpression
 
-#NotificationConfigurationStatus: "ACTIVE" | "PARTIALLY_ACTIVE" | "INACTIVE" | "DELETING" | fn.#StringExpression
-
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression

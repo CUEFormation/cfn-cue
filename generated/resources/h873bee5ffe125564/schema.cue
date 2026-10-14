@@ -3,7 +3,6 @@
 package schema
 
 import (
-	"time"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
@@ -55,44 +54,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
-
-#IamAuthConfiguration: close({
-	CreatedAt?: time.Time | fn.#StringExpression
-	OperatorAppRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	UpdatedAt?: time.Time | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#IdcAuthConfiguration: close({
-	CreatedAt?:         time.Time | fn.#StringExpression
-	IdcApplicationArn?: string | fn.#StringExpression
-	IdcInstanceArn!:    string | fn.#StringExpression
-	OperatorAppRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	UpdatedAt?: time.Time | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#IdpAuthConfiguration: close({
-	ClientId!:     strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecret!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	CreatedAt?:    time.Time | fn.#StringExpression
-	IssuerUrl!:    =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
-	OperatorAppRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Provider!:    "okta" | "entra" | fn.#StringExpression
-	UpdatedAt?:   time.Time | fn.#StringExpression
-	UserIdClaim?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#OperatorApp: close({
-	Iam?: #IamAuthConfiguration
-	Idc?: #IdcAuthConfiguration
-	Idp?: #IdpAuthConfiguration
-}) |
-fn.#ObjectExpression
 
 #Preferences: close(
 	{ElevatedActionsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},

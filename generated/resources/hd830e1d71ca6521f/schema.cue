@@ -139,11 +139,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DeploymentDetails: close(
-	{LatestDeploymentId?: strings.MaxRunes(1024) & =~"^[a-zA-Z0-9\\-]+$|^$" | fn.#StringExpression},
-) |
-fn.#ObjectExpression
-
 #GameSessionCreationLimitPolicy: close({
 	NewGameSessionsPerCreator?: int & >=0 |
 		{
@@ -268,14 +263,6 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
-#LocationConfiguration: close({
-	Location!:            #Location
-	LocationCapacity?:    #LocationCapacity
-	PlayerGatewayStatus?: "DISABLED" | "ENABLED" | fn.#StringExpression
-	StoppedActions?:      #StoppedActions
 }) |
 fn.#ObjectExpression
 

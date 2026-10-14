@@ -17,8 +17,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#IndexState: "ACTIVE" | "CREATING" | "DELETING" | "DELETED" | "UPDATING" | fn.#StringExpression
-
 #IndexType: "LOCAL" | "AGGREGATOR" | fn.#StringExpression
 
 #TagMap: close({

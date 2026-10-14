@@ -78,5 +78,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TrafficMirrorSessionField: "packet-length" | "description" | "virtual-network-id" | fn.#StringExpression

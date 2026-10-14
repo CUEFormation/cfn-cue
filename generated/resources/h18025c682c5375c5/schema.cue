@@ -59,12 +59,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#ConnectionParameters: close({
-	// The connection details based on the connection Type.
-	CodeStar?: #CodeStarParameters
-}) |
-fn.#ObjectExpression
-
 #ProvisioningArtifactProperties: close({
 	Description?:               string | fn.#StringExpression
 	DisableTemplateValidation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

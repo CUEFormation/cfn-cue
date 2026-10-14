@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -32,8 +32,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#ComponentConfiguration: close({Configuration!: fn.#Object & {...} | fn.#ObjectExpression}) | fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
@@ -43,15 +41,5 @@ fn.#ObjectExpression
 #VersionCreatedBySource: close({
 	Arn?:  string | fn.#StringExpression
 	Name!: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#VersionLineageMetadata: close({
-	BranchName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_/-]{0,127}$" |
-	fn.#StringExpression
-	CommitMessage?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	CreatedBy?:     #VersionCreatedBySource
-	ParentVersionIds?: [...=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression] |
-		fn.#ListExpression
 }) |
 fn.#ObjectExpression

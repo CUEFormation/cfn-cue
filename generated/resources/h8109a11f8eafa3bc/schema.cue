@@ -75,8 +75,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DataLakePrincipalList: [...#DataLakePrincipal] | fn.#ListExpression
-
 #DataLakePrincipalString: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
 #DataLocationResource: close({
@@ -98,8 +96,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Expression: list.MaxItems(5) & list.MinItems(1) & [...#LFTag] | fn.#ListExpression
-
-#IAMRoleArn: =~"arn:*:iam::[0-9]*:role/.*" | fn.#StringExpression
 
 #LFTag: close({
 	// The key-name for the LF-tag.
@@ -124,13 +120,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LFTagPair: close({
-	CatalogId?: #CatalogIdString
-	TagKey!:    #LFTagKey
-	TagValues!: #TagValueList
-}) |
-fn.#ObjectExpression
-
 #LFTagPolicyResource: close({
 	// The identifier for the GLUDC. The GLUDC is the persistent metadata store. It
 	// contains database definitions, table definitions, and other control
@@ -147,13 +136,7 @@ fn.#ObjectExpression
 
 #LFTagValue: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 
-#LFTagsList: [...#LFTagPair] | fn.#ListExpression
-
 #NameString: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-
-#NullableBoolean: null | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-
-#PathString: string | fn.#StringExpression
 
 #Permission: "ALL" |
 	"SELECT" |
@@ -171,20 +154,6 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #PermissionList: [...#Permission] | fn.#ListExpression
-
-#PrincipalPermissions: close({
-	DataLakePrincipal?: #DataLakePrincipal
-	PermissionList?:    #PermissionList
-}) |
-fn.#ObjectExpression
-
-#PrincipalPermissionsList: [...#PrincipalPermissions] | fn.#ListExpression
-
-#PrincipalResourcePair: close({
-	Principal!: #DataLakePrincipal
-	Resource!:  _#defs."/$defs/Properties/definitions/Resource"
-}) |
-fn.#ObjectExpression
 
 #ResourceArnString: string | fn.#StringExpression
 

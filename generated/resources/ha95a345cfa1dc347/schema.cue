@@ -49,8 +49,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#FunctionMetadata: close({FunctionARN?: string | fn.#StringExpression}) | fn.#ObjectExpression
-
 #KeyValueStoreAssociation: close({KeyValueStoreARN!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Tag: close({

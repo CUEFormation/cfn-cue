@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -33,8 +33,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Entitlement: close({PrincipalRole!: #PrincipalRoleEntitlement}) | fn.#ObjectExpression
-
 #IdentityCenterPrincipal: close({
 	GroupId?: strings.MaxRunes(47) &
 	strings.MinRunes(1) &
@@ -51,12 +49,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Principal: close({IdentityCenter!: #IdentityCenterPrincipal}) | fn.#ObjectExpression
-
-#PrincipalRoleEntitlement: close({
-	Account?:   strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	Principal!: #Principal
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:[a-z0-9-]+:iam::[0-9]{12}:role\\/([a-zA-Z0-9+=,.@_-]+\\/)*[a-zA-Z0-9+=,.@_-]+$" |
-		fn.#StringExpression
-}) |
-fn.#ObjectExpression

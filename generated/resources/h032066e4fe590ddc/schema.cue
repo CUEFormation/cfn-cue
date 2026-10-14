@@ -8,10 +8,6 @@ import (
 	"list"
 )
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -34,31 +30,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Description: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
 
 #InvoiceReceiver: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" | fn.#StringExpression
-
-#InvoiceUnitArn: strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" |
-fn.#StringExpression
-
-#LastModified: number |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatFloat(
-					cfnScalarStrconv.ParseFloat(
-						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-						64,
-					) &
-						number,
-					"g",
-					-1,
-					64,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression
 
 #Name: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 

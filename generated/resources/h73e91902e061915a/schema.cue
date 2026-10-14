@@ -34,17 +34,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#CoinbaseCdpConfigurationOutput: close({
-	ApiKeyId!:            strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	ApiKeySecretArn!:     #SecretInfo
-	ApiKeySecretJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	ApiKeySecretSource?:  #SecretSourceType
-	WalletSecretArn?:     #SecretInfo
-	WalletSecretJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	WalletSecretSource?:  #SecretSourceType
-}) |
-fn.#ObjectExpression
-
 #PaymentCredentialProviderVendorType: "CoinbaseCDP" | "StripePrivy" | fn.#StringExpression
 
 #PaymentProviderConfigurationInput: close({
@@ -52,18 +41,6 @@ fn.#ObjectExpression
 	StripePrivyConfiguration?: #StripePrivyConfigurationInput
 }) |
 fn.#ObjectExpression
-
-#PaymentProviderConfigurationOutput: close({
-	CoinbaseCdpConfiguration?: #CoinbaseCdpConfigurationOutput
-	StripePrivyConfiguration?: #StripePrivyConfigurationOutput
-}) |
-fn.#ObjectExpression
-
-#SecretInfo: close({
-	SecretArn!: =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b|aws-iso-e|aws-iso-f|aws-eusc):secretsmanager:[A-Za-z0-9-]{1,64}:[0-9]{12}:secret:[a-zA-Z0-9-_/+=.@!]+$" |
-		fn.#StringExpression
-}) |
-	fn.#ObjectExpression
 
 #SecretReference: close({
 	JsonKey!:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -82,18 +59,6 @@ fn.#ObjectExpression
 	AuthorizationPrivateKey?:       strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 	AuthorizationPrivateKeyConfig?: #SecretReference
 	AuthorizationPrivateKeySource?: #SecretSourceType
-}) |
-fn.#ObjectExpression
-
-#StripePrivyConfigurationOutput: close({
-	AppId!:                          strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	AppSecretArn!:                   #SecretInfo
-	AppSecretJsonKey?:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	AppSecretSource?:                #SecretSourceType
-	AuthorizationId!:                strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	AuthorizationPrivateKeyArn!:     #SecretInfo
-	AuthorizationPrivateKeyJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	AuthorizationPrivateKeySource?:  #SecretSourceType
 }) |
 fn.#ObjectExpression
 

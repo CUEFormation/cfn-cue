@@ -29,8 +29,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #PackageVersionArtifact: close({S3Location!: #S3Location}) | fn.#ObjectExpression
 
-#PackageVersionStatus: "DRAFT" | "PUBLISHED" | "DEPRECATED" | fn.#StringExpression
-
 #ResourceAttributes: close({
 
 	{[=~"^[a-zA-Z0-9:_-]+$"]: strings.MinRunes(1) & =~"^[^\\p{C}]+$" | fn.#StringExpression}}) |
@@ -44,8 +42,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Sbom: close({S3Location!: #S3Location}) | fn.#ObjectExpression
-
-#SbomValidationStatus: "IN_PROGRESS" | "FAILED" | "SUCCEEDED" | "" | fn.#StringExpression
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression

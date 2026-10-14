@@ -29,8 +29,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Arn: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-
 #BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]" |
 fn.#StringExpression
 

@@ -33,5 +33,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Namespace!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:].*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Status: "RUNNING" | "STOPPED" | fn.#StringExpression

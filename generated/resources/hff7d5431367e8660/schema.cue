@@ -815,23 +815,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#PipeState: "RUNNING" |
-	"STOPPED" |
-	"CREATING" |
-	"UPDATING" |
-	"DELETING" |
-	"STARTING" |
-	"STOPPING" |
-	"CREATE_FAILED" |
-	"UPDATE_FAILED" |
-	"START_FAILED" |
-	"STOP_FAILED" |
-	"DELETE_FAILED" |
-	"CREATE_ROLLBACK_FAILED" |
-	"DELETE_ROLLBACK_FAILED" |
-	"UPDATE_ROLLBACK_FAILED" |
-	fn.#StringExpression
-
 #PipeTargetBatchJobParameters: close({
 	ArrayProperties?:    #BatchArrayProperties
 	ContainerOverrides?: #BatchContainerOverrides

@@ -29,8 +29,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#AssociationId: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-z0-9]*$" | fn.#StringExpression
-
 #BucketName: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
 #EncryptionConfig: close({

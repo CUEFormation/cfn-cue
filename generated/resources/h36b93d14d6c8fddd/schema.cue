@@ -143,14 +143,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LatestVersion: close({
-	Arn?:   string | fn.#StringExpression
-	Major?: string | fn.#StringExpression
-	Minor?: string | fn.#StringExpression
-	Patch?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #TargetContainerRepository: close({
 	RepositoryName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Service?:        "ECR" | fn.#StringExpression

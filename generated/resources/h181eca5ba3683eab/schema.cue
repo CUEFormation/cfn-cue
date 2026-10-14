@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -89,21 +89,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#BooleanExpression
 	})
 }
-
-#DeploymentTask: close({
-	TaskName?:   string | fn.#StringExpression
-	TaskStatus?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#SwitchoverDetail: close({
-	SourceMember?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$" |
-	fn.#StringExpression
-	SwitchoverDetailStatus?: string | fn.#StringExpression
-	TargetMember?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$" |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

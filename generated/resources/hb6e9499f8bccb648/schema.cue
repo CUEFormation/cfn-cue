@@ -32,8 +32,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #Arn: string | fn.#StringExpression
 
-#InstanceArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-
 #LocalizedString: =~"^.{0,500}$" | fn.#StringExpression
 
 #NotificationContent: close({
@@ -60,6 +58,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#UserArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$" |
-	fn.#StringExpression

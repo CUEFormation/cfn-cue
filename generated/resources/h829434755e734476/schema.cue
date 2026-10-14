@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -35,8 +35,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		VpcConfiguration?: #VpcConfiguration
 	})
 }
-
-#Arn: string | fn.#StringExpression
 
 #PublicAccessBlockConfiguration: {
 	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

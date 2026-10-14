@@ -56,8 +56,6 @@ fn.#ObjectExpression
 
 #AccessMethodType: string | fn.#StringExpression
 
-#Arn: string | fn.#StringExpression
-
 #CrlConfiguration: close({
 	CrlDistributionPointExtensionConfiguration?: #CrlDistributionPointExtensionConfiguration
 	CrlType?:                                    "COMPLETE" | "PARTITIONED" | fn.#StringExpression

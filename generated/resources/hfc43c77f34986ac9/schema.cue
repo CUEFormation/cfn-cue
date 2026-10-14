@@ -45,25 +45,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#LoRaWAN: close({
-	RfRegion!: ("AS923-1" |
-		"AS923-2" |
-		"AS923-3" |
-		"AS923-4" |
-		"AU915" |
-		"CN470" |
-		"CN779" |
-		"EU433" |
-		"EU868" |
-		"IN865" |
-		"KR920" |
-		"RU864" |
-		"US915") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	StartTime?: strings.MaxRunes(64) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression

@@ -159,12 +159,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#DefaultArguments: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ExecutionProperty: close({
 	MaxConcurrentRuns?: number |
 		{
@@ -193,12 +187,6 @@ fn.#ObjectExpression
 	PythonVersion?:  =~"^([2-3]|3[.]9)$" | fn.#StringExpression
 	Runtime?:        strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 	ScriptLocation?: strings.MaxRunes(400000) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#NonOverridableArguments: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

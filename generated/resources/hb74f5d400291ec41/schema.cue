@@ -36,12 +36,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#IngestEndpoint: close({
-	Id?:  string | fn.#StringExpression
-	Url?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #InputSwitchConfiguration: close({
 	MQCSInputSwitching?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PreferredInput?: int & <=2 & >=1 |

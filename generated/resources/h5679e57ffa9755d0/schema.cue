@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 	"time"
 )
 
@@ -35,8 +35,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Validity!:                 #ValidityDateFormat
 	})
 }
-
-#Arn: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 
 #BorrowConfiguration: close({
 	AllowEarlyCheckIn!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

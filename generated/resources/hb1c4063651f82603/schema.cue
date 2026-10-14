@@ -45,8 +45,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #OperatingSystemList: list.MaxItems(50) & list.UniqueItems() & [...#OperatingSystem] | fn.#ListExpression
 
-#RegistryId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-
 #RepositoryDescription: strings.MaxRunes(1024) | fn.#StringExpression
 
 #Tag: close({

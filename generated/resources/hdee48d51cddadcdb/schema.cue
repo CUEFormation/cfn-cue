@@ -318,8 +318,6 @@ strings.MinRunes(1) &
 =~"^[-0-9a-zA-Z]+" |
 fn.#StringExpression
 
-#SensitivePropertiesKeyValuePair: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-
 #SensitivePropertiesMap: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 
 #SubnetId: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[-0-9a-zA-Z]+" | fn.#StringExpression

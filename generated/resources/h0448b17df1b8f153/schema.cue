@@ -25,68 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#FailedMediaResourceMap: close({
-
-	{[=~".+"]: #MediaResource}}) |
-fn.#ObjectExpression
-
-#MediaResource: close({
-	Destinations?: [...#MediaResourceNeighbor] | fn.#ListExpression
-	Name?:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Sources?:      [...#MediaResourceNeighbor] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#MediaResourceMap: close({
-
-	{[=~".+"]: #MediaResource}}) |
-fn.#ObjectExpression
-
-#MediaResourceNeighbor: close({
-	Arn!:  strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn.+$" | fn.#StringExpression
-	Name?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#MonitorDeployment: close({
-	DetailsUri?:   strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	ErrorMessage?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Status!:       #SignalMapMonitorDeploymentStatus
-}) |
-fn.#ObjectExpression
-
-#SignalMapMonitorDeploymentStatus: "NOT_DEPLOYED" |
-	"DRY_RUN_DEPLOYMENT_COMPLETE" |
-	"DRY_RUN_DEPLOYMENT_FAILED" |
-	"DRY_RUN_DEPLOYMENT_IN_PROGRESS" |
-	"DEPLOYMENT_COMPLETE" |
-	"DEPLOYMENT_FAILED" |
-	"DEPLOYMENT_IN_PROGRESS" |
-	"DELETE_COMPLETE" |
-	"DELETE_FAILED" |
-	"DELETE_IN_PROGRESS" |
-	fn.#StringExpression
-
-#SignalMapStatus: "CREATE_IN_PROGRESS" |
-	"CREATE_COMPLETE" |
-	"CREATE_FAILED" |
-	"UPDATE_IN_PROGRESS" |
-	"UPDATE_COMPLETE" |
-	"UPDATE_REVERTED" |
-	"UPDATE_FAILED" |
-	"READY" |
-	"NOT_READY" |
-	fn.#StringExpression
-
-#SuccessfulMonitorDeployment: close({
-	DetailsUri!: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Status!:     #SignalMapMonitorDeploymentStatus
-}) |
-fn.#ObjectExpression
-
 #TagMap: close({
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression

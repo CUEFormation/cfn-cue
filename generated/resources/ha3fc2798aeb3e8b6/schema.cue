@@ -60,10 +60,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#AgentStatus: "SUCCESS" | "FAILED" | "ACTIVE" | "INACTIVE" | fn.#StringExpression
-
-#AuditResults: "HEALTHY" | "UNHEALTHY" | fn.#StringExpression
-
 #ConnectionDetails: close({
 	Mtu?: int & <=1500 & >=1400 |
 		{
@@ -102,14 +98,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DownlinkAwsGroundStationAgentEndpointDetails: close({
-	AgentStatus?:     #AgentStatus
-	AuditResults?:    #AuditResults
-	DataflowDetails!: #DownlinkDataflowDetails
-	Name!:            =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #DownlinkConnectionDetails: close({
 	AgentIpAndPortAddress!: #RangedConnectionDetails
 	EgressAddressAndPort!:  #ConnectionDetails
@@ -121,17 +109,6 @@ fn.#ObjectExpression
 	[{AgentConnectionDetails!: _}],
 ) |
 	fn.#ObjectExpression
-
-#EndpointDetails: close({
-	DownlinkAwsGroundStationAgentEndpoint?: #DownlinkAwsGroundStationAgentEndpointDetails
-	UplinkAwsGroundStationAgentEndpoint?:   #UplinkAwsGroundStationAgentEndpointDetails
-	if UplinkAwsGroundStationAgentEndpoint != _|_ if UplinkAwsGroundStationAgentEndpoint."Fn::If" == _|_ {
-		DownlinkAwsGroundStationAgentEndpoint?: close({"Fn::If": _}) | error(
-			"DownlinkAwsGroundStationAgentEndpoint cannot be used with UplinkAwsGroundStationAgentEndpoint; set exactly one of UplinkAwsGroundStationAgentEndpoint, DownlinkAwsGroundStationAgentEndpoint",
-		)
-	}
-}) & matchN(>=1, [{UplinkAwsGroundStationAgentEndpoint!: _}, {DownlinkAwsGroundStationAgentEndpoint!: _}]) |
-fn.#ObjectExpression
 
 #IntegerRange: close({
 	Maximum!: int |
@@ -220,14 +197,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #UplinkAwsGroundStationAgentEndpoint: close({
-	DataflowDetails!: #UplinkDataflowDetails
-	Name!:            =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#UplinkAwsGroundStationAgentEndpointDetails: close({
-	AgentStatus?:     #AgentStatus
-	AuditResults?:    #AuditResults
 	DataflowDetails!: #UplinkDataflowDetails
 	Name!:            =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
 }) |

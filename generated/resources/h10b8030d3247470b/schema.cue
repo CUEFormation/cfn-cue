@@ -28,8 +28,4 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#ApplicationType: "SAS" | "DESKTOP_APPLICATION" | "OTHER" | fn.#StringExpression
-
 #ContextType: "APPLICATION" | fn.#StringExpression
-
-#Criticality: "MISSION_CRITICAL" | "BUSINESS_CRITICAL" | "NON_CRITICAL" | "TEST_DEVELOPMENT" | fn.#StringExpression

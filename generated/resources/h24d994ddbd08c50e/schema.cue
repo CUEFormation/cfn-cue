@@ -81,5 +81,3 @@ fn.#ObjectExpression
 	UpdateDataSource?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/_PropertyRefcde43015987bd6b3": "UPDATE" | fn.#StringExpression

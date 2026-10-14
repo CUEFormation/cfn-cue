@@ -125,8 +125,6 @@ fn.#ObjectExpression
 
 #GatewayProtocolType: "MCP" | fn.#StringExpression
 
-#GatewayStatus: "CREATING" | "UPDATING" | "UPDATE_UNSUCCESSFUL" | "DELETING" | "READY" | "FAILED" | fn.#StringExpression
-
 #InboundTokenClaimValueType: "STRING" | "STRING_ARRAY" | fn.#StringExpression
 
 #InterceptorConfiguration: close({Lambda!: #LambdaInterceptorConfiguration}) | fn.#ValueExpression
@@ -231,8 +229,3 @@ fn.#ObjectExpression
 #WafConfiguration: close({FailureMode?: #WafFailureMode}) | fn.#ObjectExpression
 
 #WafFailureMode: "FAIL_CLOSE" | "FAIL_OPEN" | fn.#StringExpression
-
-#WorkloadIdentityDetails: close(
-	{WorkloadIdentityArn!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression},
-) |
-fn.#ObjectExpression

@@ -19,8 +19,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties?: close({IndexingPercentage?: #IndexingPercentage})
 }
 
-#AccountId: =~"^\\d{12}$" | fn.#StringExpression
-
 #IndexingPercentage: <=100 & >=0 |
 	{
 		string &

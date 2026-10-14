@@ -359,12 +359,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#State: close({
-	Code?: string | fn.#StringExpression
-	Name?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression

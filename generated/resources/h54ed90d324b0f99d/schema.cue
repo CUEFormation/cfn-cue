@@ -25,5 +25,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression

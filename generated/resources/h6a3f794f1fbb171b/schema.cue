@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -32,13 +32,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Arn: strings.MaxRunes(1000) | fn.#StringExpression
-
 #CapacityUnitsConfiguration: close({RescoreCapacityUnits!: #RescoreCapacityUnits}) | fn.#ObjectExpression
 
 #Description: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-
-#Id: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression
 
 #Name: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
 

@@ -24,8 +24,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Base62Id: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^([a-z0-9A-Z]*)$" | fn.#StringExpression
-
 #ResourceType: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" | fn.#StringExpression
 
 #Tag: close({

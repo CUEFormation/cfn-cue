@@ -56,8 +56,6 @@ fn.#ObjectExpression
 #StorageClassConfiguration: close({StorageClass?: "STANDARD" | "INTELLIGENT_TIERING" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" | fn.#StringExpression
-
 #TableBucketName: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 
 #Tag: close({

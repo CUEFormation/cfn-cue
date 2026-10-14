@@ -246,63 +246,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#AssetModelCompositeModel: close({
-	ComposedAssetModelId?:     string | fn.#StringExpression
-	CompositeModelProperties?: [...#AssetModelProperty] | fn.#ListExpression
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
-	fn.#StringExpression
-	Id?: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" | fn.#StringExpression
-	ParentAssetModelCompositeModelExternalId?: strings.MaxRunes(128) &
-	strings.MinRunes(2) &
-	=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
-	fn.#StringExpression
-	Path?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Type!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#AssetModelHierarchy: close({
-	ChildAssetModelId!: strings.MaxRunes(139) & strings.MinRunes(13) | fn.#StringExpression
-	ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
-	fn.#StringExpression
-	Id?: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-	fn.#StringExpression
-	LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#AssetModelProperty: close({
-	// The data type of the asset model property.
-	DataType!: #DataType
-
-	// The data type of the structure for this property.
-	DataTypeSpec?: #DataTypeSpec
-	ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
-	fn.#StringExpression
-	Id?: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-	fn.#StringExpression
-	LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" | fn.#StringExpression
-
-	// The property type
-	Type!: #PropertyType
-	Unit?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Attribute: close({DefaultValue?: =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #DataType: "STRING" | "INTEGER" | "DOUBLE" | "BOOLEAN" | "STRUCT" | fn.#StringExpression
@@ -322,25 +265,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ExpressionVariable: close({
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" | fn.#StringExpression
-
-	// The variable that identifies an asset property from which to use values.
-	Value!: #VariableValue
-}) |
-fn.#ObjectExpression
-
 #Interval: strings.MaxRunes(23) & strings.MinRunes(2) | fn.#StringExpression
-
-#Metric: close({
-	Expression!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Variables!:  [...#ExpressionVariable] | fn.#ListExpression
-
-	// The window (time interval) over which AWS IoT SiteWise computes the metric's
-	// aggregation expression
-	Window!: #MetricWindow
-}) |
-fn.#ObjectExpression
 
 #MetricWindow: close({Tumbling?: #TumblingWindow}) | fn.#ObjectExpression
 
@@ -351,23 +276,9 @@ fn.#ObjectExpression
 ) |
 fn.#ObjectExpression
 
-#PropertyType: close({
-	Attribute?: #Attribute
-	Metric?:    #Metric
-	Transform?: #Transform
-	TypeName!:  #TypeName
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#Transform: close({
-	Expression!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Variables!:  [...#ExpressionVariable] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -378,24 +289,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TypeName: "Measurement" | "Attribute" | "Transform" | "Metric" | fn.#StringExpression
-
-#VariableValue: close({
-	HierarchyExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
-	fn.#StringExpression
-	HierarchyId?: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-	fn.#StringExpression
-	HierarchyLogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
-	fn.#StringExpression
-	PropertyExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
-	fn.#StringExpression
-	PropertyId?: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-	fn.#StringExpression
-	PropertyLogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
-	fn.#StringExpression
-	PropertyPath?: [...#PropertyPathDefinition] | fn.#ListExpression
-}) |
-fn.#ObjectExpression

@@ -74,8 +74,6 @@ fn.#ObjectExpression
 ]) |
 fn.#ValueExpression
 
-#AuthorizationData: close({Oauth2!: #OAuth2AuthorizationData}) | fn.#ValueExpression
-
 #ConnectorConfiguration: close({
 	Description?:        strings.MaxRunes(2000) | fn.#StringExpression
 	Name!:               strings.MaxRunes(64) & =~"^[a-zA-Z][a-zA-Z0-9_-]*$" | fn.#StringExpression
@@ -185,15 +183,6 @@ fn.#ValueExpression
 
 #ListingMode: "DEFAULT" | "DYNAMIC" | fn.#StringExpression
 
-#ManagedResourceDetails: close({
-	Domain?: string | fn.#StringExpression
-	ResourceAssociationArn?: =~"^(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetworkresourceassociation/)?snra-[0-9a-f]{17}$" |
-		fn.#StringExpression
-	ResourceGatewayArn?: =~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourcegateway/rgw-[0-9a-z]{17}$" |
-		fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ManagedVpcResource: close({
 	EndpointIpAddressType!: #EndpointIpAddressType
 	RoutingDomain?:         strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
@@ -289,12 +278,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ModelMapping: close({ProviderPrefix?: #ProviderPrefix}) | fn.#ObjectExpression
-
-#OAuth2AuthorizationData: close({
-	AuthorizationUrl!: strings.MinRunes(1) | fn.#StringExpression
-	UserId?:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #OAuthCredentialProvider: close({
 	CustomParameters?: #OAuthCustomParameters
@@ -415,21 +398,6 @@ fn.#ObjectExpression
 	{Inference!: #InferenceTargetConfiguration},
 )]) |
 fn.#ValueExpression
-
-#TargetProtocolType: "MCP" | "HTTP" | fn.#StringExpression
-
-#TargetStatus: "CREATING" |
-	"UPDATING" |
-	"UPDATE_UNSUCCESSFUL" |
-	"DELETING" |
-	"READY" |
-	"FAILED" |
-	"SYNCHRONIZING" |
-	"SYNCHRONIZE_UNSUCCESSFUL" |
-	"CREATE_PENDING_AUTH" |
-	"UPDATE_PENDING_AUTH" |
-	"SYNCHRONIZE_PENDING_AUTH" |
-	fn.#StringExpression
 
 #ToolDefinition: close({
 	Description!:  string | fn.#StringExpression

@@ -732,15 +732,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#OutputColumn: close({
-	Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	Id?:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:        strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	SubType?:     #ColumnDataSubType
-	Type?:        #ColumnDataType
-}) |
-fn.#ObjectExpression
-
 #OutputColumnNameOverride: close({
 	OutputColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	SourceColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression

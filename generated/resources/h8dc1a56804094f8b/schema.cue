@@ -65,14 +65,7 @@ fn.#ObjectExpression
 
 #ProductId: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
 
-#ProjectArn: strings.MaxRunes(2048) &
-strings.MinRunes(1) &
-=~"arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:project.*" |
-fn.#StringExpression
-
 #ProjectDescription: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-
-#ProjectId: strings.MaxRunes(20) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" | fn.#StringExpression
 
 #ProjectName: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
 

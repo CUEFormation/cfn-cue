@@ -78,60 +78,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #DeploymentMode: "ON_CREATE" | "ON_DEMAND" | fn.#StringExpression
 
-#DesignationConfiguration: close(
-	{DesignationId!: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression},
-) |
-fn.#ObjectExpression
-
-#EnvironmentConfiguration: close({
-	AwsAccount?:              #AwsAccount
-	AwsRegion!:               #Region
-	ConfigurationParameters?: #EnvironmentConfigurationParametersDetails
-	DeploymentMode?:          #DeploymentMode
-	DeploymentOrder?: <=16 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							<=16 &
-							>=0,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Description?:                strings.MaxRunes(2048) | fn.#StringExpression
-	EnvironmentBlueprintId!:     =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	EnvironmentConfigurationId?: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	Name!:                       strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #EnvironmentConfigurationParameter: close({
 	IsEditable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name?:       =~"^[a-zA-Z_][a-zA-Z0-9_]*$" | fn.#StringExpression
 	Value?:      string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#EnvironmentConfigurationParametersDetails: close({
-	ParameterOverrides?: [...#EnvironmentConfigurationParameter] | fn.#ListExpression
-	ResolvedParameters?: [...#EnvironmentConfigurationParameter] | fn.#ListExpression
-	SsmPath?:            strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ProjectScope: close({
-	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
-	Policy?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

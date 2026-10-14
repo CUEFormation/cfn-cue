@@ -8,10 +8,6 @@ import (
 	"list"
 )
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -46,34 +42,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#ApplicationInstanceArn: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-
-#ApplicationInstanceHealthStatus: "RUNNING" | "ERROR" | "NOT_AVAILABLE" | fn.#StringExpression
-
 #ApplicationInstanceId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
-
-#ApplicationInstanceStatus: "DEPLOYMENT_PENDING" |
-	"DEPLOYMENT_REQUESTED" |
-	"DEPLOYMENT_IN_PROGRESS" |
-	"DEPLOYMENT_ERROR" |
-	"DEPLOYMENT_SUCCEEDED" |
-	"REMOVAL_PENDING" |
-	"REMOVAL_REQUESTED" |
-	"REMOVAL_IN_PROGRESS" |
-	"REMOVAL_FAILED" |
-	"REMOVAL_SUCCEEDED" |
-	fn.#StringExpression
-
-#ApplicationInstanceStatusDescription: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
 #DefaultRuntimeContextDevice: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" |
 fn.#StringExpression
 
 #Description: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
-
-#DeviceId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
-
-#DeviceName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
 
 #ManifestOverridesPayload: close({
 	// The overrides document.
@@ -99,14 +73,6 @@ strings.MinRunes(1) &
 =~"^arn:[a-z0-9][-.a-z0-9]{0,62}:iam::[0-9]{12}:role/.+$" |
 fn.#StringExpression
 
-#StatusFilter: "DEPLOYMENT_SUCCEEDED" |
-	"DEPLOYMENT_ERROR" |
-	"REMOVAL_SUCCEEDED" |
-	"REMOVAL_FAILED" |
-	"PROCESSING_DEPLOYMENT" |
-	"PROCESSING_REMOVAL" |
-	fn.#StringExpression
-
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$" | fn.#StringExpression
@@ -114,17 +80,3 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #TagList: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-
-#Timestamp: int |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression

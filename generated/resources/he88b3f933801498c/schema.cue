@@ -119,12 +119,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#ErrorInfo: close({
-	Code?:    string | fn.#StringExpression
-	Message?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #GresCustomSetting: close({
 
 	{[=~"^.+$"]: string | fn.#StringExpression}}) |
@@ -162,8 +156,6 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#SecurityGroupId: string | fn.#StringExpression
 
 #SlurmCustomSetting: close({
 	ParameterName!:  string | fn.#StringExpression

@@ -1632,8 +1632,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Entity: close({Path?: =~"\\S" | fn.#StringExpression}) | fn.#ObjectExpression
-
 #ExcludePeriodConfiguration: close({
 	Amount!: number |
 		{
@@ -4512,16 +4510,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ResourceStatus: "CREATION_IN_PROGRESS" |
-	"CREATION_SUCCESSFUL" |
-	"CREATION_FAILED" |
-	"UPDATE_IN_PROGRESS" |
-	"UPDATE_SUCCESSFUL" |
-	"UPDATE_FAILED" |
-	"PENDING_UPDATE" |
-	"DELETED" |
-	fn.#StringExpression
-
 #RollingDateConfiguration: close({
 	DataSetIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	Expression!:        strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
@@ -4696,12 +4684,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ShapeConditionalFormat: close({BackgroundColor!: #ConditionalFormattingColor}) | fn.#ObjectExpression
-
-#Sheet: close({
-	Name?:    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	SheetId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #SheetContentType: "PAGINATED" | "INTERACTIVE" | fn.#StringExpression
 
@@ -5247,19 +5229,6 @@ fn.#ObjectExpression
 
 #TargetVisualOptions: "ALL_VISUALS" | fn.#StringExpression
 
-#TemplateError: close({
-	Message?:          =~"\\S" | fn.#StringExpression
-	Type?:             #TemplateErrorType
-	ViolatedEntities?: list.MaxItems(200) & [...] & [...#Entity] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#TemplateErrorType: "SOURCE_NOT_FOUND" |
-	"DATA_SET_NOT_FOUND" |
-	"INTERNAL_FAILURE" |
-	"ACCESS_DENIED" |
-	fn.#StringExpression
-
 #TemplateSourceAnalysis: close({
 	Arn!:               string | fn.#StringExpression
 	DataSetReferences!: [...] & [...#DataSetReference] | fn.#ListExpression
@@ -5274,37 +5243,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TemplateSourceTemplate: close({Arn!: string | fn.#StringExpression}) | fn.#ObjectExpression
-
-#TemplateVersion: close({
-	CreatedTime?:           time.Time | fn.#StringExpression
-	DataSetConfigurations?: list.MaxItems(30) & [...] & [...#DataSetConfiguration] | fn.#ListExpression
-	Description?:           strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	Errors?:                list.MinItems(1) & [...#TemplateError] | fn.#ListExpression
-	Sheets?:                list.MaxItems(20) & [...] & [...#Sheet] | fn.#ListExpression
-	SourceEntityArn?:       string | fn.#StringExpression
-	Status?:                #ResourceStatus
-	ThemeArn?:              string | fn.#StringExpression
-	VersionNumber?: >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
 
 #TemplateVersionDefinition: close({
 	AnalysisDefaults?:      #AnalysisDefaults
@@ -6026,5 +5964,3 @@ fn.#ObjectExpression
 #WordCloudWordPadding: "NONE" | "SMALL" | "MEDIUM" | "LARGE" | fn.#StringExpression
 
 #WordCloudWordScaling: "EMPHASIZE" | "NORMAL" | fn.#StringExpression
-
-#YAxisOptions: close({YAxis!: #SingleYAxisOption}) | fn.#ObjectExpression

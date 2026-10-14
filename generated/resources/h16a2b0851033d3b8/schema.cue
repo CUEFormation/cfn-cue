@@ -40,33 +40,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#EnvironmentDeploymentDetails: close({
-	EnvironmentFailureReasons?: #EnvironmentFailureReasons
-	OverallDeploymentStatus?:   #OverallDeploymentStatus
-}) |
-fn.#ObjectExpression
-
-#EnvironmentError: close({
-	Code?:    string | fn.#StringExpression
-	Message!: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#EnvironmentFailureReasons: close({
-
-	{[=~".+"]: [...#EnvironmentError] | fn.#ListExpression}}) |
-fn.#ObjectExpression
-
 #EnvironmentParameter: close({
 	Name?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#EnvironmentResolvedAccount: close({
-	AwsAccountId!:        =~"^\\d{12}$" | fn.#StringExpression
-	RegionName!:          =~"^[a-z]{2}-[a-z]{4,10}-\\d$" | fn.#StringExpression
-	SourceAccountPoolId!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -76,36 +52,16 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#OverallDeploymentStatus: "PENDING_DEPLOYMENT" |
-	"IN_PROGRESS" |
-	"SUCCESSFUL" |
-	"FAILED_VALIDATION" |
-	"FAILED_DEPLOYMENT" |
-	fn.#StringExpression
-
-#ProjectDeletionError: close({
-	Code?:    string | fn.#StringExpression
-	Message?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ProjectMembershipAssignment: close({
 	Designation!: #UserDesignation
 	Member!:      #Member
 }) |
 fn.#ObjectExpression
 
-#ProjectStatus: "ACTIVE" | "MOVING" | "DELETING" | "DELETE_FAILED" | "UPDATING" | "UPDATE_FAILED" | fn.#StringExpression
-
 #ResourceTag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w \\.:/=+@-]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w \\.:/=+@-]*$" | fn.#StringExpression
 }) |
-fn.#ObjectExpression
-
-#Tags: close({
-
-	{[=~"^[\\w \\.:/=+@-]+$"]: strings.MaxRunes(256) & =~"^[\\w \\.:/=+@-]*$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
 #UserDesignation: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression

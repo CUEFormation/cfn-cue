@@ -33,15 +33,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #FirewallRulesFailOpenType: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-#ProfileResourceStatus: "CREATING" |
-	"OPERATIONAL" |
-	"UPDATING" |
-	"ENABLING" |
-	"DISABLING" |
-	"DISABLED" |
-	"DELETING" |
-	fn.#StringExpression
-
 #ResourceDescription: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
 #ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression

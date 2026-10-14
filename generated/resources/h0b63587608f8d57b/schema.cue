@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 	"struct"
 )
 
@@ -71,30 +71,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	"NODE_22" |
 	fn.#StringExpression
 
-#AgentRuntimeArn: strings.MaxRunes(2048) &
-=~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$" |
-fn.#StringExpression
-
 #AgentRuntimeArtifact: close({
 	CodeConfiguration?:      #CodeConfiguration
 	ContainerConfiguration?: #ContainerConfiguration
 }) |
 fn.#ObjectExpression
 
-#AgentRuntimeId: =~"[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}" | fn.#StringExpression
-
 #AgentRuntimeName: =~"[a-zA-Z][a-zA-Z0-9_]{0,47}" | fn.#StringExpression
-
-#AgentRuntimeVersion: strings.MaxRunes(5) & strings.MinRunes(1) & =~"([1-9][0-9]{0,4})" | fn.#StringExpression
-
-#AgentStatus: "CREATING" |
-	"CREATE_FAILED" |
-	"UPDATING" |
-	"UPDATE_FAILED" |
-	"READY" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	fn.#StringExpression
 
 #AllowedAudience: string | fn.#StringExpression
 
@@ -145,8 +128,6 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ClientToken: strings.MaxRunes(256) & strings.MinRunes(33) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-
 #Code: close({S3?: #S3Location}) | fn.#ObjectExpression
 
 #CodeConfiguration: close({
@@ -157,8 +138,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ContainerConfiguration: close({ContainerUri!: #RuntimeContainerUri}) | fn.#ObjectExpression
-
-#CreatedAt: string | fn.#StringExpression
 
 #CustomClaimValidationType: close({
 	AuthorizingClaimMatchValue!: #AuthorizingClaimMatchValueType
@@ -197,11 +176,6 @@ fn.#ObjectExpression
 
 #EntryPoints: list.MaxItems(2) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 
-#EnvironmentVariableKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_]*$" |
-fn.#StringExpression
-
-#EnvironmentVariableValue: strings.MaxRunes(2048) | fn.#StringExpression
-
 #EnvironmentVariablesMap: struct.MaxFields(50) & close({
 
 	{[=~"^[a-zA-Z_][a-zA-Z0-9_]*$"]: strings.MaxRunes(2048) | fn.#StringExpression}}) |
@@ -228,8 +202,6 @@ fn.#ObjectExpression
 #InboundTokenClaimName: =~"[A-Za-z0-9_.-:]+" | fn.#StringExpression
 
 #InboundTokenClaimValueType: "STRING" | "STRING_ARRAY" | fn.#StringExpression
-
-#LastUpdatedAt: string | fn.#StringExpression
 
 #LifecycleConfiguration: close({
 	IdleRuntimeSessionTimeout?: int & <=1209600 & >=60 |
@@ -377,7 +349,3 @@ fn.#ObjectExpression
 	...strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[A-Za-z0-9_.-]+$" | fn.#StringExpression
 ] |
 fn.#ListExpression
-
-#WorkloadIdentityArn: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-
-#WorkloadIdentityDetails: close({WorkloadIdentityArn!: #WorkloadIdentityArn}) | fn.#ObjectExpression

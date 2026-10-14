@@ -24,5 +24,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		{PolicyText!: fn.#Object & {...} | strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringObjectExpression},
 	)
 }
-
-#RegistryId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression

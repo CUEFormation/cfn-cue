@@ -27,8 +27,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#DeviceCreationFileList: [...strings.MaxRunes(1024) | fn.#StringExpression] | fn.#ListExpression
-
 #Role: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 
 #Tag: close({

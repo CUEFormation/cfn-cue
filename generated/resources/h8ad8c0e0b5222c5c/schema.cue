@@ -23,12 +23,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#ClusterEndpoint: close({
-	Endpoint?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Region?:   strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression

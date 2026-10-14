@@ -78,20 +78,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#ActiveCertificateAuthority: close({
-	ActivatedBy?: string | fn.#StringExpression
-	Id?:          string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #BlockStorage: close({Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
-
-#CertificateAuthority: close({
-	Active?: #ActiveCertificateAuthority
-	Data?:   string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #ClusterLogging: close({EnabledTypes?: #EnabledTypes}) | fn.#ObjectExpression
 
@@ -113,8 +101,6 @@ fn.#ObjectExpression
 	{Tier?: "standard" | "tier-xl" | "tier-2xl" | "tier-4xl" | "tier-8xl" | "tier-ultra" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression
-
-#DeletionProtection: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 #ElasticLoadBalancing: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
@@ -148,15 +134,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #KubeSchedulerConfig: close({NodeResourcesFit?: #NodeResourcesFitConfig}) | fn.#ObjectExpression
-
-#KubernetesNetworkConfig: close({
-	// Todo: add description
-	ElasticLoadBalancing?: #ElasticLoadBalancing
-	IpFamily?:             "ipv4" | "ipv6" | fn.#StringExpression
-	ServiceIpv4Cidr?:      string | fn.#StringExpression
-	ServiceIpv6Cidr?:      string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #Logging: close({
 	// The cluster control plane logging configuration for your cluster.

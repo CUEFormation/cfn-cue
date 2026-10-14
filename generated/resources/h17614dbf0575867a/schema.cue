@@ -147,15 +147,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#PrivateRegistryAccess: close({
-	EcrImagePullerRole?: close({
-		IsActive?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		PrincipalArn?: string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-}) |
-fn.#ObjectExpression
-
 #PublicDomainName: close({
 	CertificateName?: string | fn.#StringExpression
 	DomainNames?:     list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression

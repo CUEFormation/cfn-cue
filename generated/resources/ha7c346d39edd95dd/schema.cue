@@ -46,8 +46,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #FileFormat: "CSV" | "CSV_WITH_HEADER" | "JSON" | fn.#StringExpression
 
-#Id: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-
 #IndexId: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" | fn.#StringExpression
 
 #LanguageCode: strings.MaxRunes(10) & strings.MinRunes(2) & =~"[a-zA-Z-]*" | fn.#StringExpression

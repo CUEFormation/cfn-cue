@@ -53,8 +53,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DashboardType: "CUSTOM" | fn.#StringExpression
-
 #DateTimeRange: close({
 	EndTime!:   #DateTimeValue
 	StartTime!: #DateTimeValue

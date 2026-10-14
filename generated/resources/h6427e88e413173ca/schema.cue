@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -42,8 +42,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Arn: strings.MaxRunes(1000) | fn.#StringExpression
-
 #CapacityUnitsConfiguration: close({
 	QueryCapacityUnits!:   #QueryCapacityUnits
 	StorageCapacityUnits!: #StorageCapacityUnits
@@ -75,8 +73,6 @@ fn.#ObjectExpression
 #Freshness: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 #GroupAttributeField: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-
-#Id: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression
 
 #Importance: int & <=10 & >=1 |
 	{

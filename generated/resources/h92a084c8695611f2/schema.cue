@@ -32,10 +32,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #ColumnNames: [...#NameString] | fn.#ListExpression
 
-#DataLakePrincipal: close({DataLakePrincipalIdentifier?: #DataLakePrincipalString}) | fn.#ObjectExpression
-
-#DataLakePrincipalString: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-
 #DatabaseResource: close({
 	CatalogId!: #CatalogIdString
 	Name!:      #NameString
@@ -58,8 +54,6 @@ fn.#StringExpression
 #LFTagsList: list.MaxItems(50) & list.MinItems(1) & [...#LFTagPair] | fn.#ListExpression
 
 #NameString: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-
-#ResourceType: "DATABASE" | "TABLE" | fn.#StringExpression
 
 #TableResource: close({
 	CatalogId!:     #CatalogIdString

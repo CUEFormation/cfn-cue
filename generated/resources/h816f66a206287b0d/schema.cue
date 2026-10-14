@@ -26,15 +26,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING" | fn.#StringExpression
-
 #GlobalResolverIpAddressType: "IPV4" | "DUAL_STACK" | fn.#StringExpression
-
-#IPv4Address: strings.MaxRunes(15) & strings.MinRunes(1) & =~"((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}" |
-fn.#StringExpression
-
-#IPv6Address: strings.MaxRunes(39) & strings.MinRunes(1) & =~"(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}" |
-fn.#StringExpression
 
 #Region: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 

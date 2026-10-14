@@ -22,8 +22,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#AccessorStatus: "AVAILABLE" | "PENDING_DELETION" | "DELETED" | fn.#StringExpression
-
 #AccessorType: "BILLING_TOKEN" | fn.#StringExpression
 
 #NetworkAccessorType: "ETHEREUM_GOERLI" |

@@ -119,8 +119,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#SolutionArn: strings.MaxRunes(256) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" | fn.#StringExpression
-
 #SolutionConfig: close({
 	AlgorithmHyperParameters?: struct.MaxFields(100) & close({
 

@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -38,8 +38,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #AccessControlListConfiguration: close({KeyPath?: #S3ObjectKey}) | fn.#ObjectExpression
 
 #AclConfiguration: close({AllowedGroupsColumnName!: #ColumnName}) | fn.#ObjectExpression
-
-#Arn: strings.MaxRunes(1000) | fn.#StringExpression
 
 #ChangeDetectingColumns: list.MaxItems(5) & list.MinItems(1) & [...#ColumnName] | fn.#ListExpression
 
@@ -562,8 +560,6 @@ fn.#ObjectExpression
 	S3Bucket!:            #S3BucketName
 }) |
 fn.#ObjectExpression
-
-#Id: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 
 #IndexFieldName: strings.MaxRunes(30) & strings.MinRunes(1) | fn.#StringExpression
 

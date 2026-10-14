@@ -51,12 +51,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#DnsEntry: close({
-	DomainName?:   string | fn.#StringExpression
-	HostedZoneId?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression

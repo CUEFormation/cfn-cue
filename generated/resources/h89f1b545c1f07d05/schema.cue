@@ -243,15 +243,6 @@ fn.#ObjectExpression
 
 #ConfigurationAliases: null | bool | number | string | [...] | {...} | fn.#ValueExpression
 
-#DashConfiguration: close({
-	ManifestEndpointPrefix?: string | fn.#StringExpression
-	MpdLocation?:            string | fn.#StringExpression
-	OriginManifestType?:     "SINGLE_PERIOD" | "MULTI_PERIOD" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#HlsConfiguration: close({ManifestEndpointPrefix?: string | fn.#StringExpression}) | fn.#ObjectExpression
-
 #HttpRequest: close({
 	Body?:            string | fn.#StringExpression
 	CompressRequest?: "NONE" | "GZIP" | fn.#StringExpression

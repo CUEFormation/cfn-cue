@@ -299,8 +299,6 @@ fn.#ObjectExpression
 #StorageClassConfiguration: close({StorageClass?: "STANDARD" | "INTELLIGENT_TIERING" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-#TableARN: string | fn.#StringExpression
-
 #TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" | fn.#StringExpression
 
 #TableName: string | fn.#StringExpression
@@ -315,9 +313,5 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#VersionToken: string | fn.#StringExpression
-
-#WarehouseLocation: string | fn.#StringExpression
 
 #WithoutMetadata: "Yes" | fn.#StringExpression

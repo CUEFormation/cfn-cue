@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -18,8 +18,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({GroupingAttributeDefinitions!: #GroupingAttributeDefinitions})
 }
 
-#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-
 #GroupingAttributeDefinition: close({
 	DefaultGroupingValue?: #GroupingString
 	GroupingName!:         #GroupingString
@@ -30,5 +28,3 @@ fn.#ObjectExpression
 #GroupingAttributeDefinitions: [...#GroupingAttributeDefinition] | fn.#ListExpression
 
 #GroupingString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+\\-=\\._:/@]*$" | fn.#StringExpression
-
-#Timestamp: string | fn.#StringExpression

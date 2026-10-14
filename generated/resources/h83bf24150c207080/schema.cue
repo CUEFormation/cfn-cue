@@ -41,12 +41,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#CFNStatusReasons: close({
-	Code?:    string | fn.#StringExpression
-	Message?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #CFNTagging: close({Status?: "DISABLED" | "ENABLED" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #TagItem: close({

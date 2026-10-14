@@ -6,7 +6,6 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
-	"time"
 )
 
 import cfnScalarStrings "strings"
@@ -88,19 +87,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#BrandingConfiguration: close({
-	ColorTheme?:        #ColorTheme
-	Favicon?:           string | fn.#StringExpression
-	FaviconMetadata?:   #ImageMetadata
-	LocalizedStrings?:  #LocalizedBrandingStringMap
-	Logo?:              string | fn.#StringExpression
-	LogoMetadata?:      #ImageMetadata
-	TermsOfService?:    strings.MaxRunes(153600) | fn.#StringExpression
-	Wallpaper?:         string | fn.#StringExpression
-	WallpaperMetadata?: #ImageMetadata
-}) |
-fn.#ObjectExpression
-
 #ColorTheme: "Light" | "Dark" | fn.#StringExpression
 
 #CookieSpecification: close({
@@ -125,26 +111,6 @@ fn.#ObjectExpression
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
-
-#ImageMetadata: close({
-	FileExtension!:       strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	LastUploadTimestamp!: time.Time | fn.#StringExpression
-	MimeType!:            #MimeType
-}) |
-fn.#ObjectExpression
-
-#Locale: "de-DE" |
-	"en-US" |
-	"es-ES" |
-	"fr-FR" |
-	"id-ID" |
-	"it-IT" |
-	"ja-JP" |
-	"ko-KR" |
-	"pt-BR" |
-	"zh-CN" |
-	"zh-TW" |
-	fn.#StringExpression
 
 #LocalizedBrandingStringMap: close({
 
@@ -172,8 +138,6 @@ fn.#ObjectExpression
 	"size1024X768" |
 	"size800X600" |
 	fn.#StringExpression
-
-#MimeType: "image/png" | "image/jpeg" | "image/x-icon" | fn.#StringExpression
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression

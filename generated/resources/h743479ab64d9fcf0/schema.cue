@@ -168,14 +168,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#PublicIpDnsNameOptions: close({
-	DnsHostnameType?:        string | fn.#StringExpression
-	PublicDualStackDnsName?: string | fn.#StringExpression
-	PublicIpv4DnsName?:      string | fn.#StringExpression
-	PublicIpv6DnsName?:      string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression

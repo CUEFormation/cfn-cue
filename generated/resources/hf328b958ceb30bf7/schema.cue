@@ -28,8 +28,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#AuthStatus: "ACTIVE" | "FAILED" | fn.#StringExpression
-
 #AzureProviderConfiguration: close({
 	AWSConfigConnectorArn!: string | fn.#StringExpression
 	AzureRegions!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
@@ -44,15 +42,6 @@ fn.#ObjectExpression
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
-
-#HealthIssue: close({
-	Code!:    string | fn.#StringExpression
-	Message!: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
-	fn.#StringExpression
 
 #JiraCloudProviderConfiguration: close({ProjectKey!: strings.MaxRunes(10) & strings.MinRunes(2) | fn.#StringExpression}) |
 fn.#ObjectExpression

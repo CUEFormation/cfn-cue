@@ -62,8 +62,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#BillingGroupStatus: "ACTIVE" | "PRIMARY_ACCOUNT_MISSING" | fn.#StringExpression
-
 #ComputationPreference: close({
 	PricingPlanArn!: =~"arn:aws(-cn)?:billingconductor::(aws|[0-9]{12}):pricingplan/(BasicPricingPlan|Passthrough|[a-zA-Z0-9]{10})" |
 		fn.#StringExpression

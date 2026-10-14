@@ -28,15 +28,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #EntityDescription: =~"^[a-zA-Z0-9=:#@/\\-,.][a-zA-Z0-9+=:#@/\\-,.\\s]+[a-zA-Z0-9+=:#@/\\-,.]{1,256}$" |
 	fn.#StringExpression
 
-#EntityId: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" | fn.#StringExpression
-
 #EntityName: =~"^[0-9A-Za-z_-]{1,128}$" | fn.#StringExpression
 
 #IPAddress: strings.MaxRunes(50) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 
 #IPAddressVersion: "IPV4" | "IPV6" | fn.#StringExpression
-
-#ResourceArn: string | fn.#StringExpression
 
 #Scope: "CLOUDFRONT" | "REGIONAL" | fn.#StringExpression
 

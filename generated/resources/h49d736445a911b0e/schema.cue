@@ -46,23 +46,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#RegionalEndpoint: close({
-	AuthType?:        "ApplicationManaged" | "IamAuth" | fn.#StringExpression
-	DomainName?:      string | fn.#StringExpression
-	RevisionWeights?: [...#RevisionWeight] | fn.#ListExpression
-
-	// The scaling configuration for the endpoint.
-	ScalingConfig?: #ScalingConfig
-	State?:         "Pending" | "Active" | "Failed" | "Deleting" | fn.#StringExpression
-	StateReason?:   string | fn.#StringExpression
-
-	// The throttling configuration for the endpoint.
-	ThrottleConfig?:     #ThrottleConfig
-	UpdateStatus?:       "InProgress" | "Successful" | "Failed" | fn.#StringExpression
-	UpdateStatusReason?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #RevisionWeight: close({
 	RevisionId!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Weight!: int & <=100 & >=1 |

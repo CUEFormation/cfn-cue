@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -20,8 +20,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ResourceArn!:  #ResourceArn
 	})
 }
-
-#HostedZoneAssociationStatus: "CREATING" | "OPERATIONAL" | "DELETING" | fn.#StringExpression
 
 #HostedZoneId: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 

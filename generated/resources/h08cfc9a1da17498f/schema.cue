@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -37,23 +37,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#AvailableFilter: close({
-	Id!:   string | fn.#StringExpression
-	Type!: "METRIC_LEVEL" | "RESOURCE_LEVEL" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #CalculationComponent: close({
 	Alias!:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_][a-zA-Z0-9_]*" | fn.#StringExpression
 	MetricFilters?: list.MaxItems(5) & [...] & [...#MetricFilter] | fn.#ListExpression
 	MetricId?:      strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
 	MetricName?:    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
-fn.#ObjectExpression
-
-#CreatedByInfo: fn.#Object & {...} & matchN(1, [
-	close({AWSIdentityArn!: string | fn.#StringExpression}), close({ConnectUserArn!: string | fn.#StringExpression}),
-]) |
 fn.#ObjectExpression
 
 #MetricFilter: close({

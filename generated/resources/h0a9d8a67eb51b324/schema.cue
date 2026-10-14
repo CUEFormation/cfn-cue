@@ -8,10 +8,6 @@ import (
 	"list"
 )
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -43,46 +39,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SecretArn?:        =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:secretsmanager:.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#AuthenticationConfigurationInput: null |
-bool |
-number |
-string |
-[...] |
-{
-	KmsKeyArn?: null |
-	bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	number |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatFloat(
-					cfnScalarStrconv.ParseFloat(
-						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-						64,
-					) &
-						number,
-					"g",
-					-1,
-					64,
-				))*0 + 1,
-			)
-	} |
-	=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	[...] |
-	{...} |
-	fn.#ValueExpression
-	...
-} |
-fn.#ValueExpression
 
 #AuthorizationCodeProperties: close({
 	AuthorizationCode?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression

@@ -68,8 +68,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Unit: close({}) | fn.#ObjectExpression
-
 #WebContentFilteringPolicy: close({
 	AllowedUrls?: list.MaxItems(1000) & list.MinItems(1) & [
 		...=~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" |

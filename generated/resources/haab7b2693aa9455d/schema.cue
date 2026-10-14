@@ -5,7 +5,6 @@ package schema
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -105,21 +104,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Endpoint: close({
-	Ipv6Address?:      string | fn.#StringExpression
-	Port!:             string | fn.#StringExpression
-	PrivateIpAddress!: string | fn.#StringExpression
-	PublicIpAddress?:  string | fn.#StringExpression
-	Type!:             "SLURMCTLD" | "SLURMDBD" | "SLURMRESTD" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ErrorInfo: close({
-	Code?:    string | fn.#StringExpression
-	Message?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #JwtAuth: close({JwtKey?: #JwtKey}) | fn.#ObjectExpression
 
 #JwtKey: close({
@@ -147,9 +131,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SubnetId: =~"^subnet-\\w{8,17}$" | fn.#StringExpression
-
-#Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression

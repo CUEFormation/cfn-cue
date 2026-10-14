@@ -92,8 +92,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ThemeImageLink: strings.MaxRunes(254) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-
 #ThemeString: strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 
 #Visibility: "ALL" | "ASSIGNED" | "NONE" | fn.#StringExpression

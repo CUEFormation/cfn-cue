@@ -355,10 +355,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-
-#UserContext: close({
-	DomainId?:        string | fn.#StringExpression
-	UserProfileArn?:  string | fn.#StringExpression
-	UserProfileName?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression

@@ -23,8 +23,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Arn: strings.MaxRunes(2048) | fn.#StringExpression
-
 #CollectionId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\A[a-zA-Z0-9_\\.\\-]+$" | fn.#StringExpression
 
 #Tag: close({

@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"regexp"
 	"sort"
 	"strings"
@@ -319,6 +320,9 @@ func (c *converter) extract(root map[string]any, template bool) (*ast.File, erro
 			}
 		}
 		c.selectPolicy(n.(map[string]any))
+	}
+	if template {
+		c.pruneDefinitions(n.(map[string]any))
 	}
 	wrapper := map[string]any{"$schema": "https://json-schema.org/draft/2020-12/schema", "$defs": c.hoist(n.(map[string]any)), "$ref": "#/$defs/Properties"}
 	b, e := json.Marshal(wrapper)
@@ -636,13 +640,98 @@ func (c *converter) hoist(root map[string]any) map[string]any {
 	out := map[string]any{"Properties": root}
 	defs, _ := root["definitions"].(map[string]any)
 	for name := range c.hoisted {
-		out[name] = defs[name]
-		delete(defs, name)
+		if def, ok := defs[name]; ok {
+			out[name] = def
+			delete(defs, name)
+		}
 	}
 	if defs != nil && len(defs) == 0 {
 		delete(root, "definitions")
 	}
 	return out
+}
+
+// pruneDefinitions deletes provider definitions the template input schema no
+// longer reaches, such as those used only by read-only properties or by
+// policies replaced with IAM profiles. Only #Resource is referenced from other
+// packages; literal packages keep the full set. Field rules placed inside a
+// pruned definition are dropped so applyRules does not expect them.
+func (c *converter) pruneDefinitions(root map[string]any) {
+	defs, _ := root["definitions"].(map[string]any)
+	if len(defs) == 0 {
+		return
+	}
+	reached := map[string]bool{}
+	var pending []string
+	var visit func(any)
+	visit = func(v any) {
+		switch v := v.(type) {
+		case map[string]any:
+			if r, ok := v["$ref"].(string); ok {
+				if name, ok := definitionRef(r); ok && !reached[name] {
+					if _, ok := defs[name]; ok {
+						reached[name] = true
+						pending = append(pending, name)
+					}
+				}
+			}
+			for _, x := range v {
+				visit(x)
+			}
+		case []any:
+			for _, x := range v {
+				visit(x)
+			}
+		}
+	}
+	rest := map[string]any{}
+	for k, v := range root {
+		if k != "definitions" {
+			rest[k] = v
+		}
+	}
+	visit(rest)
+	for i := 0; i < len(pending); i++ {
+		visit(defs[pending[i]])
+	}
+	for _, name := range keys(defs) {
+		if reached[name] {
+			continue
+		}
+		walkSchemaObjects(defs[name], func(s map[string]any) {
+			props, _ := s["properties"].(map[string]any)
+			for prop := range props {
+				var index int
+				if _, e := fmt.Sscanf(prop, ruleMarker+"%d", &index); e == nil && index < len(c.rules) {
+					c.rules[index] = nil
+				}
+			}
+		})
+		delete(defs, name)
+	}
+	if len(defs) == 0 {
+		delete(root, "definitions")
+	}
+}
+
+// definitionRef returns the provider definition a reference written by
+// localRef points into. The reference is a JSON Pointer in a URI fragment, so
+// the whole fragment is percent-decoded before it is split into tokens and ~1
+// and ~0 are unescaped.
+func definitionRef(r string) (string, bool) {
+	if decoded, e := url.PathUnescape(r); e == nil {
+		r = decoded
+	}
+	rest, ok := strings.CutPrefix(r, "#/$defs/Properties/definitions/")
+	if ok {
+		name, _, _ := strings.Cut(rest, "/")
+		return strings.ReplaceAll(strings.ReplaceAll(name, "~1", "/"), "~0", "~"), true
+	}
+	if rest, ok = strings.CutPrefix(r, "#/$defs/"); ok {
+		name, _, _ := strings.Cut(rest, "/")
+		return name, name != "Properties"
+	}
+	return "", false
 }
 
 // propertiesFirst moves #Properties, which carries the resource description,

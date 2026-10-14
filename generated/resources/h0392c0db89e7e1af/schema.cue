@@ -106,8 +106,6 @@ fn.#ObjectExpression
 	"PUBLIC_KEY_AND_PASSWORD" |
 	fn.#StringExpression
 
-#State: "OFFLINE" | "ONLINE" | "STARTING" | "STOPPING" | "START_FAILED" | "STOP_FAILED" | fn.#StringExpression
-
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression

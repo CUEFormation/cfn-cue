@@ -6,12 +6,7 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
-	"time"
 )
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -82,16 +77,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ResourceStatus: "CREATION_IN_PROGRESS" |
-	"CREATION_SUCCESSFUL" |
-	"CREATION_FAILED" |
-	"UPDATE_IN_PROGRESS" |
-	"UPDATE_SUCCESSFUL" |
-	"UPDATE_FAILED" |
-	"PENDING_UPDATE" |
-	"DELETED" |
-	fn.#StringExpression
-
 #SheetBackgroundStyle: close({
 	Color?:    string | fn.#StringExpression
 	Gradient?: string | fn.#StringExpression
@@ -118,46 +103,6 @@ fn.#ObjectExpression
 	Sheet?:            #SheetStyle
 	Typography?:       #Typography
 	UIColorPalette?:   #UIColorPalette
-}) |
-fn.#ObjectExpression
-
-#ThemeError: close({
-	Message?: =~"\\S" | fn.#StringExpression
-	Type?:    #ThemeErrorType
-}) |
-fn.#ObjectExpression
-
-#ThemeErrorType: "INTERNAL_FAILURE" | fn.#StringExpression
-
-#ThemeType: "QUICKSIGHT" | "CUSTOM" | "ALL" | fn.#StringExpression
-
-#ThemeVersion: close({
-	Arn?:           string | fn.#StringExpression
-	BaseThemeId?:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Configuration?: #ThemeConfiguration
-	CreatedTime?:   time.Time | fn.#StringExpression
-	Description?:   strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	Errors?:        list.MinItems(1) & [...#ThemeError] | fn.#ListExpression
-	Status?:        #ResourceStatus
-	VersionNumber?: >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 

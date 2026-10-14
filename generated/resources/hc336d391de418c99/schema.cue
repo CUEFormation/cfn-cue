@@ -42,8 +42,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	"AWS_LAMBDA" |
 	fn.#StringExpression
 
-#ChannelNamespaceArn: string | fn.#StringExpression
-
 #Code: strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
 
 #HandlerBehavior: "CODE" | "DIRECT" | fn.#StringExpression

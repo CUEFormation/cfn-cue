@@ -26,12 +26,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #Description: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
 
-#EndpointId: string | fn.#StringExpression
-
 #ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$" | fn.#StringExpression
-
-#ResourceId: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^([0-9a-f]{8})-([0-9a-f]{4}-){3}([0-9a-f]{12})$" |
-fn.#StringExpression
 
 #SubnetMapping: close({
 	IPAddressType?: "DUALSTACK" | "IPV4" | "IPV6" | fn.#StringExpression

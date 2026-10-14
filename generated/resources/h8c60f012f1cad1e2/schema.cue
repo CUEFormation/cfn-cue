@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -78,17 +78,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Check: close({
-	ImpairedSince?: string | fn.#StringExpression
-	Result!:        #CheckResult
-	Type!:          "KEY_REUSE" | "KEY_COVERAGE" | "REACHABILITY" | "VCF_VERSION" | "HOST_COUNT" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#CheckResult: "PASSED" | "FAILED" | "UNKNOWN" | fn.#StringExpression
-
-#EnvironmentState: "CREATING" | "CREATED" | "DELETING" | "DELETED" | "CREATE_FAILED" | fn.#StringExpression
-
 #HostInfoForCreate: close({
 	PlacementGroupId?: _
 	if PlacementGroupId != _|_ {
@@ -123,8 +112,6 @@ fn.#ObjectExpression
 
 #RouteServerPeering: strings.MaxRunes(21) & strings.MinRunes(3) | fn.#StringExpression
 
-#Secret: close({SecretArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
-
 #SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(25) &
 strings.MinRunes(3) &
@@ -136,5 +123,3 @@ fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Timestamp: string | fn.#StringExpression

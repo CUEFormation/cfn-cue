@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -29,13 +29,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:       #Tags
 	})
 }
-
-#Arn: strings.MaxRunes(2048) &
-strings.MinRunes(20) &
-=~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+/link/[a-zA-Z0-9-]+/routing-rule/[a-zA-Z0-9-]+$" |
-fn.#StringExpression
-
-#CreatedTimestamp: string | fn.#StringExpression
 
 #GatewayId: =~"^rtb-gw-[a-z0-9-]{1,25}$" | fn.#StringExpression
 
@@ -90,8 +83,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RuleId: =~"^rule-[a-z0-9-]{1,25}$" | fn.#StringExpression
-
 #RulePriority: int & <=1000 & >=1 |
 	{
 		string &
@@ -109,14 +100,6 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#RuleStatus: "CREATION_IN_PROGRESS" |
-	"ACTIVE" |
-	"UPDATE_IN_PROGRESS" |
-	"DELETION_IN_PROGRESS" |
-	"DELETED" |
-	"FAILED" |
-	fn.#StringExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" |
 	fn.#StringExpression
@@ -125,5 +108,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-
-#UpdatedTimestamp: string | fn.#StringExpression

@@ -17,5 +17,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ThingPrincipalType?: string | fn.#StringExpression
 	})
 }
-
-_#defs: "/$defs/Properties/definitions/_PropertyRef0fa0f63af5e72a77": string | fn.#StringExpression

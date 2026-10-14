@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -30,8 +30,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#PromptRouterStatus: "AVAILABLE" | fn.#StringExpression
-
 #PromptRouterTargetModel: close({
 	ModelArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -39,8 +37,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#PromptRouterType: "custom" | "default" | fn.#StringExpression
 
 #RoutingCriteria: close({
 	ResponseQualityDifference!: <=100 & >=0 |

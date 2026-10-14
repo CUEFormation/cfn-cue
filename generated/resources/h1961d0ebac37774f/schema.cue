@@ -4,9 +4,9 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"time"
 	"strings"
 	"list"
+	"time"
 )
 
 import cfnScalarStrings "strings"
@@ -413,103 +413,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#AdditionalStorageVolume: close({
-	AllocatedStorage?: =~"^[0-9]*$" | fn.#StringExpression
-	Iops?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MaxAllocatedStorage?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	StorageOperationPercentProgress?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	StorageOperationStatus?: string | fn.#StringExpression
-	StorageThroughput?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	StorageType?: string | fn.#StringExpression
-	VolumeName?:  string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#CertificateDetails: close({
-	CAIdentifier?: string | fn.#StringExpression
-	ValidTill?:    time.Time | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #DBInstanceRole: close({
 	FeatureName!: string | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#DBInstanceStatusInfo: close({
-	Message?:    string | fn.#StringExpression
-	Normal?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Status?:     string | fn.#StringExpression
-	StatusType?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#Endpoint: close({
-	Address?:      string | fn.#StringExpression
-	HostedZoneId?: string | fn.#StringExpression
-	Port?:         string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#MasterUserSecret: close({
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	SecretArn?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

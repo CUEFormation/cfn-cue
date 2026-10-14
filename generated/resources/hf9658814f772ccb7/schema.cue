@@ -23,20 +23,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#InstanceConnectEndpointDnsNames: close({
-	DnsName?:     string | fn.#StringExpression
-	FipsDnsName?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#InstanceConnectEndpointPublicDnsNames: close({
-	Dualstack?: #InstanceConnectEndpointDnsNames & fn.#Object & {...} | fn.#ObjectExpression
-	Ipv4?:      #InstanceConnectEndpointDnsNames & fn.#Object & {...} | fn.#ObjectExpression
-}) |
-fn.#ObjectExpression
-
-#NetworkInterfaceId: string | fn.#StringExpression
-
 #SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 	fn.#StringExpression
 

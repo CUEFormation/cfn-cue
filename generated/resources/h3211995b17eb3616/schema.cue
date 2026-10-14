@@ -24,11 +24,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#ImageArn: strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"^arn:aws(-[\\w]+)*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:image\\/[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$" |
-fn.#StringExpression
-
 #ImageDescription: strings.MaxRunes(512) & strings.MinRunes(1) & =~".+" | fn.#StringExpression
 
 #ImageDisplayName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9 -_]+$" | fn.#StringExpression

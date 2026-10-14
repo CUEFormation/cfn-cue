@@ -21,17 +21,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #IpPool: close({Cidr?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-#NetworkState: "CREATING" |
-	"CREATE_FAILED" |
-	"ACTIVE" |
-	"DELETING" |
-	"IDLE" |
-	"IN_USE" |
-	"UPDATING" |
-	"DELETED" |
-	"DELETE_FAILED" |
-	fn.#StringExpression
-
 #Route: close({
 	Cidr?:    string | fn.#StringExpression
 	Gateway?: string | fn.#StringExpression

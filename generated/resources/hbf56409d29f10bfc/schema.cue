@@ -43,8 +43,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	{[=~".+"]: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-#FormatToHeaderKey: "CHR" | "START" | "END" | "REF" | "ALT" | "POS" | fn.#StringExpression
-
 #ReferenceItem: close(
 	{ReferenceArn!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^arn:.+$" | fn.#StringExpression},
 ) |
@@ -75,8 +73,6 @@ fn.#ObjectExpression
 #StoreFormat: "GFF" | "TSV" | "VCF" | fn.#StringExpression
 
 #StoreOptions: close({TsvStoreOptions!: #TsvStoreOptions}) | fn.#ValueExpression
-
-#StoreStatus: "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "FAILED" | fn.#StringExpression
 
 #TagMap: close({
 

@@ -146,8 +146,3 @@ fn.#ObjectExpression
 
 	{[=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"]: #WorkflowParameter}}) |
 fn.#ObjectExpression
-
-#WorkflowStatus: ("CREATING" | "ACTIVE" | "UPDATING" | "DELETED" | "FAILED" | "INACTIVE") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
-fn.#StringExpression
-
-#WorkflowType: ("PRIVATE" | "READY2RUN") & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression

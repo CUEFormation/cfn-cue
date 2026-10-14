@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -21,19 +21,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#CreatedAt: string | fn.#StringExpression
-
-#DatastoreArn: strings.MaxRunes(127) &
-strings.MinRunes(1) &
-=~"^arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:medical-imaging:[a-z0-9-]+:[0-9]{12}:datastore/[0-9a-z]{32}(/imageset/[0-9a-z]{32})?$" |
-fn.#StringExpression
-
-#DatastoreId: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[0-9a-z]{32}$" | fn.#StringExpression
-
 #DatastoreName: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9._/#-]+$" | fn.#StringExpression
-
-#DatastoreStatus: ("CREATING" | "CREATE_FAILED" | "ACTIVE" | "DELETING" | "DELETED") & (strings.MaxRunes(127) & strings.MinRunes(1)) |
-fn.#StringExpression
 
 #KmsKeyArn: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(512) & strings.MinRunes(1)) |
 fn.#StringExpression
@@ -42,5 +30,3 @@ fn.#StringExpression
 
 	{[=~"^.+$"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
-
-#UpdatedAt: string | fn.#StringExpression

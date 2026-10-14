@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -34,10 +34,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	})
 }
-
-#HypervisorState: "PENDING" | "ONLINE" | "OFFLINE" | "ERROR" | fn.#StringExpression
-
-#SyncMetadataStatus: "PENDING" | "IN_PROGRESS" | "FAILED" | "SUCCEEDED" | fn.#StringExpression
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression

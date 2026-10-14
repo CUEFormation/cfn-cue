@@ -161,13 +161,6 @@ fn.#ObjectExpression
 
 #GroupingValue: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
-#MessageTemplateAttachment: close({
-	AttachmentId?:   strings.MinRunes(1) | fn.#StringExpression
-	AttachmentName!: #AttachmentName
-	S3PresignedUrl!: #AttachmentUrl
-}) |
-fn.#ObjectExpression
-
 #MessageTemplateAttributes: close({
 	AgentAttributes?:           #AgentAttributes
 	CustomAttributes?:          #CustomAttributes

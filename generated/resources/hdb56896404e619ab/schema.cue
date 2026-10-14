@@ -6,7 +6,6 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
-	"time"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -64,62 +63,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#AzureProviderConfiguration: close({
-	AutoInstallVMScanner?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AwsConfigConnectorArn!: strings.MaxRunes(512) &
-	strings.MinRunes(1) &
-	=~"arn:([^:]+):config:([^:]+):([^:]+):connector/([^/]+)/([^/]+)/([^/:\\s]+)" |
-	fn.#StringExpression
-	AzureRegions!:       list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	ScopeConfiguration!: #AzureScopeConfigurationMap
-}) |
-fn.#ObjectExpression
-
-#AzureScopeConfigurationMap: close({
-	ContainerImageScanning?: #ScopeConfiguration
-	ServerlessScanning?:     #ScopeConfiguration
-	VmScanning?:             #ScopeConfiguration
-}) |
-fn.#ObjectExpression
-
 #CloudProvider: "AZURE" | fn.#StringExpression
-
-#ConnectorHealth: close({
-	ConnectorStatus?: #ConnectorHealthStatus
-	LastCheckedAt?:   time.Time | fn.#StringExpression
-	Message?:         string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ConnectorHealthStatus: "CONNECTED" |
-	"DEGRADED" |
-	"FAILED_TO_CONNECT" |
-	"PENDING_AUTHORIZATION" |
-	"PENDING_CONFIGURATION" |
-	"UNKNOWN" |
-	fn.#StringExpression
-
-#ConnectorState: "ENABLED" |
-	"PENDING_ENABLEMENT" |
-	"FAILED_TO_ENABLE" |
-	"PENDING_UPDATE" |
-	"FAILED_TO_UPDATE" |
-	"PENDING_DELETION" |
-	"DELETED" |
-	"FAILED_TO_DELETE" |
-	fn.#StringExpression
-
-#ProviderConfiguration: close({Azure!: #AzureProviderConfiguration}) | fn.#ObjectExpression
-
-#ScopeConfiguration: close({
-	ScopeType!:   #ScopeType
-	ScopeValues?: list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
-	State?:       #ScopeState
-	StateReason?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ScopeState: "ACTIVE" | "PENDING" | "ERROR" | "DISABLED" | fn.#StringExpression
 
 #ScopeType: "TENANT" | "SUBSCRIPTION" | fn.#StringExpression
 

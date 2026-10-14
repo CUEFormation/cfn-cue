@@ -63,11 +63,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TopicV2Details: close({
-	DataSetRelations?: list.MaxItems(32) & [...] & [...#DataSetRelation] | fn.#ListExpression
-	DataSets?:         list.MaxItems(32) & list.MinItems(1) & [...#DataSetReference] | fn.#ListExpression
-	Description?:      strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:             strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-}) |
-fn.#ObjectExpression

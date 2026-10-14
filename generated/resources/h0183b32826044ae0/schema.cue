@@ -21,8 +21,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#ScheduleGroupState: "ACTIVE" | "DELETING" | fn.#StringExpression
-
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression

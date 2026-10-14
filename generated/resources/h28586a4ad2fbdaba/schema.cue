@@ -80,5 +80,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #WebExperienceSamplePromptsControlMode: "ENABLED" | "DISABLED" | fn.#StringExpression
-
-#WebExperienceStatus: "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | "PENDING_AUTH_CONFIG" | fn.#StringExpression

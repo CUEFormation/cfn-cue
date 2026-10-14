@@ -993,8 +993,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ContextMenuOption: close({AvailabilityStatus?: #DashboardBehavior}) | fn.#ObjectExpression
-
 #ContributionAnalysisDefault: close({
 	ContributorDimensions!: list.MaxItems(4) & list.MinItems(1) & [...#ColumnIdentifier] | fn.#ListExpression
 	MeasureFieldId!:        strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
@@ -5866,8 +5864,6 @@ fn.#ObjectExpression
 	...
 } | fn.#ObjectExpression
 
-#VisualMenuOption: close({AvailabilityStatus?: #DashboardBehavior}) | fn.#ObjectExpression
-
 #VisualPalette: close({
 	ChartColor?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
 	ColorMap?:   list.MaxItems(5000) & [...] & [...#DataPathColor] | fn.#ListExpression
@@ -6064,5 +6060,3 @@ fn.#ObjectExpression
 #WordCloudWordPadding: "NONE" | "SMALL" | "MEDIUM" | "LARGE" | fn.#StringExpression
 
 #WordCloudWordScaling: "EMPHASIZE" | "NORMAL" | fn.#StringExpression
-
-#YAxisOptions: close({YAxis!: #SingleYAxisOption}) | fn.#ObjectExpression

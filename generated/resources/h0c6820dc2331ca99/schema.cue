@@ -24,6 +24,4 @@ import base "github.com/cueformation/cfn-cue/template:template"
 ]) |
 fn.#ValueExpression
 
-#MemberIdentifierType: "USER_IDENTIFIER" | "GROUP_IDENTIFIER" | fn.#StringExpression
-
 #UserDesignation: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression

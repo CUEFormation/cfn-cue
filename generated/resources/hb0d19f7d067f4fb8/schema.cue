@@ -69,5 +69,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TrainingDatasetStatus: "ACTIVE" | fn.#StringExpression

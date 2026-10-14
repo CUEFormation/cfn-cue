@@ -26,12 +26,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#EgressEndpoint: close({
-	PackagingConfigurationId!: string | fn.#StringExpression
-	Url!:                      string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression

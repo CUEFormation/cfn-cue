@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -23,9 +23,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:    list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
-
-#Arn: strings.MaxRunes(1000) & =~"^arn:aws(-(cn|us-gov|iso(-b)?))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
-fn.#StringExpression
 
 #DeletionProtected: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 

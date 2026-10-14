@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -31,8 +31,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Arn: strings.MaxRunes(1000) | fn.#StringExpression
-
 #AudioLogDestination: close({S3Bucket!: #S3BucketLogDestination}) | fn.#ObjectExpression
 
 #AudioLogSetting: close({
@@ -57,8 +55,6 @@ fn.#ObjectExpression
 
 #BotAliasLocaleSettingsList: list.MaxItems(50) & list.UniqueItems() & [...#BotAliasLocaleSettingsItem] |
 	fn.#ListExpression
-
-#BotAliasStatus: "Creating" | "Available" | "Deleting" | "Failed" | fn.#StringExpression
 
 #BotVersion: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]+)$" | fn.#StringExpression
 
@@ -86,8 +82,6 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#LocaleId: string | fn.#StringExpression
 
 #Name: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?)+$" | fn.#StringExpression
 

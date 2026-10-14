@@ -1493,24 +1493,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#EmbeddedCaptionPositionSettings: close({
-	YPositionLine?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-	fn.#ObjectExpression
-
 #EmbeddedDestinationSettings: fn.#Object & {...} | string | fn.#StringObjectExpression
 
 #EmbeddedSourceSettings: close({
@@ -3342,15 +3324,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MediaPackageOutputSettings: fn.#Object & {...} | string | fn.#StringObjectExpression
-
-#MediaPackageV2DestinationSettings: close({
-	AudioGroupId?:       string | fn.#StringExpression
-	AudioRenditionSets?: string | fn.#StringExpression
-	HlsAutoSelect?:      string | fn.#StringExpression
-	HlsDefault?:         string | fn.#StringExpression
-	OutputUsage?:        [...string | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
 
 #MediaPackageV2GroupSettings: close({
 	AdditionalDestinations?:  [...#AdditionalDestinations] | fn.#ListExpression

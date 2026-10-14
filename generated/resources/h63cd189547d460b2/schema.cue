@@ -3,7 +3,6 @@
 package schema
 
 import (
-	"time"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
@@ -32,8 +31,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		VectorBucketName?:        #VectorBucketName
 	})
 }
-
-#CreationTime: time.Time | fn.#StringExpression
 
 #DataType: "float32" | fn.#StringExpression
 
@@ -65,8 +62,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SseType?: "AES256" | "aws:kms" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#IndexArn: string | fn.#StringExpression
 
 #IndexName: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 

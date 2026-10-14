@@ -114,12 +114,6 @@ fn.#ObjectExpression
 
 #FindingFilterAction: "ARCHIVE" | "NOOP" | fn.#StringExpression
 
-#FindingsFilterListItem: {
-	Id?:   string | fn.#StringExpression
-	Name?: string | fn.#StringExpression
-	...
-} | fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression

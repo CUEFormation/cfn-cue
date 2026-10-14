@@ -32,17 +32,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	{[=~"^[a-zA-Z0-9-:]{3,256}$"]: strings.MaxRunes(1500) & strings.MinRunes(1) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-#DeploymentStatus: "COMPLETED" |
-	"CREATING" |
-	"DELETE_IN_PROGRESS" |
-	"DELETE_INITIATING" |
-	"DELETE_FAILED" |
-	"DELETED" |
-	"FAILED" |
-	"IN_PROGRESS" |
-	"VALIDATING" |
-	fn.#StringExpression
-
 #Tags: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression

@@ -80,6 +80,3 @@ fn.#ObjectExpression
 	Strategy!: =~"(?i)^(?:lend|lend_and_borrow|reserve)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#ResourceArn: =~"^arn:aws[a-z\\-]*:batch:[a-z0-9\\-]+:[0-9]{12}:job-queue/[a-zA-Z0-9_\\-]{1,128}/quota-share/[a-zA-Z0-9_\\-]{1,128}$" |
-	fn.#StringExpression
