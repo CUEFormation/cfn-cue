@@ -191,6 +191,11 @@ Tests cover recursive provider definitions, nested intrinsics, conditional branc
 
 See [RESEARCH.md](RESEARCH.md) for upstream locations and the next design decisions.
 
+## Agent skills
+
+The project includes [unslop](.agents/skills/README.md) for editing writing. Invoke
+it with `$unslop` in Codex or `/unslop` in Claude Code and Cursor.
+
 ## License
 
 The generator is licensed under [Apache-2.0](LICENSE). Bundled AWS schema data and generated definitions derived from it use the upstream [MIT-0 license](snapshots/LICENSE.aws); see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
