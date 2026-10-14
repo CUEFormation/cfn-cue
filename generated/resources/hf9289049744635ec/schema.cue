@@ -31,8 +31,8 @@ fn.#ObjectExpression
 #NotificationConfiguration: close({
 	HttpsNotificationConfiguration?: #HttpsNotificationConfiguration
 	SqsNotificationConfiguration?:   #SqsNotificationConfiguration
-	if HttpsNotificationConfiguration != _|_ {
-		SqsNotificationConfiguration?: error(
+	if HttpsNotificationConfiguration != _|_ if HttpsNotificationConfiguration."Fn::If" == _|_ {
+		SqsNotificationConfiguration?: close({"Fn::If": _}) | error(
 			"SqsNotificationConfiguration cannot be used with HttpsNotificationConfiguration; set exactly one of HttpsNotificationConfiguration, SqsNotificationConfiguration",
 		)
 	}

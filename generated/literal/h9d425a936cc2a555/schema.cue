@@ -28,8 +28,8 @@ import (
 
 	// The type of Amazon FSx volume that the S3 access point is attached to.
 	Type!: "OPENZFS" | "ONTAP"
-	if OntapConfiguration != _|_ {
-		OpenZFSConfiguration?: error(
+	if OntapConfiguration != _|_ if OntapConfiguration."Fn::If" == _|_ {
+		OpenZFSConfiguration?: close({"Fn::If": _}) | error(
 			"OpenZFSConfiguration cannot be used with OntapConfiguration; set exactly one of OntapConfiguration, OpenZFSConfiguration",
 		)
 	}
@@ -49,8 +49,10 @@ import (
 
 	// Specifies the properties of the file system Windows user.
 	WindowsUser?: #OntapWindowsFileSystemUser
-	if UnixUser != _|_ {
-		WindowsUser?: error("WindowsUser cannot be used with UnixUser; set exactly one of UnixUser, WindowsUser")
+	if UnixUser != _|_ if UnixUser."Fn::If" == _|_ {
+		WindowsUser?: close({"Fn::If": _}) | error(
+			"WindowsUser cannot be used with UnixUser; set exactly one of UnixUser, WindowsUser",
+		)
 	}
 }) & matchN(>=1, [{UnixUser!: _}, {WindowsUser!: _}])
 

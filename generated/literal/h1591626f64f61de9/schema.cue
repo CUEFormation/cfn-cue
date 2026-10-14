@@ -74,8 +74,8 @@ import (
 
 	// Path of this file within the asset bundle.
 	Path!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_./-]+$"
-	if ContentText != _|_ {
-		ContentBytes?: error(
+	if ContentText != _|_ if ContentText."Fn::If" == _|_ {
+		ContentBytes?: close({"Fn::If": _}) | error(
 			"ContentBytes cannot be used with ContentText; set exactly one of ContentText, ContentBytes",
 		)
 	}

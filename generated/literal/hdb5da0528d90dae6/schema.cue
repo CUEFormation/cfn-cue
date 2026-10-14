@@ -47,8 +47,8 @@ string |
 close({
 	Amount?: number
 	Ratio?:  number
-	if Amount != _|_ {
-		Ratio?: error("Ratio cannot be used with Amount; set exactly one of Amount, Ratio")
+	if Amount != _|_ if Amount."Fn::If" == _|_ {
+		Ratio?: close({"Fn::If": _}) | error("Ratio cannot be used with Amount; set exactly one of Amount, Ratio")
 	}
 }) & matchN(>=1, [{Amount!: _}, {Ratio!: _}])
 
@@ -76,8 +76,10 @@ string |
 close({
 	MarkAsAnomaly?: bool
 	Skip?:          bool
-	if MarkAsAnomaly != _|_ {
-		Skip?: error("Skip cannot be used with MarkAsAnomaly; set exactly one of MarkAsAnomaly, Skip")
+	if MarkAsAnomaly != _|_ if MarkAsAnomaly."Fn::If" == _|_ {
+		Skip?: close({"Fn::If": _}) | error(
+			"Skip cannot be used with MarkAsAnomaly; set exactly one of MarkAsAnomaly, Skip",
+		)
 	}
 }) & matchN(>=1, [{MarkAsAnomaly!: _}, {Skip!: _}])
 

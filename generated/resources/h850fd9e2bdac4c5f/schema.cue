@@ -37,11 +37,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		TTL?:                  #TTL | fn.#StringExpression
 		Type!:                 #Type | fn.#StringExpression
 		Weight?:               #Weight | fn.#NumberExpression
-		if HostedZoneId != _|_ {
-			HostedZoneName?: error(
+		if HostedZoneId != _|_ if HostedZoneId."Fn::If" == _|_ {
+			HostedZoneName?: close({"Fn::If": _}) | error(
 				"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
 			)
-			HostedZoneName?: error(
+			HostedZoneName?: close({"Fn::If": _}) | error(
 				"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
 			)
 		}
@@ -78,8 +78,8 @@ fn.#ObjectExpression
 	ContinentCode?:   strings.MaxRunes(2) & strings.MinRunes(2) | fn.#StringExpression
 	CountryCode?:     strings.MaxRunes(2) & strings.MinRunes(1) | fn.#StringExpression
 	SubdivisionCode?: strings.MaxRunes(3) & strings.MinRunes(1) | fn.#StringExpression
-	if ContinentCode != _|_ {
-		CountryCode?: error(
+	if ContinentCode != _|_ if ContinentCode."Fn::If" == _|_ {
+		CountryCode?: close({"Fn::If": _}) | error(
 			"CountryCode cannot be used with ContinentCode; set exactly one of ContinentCode, CountryCode",
 		)
 	}
@@ -106,16 +106,16 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	Coordinates?:    #Coordinates | fn.#ObjectExpression
 	LocalZoneGroup?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	if AWSRegion != _|_ {
-		LocalZoneGroup?: error(
+	if AWSRegion != _|_ if AWSRegion."Fn::If" == _|_ {
+		LocalZoneGroup?: close({"Fn::If": _}) | error(
 			"LocalZoneGroup cannot be used with AWSRegion; set exactly one of AWSRegion, LocalZoneGroup, Coordinates",
 		)
-		Coordinates?: error(
+		Coordinates?: close({"Fn::If": _}) | error(
 			"Coordinates cannot be used with AWSRegion; set exactly one of AWSRegion, LocalZoneGroup, Coordinates",
 		)
 	}
-	if LocalZoneGroup != _|_ {
-		Coordinates?: error(
+	if LocalZoneGroup != _|_ if LocalZoneGroup."Fn::If" == _|_ {
+		Coordinates?: close({"Fn::If": _}) | error(
 			"Coordinates cannot be used with LocalZoneGroup; set exactly one of AWSRegion, LocalZoneGroup, Coordinates",
 		)
 	}

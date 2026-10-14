@@ -165,8 +165,8 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	LastDayOfMonth?: close({}) | fn.#ObjectExpression
-	if DayNumber != _|_ {
-		LastDayOfMonth?: error(
+	if DayNumber != _|_ if DayNumber."Fn::If" == _|_ {
+		LastDayOfMonth?: close({"Fn::If": _}) | error(
 			"LastDayOfMonth cannot be used with DayNumber; set exactly one of DayNumber, LastDayOfMonth",
 		)
 	}
@@ -456,12 +456,18 @@ fn.#ObjectExpression
 	Daily?:   #DailySchedule
 	Monthly?: #MonthlySchedule
 	Weekly?:  #WeeklySchedule
-	if Daily != _|_ {
-		Weekly?:  error("Weekly cannot be used with Daily; set exactly one of Daily, Weekly, Monthly")
-		Monthly?: error("Monthly cannot be used with Daily; set exactly one of Daily, Weekly, Monthly")
+	if Daily != _|_ if Daily."Fn::If" == _|_ {
+		Weekly?: close({"Fn::If": _}) | error(
+			"Weekly cannot be used with Daily; set exactly one of Daily, Weekly, Monthly",
+		)
+		Monthly?: close({"Fn::If": _}) | error(
+			"Monthly cannot be used with Daily; set exactly one of Daily, Weekly, Monthly",
+		)
 	}
-	if Weekly != _|_ {
-		Monthly?: error("Monthly cannot be used with Weekly; set exactly one of Daily, Weekly, Monthly")
+	if Weekly != _|_ if Weekly."Fn::If" == _|_ {
+		Monthly?: close({"Fn::If": _}) | error(
+			"Monthly cannot be used with Weekly; set exactly one of Daily, Weekly, Monthly",
+		)
 	}
 }) & matchN(>=1, [{Daily!: _}, {Weekly!: _}, {Monthly!: _}]) |
 fn.#ObjectExpression

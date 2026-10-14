@@ -27,8 +27,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Name!:                         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 		ProvisionedConcurrencyConfig?: #ProvisionedConcurrencyConfiguration | fn.#ObjectExpression
 		RoutingConfig?:                #AliasRoutingConfiguration | fn.#ObjectExpression
-		if ProvisionedConcurrencyConfig != _|_ {
-			RoutingConfig?: error("RoutingConfig cannot be used with ProvisionedConcurrencyConfig")
+		if ProvisionedConcurrencyConfig != _|_ if ProvisionedConcurrencyConfig."Fn::If" == _|_ {
+			RoutingConfig?: close({"Fn::If": _}) | error(
+				"RoutingConfig cannot be used with ProvisionedConcurrencyConfig",
+			)
 		}
 	})
 }

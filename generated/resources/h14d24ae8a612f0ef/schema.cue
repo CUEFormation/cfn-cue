@@ -707,8 +707,8 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	S3OriginConfig?:  #S3OriginConfig | fn.#ObjectExpression
 	VpcOriginConfig?: #VpcOriginConfig | fn.#ObjectExpression
-	if CustomOriginConfig != _|_ {
-		S3OriginConfig?: error("S3OriginConfig cannot be used with CustomOriginConfig")
+	if CustomOriginConfig != _|_ if CustomOriginConfig."Fn::If" == _|_ {
+		S3OriginConfig?: close({"Fn::If": _}) | error("S3OriginConfig cannot be used with CustomOriginConfig")
 	}
 }) |
 fn.#ObjectExpression
@@ -889,16 +889,16 @@ fn.#ObjectExpression
 		"TLSv1_2016" |
 		fn.#StringExpression
 	SslSupportMethod?: "sni-only" | "static-ip" | "vip" | fn.#StringExpression
-	if AcmCertificateArn != _|_ {
-		CloudFrontDefaultCertificate?: error(
+	if AcmCertificateArn != _|_ if AcmCertificateArn."Fn::If" == _|_ {
+		CloudFrontDefaultCertificate?: close({"Fn::If": _}) | error(
 			"CloudFrontDefaultCertificate cannot be used with AcmCertificateArn; set exactly one of AcmCertificateArn, CloudFrontDefaultCertificate, IamCertificateId",
 		)
-		IamCertificateId?: error(
+		IamCertificateId?: close({"Fn::If": _}) | error(
 			"IamCertificateId cannot be used with AcmCertificateArn; set exactly one of AcmCertificateArn, CloudFrontDefaultCertificate, IamCertificateId",
 		)
 	}
-	if CloudFrontDefaultCertificate != _|_ {
-		IamCertificateId?: error(
+	if CloudFrontDefaultCertificate != _|_ if CloudFrontDefaultCertificate."Fn::If" == _|_ {
+		IamCertificateId?: close({"Fn::If": _}) | error(
 			"IamCertificateId cannot be used with CloudFrontDefaultCertificate; set exactly one of AcmCertificateArn, CloudFrontDefaultCertificate, IamCertificateId",
 		)
 	}

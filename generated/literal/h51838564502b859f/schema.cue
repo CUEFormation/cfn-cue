@@ -77,8 +77,8 @@ import "strings"
 
 	// The container image source for this version, as an ECR image URI.
 	Source?: #ImageSource
-	if Source != _|_ {
-		Build?: error("Build cannot be used with Source; set exactly one of Source, Build")
+	if Source != _|_ if Source."Fn::If" == _|_ {
+		Build?: close({"Fn::If": _}) | error("Build cannot be used with Source; set exactly one of Source, Build")
 	}
 }) & matchN(>=1, [{Source!: _}, {Build!: _}])
 

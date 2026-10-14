@@ -112,8 +112,10 @@ import (
 
 	// The type of load balancer. The default is ``application``.
 	Type?: "application" | "gateway" | "network"
-	if Subnets != _|_ {
-		SubnetMappings?: error("SubnetMappings cannot be used with Subnets; set exactly one of Subnets, SubnetMappings")
+	if Subnets != _|_ if Subnets."Fn::If" == _|_ {
+		SubnetMappings?: close({"Fn::If": _}) | error(
+			"SubnetMappings cannot be used with Subnets; set exactly one of Subnets, SubnetMappings",
+		)
 	}
 }) & matchN(>=1, [{Subnets!: _}, {SubnetMappings!: _}])
 

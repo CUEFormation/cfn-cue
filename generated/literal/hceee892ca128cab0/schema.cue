@@ -62,8 +62,8 @@ import (
 
 	// The contacts or contact methods that the escalation plan or engagement plan is engaging.
 	Targets?: [...#Targets]
-	if DurationInMinutes != _|_ {
-		RotationIds?: error(
+	if DurationInMinutes != _|_ if DurationInMinutes."Fn::If" == _|_ {
+		RotationIds?: close({"Fn::If": _}) | error(
 			"RotationIds cannot be used with DurationInMinutes; set exactly one of DurationInMinutes, RotationIds",
 		)
 	}
@@ -82,8 +82,8 @@ import (
 #Targets: close({
 	ChannelTargetInfo?: #ChannelTargetInfo
 	ContactTargetInfo?: #ContactTargetInfo
-	if ChannelTargetInfo != _|_ {
-		ContactTargetInfo?: error(
+	if ChannelTargetInfo != _|_ if ChannelTargetInfo."Fn::If" == _|_ {
+		ContactTargetInfo?: close({"Fn::If": _}) | error(
 			"ContactTargetInfo cannot be used with ChannelTargetInfo; set exactly one of ChannelTargetInfo, ContactTargetInfo",
 		)
 	}

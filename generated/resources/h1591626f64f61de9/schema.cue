@@ -32,8 +32,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ContentText?:  strings.MaxRunes(1572864) | fn.#StringExpression
 	Metadata?:     fn.#Object & {...} | fn.#ObjectExpression
 	Path!:         strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_./-]+$" | fn.#StringExpression
-	if ContentText != _|_ {
-		ContentBytes?: error(
+	if ContentText != _|_ if ContentText."Fn::If" == _|_ {
+		ContentBytes?: close({"Fn::If": _}) | error(
 			"ContentBytes cannot be used with ContentText; set exactly one of ContentText, ContentBytes",
 		)
 	}

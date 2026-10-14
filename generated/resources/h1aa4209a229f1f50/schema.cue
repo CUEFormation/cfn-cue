@@ -72,27 +72,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		if CidrIp != _|_ {
-			CidrIpv6?: error(
+		if CidrIp != _|_ if CidrIp."Fn::If" == _|_ {
+			CidrIpv6?: close({"Fn::If": _}) | error(
 				"CidrIpv6 cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
 			)
-			DestinationPrefixListId?: error(
+			DestinationPrefixListId?: close({"Fn::If": _}) | error(
 				"DestinationPrefixListId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
 			)
-			DestinationSecurityGroupId?: error(
+			DestinationSecurityGroupId?: close({"Fn::If": _}) | error(
 				"DestinationSecurityGroupId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
 			)
 		}
-		if CidrIpv6 != _|_ {
-			DestinationPrefixListId?: error(
+		if CidrIpv6 != _|_ if CidrIpv6."Fn::If" == _|_ {
+			DestinationPrefixListId?: close({"Fn::If": _}) | error(
 				"DestinationPrefixListId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
 			)
-			DestinationSecurityGroupId?: error(
+			DestinationSecurityGroupId?: close({"Fn::If": _}) | error(
 				"DestinationSecurityGroupId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
 			)
 		}
-		if DestinationPrefixListId != _|_ {
-			DestinationSecurityGroupId?: error(
+		if DestinationPrefixListId != _|_ if DestinationPrefixListId."Fn::If" == _|_ {
+			DestinationSecurityGroupId?: close({"Fn::If": _}) | error(
 				"DestinationSecurityGroupId cannot be used with DestinationPrefixListId; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
 			)
 		}

@@ -75,27 +75,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	if CidrIp != _|_ {
-		CidrIpv6?: error(
+	if CidrIp != _|_ if CidrIp."Fn::If" == _|_ {
+		CidrIpv6?: close({"Fn::If": _}) | error(
 			"CidrIpv6 cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
 		)
-		DestinationSecurityGroupId?: error(
+		DestinationSecurityGroupId?: close({"Fn::If": _}) | error(
 			"DestinationSecurityGroupId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
 		)
-		DestinationPrefixListId?: error(
+		DestinationPrefixListId?: close({"Fn::If": _}) | error(
 			"DestinationPrefixListId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
 		)
 	}
-	if CidrIpv6 != _|_ {
-		DestinationSecurityGroupId?: error(
+	if CidrIpv6 != _|_ if CidrIpv6."Fn::If" == _|_ {
+		DestinationSecurityGroupId?: close({"Fn::If": _}) | error(
 			"DestinationSecurityGroupId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
 		)
-		DestinationPrefixListId?: error(
+		DestinationPrefixListId?: close({"Fn::If": _}) | error(
 			"DestinationPrefixListId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
 		)
 	}
-	if DestinationSecurityGroupId != _|_ {
-		DestinationPrefixListId?: error(
+	if DestinationSecurityGroupId != _|_ if DestinationSecurityGroupId."Fn::If" == _|_ {
+		DestinationPrefixListId?: close({"Fn::If": _}) | error(
 			"DestinationPrefixListId cannot be used with DestinationSecurityGroupId; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
 		)
 	}
@@ -142,41 +142,41 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	if CidrIp != _|_ {
-		CidrIpv6?: error(
+	if CidrIp != _|_ if CidrIp."Fn::If" == _|_ {
+		CidrIpv6?: close({"Fn::If": _}) | error(
 			"CidrIpv6 cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
 		)
-		SourcePrefixListId?: error(
+		SourcePrefixListId?: close({"Fn::If": _}) | error(
 			"SourcePrefixListId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
 		)
-		SourceSecurityGroupId?: error(
+		SourceSecurityGroupId?: close({"Fn::If": _}) | error(
 			"SourceSecurityGroupId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
 		)
-		SourceSecurityGroupName?: error(
+		SourceSecurityGroupName?: close({"Fn::If": _}) | error(
 			"SourceSecurityGroupName cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
 		)
 	}
-	if CidrIpv6 != _|_ {
-		SourcePrefixListId?: error(
+	if CidrIpv6 != _|_ if CidrIpv6."Fn::If" == _|_ {
+		SourcePrefixListId?: close({"Fn::If": _}) | error(
 			"SourcePrefixListId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
 		)
-		SourceSecurityGroupId?: error(
+		SourceSecurityGroupId?: close({"Fn::If": _}) | error(
 			"SourceSecurityGroupId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
 		)
-		SourceSecurityGroupName?: error(
+		SourceSecurityGroupName?: close({"Fn::If": _}) | error(
 			"SourceSecurityGroupName cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
 		)
 	}
-	if SourcePrefixListId != _|_ {
-		SourceSecurityGroupId?: error(
+	if SourcePrefixListId != _|_ if SourcePrefixListId."Fn::If" == _|_ {
+		SourceSecurityGroupId?: close({"Fn::If": _}) | error(
 			"SourceSecurityGroupId cannot be used with SourcePrefixListId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
 		)
-		SourceSecurityGroupName?: error(
+		SourceSecurityGroupName?: close({"Fn::If": _}) | error(
 			"SourceSecurityGroupName cannot be used with SourcePrefixListId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
 		)
 	}
-	if SourceSecurityGroupId != _|_ {
-		SourceSecurityGroupName?: error(
+	if SourceSecurityGroupId != _|_ if SourceSecurityGroupId."Fn::If" == _|_ {
+		SourceSecurityGroupName?: close({"Fn::If": _}) | error(
 			"SourceSecurityGroupName cannot be used with SourceSecurityGroupId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
 		)
 	}

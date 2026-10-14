@@ -77,8 +77,10 @@ import (
 #TargetResource: close({
 	NLBResource?: #NLBResource
 	R53Resource?: #R53ResourceRecord
-	if NLBResource != _|_ {
-		R53Resource?: error("R53Resource cannot be used with NLBResource; set exactly one of NLBResource, R53Resource")
+	if NLBResource != _|_ if NLBResource."Fn::If" == _|_ {
+		R53Resource?: close({"Fn::If": _}) | error(
+			"R53Resource cannot be used with NLBResource; set exactly one of NLBResource, R53Resource",
+		)
 	}
 }) & matchN(>=1, [{NLBResource!: _}, {R53Resource!: _}])
 

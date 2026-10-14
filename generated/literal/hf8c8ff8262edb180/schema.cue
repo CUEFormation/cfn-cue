@@ -191,188 +191,188 @@ import (
 	TemplateConfiguration?:    #TemplateConfiguration
 	WebCrawlerConfiguration?:  #WebCrawlerConfiguration
 	WorkDocsConfiguration?:    #WorkDocsConfiguration
-	if S3Configuration != _|_ {
-		SharePointConfiguration?: error(
+	if S3Configuration != _|_ if S3Configuration."Fn::If" == _|_ {
+		SharePointConfiguration?: close({"Fn::If": _}) | error(
 			"SharePointConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		SalesforceConfiguration?: error(
+		SalesforceConfiguration?: close({"Fn::If": _}) | error(
 			"SalesforceConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		OneDriveConfiguration?: error(
+		OneDriveConfiguration?: close({"Fn::If": _}) | error(
 			"OneDriveConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		ServiceNowConfiguration?: error(
+		ServiceNowConfiguration?: close({"Fn::If": _}) | error(
 			"ServiceNowConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		DatabaseConfiguration?: error(
+		DatabaseConfiguration?: close({"Fn::If": _}) | error(
 			"DatabaseConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		ConfluenceConfiguration?: error(
+		ConfluenceConfiguration?: close({"Fn::If": _}) | error(
 			"ConfluenceConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		GoogleDriveConfiguration?: error(
+		GoogleDriveConfiguration?: close({"Fn::If": _}) | error(
 			"GoogleDriveConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		WebCrawlerConfiguration?: error(
+		WebCrawlerConfiguration?: close({"Fn::If": _}) | error(
 			"WebCrawlerConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		WorkDocsConfiguration?: error(
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
 			"WorkDocsConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		TemplateConfiguration?: error(
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
 			"TemplateConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
 	}
-	if SharePointConfiguration != _|_ {
-		SalesforceConfiguration?: error(
+	if SharePointConfiguration != _|_ if SharePointConfiguration."Fn::If" == _|_ {
+		SalesforceConfiguration?: close({"Fn::If": _}) | error(
 			"SalesforceConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		OneDriveConfiguration?: error(
+		OneDriveConfiguration?: close({"Fn::If": _}) | error(
 			"OneDriveConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		ServiceNowConfiguration?: error(
+		ServiceNowConfiguration?: close({"Fn::If": _}) | error(
 			"ServiceNowConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		DatabaseConfiguration?: error(
+		DatabaseConfiguration?: close({"Fn::If": _}) | error(
 			"DatabaseConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		ConfluenceConfiguration?: error(
+		ConfluenceConfiguration?: close({"Fn::If": _}) | error(
 			"ConfluenceConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		GoogleDriveConfiguration?: error(
+		GoogleDriveConfiguration?: close({"Fn::If": _}) | error(
 			"GoogleDriveConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		WebCrawlerConfiguration?: error(
+		WebCrawlerConfiguration?: close({"Fn::If": _}) | error(
 			"WebCrawlerConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		WorkDocsConfiguration?: error(
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
 			"WorkDocsConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		TemplateConfiguration?: error(
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
 			"TemplateConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
 	}
-	if SalesforceConfiguration != _|_ {
-		OneDriveConfiguration?: error(
+	if SalesforceConfiguration != _|_ if SalesforceConfiguration."Fn::If" == _|_ {
+		OneDriveConfiguration?: close({"Fn::If": _}) | error(
 			"OneDriveConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		ServiceNowConfiguration?: error(
+		ServiceNowConfiguration?: close({"Fn::If": _}) | error(
 			"ServiceNowConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		DatabaseConfiguration?: error(
+		DatabaseConfiguration?: close({"Fn::If": _}) | error(
 			"DatabaseConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		ConfluenceConfiguration?: error(
+		ConfluenceConfiguration?: close({"Fn::If": _}) | error(
 			"ConfluenceConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		GoogleDriveConfiguration?: error(
+		GoogleDriveConfiguration?: close({"Fn::If": _}) | error(
 			"GoogleDriveConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		WebCrawlerConfiguration?: error(
+		WebCrawlerConfiguration?: close({"Fn::If": _}) | error(
 			"WebCrawlerConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		WorkDocsConfiguration?: error(
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
 			"WorkDocsConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		TemplateConfiguration?: error(
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
 			"TemplateConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
 	}
-	if OneDriveConfiguration != _|_ {
-		ServiceNowConfiguration?: error(
+	if OneDriveConfiguration != _|_ if OneDriveConfiguration."Fn::If" == _|_ {
+		ServiceNowConfiguration?: close({"Fn::If": _}) | error(
 			"ServiceNowConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		DatabaseConfiguration?: error(
+		DatabaseConfiguration?: close({"Fn::If": _}) | error(
 			"DatabaseConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		ConfluenceConfiguration?: error(
+		ConfluenceConfiguration?: close({"Fn::If": _}) | error(
 			"ConfluenceConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		GoogleDriveConfiguration?: error(
+		GoogleDriveConfiguration?: close({"Fn::If": _}) | error(
 			"GoogleDriveConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		WebCrawlerConfiguration?: error(
+		WebCrawlerConfiguration?: close({"Fn::If": _}) | error(
 			"WebCrawlerConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		WorkDocsConfiguration?: error(
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
 			"WorkDocsConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		TemplateConfiguration?: error(
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
 			"TemplateConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
 	}
-	if ServiceNowConfiguration != _|_ {
-		DatabaseConfiguration?: error(
+	if ServiceNowConfiguration != _|_ if ServiceNowConfiguration."Fn::If" == _|_ {
+		DatabaseConfiguration?: close({"Fn::If": _}) | error(
 			"DatabaseConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		ConfluenceConfiguration?: error(
+		ConfluenceConfiguration?: close({"Fn::If": _}) | error(
 			"ConfluenceConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		GoogleDriveConfiguration?: error(
+		GoogleDriveConfiguration?: close({"Fn::If": _}) | error(
 			"GoogleDriveConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		WebCrawlerConfiguration?: error(
+		WebCrawlerConfiguration?: close({"Fn::If": _}) | error(
 			"WebCrawlerConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		WorkDocsConfiguration?: error(
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
 			"WorkDocsConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		TemplateConfiguration?: error(
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
 			"TemplateConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
 	}
-	if DatabaseConfiguration != _|_ {
-		ConfluenceConfiguration?: error(
+	if DatabaseConfiguration != _|_ if DatabaseConfiguration."Fn::If" == _|_ {
+		ConfluenceConfiguration?: close({"Fn::If": _}) | error(
 			"ConfluenceConfiguration cannot be used with DatabaseConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		GoogleDriveConfiguration?: error(
+		GoogleDriveConfiguration?: close({"Fn::If": _}) | error(
 			"GoogleDriveConfiguration cannot be used with DatabaseConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		WebCrawlerConfiguration?: error(
+		WebCrawlerConfiguration?: close({"Fn::If": _}) | error(
 			"WebCrawlerConfiguration cannot be used with DatabaseConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		WorkDocsConfiguration?: error(
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
 			"WorkDocsConfiguration cannot be used with DatabaseConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		TemplateConfiguration?: error(
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
 			"TemplateConfiguration cannot be used with DatabaseConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
 	}
-	if ConfluenceConfiguration != _|_ {
-		GoogleDriveConfiguration?: error(
+	if ConfluenceConfiguration != _|_ if ConfluenceConfiguration."Fn::If" == _|_ {
+		GoogleDriveConfiguration?: close({"Fn::If": _}) | error(
 			"GoogleDriveConfiguration cannot be used with ConfluenceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		WebCrawlerConfiguration?: error(
+		WebCrawlerConfiguration?: close({"Fn::If": _}) | error(
 			"WebCrawlerConfiguration cannot be used with ConfluenceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		WorkDocsConfiguration?: error(
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
 			"WorkDocsConfiguration cannot be used with ConfluenceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		TemplateConfiguration?: error(
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
 			"TemplateConfiguration cannot be used with ConfluenceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
 	}
-	if GoogleDriveConfiguration != _|_ {
-		WebCrawlerConfiguration?: error(
+	if GoogleDriveConfiguration != _|_ if GoogleDriveConfiguration."Fn::If" == _|_ {
+		WebCrawlerConfiguration?: close({"Fn::If": _}) | error(
 			"WebCrawlerConfiguration cannot be used with GoogleDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		WorkDocsConfiguration?: error(
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
 			"WorkDocsConfiguration cannot be used with GoogleDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		TemplateConfiguration?: error(
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
 			"TemplateConfiguration cannot be used with GoogleDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
 	}
-	if WebCrawlerConfiguration != _|_ {
-		WorkDocsConfiguration?: error(
+	if WebCrawlerConfiguration != _|_ if WebCrawlerConfiguration."Fn::If" == _|_ {
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
 			"WorkDocsConfiguration cannot be used with WebCrawlerConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
-		TemplateConfiguration?: error(
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
 			"TemplateConfiguration cannot be used with WebCrawlerConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
 	}
-	if WorkDocsConfiguration != _|_ {
-		TemplateConfiguration?: error(
+	if WorkDocsConfiguration != _|_ if WorkDocsConfiguration."Fn::If" == _|_ {
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
 			"TemplateConfiguration cannot be used with WorkDocsConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
 		)
 	}
@@ -543,8 +543,8 @@ strings.MinRunes(1) &
 #OneDriveUsers: close({
 	OneDriveUserList?:   #OneDriveUserList
 	OneDriveUserS3Path?: #S3Path
-	if OneDriveUserList != _|_ {
-		OneDriveUserS3Path?: error(
+	if OneDriveUserList != _|_ if OneDriveUserList."Fn::If" == _|_ {
+		OneDriveUserS3Path?: close({"Fn::If": _}) | error(
 			"OneDriveUserS3Path cannot be used with OneDriveUserList; set exactly one of OneDriveUserList, OneDriveUserS3Path",
 		)
 	}

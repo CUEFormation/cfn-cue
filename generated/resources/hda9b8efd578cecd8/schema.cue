@@ -129,14 +129,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?: [...#Tag] | fn.#ListExpression
 		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
-		if AvailabilityZone != _|_ {
-			AvailabilityZoneId?: error("AvailabilityZoneId cannot be used with AvailabilityZone")
+		if AvailabilityZone != _|_ if AvailabilityZone."Fn::If" == _|_ {
+			AvailabilityZoneId?: close({"Fn::If": _}) | error("AvailabilityZoneId cannot be used with AvailabilityZone")
 		}
-		if CidrBlock != _|_ {
-			Ipv4IpamPoolId?: error("Ipv4IpamPoolId cannot be used with CidrBlock")
+		if CidrBlock != _|_ if CidrBlock."Fn::If" == _|_ {
+			Ipv4IpamPoolId?: close({"Fn::If": _}) | error("Ipv4IpamPoolId cannot be used with CidrBlock")
 		}
-		if Ipv6CidrBlock != _|_ {
-			Ipv6IpamPoolId?: error("Ipv6IpamPoolId cannot be used with Ipv6CidrBlock")
+		if Ipv6CidrBlock != _|_ if Ipv6CidrBlock."Fn::If" == _|_ {
+			Ipv6IpamPoolId?: close({"Fn::If": _}) | error("Ipv6IpamPoolId cannot be used with Ipv6CidrBlock")
 		}
 	}) & matchN(>=1, [{CidrBlock!: _}, {Ipv4IpamPoolId!: _}, {Ipv6IpamPoolId!: _}, {Ipv6CidrBlock!: _}])
 }

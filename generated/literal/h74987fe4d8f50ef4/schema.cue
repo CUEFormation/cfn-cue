@@ -31,8 +31,8 @@ import (
 
 	// The routing configuration of the alias.
 	RoutingConfig?: #AliasRoutingConfiguration
-	if ProvisionedConcurrencyConfig != _|_ {
-		RoutingConfig?: error("RoutingConfig cannot be used with ProvisionedConcurrencyConfig")
+	if ProvisionedConcurrencyConfig != _|_ if ProvisionedConcurrencyConfig."Fn::If" == _|_ {
+		RoutingConfig?: close({"Fn::If": _}) | error("RoutingConfig cannot be used with ProvisionedConcurrencyConfig")
 	}
 })
 

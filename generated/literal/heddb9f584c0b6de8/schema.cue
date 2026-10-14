@@ -26,8 +26,8 @@ import (
 	Specifications?:           #InferenceComponentSpecificationList
 	Tags?:                     #TagList
 	VariantName?:              #VariantName
-	if Specification != _|_ {
-		Specifications?: error(
+	if Specification != _|_ if Specification."Fn::If" == _|_ {
+		Specifications?: close({"Fn::If": _}) | error(
 			"Specifications cannot be used with Specification; set exactly one of Specification, Specifications",
 		)
 	}

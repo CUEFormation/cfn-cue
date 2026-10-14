@@ -103,8 +103,8 @@ import (
 
 	// The tier of the application component.
 	Tier!: =~"^[A-Z][A-Z_]*$"
-	if ComponentName != _|_ {
-		ComponentARN?: error(
+	if ComponentName != _|_ if ComponentName."Fn::If" == _|_ {
+		ComponentARN?: close({"Fn::If": _}) | error(
 			"ComponentARN cannot be used with ComponentName; set exactly one of ComponentName, ComponentARN",
 		)
 	}

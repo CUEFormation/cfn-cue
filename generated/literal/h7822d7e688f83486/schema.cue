@@ -56,16 +56,16 @@ import (
 	KmsAliasName?: =~"^alias/[a-zA-Z0-9:/_-]+$"
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
-	if KmsKeyArn != _|_ {
-		KmsAliasArn?: error(
+	if KmsKeyArn != _|_ if KmsKeyArn."Fn::If" == _|_ {
+		KmsAliasArn?: close({"Fn::If": _}) | error(
 			"KmsAliasArn cannot be used with KmsKeyArn; set exactly one of KmsKeyArn, KmsAliasArn, KmsAliasName",
 		)
-		KmsAliasName?: error(
+		KmsAliasName?: close({"Fn::If": _}) | error(
 			"KmsAliasName cannot be used with KmsKeyArn; set exactly one of KmsKeyArn, KmsAliasArn, KmsAliasName",
 		)
 	}
-	if KmsAliasArn != _|_ {
-		KmsAliasName?: error(
+	if KmsAliasArn != _|_ if KmsAliasArn."Fn::If" == _|_ {
+		KmsAliasName?: close({"Fn::If": _}) | error(
 			"KmsAliasName cannot be used with KmsAliasArn; set exactly one of KmsKeyArn, KmsAliasArn, KmsAliasName",
 		)
 	}

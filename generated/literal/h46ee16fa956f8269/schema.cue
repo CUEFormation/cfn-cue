@@ -46,8 +46,10 @@ package schema
 	// ascending order by rule number. Entries can't use the same rule number
 	// unless one is an egress rule and the other is an ingress rule
 	RuleNumber!: int
-	if Ipv6CidrBlock != _|_ {
-		CidrBlock?: error("CidrBlock cannot be used with Ipv6CidrBlock; set exactly one of Ipv6CidrBlock, CidrBlock")
+	if Ipv6CidrBlock != _|_ if Ipv6CidrBlock."Fn::If" == _|_ {
+		CidrBlock?: close({"Fn::If": _}) | error(
+			"CidrBlock cannot be used with Ipv6CidrBlock; set exactly one of Ipv6CidrBlock, CidrBlock",
+		)
 	}
 }) & matchN(>=1, [{Ipv6CidrBlock!: _}, {CidrBlock!: _}])
 

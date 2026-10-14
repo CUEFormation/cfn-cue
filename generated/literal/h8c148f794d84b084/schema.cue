@@ -496,8 +496,8 @@ import (
 	HostHeaderRewriteConfig?: #RewriteConfigObject
 	Type!:                    "host-header-rewrite" | "url-rewrite"
 	UrlRewriteConfig?:        #RewriteConfigObject
-	if HostHeaderRewriteConfig != _|_ {
-		UrlRewriteConfig?: error(
+	if HostHeaderRewriteConfig != _|_ if HostHeaderRewriteConfig."Fn::If" == _|_ {
+		UrlRewriteConfig?: close({"Fn::If": _}) | error(
 			"UrlRewriteConfig cannot be used with HostHeaderRewriteConfig; set exactly one of HostHeaderRewriteConfig, UrlRewriteConfig",
 		)
 	}

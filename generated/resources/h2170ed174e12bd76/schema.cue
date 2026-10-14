@@ -437,78 +437,78 @@ fn.#ObjectExpression
 	RdsConfiguration?:                      #RdsConfiguration
 	S3VectorsConfiguration?:                #S3VectorsConfiguration
 	Type!:                                  #KnowledgeBaseStorageType
-	if OpensearchServerlessConfiguration != _|_ {
-		PineconeConfiguration?: error(
+	if OpensearchServerlessConfiguration != _|_ if OpensearchServerlessConfiguration."Fn::If" == _|_ {
+		PineconeConfiguration?: close({"Fn::If": _}) | error(
 			"PineconeConfiguration cannot be used with OpensearchServerlessConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
-		RdsConfiguration?: error(
+		RdsConfiguration?: close({"Fn::If": _}) | error(
 			"RdsConfiguration cannot be used with OpensearchServerlessConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
-		NeptuneAnalyticsConfiguration?: error(
+		NeptuneAnalyticsConfiguration?: close({"Fn::If": _}) | error(
 			"NeptuneAnalyticsConfiguration cannot be used with OpensearchServerlessConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
-		S3VectorsConfiguration?: error(
+		S3VectorsConfiguration?: close({"Fn::If": _}) | error(
 			"S3VectorsConfiguration cannot be used with OpensearchServerlessConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
-		MongoDbAtlasConfiguration?: error(
+		MongoDbAtlasConfiguration?: close({"Fn::If": _}) | error(
 			"MongoDbAtlasConfiguration cannot be used with OpensearchServerlessConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
-		OpensearchManagedClusterConfiguration?: error(
+		OpensearchManagedClusterConfiguration?: close({"Fn::If": _}) | error(
 			"OpensearchManagedClusterConfiguration cannot be used with OpensearchServerlessConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
 	}
-	if PineconeConfiguration != _|_ {
-		RdsConfiguration?: error(
+	if PineconeConfiguration != _|_ if PineconeConfiguration."Fn::If" == _|_ {
+		RdsConfiguration?: close({"Fn::If": _}) | error(
 			"RdsConfiguration cannot be used with PineconeConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
-		NeptuneAnalyticsConfiguration?: error(
+		NeptuneAnalyticsConfiguration?: close({"Fn::If": _}) | error(
 			"NeptuneAnalyticsConfiguration cannot be used with PineconeConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
-		S3VectorsConfiguration?: error(
+		S3VectorsConfiguration?: close({"Fn::If": _}) | error(
 			"S3VectorsConfiguration cannot be used with PineconeConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
-		MongoDbAtlasConfiguration?: error(
+		MongoDbAtlasConfiguration?: close({"Fn::If": _}) | error(
 			"MongoDbAtlasConfiguration cannot be used with PineconeConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
-		OpensearchManagedClusterConfiguration?: error(
+		OpensearchManagedClusterConfiguration?: close({"Fn::If": _}) | error(
 			"OpensearchManagedClusterConfiguration cannot be used with PineconeConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
 	}
-	if RdsConfiguration != _|_ {
-		NeptuneAnalyticsConfiguration?: error(
+	if RdsConfiguration != _|_ if RdsConfiguration."Fn::If" == _|_ {
+		NeptuneAnalyticsConfiguration?: close({"Fn::If": _}) | error(
 			"NeptuneAnalyticsConfiguration cannot be used with RdsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
-		S3VectorsConfiguration?: error(
+		S3VectorsConfiguration?: close({"Fn::If": _}) | error(
 			"S3VectorsConfiguration cannot be used with RdsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
-		MongoDbAtlasConfiguration?: error(
+		MongoDbAtlasConfiguration?: close({"Fn::If": _}) | error(
 			"MongoDbAtlasConfiguration cannot be used with RdsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
-		OpensearchManagedClusterConfiguration?: error(
+		OpensearchManagedClusterConfiguration?: close({"Fn::If": _}) | error(
 			"OpensearchManagedClusterConfiguration cannot be used with RdsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
 	}
-	if NeptuneAnalyticsConfiguration != _|_ {
-		S3VectorsConfiguration?: error(
+	if NeptuneAnalyticsConfiguration != _|_ if NeptuneAnalyticsConfiguration."Fn::If" == _|_ {
+		S3VectorsConfiguration?: close({"Fn::If": _}) | error(
 			"S3VectorsConfiguration cannot be used with NeptuneAnalyticsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
-		MongoDbAtlasConfiguration?: error(
+		MongoDbAtlasConfiguration?: close({"Fn::If": _}) | error(
 			"MongoDbAtlasConfiguration cannot be used with NeptuneAnalyticsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
-		OpensearchManagedClusterConfiguration?: error(
+		OpensearchManagedClusterConfiguration?: close({"Fn::If": _}) | error(
 			"OpensearchManagedClusterConfiguration cannot be used with NeptuneAnalyticsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
 	}
-	if S3VectorsConfiguration != _|_ {
-		MongoDbAtlasConfiguration?: error(
+	if S3VectorsConfiguration != _|_ if S3VectorsConfiguration."Fn::If" == _|_ {
+		MongoDbAtlasConfiguration?: close({"Fn::If": _}) | error(
 			"MongoDbAtlasConfiguration cannot be used with S3VectorsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
-		OpensearchManagedClusterConfiguration?: error(
+		OpensearchManagedClusterConfiguration?: close({"Fn::If": _}) | error(
 			"OpensearchManagedClusterConfiguration cannot be used with S3VectorsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
 	}
-	if MongoDbAtlasConfiguration != _|_ {
-		OpensearchManagedClusterConfiguration?: error(
+	if MongoDbAtlasConfiguration != _|_ if MongoDbAtlasConfiguration."Fn::If" == _|_ {
+		OpensearchManagedClusterConfiguration?: close({"Fn::If": _}) | error(
 			"OpensearchManagedClusterConfiguration cannot be used with MongoDbAtlasConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
 		)
 	}

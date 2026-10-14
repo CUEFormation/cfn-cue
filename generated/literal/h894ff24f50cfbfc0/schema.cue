@@ -715,8 +715,10 @@ strings.MinRunes(20) &
 	SlotTypeId?:              #SlotTypeId
 	SlotTypeName?:            #SlotTypeName
 	ValueElicitationSetting!: #SubSlotValueElicitationSetting
-	if SlotTypeId != _|_ {
-		SlotTypeName?: error("SlotTypeName cannot be used with SlotTypeId; set exactly one of SlotTypeId, SlotTypeName")
+	if SlotTypeId != _|_ if SlotTypeId."Fn::If" == _|_ {
+		SlotTypeName?: close({"Fn::If": _}) | error(
+			"SlotTypeName cannot be used with SlotTypeId; set exactly one of SlotTypeId, SlotTypeName",
+		)
 	}
 }) & matchN(>=1, [{SlotTypeId!: _}, {SlotTypeName!: _}])
 
@@ -753,8 +755,10 @@ strings.MinRunes(20) &
 	Name!:         strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?){1,100}$"
 	SlotTypeId?:   #SlotTypeId
 	SlotTypeName?: #SlotTypeName
-	if SlotTypeId != _|_ {
-		SlotTypeName?: error("SlotTypeName cannot be used with SlotTypeId; set exactly one of SlotTypeId, SlotTypeName")
+	if SlotTypeId != _|_ if SlotTypeId."Fn::If" == _|_ {
+		SlotTypeName?: close({"Fn::If": _}) | error(
+			"SlotTypeName cannot be used with SlotTypeId; set exactly one of SlotTypeId, SlotTypeName",
+		)
 	}
 }) & matchN(>=1, [{SlotTypeId!: _}, {SlotTypeName!: _}])
 

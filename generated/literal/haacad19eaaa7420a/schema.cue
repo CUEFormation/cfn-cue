@@ -97,12 +97,18 @@ import (
 
 		// Specifies a tag used to identify a subset of objects for an Amazon S3Outposts bucket.
 		Tag?: #FilterTag
-		if Prefix != _|_ {
-			Tag?:         error("Tag cannot be used with Prefix; set exactly one of Prefix, Tag, AndOperator")
-			AndOperator?: error("AndOperator cannot be used with Prefix; set exactly one of Prefix, Tag, AndOperator")
+		if Prefix != _|_ if Prefix."Fn::If" == _|_ {
+			Tag?: close({"Fn::If": _}) | error(
+				"Tag cannot be used with Prefix; set exactly one of Prefix, Tag, AndOperator",
+			)
+			AndOperator?: close({"Fn::If": _}) | error(
+				"AndOperator cannot be used with Prefix; set exactly one of Prefix, Tag, AndOperator",
+			)
 		}
-		if Tag != _|_ {
-			AndOperator?: error("AndOperator cannot be used with Tag; set exactly one of Prefix, Tag, AndOperator")
+		if Tag != _|_ if Tag."Fn::If" == _|_ {
+			AndOperator?: close({"Fn::If": _}) | error(
+				"AndOperator cannot be used with Tag; set exactly one of Prefix, Tag, AndOperator",
+			)
 		}
 	}) & matchN(>=1, [{Prefix!: _}, {Tag!: _}, {AndOperator!: _}])
 

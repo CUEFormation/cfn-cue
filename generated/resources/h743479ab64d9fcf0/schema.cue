@@ -104,8 +104,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		SourceDestCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		SubnetId!:        string | fn.#StringExpression
 		Tags?:            [...#Tag] | fn.#ListExpression
-		if Ipv6AddressCount != _|_ {
-			Ipv6Addresses?: error("Ipv6Addresses cannot be used with Ipv6AddressCount")
+		if Ipv6AddressCount != _|_ if Ipv6AddressCount."Fn::If" == _|_ {
+			Ipv6Addresses?: close({"Fn::If": _}) | error("Ipv6Addresses cannot be used with Ipv6AddressCount")
 		}
 	})
 }

@@ -92,101 +92,101 @@ fn.#ObjectExpression
 	IntegerList?: #IntegerList | fn.#ListExpression
 	String?:      #NonEmptyString | fn.#StringExpression
 	StringList?:  #NonEmptyStringList | fn.#ListExpression
-	if Boolean != _|_ {
-		Double?: error(
+	if Boolean != _|_ if Boolean."Fn::If" == _|_ {
+		Double?: close({"Fn::If": _}) | error(
 			"Double cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		Enum?: error(
+		Enum?: close({"Fn::If": _}) | error(
 			"Enum cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		EnumList?: error(
+		EnumList?: close({"Fn::If": _}) | error(
 			"EnumList cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		Integer?: error(
+		Integer?: close({"Fn::If": _}) | error(
 			"Integer cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		IntegerList?: error(
+		IntegerList?: close({"Fn::If": _}) | error(
 			"IntegerList cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		String?: error(
+		String?: close({"Fn::If": _}) | error(
 			"String cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		StringList?: error(
+		StringList?: close({"Fn::If": _}) | error(
 			"StringList cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
 	}
-	if Double != _|_ {
-		Enum?: error(
+	if Double != _|_ if Double."Fn::If" == _|_ {
+		Enum?: close({"Fn::If": _}) | error(
 			"Enum cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		EnumList?: error(
+		EnumList?: close({"Fn::If": _}) | error(
 			"EnumList cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		Integer?: error(
+		Integer?: close({"Fn::If": _}) | error(
 			"Integer cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		IntegerList?: error(
+		IntegerList?: close({"Fn::If": _}) | error(
 			"IntegerList cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		String?: error(
+		String?: close({"Fn::If": _}) | error(
 			"String cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		StringList?: error(
+		StringList?: close({"Fn::If": _}) | error(
 			"StringList cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
 	}
-	if Enum != _|_ {
-		EnumList?: error(
+	if Enum != _|_ if Enum."Fn::If" == _|_ {
+		EnumList?: close({"Fn::If": _}) | error(
 			"EnumList cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		Integer?: error(
+		Integer?: close({"Fn::If": _}) | error(
 			"Integer cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		IntegerList?: error(
+		IntegerList?: close({"Fn::If": _}) | error(
 			"IntegerList cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		String?: error(
+		String?: close({"Fn::If": _}) | error(
 			"String cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		StringList?: error(
+		StringList?: close({"Fn::If": _}) | error(
 			"StringList cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
 	}
-	if EnumList != _|_ {
-		Integer?: error(
+	if EnumList != _|_ if EnumList."Fn::If" == _|_ {
+		Integer?: close({"Fn::If": _}) | error(
 			"Integer cannot be used with EnumList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		IntegerList?: error(
+		IntegerList?: close({"Fn::If": _}) | error(
 			"IntegerList cannot be used with EnumList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		String?: error(
+		String?: close({"Fn::If": _}) | error(
 			"String cannot be used with EnumList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		StringList?: error(
+		StringList?: close({"Fn::If": _}) | error(
 			"StringList cannot be used with EnumList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
 	}
-	if Integer != _|_ {
-		IntegerList?: error(
+	if Integer != _|_ if Integer."Fn::If" == _|_ {
+		IntegerList?: close({"Fn::If": _}) | error(
 			"IntegerList cannot be used with Integer; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		String?: error(
+		String?: close({"Fn::If": _}) | error(
 			"String cannot be used with Integer; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		StringList?: error(
+		StringList?: close({"Fn::If": _}) | error(
 			"StringList cannot be used with Integer; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
 	}
-	if IntegerList != _|_ {
-		String?: error(
+	if IntegerList != _|_ if IntegerList."Fn::If" == _|_ {
+		String?: close({"Fn::If": _}) | error(
 			"String cannot be used with IntegerList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
-		StringList?: error(
+		StringList?: close({"Fn::If": _}) | error(
 			"StringList cannot be used with IntegerList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
 	}
-	if String != _|_ {
-		StringList?: error(
+	if String != _|_ if String."Fn::If" == _|_ {
+		StringList?: close({"Fn::If": _}) | error(
 			"StringList cannot be used with String; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
 		)
 	}

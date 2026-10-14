@@ -30,8 +30,8 @@ import (
 #DataDeliveryObject: close({
 	LogGroup?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9._/]+$"
 	S3?:       #S3Destination
-	if S3 != _|_ {
-		LogGroup?: error("LogGroup cannot be used with S3; set exactly one of S3, LogGroup")
+	if S3 != _|_ if S3."Fn::If" == _|_ {
+		LogGroup?: close({"Fn::If": _}) | error("LogGroup cannot be used with S3; set exactly one of S3, LogGroup")
 	}
 }) & matchN(>=1, [{S3!: _}, {LogGroup!: _}])
 

@@ -79,8 +79,8 @@ import (
 #Capacity: close({
 	AutoScaling?:         #AutoScaling
 	ProvisionedCapacity?: #ProvisionedCapacity
-	if AutoScaling != _|_ {
-		ProvisionedCapacity?: error(
+	if AutoScaling != _|_ if AutoScaling."Fn::If" == _|_ {
+		ProvisionedCapacity?: close({"Fn::If": _}) | error(
 			"ProvisionedCapacity cannot be used with AutoScaling; set exactly one of AutoScaling, ProvisionedCapacity",
 		)
 	}

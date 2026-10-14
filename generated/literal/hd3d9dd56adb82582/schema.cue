@@ -22,8 +22,10 @@ import "strings"
 
 	// The ID of the vpc. Required only if you don't specify SubnetId.
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
-	if VpcId != _|_ {
-		SubnetId?: error("SubnetId cannot be used with VpcId; set exactly one of VpcId, SubnetId")
+	if VpcId != _|_ if VpcId."Fn::If" == _|_ {
+		SubnetId?: close({"Fn::If": _}) | error(
+			"SubnetId cannot be used with VpcId; set exactly one of VpcId, SubnetId",
+		)
 	}
 }) & matchN(>=1, [{VpcId!: _}, {SubnetId!: _}])
 

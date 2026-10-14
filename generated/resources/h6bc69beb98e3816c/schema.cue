@@ -38,8 +38,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 		TemplateBody?:         strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
 		TemplateURL?:          strings.MaxRunes(5120) & strings.MinRunes(1) | fn.#StringExpression
-		if TemplateURL != _|_ {
-			TemplateBody?: error(
+		if TemplateURL != _|_ if TemplateURL."Fn::If" == _|_ {
+			TemplateBody?: close({"Fn::If": _}) | error(
 				"TemplateBody cannot be used with TemplateURL; set exactly one of TemplateURL, TemplateBody",
 			)
 		}

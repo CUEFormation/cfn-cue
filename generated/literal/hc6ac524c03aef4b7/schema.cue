@@ -59,8 +59,8 @@ import (
 
 	// The ID of the VLAN.
 	Vlan!: int & <=4095 & >=0
-	if DirectConnectGatewayId != _|_ {
-		VirtualGatewayId?: error(
+	if DirectConnectGatewayId != _|_ if DirectConnectGatewayId."Fn::If" == _|_ {
+		VirtualGatewayId?: close({"Fn::If": _}) | error(
 			"VirtualGatewayId cannot be used with DirectConnectGatewayId; set exactly one of DirectConnectGatewayId, VirtualGatewayId",
 		)
 	}

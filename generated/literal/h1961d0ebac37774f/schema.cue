@@ -1231,11 +1231,17 @@ import (
 	// Not applicable. The associated list of EC2 VPC security groups is managed by
 	// the DB cluster. If specified, the setting must match the DB cluster setting.
 	VPCSecurityGroups?: list.UniqueItems() & [...string]
-	if SourceDBInstanceIdentifier != _|_ {
-		CharacterSetName?:   error("CharacterSetName cannot be used with SourceDBInstanceIdentifier")
-		MasterUserPassword?: error("MasterUserPassword cannot be used with SourceDBInstanceIdentifier")
-		MasterUsername?:     error("MasterUsername cannot be used with SourceDBInstanceIdentifier")
-		StorageEncrypted?:   error("StorageEncrypted cannot be used with SourceDBInstanceIdentifier")
+	if SourceDBInstanceIdentifier != _|_ if SourceDBInstanceIdentifier."Fn::If" == _|_ {
+		CharacterSetName?: close({"Fn::If": _}) | error(
+			"CharacterSetName cannot be used with SourceDBInstanceIdentifier",
+		)
+		MasterUserPassword?: close({"Fn::If": _}) | error(
+			"MasterUserPassword cannot be used with SourceDBInstanceIdentifier",
+		)
+		MasterUsername?: close({"Fn::If": _}) | error("MasterUsername cannot be used with SourceDBInstanceIdentifier")
+		StorageEncrypted?: close({"Fn::If": _}) | error(
+			"StorageEncrypted cannot be used with SourceDBInstanceIdentifier",
+		)
 	}
 })
 

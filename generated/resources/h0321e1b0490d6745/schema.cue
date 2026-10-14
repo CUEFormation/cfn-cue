@@ -33,8 +33,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 		Type?: "HTTP" | fn.#StringExpression
-		if HealthCheckConfig != _|_ {
-			HealthCheckCustomConfig?: error("HealthCheckCustomConfig cannot be used with HealthCheckConfig")
+		if HealthCheckConfig != _|_ if HealthCheckConfig."Fn::If" == _|_ {
+			HealthCheckCustomConfig?: close({"Fn::If": _}) | error(
+				"HealthCheckCustomConfig cannot be used with HealthCheckConfig",
+			)
 		}
 	})
 }

@@ -22,8 +22,8 @@ import "strings"
 	Tags?: close({
 
 		{[=~".*"]: string}})
-	if ComputeEnvironmentOrder != _|_ {
-		ServiceEnvironmentOrder?: error(
+	if ComputeEnvironmentOrder != _|_ if ComputeEnvironmentOrder."Fn::If" == _|_ {
+		ServiceEnvironmentOrder?: close({"Fn::If": _}) | error(
 			"ServiceEnvironmentOrder cannot be used with ComputeEnvironmentOrder; set exactly one of ComputeEnvironmentOrder, ServiceEnvironmentOrder",
 		)
 	}

@@ -65,16 +65,16 @@ fn.#ObjectExpression
 	AgentlessDialerConfig?:   #AgentlessDialerConfig
 	PredictiveDialerConfig?:  #PredictiveDialerConfig
 	ProgressiveDialerConfig?: #ProgressiveDialerConfig
-	if ProgressiveDialerConfig != _|_ {
-		PredictiveDialerConfig?: error(
+	if ProgressiveDialerConfig != _|_ if ProgressiveDialerConfig."Fn::If" == _|_ {
+		PredictiveDialerConfig?: close({"Fn::If": _}) | error(
 			"PredictiveDialerConfig cannot be used with ProgressiveDialerConfig; set exactly one of ProgressiveDialerConfig, PredictiveDialerConfig, AgentlessDialerConfig",
 		)
-		AgentlessDialerConfig?: error(
+		AgentlessDialerConfig?: close({"Fn::If": _}) | error(
 			"AgentlessDialerConfig cannot be used with ProgressiveDialerConfig; set exactly one of ProgressiveDialerConfig, PredictiveDialerConfig, AgentlessDialerConfig",
 		)
 	}
-	if PredictiveDialerConfig != _|_ {
-		AgentlessDialerConfig?: error(
+	if PredictiveDialerConfig != _|_ if PredictiveDialerConfig."Fn::If" == _|_ {
+		AgentlessDialerConfig?: close({"Fn::If": _}) | error(
 			"AgentlessDialerConfig cannot be used with PredictiveDialerConfig; set exactly one of ProgressiveDialerConfig, PredictiveDialerConfig, AgentlessDialerConfig",
 		)
 	}

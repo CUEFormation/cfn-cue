@@ -218,31 +218,31 @@ import (
 	// periods](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/alarm-warm-up.html)
 	// in the *Amazon CloudWatch User Guide*.
 	WarmUpConfiguration?: #WarmUpConfiguration
-	if ExtendedStatistic != _|_ {
-		Statistic?: error("Statistic cannot be used with ExtendedStatistic")
+	if ExtendedStatistic != _|_ if ExtendedStatistic."Fn::If" == _|_ {
+		Statistic?: close({"Fn::If": _}) | error("Statistic cannot be used with ExtendedStatistic")
 	}
-	if Metrics != _|_ {
-		MetricName?:        error("MetricName cannot be used with Metrics")
-		Dimensions?:        error("Dimensions cannot be used with Metrics")
-		Period?:            error("Period cannot be used with Metrics")
-		Namespace?:         error("Namespace cannot be used with Metrics")
-		Statistic?:         error("Statistic cannot be used with Metrics")
-		ExtendedStatistic?: error("ExtendedStatistic cannot be used with Metrics")
-		Unit?:              error("Unit cannot be used with Metrics")
+	if Metrics != _|_ if Metrics."Fn::If" == _|_ {
+		MetricName?:        close({"Fn::If": _}) | error("MetricName cannot be used with Metrics")
+		Dimensions?:        close({"Fn::If": _}) | error("Dimensions cannot be used with Metrics")
+		Period?:            close({"Fn::If": _}) | error("Period cannot be used with Metrics")
+		Namespace?:         close({"Fn::If": _}) | error("Namespace cannot be used with Metrics")
+		Statistic?:         close({"Fn::If": _}) | error("Statistic cannot be used with Metrics")
+		ExtendedStatistic?: close({"Fn::If": _}) | error("ExtendedStatistic cannot be used with Metrics")
+		Unit?:              close({"Fn::If": _}) | error("Unit cannot be used with Metrics")
 	}
-	if Threshold != _|_ {
-		ThresholdMetricId?: error("ThresholdMetricId cannot be used with Threshold")
+	if Threshold != _|_ if Threshold."Fn::If" == _|_ {
+		ThresholdMetricId?: close({"Fn::If": _}) | error("ThresholdMetricId cannot be used with Threshold")
 	}
-	if Metrics != _|_ {
-		MetricName?: error(
+	if Metrics != _|_ if Metrics."Fn::If" == _|_ {
+		MetricName?: close({"Fn::If": _}) | error(
 			"MetricName cannot be used with Metrics; set exactly one of Metrics, MetricName, EvaluationCriteria",
 		)
-		EvaluationCriteria?: error(
+		EvaluationCriteria?: close({"Fn::If": _}) | error(
 			"EvaluationCriteria cannot be used with Metrics; set exactly one of Metrics, MetricName, EvaluationCriteria",
 		)
 	}
-	if MetricName != _|_ {
-		EvaluationCriteria?: error(
+	if MetricName != _|_ if MetricName."Fn::If" == _|_ {
+		EvaluationCriteria?: close({"Fn::If": _}) | error(
 			"EvaluationCriteria cannot be used with MetricName; set exactly one of Metrics, MetricName, EvaluationCriteria",
 		)
 	}
@@ -301,8 +301,8 @@ import (
 	// boundaries that match the alarm's period, such as the top of the hour,
 	// midnight, or the start of the calendar week.
 	WallClockWindow?: #WallClockWindow
-	if WallClockWindow != _|_ {
-		SlidingWindow?: error(
+	if WallClockWindow != _|_ if WallClockWindow."Fn::If" == _|_ {
+		SlidingWindow?: close({"Fn::If": _}) | error(
 			"SlidingWindow cannot be used with WallClockWindow; set exactly one of WallClockWindow, SlidingWindow",
 		)
 	}

@@ -73,8 +73,8 @@ string |
 close({
 	AwsLogSource?:    #AwsLogSource
 	CustomLogSource?: #CustomLogSource
-	if AwsLogSource != _|_ {
-		CustomLogSource?: error(
+	if AwsLogSource != _|_ if AwsLogSource."Fn::If" == _|_ {
+		CustomLogSource?: close({"Fn::If": _}) | error(
 			"CustomLogSource cannot be used with AwsLogSource; set exactly one of AwsLogSource, CustomLogSource",
 		)
 	}

@@ -46,8 +46,8 @@ fn.#ObjectExpression
 		{DatasetArn!: =~"^arn:aws[-a-z]*:cloudwatch:[-a-z0-9]+:[0-9]{12}:dataset\\/.+$" | fn.#StringExpression},
 	) |
 		fn.#ObjectExpression
-	if AmpConfiguration != _|_ {
-		CloudWatchConfiguration?: error(
+	if AmpConfiguration != _|_ if AmpConfiguration."Fn::If" == _|_ {
+		CloudWatchConfiguration?: close({"Fn::If": _}) | error(
 			"CloudWatchConfiguration cannot be used with AmpConfiguration; set exactly one of AmpConfiguration, CloudWatchConfiguration",
 		)
 	}
@@ -100,8 +100,8 @@ fn.#ObjectExpression
 		SubnetIds!:        [...#SubnetId] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
-	if EksConfiguration != _|_ {
-		VpcConfiguration?: error(
+	if EksConfiguration != _|_ if EksConfiguration."Fn::If" == _|_ {
+		VpcConfiguration?: close({"Fn::If": _}) | error(
 			"VpcConfiguration cannot be used with EksConfiguration; set exactly one of EksConfiguration, VpcConfiguration",
 		)
 	}

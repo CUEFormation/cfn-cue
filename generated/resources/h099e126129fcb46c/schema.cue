@@ -63,14 +63,18 @@ fn.#ObjectExpression
 	CodeBased?:   #CodeBasedEvaluatorConfig
 	Derived?:     #DerivedEvaluatorConfig
 	LlmAsAJudge?: #LlmAsAJudgeEvaluatorConfig
-	if LlmAsAJudge != _|_ {
-		CodeBased?: error(
+	if LlmAsAJudge != _|_ if LlmAsAJudge."Fn::If" == _|_ {
+		CodeBased?: close({"Fn::If": _}) | error(
 			"CodeBased cannot be used with LlmAsAJudge; set exactly one of LlmAsAJudge, CodeBased, Derived",
 		)
-		Derived?: error("Derived cannot be used with LlmAsAJudge; set exactly one of LlmAsAJudge, CodeBased, Derived")
+		Derived?: close({"Fn::If": _}) | error(
+			"Derived cannot be used with LlmAsAJudge; set exactly one of LlmAsAJudge, CodeBased, Derived",
+		)
 	}
-	if CodeBased != _|_ {
-		Derived?: error("Derived cannot be used with CodeBased; set exactly one of LlmAsAJudge, CodeBased, Derived")
+	if CodeBased != _|_ if CodeBased."Fn::If" == _|_ {
+		Derived?: close({"Fn::If": _}) | error(
+			"Derived cannot be used with CodeBased; set exactly one of LlmAsAJudge, CodeBased, Derived",
+		)
 	}
 }) & matchN(>=1, [{LlmAsAJudge!: _}, {CodeBased!: _}, {Derived!: _}]) |
 fn.#ObjectExpression
@@ -80,8 +84,8 @@ fn.#ObjectExpression
 #EvaluatorModelConfig: close({
 	BedrockEvaluatorModelConfig?:   #BedrockEvaluatorModelConfig
 	ResponsesEvaluatorModelConfig?: #OpenResponsesEvaluatorModelConfig
-	if BedrockEvaluatorModelConfig != _|_ {
-		ResponsesEvaluatorModelConfig?: error(
+	if BedrockEvaluatorModelConfig != _|_ if BedrockEvaluatorModelConfig."Fn::If" == _|_ {
+		ResponsesEvaluatorModelConfig?: close({"Fn::If": _}) | error(
 			"ResponsesEvaluatorModelConfig cannot be used with BedrockEvaluatorModelConfig; set exactly one of BedrockEvaluatorModelConfig, ResponsesEvaluatorModelConfig",
 		)
 	}
@@ -278,8 +282,10 @@ fn.#ObjectExpression
 #RatingScale: close({
 	Categorical?: [...#CategoricalScaleDefinition] | fn.#ListExpression
 	Numerical?:   [...#NumericalScaleDefinition] | fn.#ListExpression
-	if Numerical != _|_ {
-		Categorical?: error("Categorical cannot be used with Numerical; set exactly one of Numerical, Categorical")
+	if Numerical != _|_ if Numerical."Fn::If" == _|_ {
+		Categorical?: close({"Fn::If": _}) | error(
+			"Categorical cannot be used with Numerical; set exactly one of Numerical, Categorical",
+		)
 	}
 }) & matchN(>=1, [{Numerical!: _}, {Categorical!: _}]) |
 fn.#ObjectExpression

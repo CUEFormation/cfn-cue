@@ -55,8 +55,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		if Ipv6CidrBlock != _|_ {
-			CidrBlock?: error(
+		if Ipv6CidrBlock != _|_ if Ipv6CidrBlock."Fn::If" == _|_ {
+			CidrBlock?: close({"Fn::If": _}) | error(
 				"CidrBlock cannot be used with Ipv6CidrBlock; set exactly one of Ipv6CidrBlock, CidrBlock",
 			)
 		}

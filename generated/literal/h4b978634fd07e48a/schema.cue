@@ -54,8 +54,8 @@ import (
 #Destination: close({
 	FirehoseStream?: #FirehoseStream
 	S3Bucket?:       #S3Bucket
-	if S3Bucket != _|_ {
-		FirehoseStream?: error(
+	if S3Bucket != _|_ if S3Bucket."Fn::If" == _|_ {
+		FirehoseStream?: close({"Fn::If": _}) | error(
 			"FirehoseStream cannot be used with S3Bucket; set exactly one of S3Bucket, FirehoseStream",
 		)
 	}

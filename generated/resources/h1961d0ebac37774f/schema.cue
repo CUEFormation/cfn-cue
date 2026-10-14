@@ -396,11 +396,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#BooleanExpression
 		UseLatestRestorableTime?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		VPCSecurityGroups?:       list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		if SourceDBInstanceIdentifier != _|_ {
-			CharacterSetName?:   error("CharacterSetName cannot be used with SourceDBInstanceIdentifier")
-			MasterUserPassword?: error("MasterUserPassword cannot be used with SourceDBInstanceIdentifier")
-			MasterUsername?:     error("MasterUsername cannot be used with SourceDBInstanceIdentifier")
-			StorageEncrypted?:   error("StorageEncrypted cannot be used with SourceDBInstanceIdentifier")
+		if SourceDBInstanceIdentifier != _|_ if SourceDBInstanceIdentifier."Fn::If" == _|_ {
+			CharacterSetName?: close({"Fn::If": _}) | error(
+				"CharacterSetName cannot be used with SourceDBInstanceIdentifier",
+			)
+			MasterUserPassword?: close({"Fn::If": _}) | error(
+				"MasterUserPassword cannot be used with SourceDBInstanceIdentifier",
+			)
+			MasterUsername?: close({"Fn::If": _}) | error(
+				"MasterUsername cannot be used with SourceDBInstanceIdentifier",
+			)
+			StorageEncrypted?: close({"Fn::If": _}) | error(
+				"StorageEncrypted cannot be used with SourceDBInstanceIdentifier",
+			)
 		}
 	})
 }

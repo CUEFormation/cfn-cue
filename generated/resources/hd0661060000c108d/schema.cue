@@ -306,8 +306,8 @@ fn.#ObjectExpression
 #Source: close({
 	CustomerProfilesSegmentArn?: #Arn
 	EventTrigger?:               #EventTrigger
-	if CustomerProfilesSegmentArn != _|_ {
-		EventTrigger?: error(
+	if CustomerProfilesSegmentArn != _|_ if CustomerProfilesSegmentArn."Fn::If" == _|_ {
+		EventTrigger?: close({"Fn::If": _}) | error(
 			"EventTrigger cannot be used with CustomerProfilesSegmentArn; set exactly one of CustomerProfilesSegmentArn, EventTrigger",
 		)
 	}
@@ -345,27 +345,27 @@ fn.#ObjectExpression
 	PredictiveConfig?:  #PredictiveConfig
 	PreviewConfig?:     #PreviewConfig
 	ProgressiveConfig?: #ProgressiveConfig
-	if ProgressiveConfig != _|_ {
-		PredictiveConfig?: error(
+	if ProgressiveConfig != _|_ if ProgressiveConfig."Fn::If" == _|_ {
+		PredictiveConfig?: close({"Fn::If": _}) | error(
 			"PredictiveConfig cannot be used with ProgressiveConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
 		)
-		AgentlessConfig?: error(
+		AgentlessConfig?: close({"Fn::If": _}) | error(
 			"AgentlessConfig cannot be used with ProgressiveConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
 		)
-		PreviewConfig?: error(
+		PreviewConfig?: close({"Fn::If": _}) | error(
 			"PreviewConfig cannot be used with ProgressiveConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
 		)
 	}
-	if PredictiveConfig != _|_ {
-		AgentlessConfig?: error(
+	if PredictiveConfig != _|_ if PredictiveConfig."Fn::If" == _|_ {
+		AgentlessConfig?: close({"Fn::If": _}) | error(
 			"AgentlessConfig cannot be used with PredictiveConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
 		)
-		PreviewConfig?: error(
+		PreviewConfig?: close({"Fn::If": _}) | error(
 			"PreviewConfig cannot be used with PredictiveConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
 		)
 	}
-	if AgentlessConfig != _|_ {
-		PreviewConfig?: error(
+	if AgentlessConfig != _|_ if AgentlessConfig."Fn::If" == _|_ {
+		PreviewConfig?: close({"Fn::If": _}) | error(
 			"PreviewConfig cannot be used with AgentlessConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
 		)
 	}

@@ -98,8 +98,10 @@ fn.#ObjectExpression
 		...strings.MaxRunes(31) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	if SheetNames != _|_ {
-		SheetIndexes?: error("SheetIndexes cannot be used with SheetNames; set exactly one of SheetNames, SheetIndexes")
+	if SheetNames != _|_ if SheetNames."Fn::If" == _|_ {
+		SheetIndexes?: close({"Fn::If": _}) | error(
+			"SheetIndexes cannot be used with SheetNames; set exactly one of SheetNames, SheetIndexes",
+		)
 	}
 }) & matchN(>=1, [{SheetNames!: _}, {SheetIndexes!: _}]) |
 fn.#ObjectExpression

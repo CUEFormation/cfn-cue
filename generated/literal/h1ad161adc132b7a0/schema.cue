@@ -57,8 +57,8 @@ import (
 
 	// An arbitrary set of tags (key-value pairs) to associate with the Kinesis channel.
 	Tags?: list.MaxItems(50) & [...#Tag]
-	if S3DestinationConfiguration != _|_ {
-		S3TablesDestinationConfiguration?: error(
+	if S3DestinationConfiguration != _|_ if S3DestinationConfiguration."Fn::If" == _|_ {
+		S3TablesDestinationConfiguration?: close({"Fn::If": _}) | error(
 			"S3TablesDestinationConfiguration cannot be used with S3DestinationConfiguration; set exactly one of S3DestinationConfiguration, S3TablesDestinationConfiguration",
 		)
 	}

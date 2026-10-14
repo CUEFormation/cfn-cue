@@ -188,8 +188,8 @@ package schema
 
 	// The ID of the VPC that the instance is running in.
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
-	if NetworkInterfaces != _|_ {
-		SubnetId?: error("SubnetId cannot be used with NetworkInterfaces")
+	if NetworkInterfaces != _|_ if NetworkInterfaces."Fn::If" == _|_ {
+		SubnetId?: close({"Fn::If": _}) | error("SubnetId cannot be used with NetworkInterfaces")
 	}
 })
 
@@ -209,12 +209,18 @@ package schema
 	Ebs?:         #Ebs
 	NoDevice?:    close({})
 	VirtualName?: string
-	if VirtualName != _|_ {
-		Ebs?:      error("Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
-		NoDevice?: error("NoDevice cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+	if VirtualName != _|_ if VirtualName."Fn::If" == _|_ {
+		Ebs?: close({"Fn::If": _}) | error(
+			"Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice",
+		)
+		NoDevice?: close({"Fn::If": _}) | error(
+			"NoDevice cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice",
+		)
 	}
-	if Ebs != _|_ {
-		NoDevice?: error("NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice")
+	if Ebs != _|_ if Ebs."Fn::If" == _|_ {
+		NoDevice?: close({"Fn::If": _}) | error(
+			"NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice",
+		)
 	}
 }) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])
 
@@ -371,11 +377,15 @@ package schema
 
 	// The ID of the subnet.
 	SubnetId?: string
-	if AssociateCarrierIpAddress != _|_ {
-		NetworkInterfaceId?: error("NetworkInterfaceId cannot be used with AssociateCarrierIpAddress")
+	if AssociateCarrierIpAddress != _|_ if AssociateCarrierIpAddress."Fn::If" == _|_ {
+		NetworkInterfaceId?: close({"Fn::If": _}) | error(
+			"NetworkInterfaceId cannot be used with AssociateCarrierIpAddress",
+		)
 	}
-	if AssociatePublicIpAddress != _|_ {
-		NetworkInterfaceId?: error("NetworkInterfaceId cannot be used with AssociatePublicIpAddress")
+	if AssociatePublicIpAddress != _|_ if AssociatePublicIpAddress."Fn::If" == _|_ {
+		NetworkInterfaceId?: close({"Fn::If": _}) | error(
+			"NetworkInterfaceId cannot be used with AssociatePublicIpAddress",
+		)
 	}
 })
 

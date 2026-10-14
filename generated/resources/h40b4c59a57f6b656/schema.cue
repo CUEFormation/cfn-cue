@@ -21,8 +21,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 		SchemaS3Location?:   #S3Location
 		SnapshotS3Location?: #S3Location
-		if SchemaS3Location != _|_ {
-			SnapshotS3Location?: error(
+		if SchemaS3Location != _|_ if SchemaS3Location."Fn::If" == _|_ {
+			SnapshotS3Location?: close({"Fn::If": _}) | error(
 				"SnapshotS3Location cannot be used with SchemaS3Location; set exactly one of SchemaS3Location, SnapshotS3Location",
 			)
 		}

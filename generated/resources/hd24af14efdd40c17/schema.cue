@@ -52,8 +52,8 @@ fn.#ObjectExpression
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	if MatchValueString != _|_ {
-		MatchValueStringList?: error(
+	if MatchValueString != _|_ if MatchValueString."Fn::If" == _|_ {
+		MatchValueStringList?: close({"Fn::If": _}) | error(
 			"MatchValueStringList cannot be used with MatchValueString; set exactly one of MatchValueString, MatchValueStringList",
 		)
 	}

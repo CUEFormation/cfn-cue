@@ -48,8 +48,10 @@ import (
 
 	// The type of service. Supported values are HTTP or DNS.
 	Type?: "HTTP"
-	if HealthCheckConfig != _|_ {
-		HealthCheckCustomConfig?: error("HealthCheckCustomConfig cannot be used with HealthCheckConfig")
+	if HealthCheckConfig != _|_ if HealthCheckConfig."Fn::If" == _|_ {
+		HealthCheckCustomConfig?: close({"Fn::If": _}) | error(
+			"HealthCheckCustomConfig cannot be used with HealthCheckConfig",
+		)
 	}
 })
 

@@ -91,8 +91,10 @@ import (
 	HeaderRow?:    bool
 	SheetIndexes?: list.MaxItems(1) & list.MinItems(1) & [...int & <=200 & >=0]
 	SheetNames?:   list.MaxItems(1) & list.MinItems(1) & [...strings.MaxRunes(31) & strings.MinRunes(1)]
-	if SheetNames != _|_ {
-		SheetIndexes?: error("SheetIndexes cannot be used with SheetNames; set exactly one of SheetNames, SheetIndexes")
+	if SheetNames != _|_ if SheetNames."Fn::If" == _|_ {
+		SheetIndexes?: close({"Fn::If": _}) | error(
+			"SheetIndexes cannot be used with SheetNames; set exactly one of SheetNames, SheetIndexes",
+		)
 	}
 }) & matchN(>=1, [{SheetNames!: _}, {SheetIndexes!: _}])
 

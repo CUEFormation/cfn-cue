@@ -77,17 +77,29 @@ fn.#ObjectExpression
 	OtaaV10x?:         #OtaaV10x
 	OtaaV11?:          #OtaaV11
 	ServiceProfileId?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	if OtaaV11 != _|_ {
-		OtaaV10x?: error("OtaaV10x cannot be used with OtaaV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x")
-		AbpV11?:   error("AbpV11 cannot be used with OtaaV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x")
-		AbpV10x?:  error("AbpV10x cannot be used with OtaaV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x")
+	if OtaaV11 != _|_ if OtaaV11."Fn::If" == _|_ {
+		OtaaV10x?: close({"Fn::If": _}) | error(
+			"OtaaV10x cannot be used with OtaaV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
+		AbpV11?: close({"Fn::If": _}) | error(
+			"AbpV11 cannot be used with OtaaV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
+		AbpV10x?: close({"Fn::If": _}) | error(
+			"AbpV10x cannot be used with OtaaV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
 	}
-	if OtaaV10x != _|_ {
-		AbpV11?:  error("AbpV11 cannot be used with OtaaV10x; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x")
-		AbpV10x?: error("AbpV10x cannot be used with OtaaV10x; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x")
+	if OtaaV10x != _|_ if OtaaV10x."Fn::If" == _|_ {
+		AbpV11?: close({"Fn::If": _}) | error(
+			"AbpV11 cannot be used with OtaaV10x; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
+		AbpV10x?: close({"Fn::If": _}) | error(
+			"AbpV10x cannot be used with OtaaV10x; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
 	}
-	if AbpV11 != _|_ {
-		AbpV10x?: error("AbpV10x cannot be used with AbpV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x")
+	if AbpV11 != _|_ if AbpV11."Fn::If" == _|_ {
+		AbpV10x?: close({"Fn::If": _}) | error(
+			"AbpV10x cannot be used with AbpV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
 	}
 }) & matchN(>=1, [{OtaaV11!: _}, {OtaaV10x!: _}, {AbpV11!: _}, {AbpV10x!: _}]) |
 fn.#ObjectExpression

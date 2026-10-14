@@ -66,8 +66,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			VpcPeeringExclusion?:                "enable" | "disable" | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
-		if CidrBlock != _|_ {
-			Ipv4IpamPoolId?: error(
+		if CidrBlock != _|_ if CidrBlock."Fn::If" == _|_ {
+			Ipv4IpamPoolId?: close({"Fn::If": _}) | error(
 				"Ipv4IpamPoolId cannot be used with CidrBlock; set exactly one of CidrBlock, Ipv4IpamPoolId",
 			)
 		}

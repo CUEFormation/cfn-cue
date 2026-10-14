@@ -33,8 +33,8 @@ fn.#ObjectExpression
 #PolicyDefinition: close({
 	Cedar?:  #CedarPolicy
 	Policy?: #PolicyStatement
-	if Cedar != _|_ {
-		Policy?: error("Policy cannot be used with Cedar; set exactly one of Cedar, Policy")
+	if Cedar != _|_ if Cedar."Fn::If" == _|_ {
+		Policy?: close({"Fn::If": _}) | error("Policy cannot be used with Cedar; set exactly one of Cedar, Policy")
 	}
 }) & matchN(>=1, [{Cedar!: _}, {Policy!: _}]) |
 fn.#ObjectExpression

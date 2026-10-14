@@ -209,8 +209,8 @@ import (
 
 	// A target tracking scaling policy.
 	TargetTrackingScalingPolicyConfiguration?: #TargetTrackingScalingPolicyConfiguration
-	if ScalingTargetId != _|_ {
-		ResourceId?: error(
+	if ScalingTargetId != _|_ if ScalingTargetId."Fn::If" == _|_ {
+		ResourceId?: close({"Fn::If": _}) | error(
 			"ResourceId cannot be used with ScalingTargetId; set exactly one of ScalingTargetId, ResourceId",
 		)
 	}

@@ -112,12 +112,18 @@ fn.#ObjectExpression
 	Ebs?:         #BlockDevice | fn.#ObjectExpression
 	NoDevice?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VirtualName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	if VirtualName != _|_ {
-		Ebs?:      error("Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
-		NoDevice?: error("NoDevice cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+	if VirtualName != _|_ if VirtualName."Fn::If" == _|_ {
+		Ebs?: close({"Fn::If": _}) | error(
+			"Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice",
+		)
+		NoDevice?: close({"Fn::If": _}) | error(
+			"NoDevice cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice",
+		)
 	}
-	if Ebs != _|_ {
-		NoDevice?: error("NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice")
+	if Ebs != _|_ if Ebs."Fn::If" == _|_ {
+		NoDevice?: close({"Fn::If": _}) | error(
+			"NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice",
+		)
 	}
 }) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]) |
 fn.#ObjectExpression

@@ -8,8 +8,11 @@ ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: {Ref: "ActionList"}, R
 ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:GetObject", Resource: "*", Condition: {StringEquals: {"aws:PrincipalTag/Team": "a"}, "ForAnyValue:StringLikeIfExists": {"aws:TagKeys": ["x", "y"]}, Bool: {"aws:SecureTransport": false}, NumericLessThanEquals: {"s3:max-keys": 10}, Null: {"aws:TokenIssueTime": "true"}}}]}
 ok	#IdentityPolicy	{Statement: [{"Fn::If": ["Cond", {Effect: "Allow", Action: "s3:*", Resource: "*"}, {Ref: "AWS::NoValue"}]}]}
 ok	#IdentityPolicy	{Statement: [{Ref: "AWS::NoValue"}, {Effect: "Allow", Action: "s3:*", Resource: "*"}]}
-# Fn::If over a whole statement list is not accepted.
-bad	#IdentityPolicy	{Statement: {"Fn::If": ["Cond", [{Effect: "Allow", Action: "s3:*", Resource: "*"}], []]}}
+# Fn::If over a whole statement list; each branch is still checked.
+ok	#IdentityPolicy	{Statement: {"Fn::If": ["Cond", [{Effect: "Allow", Action: "s3:*", Resource: "*"}], []]}}
+ok	#IdentityPolicy	{Statement: {"Fn::If": ["Cond", [{Effect: "Allow", Action: "s3:*", Resource: "*"}], {Ref: "AWS::NoValue"}]}}
+bad	#IdentityPolicy	{Statement: {"Fn::If": ["Cond", [{Effect: "Allow", Action: "s3:*"}], []]}}
+bad	#TrustPolicy	{Statement: {"Fn::If": ["Cond", [{Effect: "Allow", Principal: "*", Action: "sts:AssumeRole", Resource: "*"}], []]}}
 bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Principal: "*"}]}
 bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*"}]}
 bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Resource: "*"}]}

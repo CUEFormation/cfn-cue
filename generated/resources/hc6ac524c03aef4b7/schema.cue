@@ -78,8 +78,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		if DirectConnectGatewayId != _|_ {
-			VirtualGatewayId?: error(
+		if DirectConnectGatewayId != _|_ if DirectConnectGatewayId."Fn::If" == _|_ {
+			VirtualGatewayId?: close({"Fn::If": _}) | error(
 				"VirtualGatewayId cannot be used with DirectConnectGatewayId; set exactly one of DirectConnectGatewayId, VirtualGatewayId",
 			)
 		}

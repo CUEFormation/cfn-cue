@@ -79,8 +79,10 @@ import (
 #CustomPromptInput: close({
 	ExistingPrompt?: #CustomPromptProfile
 	NewPrompt?:      #CustomPromptInputParameters
-	if ExistingPrompt != _|_ {
-		NewPrompt?: error("NewPrompt cannot be used with ExistingPrompt; set exactly one of ExistingPrompt, NewPrompt")
+	if ExistingPrompt != _|_ if ExistingPrompt."Fn::If" == _|_ {
+		NewPrompt?: close({"Fn::If": _}) | error(
+			"NewPrompt cannot be used with ExistingPrompt; set exactly one of ExistingPrompt, NewPrompt",
+		)
 	}
 }) & matchN(>=1, [{ExistingPrompt!: _}, {NewPrompt!: _}])
 

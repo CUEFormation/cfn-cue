@@ -49,8 +49,10 @@ import (
 
 	// A gateway that runs on Siemens Industrial Edge.
 	SiemensIE?: #SiemensIE
-	if GreengrassV2 != _|_ {
-		SiemensIE?: error("SiemensIE cannot be used with GreengrassV2; set exactly one of GreengrassV2, SiemensIE")
+	if GreengrassV2 != _|_ if GreengrassV2."Fn::If" == _|_ {
+		SiemensIE?: close({"Fn::If": _}) | error(
+			"SiemensIE cannot be used with GreengrassV2; set exactly one of GreengrassV2, SiemensIE",
+		)
 	}
 }) & matchN(>=1, [{GreengrassV2!: _}, {SiemensIE!: _}])
 

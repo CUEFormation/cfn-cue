@@ -70,8 +70,8 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	RotationIds?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Targets?:     [...#Targets] | fn.#ListExpression
-	if DurationInMinutes != _|_ {
-		RotationIds?: error(
+	if DurationInMinutes != _|_ if DurationInMinutes."Fn::If" == _|_ {
+		RotationIds?: close({"Fn::If": _}) | error(
 			"RotationIds cannot be used with DurationInMinutes; set exactly one of DurationInMinutes, RotationIds",
 		)
 	}
@@ -87,8 +87,8 @@ fn.#ObjectExpression
 #Targets: close({
 	ChannelTargetInfo?: #ChannelTargetInfo
 	ContactTargetInfo?: #ContactTargetInfo
-	if ChannelTargetInfo != _|_ {
-		ContactTargetInfo?: error(
+	if ChannelTargetInfo != _|_ if ChannelTargetInfo."Fn::If" == _|_ {
+		ContactTargetInfo?: close({"Fn::If": _}) | error(
 			"ContactTargetInfo cannot be used with ChannelTargetInfo; set exactly one of ChannelTargetInfo, ContactTargetInfo",
 		)
 	}

@@ -29,7 +29,9 @@ import "strings"
 	// The ARN of the IAM role used for the launch constraint.
 	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		=~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role)\\/.*"
-	if LocalRoleName != _|_ {
-		RoleArn?: error("RoleArn cannot be used with LocalRoleName; set exactly one of LocalRoleName, RoleArn")
+	if LocalRoleName != _|_ if LocalRoleName."Fn::If" == _|_ {
+		RoleArn?: close({"Fn::If": _}) | error(
+			"RoleArn cannot be used with LocalRoleName; set exactly one of LocalRoleName, RoleArn",
+		)
 	}
 }) & matchN(>=1, [{LocalRoleName!: _}, {RoleArn!: _}])

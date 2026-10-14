@@ -111,16 +111,16 @@ import (
 	NetworkAclCommonPolicy?:   #NetworkAclCommonPolicy
 	NetworkFirewallPolicy?:    #NetworkFirewallPolicy
 	ThirdPartyFirewallPolicy?: #ThirdPartyFirewallPolicy
-	if NetworkFirewallPolicy != _|_ {
-		ThirdPartyFirewallPolicy?: error(
+	if NetworkFirewallPolicy != _|_ if NetworkFirewallPolicy."Fn::If" == _|_ {
+		ThirdPartyFirewallPolicy?: close({"Fn::If": _}) | error(
 			"ThirdPartyFirewallPolicy cannot be used with NetworkFirewallPolicy; set exactly one of NetworkFirewallPolicy, ThirdPartyFirewallPolicy, NetworkAclCommonPolicy",
 		)
-		NetworkAclCommonPolicy?: error(
+		NetworkAclCommonPolicy?: close({"Fn::If": _}) | error(
 			"NetworkAclCommonPolicy cannot be used with NetworkFirewallPolicy; set exactly one of NetworkFirewallPolicy, ThirdPartyFirewallPolicy, NetworkAclCommonPolicy",
 		)
 	}
-	if ThirdPartyFirewallPolicy != _|_ {
-		NetworkAclCommonPolicy?: error(
+	if ThirdPartyFirewallPolicy != _|_ if ThirdPartyFirewallPolicy."Fn::If" == _|_ {
+		NetworkAclCommonPolicy?: close({"Fn::If": _}) | error(
 			"NetworkAclCommonPolicy cannot be used with ThirdPartyFirewallPolicy; set exactly one of NetworkFirewallPolicy, ThirdPartyFirewallPolicy, NetworkAclCommonPolicy",
 		)
 	}

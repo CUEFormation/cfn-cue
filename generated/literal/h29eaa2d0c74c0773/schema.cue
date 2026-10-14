@@ -172,41 +172,41 @@ import (
 
 	// URL of a Terraform state file.
 	TfStateFileUrl?: string
-	if ResourceTags != _|_ {
-		CfnStackArn?: error(
+	if ResourceTags != _|_ if ResourceTags."Fn::If" == _|_ {
+		CfnStackArn?: close({"Fn::If": _}) | error(
 			"CfnStackArn cannot be used with ResourceTags; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
 		)
-		TfStateFileUrl?: error(
+		TfStateFileUrl?: close({"Fn::If": _}) | error(
 			"TfStateFileUrl cannot be used with ResourceTags; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
 		)
-		Eks?: error(
+		Eks?: close({"Fn::If": _}) | error(
 			"Eks cannot be used with ResourceTags; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
 		)
-		DesignFileS3Url?: error(
+		DesignFileS3Url?: close({"Fn::If": _}) | error(
 			"DesignFileS3Url cannot be used with ResourceTags; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
 		)
 	}
-	if CfnStackArn != _|_ {
-		TfStateFileUrl?: error(
+	if CfnStackArn != _|_ if CfnStackArn."Fn::If" == _|_ {
+		TfStateFileUrl?: close({"Fn::If": _}) | error(
 			"TfStateFileUrl cannot be used with CfnStackArn; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
 		)
-		Eks?: error(
+		Eks?: close({"Fn::If": _}) | error(
 			"Eks cannot be used with CfnStackArn; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
 		)
-		DesignFileS3Url?: error(
+		DesignFileS3Url?: close({"Fn::If": _}) | error(
 			"DesignFileS3Url cannot be used with CfnStackArn; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
 		)
 	}
-	if TfStateFileUrl != _|_ {
-		Eks?: error(
+	if TfStateFileUrl != _|_ if TfStateFileUrl."Fn::If" == _|_ {
+		Eks?: close({"Fn::If": _}) | error(
 			"Eks cannot be used with TfStateFileUrl; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
 		)
-		DesignFileS3Url?: error(
+		DesignFileS3Url?: close({"Fn::If": _}) | error(
 			"DesignFileS3Url cannot be used with TfStateFileUrl; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
 		)
 	}
-	if Eks != _|_ {
-		DesignFileS3Url?: error(
+	if Eks != _|_ if Eks."Fn::If" == _|_ {
+		DesignFileS3Url?: close({"Fn::If": _}) | error(
 			"DesignFileS3Url cannot be used with Eks; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
 		)
 	}

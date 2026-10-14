@@ -25,8 +25,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		SourceDBClusterIdentifier?: matchN(1, [=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$", string]) | fn.#StringExpression
 		StorageEncrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:             list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		if SourceDBClusterIdentifier != _|_ {
-			Engine?: error(
+		if SourceDBClusterIdentifier != _|_ if SourceDBClusterIdentifier."Fn::If" == _|_ {
+			Engine?: close({"Fn::If": _}) | error(
 				"Engine cannot be used with SourceDBClusterIdentifier; set exactly one of SourceDBClusterIdentifier, Engine",
 			)
 		}

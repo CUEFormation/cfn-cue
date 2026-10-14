@@ -91,8 +91,8 @@ close({
 	Input?: close({
 		DataCatalogInputDefinition?: #DataCatalogInputDefinition
 		S3InputDefinition?:          #S3Location
-		if S3InputDefinition != _|_ {
-			DataCatalogInputDefinition?: error(
+		if S3InputDefinition != _|_ if S3InputDefinition."Fn::If" == _|_ {
+			DataCatalogInputDefinition?: close({"Fn::If": _}) | error(
 				"DataCatalogInputDefinition cannot be used with S3InputDefinition; set exactly one of S3InputDefinition, DataCatalogInputDefinition",
 			)
 		}
@@ -205,8 +205,8 @@ fn.#ObjectExpression
 #SecondaryInput: close({
 	DataCatalogInputDefinition?: #DataCatalogInputDefinition
 	S3InputDefinition?:          #S3Location
-	if S3InputDefinition != _|_ {
-		DataCatalogInputDefinition?: error(
+	if S3InputDefinition != _|_ if S3InputDefinition."Fn::If" == _|_ {
+		DataCatalogInputDefinition?: close({"Fn::If": _}) | error(
 			"DataCatalogInputDefinition cannot be used with S3InputDefinition; set exactly one of S3InputDefinition, DataCatalogInputDefinition",
 		)
 	}

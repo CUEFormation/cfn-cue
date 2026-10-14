@@ -62,8 +62,8 @@ import (
 
 	// The version of the pipeline.
 	Version?: string
-	if ArtifactStore != _|_ {
-		ArtifactStores?: error(
+	if ArtifactStore != _|_ if ArtifactStore."Fn::If" == _|_ {
+		ArtifactStores?: close({"Fn::If": _}) | error(
 			"ArtifactStores cannot be used with ArtifactStore; set exactly one of ArtifactStore, ArtifactStores",
 		)
 	}

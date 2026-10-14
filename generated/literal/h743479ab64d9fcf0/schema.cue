@@ -123,8 +123,8 @@ import "list"
 
 	// The ID of the VPC
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
-	if Ipv6AddressCount != _|_ {
-		Ipv6Addresses?: error("Ipv6Addresses cannot be used with Ipv6AddressCount")
+	if Ipv6AddressCount != _|_ if Ipv6AddressCount."Fn::If" == _|_ {
+		Ipv6Addresses?: close({"Fn::If": _}) | error("Ipv6Addresses cannot be used with Ipv6AddressCount")
 	}
 })
 

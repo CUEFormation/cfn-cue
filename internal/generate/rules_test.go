@@ -49,4 +49,9 @@ func TestFieldRules(t *testing.T) {
 		// oneOf naming lowercase properties keeps the JSON Schema form.
 		validate(t, schema, `{A:"a",lower:"x"}`, false)
 	}
+	// An Fn::If may resolve to AWS::NoValue, so it does not conflict.
+	schema := propertiesSchema(t, out, "./resources/hrules")
+	validate(t, schema, `{A:"a",D:{"Fn::If":["UseD","d",{Ref:"AWS::NoValue"}]},E:{"Fn::If":["UseD",{Ref:"AWS::NoValue"},"e"]}}`, true)
+	validate(t, schema, `{A:"a",D:"d",E:{"Fn::If":["UseE","e",{Ref:"AWS::NoValue"}]}}`, true)
+	validate(t, schema, `{A:{"Fn::If":["UseA","a","b"]},D:"d",E:"e"}`, false)
 }

@@ -45,8 +45,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Subnets?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 		Tags?:           [...#Tag] | fn.#ListExpression
 		Type?:           "application" | "gateway" | "network" | fn.#StringExpression
-		if Subnets != _|_ {
-			SubnetMappings?: error(
+		if Subnets != _|_ if Subnets."Fn::If" == _|_ {
+			SubnetMappings?: close({"Fn::If": _}) | error(
 				"SubnetMappings cannot be used with Subnets; set exactly one of Subnets, SubnetMappings",
 			)
 		}

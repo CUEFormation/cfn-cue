@@ -81,8 +81,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 		StepScalingPolicyConfiguration?:           #StepScalingPolicyConfiguration | fn.#ObjectExpression
 		TargetTrackingScalingPolicyConfiguration?: #TargetTrackingScalingPolicyConfiguration | fn.#ObjectExpression
-		if ScalingTargetId != _|_ {
-			ResourceId?: error(
+		if ScalingTargetId != _|_ if ScalingTargetId."Fn::If" == _|_ {
+			ResourceId?: close({"Fn::If": _}) | error(
 				"ResourceId cannot be used with ScalingTargetId; set exactly one of ScalingTargetId, ResourceId",
 			)
 		}

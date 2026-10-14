@@ -33,8 +33,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?: list.MaxItems(40) & [...] & [...#Tag] | fn.#ListExpression
 		TemplateProviderDetails?: list.MaxItems(1) & list.MinItems(1) & [...#TemplateProviderDetail] |
 			fn.#ListExpression
-		if ServiceCatalogProvisioningDetails != _|_ {
-			TemplateProviderDetails?: error(
+		if ServiceCatalogProvisioningDetails != _|_ if ServiceCatalogProvisioningDetails."Fn::If" == _|_ {
+			TemplateProviderDetails?: close({"Fn::If": _}) | error(
 				"TemplateProviderDetails cannot be used with ServiceCatalogProvisioningDetails; set exactly one of ServiceCatalogProvisioningDetails, TemplateProviderDetails",
 			)
 		}

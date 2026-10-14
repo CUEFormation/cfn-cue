@@ -87,8 +87,8 @@ import (
 #ClaimMatchValueType: close({
 	MatchValueString?:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$"
 	MatchValueStringList?: list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$"]
-	if MatchValueString != _|_ {
-		MatchValueStringList?: error(
+	if MatchValueString != _|_ if MatchValueString."Fn::If" == _|_ {
+		MatchValueStringList?: close({"Fn::If": _}) | error(
 			"MatchValueStringList cannot be used with MatchValueString; set exactly one of MatchValueString, MatchValueStringList",
 		)
 	}

@@ -83,11 +83,11 @@ import (
 	// same combination of DNS name and type. Route 53 then responds to queries
 	// based on the ratio of a resource's weight to the total.
 	Weight?: #Weight
-	if HostedZoneId != _|_ {
-		HostedZoneName?: error(
+	if HostedZoneId != _|_ if HostedZoneId."Fn::If" == _|_ {
+		HostedZoneName?: close({"Fn::If": _}) | error(
 			"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
 		)
-		HostedZoneName?: error(
+		HostedZoneName?: close({"Fn::If": _}) | error(
 			"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
 		)
 	}
@@ -137,8 +137,8 @@ import (
 
 	// For geolocation resource record sets, the two-letter code for a state of the United States.
 	SubdivisionCode?: strings.MaxRunes(3) & strings.MinRunes(1)
-	if ContinentCode != _|_ {
-		CountryCode?: error(
+	if ContinentCode != _|_ if ContinentCode."Fn::If" == _|_ {
+		CountryCode?: close({"Fn::If": _}) | error(
 			"CountryCode cannot be used with ContinentCode; set exactly one of ContinentCode, CountryCode",
 		)
 	}
@@ -157,16 +157,16 @@ import (
 
 	// Specifies an AWS Local Zone.
 	LocalZoneGroup?: strings.MaxRunes(64) & strings.MinRunes(1)
-	if AWSRegion != _|_ {
-		LocalZoneGroup?: error(
+	if AWSRegion != _|_ if AWSRegion."Fn::If" == _|_ {
+		LocalZoneGroup?: close({"Fn::If": _}) | error(
 			"LocalZoneGroup cannot be used with AWSRegion; set exactly one of AWSRegion, LocalZoneGroup, Coordinates",
 		)
-		Coordinates?: error(
+		Coordinates?: close({"Fn::If": _}) | error(
 			"Coordinates cannot be used with AWSRegion; set exactly one of AWSRegion, LocalZoneGroup, Coordinates",
 		)
 	}
-	if LocalZoneGroup != _|_ {
-		Coordinates?: error(
+	if LocalZoneGroup != _|_ if LocalZoneGroup."Fn::If" == _|_ {
+		Coordinates?: close({"Fn::If": _}) | error(
 			"Coordinates cannot be used with LocalZoneGroup; set exactly one of AWSRegion, LocalZoneGroup, Coordinates",
 		)
 	}

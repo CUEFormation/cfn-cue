@@ -36,8 +36,8 @@ import "strings"
 	UserId?: strings.MaxRunes(47) &
 	strings.MinRunes(1) &
 	=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$"
-	if UserId != _|_ {
-		GroupId?: error("GroupId cannot be used with UserId; set exactly one of UserId, GroupId")
+	if UserId != _|_ if UserId."Fn::If" == _|_ {
+		GroupId?: close({"Fn::If": _}) | error("GroupId cannot be used with UserId; set exactly one of UserId, GroupId")
 	}
 }) & matchN(>=1, [{UserId!: _}, {GroupId!: _}])
 

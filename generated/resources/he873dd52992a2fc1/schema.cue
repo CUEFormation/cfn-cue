@@ -35,8 +35,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:      [...#Tag] | fn.#ListExpression
 		Triggers?:  list.UniqueItems() & [...#PipelineTriggerDeclaration] | fn.#ListExpression
 		Variables?: list.UniqueItems() & [...#VariableDeclaration] | fn.#ListExpression
-		if ArtifactStore != _|_ {
-			ArtifactStores?: error(
+		if ArtifactStore != _|_ if ArtifactStore."Fn::If" == _|_ {
+			ArtifactStores?: close({"Fn::If": _}) | error(
 				"ArtifactStores cannot be used with ArtifactStore; set exactly one of ArtifactStore, ArtifactStores",
 			)
 		}

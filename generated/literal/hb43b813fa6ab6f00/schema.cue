@@ -88,8 +88,8 @@ package schema
 	// in the *Amazon VPC User Guide*.
 	VpcEncryptionControl?: #VpcEncryptionControl
 	VpcId?:                =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
-	if CidrBlock != _|_ {
-		Ipv4IpamPoolId?: error(
+	if CidrBlock != _|_ if CidrBlock."Fn::If" == _|_ {
+		Ipv4IpamPoolId?: close({"Fn::If": _}) | error(
 			"Ipv4IpamPoolId cannot be used with CidrBlock; set exactly one of CidrBlock, Ipv4IpamPoolId",
 		)
 	}

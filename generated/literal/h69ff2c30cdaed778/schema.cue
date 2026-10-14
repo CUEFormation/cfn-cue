@@ -1471,13 +1471,15 @@ import (
 	// date). The expiration time must also be later than the transition time. If
 	// you specify this property, don't specify the ``Transition`` property.
 	Transitions?: list.UniqueItems() & [...#Transition]
-	if ObjectSizeGreaterThan != _|_ {
-		AbortIncompleteMultipartUpload?: error(
+	if ObjectSizeGreaterThan != _|_ if ObjectSizeGreaterThan."Fn::If" == _|_ {
+		AbortIncompleteMultipartUpload?: close({"Fn::If": _}) | error(
 			"AbortIncompleteMultipartUpload cannot be used with ObjectSizeGreaterThan",
 		)
 	}
-	if ObjectSizeLessThan != _|_ {
-		AbortIncompleteMultipartUpload?: error("AbortIncompleteMultipartUpload cannot be used with ObjectSizeLessThan")
+	if ObjectSizeLessThan != _|_ if ObjectSizeLessThan."Fn::If" == _|_ {
+		AbortIncompleteMultipartUpload?: close({"Fn::If": _}) | error(
+			"AbortIncompleteMultipartUpload cannot be used with ObjectSizeLessThan",
+		)
 	}
 })
 

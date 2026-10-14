@@ -53,8 +53,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	if LogGroupNames != _|_ {
-		LogGroupNamePrefixes?: error(
+	if LogGroupNames != _|_ if LogGroupNames."Fn::If" == _|_ {
+		LogGroupNamePrefixes?: close({"Fn::If": _}) | error(
 			"LogGroupNamePrefixes cannot be used with LogGroupNames; set exactly one of LogGroupNames, LogGroupNamePrefixes",
 		)
 	}

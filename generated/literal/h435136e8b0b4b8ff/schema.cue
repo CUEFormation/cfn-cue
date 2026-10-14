@@ -114,16 +114,16 @@ import "time"
 
 	// Amazon S3 location URI of a customer-staged certificate
 	S3Location?: string
-	if InlinePem != _|_ {
-		ArtifactId?: error(
+	if InlinePem != _|_ if InlinePem."Fn::If" == _|_ {
+		ArtifactId?: close({"Fn::If": _}) | error(
 			"ArtifactId cannot be used with InlinePem; set exactly one of InlinePem, ArtifactId, S3Location",
 		)
-		S3Location?: error(
+		S3Location?: close({"Fn::If": _}) | error(
 			"S3Location cannot be used with InlinePem; set exactly one of InlinePem, ArtifactId, S3Location",
 		)
 	}
-	if ArtifactId != _|_ {
-		S3Location?: error(
+	if ArtifactId != _|_ if ArtifactId."Fn::If" == _|_ {
+		S3Location?: close({"Fn::If": _}) | error(
 			"S3Location cannot be used with ArtifactId; set exactly one of InlinePem, ArtifactId, S3Location",
 		)
 	}

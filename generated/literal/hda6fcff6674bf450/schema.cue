@@ -48,8 +48,8 @@ import (
 
 	// An array of key-value pairs to apply to this resource.
 	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
-	if SourceDBClusterIdentifier != _|_ {
-		Engine?: error(
+	if SourceDBClusterIdentifier != _|_ if SourceDBClusterIdentifier."Fn::If" == _|_ {
+		Engine?: close({"Fn::If": _}) | error(
 			"Engine cannot be used with SourceDBClusterIdentifier; set exactly one of SourceDBClusterIdentifier, Engine",
 		)
 	}

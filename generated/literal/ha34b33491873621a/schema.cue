@@ -44,8 +44,8 @@ import (
 
 	// The tags to be assigned to the Amazon DocumentDB resource.
 	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
-	if Engine != _|_ {
-		SourceDBClusterIdentifier?: error(
+	if Engine != _|_ if Engine."Fn::If" == _|_ {
+		SourceDBClusterIdentifier?: close({"Fn::If": _}) | error(
 			"SourceDBClusterIdentifier cannot be used with Engine; set exactly one of Engine, SourceDBClusterIdentifier",
 		)
 	}

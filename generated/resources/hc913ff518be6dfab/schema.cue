@@ -41,16 +41,16 @@ fn.#ObjectExpression
 	KinesisFirehoseDestination?: #KinesisFirehoseDestination | fn.#ObjectExpression
 	MatchingEventTypes!:         list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	SnsDestination?:             #SnsDestination | fn.#ObjectExpression
-	if CloudWatchLogsDestination != _|_ {
-		KinesisFirehoseDestination?: error(
+	if CloudWatchLogsDestination != _|_ if CloudWatchLogsDestination."Fn::If" == _|_ {
+		KinesisFirehoseDestination?: close({"Fn::If": _}) | error(
 			"KinesisFirehoseDestination cannot be used with CloudWatchLogsDestination; set exactly one of CloudWatchLogsDestination, KinesisFirehoseDestination, SnsDestination",
 		)
-		SnsDestination?: error(
+		SnsDestination?: close({"Fn::If": _}) | error(
 			"SnsDestination cannot be used with CloudWatchLogsDestination; set exactly one of CloudWatchLogsDestination, KinesisFirehoseDestination, SnsDestination",
 		)
 	}
-	if KinesisFirehoseDestination != _|_ {
-		SnsDestination?: error(
+	if KinesisFirehoseDestination != _|_ if KinesisFirehoseDestination."Fn::If" == _|_ {
+		SnsDestination?: close({"Fn::If": _}) | error(
 			"SnsDestination cannot be used with KinesisFirehoseDestination; set exactly one of CloudWatchLogsDestination, KinesisFirehoseDestination, SnsDestination",
 		)
 	}

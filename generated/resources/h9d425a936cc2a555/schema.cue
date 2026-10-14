@@ -29,8 +29,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) |
 		fn.#ObjectExpression
 		Type!: "OPENZFS" | "ONTAP" | fn.#StringExpression
-		if OntapConfiguration != _|_ {
-			OpenZFSConfiguration?: error(
+		if OntapConfiguration != _|_ if OntapConfiguration."Fn::If" == _|_ {
+			OpenZFSConfiguration?: close({"Fn::If": _}) | error(
 				"OpenZFSConfiguration cannot be used with OntapConfiguration; set exactly one of OntapConfiguration, OpenZFSConfiguration",
 			)
 		}
@@ -65,8 +65,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!:        "UNIX" | "WINDOWS" | fn.#StringExpression
 	UnixUser?:    #OntapUnixFileSystemUser | fn.#ObjectExpression
 	WindowsUser?: #OntapWindowsFileSystemUser | fn.#ObjectExpression
-	if UnixUser != _|_ {
-		WindowsUser?: error("WindowsUser cannot be used with UnixUser; set exactly one of UnixUser, WindowsUser")
+	if UnixUser != _|_ if UnixUser."Fn::If" == _|_ {
+		WindowsUser?: close({"Fn::If": _}) | error(
+			"WindowsUser cannot be used with UnixUser; set exactly one of UnixUser, WindowsUser",
+		)
 	}
 }) & matchN(>=1, [{UnixUser!: _}, {WindowsUser!: _}]) |
 fn.#ObjectExpression

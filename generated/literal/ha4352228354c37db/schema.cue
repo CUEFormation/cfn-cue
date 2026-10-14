@@ -80,8 +80,8 @@ import (
 
 	// Configuration for forwarding a partner event source's events.
 	PartnerEventsConfiguration?: #PartnerEventsConfiguration
-	if AwsServiceEventsConfiguration != _|_ {
-		PartnerEventsConfiguration?: error(
+	if AwsServiceEventsConfiguration != _|_ if AwsServiceEventsConfiguration."Fn::If" == _|_ {
+		PartnerEventsConfiguration?: close({"Fn::If": _}) | error(
 			"PartnerEventsConfiguration cannot be used with AwsServiceEventsConfiguration; set exactly one of AwsServiceEventsConfiguration, PartnerEventsConfiguration",
 		)
 	}

@@ -51,16 +51,16 @@ import (
 	ConnectivityParameters?:   #ConnectivityParameters
 	InvocationHttpParameters?: #ConnectionHttpParameters
 	OAuthParameters?:          #OAuthParameters
-	if BasicAuthParameters != _|_ {
-		OAuthParameters?: error(
+	if BasicAuthParameters != _|_ if BasicAuthParameters."Fn::If" == _|_ {
+		OAuthParameters?: close({"Fn::If": _}) | error(
 			"OAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
 		)
-		ApiKeyAuthParameters?: error(
+		ApiKeyAuthParameters?: close({"Fn::If": _}) | error(
 			"ApiKeyAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
 		)
 	}
-	if OAuthParameters != _|_ {
-		ApiKeyAuthParameters?: error(
+	if OAuthParameters != _|_ if OAuthParameters."Fn::If" == _|_ {
+		ApiKeyAuthParameters?: close({"Fn::If": _}) | error(
 			"ApiKeyAuthParameters cannot be used with OAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
 		)
 	}

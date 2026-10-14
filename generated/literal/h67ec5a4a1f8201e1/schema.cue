@@ -116,16 +116,16 @@ import (
 	FirewallAdvancedContentCategory?: #FirewallAdvancedContentCategoryConfig
 	FirewallAdvancedThreatCategory?:  #FirewallAdvancedThreatCategoryConfig
 	PartnerThreatProtection?:         #PartnerThreatProtectionConfig
-	if PartnerThreatProtection != _|_ {
-		FirewallAdvancedContentCategory?: error(
+	if PartnerThreatProtection != _|_ if PartnerThreatProtection."Fn::If" == _|_ {
+		FirewallAdvancedContentCategory?: close({"Fn::If": _}) | error(
 			"FirewallAdvancedContentCategory cannot be used with PartnerThreatProtection; set exactly one of PartnerThreatProtection, FirewallAdvancedContentCategory, FirewallAdvancedThreatCategory",
 		)
-		FirewallAdvancedThreatCategory?: error(
+		FirewallAdvancedThreatCategory?: close({"Fn::If": _}) | error(
 			"FirewallAdvancedThreatCategory cannot be used with PartnerThreatProtection; set exactly one of PartnerThreatProtection, FirewallAdvancedContentCategory, FirewallAdvancedThreatCategory",
 		)
 	}
-	if FirewallAdvancedContentCategory != _|_ {
-		FirewallAdvancedThreatCategory?: error(
+	if FirewallAdvancedContentCategory != _|_ if FirewallAdvancedContentCategory."Fn::If" == _|_ {
+		FirewallAdvancedThreatCategory?: close({"Fn::If": _}) | error(
 			"FirewallAdvancedThreatCategory cannot be used with FirewallAdvancedContentCategory; set exactly one of PartnerThreatProtection, FirewallAdvancedContentCategory, FirewallAdvancedThreatCategory",
 		)
 	}

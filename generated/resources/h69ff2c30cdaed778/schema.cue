@@ -701,13 +701,15 @@ fn.#ObjectExpression
 	TagFilters?:                   list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
 	Transition?:                   #Transition | fn.#ObjectExpression
 	Transitions?:                  list.UniqueItems() & [...#Transition] | fn.#ListExpression
-	if ObjectSizeGreaterThan != _|_ {
-		AbortIncompleteMultipartUpload?: error(
+	if ObjectSizeGreaterThan != _|_ if ObjectSizeGreaterThan."Fn::If" == _|_ {
+		AbortIncompleteMultipartUpload?: close({"Fn::If": _}) | error(
 			"AbortIncompleteMultipartUpload cannot be used with ObjectSizeGreaterThan",
 		)
 	}
-	if ObjectSizeLessThan != _|_ {
-		AbortIncompleteMultipartUpload?: error("AbortIncompleteMultipartUpload cannot be used with ObjectSizeLessThan")
+	if ObjectSizeLessThan != _|_ if ObjectSizeLessThan."Fn::If" == _|_ {
+		AbortIncompleteMultipartUpload?: close({"Fn::If": _}) | error(
+			"AbortIncompleteMultipartUpload cannot be used with ObjectSizeLessThan",
+		)
 	}
 }) |
 fn.#ObjectExpression

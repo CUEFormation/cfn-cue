@@ -313,27 +313,27 @@ import (
 	// ``VPCZoneIdentifier`` with ``AvailabilityZones``, the subnets that you
 	// specify for this property must reside in those Availability Zones.
 	VPCZoneIdentifier?: [...string]
-	if InstanceId != _|_ {
-		LaunchConfigurationName?: error(
+	if InstanceId != _|_ if InstanceId."Fn::If" == _|_ {
+		LaunchConfigurationName?: close({"Fn::If": _}) | error(
 			"LaunchConfigurationName cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
 		)
-		LaunchTemplate?: error(
+		LaunchTemplate?: close({"Fn::If": _}) | error(
 			"LaunchTemplate cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
 		)
-		MixedInstancesPolicy?: error(
+		MixedInstancesPolicy?: close({"Fn::If": _}) | error(
 			"MixedInstancesPolicy cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
 		)
 	}
-	if LaunchConfigurationName != _|_ {
-		LaunchTemplate?: error(
+	if LaunchConfigurationName != _|_ if LaunchConfigurationName."Fn::If" == _|_ {
+		LaunchTemplate?: close({"Fn::If": _}) | error(
 			"LaunchTemplate cannot be used with LaunchConfigurationName; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
 		)
-		MixedInstancesPolicy?: error(
+		MixedInstancesPolicy?: close({"Fn::If": _}) | error(
 			"MixedInstancesPolicy cannot be used with LaunchConfigurationName; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
 		)
 	}
-	if LaunchTemplate != _|_ {
-		MixedInstancesPolicy?: error(
+	if LaunchTemplate != _|_ if LaunchTemplate."Fn::If" == _|_ {
+		MixedInstancesPolicy?: close({"Fn::If": _}) | error(
 			"MixedInstancesPolicy cannot be used with LaunchTemplate; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
 		)
 	}
@@ -1042,8 +1042,8 @@ import (
 	// [Examples](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-autoscaling-autoscalinggroup.html#aws-resource-autoscaling-autoscalinggroup--examples)
 	// section of the ``AWS::AutoScaling::AutoScalingGroup`` resource.
 	Version!: strings.MaxRunes(255) & strings.MinRunes(1)
-	if LaunchTemplateId != _|_ {
-		LaunchTemplateName?: error(
+	if LaunchTemplateId != _|_ if LaunchTemplateId."Fn::If" == _|_ {
+		LaunchTemplateName?: close({"Fn::If": _}) | error(
 			"LaunchTemplateName cannot be used with LaunchTemplateId; set exactly one of LaunchTemplateId, LaunchTemplateName",
 		)
 	}

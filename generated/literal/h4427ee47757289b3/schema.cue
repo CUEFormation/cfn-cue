@@ -61,8 +61,8 @@ package schema
 #Targets: close({
 	ChannelTargetInfo?: #ChannelTargetInfo
 	ContactTargetInfo?: #ContactTargetInfo
-	if ChannelTargetInfo != _|_ {
-		ContactTargetInfo?: error(
+	if ChannelTargetInfo != _|_ if ChannelTargetInfo."Fn::If" == _|_ {
+		ContactTargetInfo?: close({"Fn::If": _}) | error(
 			"ContactTargetInfo cannot be used with ChannelTargetInfo; set exactly one of ChannelTargetInfo, ContactTargetInfo",
 		)
 	}

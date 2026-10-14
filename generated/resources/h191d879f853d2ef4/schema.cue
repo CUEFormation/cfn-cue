@@ -65,8 +65,8 @@ fn.#ObjectExpression
 	CustomComponentConfiguration?:           #ComponentConfiguration | fn.#ObjectExpression
 	DefaultOverwriteComponentConfiguration?: #ComponentConfiguration | fn.#ObjectExpression
 	Tier!:                                   =~"^[A-Z][A-Z_]*$" | fn.#StringExpression
-	if ComponentName != _|_ {
-		ComponentARN?: error(
+	if ComponentName != _|_ if ComponentName."Fn::If" == _|_ {
+		ComponentARN?: close({"Fn::If": _}) | error(
 			"ComponentARN cannot be used with ComponentName; set exactly one of ComponentName, ComponentARN",
 		)
 	}

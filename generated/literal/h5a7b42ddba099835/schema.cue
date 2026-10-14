@@ -74,8 +74,8 @@ import (
 #Content: close({
 	EmailMessageTemplateContent?: #EmailMessageTemplateContent
 	SmsMessageTemplateContent?:   #SmsMessageTemplateContent
-	if EmailMessageTemplateContent != _|_ {
-		SmsMessageTemplateContent?: error(
+	if EmailMessageTemplateContent != _|_ if EmailMessageTemplateContent."Fn::If" == _|_ {
+		SmsMessageTemplateContent?: close({"Fn::If": _}) | error(
 			"SmsMessageTemplateContent cannot be used with EmailMessageTemplateContent; set exactly one of EmailMessageTemplateContent, SmsMessageTemplateContent",
 		)
 	}

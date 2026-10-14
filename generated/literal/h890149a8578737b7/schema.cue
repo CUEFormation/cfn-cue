@@ -13,8 +13,8 @@ import "list"
 	HostedZoneName?: string
 	Id?:             string
 	RecordSets?:     list.UniqueItems() & [...#RecordSet]
-	if HostedZoneId != _|_ {
-		HostedZoneName?: error(
+	if HostedZoneId != _|_ if HostedZoneId."Fn::If" == _|_ {
+		HostedZoneName?: close({"Fn::If": _}) | error(
 			"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
 		)
 	}

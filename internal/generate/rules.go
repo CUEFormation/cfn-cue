@@ -189,6 +189,13 @@ func (r *fieldRules) names() map[string]bool {
 	return out
 }
 
+// conditional matches an Fn::If. Either branch may be AWS::NoValue, so a
+// conditional property may be absent after CloudFormation resolves it, and an
+// exclusion between it and another property cannot be decided.
+func conditional() ast.Expr {
+	return ast.NewCall(id("close"), &ast.StructLit{Elts: []ast.Decl{&ast.Field{Label: ast.NewString("Fn::If"), Value: id("_")}}})
+}
+
 func (r *fieldRules) cue() ([]ast.Decl, ast.Expr) {
 	var decls []ast.Decl
 	for i := 0; i < len(r.excluded); {
@@ -196,11 +203,14 @@ func (r *fieldRules) cue() ([]ast.Decl, ast.Expr) {
 		body := &ast.StructLit{}
 		for ; i < len(r.excluded) && r.excluded[i][0] == a; i++ {
 			b, suffix := r.excluded[i][1], r.excluded[i][2]
-			body.Elts = append(body.Elts, field(b, ast.NewCall(id("error"), str(b+" cannot be used with "+a+suffix)), true))
+			body.Elts = append(body.Elts, field(b, union(conditional(), ast.NewCall(id("error"), str(b+" cannot be used with "+a+suffix))), true))
 		}
 		decls = append(decls, &ast.Comprehension{
-			Clauses: []ast.Clause{&ast.IfClause{Condition: &ast.BinaryExpr{X: id(a), Op: token.NEQ, Y: &ast.BottomLit{}}}},
-			Value:   body,
+			Clauses: []ast.Clause{
+				&ast.IfClause{Condition: &ast.BinaryExpr{X: id(a), Op: token.NEQ, Y: &ast.BottomLit{}}},
+				&ast.IfClause{Condition: &ast.BinaryExpr{X: &ast.SelectorExpr{X: id(a), Sel: ast.NewString("Fn::If")}, Op: token.EQL, Y: &ast.BottomLit{}}},
+			},
+			Value: body,
 		})
 	}
 	var checks []ast.Expr

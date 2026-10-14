@@ -80,8 +80,8 @@ import (
 	// Location of file containing the template body. The URL must point to a
 	// template (max size: 460,800 bytes) that is located in an Amazon S3 bucket.
 	TemplateURL?: strings.MaxRunes(5120) & strings.MinRunes(1)
-	if TemplateURL != _|_ {
-		TemplateBody?: error(
+	if TemplateURL != _|_ if TemplateURL."Fn::If" == _|_ {
+		TemplateBody?: close({"Fn::If": _}) | error(
 			"TemplateBody cannot be used with TemplateURL; set exactly one of TemplateURL, TemplateBody",
 		)
 	}

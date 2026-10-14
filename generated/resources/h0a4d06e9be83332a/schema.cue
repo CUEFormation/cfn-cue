@@ -39,8 +39,8 @@ fn.#ObjectExpression
 #JobDriver: close({
 	SparkSqlJobDriver?:    #SparkSqlJobDriver
 	SparkSubmitJobDriver?: #SparkSubmitJobDriver
-	if SparkSubmitJobDriver != _|_ {
-		SparkSqlJobDriver?: error(
+	if SparkSubmitJobDriver != _|_ if SparkSubmitJobDriver."Fn::If" == _|_ {
+		SparkSqlJobDriver?: close({"Fn::If": _}) | error(
 			"SparkSqlJobDriver cannot be used with SparkSubmitJobDriver; set exactly one of SparkSubmitJobDriver, SparkSqlJobDriver",
 		)
 	}

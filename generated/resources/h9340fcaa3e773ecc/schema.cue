@@ -135,27 +135,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 		TrafficSources?:    list.UniqueItems() & [...#TrafficSourceIdentifier] | fn.#ListExpression
 		VPCZoneIdentifier?: [...string | fn.#StringExpression] | fn.#ListExpression
-		if InstanceId != _|_ {
-			LaunchConfigurationName?: error(
+		if InstanceId != _|_ if InstanceId."Fn::If" == _|_ {
+			LaunchConfigurationName?: close({"Fn::If": _}) | error(
 				"LaunchConfigurationName cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
 			)
-			LaunchTemplate?: error(
+			LaunchTemplate?: close({"Fn::If": _}) | error(
 				"LaunchTemplate cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
 			)
-			MixedInstancesPolicy?: error(
+			MixedInstancesPolicy?: close({"Fn::If": _}) | error(
 				"MixedInstancesPolicy cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
 			)
 		}
-		if LaunchConfigurationName != _|_ {
-			LaunchTemplate?: error(
+		if LaunchConfigurationName != _|_ if LaunchConfigurationName."Fn::If" == _|_ {
+			LaunchTemplate?: close({"Fn::If": _}) | error(
 				"LaunchTemplate cannot be used with LaunchConfigurationName; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
 			)
-			MixedInstancesPolicy?: error(
+			MixedInstancesPolicy?: close({"Fn::If": _}) | error(
 				"MixedInstancesPolicy cannot be used with LaunchConfigurationName; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
 			)
 		}
-		if LaunchTemplate != _|_ {
-			MixedInstancesPolicy?: error(
+		if LaunchTemplate != _|_ if LaunchTemplate."Fn::If" == _|_ {
+			MixedInstancesPolicy?: close({"Fn::If": _}) | error(
 				"MixedInstancesPolicy cannot be used with LaunchTemplate; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
 			)
 		}
@@ -533,8 +533,8 @@ fn.#ObjectExpression
 	LaunchTemplateName?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9\\(\\)\\.\\-/_]+$" |
 	fn.#StringExpression
 	Version!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	if LaunchTemplateId != _|_ {
-		LaunchTemplateName?: error(
+	if LaunchTemplateId != _|_ if LaunchTemplateId."Fn::If" == _|_ {
+		LaunchTemplateName?: close({"Fn::If": _}) | error(
 			"LaunchTemplateName cannot be used with LaunchTemplateId; set exactly one of LaunchTemplateId, LaunchTemplateName",
 		)
 	}

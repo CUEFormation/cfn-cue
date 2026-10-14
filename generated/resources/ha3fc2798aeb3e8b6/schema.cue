@@ -88,8 +88,8 @@ fn.#ObjectExpression
 #CreateEndpointDetails: close({
 	DownlinkAwsGroundStationAgentEndpoint?: #DownlinkAwsGroundStationAgentEndpoint
 	UplinkAwsGroundStationAgentEndpoint?:   #UplinkAwsGroundStationAgentEndpoint
-	if UplinkAwsGroundStationAgentEndpoint != _|_ {
-		DownlinkAwsGroundStationAgentEndpoint?: error(
+	if UplinkAwsGroundStationAgentEndpoint != _|_ if UplinkAwsGroundStationAgentEndpoint."Fn::If" == _|_ {
+		DownlinkAwsGroundStationAgentEndpoint?: close({"Fn::If": _}) | error(
 			"DownlinkAwsGroundStationAgentEndpoint cannot be used with UplinkAwsGroundStationAgentEndpoint; set exactly one of UplinkAwsGroundStationAgentEndpoint, DownlinkAwsGroundStationAgentEndpoint",
 		)
 	}
@@ -125,8 +125,8 @@ fn.#ObjectExpression
 #EndpointDetails: close({
 	DownlinkAwsGroundStationAgentEndpoint?: #DownlinkAwsGroundStationAgentEndpointDetails
 	UplinkAwsGroundStationAgentEndpoint?:   #UplinkAwsGroundStationAgentEndpointDetails
-	if UplinkAwsGroundStationAgentEndpoint != _|_ {
-		DownlinkAwsGroundStationAgentEndpoint?: error(
+	if UplinkAwsGroundStationAgentEndpoint != _|_ if UplinkAwsGroundStationAgentEndpoint."Fn::If" == _|_ {
+		DownlinkAwsGroundStationAgentEndpoint?: close({"Fn::If": _}) | error(
 			"DownlinkAwsGroundStationAgentEndpoint cannot be used with UplinkAwsGroundStationAgentEndpoint; set exactly one of UplinkAwsGroundStationAgentEndpoint, DownlinkAwsGroundStationAgentEndpoint",
 		)
 	}

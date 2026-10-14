@@ -151,8 +151,8 @@ fn.#ObjectExpression
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	if MatchValueString != _|_ {
-		MatchValueStringList?: error(
+	if MatchValueString != _|_ if MatchValueString."Fn::If" == _|_ {
+		MatchValueStringList?: close({"Fn::If": _}) | error(
 			"MatchValueStringList cannot be used with MatchValueString; set exactly one of MatchValueString, MatchValueStringList",
 		)
 	}
@@ -399,12 +399,12 @@ fn.#ObjectExpression
 	AwsIam?: close({}) | fn.#ObjectExpression
 	None?:   close({}) | fn.#ObjectExpression
 	Oauth?:  #OAuthCredentialProvider
-	if AwsIam != _|_ {
-		None?:  error("None cannot be used with AwsIam; set exactly one of AwsIam, None, Oauth")
-		Oauth?: error("Oauth cannot be used with AwsIam; set exactly one of AwsIam, None, Oauth")
+	if AwsIam != _|_ if AwsIam."Fn::If" == _|_ {
+		None?:  close({"Fn::If": _}) | error("None cannot be used with AwsIam; set exactly one of AwsIam, None, Oauth")
+		Oauth?: close({"Fn::If": _}) | error("Oauth cannot be used with AwsIam; set exactly one of AwsIam, None, Oauth")
 	}
-	if None != _|_ {
-		Oauth?: error("Oauth cannot be used with None; set exactly one of AwsIam, None, Oauth")
+	if None != _|_ if None."Fn::If" == _|_ {
+		Oauth?: close({"Fn::If": _}) | error("Oauth cannot be used with None; set exactly one of AwsIam, None, Oauth")
 	}
 }) & matchN(>=1, [{AwsIam!: _}, {None!: _}, {Oauth!: _}]) |
 fn.#ObjectExpression
@@ -493,27 +493,27 @@ fn.#ObjectExpression
 	AfterToolCall?:    #HarnessAfterToolCallHook
 	BeforeInvocation?: #HarnessBeforeInvocationHook
 	BeforeToolCall?:   #HarnessBeforeToolCallHook
-	if BeforeInvocation != _|_ {
-		AfterInvocation?: error(
+	if BeforeInvocation != _|_ if BeforeInvocation."Fn::If" == _|_ {
+		AfterInvocation?: close({"Fn::If": _}) | error(
 			"AfterInvocation cannot be used with BeforeInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
 		)
-		BeforeToolCall?: error(
+		BeforeToolCall?: close({"Fn::If": _}) | error(
 			"BeforeToolCall cannot be used with BeforeInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
 		)
-		AfterToolCall?: error(
+		AfterToolCall?: close({"Fn::If": _}) | error(
 			"AfterToolCall cannot be used with BeforeInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
 		)
 	}
-	if AfterInvocation != _|_ {
-		BeforeToolCall?: error(
+	if AfterInvocation != _|_ if AfterInvocation."Fn::If" == _|_ {
+		BeforeToolCall?: close({"Fn::If": _}) | error(
 			"BeforeToolCall cannot be used with AfterInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
 		)
-		AfterToolCall?: error(
+		AfterToolCall?: close({"Fn::If": _}) | error(
 			"AfterToolCall cannot be used with AfterInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
 		)
 	}
-	if BeforeToolCall != _|_ {
-		AfterToolCall?: error(
+	if BeforeToolCall != _|_ if BeforeToolCall."Fn::If" == _|_ {
+		AfterToolCall?: close({"Fn::If": _}) | error(
 			"AfterToolCall cannot be used with BeforeToolCall; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
 		)
 	}
@@ -561,12 +561,18 @@ fn.#ObjectExpression
 	EventBridge?: #HarnessHookEventBridgeTarget
 	Lambda?:      #HarnessHookLambdaTarget
 	Sns?:         #HarnessHookSnsTarget
-	if Lambda != _|_ {
-		Sns?:         error("Sns cannot be used with Lambda; set exactly one of Lambda, Sns, EventBridge")
-		EventBridge?: error("EventBridge cannot be used with Lambda; set exactly one of Lambda, Sns, EventBridge")
+	if Lambda != _|_ if Lambda."Fn::If" == _|_ {
+		Sns?: close({"Fn::If": _}) | error(
+			"Sns cannot be used with Lambda; set exactly one of Lambda, Sns, EventBridge",
+		)
+		EventBridge?: close({"Fn::If": _}) | error(
+			"EventBridge cannot be used with Lambda; set exactly one of Lambda, Sns, EventBridge",
+		)
 	}
-	if Sns != _|_ {
-		EventBridge?: error("EventBridge cannot be used with Sns; set exactly one of Lambda, Sns, EventBridge")
+	if Sns != _|_ if Sns."Fn::If" == _|_ {
+		EventBridge?: close({"Fn::If": _}) | error(
+			"EventBridge cannot be used with Sns; set exactly one of Lambda, Sns, EventBridge",
+		)
 	}
 }) & matchN(>=1, [{Lambda!: _}, {Sns!: _}, {EventBridge!: _}]) |
 fn.#ObjectExpression
@@ -680,27 +686,27 @@ fn.#ObjectExpression
 	GeminiModelConfig?:  #HarnessGeminiModelConfig
 	LiteLlmModelConfig?: #HarnessLiteLlmModelConfig
 	OpenAiModelConfig?:  #HarnessOpenAiModelConfig
-	if BedrockModelConfig != _|_ {
-		OpenAiModelConfig?: error(
+	if BedrockModelConfig != _|_ if BedrockModelConfig."Fn::If" == _|_ {
+		OpenAiModelConfig?: close({"Fn::If": _}) | error(
 			"OpenAiModelConfig cannot be used with BedrockModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
 		)
-		GeminiModelConfig?: error(
+		GeminiModelConfig?: close({"Fn::If": _}) | error(
 			"GeminiModelConfig cannot be used with BedrockModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
 		)
-		LiteLlmModelConfig?: error(
+		LiteLlmModelConfig?: close({"Fn::If": _}) | error(
 			"LiteLlmModelConfig cannot be used with BedrockModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
 		)
 	}
-	if OpenAiModelConfig != _|_ {
-		GeminiModelConfig?: error(
+	if OpenAiModelConfig != _|_ if OpenAiModelConfig."Fn::If" == _|_ {
+		GeminiModelConfig?: close({"Fn::If": _}) | error(
 			"GeminiModelConfig cannot be used with OpenAiModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
 		)
-		LiteLlmModelConfig?: error(
+		LiteLlmModelConfig?: close({"Fn::If": _}) | error(
 			"LiteLlmModelConfig cannot be used with OpenAiModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
 		)
 	}
-	if GeminiModelConfig != _|_ {
-		LiteLlmModelConfig?: error(
+	if GeminiModelConfig != _|_ if GeminiModelConfig."Fn::If" == _|_ {
+		LiteLlmModelConfig?: close({"Fn::If": _}) | error(
 			"LiteLlmModelConfig cannot be used with GeminiModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
 		)
 	}
@@ -896,41 +902,41 @@ fn.#ObjectExpression
 	AgentCoreGateway?:         #HarnessAgentCoreGatewayConfig
 	InlineFunction?:           #HarnessInlineFunctionConfig
 	RemoteMcp?:                #HarnessRemoteMcpConfig
-	if RemoteMcp != _|_ {
-		AgentCoreBrowser?: error(
+	if RemoteMcp != _|_ if RemoteMcp."Fn::If" == _|_ {
+		AgentCoreBrowser?: close({"Fn::If": _}) | error(
 			"AgentCoreBrowser cannot be used with RemoteMcp; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
 		)
-		AgentCoreGateway?: error(
+		AgentCoreGateway?: close({"Fn::If": _}) | error(
 			"AgentCoreGateway cannot be used with RemoteMcp; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
 		)
-		InlineFunction?: error(
+		InlineFunction?: close({"Fn::If": _}) | error(
 			"InlineFunction cannot be used with RemoteMcp; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
 		)
-		AgentCoreCodeInterpreter?: error(
+		AgentCoreCodeInterpreter?: close({"Fn::If": _}) | error(
 			"AgentCoreCodeInterpreter cannot be used with RemoteMcp; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
 		)
 	}
-	if AgentCoreBrowser != _|_ {
-		AgentCoreGateway?: error(
+	if AgentCoreBrowser != _|_ if AgentCoreBrowser."Fn::If" == _|_ {
+		AgentCoreGateway?: close({"Fn::If": _}) | error(
 			"AgentCoreGateway cannot be used with AgentCoreBrowser; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
 		)
-		InlineFunction?: error(
+		InlineFunction?: close({"Fn::If": _}) | error(
 			"InlineFunction cannot be used with AgentCoreBrowser; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
 		)
-		AgentCoreCodeInterpreter?: error(
+		AgentCoreCodeInterpreter?: close({"Fn::If": _}) | error(
 			"AgentCoreCodeInterpreter cannot be used with AgentCoreBrowser; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
 		)
 	}
-	if AgentCoreGateway != _|_ {
-		InlineFunction?: error(
+	if AgentCoreGateway != _|_ if AgentCoreGateway."Fn::If" == _|_ {
+		InlineFunction?: close({"Fn::If": _}) | error(
 			"InlineFunction cannot be used with AgentCoreGateway; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
 		)
-		AgentCoreCodeInterpreter?: error(
+		AgentCoreCodeInterpreter?: close({"Fn::If": _}) | error(
 			"AgentCoreCodeInterpreter cannot be used with AgentCoreGateway; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
 		)
 	}
-	if InlineFunction != _|_ {
-		AgentCoreCodeInterpreter?: error(
+	if InlineFunction != _|_ if InlineFunction."Fn::If" == _|_ {
+		AgentCoreCodeInterpreter?: close({"Fn::If": _}) | error(
 			"AgentCoreCodeInterpreter cannot be used with InlineFunction; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
 		)
 	}

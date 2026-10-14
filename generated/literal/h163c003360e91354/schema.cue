@@ -85,8 +85,8 @@ import (
 	ServiceNames!: list.MaxItems(1) & list.MinItems(1) & [
 		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$"
 	]
-	if LogGroupNames != _|_ {
-		LogGroupNamePrefixes?: error(
+	if LogGroupNames != _|_ if LogGroupNames."Fn::If" == _|_ {
+		LogGroupNamePrefixes?: close({"Fn::If": _}) | error(
 			"LogGroupNamePrefixes cannot be used with LogGroupNames; set exactly one of LogGroupNames, LogGroupNamePrefixes",
 		)
 	}
