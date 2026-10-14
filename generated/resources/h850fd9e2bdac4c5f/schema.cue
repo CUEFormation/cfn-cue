@@ -17,19 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53::RecordSet.
-#Properties: matchN(1, [{
-	HostedZoneId!: _
-	...
-}, {
-	HostedZoneName!: _
-	...
-}]) & matchN(1, [{
-	HostedZoneId!: _
-	...
-}, {
-	HostedZoneName!: _
-	...
-}]) & close({
+#Properties: close({
 	AliasTarget?:          _#defs."/$defs/Properties/definitions/AliasTarget" | fn.#ObjectExpression
 	CidrRoutingConfig?:    _#defs."/$defs/Properties/definitions/CidrRoutingConfig" | fn.#ObjectExpression
 	Comment?:              _#defs."/$defs/Properties/definitions/Comment" | fn.#StringExpression
@@ -47,7 +35,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	TTL?:                  _#defs."/$defs/Properties/definitions/TTL" | fn.#StringExpression
 	Type!:                 _#defs."/$defs/Properties/definitions/Type" | fn.#StringExpression
 	Weight?:               _#defs."/$defs/Properties/definitions/Weight" | fn.#NumberExpression
-})
+	if HostedZoneId != _|_ {
+		HostedZoneName?: error(
+			"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
+		)
+		HostedZoneName?: error(
+			"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
+		)
+	}
+}) & (matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}]) & matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}]))
 
 _#defs: "/$defs/Properties/definitions/AliasTarget": close({
 	DNSName!:              strings.MaxRunes(1024) | fn.#StringExpression
@@ -72,29 +68,19 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Failover": "PRIMARY" | "SECONDARY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GeoLocation": matchN(1, [{
-	ContinentCode!: _
-	...
-}, {
-	CountryCode!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/GeoLocation": close({
 	ContinentCode?:   strings.MaxRunes(2) & strings.MinRunes(2) | fn.#StringExpression
 	CountryCode?:     strings.MaxRunes(2) & strings.MinRunes(1) | fn.#StringExpression
 	SubdivisionCode?: strings.MaxRunes(3) & strings.MinRunes(1) | fn.#StringExpression
-}) |
+	if ContinentCode != _|_ {
+		CountryCode?: error(
+			"CountryCode cannot be used with ContinentCode; set exactly one of ContinentCode, CountryCode",
+		)
+	}
+}) & matchN(>=1, [{ContinentCode!: _}, {CountryCode!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GeoProximityLocation": matchN(1, [{
-	AWSRegion!: _
-	...
-}, {
-	LocalZoneGroup!: _
-	...
-}, {
-	Coordinates!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/GeoProximityLocation": close({
 	AWSRegion?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	Bias?: int & <=99 & >=-99 |
 		{
@@ -114,7 +100,20 @@ _#defs: "/$defs/Properties/definitions/GeoProximityLocation": matchN(1, [{
 		fn.#NumberExpression
 	Coordinates?:    _#defs."/$defs/Properties/definitions/Coordinates" | fn.#ObjectExpression
 	LocalZoneGroup?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-}) |
+	if AWSRegion != _|_ {
+		LocalZoneGroup?: error(
+			"LocalZoneGroup cannot be used with AWSRegion; set exactly one of AWSRegion, LocalZoneGroup, Coordinates",
+		)
+		Coordinates?: error(
+			"Coordinates cannot be used with AWSRegion; set exactly one of AWSRegion, LocalZoneGroup, Coordinates",
+		)
+	}
+	if LocalZoneGroup != _|_ {
+		Coordinates?: error(
+			"Coordinates cannot be used with LocalZoneGroup; set exactly one of AWSRegion, LocalZoneGroup, Coordinates",
+		)
+	}
+}) & matchN(>=1, [{AWSRegion!: _}, {LocalZoneGroup!: _}, {Coordinates!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/HealthCheckId": strings.MaxRunes(64) | fn.#StringExpression

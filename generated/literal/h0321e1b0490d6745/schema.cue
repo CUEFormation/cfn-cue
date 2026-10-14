@@ -11,18 +11,7 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceDiscovery::Service
-#Properties: matchN(2, [
-	matchN(0, [null | bool | number | string | [...] | {
-		HealthCheckConfig!:       _
-		HealthCheckCustomConfig!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		HealthCheckCustomConfig!: _
-		HealthCheckConfig!:       _
-		...
-	}]) & {...}
-]) & close({
+#Properties: close({
 	// The Amazon Resource Name (ARN) of the service.
 	Arn?:
 		=~"^arn:[a-zA-Z0-9-]+:servicediscovery:[a-zA-Z0-9-]+:[0-9]{12}:(service|service/[a-zA-Z0-9-_]+|service:[a-zA-Z0-9-_]+)$"
@@ -59,6 +48,9 @@ import (
 
 	// The type of service. Supported values are HTTP or DNS.
 	Type?: "HTTP"
+	if HealthCheckConfig != _|_ {
+		HealthCheckCustomConfig?: error("HealthCheckCustomConfig cannot be used with HealthCheckConfig")
+	}
 })
 
 // DNS configuration settings for the service.

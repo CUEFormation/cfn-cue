@@ -83,28 +83,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 //
 // For more information, see [DeletionPolicy
 // Attribute](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html).
-#Properties: matchN(4, [
-	matchN(0, [null | bool | number | string | [...] | {
-		SourceDBInstanceIdentifier!: _
-		CharacterSetName!:           _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		SourceDBInstanceIdentifier!: _
-		MasterUserPassword!:         _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		SourceDBInstanceIdentifier!: _
-		MasterUsername!:             _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		SourceDBInstanceIdentifier!: _
-		StorageEncrypted!:           _
-		...
-	}]) & {...}
-]) & close({
+#Properties: close({
 	AdditionalStorageVolumes?: [...close({
 		AllocatedStorage?: =~"^[0-9]*$" | fn.#StringExpression
 		Iops?: int |
@@ -380,6 +359,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	UseDefaultProcessorFeatures?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	UseLatestRestorableTime?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VPCSecurityGroups?:           list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	if SourceDBInstanceIdentifier != _|_ {
+		CharacterSetName?:   error("CharacterSetName cannot be used with SourceDBInstanceIdentifier")
+		MasterUserPassword?: error("MasterUserPassword cannot be used with SourceDBInstanceIdentifier")
+		MasterUsername?:     error("MasterUsername cannot be used with SourceDBInstanceIdentifier")
+		StorageEncrypted?:   error("StorageEncrypted cannot be used with SourceDBInstanceIdentifier")
+	}
 })
 
 _#defs: "/$defs/Properties/definitions/AdditionalStorageVolume": close({

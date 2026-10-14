@@ -45,16 +45,15 @@ _#defs: "/$defs/Properties/definitions/AttachmentUrl": strings.MinRunes(1) | fn.
 
 _#defs: "/$defs/Properties/definitions/ChannelSubtype": "EMAIL" | "SMS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Content": matchN(1, [{
-	EmailMessageTemplateContent!: _
-	...
-}, {
-	SmsMessageTemplateContent!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Content": close({
 	EmailMessageTemplateContent?: _#defs."/$defs/Properties/definitions/EmailMessageTemplateContent"
 	SmsMessageTemplateContent?:   _#defs."/$defs/Properties/definitions/SmsMessageTemplateContent"
-}) |
+	if EmailMessageTemplateContent != _|_ {
+		SmsMessageTemplateContent?: error(
+			"SmsMessageTemplateContent cannot be used with EmailMessageTemplateContent; set exactly one of EmailMessageTemplateContent, SmsMessageTemplateContent",
+		)
+	}
+}) & matchN(>=1, [{EmailMessageTemplateContent!: _}, {SmsMessageTemplateContent!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomAttributes": close({

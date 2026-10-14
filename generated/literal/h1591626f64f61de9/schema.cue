@@ -61,13 +61,7 @@ import (
 
 // A single file inside an Asset's bundle. Path is the diff key on update;
 // Content is write-only and not repopulated by Read.
-_#defs: "/$defs/Properties/definitions/AssetFile": matchN(1, [{
-	ContentText!: _
-	...
-}, {
-	ContentBytes!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/AssetFile": close({
 	// Base64-encoded binary contents of the file. Mutually exclusive with ContentText (max 6 MiB).
 	ContentBytes?: strings.MaxRunes(8388608)
 
@@ -80,4 +74,9 @@ _#defs: "/$defs/Properties/definitions/AssetFile": matchN(1, [{
 
 	// Path of this file within the asset bundle.
 	Path!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_./-]+$"
-})
+	if ContentText != _|_ {
+		ContentBytes?: error(
+			"ContentBytes cannot be used with ContentText; set exactly one of ContentText, ContentBytes",
+		)
+	}
+}) & matchN(>=1, [{ContentText!: _}, {ContentBytes!: _}])

@@ -63,6 +63,16 @@ Regional templates currently use a discriminated union of resource envelopes and
 
 For intrinsics, a common closed function table and result-type views keep evaluation practical. Detailed, mutually recursive per-argument allowlists caused CUE to expand many combinations before a concrete template was available. The current representation preserves recursive shape checking and known result categories while leaving exact function/context permissions to cfn-lint. No arbitrary recursion depth limit is used.
 
+## Property presence rules
+
+Upstream schemas express exclusions with `dependentExcluded`, and exactly-one or at-least-one groups with `requiredXor`, `requiredOr`, or `oneOf`/`anyOf` over single `required` lists. Through the extractor these became `matchN` checks whose failures read `2 matched, expected 1` or `1 matched, expected 0`. The generator now places a placeholder property on the object, and after extraction replaces it with `if A != _|_ {B?: error("B cannot be used with A")}` comprehensions plus a `matchN(>=1, ...)` conjoined outside the closed struct. In the 2026-10-12 snapshot this covers 80 resource schemas.
+
+Findings with CUE v0.18.0-alpha.3:
+
+- The extractor quotes property labels, and quoted labels do not bind identifiers. Referenced properties are relabeled as identifiers; only capitalized names qualify, so imports, builtins and generated definitions can't be captured.
+- `error()` in a comprehension guarded by absence (`if A == _|_ && B == _|_ {_x: error(...)}`) fires when the definition is evaluated on its own. At-least-one rules therefore use `matchN`, which lists the missing fields.
+- Through a regional `#Template`, a failing resource's own errors are sometimes dropped and only the other types' `Type` conflicts are shown. Validating with `#ResourceTypes["AWS::..."]` shows them.
+
 ## Next design decisions
 
 1. **Aggregate evaluation and property-specific intrinsic constraints.** Establish a representation that loads a complete region without expensive evaluation of unused resource schemas. Benchmark CUE dispatch, per-service packages and late binding against real templates. Then specialize `Fn::If` branches and literal arguments with the expected property schema. This would catch a conditional branch with an invalid enum value or an invalid nested property shape, beyond the current result-type check, while avoiding a new expansion problem.

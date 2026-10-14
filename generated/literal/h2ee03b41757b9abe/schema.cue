@@ -36,20 +36,11 @@ _#defs: "/$defs/Properties/definitions/CountryRule": close({
 	ProtectStatus!: "ALLOW" | "BLOCK" | "MONITOR" | "FILTER"
 })
 
-_#defs: "/$defs/Properties/definitions/CountryRuleSet": matchN(>=1, [{
-	SMS!: _
-	...
-}, {
-	VOICE!: _
-	...
-}, {
-	MMS!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/CountryRuleSet": close({
 	MMS?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"]
 	SMS?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"]
 	VOICE?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"]
-})
+}) & matchN(>=1, [{SMS!: _}, {VOICE!: _}, {MMS!: _}])
 
 // A key-value pair to associate with a resource.
 _#defs: "/$defs/Properties/definitions/Tag": close({

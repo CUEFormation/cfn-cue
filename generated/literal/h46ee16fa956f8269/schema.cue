@@ -5,13 +5,7 @@ package schema
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::NetworkAclEntry
-#Properties: matchN(1, [{
-	Ipv6CidrBlock!: _
-	...
-}, {
-	CidrBlock!: _
-	...
-}]) & close({
+#Properties: close({
 	// The IPv4 CIDR range to allow or deny, in CIDR notation (for example,
 	// 172.16.0.0/24). Requirement is conditional: You must specify the CidrBlock
 	// or Ipv6CidrBlock property
@@ -52,7 +46,10 @@ package schema
 	// ascending order by rule number. Entries can't use the same rule number
 	// unless one is an egress rule and the other is an ingress rule
 	RuleNumber!: int
-})
+	if Ipv6CidrBlock != _|_ {
+		CidrBlock?: error("CidrBlock cannot be used with Ipv6CidrBlock; set exactly one of Ipv6CidrBlock, CidrBlock")
+	}
+}) & matchN(>=1, [{Ipv6CidrBlock!: _}, {CidrBlock!: _}])
 
 _#defs: "/$defs/Properties/definitions/Icmp": close({
 	Code?: int

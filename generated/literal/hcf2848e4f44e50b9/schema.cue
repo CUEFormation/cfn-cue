@@ -46,40 +46,7 @@ import (
 	ExactSettings?: bool
 
 	// The property identifies the exact type of settings for the data provider.
-	Settings?: matchN(>=1, [{
-		PostgreSqlSettings!: _
-		...
-	}, {
-		MySqlSettings!: _
-		...
-	}, {
-		OracleSettings!: _
-		...
-	}, {
-		MicrosoftSqlServerSettings!: _
-		...
-	}, {
-		RedshiftSettings!: _
-		...
-	}, {
-		DocDbSettings!: _
-		...
-	}, {
-		MariaDbSettings!: _
-		...
-	}, {
-		MongoDbSettings!: _
-		...
-	}, {
-		IbmDb2LuwSettings!: _
-		...
-	}, {
-		IbmDb2zOsSettings!: _
-		...
-	}, {
-		SybaseAseSettings!: _
-		...
-	}]) & close({
+	Settings?: close({
 		// DocDbSettings property identifier.
 		DocDbSettings?: close({
 			CertificateArn?: string
@@ -192,7 +159,32 @@ import (
 			ServerName!:      string
 			SslMode!:         _#defs."/$defs/Properties/definitions/SybaseSslModeValue"
 		})
-	})
+	}) & matchN(
+		>=1,
+		[{
+			PostgreSqlSettings!: _
+		}, {
+			MySqlSettings!: _
+		}, {
+			OracleSettings!: _
+		}, {
+			MicrosoftSqlServerSettings!: _
+		}, {
+			RedshiftSettings!: _
+		}, {
+			DocDbSettings!: _
+		}, {
+			MariaDbSettings!: _
+		}, {
+			MongoDbSettings!: _
+		}, {
+			IbmDb2LuwSettings!: _
+		}, {
+			IbmDb2zOsSettings!: _
+		}, {
+			SybaseAseSettings!: _
+		}],
+	)
 
 	// An array of key-value pairs to apply to this resource.
 	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]

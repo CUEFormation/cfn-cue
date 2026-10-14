@@ -229,40 +229,7 @@ _#defs: "/$defs/Properties/definitions/CustomDocumentEnrichmentConfiguration": c
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceConfiguration": matchN(1, [{
-	S3Configuration!: _
-	...
-}, {
-	SharePointConfiguration!: _
-	...
-}, {
-	SalesforceConfiguration!: _
-	...
-}, {
-	OneDriveConfiguration!: _
-	...
-}, {
-	ServiceNowConfiguration!: _
-	...
-}, {
-	DatabaseConfiguration!: _
-	...
-}, {
-	ConfluenceConfiguration!: _
-	...
-}, {
-	GoogleDriveConfiguration!: _
-	...
-}, {
-	WebCrawlerConfiguration!: _
-	...
-}, {
-	WorkDocsConfiguration!: _
-	...
-}, {
-	TemplateConfiguration!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/DataSourceConfiguration": close({
 	ConfluenceConfiguration?:  _#defs."/$defs/Properties/definitions/ConfluenceConfiguration"
 	DatabaseConfiguration?:    _#defs."/$defs/Properties/definitions/DatabaseConfiguration"
 	GoogleDriveConfiguration?: _#defs."/$defs/Properties/definitions/GoogleDriveConfiguration"
@@ -274,7 +241,217 @@ _#defs: "/$defs/Properties/definitions/DataSourceConfiguration": matchN(1, [{
 	TemplateConfiguration?:    _#defs."/$defs/Properties/definitions/TemplateConfiguration"
 	WebCrawlerConfiguration?:  _#defs."/$defs/Properties/definitions/WebCrawlerConfiguration"
 	WorkDocsConfiguration?:    _#defs."/$defs/Properties/definitions/WorkDocsConfiguration"
-}) |
+	if S3Configuration != _|_ {
+		SharePointConfiguration?: error(
+			"SharePointConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		SalesforceConfiguration?: error(
+			"SalesforceConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		OneDriveConfiguration?: error(
+			"OneDriveConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		ServiceNowConfiguration?: error(
+			"ServiceNowConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		DatabaseConfiguration?: error(
+			"DatabaseConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		ConfluenceConfiguration?: error(
+			"ConfluenceConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		GoogleDriveConfiguration?: error(
+			"GoogleDriveConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WebCrawlerConfiguration?: error(
+			"WebCrawlerConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WorkDocsConfiguration?: error(
+			"WorkDocsConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: error(
+			"TemplateConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if SharePointConfiguration != _|_ {
+		SalesforceConfiguration?: error(
+			"SalesforceConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		OneDriveConfiguration?: error(
+			"OneDriveConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		ServiceNowConfiguration?: error(
+			"ServiceNowConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		DatabaseConfiguration?: error(
+			"DatabaseConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		ConfluenceConfiguration?: error(
+			"ConfluenceConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		GoogleDriveConfiguration?: error(
+			"GoogleDriveConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WebCrawlerConfiguration?: error(
+			"WebCrawlerConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WorkDocsConfiguration?: error(
+			"WorkDocsConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: error(
+			"TemplateConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if SalesforceConfiguration != _|_ {
+		OneDriveConfiguration?: error(
+			"OneDriveConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		ServiceNowConfiguration?: error(
+			"ServiceNowConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		DatabaseConfiguration?: error(
+			"DatabaseConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		ConfluenceConfiguration?: error(
+			"ConfluenceConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		GoogleDriveConfiguration?: error(
+			"GoogleDriveConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WebCrawlerConfiguration?: error(
+			"WebCrawlerConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WorkDocsConfiguration?: error(
+			"WorkDocsConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: error(
+			"TemplateConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if OneDriveConfiguration != _|_ {
+		ServiceNowConfiguration?: error(
+			"ServiceNowConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		DatabaseConfiguration?: error(
+			"DatabaseConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		ConfluenceConfiguration?: error(
+			"ConfluenceConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		GoogleDriveConfiguration?: error(
+			"GoogleDriveConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WebCrawlerConfiguration?: error(
+			"WebCrawlerConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WorkDocsConfiguration?: error(
+			"WorkDocsConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: error(
+			"TemplateConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if ServiceNowConfiguration != _|_ {
+		DatabaseConfiguration?: error(
+			"DatabaseConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		ConfluenceConfiguration?: error(
+			"ConfluenceConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		GoogleDriveConfiguration?: error(
+			"GoogleDriveConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WebCrawlerConfiguration?: error(
+			"WebCrawlerConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WorkDocsConfiguration?: error(
+			"WorkDocsConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: error(
+			"TemplateConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if DatabaseConfiguration != _|_ {
+		ConfluenceConfiguration?: error(
+			"ConfluenceConfiguration cannot be used with DatabaseConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		GoogleDriveConfiguration?: error(
+			"GoogleDriveConfiguration cannot be used with DatabaseConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WebCrawlerConfiguration?: error(
+			"WebCrawlerConfiguration cannot be used with DatabaseConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WorkDocsConfiguration?: error(
+			"WorkDocsConfiguration cannot be used with DatabaseConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: error(
+			"TemplateConfiguration cannot be used with DatabaseConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if ConfluenceConfiguration != _|_ {
+		GoogleDriveConfiguration?: error(
+			"GoogleDriveConfiguration cannot be used with ConfluenceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WebCrawlerConfiguration?: error(
+			"WebCrawlerConfiguration cannot be used with ConfluenceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WorkDocsConfiguration?: error(
+			"WorkDocsConfiguration cannot be used with ConfluenceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: error(
+			"TemplateConfiguration cannot be used with ConfluenceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if GoogleDriveConfiguration != _|_ {
+		WebCrawlerConfiguration?: error(
+			"WebCrawlerConfiguration cannot be used with GoogleDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WorkDocsConfiguration?: error(
+			"WorkDocsConfiguration cannot be used with GoogleDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: error(
+			"TemplateConfiguration cannot be used with GoogleDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if WebCrawlerConfiguration != _|_ {
+		WorkDocsConfiguration?: error(
+			"WorkDocsConfiguration cannot be used with WebCrawlerConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: error(
+			"TemplateConfiguration cannot be used with WebCrawlerConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if WorkDocsConfiguration != _|_ {
+		TemplateConfiguration?: error(
+			"TemplateConfiguration cannot be used with WorkDocsConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+}) & matchN(
+	>=1,
+	[{
+		S3Configuration!: _
+	}, {
+		SharePointConfiguration!: _
+	}, {
+		SalesforceConfiguration!: _
+	}, {
+		OneDriveConfiguration!: _
+	}, {
+		ServiceNowConfiguration!: _
+	}, {
+		DatabaseConfiguration!: _
+	}, {
+		ConfluenceConfiguration!: _
+	}, {
+		GoogleDriveConfiguration!: _
+	}, {
+		WebCrawlerConfiguration!: _
+	}, {
+		WorkDocsConfiguration!: _
+	}, {
+		TemplateConfiguration!: _
+	}],
+) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DataSourceFieldName": strings.MaxRunes(100) & strings.MinRunes(1) |
@@ -507,16 +684,15 @@ _#defs: "/$defs/Properties/definitions/OneDriveUserList": list.MaxItems(100) & l
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/OneDriveUsers": matchN(1, [{
-	OneDriveUserList!: _
-	...
-}, {
-	OneDriveUserS3Path!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/OneDriveUsers": close({
 	OneDriveUserList?:   _#defs."/$defs/Properties/definitions/OneDriveUserList"
 	OneDriveUserS3Path?: _#defs."/$defs/Properties/definitions/S3Path"
-}) |
+	if OneDriveUserList != _|_ {
+		OneDriveUserS3Path?: error(
+			"OneDriveUserS3Path cannot be used with OneDriveUserList; set exactly one of OneDriveUserList, OneDriveUserS3Path",
+		)
+	}
+}) & matchN(>=1, [{OneDriveUserList!: _}, {OneDriveUserS3Path!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ProxyConfiguration": close({

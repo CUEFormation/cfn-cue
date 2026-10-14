@@ -41,17 +41,7 @@ _#defs: "/$defs/Properties/definitions/AnomalyDetectorConfiguration": close(
 	{RandomCutForest!: _#defs."/$defs/Properties/definitions/RandomCutForestConfiguration"},
 )
 
-_#defs: "/$defs/Properties/definitions/IgnoreNearExpected": matchN(1, [
-	null | bool | number | string | [...] | {
-		Amount!: _
-		...
-	},
-	null | bool | number | string | [...] | {
-		Ratio!: _
-		...
-	}
-]) &
-(null |
+_#defs: "/$defs/Properties/definitions/IgnoreNearExpected": null |
 bool |
 number |
 string |
@@ -59,7 +49,10 @@ string |
 close({
 	Amount?: number
 	Ratio?:  number
-}))
+	if Amount != _|_ {
+		Ratio?: error("Ratio cannot be used with Amount; set exactly one of Amount, Ratio")
+	}
+}) & matchN(>=1, [{Amount!: _}, {Ratio!: _}])
 
 // A key-value pair to provide meta-data and multi-dimensional data analysis for
 // filtering and aggregation.
@@ -77,17 +70,7 @@ _#defs: "/$defs/Properties/definitions/Label": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/MissingDataAction": matchN(1, [
-	null | bool | number | string | [...] | {
-		MarkAsAnomaly!: _
-		...
-	},
-	null | bool | number | string | [...] | {
-		Skip!: _
-		...
-	}
-]) &
-(null |
+_#defs: "/$defs/Properties/definitions/MissingDataAction": null |
 bool |
 number |
 string |
@@ -95,7 +78,10 @@ string |
 close({
 	MarkAsAnomaly?: bool
 	Skip?:          bool
-}))
+	if MarkAsAnomaly != _|_ {
+		Skip?: error("Skip cannot be used with MarkAsAnomaly; set exactly one of MarkAsAnomaly, Skip")
+	}
+}) & matchN(>=1, [{MarkAsAnomaly!: _}, {Skip!: _}])
 
 _#defs: "/$defs/Properties/definitions/RandomCutForestConfiguration": close({
 	IgnoreNearExpectedFromAbove?: _#defs."/$defs/Properties/definitions/IgnoreNearExpected"

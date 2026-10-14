@@ -7,13 +7,7 @@ import "strings"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Batch::JobQueue
-#Properties: matchN(1, [{
-	ComputeEnvironmentOrder!: _
-	...
-}, {
-	ServiceEnvironmentOrder!: _
-	...
-}]) & close({
+#Properties: close({
 	ComputeEnvironmentOrder?:  [..._#defs."/$defs/Properties/definitions/ComputeEnvironmentOrder"]
 	JobQueueArn?:              _#defs."/$defs/Properties/definitions/ResourceArn"
 	JobQueueName?:             strings.MaxRunes(128) & strings.MinRunes(1)
@@ -28,7 +22,12 @@ import "strings"
 	Tags?: close({
 
 		{[=~".*"]: string}})
-})
+	if ComputeEnvironmentOrder != _|_ {
+		ServiceEnvironmentOrder?: error(
+			"ServiceEnvironmentOrder cannot be used with ComputeEnvironmentOrder; set exactly one of ComputeEnvironmentOrder, ServiceEnvironmentOrder",
+		)
+	}
+}) & matchN(>=1, [{ComputeEnvironmentOrder!: _}, {ServiceEnvironmentOrder!: _}])
 
 _#defs: "/$defs/Properties/definitions/ComputeEnvironmentOrder": close({
 	ComputeEnvironment!: string

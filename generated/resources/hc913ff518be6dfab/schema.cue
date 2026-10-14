@@ -31,16 +31,7 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogsDestination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventDestination": matchN(1, [{
-	CloudWatchLogsDestination!: _
-	...
-}, {
-	KinesisFirehoseDestination!: _
-	...
-}, {
-	SnsDestination!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/EventDestination": close({
 	CloudWatchLogsDestination?: _#defs."/$defs/Properties/definitions/CloudWatchLogsDestination" | fn.#ObjectExpression
 	Enabled!:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EventDestinationName!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
@@ -48,7 +39,20 @@ _#defs: "/$defs/Properties/definitions/EventDestination": matchN(1, [{
 		fn.#ObjectExpression
 	MatchingEventTypes!: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	SnsDestination?:     _#defs."/$defs/Properties/definitions/SnsDestination" | fn.#ObjectExpression
-}) |
+	if CloudWatchLogsDestination != _|_ {
+		KinesisFirehoseDestination?: error(
+			"KinesisFirehoseDestination cannot be used with CloudWatchLogsDestination; set exactly one of CloudWatchLogsDestination, KinesisFirehoseDestination, SnsDestination",
+		)
+		SnsDestination?: error(
+			"SnsDestination cannot be used with CloudWatchLogsDestination; set exactly one of CloudWatchLogsDestination, KinesisFirehoseDestination, SnsDestination",
+		)
+	}
+	if KinesisFirehoseDestination != _|_ {
+		SnsDestination?: error(
+			"SnsDestination cannot be used with KinesisFirehoseDestination; set exactly one of CloudWatchLogsDestination, KinesisFirehoseDestination, SnsDestination",
+		)
+	}
+}) & matchN(>=1, [{CloudWatchLogsDestination!: _}, {KinesisFirehoseDestination!: _}, {SnsDestination!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/KinesisFirehoseDestination": close({

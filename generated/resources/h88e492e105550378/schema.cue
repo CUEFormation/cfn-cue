@@ -29,16 +29,13 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EnforcementMode": "ACTIVE" | "LOG_ONLY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinition": matchN(1, [{
-	Cedar!: _
-	...
-}, {
-	Policy!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/PolicyDefinition": close({
 	Cedar?:  _#defs."/$defs/Properties/definitions/CedarPolicy"
 	Policy?: _#defs."/$defs/Properties/definitions/PolicyStatement"
-}) |
+	if Cedar != _|_ {
+		Policy?: error("Policy cannot be used with Cedar; set exactly one of Cedar, Policy")
+	}
+}) & matchN(>=1, [{Cedar!: _}, {Policy!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PolicyStatement": close(

@@ -44,17 +44,7 @@ _#defs: "/$defs/Properties/definitions/CustomLogSource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Source": matchN(1, [
-	null | bool | number | string | [...] | {
-		AwsLogSource!: _
-		...
-	},
-	null | bool | number | string | [...] | {
-		CustomLogSource!: _
-		...
-	}
-]) &
-(null |
+_#defs: "/$defs/Properties/definitions/Source": null |
 bool |
 number |
 string |
@@ -62,7 +52,12 @@ string |
 close({
 	AwsLogSource?:    _#defs."/$defs/Properties/definitions/AwsLogSource"
 	CustomLogSource?: _#defs."/$defs/Properties/definitions/CustomLogSource"
-})) |
+	if AwsLogSource != _|_ {
+		CustomLogSource?: error(
+			"CustomLogSource cannot be used with AwsLogSource; set exactly one of AwsLogSource, CustomLogSource",
+		)
+	}
+}) & matchN(>=1, [{AwsLogSource!: _}, {CustomLogSource!: _}]) |
 fn.#ValueExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

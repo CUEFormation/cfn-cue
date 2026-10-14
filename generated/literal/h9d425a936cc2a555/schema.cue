@@ -10,13 +10,7 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::FSx::S3AccessPointAttachment
-#Properties: matchN(1, [{
-	OntapConfiguration!: _
-	...
-}, {
-	OpenZFSConfiguration!: _
-	...
-}]) & close({
+#Properties: close({
 	// The lifecycle status of the S3 access point attachment.
 	Lifecycle?: "AVAILABLE" | "CREATING" | "DELETING" | "FAILED" | "MISCONFIGURED" | "UPDATING"
 
@@ -34,20 +28,19 @@ import (
 
 	// The type of Amazon FSx volume that the S3 access point is attached to.
 	Type!: "OPENZFS" | "ONTAP"
-})
+	if OntapConfiguration != _|_ {
+		OpenZFSConfiguration?: error(
+			"OpenZFSConfiguration cannot be used with OntapConfiguration; set exactly one of OntapConfiguration, OpenZFSConfiguration",
+		)
+	}
+}) & matchN(>=1, [{OntapConfiguration!: _}, {OpenZFSConfiguration!: _}])
 
 _#defs: "/$defs/Properties/definitions/FileSystemGID": close({
 	// The GID of the file system user.
 	Gid!: <=4294967295 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/OntapFileSystemIdentity": matchN(1, [{
-	UnixUser!: _
-	...
-}, {
-	WindowsUser!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/OntapFileSystemIdentity": close({
 	// Specifies the FSx for ONTAP user identity type, accepts either UNIX or WINDOWS.
 	Type!: "UNIX" | "WINDOWS"
 
@@ -56,7 +49,10 @@ _#defs: "/$defs/Properties/definitions/OntapFileSystemIdentity": matchN(1, [{
 
 	// Specifies the properties of the file system Windows user.
 	WindowsUser?: _#defs."/$defs/Properties/definitions/OntapWindowsFileSystemUser"
-})
+	if UnixUser != _|_ {
+		WindowsUser?: error("WindowsUser cannot be used with UnixUser; set exactly one of UnixUser, WindowsUser")
+	}
+}) & matchN(>=1, [{UnixUser!: _}, {WindowsUser!: _}])
 
 _#defs: "/$defs/Properties/definitions/OntapUnixFileSystemUser": close({
 	// The name of the UNIX user.

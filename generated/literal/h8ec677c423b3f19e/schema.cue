@@ -51,13 +51,7 @@ _#defs: "/$defs/Properties/definitions/ComponentConfig": close({
 })
 
 // Scraper metrics destination
-_#defs: "/$defs/Properties/definitions/Destination": matchN(1, [{
-	AmpConfiguration!: _
-	...
-}, {
-	CloudWatchConfiguration!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Destination": close({
 	// Configuration for Amazon Managed Prometheus metrics destination
 	AmpConfiguration?: close({
 		// ARN of an Amazon Managed Prometheus workspace
@@ -69,7 +63,12 @@ _#defs: "/$defs/Properties/definitions/Destination": matchN(1, [{
 		// ARN of a CloudWatch dataset
 		DatasetArn!: =~"^arn:aws[-a-z]*:cloudwatch:[-a-z0-9]+:[0-9]{12}:dataset\\/.+$"
 	})
-})
+	if AmpConfiguration != _|_ {
+		CloudWatchConfiguration?: error(
+			"CloudWatchConfiguration cannot be used with AmpConfiguration; set exactly one of AmpConfiguration, CloudWatchConfiguration",
+		)
+	}
+}) & matchN(>=1, [{AmpConfiguration!: _}, {CloudWatchConfiguration!: _}])
 
 // Role configuration
 _#defs: "/$defs/Properties/definitions/RoleConfiguration": close({
@@ -81,13 +80,10 @@ _#defs: "/$defs/Properties/definitions/RoleConfiguration": close({
 })
 
 // Scraper configuration
-_#defs: "/$defs/Properties/definitions/ScrapeConfiguration": {
-	ConfigurationBlob!: _
-	...
-} & close({
+_#defs: "/$defs/Properties/definitions/ScrapeConfiguration": close({
 	// Prometheus compatible scrape configuration in base64 encoded blob format
 	ConfigurationBlob?: string
-})
+}) & matchN(>=1, [{ConfigurationBlob!: _}])
 
 _#defs: "/$defs/Properties/definitions/ScraperComponent": close({
 	Config?: _#defs."/$defs/Properties/definitions/ComponentConfig"
@@ -115,13 +111,7 @@ _#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|
 	=~"^sg-[0-9a-z]+$"
 
 // Scraper metrics source
-_#defs: "/$defs/Properties/definitions/Source": matchN(1, [{
-	EksConfiguration!: _
-	...
-}, {
-	VpcConfiguration!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Source": close({
 	// Configuration for EKS metrics source
 	EksConfiguration?: close({
 		// ARN of an EKS cluster
@@ -142,7 +132,12 @@ _#defs: "/$defs/Properties/definitions/Source": matchN(1, [{
 		// List of subnet IDs
 		SubnetIds!: [..._#defs."/$defs/Properties/definitions/SubnetId"]
 	})
-})
+	if EksConfiguration != _|_ {
+		VpcConfiguration?: error(
+			"VpcConfiguration cannot be used with EksConfiguration; set exactly one of EksConfiguration, VpcConfiguration",
+		)
+	}
+}) & matchN(>=1, [{EksConfiguration!: _}, {VpcConfiguration!: _}])
 
 // ID of a subnet
 _#defs: "/$defs/Properties/definitions/SubnetId": =~"^subnet-[0-9a-z]+$"

@@ -23,73 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // appropriately. Any actions associated with the new state are then executed.
 // When you update an existing alarm, its state is left unchanged, but the
 // update completely overwrites the previous configuration of the alarm.
-#Properties: matchN(12, [
-	matchN(0, [null | bool | number | string | [...] | {
-		ExtendedStatistic!: _
-		Statistic!:         _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!:    _
-		MetricName!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!:    _
-		Dimensions!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!: _
-		Period!:  _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!:   _
-		Namespace!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!:   _
-		Statistic!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!:           _
-		ExtendedStatistic!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!: _
-		Unit!:    _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Statistic!:         _
-		ExtendedStatistic!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Threshold!:         _
-		ThresholdMetricId!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		ThresholdMetricId!: _
-		Threshold!:         _
-		...
-	}]) & {...},
-	matchN(1, [{
-		Metrics!: _
-		...
-	}, {
-		MetricName!: _
-		...
-	}, {
-		EvaluationCriteria!: _
-		...
-	}])
-]) & close({
+#Properties: close({
 	ActionsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AlarmActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	AlarmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
@@ -227,7 +161,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"Terabytes/Second" |
 		fn.#StringExpression
 	WarmUpConfiguration?: _#defs."/$defs/Properties/definitions/WarmUpConfiguration" | fn.#ObjectExpression
-})
+	if ExtendedStatistic != _|_ {
+		Statistic?: error("Statistic cannot be used with ExtendedStatistic")
+	}
+	if Metrics != _|_ {
+		MetricName?:        error("MetricName cannot be used with Metrics")
+		Dimensions?:        error("Dimensions cannot be used with Metrics")
+		Period?:            error("Period cannot be used with Metrics")
+		Namespace?:         error("Namespace cannot be used with Metrics")
+		Statistic?:         error("Statistic cannot be used with Metrics")
+		ExtendedStatistic?: error("ExtendedStatistic cannot be used with Metrics")
+		Unit?:              error("Unit cannot be used with Metrics")
+	}
+	if Threshold != _|_ {
+		ThresholdMetricId?: error("ThresholdMetricId cannot be used with Threshold")
+	}
+	if Metrics != _|_ {
+		MetricName?: error(
+			"MetricName cannot be used with Metrics; set exactly one of Metrics, MetricName, EvaluationCriteria",
+		)
+		EvaluationCriteria?: error(
+			"EvaluationCriteria cannot be used with Metrics; set exactly one of Metrics, MetricName, EvaluationCriteria",
+		)
+	}
+	if MetricName != _|_ {
+		EvaluationCriteria?: error(
+			"EvaluationCriteria cannot be used with MetricName; set exactly one of Metrics, MetricName, EvaluationCriteria",
+		)
+	}
+}) & matchN(>=1, [{Metrics!: _}, {MetricName!: _}, {EvaluationCriteria!: _}])
 
 _#defs: "/$defs/Properties/definitions/AlarmPromQLCriteria": close({
 	PendingPeriod?: int |
@@ -273,16 +235,15 @@ _#defs: "/$defs/Properties/definitions/EvaluationCriteria": close(
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationWindow": matchN(1, [{
-	WallClockWindow!: _
-	...
-}, {
-	SlidingWindow!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/EvaluationWindow": close({
 	SlidingWindow?:   close({}) | fn.#ObjectExpression
 	WallClockWindow?: _#defs."/$defs/Properties/definitions/WallClockWindow" | fn.#ObjectExpression
-}) |
+	if WallClockWindow != _|_ {
+		SlidingWindow?: error(
+			"SlidingWindow cannot be used with WallClockWindow; set exactly one of WallClockWindow, SlidingWindow",
+		)
+	}
+}) & matchN(>=1, [{WallClockWindow!: _}, {SlidingWindow!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Metric": close({

@@ -36,13 +36,7 @@ _#defs: "/$defs/Properties/definitions/ComponentConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Destination": matchN(1, [{
-	AmpConfiguration!: _
-	...
-}, {
-	CloudWatchConfiguration!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Destination": close({
 	AmpConfiguration?: close(
 		{WorkspaceArn!: =~"^arn:aws[-a-z]*:aps:[-a-z0-9]+:[0-9]{12}:workspace/.+$" | fn.#StringExpression},
 	) |
@@ -51,7 +45,12 @@ _#defs: "/$defs/Properties/definitions/Destination": matchN(1, [{
 		{DatasetArn!: =~"^arn:aws[-a-z]*:cloudwatch:[-a-z0-9]+:[0-9]{12}:dataset\\/.+$" | fn.#StringExpression},
 	) |
 		fn.#ObjectExpression
-}) |
+	if AmpConfiguration != _|_ {
+		CloudWatchConfiguration?: error(
+			"CloudWatchConfiguration cannot be used with AmpConfiguration; set exactly one of AmpConfiguration, CloudWatchConfiguration",
+		)
+	}
+}) & matchN(>=1, [{AmpConfiguration!: _}, {CloudWatchConfiguration!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RoleConfiguration": close({
@@ -62,11 +61,11 @@ _#defs: "/$defs/Properties/definitions/RoleConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScrapeConfiguration": {
-	ConfigurationBlob!: _
-	...
-} & close({ConfigurationBlob?: string | fn.#StringExpression}) |
-fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/ScrapeConfiguration": close({ConfigurationBlob?: string | fn.#StringExpression}) & matchN(
+	>=1,
+	[{ConfigurationBlob!: _}],
+) |
+	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ScraperComponent": close({
 	Config?: _#defs."/$defs/Properties/definitions/ComponentConfig"
@@ -97,13 +96,7 @@ _#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{
 	=~"^sg-[0-9a-z]+$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Source": matchN(1, [{
-	EksConfiguration!: _
-	...
-}, {
-	VpcConfiguration!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Source": close({
 	EksConfiguration?: close({
 		ClusterArn!:       =~"^arn:aws[-a-z]*:eks:[-a-z0-9]+:[0-9]{12}:cluster/.+$" | fn.#StringExpression
 		SecurityGroupIds?: [..._#defs."/$defs/Properties/definitions/SecurityGroupId"] | fn.#ListExpression
@@ -115,7 +108,12 @@ _#defs: "/$defs/Properties/definitions/Source": matchN(1, [{
 		SubnetIds!:        [..._#defs."/$defs/Properties/definitions/SubnetId"] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
-}) |
+	if EksConfiguration != _|_ {
+		VpcConfiguration?: error(
+			"VpcConfiguration cannot be used with EksConfiguration; set exactly one of EksConfiguration, VpcConfiguration",
+		)
+	}
+}) & matchN(>=1, [{EksConfiguration!: _}, {VpcConfiguration!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SubnetId": =~"^subnet-[0-9a-z]+$" | fn.#StringExpression

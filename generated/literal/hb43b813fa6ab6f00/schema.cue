@@ -12,13 +12,7 @@ package schema
 // For more information, see [Virtual private clouds
 // (VPC)](https://docs.aws.amazon.com/vpc/latest/userguide/configure-your-vpc.html)
 // in the *Amazon VPC User Guide*.
-#Properties: matchN(1, [{
-	CidrBlock!: _
-	...
-}, {
-	Ipv4IpamPoolId!: _
-	...
-}]) & close({
+#Properties: close({
 	Ipv4IpamPoolId?: _
 	if Ipv4IpamPoolId != _|_ {
 		Ipv4NetmaskLength!: _
@@ -75,7 +69,7 @@ package schema
 	// IPAM?](https://docs.aws.amazon.com//vpc/latest/ipam/what-is-it-ipam.html) in
 	// the *Amazon VPC IPAM User Guide*.
 	// You must specify either``CidrBlock`` or ``Ipv4IpamPoolId``.
-	"Ipv4IpamPoolId"?: string
+	Ipv4IpamPoolId?: string
 
 	// The netmask length of the IPv4 CIDR you want to allocate to this VPC from an
 	// Amazon VPC IP Address Manager (IPAM) pool. For more information about IPAM,
@@ -94,7 +88,12 @@ package schema
 	// in the *Amazon VPC User Guide*.
 	VpcEncryptionControl?: _#defs."/$defs/Properties/definitions/VpcEncryptionControl"
 	VpcId?:                =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
-})
+	if CidrBlock != _|_ {
+		Ipv4IpamPoolId?: error(
+			"Ipv4IpamPoolId cannot be used with CidrBlock; set exactly one of CidrBlock, Ipv4IpamPoolId",
+		)
+	}
+}) & matchN(>=1, [{CidrBlock!: _}, {Ipv4IpamPoolId!: _}])
 
 // Specifies a tag. For more information, see [Resource
 // tags](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).

@@ -129,20 +129,27 @@ _#defs: "/$defs/Properties/definitions/FirewallRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FirewallRuleType": matchN(1, [{
-	PartnerThreatProtection!: _
-	...
-}, {
-	FirewallAdvancedContentCategory!: _
-	...
-}, {
-	FirewallAdvancedThreatCategory!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/FirewallRuleType": close({
 	FirewallAdvancedContentCategory?: _#defs."/$defs/Properties/definitions/FirewallAdvancedContentCategoryConfig"
 	FirewallAdvancedThreatCategory?:  _#defs."/$defs/Properties/definitions/FirewallAdvancedThreatCategoryConfig"
 	PartnerThreatProtection?:         _#defs."/$defs/Properties/definitions/PartnerThreatProtectionConfig"
-}) |
+	if PartnerThreatProtection != _|_ {
+		FirewallAdvancedContentCategory?: error(
+			"FirewallAdvancedContentCategory cannot be used with PartnerThreatProtection; set exactly one of PartnerThreatProtection, FirewallAdvancedContentCategory, FirewallAdvancedThreatCategory",
+		)
+		FirewallAdvancedThreatCategory?: error(
+			"FirewallAdvancedThreatCategory cannot be used with PartnerThreatProtection; set exactly one of PartnerThreatProtection, FirewallAdvancedContentCategory, FirewallAdvancedThreatCategory",
+		)
+	}
+	if FirewallAdvancedContentCategory != _|_ {
+		FirewallAdvancedThreatCategory?: error(
+			"FirewallAdvancedThreatCategory cannot be used with FirewallAdvancedContentCategory; set exactly one of PartnerThreatProtection, FirewallAdvancedContentCategory, FirewallAdvancedThreatCategory",
+		)
+	}
+}) & matchN(
+	>=1,
+	[{PartnerThreatProtection!: _}, {FirewallAdvancedContentCategory!: _}, {FirewallAdvancedThreatCategory!: _}],
+) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PartnerThreatProtectionConfig": close(

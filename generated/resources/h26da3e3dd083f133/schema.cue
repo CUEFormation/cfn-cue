@@ -14,18 +14,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A security control in Security Hub describes a security best practice related
 // to a specific resource.
-#Properties: matchN(>=1, [{
-	SecurityControlId!: _
-	...
-}, {
-	SecurityControlArn!: _
-	...
-}]) & close({
+#Properties: close({
 	LastUpdateReason?:   =~"^([^\u0000-\u007f]|[-_ a-zA-Z0-9])+$" | fn.#StringExpression
 	Parameters!:         _#defs."/$defs/Properties/definitions/Parameters" | fn.#ObjectExpression
 	SecurityControlArn?: _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
 	SecurityControlId?:  _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
-})
+}) & matchN(>=1, [{SecurityControlId!: _}, {SecurityControlArn!: _}])
 
 _#defs: "/$defs/Properties/definitions/IntegerList": [
 	...int |
@@ -56,31 +50,7 @@ _#defs: "/$defs/Properties/definitions/ParameterConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterValue": matchN(1, [{
-	Boolean!: _
-	...
-}, {
-	Double!: _
-	...
-}, {
-	Enum!: _
-	...
-}, {
-	EnumList!: _
-	...
-}, {
-	Integer!: _
-	...
-}, {
-	IntegerList!: _
-	...
-}, {
-	String!: _
-	...
-}, {
-	StringList!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/ParameterValue": close({
 	Boolean?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Double?: number |
 		{
@@ -120,7 +90,124 @@ _#defs: "/$defs/Properties/definitions/ParameterValue": matchN(1, [{
 	IntegerList?: _#defs."/$defs/Properties/definitions/IntegerList" | fn.#ListExpression
 	String?:      _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
 	StringList?:  _#defs."/$defs/Properties/definitions/NonEmptyStringList" | fn.#ListExpression
-}) |
+	if Boolean != _|_ {
+		Double?: error(
+			"Double cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		Enum?: error(
+			"Enum cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		EnumList?: error(
+			"EnumList cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		Integer?: error(
+			"Integer cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		IntegerList?: error(
+			"IntegerList cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		String?: error(
+			"String cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: error(
+			"StringList cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if Double != _|_ {
+		Enum?: error(
+			"Enum cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		EnumList?: error(
+			"EnumList cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		Integer?: error(
+			"Integer cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		IntegerList?: error(
+			"IntegerList cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		String?: error(
+			"String cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: error(
+			"StringList cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if Enum != _|_ {
+		EnumList?: error(
+			"EnumList cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		Integer?: error(
+			"Integer cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		IntegerList?: error(
+			"IntegerList cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		String?: error(
+			"String cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: error(
+			"StringList cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if EnumList != _|_ {
+		Integer?: error(
+			"Integer cannot be used with EnumList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		IntegerList?: error(
+			"IntegerList cannot be used with EnumList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		String?: error(
+			"String cannot be used with EnumList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: error(
+			"StringList cannot be used with EnumList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if Integer != _|_ {
+		IntegerList?: error(
+			"IntegerList cannot be used with Integer; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		String?: error(
+			"String cannot be used with Integer; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: error(
+			"StringList cannot be used with Integer; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if IntegerList != _|_ {
+		String?: error(
+			"String cannot be used with IntegerList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: error(
+			"StringList cannot be used with IntegerList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if String != _|_ {
+		StringList?: error(
+			"StringList cannot be used with String; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+}) & matchN(
+	>=1,
+	[{
+		Boolean!: _
+	}, {
+		Double!: _
+	}, {
+		Enum!: _
+	}, {
+		EnumList!: _
+	}, {
+		Integer!: _
+	}, {
+		IntegerList!: _
+	}, {
+		String!: _
+	}, {
+		StringList!: _
+	}],
+) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Parameters": close({

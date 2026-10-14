@@ -34,13 +34,7 @@ import (
 	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
 })
 
-_#defs: "/$defs/Properties/definitions/RoutingStrategy": matchN(>=1, [{
-	FleetId!: _
-	...
-}, {
-	Message!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/RoutingStrategy": close({
 	// A unique identifier for a fleet that the alias points to. If you specify
 	// SIMPLE for the Type property, you must specify this property.
 	FleetId?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-z]*fleet-[a-zA-Z0-9\\-]+"
@@ -52,7 +46,7 @@ _#defs: "/$defs/Properties/definitions/RoutingStrategy": matchN(>=1, [{
 	// Simple routing strategy. The alias resolves to one specific fleet. Use this
 	// type when routing to active fleets.
 	Type!: "SIMPLE" | "TERMINAL"
-})
+}) & matchN(>=1, [{FleetId!: _}, {Message!: _}])
 
 // A key-value pair to associate with a resource.
 _#defs: "/$defs/Properties/definitions/Tag": close({

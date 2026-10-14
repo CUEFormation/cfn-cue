@@ -30,16 +30,7 @@ import "strings"
 // [AWS::IAM::RolePolicy](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-rolepolicy.html)
 // +
 // [AWS::IAM::UserPolicy](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-userpolicy.html)
-#Properties: matchN(>=1, [{
-	Users!: _
-	...
-}, {
-	Groups!: _
-	...
-}, {
-	Roles!: _
-	...
-}]) & close({
+#Properties: close({
 	// The name of the group to associate the policy with.
 	// This parameter allows (through its [regex
 	// pattern](https://docs.aws.amazon.com/http://wikipedia.org/wiki/regex)) a
@@ -98,4 +89,4 @@ import "strings"
 	// characters with no spaces. You can also include any of the following
 	// characters: _+=,.@-
 	Users?: [...string]
-})
+}) & matchN(>=1, [{Users!: _}, {Groups!: _}, {Roles!: _}])

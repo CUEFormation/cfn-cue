@@ -12,13 +12,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceCatalog::LaunchRoleConstraint
-#Properties: matchN(1, [{
-	LocalRoleName!: _
-	...
-}, {
-	RoleArn!: _
-	...
-}]) & close({
+#Properties: close({
 	AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
 	Description?:    strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
 	LocalRoleName?:  string | fn.#StringExpression
@@ -27,7 +21,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role)\\/.*" |
 		fn.#StringExpression
-})
+	if LocalRoleName != _|_ {
+		RoleArn?: error("RoleArn cannot be used with LocalRoleName; set exactly one of LocalRoleName, RoleArn")
+	}
+}) & matchN(>=1, [{LocalRoleName!: _}, {RoleArn!: _}])
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ServiceCatalog::LaunchRoleConstraint"
 	Properties!: #Properties

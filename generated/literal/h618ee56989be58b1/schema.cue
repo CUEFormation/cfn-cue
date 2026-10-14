@@ -46,20 +46,24 @@ _#defs: "/$defs/Properties/definitions/AnswerMachineDetectionConfig": close({
 })
 
 // The possible types of dialer config parameters
-_#defs: "/$defs/Properties/definitions/DialerConfig": matchN(1, [{
-	ProgressiveDialerConfig!: _
-	...
-}, {
-	PredictiveDialerConfig!: _
-	...
-}, {
-	AgentlessDialerConfig!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/DialerConfig": close({
 	AgentlessDialerConfig?:   _#defs."/$defs/Properties/definitions/AgentlessDialerConfig"
 	PredictiveDialerConfig?:  _#defs."/$defs/Properties/definitions/PredictiveDialerConfig"
 	ProgressiveDialerConfig?: _#defs."/$defs/Properties/definitions/ProgressiveDialerConfig"
-})
+	if ProgressiveDialerConfig != _|_ {
+		PredictiveDialerConfig?: error(
+			"PredictiveDialerConfig cannot be used with ProgressiveDialerConfig; set exactly one of ProgressiveDialerConfig, PredictiveDialerConfig, AgentlessDialerConfig",
+		)
+		AgentlessDialerConfig?: error(
+			"AgentlessDialerConfig cannot be used with ProgressiveDialerConfig; set exactly one of ProgressiveDialerConfig, PredictiveDialerConfig, AgentlessDialerConfig",
+		)
+	}
+	if PredictiveDialerConfig != _|_ {
+		AgentlessDialerConfig?: error(
+			"AgentlessDialerConfig cannot be used with PredictiveDialerConfig; set exactly one of ProgressiveDialerConfig, PredictiveDialerConfig, AgentlessDialerConfig",
+		)
+	}
+}) & matchN(>=1, [{ProgressiveDialerConfig!: _}, {PredictiveDialerConfig!: _}, {AgentlessDialerConfig!: _}])
 
 // The configuration used for outbound calls.
 _#defs: "/$defs/Properties/definitions/OutboundCallConfig": close({

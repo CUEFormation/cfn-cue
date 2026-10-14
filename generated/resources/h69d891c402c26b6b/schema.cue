@@ -13,13 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Outposts::Outpost Resource Type
-#Properties: matchN(>=1, [{
-	AvailabilityZone!: _
-	...
-}, {
-	AvailabilityZoneId!: _
-	...
-}]) & close({
+#Properties: close({
 	AvailabilityZone?: strings.MaxRunes(1000) &
 	strings.MinRunes(1) &
 	=~"^([a-zA-Z]+-){1,3}([a-zA-Z]+)?(\\d+[a-zA-Z]?)?$" |
@@ -31,7 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SiteId!:                strings.MaxRunes(255) & strings.MinRunes(1) & =~"^os-[a-f0-9]{17}$" | fn.#StringExpression
 	SupportedHardwareType?: "RACK" | "SERVER" | fn.#StringExpression
 	Tags?:                  list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+}) & matchN(>=1, [{AvailabilityZone!: _}, {AvailabilityZoneId!: _}])
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

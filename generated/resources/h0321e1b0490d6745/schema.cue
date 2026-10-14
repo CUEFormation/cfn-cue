@@ -18,18 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceDiscovery::Service
-#Properties: matchN(2, [
-	matchN(0, [null | bool | number | string | [...] | {
-		HealthCheckConfig!:       _
-		HealthCheckCustomConfig!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		HealthCheckCustomConfig!: _
-		HealthCheckConfig!:       _
-		...
-	}]) & {...}
-]) & close({
+#Properties: close({
 	Description?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	DnsConfig?:               _#defs."/$defs/Properties/definitions/DnsConfig" | fn.#ObjectExpression
 	HealthCheckConfig?:       _#defs."/$defs/Properties/definitions/HealthCheckConfig" | fn.#ObjectExpression
@@ -42,6 +31,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Type?: "HTTP" | fn.#StringExpression
+	if HealthCheckConfig != _|_ {
+		HealthCheckCustomConfig?: error("HealthCheckCustomConfig cannot be used with HealthCheckConfig")
+	}
 })
 
 _#defs: "/$defs/Properties/definitions/DnsConfig": close({

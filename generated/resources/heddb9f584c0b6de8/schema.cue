@@ -18,13 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::InferenceComponent
-#Properties: matchN(1, [{
-	Specification!: _
-	...
-}, {
-	Specifications!: _
-	...
-}]) & close({
+#Properties: close({
 	DeploymentConfig?:       _#defs."/$defs/Properties/definitions/InferenceComponentDeploymentConfig"
 	EndpointArn?:            _#defs."/$defs/Properties/definitions/EndpointArn"
 	EndpointName!:           _#defs."/$defs/Properties/definitions/EndpointName"
@@ -62,7 +56,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	Tags?:        _#defs."/$defs/Properties/definitions/TagList"
 	VariantName?: _#defs."/$defs/Properties/definitions/VariantName"
-})
+	if Specification != _|_ {
+		Specifications?: error(
+			"Specifications cannot be used with Specification; set exactly one of Specification, Specifications",
+		)
+	}
+}) & matchN(>=1, [{Specification!: _}, {Specifications!: _}])
 
 _#defs: "/$defs/Properties/definitions/Alarm": close(
 	{AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression},

@@ -22,17 +22,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/RoutingStrategy": matchN(>=1, [{
-	FleetId!: _
-	...
-}, {
-	Message!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/RoutingStrategy": close({
 	FleetId?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-z]*fleet-[a-zA-Z0-9\\-]+" | fn.#StringExpression
 	Message?: string | fn.#StringExpression
 	Type!:    "SIMPLE" | "TERMINAL" | fn.#StringExpression
-}) |
+}) & matchN(>=1, [{FleetId!: _}, {Message!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

@@ -10,13 +10,7 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for StateMachineAlias
-#Properties: matchN(>=1, [{
-	RoutingConfiguration!: _
-	...
-}, {
-	DeploymentPreference!: _
-	...
-}]) & close({
+#Properties: close({
 	// The ARN of the alias.
 	Arn?:                  strings.MaxRunes(2048) & strings.MinRunes(1)
 	DeploymentPreference?: _#defs."/$defs/Properties/definitions/DeploymentPreference"
@@ -28,7 +22,7 @@ import (
 	Name?:                 strings.MaxRunes(80) & strings.MinRunes(1)
 	RoutingConfiguration?: _#defs."/$defs/Properties/definitions/RoutingConfiguration"
 	StateMachineArn?:      strings.MaxRunes(2048) & strings.MinRunes(1)
-})
+}) & matchN(>=1, [{RoutingConfiguration!: _}, {DeploymentPreference!: _}])
 
 // The settings to enable gradual state machine deployments.
 _#defs: "/$defs/Properties/definitions/DeploymentPreference": close({

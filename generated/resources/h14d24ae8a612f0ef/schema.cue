@@ -663,18 +663,7 @@ _#defs: "/$defs/Properties/definitions/Logging": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Origin": matchN(2, [
-	matchN(0, [null | bool | number | string | [...] | {
-		CustomOriginConfig!: _
-		S3OriginConfig!:     _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		S3OriginConfig!:     _
-		CustomOriginConfig!: _
-		...
-	}]) & {...}
-]) & close({
+_#defs: "/$defs/Properties/definitions/Origin": close({
 	ConnectionAttempts?: int |
 		{
 			string &
@@ -726,6 +715,9 @@ _#defs: "/$defs/Properties/definitions/Origin": matchN(2, [
 		fn.#NumberExpression
 	S3OriginConfig?:  _#defs."/$defs/Properties/definitions/S3OriginConfig" | fn.#ObjectExpression
 	VpcOriginConfig?: _#defs."/$defs/Properties/definitions/VpcOriginConfig" | fn.#ObjectExpression
+	if CustomOriginConfig != _|_ {
+		S3OriginConfig?: error("S3OriginConfig cannot be used with CustomOriginConfig")
+	}
 }) |
 fn.#ObjectExpression
 
@@ -891,16 +883,7 @@ _#defs: "/$defs/Properties/definitions/TrustStoreConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ViewerCertificate": matchN(1, [{
-	AcmCertificateArn!: _
-	...
-}, {
-	CloudFrontDefaultCertificate!: _
-	...
-}, {
-	IamCertificateId!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/ViewerCertificate": close({
 	AcmCertificateArn?: _
 	if AcmCertificateArn != _|_ {
 		SslSupportMethod!: _
@@ -910,10 +893,10 @@ _#defs: "/$defs/Properties/definitions/ViewerCertificate": matchN(1, [{
 		SslSupportMethod!: _
 	}
 	{}
-	"AcmCertificateArn"?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+	AcmCertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	CloudFrontDefaultCertificate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	"IamCertificateId"?:           strings.MaxRunes(32) | fn.#StringExpression
+	IamCertificateId?:             strings.MaxRunes(32) | fn.#StringExpression
 	MinimumProtocolVersion?: "SSLv3" |
 		"TLSv1" |
 		"TLSv1.1_2016" |
@@ -925,7 +908,20 @@ _#defs: "/$defs/Properties/definitions/ViewerCertificate": matchN(1, [{
 		"TLSv1_2016" |
 		fn.#StringExpression
 	SslSupportMethod?: "sni-only" | "static-ip" | "vip" | fn.#StringExpression
-}) |
+	if AcmCertificateArn != _|_ {
+		CloudFrontDefaultCertificate?: error(
+			"CloudFrontDefaultCertificate cannot be used with AcmCertificateArn; set exactly one of AcmCertificateArn, CloudFrontDefaultCertificate, IamCertificateId",
+		)
+		IamCertificateId?: error(
+			"IamCertificateId cannot be used with AcmCertificateArn; set exactly one of AcmCertificateArn, CloudFrontDefaultCertificate, IamCertificateId",
+		)
+	}
+	if CloudFrontDefaultCertificate != _|_ {
+		IamCertificateId?: error(
+			"IamCertificateId cannot be used with CloudFrontDefaultCertificate; set exactly one of AcmCertificateArn, CloudFrontDefaultCertificate, IamCertificateId",
+		)
+	}
+}) & matchN(>=1, [{AcmCertificateArn!: _}, {CloudFrontDefaultCertificate!: _}, {IamCertificateId!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ViewerMtlsConfig": close({

@@ -87,13 +87,7 @@ _#defs: "/$defs/Properties/definitions/ComponentConfiguration": close({
 })
 
 // The monitoring setting of the component.
-_#defs: "/$defs/Properties/definitions/ComponentMonitoringSetting": matchN(1, [{
-	ComponentName!: _
-	...
-}, {
-	ComponentARN!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/ComponentMonitoringSetting": close({
 	// The ARN of the compnonent.
 	ComponentARN?: strings.MaxRunes(300) &
 	strings.MinRunes(20) &
@@ -113,7 +107,12 @@ _#defs: "/$defs/Properties/definitions/ComponentMonitoringSetting": matchN(1, [{
 
 	// The tier of the application component.
 	Tier!: =~"^[A-Z][A-Z_]*$"
-})
+	if ComponentName != _|_ {
+		ComponentARN?: error(
+			"ComponentARN cannot be used with ComponentName; set exactly one of ComponentName, ComponentARN",
+		)
+	}
+}) & matchN(>=1, [{ComponentName!: _}, {ComponentARN!: _}])
 
 // The configuration settings.
 _#defs: "/$defs/Properties/definitions/ConfigurationDetails": close({

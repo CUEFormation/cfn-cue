@@ -13,13 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RDS::GlobalCluster
-#Properties: matchN(1, [{
-	SourceDBClusterIdentifier!: _
-	...
-}, {
-	Engine!: _
-	...
-}]) & close({
+#Properties: close({
 	DeletionProtection?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Engine?:                 "aurora" | "aurora-mysql" | "aurora-postgresql" | fn.#StringExpression
 	EngineLifecycleSupport?: string | fn.#StringExpression
@@ -29,7 +23,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SourceDBClusterIdentifier?: matchN(1, [=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$", string]) | fn.#StringExpression
 	StorageEncrypted?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+	if SourceDBClusterIdentifier != _|_ {
+		Engine?: error(
+			"Engine cannot be used with SourceDBClusterIdentifier; set exactly one of SourceDBClusterIdentifier, Engine",
+		)
+	}
+}) & matchN(>=1, [{SourceDBClusterIdentifier!: _}, {Engine!: _}])
 
 _#defs: "/$defs/Properties/definitions/GlobalEndpoint": close({Address?: string | fn.#StringExpression}) |
 	fn.#ObjectExpression

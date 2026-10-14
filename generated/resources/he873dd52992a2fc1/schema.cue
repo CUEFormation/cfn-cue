@@ -18,13 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::CodePipeline::Pipeline resource creates a CodePipeline pipeline that
 // describes how software changes go through a release process.
-#Properties: matchN(1, [{
-	ArtifactStore!: _
-	...
-}, {
-	ArtifactStores!: _
-	...
-}]) & close({
+#Properties: close({
 	ArtifactStore?: _#defs."/$defs/Properties/definitions/ArtifactStore" | fn.#ObjectExpression
 	ArtifactStores?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ArtifactStoreMap"] |
 		fn.#ListExpression
@@ -44,7 +38,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 	Variables?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VariableDeclaration"] |
 		fn.#ListExpression
-})
+	if ArtifactStore != _|_ {
+		ArtifactStores?: error(
+			"ArtifactStores cannot be used with ArtifactStore; set exactly one of ArtifactStore, ArtifactStores",
+		)
+	}
+}) & matchN(>=1, [{ArtifactStore!: _}, {ArtifactStores!: _}])
 
 _#defs: "/$defs/Properties/definitions/ActionDeclaration": close({
 	ActionTypeId!:  _#defs."/$defs/Properties/definitions/ActionTypeId"

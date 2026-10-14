@@ -88,13 +88,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The target resource that the Route 53 record points to.
-_#defs: "/$defs/Properties/definitions/TargetResource": matchN(1, [{
-	NLBResource!: _
-	...
-}, {
-	R53Resource!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/TargetResource": close({
 	NLBResource?: _#defs."/$defs/Properties/definitions/NLBResource"
 	R53Resource?: _#defs."/$defs/Properties/definitions/R53ResourceRecord"
-})
+	if NLBResource != _|_ {
+		R53Resource?: error("R53Resource cannot be used with NLBResource; set exactly one of NLBResource, R53Resource")
+	}
+}) & matchN(>=1, [{NLBResource!: _}, {R53Resource!: _}])

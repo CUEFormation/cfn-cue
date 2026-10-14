@@ -161,13 +161,7 @@ _#defs: "/$defs/Properties/definitions/DataSourceType": "S3" |
 	"MANAGED_KNOWLEDGE_BASE_CONNECTOR" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DayOfMonth": matchN(1, [{
-	DayNumber!: _
-	...
-}, {
-	LastDayOfMonth!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/DayOfMonth": close({
 	DayNumber?: int & <=28 & >=1 |
 		{
 			string &
@@ -185,7 +179,12 @@ _#defs: "/$defs/Properties/definitions/DayOfMonth": matchN(1, [{
 		} |
 		fn.#NumberExpression
 	LastDayOfMonth?: close({}) | fn.#ObjectExpression
-}) |
+	if DayNumber != _|_ {
+		LastDayOfMonth?: error(
+			"LastDayOfMonth cannot be used with DayNumber; set exactly one of DayNumber, LastDayOfMonth",
+		)
+	}
+}) & matchN(>=1, [{DayNumber!: _}, {LastDayOfMonth!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DayOfWeek": "SUNDAY" |
@@ -510,20 +509,18 @@ _#defs: "/$defs/Properties/definitions/SharePointSourceConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SyncSchedule": matchN(1, [{
-	Daily!: _
-	...
-}, {
-	Weekly!: _
-	...
-}, {
-	Monthly!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/SyncSchedule": close({
 	Daily?:   _#defs."/$defs/Properties/definitions/DailySchedule"
 	Monthly?: _#defs."/$defs/Properties/definitions/MonthlySchedule"
 	Weekly?:  _#defs."/$defs/Properties/definitions/WeeklySchedule"
-}) |
+	if Daily != _|_ {
+		Weekly?:  error("Weekly cannot be used with Daily; set exactly one of Daily, Weekly, Monthly")
+		Monthly?: error("Monthly cannot be used with Daily; set exactly one of Daily, Weekly, Monthly")
+	}
+	if Weekly != _|_ {
+		Monthly?: error("Monthly cannot be used with Weekly; set exactly one of Daily, Weekly, Monthly")
+	}
+}) & matchN(>=1, [{Daily!: _}, {Weekly!: _}, {Monthly!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Transformation": close({

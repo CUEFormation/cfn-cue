@@ -24,18 +24,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Zip?:          strings.MaxRunes(8388608) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AssetFile": matchN(1, [{
-	ContentText!: _
-	...
-}, {
-	ContentBytes!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/AssetFile": close({
 	ContentBytes?: strings.MaxRunes(8388608) | fn.#StringExpression
 	ContentText?:  strings.MaxRunes(1572864) | fn.#StringExpression
 	Metadata?:     fn.#Object & {...} | fn.#ObjectExpression
 	Path!:         strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_./-]+$" | fn.#StringExpression
-}) |
+	if ContentText != _|_ {
+		ContentBytes?: error(
+			"ContentBytes cannot be used with ContentText; set exactly one of ContentText, ContentBytes",
+		)
+	}
+}) & matchN(>=1, [{ContentText!: _}, {ContentBytes!: _}]) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::DevOpsAgent::Asset"

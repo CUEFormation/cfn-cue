@@ -16,73 +16,7 @@ import (
 // appropriately. Any actions associated with the new state are then executed.
 // When you update an existing alarm, its state is left unchanged, but the
 // update completely overwrites the previous configuration of the alarm.
-#Properties: matchN(12, [
-	matchN(0, [null | bool | number | string | [...] | {
-		ExtendedStatistic!: _
-		Statistic!:         _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!:    _
-		MetricName!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!:    _
-		Dimensions!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!: _
-		Period!:  _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!:   _
-		Namespace!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!:   _
-		Statistic!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!:           _
-		ExtendedStatistic!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!: _
-		Unit!:    _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Statistic!:         _
-		ExtendedStatistic!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Threshold!:         _
-		ThresholdMetricId!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		ThresholdMetricId!: _
-		Threshold!:         _
-		...
-	}]) & {...},
-	matchN(1, [{
-		Metrics!: _
-		...
-	}, {
-		MetricName!: _
-		...
-	}, {
-		EvaluationCriteria!: _
-		...
-	}])
-]) & close({
+#Properties: close({
 	// Indicates whether actions should be executed during any changes to the alarm
 	// state. The default is TRUE.
 	ActionsEnabled?: bool
@@ -284,7 +218,35 @@ import (
 	// periods](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/alarm-warm-up.html)
 	// in the *Amazon CloudWatch User Guide*.
 	WarmUpConfiguration?: _#defs."/$defs/Properties/definitions/WarmUpConfiguration"
-})
+	if ExtendedStatistic != _|_ {
+		Statistic?: error("Statistic cannot be used with ExtendedStatistic")
+	}
+	if Metrics != _|_ {
+		MetricName?:        error("MetricName cannot be used with Metrics")
+		Dimensions?:        error("Dimensions cannot be used with Metrics")
+		Period?:            error("Period cannot be used with Metrics")
+		Namespace?:         error("Namespace cannot be used with Metrics")
+		Statistic?:         error("Statistic cannot be used with Metrics")
+		ExtendedStatistic?: error("ExtendedStatistic cannot be used with Metrics")
+		Unit?:              error("Unit cannot be used with Metrics")
+	}
+	if Threshold != _|_ {
+		ThresholdMetricId?: error("ThresholdMetricId cannot be used with Threshold")
+	}
+	if Metrics != _|_ {
+		MetricName?: error(
+			"MetricName cannot be used with Metrics; set exactly one of Metrics, MetricName, EvaluationCriteria",
+		)
+		EvaluationCriteria?: error(
+			"EvaluationCriteria cannot be used with Metrics; set exactly one of Metrics, MetricName, EvaluationCriteria",
+		)
+	}
+	if MetricName != _|_ {
+		EvaluationCriteria?: error(
+			"EvaluationCriteria cannot be used with MetricName; set exactly one of Metrics, MetricName, EvaluationCriteria",
+		)
+	}
+}) & matchN(>=1, [{Metrics!: _}, {MetricName!: _}, {EvaluationCriteria!: _}])
 
 // Contains the configuration that determines how a PromQL alarm evaluates its
 // contributors, including the query to run and the durations that define when
@@ -330,13 +292,7 @@ _#defs: "/$defs/Properties/definitions/EvaluationCriteria": close({
 // For more information, see [Alarm evaluation
 // windows](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/alarm-evaluation-window.html)
 // in the *CloudWatch User Guide*.
-_#defs: "/$defs/Properties/definitions/EvaluationWindow": matchN(1, [{
-	WallClockWindow!: _
-	...
-}, {
-	SlidingWindow!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/EvaluationWindow": close({
 	// A sliding window, which advances each time the alarm is evaluated, forming a
 	// rolling time window. This is the default evaluation window.
 	SlidingWindow?: close({})
@@ -345,7 +301,12 @@ _#defs: "/$defs/Properties/definitions/EvaluationWindow": matchN(1, [{
 	// boundaries that match the alarm's period, such as the top of the hour,
 	// midnight, or the start of the calendar week.
 	WallClockWindow?: _#defs."/$defs/Properties/definitions/WallClockWindow"
-})
+	if WallClockWindow != _|_ {
+		SlidingWindow?: error(
+			"SlidingWindow cannot be used with WallClockWindow; set exactly one of WallClockWindow, SlidingWindow",
+		)
+	}
+}) & matchN(>=1, [{WallClockWindow!: _}, {SlidingWindow!: _}])
 
 // The ``Metric`` property type represents a specific metric. ``Metric`` is a
 // property of the

@@ -7,17 +7,11 @@ import "strings"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Vectors::VectorBucketPolicy
-#Properties: matchN(>=1, [{
-	VectorBucketName!: _
-	...
-}, {
-	VectorBucketArn!: _
-	...
-}]) & close({
+#Properties: close({
 	Policy!:           _#defs."/$defs/Properties/definitions/Policy"
 	VectorBucketArn?:  _#defs."/$defs/Properties/definitions/VectorBucketArn"
 	VectorBucketName?: _#defs."/$defs/Properties/definitions/VectorBucketName"
-})
+}) & matchN(>=1, [{VectorBucketName!: _}, {VectorBucketArn!: _}])
 
 // A policy document containing permissions to add to the specified vector
 // bucket. In IAM, you must provide policy documents in JSON format. However,

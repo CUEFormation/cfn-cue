@@ -117,10 +117,9 @@ _#defs: "/$defs/Properties/definitions/TelemetrySinkConfig": close({
 	TelemetrySinkType!: _#defs."/$defs/Properties/definitions/TelemetrySinkType"
 })
 
-_#defs: "/$defs/Properties/definitions/TelemetrySinkData": {
-	KinesisDataStreamData!: _
-	...
-} & close({KinesisDataStreamData?: _#defs."/$defs/Properties/definitions/KinesisDataStreamData"})
+_#defs: "/$defs/Properties/definitions/TelemetrySinkData": close(
+	{KinesisDataStreamData?: _#defs."/$defs/Properties/definitions/KinesisDataStreamData"},
+) & matchN(>=1, [{KinesisDataStreamData!: _}])
 
 _#defs: "/$defs/Properties/definitions/TelemetrySinkType": "KINESIS_DATA_STREAM"
 

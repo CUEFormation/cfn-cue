@@ -123,21 +123,19 @@ _#defs: "/$defs/Properties/definitions/BaselinePerformanceFactorsRequest": close
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
-	VirtualName!: _
-	...
-}, {
-	Ebs!: _
-	...
-}, {
-	NoDevice!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
 	DeviceName!:  string | fn.#StringExpression
 	Ebs?:         _#defs."/$defs/Properties/definitions/EbsBlockDevice"
 	NoDevice?:    string | fn.#StringExpression
 	VirtualName?: string | fn.#StringExpression
-}) |
+	if VirtualName != _|_ {
+		Ebs?:      error("Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+		NoDevice?: error("NoDevice cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+	}
+	if Ebs != _|_ {
+		NoDevice?: error("NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice")
+	}
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ClassicLoadBalancer": close({Name!: string | fn.#StringExpression}) |
@@ -655,13 +653,7 @@ _#defs: "/$defs/Properties/definitions/SpotFleetMonitoring": close(
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpotFleetRequestConfigData": matchN(1, [{
-	LaunchSpecifications!: _
-	...
-}, {
-	LaunchTemplateConfigs!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/SpotFleetRequestConfigData": close({
 	AllocationStrategy?: "capacityOptimized" |
 		"capacityOptimizedPrioritized" |
 		"diversified" |
@@ -739,7 +731,12 @@ _#defs: "/$defs/Properties/definitions/SpotFleetRequestConfigData": matchN(1, [{
 	Type?:       "maintain" | "request" | fn.#StringExpression
 	ValidFrom?:  string | fn.#StringExpression
 	ValidUntil?: string | fn.#StringExpression
-}) |
+	if LaunchSpecifications != _|_ {
+		LaunchTemplateConfigs?: error(
+			"LaunchTemplateConfigs cannot be used with LaunchSpecifications; set exactly one of LaunchSpecifications, LaunchTemplateConfigs",
+		)
+	}
+}) & matchN(>=1, [{LaunchSpecifications!: _}, {LaunchTemplateConfigs!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SpotFleetTagSpecification": close({

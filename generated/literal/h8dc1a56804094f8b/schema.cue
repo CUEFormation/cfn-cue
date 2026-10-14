@@ -10,13 +10,7 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Project
-#Properties: matchN(1, [{
-	ServiceCatalogProvisioningDetails!: _
-	...
-}, {
-	TemplateProviderDetails!: _
-	...
-}]) & close({
+#Properties: close({
 	// The time at which the project was created.
 	CreationTime?:       string
 	ProjectArn?:         _#defs."/$defs/Properties/definitions/ProjectArn"
@@ -56,7 +50,12 @@ import (
 	TemplateProviderDetails?: list.MaxItems(1) & list.MinItems(1) & [
 		..._#defs."/$defs/Properties/definitions/TemplateProviderDetail"
 	]
-})
+	if ServiceCatalogProvisioningDetails != _|_ {
+		TemplateProviderDetails?: error(
+			"TemplateProviderDetails cannot be used with ServiceCatalogProvisioningDetails; set exactly one of ServiceCatalogProvisioningDetails, TemplateProviderDetails",
+		)
+	}
+}) & matchN(>=1, [{ServiceCatalogProvisioningDetails!: _}, {TemplateProviderDetails!: _}])
 
 _#defs: "/$defs/Properties/definitions/CfnStackParameter": close({
 	// The key of the parameter.
@@ -147,7 +146,6 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Details about the template provider for the SageMaker project.
-_#defs: "/$defs/Properties/definitions/TemplateProviderDetail": {
-	CfnTemplateProviderDetail!: _
-	...
-} & close({CfnTemplateProviderDetail?: _#defs."/$defs/Properties/definitions/CfnTemplateProviderDetail"})
+_#defs: "/$defs/Properties/definitions/TemplateProviderDetail": close(
+	{CfnTemplateProviderDetail?: _#defs."/$defs/Properties/definitions/CfnTemplateProviderDetail"},
+) & matchN(>=1, [{CfnTemplateProviderDetail!: _}])

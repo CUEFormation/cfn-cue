@@ -79,16 +79,15 @@ _#defs: "/$defs/Properties/definitions/ConnectionDetails": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CreateEndpointDetails": matchN(1, [{
-	UplinkAwsGroundStationAgentEndpoint!: _
-	...
-}, {
-	DownlinkAwsGroundStationAgentEndpoint!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/CreateEndpointDetails": close({
 	DownlinkAwsGroundStationAgentEndpoint?: _#defs."/$defs/Properties/definitions/DownlinkAwsGroundStationAgentEndpoint"
 	UplinkAwsGroundStationAgentEndpoint?:   _#defs."/$defs/Properties/definitions/UplinkAwsGroundStationAgentEndpoint"
-}) |
+	if UplinkAwsGroundStationAgentEndpoint != _|_ {
+		DownlinkAwsGroundStationAgentEndpoint?: error(
+			"DownlinkAwsGroundStationAgentEndpoint cannot be used with UplinkAwsGroundStationAgentEndpoint; set exactly one of UplinkAwsGroundStationAgentEndpoint, DownlinkAwsGroundStationAgentEndpoint",
+		)
+	}
+}) & matchN(>=1, [{UplinkAwsGroundStationAgentEndpoint!: _}, {DownlinkAwsGroundStationAgentEndpoint!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/DownlinkAwsGroundStationAgentEndpoint": close({
@@ -111,24 +110,22 @@ _#defs: "/$defs/Properties/definitions/DownlinkConnectionDetails": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DownlinkDataflowDetails": {
-	AgentConnectionDetails!: _
-	...
-} & close({AgentConnectionDetails?: _#defs."/$defs/Properties/definitions/DownlinkConnectionDetails"}) |
-fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/DownlinkDataflowDetails": close(
+	{AgentConnectionDetails?: _#defs."/$defs/Properties/definitions/DownlinkConnectionDetails"},
+) & matchN(>=1, [{AgentConnectionDetails!: _}]) |
+	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EndpointDetails": matchN(1, [{
-	UplinkAwsGroundStationAgentEndpoint!: _
-	...
-}, {
-	DownlinkAwsGroundStationAgentEndpoint!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/EndpointDetails": close({
 	DownlinkAwsGroundStationAgentEndpoint?:
 		_#defs."/$defs/Properties/definitions/DownlinkAwsGroundStationAgentEndpointDetails"
 	UplinkAwsGroundStationAgentEndpoint?:
 		_#defs."/$defs/Properties/definitions/UplinkAwsGroundStationAgentEndpointDetails"
-}) |
+	if UplinkAwsGroundStationAgentEndpoint != _|_ {
+		DownlinkAwsGroundStationAgentEndpoint?: error(
+			"DownlinkAwsGroundStationAgentEndpoint cannot be used with UplinkAwsGroundStationAgentEndpoint; set exactly one of UplinkAwsGroundStationAgentEndpoint, DownlinkAwsGroundStationAgentEndpoint",
+		)
+	}
+}) & matchN(>=1, [{UplinkAwsGroundStationAgentEndpoint!: _}, {DownlinkAwsGroundStationAgentEndpoint!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/IntegerRange": close({
@@ -235,11 +232,10 @@ _#defs: "/$defs/Properties/definitions/UplinkConnectionDetails": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UplinkDataflowDetails": {
-	AgentConnectionDetails!: _
-	...
-} & close({AgentConnectionDetails?: _#defs."/$defs/Properties/definitions/UplinkConnectionDetails"}) |
-fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/UplinkDataflowDetails": close(
+	{AgentConnectionDetails?: _#defs."/$defs/Properties/definitions/UplinkConnectionDetails"},
+) & matchN(>=1, [{AgentConnectionDetails!: _}]) |
+	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::GroundStation::DataflowEndpointGroupV2"
 	Properties?: #Properties

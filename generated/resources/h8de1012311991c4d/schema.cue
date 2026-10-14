@@ -368,13 +368,7 @@ _#defs: "/$defs/Properties/definitions/VectorIndex": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WarmThroughput": matchN(>=1, [{
-	ReadUnitsPerSecond!: _
-	...
-}, {
-	WriteUnitsPerSecond!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/WarmThroughput": close({
 	ReadUnitsPerSecond?: int & >=1 |
 		{
 			string &
@@ -405,7 +399,7 @@ _#defs: "/$defs/Properties/definitions/WarmThroughput": matchN(>=1, [{
 				)
 		} |
 		fn.#NumberExpression
-}) |
+}) & matchN(>=1, [{ReadUnitsPerSecond!: _}, {WriteUnitsPerSecond!: _}]) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::DynamoDB::Table"

@@ -65,17 +65,7 @@ _#defs: "/$defs/Properties/definitions/CustomLogSource": close({
 	SourceVersion?: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-\\.\\_]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/Source": matchN(1, [
-	null | bool | number | string | [...] | {
-		AwsLogSource!: _
-		...
-	},
-	null | bool | number | string | [...] | {
-		CustomLogSource!: _
-		...
-	}
-]) &
-(null |
+_#defs: "/$defs/Properties/definitions/Source": null |
 bool |
 number |
 string |
@@ -83,7 +73,12 @@ string |
 close({
 	AwsLogSource?:    _#defs."/$defs/Properties/definitions/AwsLogSource"
 	CustomLogSource?: _#defs."/$defs/Properties/definitions/CustomLogSource"
-}))
+	if AwsLogSource != _|_ {
+		CustomLogSource?: error(
+			"CustomLogSource cannot be used with AwsLogSource; set exactly one of AwsLogSource, CustomLogSource",
+		)
+	}
+}) & matchN(>=1, [{AwsLogSource!: _}, {CustomLogSource!: _}])
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	// The name of the tag. This is a general label that acts as a category for a

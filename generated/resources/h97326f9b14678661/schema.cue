@@ -42,21 +42,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Volumes?:              list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
-	VirtualName!: _
-	...
-}, {
-	Ebs!: _
-	...
-}, {
-	NoDevice!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
 	DeviceName?:  string | fn.#StringExpression
 	Ebs?:         _#defs."/$defs/Properties/definitions/EbsBlockDevice"
 	NoDevice?:    string | fn.#StringExpression
 	VirtualName?: string | fn.#StringExpression
-}) |
+	if VirtualName != _|_ {
+		Ebs?:      error("Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+		NoDevice?: error("NoDevice cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+	}
+	if Ebs != _|_ {
+		NoDevice?: error("NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice")
+	}
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/EbsBlockDevice": close({

@@ -45,19 +45,16 @@ _#defs: "/$defs/Properties/definitions/GatewayCapabilitySummary": close({
 })
 
 // Contains a gateway's platform information.
-_#defs: "/$defs/Properties/definitions/GatewayPlatform": matchN(1, [{
-	GreengrassV2!: _
-	...
-}, {
-	SiemensIE!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/GatewayPlatform": close({
 	// A gateway that runs on AWS IoT Greengrass V2.
 	GreengrassV2?: _#defs."/$defs/Properties/definitions/GreengrassV2"
 
 	// A gateway that runs on Siemens Industrial Edge.
 	SiemensIE?: _#defs."/$defs/Properties/definitions/SiemensIE"
-})
+	if GreengrassV2 != _|_ {
+		SiemensIE?: error("SiemensIE cannot be used with GreengrassV2; set exactly one of GreengrassV2, SiemensIE")
+	}
+}) & matchN(>=1, [{GreengrassV2!: _}, {SiemensIE!: _}])
 
 // The version of the gateway you want to create.
 _#defs: "/$defs/Properties/definitions/GatewayVersion": string

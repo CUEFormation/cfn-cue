@@ -95,18 +95,12 @@ _#defs: "/$defs/Properties/definitions/NetworkAclEntry": close({
 _#defs: "/$defs/Properties/definitions/NetworkAclEntryList": [..._#defs."/$defs/Properties/definitions/NetworkAclEntry"]
 
 // Network ACL entry set.
-_#defs: "/$defs/Properties/definitions/NetworkAclEntrySet": matchN(>=1, [{
-	FirstEntries!: _
-	...
-}, {
-	LastEntries!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/NetworkAclEntrySet": close({
 	FirstEntries?:                  _#defs."/$defs/Properties/definitions/NetworkAclEntryList"
 	ForceRemediateForFirstEntries!: bool
 	ForceRemediateForLastEntries!:  bool
 	LastEntries?:                   _#defs."/$defs/Properties/definitions/NetworkAclEntryList"
-})
+}) & matchN(>=1, [{FirstEntries!: _}, {LastEntries!: _}])
 
 // Network firewall policy.
 _#defs: "/$defs/Properties/definitions/NetworkFirewallPolicy": close(
@@ -119,20 +113,24 @@ strings.MinRunes(16) &
 =~"^(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$"
 
 // Firewall policy option.
-_#defs: "/$defs/Properties/definitions/PolicyOption": matchN(1, [{
-	NetworkFirewallPolicy!: _
-	...
-}, {
-	ThirdPartyFirewallPolicy!: _
-	...
-}, {
-	NetworkAclCommonPolicy!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/PolicyOption": close({
 	NetworkAclCommonPolicy?:   _#defs."/$defs/Properties/definitions/NetworkAclCommonPolicy"
 	NetworkFirewallPolicy?:    _#defs."/$defs/Properties/definitions/NetworkFirewallPolicy"
 	ThirdPartyFirewallPolicy?: _#defs."/$defs/Properties/definitions/ThirdPartyFirewallPolicy"
-})
+	if NetworkFirewallPolicy != _|_ {
+		ThirdPartyFirewallPolicy?: error(
+			"ThirdPartyFirewallPolicy cannot be used with NetworkFirewallPolicy; set exactly one of NetworkFirewallPolicy, ThirdPartyFirewallPolicy, NetworkAclCommonPolicy",
+		)
+		NetworkAclCommonPolicy?: error(
+			"NetworkAclCommonPolicy cannot be used with NetworkFirewallPolicy; set exactly one of NetworkFirewallPolicy, ThirdPartyFirewallPolicy, NetworkAclCommonPolicy",
+		)
+	}
+	if ThirdPartyFirewallPolicy != _|_ {
+		NetworkAclCommonPolicy?: error(
+			"NetworkAclCommonPolicy cannot be used with ThirdPartyFirewallPolicy; set exactly one of NetworkFirewallPolicy, ThirdPartyFirewallPolicy, NetworkAclCommonPolicy",
+		)
+	}
+}) & matchN(>=1, [{NetworkFirewallPolicy!: _}, {ThirdPartyFirewallPolicy!: _}, {NetworkAclCommonPolicy!: _}])
 
 // A policy tag.
 _#defs: "/$defs/Properties/definitions/PolicyTag": close({

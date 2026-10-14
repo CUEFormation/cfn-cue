@@ -60,25 +60,7 @@ close({
 	MinValue?:      string
 }))
 
-_#defs: "/$defs/Properties/definitions/ProfileConfiguration": (null |
-bool |
-number |
-string |
-[...] |
-{
-	JobConfiguration!: _
-	...
-} |
-null |
-bool |
-number |
-string |
-[...] |
-{
-	SessionConfiguration!: _
-	...
-}) &
-(null |
+_#defs: "/$defs/Properties/definitions/ProfileConfiguration": null |
 bool |
 number |
 string |
@@ -100,7 +82,7 @@ close({
 	close({
 
 		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/ConfigurationObject"}})
-}))
+}) & matchN(>=1, [{JobConfiguration!: _}, {SessionConfiguration!: _}])
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	// A key to identify the tag.

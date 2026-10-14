@@ -76,16 +76,13 @@ _#defs: "/$defs/Properties/definitions/AgentTag": close({
 })
 
 // Custom prompt configuration. Specify either ExistingPrompt or NewPrompt.
-_#defs: "/$defs/Properties/definitions/CustomPromptInput": matchN(1, [{
-	ExistingPrompt!: _
-	...
-}, {
-	NewPrompt!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/CustomPromptInput": close({
 	ExistingPrompt?: _#defs."/$defs/Properties/definitions/CustomPromptProfile"
 	NewPrompt?:      _#defs."/$defs/Properties/definitions/CustomPromptInputParameters"
-})
+	if ExistingPrompt != _|_ {
+		NewPrompt?: error("NewPrompt cannot be used with ExistingPrompt; set exactly one of ExistingPrompt, NewPrompt")
+	}
+}) & matchN(>=1, [{ExistingPrompt!: _}, {NewPrompt!: _}])
 
 // Parameters for creating a new custom prompt configuration.
 _#defs: "/$defs/Properties/definitions/CustomPromptInputParameters": close({

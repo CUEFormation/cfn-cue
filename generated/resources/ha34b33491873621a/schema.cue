@@ -13,13 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::DocDB::GlobalCluster resource represents an Amazon DocumentDB Global Cluster.
-#Properties: matchN(1, [{
-	Engine!: _
-	...
-}, {
-	SourceDBClusterIdentifier!: _
-	...
-}]) & close({
+#Properties: close({
 	DeletionProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Engine?:             "docdb" | fn.#StringExpression
 	EngineVersion?:      string | fn.#StringExpression
@@ -28,7 +22,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SourceDBClusterIdentifier?: matchN(1, [=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$", string]) | fn.#StringExpression
 	StorageEncrypted?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+	if Engine != _|_ {
+		SourceDBClusterIdentifier?: error(
+			"SourceDBClusterIdentifier cannot be used with Engine; set exactly one of Engine, SourceDBClusterIdentifier",
+		)
+	}
+}) & matchN(>=1, [{Engine!: _}, {SourceDBClusterIdentifier!: _}])
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

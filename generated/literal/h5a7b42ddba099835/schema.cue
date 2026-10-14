@@ -71,16 +71,15 @@ _#defs: "/$defs/Properties/definitions/AttachmentUrl": strings.MinRunes(1)
 _#defs: "/$defs/Properties/definitions/ChannelSubtype": "EMAIL" | "SMS"
 
 // The content of the message template.
-_#defs: "/$defs/Properties/definitions/Content": matchN(1, [{
-	EmailMessageTemplateContent!: _
-	...
-}, {
-	SmsMessageTemplateContent!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Content": close({
 	EmailMessageTemplateContent?: _#defs."/$defs/Properties/definitions/EmailMessageTemplateContent"
 	SmsMessageTemplateContent?:   _#defs."/$defs/Properties/definitions/SmsMessageTemplateContent"
-})
+	if EmailMessageTemplateContent != _|_ {
+		SmsMessageTemplateContent?: error(
+			"SmsMessageTemplateContent cannot be used with EmailMessageTemplateContent; set exactly one of EmailMessageTemplateContent, SmsMessageTemplateContent",
+		)
+	}
+}) & matchN(>=1, [{EmailMessageTemplateContent!: _}, {SmsMessageTemplateContent!: _}])
 
 // The custom attributes that are used with the message template.
 _#defs: "/$defs/Properties/definitions/CustomAttributes": close({

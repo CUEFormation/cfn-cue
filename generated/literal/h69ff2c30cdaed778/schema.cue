@@ -1352,13 +1352,7 @@ _#defs: "/$defs/Properties/definitions/RoutingRule": close({
 // folder, redirect to the ``/documents`` folder. 2. If request results in HTTP
 // error 4xx, redirect request to another host where you might process the
 // error.
-_#defs: "/$defs/Properties/definitions/RoutingRuleCondition": matchN(>=1, [{
-	HttpErrorCodeReturnedEquals!: _
-	...
-}, {
-	KeyPrefixEquals!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/RoutingRuleCondition": close({
 	// The HTTP error code when the redirect is applied. In the event of an error,
 	// if the error code equals this value, then the specified redirect is applied.
 	// Required when parent element ``Condition`` is specified and sibling
@@ -1375,7 +1369,7 @@ _#defs: "/$defs/Properties/definitions/RoutingRuleCondition": matchN(>=1, [{
 	// ``HttpErrorCodeReturnedEquals`` is not specified. If both conditions are
 	// specified, both must be true for the redirect to be applied.
 	KeyPrefixEquals?: string
-})
+}) & matchN(>=1, [{HttpErrorCodeReturnedEquals!: _}, {KeyPrefixEquals!: _}])
 
 // Specifies lifecycle rules for an Amazon S3 bucket. For more information, see
 // [Put Bucket Lifecycle
@@ -1386,18 +1380,7 @@ _#defs: "/$defs/Properties/definitions/RoutingRuleCondition": matchN(>=1, [{
 // ``ExpirationInDays``, ``NoncurrentVersionExpirationInDays``,
 // ``NoncurrentVersionTransition``, ``NoncurrentVersionTransitions``,
 // ``Transition``, or ``Transitions``.
-_#defs: "/$defs/Properties/definitions/Rule": matchN(2, [
-	matchN(0, [null | bool | number | string | [...] | {
-		ObjectSizeGreaterThan!:          _
-		AbortIncompleteMultipartUpload!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		ObjectSizeLessThan!:             _
-		AbortIncompleteMultipartUpload!: _
-		...
-	}]) & {...}
-]) & close({
+_#defs: "/$defs/Properties/definitions/Rule": close({
 	// Specifies a lifecycle rule that stops incomplete multipart uploads to an Amazon S3 bucket.
 	AbortIncompleteMultipartUpload?: _#defs."/$defs/Properties/definitions/AbortIncompleteMultipartUpload"
 
@@ -1494,6 +1477,14 @@ _#defs: "/$defs/Properties/definitions/Rule": matchN(2, [
 	// date). The expiration time must also be later than the transition time. If
 	// you specify this property, don't specify the ``Transition`` property.
 	Transitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Transition"]
+	if ObjectSizeGreaterThan != _|_ {
+		AbortIncompleteMultipartUpload?: error(
+			"AbortIncompleteMultipartUpload cannot be used with ObjectSizeGreaterThan",
+		)
+	}
+	if ObjectSizeLessThan != _|_ {
+		AbortIncompleteMultipartUpload?: error("AbortIncompleteMultipartUpload cannot be used with ObjectSizeLessThan")
+	}
 })
 
 // A container for object key name prefix and suffix filtering rules. For more

@@ -703,30 +703,13 @@ _#defs: "/$defs/Properties/definitions/RoutingRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingRuleCondition": matchN(>=1, [{
-	HttpErrorCodeReturnedEquals!: _
-	...
-}, {
-	KeyPrefixEquals!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/RoutingRuleCondition": close({
 	HttpErrorCodeReturnedEquals?: string | fn.#StringExpression
 	KeyPrefixEquals?:             string | fn.#StringExpression
-}) |
+}) & matchN(>=1, [{HttpErrorCodeReturnedEquals!: _}, {KeyPrefixEquals!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": matchN(2, [
-	matchN(0, [null | bool | number | string | [...] | {
-		ObjectSizeGreaterThan!:          _
-		AbortIncompleteMultipartUpload!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		ObjectSizeLessThan!:             _
-		AbortIncompleteMultipartUpload!: _
-		...
-	}]) & {...}
-]) & close({
+_#defs: "/$defs/Properties/definitions/Rule": close({
 	AbortIncompleteMultipartUpload?: _#defs."/$defs/Properties/definitions/AbortIncompleteMultipartUpload" |
 		fn.#ObjectExpression
 	ExpirationDate?: _#defs."/$defs/Properties/definitions/iso8601UTC" | fn.#StringExpression
@@ -775,6 +758,14 @@ _#defs: "/$defs/Properties/definitions/Rule": matchN(2, [
 	TagFilters?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
 	Transition?:  _#defs."/$defs/Properties/definitions/Transition" | fn.#ObjectExpression
 	Transitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Transition"] | fn.#ListExpression
+	if ObjectSizeGreaterThan != _|_ {
+		AbortIncompleteMultipartUpload?: error(
+			"AbortIncompleteMultipartUpload cannot be used with ObjectSizeGreaterThan",
+		)
+	}
+	if ObjectSizeLessThan != _|_ {
+		AbortIncompleteMultipartUpload?: error("AbortIncompleteMultipartUpload cannot be used with ObjectSizeLessThan")
+	}
 }) |
 fn.#ObjectExpression
 

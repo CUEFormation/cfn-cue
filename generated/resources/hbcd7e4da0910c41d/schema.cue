@@ -24,13 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // and [Step scaling
 // policies](https://docs.aws.amazon.com/autoscaling/application/userguide/application-auto-scaling-step-scaling-policies.html)
 // in the *Application Auto Scaling User Guide*.
-#Properties: matchN(1, [{
-	ScalingTargetId!: _
-	...
-}, {
-	ResourceId!: _
-	...
-}]) & close({
+#Properties: close({
 	ResourceId?: _
 	if ResourceId != _|_ {
 		ScalableDimension!: _
@@ -41,7 +35,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PolicyType!: "PredictiveScaling" | "StepScaling" | "TargetTrackingScaling" | fn.#StringExpression
 	PredictiveScalingPolicyConfiguration?: _#defs."/$defs/Properties/definitions/PredictiveScalingPolicyConfiguration" |
 		fn.#ObjectExpression
-	"ResourceId"?: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+	ResourceId?: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
 	ScalableDimension?: "appstream:fleet:DesiredCapacity" |
 		"cassandra:table:ReadCapacityUnits" |
 		"cassandra:table:WriteCapacityUnits" |
@@ -88,7 +82,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 	TargetTrackingScalingPolicyConfiguration?: _#defs."/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration" |
 		fn.#ObjectExpression
-})
+	if ScalingTargetId != _|_ {
+		ResourceId?: error(
+			"ResourceId cannot be used with ScalingTargetId; set exactly one of ScalingTargetId, ResourceId",
+		)
+	}
+}) & matchN(>=1, [{ScalingTargetId!: _}, {ResourceId!: _}])
 
 _#defs: "/$defs/Properties/definitions/CustomizedMetricSpecification": close({
 	Dimensions?: [..._#defs."/$defs/Properties/definitions/MetricDimension"] | fn.#ListExpression

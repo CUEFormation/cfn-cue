@@ -96,20 +96,18 @@ _#defs: "/$defs/Properties/definitions/Rule": matchN(>=1, [{
 				)
 		} |
 		fn.#NumberExpression
-	Filter?: matchN(1, [{
-		Prefix!: _
-		...
-	}, {
-		Tag!: _
-		...
-	}, {
-		AndOperator!: _
-		...
-	}]) & close({
+	Filter?: close({
 		AndOperator?: _#defs."/$defs/Properties/definitions/FilterAndOperator" | fn.#ValueExpression
 		Prefix?:      _#defs."/$defs/Properties/definitions/FilterPrefix" | fn.#StringExpression
 		Tag?:         _#defs."/$defs/Properties/definitions/FilterTag" | fn.#ObjectExpression
-	}) |
+		if Prefix != _|_ {
+			Tag?:         error("Tag cannot be used with Prefix; set exactly one of Prefix, Tag, AndOperator")
+			AndOperator?: error("AndOperator cannot be used with Prefix; set exactly one of Prefix, Tag, AndOperator")
+		}
+		if Tag != _|_ {
+			AndOperator?: error("AndOperator cannot be used with Tag; set exactly one of Prefix, Tag, AndOperator")
+		}
+	}) & matchN(>=1, [{Prefix!: _}, {Tag!: _}, {AndOperator!: _}]) |
 	fn.#ObjectExpression
 	Id?:     strings.MaxRunes(255) | fn.#StringExpression
 	Status?: "Enabled" | "Disabled" | fn.#StringExpression

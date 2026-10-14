@@ -12,20 +12,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::SimSpaceWeaver::Simulation resource creates an AWS Simulation.
-#Properties: matchN(1, [{
-	SchemaS3Location!: _
-	...
-}, {
-	SnapshotS3Location!: _
-	...
-}]) & close({
+#Properties: close({
 	MaximumDuration?: strings.MaxRunes(6) & strings.MinRunes(2) | fn.#StringExpression
 	Name!:            strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	SchemaS3Location?:   _#defs."/$defs/Properties/definitions/S3Location"
 	SnapshotS3Location?: _#defs."/$defs/Properties/definitions/S3Location"
-})
+	if SchemaS3Location != _|_ {
+		SnapshotS3Location?: error(
+			"SnapshotS3Location cannot be used with SchemaS3Location; set exactly one of SchemaS3Location, SnapshotS3Location",
+		)
+	}
+}) & matchN(>=1, [{SchemaS3Location!: _}, {SnapshotS3Location!: _}])
 
 _#defs: "/$defs/Properties/definitions/S3Location": close({
 	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"[a-zA-Z0-9_\\-]{3,63}$" | fn.#StringExpression

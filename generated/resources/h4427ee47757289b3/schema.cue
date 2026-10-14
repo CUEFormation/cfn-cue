@@ -72,16 +72,15 @@ _#defs: "/$defs/Properties/definitions/Stage": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Targets": matchN(1, [{
-	ChannelTargetInfo!: _
-	...
-}, {
-	ContactTargetInfo!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Targets": close({
 	ChannelTargetInfo?: _#defs."/$defs/Properties/definitions/ChannelTargetInfo"
 	ContactTargetInfo?: _#defs."/$defs/Properties/definitions/ContactTargetInfo"
-}) |
+	if ChannelTargetInfo != _|_ {
+		ContactTargetInfo?: error(
+			"ContactTargetInfo cannot be used with ChannelTargetInfo; set exactly one of ChannelTargetInfo, ContactTargetInfo",
+		)
+	}
+}) & matchN(>=1, [{ChannelTargetInfo!: _}, {ContactTargetInfo!: _}]) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SSMContacts::Plan"

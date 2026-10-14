@@ -92,16 +92,15 @@ close({
 	IncludeInSplit?:                string
 
 	// Input
-	Input?: matchN(1, [{
-		S3InputDefinition!: _
-		...
-	}, {
-		DataCatalogInputDefinition!: _
-		...
-	}]) & close({
+	Input?: close({
 		DataCatalogInputDefinition?: _#defs."/$defs/Properties/definitions/DataCatalogInputDefinition"
 		S3InputDefinition?:          _#defs."/$defs/Properties/definitions/S3Location"
-	})
+		if S3InputDefinition != _|_ {
+			DataCatalogInputDefinition?: error(
+				"DataCatalogInputDefinition cannot be used with S3InputDefinition; set exactly one of S3InputDefinition, DataCatalogInputDefinition",
+			)
+		}
+	}) & matchN(>=1, [{S3InputDefinition!: _}, {DataCatalogInputDefinition!: _}])
 	Interval?:                            string
 	IsText?:                              string
 	JoinKeys?:                            string
@@ -189,16 +188,15 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 })
 
 // Secondary input
-_#defs: "/$defs/Properties/definitions/SecondaryInput": matchN(1, [{
-	S3InputDefinition!: _
-	...
-}, {
-	DataCatalogInputDefinition!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/SecondaryInput": close({
 	DataCatalogInputDefinition?: _#defs."/$defs/Properties/definitions/DataCatalogInputDefinition"
 	S3InputDefinition?:          _#defs."/$defs/Properties/definitions/S3Location"
-})
+	if S3InputDefinition != _|_ {
+		DataCatalogInputDefinition?: error(
+			"DataCatalogInputDefinition cannot be used with S3InputDefinition; set exactly one of S3InputDefinition, DataCatalogInputDefinition",
+		)
+	}
+}) & matchN(>=1, [{S3InputDefinition!: _}, {DataCatalogInputDefinition!: _}])
 
 // A key-value pair to associate with a resource.
 _#defs: "/$defs/Properties/definitions/Tag": close({

@@ -27,6 +27,7 @@ type converter struct {
 	diagnostics      []Diagnostic
 	extensions       bool
 	template         bool
+	rules            []*fieldRules
 }
 
 func (c *converter) warn(path, key, detail string) {
@@ -70,12 +71,23 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 		return v
 	}
 	m := map[string]any{}
+	rules := &fieldRules{}
 	for _, k := range keys(s) {
 		x := s[k]
 		p := path + "/" + pointer(k)
 		switch {
 		case includes(annotations, k):
 			continue
+		case k == "requiredXor" && ruleNames(s, stringsOf(x)):
+			rules.exactlyOne(stringsOf(x))
+		case k == "requiredOr" && ruleNames(s, stringsOf(x)):
+			rules.atLeast = append(rules.atLeast, stringsOf(x))
+		case k == "oneOf" && ruleNames(s, singleRequired(x)):
+			rules.exactlyOne(singleRequired(x))
+		case k == "anyOf" && ruleNames(s, singleRequired(x)):
+			rules.atLeast = append(rules.atLeast, singleRequired(x))
+		case k == "dependentExcluded" && isObject(x) && ruleNames(s, excludedNames(x)):
+			rules.exclude(x.(map[string]any))
 		case k == "$schema" || k == "$id":
 			continue // provider dialects become one explicit 2020-12 document
 		case k == "$ref":
@@ -184,6 +196,7 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 			c.warn(p, k, "unsupported validation keyword omitted")
 		}
 	}
+	c.mark(m, rules)
 	// Merge generated allOf constraints with an existing allOf regardless of key order.
 	if a, ok := m["_extra"].([]any); ok {
 		delete(m, "_extra")
@@ -288,6 +301,7 @@ func (c *converter) extract(root map[string]any, template bool) (*ast.File, erro
 		c.removeReadOnly(s)
 	}
 	preservePatternReferences(s)
+	c.rules = nil
 	n := c.normalize(s, "#", false, s, map[string]bool{})
 	wrapper := map[string]any{"$schema": "https://json-schema.org/draft/2020-12/schema", "$defs": map[string]any{"Properties": n}, "$ref": "#/$defs/Properties"}
 	b, e := json.Marshal(wrapper)
@@ -316,6 +330,9 @@ func (c *converter) extract(root map[string]any, template bool) (*ast.File, erro
 	}
 	if e == nil {
 		simplifyApplicators(f)
+		if e = c.applyRules(f); e != nil {
+			return nil, e
+		}
 		if template {
 			if n := addScalarCompatibility(f); n > 0 {
 				c.warn("#", "scalarCompatibility", fmt.Sprintf("quoted scalar coercion not applied to %d composed scalar constraints; exact constraints retained", n))

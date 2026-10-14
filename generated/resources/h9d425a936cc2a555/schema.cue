@@ -17,13 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::FSx::S3AccessPointAttachment
-#Properties: matchN(1, [{
-	OntapConfiguration!: _
-	...
-}, {
-	OpenZFSConfiguration!: _
-	...
-}]) & close({
+#Properties: close({
 	Name!:               strings.MaxRunes(50) & strings.MinRunes(3) | fn.#StringExpression
 	OntapConfiguration?: _#defs."/$defs/Properties/definitions/S3AccessPointOntapConfiguration" | fn.#ObjectExpression
 	OpenZFSConfiguration?: _#defs."/$defs/Properties/definitions/S3AccessPointOpenZFSConfiguration" |
@@ -34,7 +28,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) |
 	fn.#ObjectExpression
 	Type!: "OPENZFS" | "ONTAP" | fn.#StringExpression
-})
+	if OntapConfiguration != _|_ {
+		OpenZFSConfiguration?: error(
+			"OpenZFSConfiguration cannot be used with OntapConfiguration; set exactly one of OntapConfiguration, OpenZFSConfiguration",
+		)
+	}
+}) & matchN(>=1, [{OntapConfiguration!: _}, {OpenZFSConfiguration!: _}])
 
 _#defs: "/$defs/Properties/definitions/FileSystemGID": close({
 	Gid!: <=4294967295 & >=0 |
@@ -60,17 +59,14 @@ _#defs: "/$defs/Properties/definitions/FileSystemGID": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OntapFileSystemIdentity": matchN(1, [{
-	UnixUser!: _
-	...
-}, {
-	WindowsUser!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/OntapFileSystemIdentity": close({
 	Type!:        "UNIX" | "WINDOWS" | fn.#StringExpression
 	UnixUser?:    _#defs."/$defs/Properties/definitions/OntapUnixFileSystemUser" | fn.#ObjectExpression
 	WindowsUser?: _#defs."/$defs/Properties/definitions/OntapWindowsFileSystemUser" | fn.#ObjectExpression
-}) |
+	if UnixUser != _|_ {
+		WindowsUser?: error("WindowsUser cannot be used with UnixUser; set exactly one of UnixUser, WindowsUser")
+	}
+}) & matchN(>=1, [{UnixUser!: _}, {WindowsUser!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OntapUnixFileSystemUser": close({

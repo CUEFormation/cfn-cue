@@ -12,51 +12,7 @@ package schema
 // For more information, see [Subnets for your
 // VPC](https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html)
 // in the *Amazon VPC User Guide*.
-#Properties: matchN(7, [
-	matchN(0, [null | bool | number | string | [...] | {
-		AvailabilityZone!:   _
-		AvailabilityZoneId!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		AvailabilityZoneId!: _
-		AvailabilityZone!:   _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		CidrBlock!:      _
-		Ipv4IpamPoolId!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Ipv4IpamPoolId!: _
-		CidrBlock!:      _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Ipv6CidrBlock!:  _
-		Ipv6IpamPoolId!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Ipv6IpamPoolId!: _
-		Ipv6CidrBlock!:  _
-		...
-	}]) & {...},
-	matchN(>=1, [{
-		CidrBlock!: _
-		...
-	}, {
-		Ipv4IpamPoolId!: _
-		...
-	}, {
-		Ipv6IpamPoolId!: _
-		...
-	}, {
-		Ipv6CidrBlock!: _
-		...
-	}])
-]) & close({
+#Properties: close({
 	Ipv4IpamPoolId?: _
 	if Ipv4IpamPoolId != _|_ {
 		Ipv4NetmaskLength!: _
@@ -112,7 +68,7 @@ package schema
 	EnableLniAtDeviceIndex?: int
 
 	// An IPv4 IPAM pool ID for the subnet.
-	"Ipv4IpamPoolId"?: string
+	Ipv4IpamPoolId?: string
 
 	// An IPv4 netmask length for the subnet.
 	"Ipv4NetmaskLength"?: int
@@ -123,7 +79,7 @@ package schema
 	Ipv6CidrBlocks?: [...string]
 
 	// An IPv6 IPAM pool ID for the subnet.
-	"Ipv6IpamPoolId"?: string
+	Ipv6IpamPoolId?: string
 
 	// Indicates whether this is an IPv6 only subnet. For more information, see
 	// [Subnet
@@ -168,7 +124,16 @@ package schema
 	// The ID of the VPC the subnet is in.
 	// If you update this property, you must also update the ``CidrBlock`` property.
 	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
-})
+	if AvailabilityZone != _|_ {
+		AvailabilityZoneId?: error("AvailabilityZoneId cannot be used with AvailabilityZone")
+	}
+	if CidrBlock != _|_ {
+		Ipv4IpamPoolId?: error("Ipv4IpamPoolId cannot be used with CidrBlock")
+	}
+	if Ipv6CidrBlock != _|_ {
+		Ipv6IpamPoolId?: error("Ipv6IpamPoolId cannot be used with Ipv6CidrBlock")
+	}
+}) & matchN(>=1, [{CidrBlock!: _}, {Ipv4IpamPoolId!: _}, {Ipv6IpamPoolId!: _}, {Ipv6CidrBlock!: _}])
 
 // Specifies a tag. For more information, see [Resource
 // tags](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).

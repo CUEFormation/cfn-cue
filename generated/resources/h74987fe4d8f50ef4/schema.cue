@@ -17,11 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::Alias
-#Properties: matchN(0, [null | bool | number | string | [...] | {
-	ProvisionedConcurrencyConfig!: _
-	RoutingConfig!:                _
-	...
-}]) & {...} & close({
+#Properties: close({
 	Description?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	FunctionName!: string | fn.#StringExpression
 	FunctionVersion!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(\\$LATEST(\\.PUBLISHED)?|[0-9]*)$" |
@@ -30,6 +26,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ProvisionedConcurrencyConfig?: _#defs."/$defs/Properties/definitions/ProvisionedConcurrencyConfiguration" |
 		fn.#ObjectExpression
 	RoutingConfig?: _#defs."/$defs/Properties/definitions/AliasRoutingConfiguration" | fn.#ObjectExpression
+	if ProvisionedConcurrencyConfig != _|_ {
+		RoutingConfig?: error("RoutingConfig cannot be used with ProvisionedConcurrencyConfig")
+	}
 })
 
 _#defs: "/$defs/Properties/definitions/AliasRoutingConfiguration": close({

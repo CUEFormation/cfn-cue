@@ -35,13 +35,7 @@ _#defs: "/$defs/Properties/definitions/Entitlement": close(
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdentityCenterPrincipal": matchN(1, [{
-	UserId!: _
-	...
-}, {
-	GroupId!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/IdentityCenterPrincipal": close({
 	GroupId?: strings.MaxRunes(47) &
 	strings.MinRunes(1) &
 	=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$" |
@@ -50,7 +44,10 @@ _#defs: "/$defs/Properties/definitions/IdentityCenterPrincipal": matchN(1, [{
 	strings.MinRunes(1) &
 	=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$" |
 	fn.#StringExpression
-}) |
+	if UserId != _|_ {
+		GroupId?: error("GroupId cannot be used with UserId; set exactly one of UserId, GroupId")
+	}
+}) & matchN(>=1, [{UserId!: _}, {GroupId!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Principal": close(

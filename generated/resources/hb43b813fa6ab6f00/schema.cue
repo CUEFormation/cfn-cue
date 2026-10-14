@@ -20,13 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For more information, see [Virtual private clouds
 // (VPC)](https://docs.aws.amazon.com/vpc/latest/userguide/configure-your-vpc.html)
 // in the *Amazon VPC User Guide*.
-#Properties: matchN(1, [{
-	CidrBlock!: _
-	...
-}, {
-	Ipv4IpamPoolId!: _
-	...
-}]) & close({
+#Properties: close({
 	Ipv4IpamPoolId?: _
 	if Ipv4IpamPoolId != _|_ {
 		Ipv4NetmaskLength!: _
@@ -40,7 +34,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EnableDnsHostnames?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableDnsSupport?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InstanceTenancy?:    "dedicated" | "default" | "host" | fn.#StringExpression
-	"Ipv4IpamPoolId"?:   string | fn.#StringExpression
+	Ipv4IpamPoolId?:     string | fn.#StringExpression
 	"Ipv4NetmaskLength"?: int |
 		{
 			string &
@@ -68,7 +62,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		VpcPeeringExclusion?:                "enable" | "disable" | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-})
+	if CidrBlock != _|_ {
+		Ipv4IpamPoolId?: error(
+			"Ipv4IpamPoolId cannot be used with CidrBlock; set exactly one of CidrBlock, Ipv4IpamPoolId",
+		)
+	}
+}) & matchN(>=1, [{CidrBlock!: _}, {Ipv4IpamPoolId!: _}])
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   string | fn.#StringExpression

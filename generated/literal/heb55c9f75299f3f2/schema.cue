@@ -148,13 +148,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticateCognitoConfig": close({
 
 // Specifies information required using an identity provide (IdP) that is
 // compliant with OpenID Connect (OIDC) to authenticate users.
-_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": matchN(>=1, [{
-	ClientSecret!: _
-	...
-}, {
-	UseExistingClientSecret!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": close({
 	// The query parameters (up to 10) to include in the redirect request to the authorization endpoint.
 	AuthenticationRequestExtraParams?: {
 		{[=~"[a-zA-Z0-9]+"]: string}
@@ -208,7 +202,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": matchN(>=1, [{
 	// The user info endpoint of the IdP. This must be a full URL, including the
 	// HTTPS protocol, the domain, and the path.
 	UserInfoEndpoint!: string
-})
+}) & matchN(>=1, [{ClientSecret!: _}, {UseExistingClientSecret!: _}])
 
 // Specifies an SSL server certificate to use as the default certificate for a secure listener.
 _#defs: "/$defs/Properties/definitions/Certificate": close({

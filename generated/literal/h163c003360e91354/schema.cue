@@ -68,13 +68,7 @@ import (
 })
 
 // The configuration for reading agent traces from CloudWatch logs.
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsInputConfig": matchN(1, [{
-	LogGroupNames!: _
-	...
-}, {
-	LogGroupNamePrefixes!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/CloudWatchLogsInputConfig": close({
 	// The list of CloudWatch log group name prefixes to monitor for agent traces.
 	// Mutually exclusive with LogGroupNames; specify exactly one of the two
 	// selectors.
@@ -91,7 +85,12 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogsInputConfig": matchN(1, [{
 	ServiceNames!: list.MaxItems(1) & list.MinItems(1) & [
 		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$"
 	]
-})
+	if LogGroupNames != _|_ {
+		LogGroupNamePrefixes?: error(
+			"LogGroupNamePrefixes cannot be used with LogGroupNames; set exactly one of LogGroupNames, LogGroupNamePrefixes",
+		)
+	}
+}) & matchN(>=1, [{LogGroupNames!: _}, {LogGroupNamePrefixes!: _}])
 
 // The CloudWatch configuration for writing evaluation results.
 _#defs: "/$defs/Properties/definitions/CloudWatchOutputConfig": close({

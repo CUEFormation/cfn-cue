@@ -13,13 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Project
-#Properties: matchN(1, [{
-	ServiceCatalogProvisioningDetails!: _
-	...
-}, {
-	TemplateProviderDetails!: _
-	...
-}]) & close({
+#Properties: close({
 	ProjectDescription?: _#defs."/$defs/Properties/definitions/ProjectDescription"
 	ProjectName!:        _#defs."/$defs/Properties/definitions/ProjectName"
 	ServiceCatalogProvisionedProductDetails?: close({
@@ -39,7 +33,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		..._#defs."/$defs/Properties/definitions/TemplateProviderDetail"
 	] |
 		fn.#ListExpression
-})
+	if ServiceCatalogProvisioningDetails != _|_ {
+		TemplateProviderDetails?: error(
+			"TemplateProviderDetails cannot be used with ServiceCatalogProvisioningDetails; set exactly one of ServiceCatalogProvisioningDetails, TemplateProviderDetails",
+		)
+	}
+}) & matchN(>=1, [{ServiceCatalogProvisioningDetails!: _}, {TemplateProviderDetails!: _}])
 
 _#defs: "/$defs/Properties/definitions/CfnStackParameter": close({
 	Key!:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
@@ -109,11 +108,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TemplateProviderDetail": {
-	CfnTemplateProviderDetail!: _
-	...
-} & close({CfnTemplateProviderDetail?: _#defs."/$defs/Properties/definitions/CfnTemplateProviderDetail"}) |
-fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/TemplateProviderDetail": close(
+	{CfnTemplateProviderDetail?: _#defs."/$defs/Properties/definitions/CfnTemplateProviderDetail"},
+) & matchN(>=1, [{CfnTemplateProviderDetail!: _}]) |
+	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SageMaker::Project"
 	Properties!: #Properties

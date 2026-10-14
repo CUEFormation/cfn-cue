@@ -69,13 +69,7 @@ _#defs: "/$defs/Properties/definitions/DatetimeOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExcelOptions": matchN(1, [{
-	SheetNames!: _
-	...
-}, {
-	SheetIndexes!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/ExcelOptions": close({
 	HeaderRow?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SheetIndexes?: list.MaxItems(1) & list.MinItems(1) & [
 		...int & <=200 & >=0 |
@@ -102,7 +96,10 @@ _#defs: "/$defs/Properties/definitions/ExcelOptions": matchN(1, [{
 		...strings.MaxRunes(31) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-}) |
+	if SheetNames != _|_ {
+		SheetIndexes?: error("SheetIndexes cannot be used with SheetNames; set exactly one of SheetNames, SheetIndexes")
+	}
+}) & matchN(>=1, [{SheetNames!: _}, {SheetIndexes!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FilesLimit": close({

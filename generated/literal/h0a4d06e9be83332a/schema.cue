@@ -56,16 +56,15 @@ _#defs: "/$defs/Properties/definitions/Configuration": close({
 
 // Specify the driver that the job runs on. Exactly one of the two available job
 // drivers is required, either SparkSqlJobDriver or SparkSubmitJobDriver.
-_#defs: "/$defs/Properties/definitions/JobDriver": matchN(1, [{
-	SparkSubmitJobDriver!: _
-	...
-}, {
-	SparkSqlJobDriver!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/JobDriver": close({
 	SparkSqlJobDriver?:    _#defs."/$defs/Properties/definitions/SparkSqlJobDriver"
 	SparkSubmitJobDriver?: _#defs."/$defs/Properties/definitions/SparkSubmitJobDriver"
-})
+	if SparkSubmitJobDriver != _|_ {
+		SparkSqlJobDriver?: error(
+			"SparkSqlJobDriver cannot be used with SparkSubmitJobDriver; set exactly one of SparkSubmitJobDriver, SparkSqlJobDriver",
+		)
+	}
+}) & matchN(>=1, [{SparkSubmitJobDriver!: _}, {SparkSqlJobDriver!: _}])
 
 // The values of a StartJobRun API request used in job runs started using the job template.
 _#defs: "/$defs/Properties/definitions/JobTemplateData": close({

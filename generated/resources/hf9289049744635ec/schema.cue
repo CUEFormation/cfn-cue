@@ -25,16 +25,15 @@ _#defs: "/$defs/Properties/definitions/HttpsNotificationConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationConfiguration": matchN(1, [{
-	HttpsNotificationConfiguration!: _
-	...
-}, {
-	SqsNotificationConfiguration!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/NotificationConfiguration": close({
 	HttpsNotificationConfiguration?: _#defs."/$defs/Properties/definitions/HttpsNotificationConfiguration"
 	SqsNotificationConfiguration?:   _#defs."/$defs/Properties/definitions/SqsNotificationConfiguration"
-}) |
+	if HttpsNotificationConfiguration != _|_ {
+		SqsNotificationConfiguration?: error(
+			"SqsNotificationConfiguration cannot be used with HttpsNotificationConfiguration; set exactly one of HttpsNotificationConfiguration, SqsNotificationConfiguration",
+		)
+	}
+}) & matchN(>=1, [{HttpsNotificationConfiguration!: _}, {SqsNotificationConfiguration!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SqsNotificationConfiguration": fn.#Object & {...} |

@@ -33,15 +33,14 @@ _#defs: "/$defs/Properties/definitions/HttpsNotificationConfiguration": close({
 	TargetRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:.*$"
 })
 
-_#defs: "/$defs/Properties/definitions/NotificationConfiguration": matchN(1, [{
-	HttpsNotificationConfiguration!: _
-	...
-}, {
-	SqsNotificationConfiguration!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/NotificationConfiguration": close({
 	HttpsNotificationConfiguration?: _#defs."/$defs/Properties/definitions/HttpsNotificationConfiguration"
 	SqsNotificationConfiguration?:   _#defs."/$defs/Properties/definitions/SqsNotificationConfiguration"
-})
+	if HttpsNotificationConfiguration != _|_ {
+		SqsNotificationConfiguration?: error(
+			"SqsNotificationConfiguration cannot be used with HttpsNotificationConfiguration; set exactly one of HttpsNotificationConfiguration, SqsNotificationConfiguration",
+		)
+	}
+}) & matchN(>=1, [{HttpsNotificationConfiguration!: _}, {SqsNotificationConfiguration!: _}])
 
 _#defs: "/$defs/Properties/definitions/SqsNotificationConfiguration": string | {...}

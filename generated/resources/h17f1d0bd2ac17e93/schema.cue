@@ -17,13 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Events::Rule
-#Properties: matchN(>=1, [{
-	EventPattern!: _
-	...
-}, {
-	ScheduleExpression!: _
-	...
-}]) & close({
+#Properties: close({
 	Description?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
 	EventBusName?: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
@@ -39,7 +33,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Tags?:  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Targets?: list.MaxItems(5) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Target"] |
 		fn.#ListExpression
-})
+}) & matchN(>=1, [{EventPattern!: _}, {ScheduleExpression!: _}])
 
 _#defs: "/$defs/Properties/definitions/AppSyncParameters": close({GraphQLOperation!: string | fn.#StringExpression}) |
 	fn.#ObjectExpression

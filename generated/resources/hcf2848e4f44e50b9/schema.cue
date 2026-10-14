@@ -36,40 +36,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"sybase" |
 		fn.#StringExpression
 	ExactSettings?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Settings?: matchN(>=1, [{
-		PostgreSqlSettings!: _
-		...
-	}, {
-		MySqlSettings!: _
-		...
-	}, {
-		OracleSettings!: _
-		...
-	}, {
-		MicrosoftSqlServerSettings!: _
-		...
-	}, {
-		RedshiftSettings!: _
-		...
-	}, {
-		DocDbSettings!: _
-		...
-	}, {
-		MariaDbSettings!: _
-		...
-	}, {
-		MongoDbSettings!: _
-		...
-	}, {
-		IbmDb2LuwSettings!: _
-		...
-	}, {
-		IbmDb2zOsSettings!: _
-		...
-	}, {
-		SybaseAseSettings!: _
-		...
-	}]) & close({
+	Settings?: close({
 		DocDbSettings?: close({
 			CertificateArn?: string | fn.#StringExpression
 			DatabaseName!:   string | fn.#StringExpression
@@ -362,7 +329,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			SslMode!:    _#defs."/$defs/Properties/definitions/SybaseSslModeValue"
 		}) |
 		fn.#ObjectExpression
-	}) |
+	}) & matchN(
+		>=1,
+		[{
+			PostgreSqlSettings!: _
+		}, {
+			MySqlSettings!: _
+		}, {
+			OracleSettings!: _
+		}, {
+			MicrosoftSqlServerSettings!: _
+		}, {
+			RedshiftSettings!: _
+		}, {
+			DocDbSettings!: _
+		}, {
+			MariaDbSettings!: _
+		}, {
+			MongoDbSettings!: _
+		}, {
+			IbmDb2LuwSettings!: _
+		}, {
+			IbmDb2zOsSettings!: _
+		}, {
+			SybaseAseSettings!: _
+		}],
+	) |
 	fn.#ObjectExpression
 	Tags?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Virtual?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

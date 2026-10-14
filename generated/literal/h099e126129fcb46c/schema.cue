@@ -101,34 +101,33 @@ _#defs: "/$defs/Properties/definitions/DerivedEvaluatorConfig": close({
 })
 
 // The configuration that defines how an evaluator assesses agent performance.
-_#defs: "/$defs/Properties/definitions/EvaluatorConfig": matchN(1, [{
-	LlmAsAJudge!: _
-	...
-}, {
-	CodeBased!: _
-	...
-}, {
-	Derived!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/EvaluatorConfig": close({
 	CodeBased?:   _#defs."/$defs/Properties/definitions/CodeBasedEvaluatorConfig"
 	Derived?:     _#defs."/$defs/Properties/definitions/DerivedEvaluatorConfig"
 	LlmAsAJudge?: _#defs."/$defs/Properties/definitions/LlmAsAJudgeEvaluatorConfig"
-})
+	if LlmAsAJudge != _|_ {
+		CodeBased?: error(
+			"CodeBased cannot be used with LlmAsAJudge; set exactly one of LlmAsAJudge, CodeBased, Derived",
+		)
+		Derived?: error("Derived cannot be used with LlmAsAJudge; set exactly one of LlmAsAJudge, CodeBased, Derived")
+	}
+	if CodeBased != _|_ {
+		Derived?: error("Derived cannot be used with CodeBased; set exactly one of LlmAsAJudge, CodeBased, Derived")
+	}
+}) & matchN(>=1, [{LlmAsAJudge!: _}, {CodeBased!: _}, {Derived!: _}])
 
 _#defs: "/$defs/Properties/definitions/EvaluatorLevel": "TOOL_CALL" | "TRACE" | "SESSION"
 
 // The model configuration that specifies which foundation model to use for evaluation.
-_#defs: "/$defs/Properties/definitions/EvaluatorModelConfig": matchN(1, [{
-	BedrockEvaluatorModelConfig!: _
-	...
-}, {
-	ResponsesEvaluatorModelConfig!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/EvaluatorModelConfig": close({
 	BedrockEvaluatorModelConfig?:   _#defs."/$defs/Properties/definitions/BedrockEvaluatorModelConfig"
 	ResponsesEvaluatorModelConfig?: _#defs."/$defs/Properties/definitions/OpenResponsesEvaluatorModelConfig"
-})
+	if BedrockEvaluatorModelConfig != _|_ {
+		ResponsesEvaluatorModelConfig?: error(
+			"ResponsesEvaluatorModelConfig cannot be used with BedrockEvaluatorModelConfig; set exactly one of BedrockEvaluatorModelConfig, ResponsesEvaluatorModelConfig",
+		)
+	}
+}) & matchN(>=1, [{BedrockEvaluatorModelConfig!: _}, {ResponsesEvaluatorModelConfig!: _}])
 
 _#defs: "/$defs/Properties/definitions/EvaluatorStatus": "ACTIVE" |
 	"CREATING" |
@@ -210,16 +209,13 @@ _#defs: "/$defs/Properties/definitions/OpenResponsesEvaluatorModelConfig": close
 _#defs: "/$defs/Properties/definitions/Provider": "AWS" | "DeepEval" | "AutoEval" | "Custom"
 
 // The rating scale that defines how evaluators should score agent performance.
-_#defs: "/$defs/Properties/definitions/RatingScale": matchN(1, [{
-	Numerical!: _
-	...
-}, {
-	Categorical!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/RatingScale": close({
 	Categorical?: [..._#defs."/$defs/Properties/definitions/CategoricalScaleDefinition"]
 	Numerical?:   [..._#defs."/$defs/Properties/definitions/NumericalScaleDefinition"]
-})
+	if Numerical != _|_ {
+		Categorical?: error("Categorical cannot be used with Numerical; set exactly one of Numerical, Categorical")
+	}
+}) & matchN(>=1, [{Numerical!: _}, {Categorical!: _}])
 
 // The reasoning configuration for reasoning models.
 _#defs: "/$defs/Properties/definitions/ReasoningConfiguration": close({

@@ -7,18 +7,7 @@ import "list"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::NetworkInterface resource creates network interface
-#Properties: matchN(2, [
-	matchN(0, [null | bool | number | string | [...] | {
-		Ipv6AddressCount!: _
-		Ipv6Addresses!:    _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Ipv6Addresses!:    _
-		Ipv6AddressCount!: _
-		...
-	}]) & {...}
-]) & close({
+#Properties: close({
 	ConnectionTrackingSpecification?: _#defs."/$defs/Properties/definitions/ConnectionTrackingSpecification"
 
 	// A description for the network interface.
@@ -134,6 +123,9 @@ import "list"
 
 	// The ID of the VPC
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
+	if Ipv6AddressCount != _|_ {
+		Ipv6Addresses?: error("Ipv6Addresses cannot be used with Ipv6AddressCount")
+	}
 })
 
 _#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecification": close({

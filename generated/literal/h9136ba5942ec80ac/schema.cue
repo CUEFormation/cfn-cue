@@ -7,13 +7,7 @@ import "strings"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceCatalog::LaunchRoleConstraint
-#Properties: matchN(1, [{
-	LocalRoleName!: _
-	...
-}, {
-	RoleArn!: _
-	...
-}]) & close({
+#Properties: close({
 	// The language code for the constraint.
 	AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0)
 
@@ -35,4 +29,7 @@ import "strings"
 	// The ARN of the IAM role used for the launch constraint.
 	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		=~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role)\\/.*"
-})
+	if LocalRoleName != _|_ {
+		RoleArn?: error("RoleArn cannot be used with LocalRoleName; set exactly one of LocalRoleName, RoleArn")
+	}
+}) & matchN(>=1, [{LocalRoleName!: _}, {RoleArn!: _}])

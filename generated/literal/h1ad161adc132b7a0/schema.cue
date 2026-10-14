@@ -10,13 +10,7 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Kinesis::Channel
-#Properties: matchN(1, [{
-	S3DestinationConfiguration!: _
-	...
-}, {
-	S3TablesDestinationConfiguration!: _
-	...
-}]) & close({
+#Properties: close({
 	// The ARN of the channel.
 	ChannelARN?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws.*:kinesis:.*:\\d{12}:channel/\\S+"
 
@@ -65,7 +59,12 @@ import (
 
 	// An arbitrary set of tags (key-value pairs) to associate with the Kinesis channel.
 	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
-})
+	if S3DestinationConfiguration != _|_ {
+		S3TablesDestinationConfiguration?: error(
+			"S3TablesDestinationConfiguration cannot be used with S3DestinationConfiguration; set exactly one of S3DestinationConfiguration, S3TablesDestinationConfiguration",
+		)
+	}
+}) & matchN(>=1, [{S3DestinationConfiguration!: _}, {S3TablesDestinationConfiguration!: _}])
 
 // CloudWatch Logs configuration for the channel. When Enabled is true and
 // LogGroupName is omitted, the service uses a default group derived from the

@@ -10,13 +10,7 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DirectConnect::PrivateVirtualInterface
-#Properties: matchN(1, [{
-	DirectConnectGatewayId!: _
-	...
-}, {
-	VirtualGatewayId!: _
-	...
-}]) & close({
+#Properties: close({
 	// The Amazon Resource Name (ARN) of the role to allocate the private virtual
 	// interface. Needs directconnect:AllocatePrivateVirtualInterface permissions
 	// and tag permissions if applicable.
@@ -67,7 +61,12 @@ import (
 
 	// The ID of the VLAN.
 	Vlan!: int & <=4095 & >=0
-})
+	if DirectConnectGatewayId != _|_ {
+		VirtualGatewayId?: error(
+			"VirtualGatewayId cannot be used with DirectConnectGatewayId; set exactly one of DirectConnectGatewayId, VirtualGatewayId",
+		)
+	}
+}) & matchN(>=1, [{DirectConnectGatewayId!: _}, {VirtualGatewayId!: _}])
 
 // Information about a BGP peer.
 _#defs: "/$defs/Properties/definitions/BgpPeer": close({

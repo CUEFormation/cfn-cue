@@ -1546,18 +1546,7 @@ _#defs: "/$defs/Properties/definitions/Logging": close({
 // Distributions](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cloudfront-limits.html#limits-web-distributions)
 // in the *Amazon CloudFront Developer Guide* (quotas were formerly referred to
 // as limits).
-_#defs: "/$defs/Properties/definitions/Origin": matchN(2, [
-	matchN(0, [null | bool | number | string | [...] | {
-		CustomOriginConfig!: _
-		S3OriginConfig!:     _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		S3OriginConfig!:     _
-		CustomOriginConfig!: _
-		...
-	}]) & {...}
-]) & close({
+_#defs: "/$defs/Properties/definitions/Origin": close({
 	// The number of times that CloudFront attempts to connect to the origin. The
 	// minimum number is 1, the maximum is 3, and the default (if you don't specify
 	// otherwise) is 3.
@@ -1641,6 +1630,9 @@ _#defs: "/$defs/Properties/definitions/Origin": matchN(2, [
 
 	// The VPC origin configuration.
 	VpcOriginConfig?: _#defs."/$defs/Properties/definitions/VpcOriginConfig"
+	if CustomOriginConfig != _|_ {
+		S3OriginConfig?: error("S3OriginConfig cannot be used with CustomOriginConfig")
+	}
 })
 
 // A complex type that contains ``HeaderName`` and ``HeaderValue`` elements, if
@@ -1903,16 +1895,7 @@ _#defs: "/$defs/Properties/definitions/TrustStoreConfig": close({
 // and [Using Alternate Domain Names and
 // HTTPS](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-https-alternate-domain-names.html)
 // in the *Amazon CloudFront Developer Guide*.
-_#defs: "/$defs/Properties/definitions/ViewerCertificate": matchN(1, [{
-	AcmCertificateArn!: _
-	...
-}, {
-	CloudFrontDefaultCertificate!: _
-	...
-}, {
-	IamCertificateId!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/ViewerCertificate": close({
 	AcmCertificateArn?: _
 	if AcmCertificateArn != _|_ {
 		SslSupportMethod!: _
@@ -1933,7 +1916,7 @@ _#defs: "/$defs/Properties/definitions/ViewerCertificate": matchN(1, [{
 	// If you specify an ACM certificate ARN, you must also specify values for
 	// ``MinimumProtocolVersion`` and ``SSLSupportMethod``. (In CloudFormation, the
 	// field name is ``SslSupportMethod``. Note the different capitalization.)
-	"AcmCertificateArn"?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"
+	AcmCertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"
 
 	// If the distribution uses the CloudFront domain name such as
 	// ``d111111abcdef8.cloudfront.net``, set this field to ``true``.
@@ -1957,7 +1940,7 @@ _#defs: "/$defs/Properties/definitions/ViewerCertificate": matchN(1, [{
 	// If you specify an IAM certificate ID, you must also specify values for
 	// ``MinimumProtocolVersion`` and ``SSLSupportMethod``. (In CloudFormation, the
 	// field name is ``SslSupportMethod``. Note the different capitalization.)
-	"IamCertificateId"?: strings.MaxRunes(32)
+	IamCertificateId?: strings.MaxRunes(32)
 
 	// If the distribution uses ``Aliases`` (alternate domain names or CNAMEs),
 	// specify the security policy that you want CloudFront to use for HTTPS
@@ -2006,7 +1989,20 @@ _#defs: "/$defs/Properties/definitions/ViewerCertificate": matchN(1, [{
 	// If the distribution uses the CloudFront domain name such as
 	// ``d111111abcdef8.cloudfront.net``, don't set a value for this field.
 	SslSupportMethod?: "sni-only" | "static-ip" | "vip"
-})
+	if AcmCertificateArn != _|_ {
+		CloudFrontDefaultCertificate?: error(
+			"CloudFrontDefaultCertificate cannot be used with AcmCertificateArn; set exactly one of AcmCertificateArn, CloudFrontDefaultCertificate, IamCertificateId",
+		)
+		IamCertificateId?: error(
+			"IamCertificateId cannot be used with AcmCertificateArn; set exactly one of AcmCertificateArn, CloudFrontDefaultCertificate, IamCertificateId",
+		)
+	}
+	if CloudFrontDefaultCertificate != _|_ {
+		IamCertificateId?: error(
+			"IamCertificateId cannot be used with CloudFrontDefaultCertificate; set exactly one of AcmCertificateArn, CloudFrontDefaultCertificate, IamCertificateId",
+		)
+	}
+}) & matchN(>=1, [{AcmCertificateArn!: _}, {CloudFrontDefaultCertificate!: _}, {IamCertificateId!: _}])
 
 // A viewer mTLS configuration.
 _#defs: "/$defs/Properties/definitions/ViewerMtlsConfig": close({

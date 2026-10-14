@@ -10,13 +10,7 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RDS::GlobalCluster
-#Properties: matchN(1, [{
-	SourceDBClusterIdentifier!: _
-	...
-}, {
-	Engine!: _
-	...
-}]) & close({
+#Properties: close({
 	// The deletion protection setting for the new global database. The global
 	// database can't be deleted when deletion protection is enabled.
 	DeletionProtection?: bool
@@ -54,7 +48,12 @@ import (
 
 	// An array of key-value pairs to apply to this resource.
 	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-})
+	if SourceDBClusterIdentifier != _|_ {
+		Engine?: error(
+			"Engine cannot be used with SourceDBClusterIdentifier; set exactly one of SourceDBClusterIdentifier, Engine",
+		)
+	}
+}) & matchN(>=1, [{SourceDBClusterIdentifier!: _}, {Engine!: _}])
 
 _#defs: "/$defs/Properties/definitions/GlobalEndpoint": close({
 	// The writer endpoint for the global database cluster. This endpoint always

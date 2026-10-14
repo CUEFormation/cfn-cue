@@ -149,13 +149,7 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/NetworkAclEntryList": [..._#defs."/$defs/Properties/definitions/NetworkAclEntry"] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkAclEntrySet": matchN(>=1, [{
-	FirstEntries!: _
-	...
-}, {
-	LastEntries!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/NetworkAclEntrySet": close({
 	FirstEntries?: _#defs."/$defs/Properties/definitions/NetworkAclEntryList"
 	ForceRemediateForFirstEntries!: bool |
 		"true" |
@@ -167,7 +161,7 @@ _#defs: "/$defs/Properties/definitions/NetworkAclEntrySet": matchN(>=1, [{
 		fn.#BooleanExpression
 	ForceRemediateForLastEntries!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LastEntries?:                  _#defs."/$defs/Properties/definitions/NetworkAclEntryList"
-}) |
+}) & matchN(>=1, [{FirstEntries!: _}, {LastEntries!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NetworkFirewallPolicy": close(
@@ -180,20 +174,24 @@ strings.MinRunes(16) &
 =~"^(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyOption": matchN(1, [{
-	NetworkFirewallPolicy!: _
-	...
-}, {
-	ThirdPartyFirewallPolicy!: _
-	...
-}, {
-	NetworkAclCommonPolicy!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/PolicyOption": close({
 	NetworkAclCommonPolicy?:   _#defs."/$defs/Properties/definitions/NetworkAclCommonPolicy"
 	NetworkFirewallPolicy?:    _#defs."/$defs/Properties/definitions/NetworkFirewallPolicy"
 	ThirdPartyFirewallPolicy?: _#defs."/$defs/Properties/definitions/ThirdPartyFirewallPolicy"
-}) |
+	if NetworkFirewallPolicy != _|_ {
+		ThirdPartyFirewallPolicy?: error(
+			"ThirdPartyFirewallPolicy cannot be used with NetworkFirewallPolicy; set exactly one of NetworkFirewallPolicy, ThirdPartyFirewallPolicy, NetworkAclCommonPolicy",
+		)
+		NetworkAclCommonPolicy?: error(
+			"NetworkAclCommonPolicy cannot be used with NetworkFirewallPolicy; set exactly one of NetworkFirewallPolicy, ThirdPartyFirewallPolicy, NetworkAclCommonPolicy",
+		)
+	}
+	if ThirdPartyFirewallPolicy != _|_ {
+		NetworkAclCommonPolicy?: error(
+			"NetworkAclCommonPolicy cannot be used with ThirdPartyFirewallPolicy; set exactly one of NetworkFirewallPolicy, ThirdPartyFirewallPolicy, NetworkAclCommonPolicy",
+		)
+	}
+}) & matchN(>=1, [{NetworkFirewallPolicy!: _}, {ThirdPartyFirewallPolicy!: _}, {NetworkAclCommonPolicy!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/PolicyTag": close({

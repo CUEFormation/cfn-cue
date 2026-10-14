@@ -37,21 +37,19 @@ _#defs: "/$defs/Properties/definitions/BaselinePerformanceFactorsRequest": close
 	{Cpu?: _#defs."/$defs/Properties/definitions/CpuPerformanceFactorRequest"},
 )
 
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
-	VirtualName!: _
-	...
-}, {
-	Ebs!: _
-	...
-}, {
-	NoDevice!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
 	DeviceName!:  string
 	Ebs?:         _#defs."/$defs/Properties/definitions/EbsBlockDevice"
 	NoDevice?:    string
 	VirtualName?: string
-})
+	if VirtualName != _|_ {
+		Ebs?:      error("Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+		NoDevice?: error("NoDevice cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+	}
+	if Ebs != _|_ {
+		NoDevice?: error("NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice")
+	}
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])
 
 _#defs: "/$defs/Properties/definitions/ClassicLoadBalancer": close({Name!: string})
 
@@ -225,13 +223,7 @@ _#defs: "/$defs/Properties/definitions/SpotFleetLaunchSpecification": close({
 
 _#defs: "/$defs/Properties/definitions/SpotFleetMonitoring": close({Enabled?: bool})
 
-_#defs: "/$defs/Properties/definitions/SpotFleetRequestConfigData": matchN(1, [{
-	LaunchSpecifications!: _
-	...
-}, {
-	LaunchTemplateConfigs!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/SpotFleetRequestConfigData": close({
 	AllocationStrategy?: "capacityOptimized" |
 		"capacityOptimizedPrioritized" |
 		"diversified" |
@@ -259,7 +251,12 @@ _#defs: "/$defs/Properties/definitions/SpotFleetRequestConfigData": matchN(1, [{
 	Type?:                             "maintain" | "request"
 	ValidFrom?:                        string
 	ValidUntil?:                       string
-})
+	if LaunchSpecifications != _|_ {
+		LaunchTemplateConfigs?: error(
+			"LaunchTemplateConfigs cannot be used with LaunchSpecifications; set exactly one of LaunchSpecifications, LaunchTemplateConfigs",
+		)
+	}
+}) & matchN(>=1, [{LaunchSpecifications!: _}, {LaunchTemplateConfigs!: _}])
 
 _#defs: "/$defs/Properties/definitions/SpotFleetTagSpecification": close({
 	ResourceType?: "client-vpn-endpoint" |

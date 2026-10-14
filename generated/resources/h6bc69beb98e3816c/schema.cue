@@ -18,13 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // StackSet as a resource provides one-click experience for provisioning a
 // StackSet and StackInstances
-#Properties: matchN(1, [{
-	TemplateURL!: _
-	...
-}, {
-	TemplateBody!: _
-	...
-}]) & close({
+#Properties: close({
 	AdministrationRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 	fn.#StringExpression
 	AutoDeployment?:    _#defs."/$defs/Properties/definitions/AutoDeployment" | fn.#ObjectExpression
@@ -43,7 +37,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 	TemplateBody?: strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
 	TemplateURL?:  strings.MaxRunes(5120) & strings.MinRunes(1) | fn.#StringExpression
-})
+	if TemplateURL != _|_ {
+		TemplateBody?: error(
+			"TemplateBody cannot be used with TemplateURL; set exactly one of TemplateURL, TemplateBody",
+		)
+	}
+}) & matchN(>=1, [{TemplateURL!: _}, {TemplateBody!: _}])
 
 _#defs: "/$defs/Properties/definitions/Account": =~"^[0-9]{12}$" | fn.#StringExpression
 

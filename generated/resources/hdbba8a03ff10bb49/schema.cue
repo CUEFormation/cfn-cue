@@ -16,13 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Batch::JobQueue
-#Properties: matchN(1, [{
-	ComputeEnvironmentOrder!: _
-	...
-}, {
-	ServiceEnvironmentOrder!: _
-	...
-}]) & close({
+#Properties: close({
 	ComputeEnvironmentOrder?: [..._#defs."/$defs/Properties/definitions/ComputeEnvironmentOrder"] | fn.#ListExpression
 	JobQueueName?:            strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	JobQueueType?: =~"(?i)^(?:ecs|ecs_fargate|ecs_managed_instances|eks|sagemaker_training)$" | fn.#StringExpression
@@ -50,7 +44,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-})
+	if ComputeEnvironmentOrder != _|_ {
+		ServiceEnvironmentOrder?: error(
+			"ServiceEnvironmentOrder cannot be used with ComputeEnvironmentOrder; set exactly one of ComputeEnvironmentOrder, ServiceEnvironmentOrder",
+		)
+	}
+}) & matchN(>=1, [{ComputeEnvironmentOrder!: _}, {ServiceEnvironmentOrder!: _}])
 
 _#defs: "/$defs/Properties/definitions/ComputeEnvironmentOrder": close({
 	ComputeEnvironment!: string | fn.#StringExpression

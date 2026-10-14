@@ -1219,17 +1219,14 @@ fn.#ObjectExpression
 _#defs: "/$defs/Properties/definitions/SlotValues": [..._#defs."/$defs/Properties/definitions/SlotValueOverride"] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Specifications": matchN(1, [{
-	SlotTypeId!: _
-	...
-}, {
-	SlotTypeName!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Specifications": close({
 	SlotTypeId?:              _#defs."/$defs/Properties/definitions/SlotTypeId"
 	SlotTypeName?:            _#defs."/$defs/Properties/definitions/SlotTypeName"
 	ValueElicitationSetting!: _#defs."/$defs/Properties/definitions/SubSlotValueElicitationSetting"
-}) |
+	if SlotTypeId != _|_ {
+		SlotTypeName?: error("SlotTypeName cannot be used with SlotTypeId; set exactly one of SlotTypeId, SlotTypeName")
+	}
+}) & matchN(>=1, [{SlotTypeId!: _}, {SlotTypeName!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SpeechDetectionSensitivity": "Default" |
@@ -1305,17 +1302,14 @@ _#defs: "/$defs/Properties/definitions/SubSlotSetting": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubSlotTypeComposition": matchN(1, [{
-	SlotTypeId!: _
-	...
-}, {
-	SlotTypeName!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/SubSlotTypeComposition": close({
 	Name!:         strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
 	SlotTypeId?:   _#defs."/$defs/Properties/definitions/SlotTypeId"
 	SlotTypeName?: _#defs."/$defs/Properties/definitions/SlotTypeName"
-}) |
+	if SlotTypeId != _|_ {
+		SlotTypeName?: error("SlotTypeName cannot be used with SlotTypeId; set exactly one of SlotTypeId, SlotTypeName")
+	}
+}) & matchN(>=1, [{SlotTypeId!: _}, {SlotTypeName!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SubSlotValueElicitationSetting": close({

@@ -80,19 +80,7 @@ _#defs: "/$defs/Properties/definitions/FPorts": close({
 	Applications?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Application"]
 })
 
-_#defs: "/$defs/Properties/definitions/LoRaWANDevice": matchN(1, [{
-	OtaaV11!: _
-	...
-}, {
-	OtaaV10x!: _
-	...
-}, {
-	AbpV11!: _
-	...
-}, {
-	AbpV10x!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/LoRaWANDevice": close({
 	AbpV10x?:          _#defs."/$defs/Properties/definitions/AbpV10x"
 	AbpV11?:           _#defs."/$defs/Properties/definitions/AbpV11"
 	DevEui?:           =~"[a-f0-9]{16}"
@@ -101,7 +89,19 @@ _#defs: "/$defs/Properties/definitions/LoRaWANDevice": matchN(1, [{
 	OtaaV10x?:         _#defs."/$defs/Properties/definitions/OtaaV10x"
 	OtaaV11?:          _#defs."/$defs/Properties/definitions/OtaaV11"
 	ServiceProfileId?: strings.MaxRunes(256) & strings.MinRunes(0)
-})
+	if OtaaV11 != _|_ {
+		OtaaV10x?: error("OtaaV10x cannot be used with OtaaV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x")
+		AbpV11?:   error("AbpV11 cannot be used with OtaaV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x")
+		AbpV10x?:  error("AbpV10x cannot be used with OtaaV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x")
+	}
+	if OtaaV10x != _|_ {
+		AbpV11?:  error("AbpV11 cannot be used with OtaaV10x; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x")
+		AbpV10x?: error("AbpV10x cannot be used with OtaaV10x; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x")
+	}
+	if AbpV11 != _|_ {
+		AbpV10x?: error("AbpV10x cannot be used with AbpV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x")
+	}
+}) & matchN(>=1, [{OtaaV11!: _}, {OtaaV10x!: _}, {AbpV11!: _}, {AbpV10x!: _}])
 
 _#defs: "/$defs/Properties/definitions/OtaaV10x": close({
 	AppEui!: =~"[a-fA-F0-9]{16}"

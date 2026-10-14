@@ -10,13 +10,7 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Events::Rule
-#Properties: matchN(>=1, [{
-	EventPattern!: _
-	...
-}, {
-	ScheduleExpression!: _
-	...
-}]) & close({
+#Properties: close({
 	// The ARN of the rule, such as arn:aws:events:us-east-2:123456789012:rule/example.
 	Arn?: string
 
@@ -57,7 +51,7 @@ import (
 	// they are already associated with the rule.
 	// Targets are the resources that are invoked when a rule is triggered.
 	Targets?: list.MaxItems(5) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Target"]
-})
+}) & matchN(>=1, [{EventPattern!: _}, {ScheduleExpression!: _}])
 
 _#defs: "/$defs/Properties/definitions/AppSyncParameters": close({GraphQLOperation!: string})
 

@@ -160,28 +160,12 @@ _#defs: "/$defs/Properties/definitions/PermissionModel": close({
 })
 
 // Configuration for a report output destination.
-_#defs: "/$defs/Properties/definitions/ReportOutputConfiguration": {
-	S3!: _
-	...
-} & close({S3?: _#defs."/$defs/Properties/definitions/S3ReportOutputConfiguration"})
+_#defs: "/$defs/Properties/definitions/ReportOutputConfiguration": close(
+	{S3?: _#defs."/$defs/Properties/definitions/S3ReportOutputConfiguration"},
+) & matchN(>=1, [{S3!: _}])
 
 // Resource configuration for an input source. Provide exactly one field.
-_#defs: "/$defs/Properties/definitions/ResourceConfiguration": matchN(1, [{
-	ResourceTags!: _
-	...
-}, {
-	CfnStackArn!: _
-	...
-}, {
-	TfStateFileUrl!: _
-	...
-}, {
-	Eks!: _
-	...
-}, {
-	DesignFileS3Url!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/ResourceConfiguration": close({
 	// ARN of a CloudFormation stack.
 	CfnStackArn?: string
 
@@ -194,7 +178,45 @@ _#defs: "/$defs/Properties/definitions/ResourceConfiguration": matchN(1, [{
 
 	// URL of a Terraform state file.
 	TfStateFileUrl?: string
-})
+	if ResourceTags != _|_ {
+		CfnStackArn?: error(
+			"CfnStackArn cannot be used with ResourceTags; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		TfStateFileUrl?: error(
+			"TfStateFileUrl cannot be used with ResourceTags; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		Eks?: error(
+			"Eks cannot be used with ResourceTags; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		DesignFileS3Url?: error(
+			"DesignFileS3Url cannot be used with ResourceTags; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+	}
+	if CfnStackArn != _|_ {
+		TfStateFileUrl?: error(
+			"TfStateFileUrl cannot be used with CfnStackArn; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		Eks?: error(
+			"Eks cannot be used with CfnStackArn; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		DesignFileS3Url?: error(
+			"DesignFileS3Url cannot be used with CfnStackArn; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+	}
+	if TfStateFileUrl != _|_ {
+		Eks?: error(
+			"Eks cannot be used with TfStateFileUrl; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		DesignFileS3Url?: error(
+			"DesignFileS3Url cannot be used with TfStateFileUrl; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+	}
+	if Eks != _|_ {
+		DesignFileS3Url?: error(
+			"DesignFileS3Url cannot be used with Eks; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+	}
+}) & matchN(>=1, [{ResourceTags!: _}, {CfnStackArn!: _}, {TfStateFileUrl!: _}, {Eks!: _}, {DesignFileS3Url!: _}])
 
 _#defs: "/$defs/Properties/definitions/ResourceTag": close({
 	// Tag key.

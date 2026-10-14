@@ -17,13 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Kinesis::Channel
-#Properties: matchN(1, [{
-	S3DestinationConfiguration!: _
-	...
-}, {
-	S3TablesDestinationConfiguration!: _
-	...
-}]) & close({
+#Properties: close({
 	ChannelName!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
 	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
 	LoggingConfiguration?:    _#defs."/$defs/Properties/definitions/LoggingConfiguration" | fn.#ObjectExpression
@@ -41,7 +35,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	] |
 		fn.#ListExpression
 	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+	if S3DestinationConfiguration != _|_ {
+		S3TablesDestinationConfiguration?: error(
+			"S3TablesDestinationConfiguration cannot be used with S3DestinationConfiguration; set exactly one of S3DestinationConfiguration, S3TablesDestinationConfiguration",
+		)
+	}
+}) & matchN(>=1, [{S3DestinationConfiguration!: _}, {S3TablesDestinationConfiguration!: _}])
 
 _#defs: "/$defs/Properties/definitions/CloudWatchLogsConfiguration": close({
 	Enabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

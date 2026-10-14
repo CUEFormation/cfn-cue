@@ -40,16 +40,15 @@ _#defs: "/$defs/Properties/definitions/ConnectionDetails": close({
 	SocketAddress!: _#defs."/$defs/Properties/definitions/SocketAddress"
 })
 
-_#defs: "/$defs/Properties/definitions/CreateEndpointDetails": matchN(1, [{
-	UplinkAwsGroundStationAgentEndpoint!: _
-	...
-}, {
-	DownlinkAwsGroundStationAgentEndpoint!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/CreateEndpointDetails": close({
 	DownlinkAwsGroundStationAgentEndpoint?: _#defs."/$defs/Properties/definitions/DownlinkAwsGroundStationAgentEndpoint"
 	UplinkAwsGroundStationAgentEndpoint?:   _#defs."/$defs/Properties/definitions/UplinkAwsGroundStationAgentEndpoint"
-})
+	if UplinkAwsGroundStationAgentEndpoint != _|_ {
+		DownlinkAwsGroundStationAgentEndpoint?: error(
+			"DownlinkAwsGroundStationAgentEndpoint cannot be used with UplinkAwsGroundStationAgentEndpoint; set exactly one of UplinkAwsGroundStationAgentEndpoint, DownlinkAwsGroundStationAgentEndpoint",
+		)
+	}
+}) & matchN(>=1, [{UplinkAwsGroundStationAgentEndpoint!: _}, {DownlinkAwsGroundStationAgentEndpoint!: _}])
 
 // Information about DownlinkAwsGroundStationAgentEndpoint used for create
 _#defs: "/$defs/Properties/definitions/DownlinkAwsGroundStationAgentEndpoint": close({
@@ -72,23 +71,21 @@ _#defs: "/$defs/Properties/definitions/DownlinkConnectionDetails": close({
 })
 
 // Dataflow details for downlink
-_#defs: "/$defs/Properties/definitions/DownlinkDataflowDetails": {
-	AgentConnectionDetails!: _
-	...
-} & close({AgentConnectionDetails?: _#defs."/$defs/Properties/definitions/DownlinkConnectionDetails"})
+_#defs: "/$defs/Properties/definitions/DownlinkDataflowDetails": close(
+	{AgentConnectionDetails?: _#defs."/$defs/Properties/definitions/DownlinkConnectionDetails"},
+) & matchN(>=1, [{AgentConnectionDetails!: _}])
 
-_#defs: "/$defs/Properties/definitions/EndpointDetails": matchN(1, [{
-	UplinkAwsGroundStationAgentEndpoint!: _
-	...
-}, {
-	DownlinkAwsGroundStationAgentEndpoint!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/EndpointDetails": close({
 	DownlinkAwsGroundStationAgentEndpoint?:
 		_#defs."/$defs/Properties/definitions/DownlinkAwsGroundStationAgentEndpointDetails"
 	UplinkAwsGroundStationAgentEndpoint?:
 		_#defs."/$defs/Properties/definitions/UplinkAwsGroundStationAgentEndpointDetails"
-})
+	if UplinkAwsGroundStationAgentEndpoint != _|_ {
+		DownlinkAwsGroundStationAgentEndpoint?: error(
+			"DownlinkAwsGroundStationAgentEndpoint cannot be used with UplinkAwsGroundStationAgentEndpoint; set exactly one of UplinkAwsGroundStationAgentEndpoint, DownlinkAwsGroundStationAgentEndpoint",
+		)
+	}
+}) & matchN(>=1, [{UplinkAwsGroundStationAgentEndpoint!: _}, {DownlinkAwsGroundStationAgentEndpoint!: _}])
 
 // An integer range that has a minimum and maximum value.
 _#defs: "/$defs/Properties/definitions/IntegerRange": close({
@@ -149,7 +146,6 @@ _#defs: "/$defs/Properties/definitions/UplinkConnectionDetails": close({
 })
 
 // Dataflow details for uplink
-_#defs: "/$defs/Properties/definitions/UplinkDataflowDetails": {
-	AgentConnectionDetails!: _
-	...
-} & close({AgentConnectionDetails?: _#defs."/$defs/Properties/definitions/UplinkConnectionDetails"})
+_#defs: "/$defs/Properties/definitions/UplinkDataflowDetails": close(
+	{AgentConnectionDetails?: _#defs."/$defs/Properties/definitions/UplinkConnectionDetails"},
+) & matchN(>=1, [{AgentConnectionDetails!: _}])

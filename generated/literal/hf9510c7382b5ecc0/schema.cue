@@ -10,13 +10,7 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies an Application Load Balancer, a Network Load Balancer, or a Gateway Load Balancer.
-#Properties: matchN(1, [{
-	Subnets!: _
-	...
-}, {
-	SubnetMappings!: _
-	...
-}]) & close({
+#Properties: close({
 	CanonicalHostedZoneID?: string
 	DNSName?:               string
 
@@ -118,7 +112,10 @@ import (
 
 	// The type of load balancer. The default is ``application``.
 	Type?: "application" | "gateway" | "network"
-})
+	if Subnets != _|_ {
+		SubnetMappings?: error("SubnetMappings cannot be used with Subnets; set exactly one of Subnets, SubnetMappings")
+	}
+}) & matchN(>=1, [{Subnets!: _}, {SubnetMappings!: _}])
 
 // Specifies an attribute for an Application Load Balancer, a Network Load
 // Balancer, or a Gateway Load Balancer.

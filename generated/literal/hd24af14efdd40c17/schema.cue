@@ -86,16 +86,15 @@ _#defs: "/$defs/Properties/definitions/AutoDetectionScope": "ORGANIZATION"
 _#defs: "/$defs/Properties/definitions/AutoDetectionStatus": "ACTIVE" | "INACTIVE"
 
 // The expected value used to match a claim. Exactly one member is set.
-_#defs: "/$defs/Properties/definitions/ClaimMatchValueType": matchN(1, [{
-	MatchValueString!: _
-	...
-}, {
-	MatchValueStringList!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/ClaimMatchValueType": close({
 	MatchValueString?:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$"
 	MatchValueStringList?: list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$"]
-})
+	if MatchValueString != _|_ {
+		MatchValueStringList?: error(
+			"MatchValueStringList cannot be used with MatchValueString; set exactly one of MatchValueString, MatchValueStringList",
+		)
+	}
+}) & matchN(>=1, [{MatchValueString!: _}, {MatchValueStringList!: _}])
 
 // A validation rule applied to a single claim of an inbound JWT.
 _#defs: "/$defs/Properties/definitions/CustomClaimValidationType": close({

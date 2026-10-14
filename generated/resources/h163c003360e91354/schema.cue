@@ -38,13 +38,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Tags?:                       [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsInputConfig": matchN(1, [{
-	LogGroupNames!: _
-	...
-}, {
-	LogGroupNamePrefixes!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/CloudWatchLogsInputConfig": close({
 	LogGroupNamePrefixes?: list.MaxItems(5) & list.MinItems(1) & [
 		...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
 	] |
@@ -57,7 +51,12 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogsInputConfig": matchN(1, [{
 		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-}) |
+	if LogGroupNames != _|_ {
+		LogGroupNamePrefixes?: error(
+			"LogGroupNamePrefixes cannot be used with LogGroupNames; set exactly one of LogGroupNames, LogGroupNamePrefixes",
+		)
+	}
+}) & matchN(>=1, [{LogGroupNames!: _}, {LogGroupNamePrefixes!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CloudWatchOutputConfig": close({

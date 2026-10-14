@@ -15,16 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Events::Connection.
 #Properties: close({
-	AuthParameters?: matchN(1, [{
-		BasicAuthParameters!: _
-		...
-	}, {
-		OAuthParameters!: _
-		...
-	}, {
-		ApiKeyAuthParameters!: _
-		...
-	}]) & (struct.MaxFields(2) & struct.MinFields(1) & close({
+	AuthParameters?: struct.MaxFields(2) & struct.MinFields(1) & (close({
 		ApiKeyAuthParameters?: _#defs."/$defs/Properties/definitions/ApiKeyAuthParameters"
 		BasicAuthParameters?:  _#defs."/$defs/Properties/definitions/BasicAuthParameters"
 		ConnectivityParameters?: close({
@@ -38,7 +29,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 		InvocationHttpParameters?: _#defs."/$defs/Properties/definitions/ConnectionHttpParameters"
 		OAuthParameters?:          _#defs."/$defs/Properties/definitions/OAuthParameters"
-	})) |
+		if BasicAuthParameters != _|_ {
+			OAuthParameters?: error(
+				"OAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
+			)
+			ApiKeyAuthParameters?: error(
+				"ApiKeyAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
+			)
+		}
+		if OAuthParameters != _|_ {
+			ApiKeyAuthParameters?: error(
+				"ApiKeyAuthParameters cannot be used with OAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
+			)
+		}
+	}) & matchN(>=1, [{BasicAuthParameters!: _}, {OAuthParameters!: _}, {ApiKeyAuthParameters!: _}])) |
 	fn.#ObjectExpression
 	AuthorizationType?: "API_KEY" | "BASIC" | "OAUTH_CLIENT_CREDENTIALS" | fn.#StringExpression
 	Description?:       strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
@@ -67,22 +71,26 @@ _#defs: "/$defs/Properties/definitions/ApiKeyAuthParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthParameters": matchN(1, [{
-	BasicAuthParameters!: _
-	...
-}, {
-	OAuthParameters!: _
-	...
-}, {
-	ApiKeyAuthParameters!: _
-	...
-}]) & (struct.MaxFields(2) & struct.MinFields(1) & close({
+_#defs: "/$defs/Properties/definitions/AuthParameters": struct.MaxFields(2) & struct.MinFields(1) & (close({
 	ApiKeyAuthParameters?:     _#defs."/$defs/Properties/definitions/ApiKeyAuthParameters"
 	BasicAuthParameters?:      _#defs."/$defs/Properties/definitions/BasicAuthParameters"
 	ConnectivityParameters?:   _#defs."/$defs/Properties/definitions/ConnectivityParameters"
 	InvocationHttpParameters?: _#defs."/$defs/Properties/definitions/ConnectionHttpParameters"
 	OAuthParameters?:          _#defs."/$defs/Properties/definitions/OAuthParameters"
-})) |
+	if BasicAuthParameters != _|_ {
+		OAuthParameters?: error(
+			"OAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
+		)
+		ApiKeyAuthParameters?: error(
+			"ApiKeyAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
+		)
+	}
+	if OAuthParameters != _|_ {
+		ApiKeyAuthParameters?: error(
+			"ApiKeyAuthParameters cannot be used with OAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
+		)
+	}
+}) & matchN(>=1, [{BasicAuthParameters!: _}, {OAuthParameters!: _}, {ApiKeyAuthParameters!: _}])) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/BasicAuthParameters": close({

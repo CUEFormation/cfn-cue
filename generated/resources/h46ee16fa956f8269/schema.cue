@@ -13,13 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::NetworkAclEntry
-#Properties: matchN(1, [{
-	Ipv6CidrBlock!: _
-	...
-}, {
-	CidrBlock!: _
-	...
-}]) & close({
+#Properties: close({
 	CidrBlock?:     string | fn.#StringExpression
 	Egress?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Icmp?:          _#defs."/$defs/Properties/definitions/Icmp" | fn.#ObjectExpression
@@ -55,7 +49,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-})
+	if Ipv6CidrBlock != _|_ {
+		CidrBlock?: error("CidrBlock cannot be used with Ipv6CidrBlock; set exactly one of Ipv6CidrBlock, CidrBlock")
+	}
+}) & matchN(>=1, [{Ipv6CidrBlock!: _}, {CidrBlock!: _}])
 
 _#defs: "/$defs/Properties/definitions/Icmp": close({
 	Code?: int |

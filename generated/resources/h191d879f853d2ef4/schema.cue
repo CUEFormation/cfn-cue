@@ -60,13 +60,7 @@ _#defs: "/$defs/Properties/definitions/ComponentConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComponentMonitoringSetting": matchN(1, [{
-	ComponentName!: _
-	...
-}, {
-	ComponentARN!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/ComponentMonitoringSetting": close({
 	ComponentARN?: strings.MaxRunes(300) &
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" |
@@ -77,7 +71,12 @@ _#defs: "/$defs/Properties/definitions/ComponentMonitoringSetting": matchN(1, [{
 	DefaultOverwriteComponentConfiguration?: _#defs."/$defs/Properties/definitions/ComponentConfiguration" |
 		fn.#ObjectExpression
 	Tier!: =~"^[A-Z][A-Z_]*$" | fn.#StringExpression
-}) |
+	if ComponentName != _|_ {
+		ComponentARN?: error(
+			"ComponentARN cannot be used with ComponentName; set exactly one of ComponentName, ComponentARN",
+		)
+	}
+}) & matchN(>=1, [{ComponentName!: _}, {ComponentARN!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ConfigurationDetails": close({

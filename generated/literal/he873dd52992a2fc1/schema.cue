@@ -11,13 +11,7 @@ import (
 
 // The AWS::CodePipeline::Pipeline resource creates a CodePipeline pipeline that
 // describes how software changes go through a release process.
-#Properties: matchN(1, [{
-	ArtifactStore!: _
-	...
-}, {
-	ArtifactStores!: _
-	...
-}]) & close({
+#Properties: close({
 	// The Amazon Resource Name (ARN) of the pipeline.
 	Arn?: =~"arn:aws(-[\\w]+)*:codepipeline:[a-z0-9-]+:[0-9]{12}:.+"
 
@@ -68,7 +62,12 @@ import (
 
 	// The version of the pipeline.
 	Version?: string
-})
+	if ArtifactStore != _|_ {
+		ArtifactStores?: error(
+			"ArtifactStores cannot be used with ArtifactStore; set exactly one of ArtifactStore, ArtifactStores",
+		)
+	}
+}) & matchN(>=1, [{ArtifactStore!: _}, {ArtifactStores!: _}])
 
 // Represents information about an action declaration.
 _#defs: "/$defs/Properties/definitions/ActionDeclaration": close({

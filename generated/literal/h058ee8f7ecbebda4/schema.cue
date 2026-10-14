@@ -81,10 +81,9 @@ _#defs: "/$defs/Properties/definitions/IncidentTemplate": close({
 	Title!: strings.MaxRunes(200)
 })
 
-_#defs: "/$defs/Properties/definitions/Integration": {
-	PagerDutyConfiguration!: _
-	...
-} & close({PagerDutyConfiguration?: _#defs."/$defs/Properties/definitions/PagerDutyConfiguration"})
+_#defs: "/$defs/Properties/definitions/Integration": close(
+	{PagerDutyConfiguration?: _#defs."/$defs/Properties/definitions/PagerDutyConfiguration"},
+) & matchN(>=1, [{PagerDutyConfiguration!: _}])
 
 // A notification target.
 _#defs: "/$defs/Properties/definitions/NotificationTargetItem": close(

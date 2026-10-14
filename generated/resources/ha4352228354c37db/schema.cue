@@ -32,18 +32,17 @@ _#defs: "/$defs/Properties/definitions/AwsServiceEventsConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventSourceConfiguration": matchN(1, [{
-	AwsServiceEventsConfiguration!: _
-	...
-}, {
-	PartnerEventsConfiguration!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/EventSourceConfiguration": close({
 	AwsServiceEventsConfiguration?: _#defs."/$defs/Properties/definitions/AwsServiceEventsConfiguration" |
 		fn.#ObjectExpression
 	PartnerEventsConfiguration?: _#defs."/$defs/Properties/definitions/PartnerEventsConfiguration" |
 		fn.#ObjectExpression
-}) |
+	if AwsServiceEventsConfiguration != _|_ {
+		PartnerEventsConfiguration?: error(
+			"PartnerEventsConfiguration cannot be used with AwsServiceEventsConfiguration; set exactly one of AwsServiceEventsConfiguration, PartnerEventsConfiguration",
+		)
+	}
+}) & matchN(>=1, [{AwsServiceEventsConfiguration!: _}, {PartnerEventsConfiguration!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/OnFailureConfiguration": close({

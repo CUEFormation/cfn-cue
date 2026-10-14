@@ -176,19 +176,18 @@ _#defs: "/$defs/Properties/definitions/DataSourceType": "S3" |
 
 // Day of the month on which a monthly refresh runs. Exactly one variant is set:
 // an explicit day number, or the last calendar day of the month.
-_#defs: "/$defs/Properties/definitions/DayOfMonth": matchN(1, [{
-	DayNumber!: _
-	...
-}, {
-	LastDayOfMonth!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/DayOfMonth": close({
 	// Specific day of the month, 1 through 28 (capped at 28 to avoid month-length ambiguity).
 	DayNumber?: int & <=28 & >=1
 
 	// Run on the last calendar day of each month.
 	LastDayOfMonth?: close({})
-})
+	if DayNumber != _|_ {
+		LastDayOfMonth?: error(
+			"LastDayOfMonth cannot be used with DayNumber; set exactly one of DayNumber, LastDayOfMonth",
+		)
+	}
+}) & matchN(>=1, [{DayNumber!: _}, {LastDayOfMonth!: _}])
 
 // Day of the week.
 _#defs: "/$defs/Properties/definitions/DayOfWeek": "SUNDAY" |
@@ -452,20 +451,18 @@ _#defs: "/$defs/Properties/definitions/SharePointSourceConfiguration": close({
 
 // Recurring schedule on which the connector automatically refreshes ingested
 // content. Exactly one frequency variant is set.
-_#defs: "/$defs/Properties/definitions/SyncSchedule": matchN(1, [{
-	Daily!: _
-	...
-}, {
-	Weekly!: _
-	...
-}, {
-	Monthly!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/SyncSchedule": close({
 	Daily?:   _#defs."/$defs/Properties/definitions/DailySchedule"
 	Monthly?: _#defs."/$defs/Properties/definitions/MonthlySchedule"
 	Weekly?:  _#defs."/$defs/Properties/definitions/WeeklySchedule"
-})
+	if Daily != _|_ {
+		Weekly?:  error("Weekly cannot be used with Daily; set exactly one of Daily, Weekly, Monthly")
+		Monthly?: error("Monthly cannot be used with Daily; set exactly one of Daily, Weekly, Monthly")
+	}
+	if Weekly != _|_ {
+		Monthly?: error("Monthly cannot be used with Weekly; set exactly one of Daily, Weekly, Monthly")
+	}
+}) & matchN(>=1, [{Daily!: _}, {Weekly!: _}, {Monthly!: _}])
 
 // A Lambda function that processes documents.
 _#defs: "/$defs/Properties/definitions/Transformation": close({

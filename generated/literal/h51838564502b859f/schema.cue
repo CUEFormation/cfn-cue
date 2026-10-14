@@ -71,19 +71,16 @@ _#defs: "/$defs/Properties/definitions/ImageBuildConfiguration": close({
 	Type!: "docker" | "buildpack"
 })
 
-_#defs: "/$defs/Properties/definitions/ImageConfiguration": matchN(1, [{
-	Source!: _
-	...
-}, {
-	Build!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/ImageConfiguration": close({
 	// Configuration for building a container image from source code.
 	Build?: _#defs."/$defs/Properties/definitions/ImageBuildConfiguration"
 
 	// The container image source for this version, as an ECR image URI.
 	Source?: _#defs."/$defs/Properties/definitions/ImageSource"
-})
+	if Source != _|_ {
+		Build?: error("Build cannot be used with Source; set exactly one of Source, Build")
+	}
+}) & matchN(>=1, [{Source!: _}, {Build!: _}])
 
 _#defs: "/$defs/Properties/definitions/ImageSource": close({
 	// The URI of the container image, e.g. an ECR image URI.

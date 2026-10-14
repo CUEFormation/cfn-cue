@@ -58,13 +58,12 @@ _#defs: "/$defs/Properties/definitions/Stage": close({
 })
 
 // The contacts or contact methods that the escalation plan or engagement plan is engaging.
-_#defs: "/$defs/Properties/definitions/Targets": matchN(1, [{
-	ChannelTargetInfo!: _
-	...
-}, {
-	ContactTargetInfo!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Targets": close({
 	ChannelTargetInfo?: _#defs."/$defs/Properties/definitions/ChannelTargetInfo"
 	ContactTargetInfo?: _#defs."/$defs/Properties/definitions/ContactTargetInfo"
-})
+	if ChannelTargetInfo != _|_ {
+		ContactTargetInfo?: error(
+			"ContactTargetInfo cannot be used with ChannelTargetInfo; set exactly one of ChannelTargetInfo, ContactTargetInfo",
+		)
+	}
+}) & matchN(>=1, [{ChannelTargetInfo!: _}, {ContactTargetInfo!: _}])

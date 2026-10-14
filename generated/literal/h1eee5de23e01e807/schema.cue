@@ -43,19 +43,7 @@ import "strings"
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/Egress": matchN(1, [{
-	CidrIp!: _
-	...
-}, {
-	CidrIpv6!: _
-	...
-}, {
-	DestinationSecurityGroupId!: _
-	...
-}, {
-	DestinationPrefixListId!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Egress": close({
 	CidrIp?:                     string
 	CidrIpv6?:                   string
 	Description?:                string
@@ -64,24 +52,33 @@ _#defs: "/$defs/Properties/definitions/Egress": matchN(1, [{
 	FromPort?:                   int & >=-1
 	IpProtocol!:                 string
 	ToPort?:                     int & >=-1
-})
+	if CidrIp != _|_ {
+		CidrIpv6?: error(
+			"CidrIpv6 cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+		DestinationSecurityGroupId?: error(
+			"DestinationSecurityGroupId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+		DestinationPrefixListId?: error(
+			"DestinationPrefixListId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+	}
+	if CidrIpv6 != _|_ {
+		DestinationSecurityGroupId?: error(
+			"DestinationSecurityGroupId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+		DestinationPrefixListId?: error(
+			"DestinationPrefixListId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+	}
+	if DestinationSecurityGroupId != _|_ {
+		DestinationPrefixListId?: error(
+			"DestinationPrefixListId cannot be used with DestinationSecurityGroupId; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+	}
+}) & matchN(>=1, [{CidrIp!: _}, {CidrIpv6!: _}, {DestinationSecurityGroupId!: _}, {DestinationPrefixListId!: _}])
 
-_#defs: "/$defs/Properties/definitions/Ingress": matchN(1, [{
-	CidrIp!: _
-	...
-}, {
-	CidrIpv6!: _
-	...
-}, {
-	SourcePrefixListId!: _
-	...
-}, {
-	SourceSecurityGroupId!: _
-	...
-}, {
-	SourceSecurityGroupName!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Ingress": close({
 	CidrIp?:                     string
 	CidrIpv6?:                   string
 	Description?:                string
@@ -92,7 +89,48 @@ _#defs: "/$defs/Properties/definitions/Ingress": matchN(1, [{
 	SourceSecurityGroupName?:    string
 	SourceSecurityGroupOwnerId?: string
 	ToPort?:                     int & >=-1
-})
+	if CidrIp != _|_ {
+		CidrIpv6?: error(
+			"CidrIpv6 cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourcePrefixListId?: error(
+			"SourcePrefixListId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupId?: error(
+			"SourceSecurityGroupId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupName?: error(
+			"SourceSecurityGroupName cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+	}
+	if CidrIpv6 != _|_ {
+		SourcePrefixListId?: error(
+			"SourcePrefixListId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupId?: error(
+			"SourceSecurityGroupId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupName?: error(
+			"SourceSecurityGroupName cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+	}
+	if SourcePrefixListId != _|_ {
+		SourceSecurityGroupId?: error(
+			"SourceSecurityGroupId cannot be used with SourcePrefixListId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupName?: error(
+			"SourceSecurityGroupName cannot be used with SourcePrefixListId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+	}
+	if SourceSecurityGroupId != _|_ {
+		SourceSecurityGroupName?: error(
+			"SourceSecurityGroupName cannot be used with SourceSecurityGroupId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+	}
+}) & matchN(
+	>=1,
+	[{CidrIp!: _}, {CidrIpv6!: _}, {SourcePrefixListId!: _}, {SourceSecurityGroupId!: _}, {SourceSecurityGroupName!: _}],
+)
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   string

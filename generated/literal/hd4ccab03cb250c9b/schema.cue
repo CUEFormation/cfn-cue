@@ -10,13 +10,7 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::ImageBuilder
-#Properties: matchN(>=1, [{
-	ImageName!: _
-	...
-}, {
-	ImageArn!: _
-	...
-}]) & close({
+#Properties: close({
 	AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AccessEndpoint"]
 	AppstreamAgentVersion?:       strings.MaxRunes(100) & strings.MinRunes(1)
 	Description?:                 strings.MaxRunes(256) & strings.MinRunes(0)
@@ -35,7 +29,7 @@ import (
 	StreamingUrl?:                string
 	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"]
 	VpcConfig?:                   _#defs."/$defs/Properties/definitions/VpcConfig"
-})
+}) & matchN(>=1, [{ImageName!: _}, {ImageArn!: _}])
 
 _#defs: "/$defs/Properties/definitions/AccessEndpoint": close({
 	EndpointType!: "STREAMING"

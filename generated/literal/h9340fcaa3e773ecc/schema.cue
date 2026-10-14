@@ -27,19 +27,7 @@ import (
 // [Migrate CloudFormation stacks from launch configurations to launch
 // templates](https://docs.aws.amazon.com/autoscaling/ec2/userguide/migrate-launch-configurations-with-cloudformation.html)
 // in the *Amazon EC2 Auto Scaling User Guide*.
-#Properties: matchN(1, [{
-	InstanceId!: _
-	...
-}, {
-	LaunchConfigurationName!: _
-	...
-}, {
-	LaunchTemplate!: _
-	...
-}, {
-	MixedInstancesPolicy!: _
-	...
-}]) & close({
+#Properties: close({
 	AutoScalingGroupARN?: string
 
 	// The name of the Auto Scaling group. This name must be unique per Region per account.
@@ -325,7 +313,31 @@ import (
 	// ``VPCZoneIdentifier`` with ``AvailabilityZones``, the subnets that you
 	// specify for this property must reside in those Availability Zones.
 	VPCZoneIdentifier?: [...string]
-})
+	if InstanceId != _|_ {
+		LaunchConfigurationName?: error(
+			"LaunchConfigurationName cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+		)
+		LaunchTemplate?: error(
+			"LaunchTemplate cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+		)
+		MixedInstancesPolicy?: error(
+			"MixedInstancesPolicy cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+		)
+	}
+	if LaunchConfigurationName != _|_ {
+		LaunchTemplate?: error(
+			"LaunchTemplate cannot be used with LaunchConfigurationName; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+		)
+		MixedInstancesPolicy?: error(
+			"MixedInstancesPolicy cannot be used with LaunchConfigurationName; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+		)
+	}
+	if LaunchTemplate != _|_ {
+		MixedInstancesPolicy?: error(
+			"MixedInstancesPolicy cannot be used with LaunchTemplate; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+		)
+	}
+}) & matchN(>=1, [{InstanceId!: _}, {LaunchConfigurationName!: _}, {LaunchTemplate!: _}, {MixedInstancesPolicy!: _}])
 
 // ``AcceleratorCountRequest`` is a property of the ``InstanceRequirements``
 // property of the [AWS::AutoScaling::AutoScalingGroup
@@ -1015,13 +1027,7 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateOverrides": close({
 // in the *Amazon EC2 Auto Scaling User Guide*.
 // For examples of launch templates, see [Create launch
 // templates](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-ec2-launch-templates.html).
-_#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": matchN(1, [{
-	LaunchTemplateId!: _
-	...
-}, {
-	LaunchTemplateName!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": close({
 	// The ID of the launch template.
 	// You must specify the ``LaunchTemplateID`` or the ``LaunchTemplateName``, but not both.
 	LaunchTemplateId?: strings.MaxRunes(255) & strings.MinRunes(1)
@@ -1040,7 +1046,12 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": matchN(1, [
 	// [Examples](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-autoscaling-autoscalinggroup.html#aws-resource-autoscaling-autoscalinggroup--examples)
 	// section of the ``AWS::AutoScaling::AutoScalingGroup`` resource.
 	Version!: strings.MaxRunes(255) & strings.MinRunes(1)
-})
+	if LaunchTemplateId != _|_ {
+		LaunchTemplateName?: error(
+			"LaunchTemplateName cannot be used with LaunchTemplateId; set exactly one of LaunchTemplateId, LaunchTemplateName",
+		)
+	}
+}) & matchN(>=1, [{LaunchTemplateId!: _}, {LaunchTemplateName!: _}])
 
 // ``LifecycleHookSpecification`` specifies a lifecycle hook for the
 // ``LifecycleHookSpecificationList`` property of the

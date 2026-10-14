@@ -104,16 +104,7 @@ _#defs: "/$defs/Properties/definitions/BlockDevice": close({
 
 // BlockDeviceMapping is a property of AWS::AutoScaling::LaunchConfiguration
 // that describes a block device mapping for an Auto Scaling group.
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
-	VirtualName!: _
-	...
-}, {
-	Ebs!: _
-	...
-}, {
-	NoDevice!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
 	// The device name exposed to the EC2 instance (for example, /dev/sdh or xvdh).
 	DeviceName!: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -126,7 +117,14 @@ _#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
 
 	// The name of the virtual device.
 	VirtualName?: strings.MaxRunes(255) & strings.MinRunes(1)
-})
+	if VirtualName != _|_ {
+		Ebs?:      error("Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+		NoDevice?: error("NoDevice cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+	}
+	if Ebs != _|_ {
+		NoDevice?: error("NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice")
+	}
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])
 
 // MetadataOptions is a property of AWS::AutoScaling::LaunchConfiguration that
 // describes metadata options for the instances.

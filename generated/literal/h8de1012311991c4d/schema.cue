@@ -595,16 +595,10 @@ _#defs: "/$defs/Properties/definitions/VectorIndex": close({
 // or secondary index can instantaneously support. The settings can be modified
 // using the ``UpdateTable`` operation to meet the throughput requirements of
 // an upcoming peak event.
-_#defs: "/$defs/Properties/definitions/WarmThroughput": matchN(>=1, [{
-	ReadUnitsPerSecond!: _
-	...
-}, {
-	WriteUnitsPerSecond!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/WarmThroughput": close({
 	// Represents the number of read operations your base table can instantaneously support.
 	ReadUnitsPerSecond?: int & >=1
 
 	// Represents the number of write operations your base table can instantaneously support.
 	WriteUnitsPerSecond?: int & >=1
-})
+}) & matchN(>=1, [{ReadUnitsPerSecond!: _}, {WriteUnitsPerSecond!: _}])

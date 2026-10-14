@@ -5,18 +5,7 @@ package schema
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::Instance
-#Properties: matchN(2, [
-	matchN(0, [null | bool | number | string | [...] | {
-		NetworkInterfaces!: _
-		SubnetId!:          _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		SubnetId!:          _
-		NetworkInterfaces!: _
-		...
-	}]) & {...}
-]) & close({
+#Properties: close({
 	// This property is reserved for internal use. If you use it, the stack fails
 	// with this error: Bad property set: [Testing this property] (Service:
 	// AmazonEC2; Status Code: 400; Error Code: InvalidParameterCombination;
@@ -199,6 +188,9 @@ package schema
 
 	// The ID of the VPC that the instance is running in.
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
+	if NetworkInterfaces != _|_ {
+		SubnetId?: error("SubnetId cannot be used with NetworkInterfaces")
+	}
 })
 
 _#defs: "/$defs/Properties/definitions/AssociationParameter": close({
@@ -209,16 +201,7 @@ _#defs: "/$defs/Properties/definitions/AssociationParameter": close({
 	Value!: [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
-	VirtualName!: _
-	...
-}, {
-	Ebs!: _
-	...
-}, {
-	NoDevice!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
 	// The device name (for example, /dev/sdh or xvdh).
 	DeviceName!: string
 
@@ -226,7 +209,14 @@ _#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
 	Ebs?:         _#defs."/$defs/Properties/definitions/Ebs"
 	NoDevice?:    close({})
 	VirtualName?: string
-})
+	if VirtualName != _|_ {
+		Ebs?:      error("Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+		NoDevice?: error("NoDevice cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+	}
+	if Ebs != _|_ {
+		NoDevice?: error("NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice")
+	}
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])
 
 _#defs: "/$defs/Properties/definitions/Ebs": close({
 	// Indicates whether the EBS volume is deleted on instance termination.
@@ -340,28 +330,7 @@ _#defs: "/$defs/Properties/definitions/MetadataOptions": close({
 	InstanceMetadataTags?: "disabled" | "enabled"
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
-	matchN(0, [null | bool | number | string | [...] | {
-		AssociateCarrierIpAddress!: _
-		NetworkInterfaceId!:        _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		AssociatePublicIpAddress!: _
-		NetworkInterfaceId!:       _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		NetworkInterfaceId!:        _
-		AssociateCarrierIpAddress!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		NetworkInterfaceId!:       _
-		AssociatePublicIpAddress!: _
-		...
-	}]) & {...}
-]) & close({
+_#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 	// Not currently supported by AWS CloudFormation.
 	AssociateCarrierIpAddress?: bool
 
@@ -402,6 +371,12 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
 
 	// The ID of the subnet.
 	SubnetId?: string
+	if AssociateCarrierIpAddress != _|_ {
+		NetworkInterfaceId?: error("NetworkInterfaceId cannot be used with AssociateCarrierIpAddress")
+	}
+	if AssociatePublicIpAddress != _|_ {
+		NetworkInterfaceId?: error("NetworkInterfaceId cannot be used with AssociatePublicIpAddress")
+	}
 })
 
 _#defs: "/$defs/Properties/definitions/PrivateDnsNameOptions": close({

@@ -11,13 +11,7 @@ import (
 
 // StackSet as a resource provides one-click experience for provisioning a
 // StackSet and StackInstances
-#Properties: matchN(1, [{
-	TemplateURL!: _
-	...
-}, {
-	TemplateBody!: _
-	...
-}]) & close({
+#Properties: close({
 	// The Amazon Resource Number (ARN) of the IAM role to use to create this stack
 	// set. Specify an IAM role only if you are using customized administrator
 	// roles to control which users or groups can manage specific stack sets within
@@ -86,7 +80,12 @@ import (
 	// Location of file containing the template body. The URL must point to a
 	// template (max size: 460,800 bytes) that is located in an Amazon S3 bucket.
 	TemplateURL?: strings.MaxRunes(5120) & strings.MinRunes(1)
-})
+	if TemplateURL != _|_ {
+		TemplateBody?: error(
+			"TemplateBody cannot be used with TemplateURL; set exactly one of TemplateURL, TemplateBody",
+		)
+	}
+}) & matchN(>=1, [{TemplateURL!: _}, {TemplateBody!: _}])
 
 // AWS account that you want to create stack instances in the specified Region(s) for.
 _#defs: "/$defs/Properties/definitions/Account": =~"^[0-9]{12}$"

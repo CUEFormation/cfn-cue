@@ -11,13 +11,7 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::InferenceComponent
-#Properties: matchN(1, [{
-	Specification!: _
-	...
-}, {
-	Specifications!: _
-	...
-}]) & close({
+#Properties: close({
 	CreationTime?:             _#defs."/$defs/Properties/definitions/Timestamp"
 	DeploymentConfig?:         _#defs."/$defs/Properties/definitions/InferenceComponentDeploymentConfig"
 	EndpointArn?:              _#defs."/$defs/Properties/definitions/EndpointArn"
@@ -32,7 +26,12 @@ import (
 	Specifications?:           _#defs."/$defs/Properties/definitions/InferenceComponentSpecificationList"
 	Tags?:                     _#defs."/$defs/Properties/definitions/TagList"
 	VariantName?:              _#defs."/$defs/Properties/definitions/VariantName"
-})
+	if Specification != _|_ {
+		Specifications?: error(
+			"Specifications cannot be used with Specification; set exactly one of Specification, Specifications",
+		)
+	}
+}) & matchN(>=1, [{Specification!: _}, {Specifications!: _}])
 
 _#defs: "/$defs/Properties/definitions/Alarm": close({AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1)})
 

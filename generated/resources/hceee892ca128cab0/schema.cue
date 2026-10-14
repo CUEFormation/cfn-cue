@@ -50,13 +50,7 @@ _#defs: "/$defs/Properties/definitions/ContactTargetInfo": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Stage": matchN(1, [{
-	DurationInMinutes!: _
-	...
-}, {
-	RotationIds!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Stage": close({
 	DurationInMinutes?: int |
 		{
 			string &
@@ -73,7 +67,12 @@ _#defs: "/$defs/Properties/definitions/Stage": matchN(1, [{
 		fn.#NumberExpression
 	RotationIds?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Targets?:     [..._#defs."/$defs/Properties/definitions/Targets"] | fn.#ListExpression
-}) |
+	if DurationInMinutes != _|_ {
+		RotationIds?: error(
+			"RotationIds cannot be used with DurationInMinutes; set exactly one of DurationInMinutes, RotationIds",
+		)
+	}
+}) & matchN(>=1, [{DurationInMinutes!: _}, {RotationIds!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
@@ -82,16 +81,15 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Targets": matchN(1, [{
-	ChannelTargetInfo!: _
-	...
-}, {
-	ContactTargetInfo!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Targets": close({
 	ChannelTargetInfo?: _#defs."/$defs/Properties/definitions/ChannelTargetInfo"
 	ContactTargetInfo?: _#defs."/$defs/Properties/definitions/ContactTargetInfo"
-}) |
+	if ChannelTargetInfo != _|_ {
+		ContactTargetInfo?: error(
+			"ContactTargetInfo cannot be used with ChannelTargetInfo; set exactly one of ChannelTargetInfo, ContactTargetInfo",
+		)
+	}
+}) & matchN(>=1, [{ChannelTargetInfo!: _}, {ContactTargetInfo!: _}]) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SSMContacts::Contact"

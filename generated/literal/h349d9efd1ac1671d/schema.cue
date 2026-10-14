@@ -159,16 +159,10 @@ _#defs: "/$defs/Properties/definitions/ReplicaSpecification": close({
 	Tags?:                               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
 })
 
-_#defs: "/$defs/Properties/definitions/ReplicaStreamSpecification": matchN(>=1, [{
-	ResourcePolicy!: _
-	...
-}, {
-	Tags!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/ReplicaStreamSpecification": close({
 	ResourcePolicy?: _#defs."/$defs/Properties/definitions/ResourcePolicy"
 	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-})
+}) & matchN(>=1, [{ResourcePolicy!: _}, {Tags!: _}])
 
 _#defs: "/$defs/Properties/definitions/ResourcePolicy": close({PolicyDocument!: string | {...}})
 
@@ -218,16 +212,10 @@ _#defs: "/$defs/Properties/definitions/VectorIndex": close({
 	VectorAttribute!: _#defs."/$defs/Properties/definitions/VectorAttribute"
 })
 
-_#defs: "/$defs/Properties/definitions/WarmThroughput": matchN(>=1, [{
-	ReadUnitsPerSecond!: _
-	...
-}, {
-	WriteUnitsPerSecond!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/WarmThroughput": close({
 	ReadUnitsPerSecond?:  int & >=1
 	WriteUnitsPerSecond?: int & >=1
-})
+}) & matchN(>=1, [{ReadUnitsPerSecond!: _}, {WriteUnitsPerSecond!: _}])
 
 _#defs: "/$defs/Properties/definitions/WriteOnDemandThroughputSettings": close({MaxWriteRequestUnits?: int & >=1})
 

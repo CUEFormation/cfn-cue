@@ -7,19 +7,7 @@ import "strings"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Classifier
-#Properties: matchN(>=1, [{
-	XMLClassifier!: _
-	...
-}, {
-	CsvClassifier!: _
-	...
-}, {
-	GrokClassifier!: _
-	...
-}, {
-	JsonClassifier!: _
-	...
-}]) & close({
+#Properties: close({
 	// A classifier for comma-separated values (CSV).
 	CsvClassifier?: _#defs."/$defs/Properties/definitions/CsvClassifier"
 
@@ -34,7 +22,7 @@ import "strings"
 
 	// A classifier for XML content.
 	XMLClassifier?: _#defs."/$defs/Properties/definitions/XMLClassifier"
-})
+}) & matchN(>=1, [{XMLClassifier!: _}, {CsvClassifier!: _}, {GrokClassifier!: _}, {JsonClassifier!: _}])
 
 _#defs: "/$defs/Properties/definitions/CsvClassifier": close({
 	// Enables the processing of files that contain only one column.

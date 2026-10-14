@@ -105,16 +105,7 @@ _#defs: "/$defs/Properties/definitions/Authentication": close({
 })
 
 // Source of a trusted CA certificate. Exactly one member must be set.
-_#defs: "/$defs/Properties/definitions/CaCertificateSource": matchN(1, [{
-	InlinePem!: _
-	...
-}, {
-	ArtifactId!: _
-	...
-}, {
-	S3Location!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/CaCertificateSource": close({
 	// Artifact ID of an uploaded certificate file
 	ArtifactId?: string
 
@@ -123,7 +114,20 @@ _#defs: "/$defs/Properties/definitions/CaCertificateSource": matchN(1, [{
 
 	// Amazon S3 location URI of a customer-staged certificate
 	S3Location?: string
-})
+	if InlinePem != _|_ {
+		ArtifactId?: error(
+			"ArtifactId cannot be used with InlinePem; set exactly one of InlinePem, ArtifactId, S3Location",
+		)
+		S3Location?: error(
+			"S3Location cannot be used with InlinePem; set exactly one of InlinePem, ArtifactId, S3Location",
+		)
+	}
+	if ArtifactId != _|_ {
+		S3Location?: error(
+			"S3Location cannot be used with ArtifactId; set exactly one of InlinePem, ArtifactId, S3Location",
+		)
+	}
+}) & matchN(>=1, [{InlinePem!: _}, {ArtifactId!: _}, {S3Location!: _}])
 
 // Strategy for cleaning up resources after pentest job completion
 _#defs: "/$defs/Properties/definitions/CleanUpStrategy": "BEST_EFFORT_DELETE" | "RETAIN_ALL"

@@ -12,19 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::VPCBlockPublicAccessExclusion.
-#Properties: matchN(1, [{
-	VpcId!: _
-	...
-}, {
-	SubnetId!: _
-	...
-}]) & close({
+#Properties: close({
 	InternetGatewayExclusionMode!: "allow-bidirectional" | "allow-egress" | fn.#StringExpression
 	SubnetId?:                     string | fn.#StringExpression
 	Tags?:                         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-})
+	if VpcId != _|_ {
+		SubnetId?: error("SubnetId cannot be used with VpcId; set exactly one of VpcId, SubnetId")
+	}
+}) & matchN(>=1, [{VpcId!: _}, {SubnetId!: _}])
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

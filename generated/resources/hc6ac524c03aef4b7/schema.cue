@@ -17,13 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DirectConnect::PrivateVirtualInterface
-#Properties: matchN(1, [{
-	DirectConnectGatewayId!: _
-	...
-}, {
-	VirtualGatewayId!: _
-	...
-}]) & close({
+#Properties: close({
 	AllocatePrivateVirtualInterfaceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$" |
 		fn.#StringExpression
@@ -78,7 +72,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-})
+	if DirectConnectGatewayId != _|_ {
+		VirtualGatewayId?: error(
+			"VirtualGatewayId cannot be used with DirectConnectGatewayId; set exactly one of DirectConnectGatewayId, VirtualGatewayId",
+		)
+	}
+}) & matchN(>=1, [{DirectConnectGatewayId!: _}, {VirtualGatewayId!: _}])
 
 _#defs: "/$defs/Properties/definitions/BgpPeer": close({
 	AddressFamily!:   =~"^(ipv4)|(ipv6)$" | fn.#StringExpression

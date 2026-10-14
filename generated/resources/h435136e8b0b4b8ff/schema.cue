@@ -65,20 +65,24 @@ _#defs: "/$defs/Properties/definitions/Authentication": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CaCertificateSource": matchN(1, [{
-	InlinePem!: _
-	...
-}, {
-	ArtifactId!: _
-	...
-}, {
-	S3Location!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/CaCertificateSource": close({
 	ArtifactId?: string | fn.#StringExpression
 	InlinePem?:  string | fn.#StringExpression
 	S3Location?: string | fn.#StringExpression
-}) |
+	if InlinePem != _|_ {
+		ArtifactId?: error(
+			"ArtifactId cannot be used with InlinePem; set exactly one of InlinePem, ArtifactId, S3Location",
+		)
+		S3Location?: error(
+			"S3Location cannot be used with InlinePem; set exactly one of InlinePem, ArtifactId, S3Location",
+		)
+	}
+	if ArtifactId != _|_ {
+		S3Location?: error(
+			"S3Location cannot be used with ArtifactId; set exactly one of InlinePem, ArtifactId, S3Location",
+		)
+	}
+}) & matchN(>=1, [{InlinePem!: _}, {ArtifactId!: _}, {S3Location!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CleanUpStrategy": "BEST_EFFORT_DELETE" | "RETAIN_ALL" | fn.#StringExpression

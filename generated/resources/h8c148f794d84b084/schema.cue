@@ -108,13 +108,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticateCognitoConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": matchN(>=1, [{
-	ClientSecret!: _
-	...
-}, {
-	UseExistingClientSecret!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": close({
 	AuthenticationRequestExtraParams?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
@@ -143,7 +137,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": matchN(>=1, [{
 	TokenEndpoint!:           string | fn.#StringExpression
 	UseExistingClientSecret?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	UserInfoEndpoint!:        string | fn.#StringExpression
-}) |
+}) & matchN(>=1, [{ClientSecret!: _}, {UseExistingClientSecret!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/FixedResponseConfig": close({
@@ -307,17 +301,16 @@ _#defs: "/$defs/Properties/definitions/TargetGroupTuple": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Transform": matchN(1, [{
-	HostHeaderRewriteConfig!: _
-	...
-}, {
-	UrlRewriteConfig!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Transform": close({
 	HostHeaderRewriteConfig?: _#defs."/$defs/Properties/definitions/RewriteConfigObject" | fn.#ObjectExpression
 	Type!:                    "host-header-rewrite" | "url-rewrite" | fn.#StringExpression
 	UrlRewriteConfig?:        _#defs."/$defs/Properties/definitions/RewriteConfigObject" | fn.#ObjectExpression
-}) |
+	if HostHeaderRewriteConfig != _|_ {
+		UrlRewriteConfig?: error(
+			"UrlRewriteConfig cannot be used with HostHeaderRewriteConfig; set exactly one of HostHeaderRewriteConfig, UrlRewriteConfig",
+		)
+	}
+}) & matchN(>=1, [{HostHeaderRewriteConfig!: _}, {UrlRewriteConfig!: _}]) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ElasticLoadBalancingV2::ListenerRule"

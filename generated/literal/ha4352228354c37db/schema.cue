@@ -74,19 +74,18 @@ _#defs: "/$defs/Properties/definitions/AwsServiceEventsConfiguration": close({
 })
 
 // Event source configuration. Exactly one of the two variants must be set.
-_#defs: "/$defs/Properties/definitions/EventSourceConfiguration": matchN(1, [{
-	AwsServiceEventsConfiguration!: _
-	...
-}, {
-	PartnerEventsConfiguration!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/EventSourceConfiguration": close({
 	// Configuration for forwarding a single AWS service's events.
 	AwsServiceEventsConfiguration?: _#defs."/$defs/Properties/definitions/AwsServiceEventsConfiguration"
 
 	// Configuration for forwarding a partner event source's events.
 	PartnerEventsConfiguration?: _#defs."/$defs/Properties/definitions/PartnerEventsConfiguration"
-})
+	if AwsServiceEventsConfiguration != _|_ {
+		PartnerEventsConfiguration?: error(
+			"PartnerEventsConfiguration cannot be used with AwsServiceEventsConfiguration; set exactly one of AwsServiceEventsConfiguration, PartnerEventsConfiguration",
+		)
+	}
+}) & matchN(>=1, [{AwsServiceEventsConfiguration!: _}, {PartnerEventsConfiguration!: _}])
 
 // The destination for events that could not be forwarded by the managed
 // forwarding target or, for partner event sources, the managed partner event

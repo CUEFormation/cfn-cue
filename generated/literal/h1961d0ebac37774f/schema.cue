@@ -76,28 +76,7 @@ import (
 //
 // For more information, see [DeletionPolicy
 // Attribute](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html).
-#Properties: matchN(4, [
-	matchN(0, [null | bool | number | string | [...] | {
-		SourceDBInstanceIdentifier!: _
-		CharacterSetName!:           _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		SourceDBInstanceIdentifier!: _
-		MasterUserPassword!:         _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		SourceDBInstanceIdentifier!: _
-		MasterUsername!:             _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		SourceDBInstanceIdentifier!: _
-		StorageEncrypted!:           _
-		...
-	}]) & {...}
-]) & close({
+#Properties: close({
 	// The additional storage volumes associated with the DB instance. RDS supports
 	// additional storage volumes for RDS for Oracle and RDS for SQL Server.
 	AdditionalStorageVolumes?: [..._#defs."/$defs/Properties/definitions/AdditionalStorageVolume"]
@@ -1252,6 +1231,12 @@ import (
 	// Not applicable. The associated list of EC2 VPC security groups is managed by
 	// the DB cluster. If specified, the setting must match the DB cluster setting.
 	VPCSecurityGroups?: list.UniqueItems() & [...string]
+	if SourceDBInstanceIdentifier != _|_ {
+		CharacterSetName?:   error("CharacterSetName cannot be used with SourceDBInstanceIdentifier")
+		MasterUserPassword?: error("MasterUserPassword cannot be used with SourceDBInstanceIdentifier")
+		MasterUsername?:     error("MasterUsername cannot be used with SourceDBInstanceIdentifier")
+		StorageEncrypted?:   error("StorageEncrypted cannot be used with SourceDBInstanceIdentifier")
+	}
 })
 
 // Contains details about an additional storage volume for a DB instance. RDS

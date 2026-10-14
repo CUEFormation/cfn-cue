@@ -55,16 +55,13 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetResource": matchN(1, [{
-	NLBResource!: _
-	...
-}, {
-	R53Resource!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/TargetResource": close({
 	NLBResource?: _#defs."/$defs/Properties/definitions/NLBResource"
 	R53Resource?: _#defs."/$defs/Properties/definitions/R53ResourceRecord"
-}) |
+	if NLBResource != _|_ {
+		R53Resource?: error("R53Resource cannot be used with NLBResource; set exactly one of NLBResource, R53Resource")
+	}
+}) & matchN(>=1, [{NLBResource!: _}, {R53Resource!: _}]) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Route53RecoveryReadiness::ResourceSet"

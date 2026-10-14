@@ -10,19 +10,7 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53::RecordSet.
-#Properties: matchN(1, [{
-	HostedZoneId!: _
-	...
-}, {
-	HostedZoneName!: _
-	...
-}]) & matchN(1, [{
-	HostedZoneId!: _
-	...
-}, {
-	HostedZoneName!: _
-	...
-}]) & close({
+#Properties: close({
 	// Alias resource record sets only: Information about the AWS resource, such as
 	// a CloudFront distribution or an Amazon S3 bucket, that you want to route
 	// traffic to.
@@ -95,7 +83,15 @@ import (
 	// same combination of DNS name and type. Route 53 then responds to queries
 	// based on the ratio of a resource's weight to the total.
 	Weight?: _#defs."/$defs/Properties/definitions/Weight"
-})
+	if HostedZoneId != _|_ {
+		HostedZoneName?: error(
+			"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
+		)
+		HostedZoneName?: error(
+			"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
+		)
+	}
+}) & (matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}]) & matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}]))
 
 _#defs: "/$defs/Properties/definitions/AliasTarget": close({
 	// The value that you specify depends on where you want to route queries.
@@ -132,13 +128,7 @@ _#defs: "/$defs/Properties/definitions/Coordinates": close({
 
 _#defs: "/$defs/Properties/definitions/Failover": "PRIMARY" | "SECONDARY"
 
-_#defs: "/$defs/Properties/definitions/GeoLocation": matchN(1, [{
-	ContinentCode!: _
-	...
-}, {
-	CountryCode!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/GeoLocation": close({
 	// For geolocation resource record sets, a two-letter abbreviation that identifies a continent.
 	ContinentCode?: strings.MaxRunes(2) & strings.MinRunes(2)
 
@@ -147,18 +137,14 @@ _#defs: "/$defs/Properties/definitions/GeoLocation": matchN(1, [{
 
 	// For geolocation resource record sets, the two-letter code for a state of the United States.
 	SubdivisionCode?: strings.MaxRunes(3) & strings.MinRunes(1)
-})
+	if ContinentCode != _|_ {
+		CountryCode?: error(
+			"CountryCode cannot be used with ContinentCode; set exactly one of ContinentCode, CountryCode",
+		)
+	}
+}) & matchN(>=1, [{ContinentCode!: _}, {CountryCode!: _}])
 
-_#defs: "/$defs/Properties/definitions/GeoProximityLocation": matchN(1, [{
-	AWSRegion!: _
-	...
-}, {
-	LocalZoneGroup!: _
-	...
-}, {
-	Coordinates!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/GeoProximityLocation": close({
 	// The AWS Region the resource you are directing DNS traffic to, is in.
 	AWSRegion?: strings.MaxRunes(64) & strings.MinRunes(1)
 
@@ -171,7 +157,20 @@ _#defs: "/$defs/Properties/definitions/GeoProximityLocation": matchN(1, [{
 
 	// Specifies an AWS Local Zone.
 	LocalZoneGroup?: strings.MaxRunes(64) & strings.MinRunes(1)
-})
+	if AWSRegion != _|_ {
+		LocalZoneGroup?: error(
+			"LocalZoneGroup cannot be used with AWSRegion; set exactly one of AWSRegion, LocalZoneGroup, Coordinates",
+		)
+		Coordinates?: error(
+			"Coordinates cannot be used with AWSRegion; set exactly one of AWSRegion, LocalZoneGroup, Coordinates",
+		)
+	}
+	if LocalZoneGroup != _|_ {
+		Coordinates?: error(
+			"Coordinates cannot be used with LocalZoneGroup; set exactly one of AWSRegion, LocalZoneGroup, Coordinates",
+		)
+	}
+}) & matchN(>=1, [{AWSRegion!: _}, {LocalZoneGroup!: _}, {Coordinates!: _}])
 
 _#defs: "/$defs/Properties/definitions/HealthCheckId": strings.MaxRunes(64)
 

@@ -16,18 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::NetworkInterface resource creates network interface
-#Properties: matchN(2, [
-	matchN(0, [null | bool | number | string | [...] | {
-		Ipv6AddressCount!: _
-		Ipv6Addresses!:    _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Ipv6Addresses!:    _
-		Ipv6AddressCount!: _
-		...
-	}]) & {...}
-]) & close({
+#Properties: close({
 	ConnectionTrackingSpecification?: _#defs."/$defs/Properties/definitions/ConnectionTrackingSpecification"
 	Description?:                     string | fn.#StringExpression
 	EnablePrimaryIpv6?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -106,6 +95,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SourceDestCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SubnetId!:        string | fn.#StringExpression
 	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	if Ipv6AddressCount != _|_ {
+		Ipv6Addresses?: error("Ipv6Addresses cannot be used with Ipv6AddressCount")
+	}
 })
 
 _#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecification": close({

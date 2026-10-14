@@ -20,51 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For more information, see [Subnets for your
 // VPC](https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html)
 // in the *Amazon VPC User Guide*.
-#Properties: matchN(7, [
-	matchN(0, [null | bool | number | string | [...] | {
-		AvailabilityZone!:   _
-		AvailabilityZoneId!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		AvailabilityZoneId!: _
-		AvailabilityZone!:   _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		CidrBlock!:      _
-		Ipv4IpamPoolId!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Ipv4IpamPoolId!: _
-		CidrBlock!:      _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Ipv6CidrBlock!:  _
-		Ipv6IpamPoolId!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Ipv6IpamPoolId!: _
-		Ipv6CidrBlock!:  _
-		...
-	}]) & {...},
-	matchN(>=1, [{
-		CidrBlock!: _
-		...
-	}, {
-		Ipv4IpamPoolId!: _
-		...
-	}, {
-		Ipv6IpamPoolId!: _
-		...
-	}, {
-		Ipv6CidrBlock!: _
-		...
-	}])
-]) & close({
+#Properties: close({
 	Ipv4IpamPoolId?: _
 	if Ipv4IpamPoolId != _|_ {
 		Ipv4NetmaskLength!: _
@@ -101,7 +57,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	"Ipv4IpamPoolId"?: string | fn.#StringExpression
+	Ipv4IpamPoolId?: string | fn.#StringExpression
 	"Ipv4NetmaskLength"?: int |
 		{
 			string &
@@ -116,9 +72,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Ipv6CidrBlock?:    string | fn.#StringExpression
-	"Ipv6IpamPoolId"?: string | fn.#StringExpression
-	Ipv6Native?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Ipv6CidrBlock?:  string | fn.#StringExpression
+	Ipv6IpamPoolId?: string | fn.#StringExpression
+	Ipv6Native?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	"Ipv6NetmaskLength"?: int |
 		{
 			string &
@@ -158,7 +114,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-})
+	if AvailabilityZone != _|_ {
+		AvailabilityZoneId?: error("AvailabilityZoneId cannot be used with AvailabilityZone")
+	}
+	if CidrBlock != _|_ {
+		Ipv4IpamPoolId?: error("Ipv4IpamPoolId cannot be used with CidrBlock")
+	}
+	if Ipv6CidrBlock != _|_ {
+		Ipv6IpamPoolId?: error("Ipv6IpamPoolId cannot be used with Ipv6CidrBlock")
+	}
+}) & matchN(>=1, [{CidrBlock!: _}, {Ipv4IpamPoolId!: _}, {Ipv6IpamPoolId!: _}, {Ipv6CidrBlock!: _}])
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   string | fn.#StringExpression

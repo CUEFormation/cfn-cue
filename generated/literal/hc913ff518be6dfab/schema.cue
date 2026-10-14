@@ -46,16 +46,7 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogsDestination": close({
 // example, when a message is delivered successfully, you can send information
 // about that event to an event destination, or send notifications to endpoints
 // that are subscribed to an Amazon SNS topic.
-_#defs: "/$defs/Properties/definitions/EventDestination": matchN(1, [{
-	CloudWatchLogsDestination!: _
-	...
-}, {
-	KinesisFirehoseDestination!: _
-	...
-}, {
-	SnsDestination!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/EventDestination": close({
 	// An object that contains IamRoleArn and LogGroupArn associated with an Amazon
 	// CloudWatch event destination.
 	CloudWatchLogsDestination?: _#defs."/$defs/Properties/definitions/CloudWatchLogsDestination"
@@ -76,7 +67,20 @@ _#defs: "/$defs/Properties/definitions/EventDestination": matchN(1, [{
 
 	// An object that contains SNS TopicArn event destination.
 	SnsDestination?: _#defs."/$defs/Properties/definitions/SnsDestination"
-})
+	if CloudWatchLogsDestination != _|_ {
+		KinesisFirehoseDestination?: error(
+			"KinesisFirehoseDestination cannot be used with CloudWatchLogsDestination; set exactly one of CloudWatchLogsDestination, KinesisFirehoseDestination, SnsDestination",
+		)
+		SnsDestination?: error(
+			"SnsDestination cannot be used with CloudWatchLogsDestination; set exactly one of CloudWatchLogsDestination, KinesisFirehoseDestination, SnsDestination",
+		)
+	}
+	if KinesisFirehoseDestination != _|_ {
+		SnsDestination?: error(
+			"SnsDestination cannot be used with KinesisFirehoseDestination; set exactly one of CloudWatchLogsDestination, KinesisFirehoseDestination, SnsDestination",
+		)
+	}
+}) & matchN(>=1, [{CloudWatchLogsDestination!: _}, {KinesisFirehoseDestination!: _}, {SnsDestination!: _}])
 
 _#defs: "/$defs/Properties/definitions/KinesisFirehoseDestination": close({
 	// The Amazon Resource Name (ARN) of the delivery stream.

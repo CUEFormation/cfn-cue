@@ -16,18 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53::RecordSetGroup
-#Properties: matchN(1, [{
-	HostedZoneId!: _
-	...
-}, {
-	HostedZoneName!: _
-	...
-}]) & close({
+#Properties: close({
 	Comment?:        string | fn.#StringExpression
 	HostedZoneId?:   string | fn.#StringExpression
 	HostedZoneName?: string | fn.#StringExpression
 	RecordSets?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RecordSet"] | fn.#ListExpression
-})
+	if HostedZoneId != _|_ {
+		HostedZoneName?: error(
+			"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
+		)
+	}
+}) & matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}])
 
 _#defs: "/$defs/Properties/definitions/AliasTarget": close({
 	DNSName!:              string | fn.#StringExpression

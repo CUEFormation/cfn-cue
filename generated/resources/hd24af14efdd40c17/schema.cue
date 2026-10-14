@@ -48,19 +48,18 @@ _#defs: "/$defs/Properties/definitions/AutoDetectionScope": "ORGANIZATION" | fn.
 
 _#defs: "/$defs/Properties/definitions/AutoDetectionStatus": "ACTIVE" | "INACTIVE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ClaimMatchValueType": matchN(1, [{
-	MatchValueString!: _
-	...
-}, {
-	MatchValueStringList!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/ClaimMatchValueType": close({
 	MatchValueString?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$" | fn.#StringExpression
 	MatchValueStringList?: list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-}) |
+	if MatchValueString != _|_ {
+		MatchValueStringList?: error(
+			"MatchValueStringList cannot be used with MatchValueString; set exactly one of MatchValueString, MatchValueStringList",
+		)
+	}
+}) & matchN(>=1, [{MatchValueString!: _}, {MatchValueStringList!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CustomClaimValidationType": close({

@@ -17,13 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies an Application Load Balancer, a Network Load Balancer, or a Gateway Load Balancer.
-#Properties: matchN(1, [{
-	Subnets!: _
-	...
-}, {
-	SubnetMappings!: _
-	...
-}]) & close({
+#Properties: close({
 	EnableCapacityReservationProvisionStabilize?: bool |
 		"true" |
 		"True" |
@@ -53,7 +47,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Subnets?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
 	Type?:           "application" | "gateway" | "network" | fn.#StringExpression
-})
+	if Subnets != _|_ {
+		SubnetMappings?: error("SubnetMappings cannot be used with Subnets; set exactly one of Subnets, SubnetMappings")
+	}
+}) & matchN(>=1, [{Subnets!: _}, {SubnetMappings!: _}])
 
 _#defs: "/$defs/Properties/definitions/LoadBalancerAttribute": close({
 	Key?:   string | fn.#StringExpression

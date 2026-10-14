@@ -139,21 +139,19 @@ _#defs: "/$defs/Properties/definitions/BaselinePerformanceFactors": close(
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
-	VirtualName!: _
-	...
-}, {
-	Ebs!: _
-	...
-}, {
-	NoDevice!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
 	DeviceName?:  string | fn.#StringExpression
 	Ebs?:         _#defs."/$defs/Properties/definitions/Ebs" | fn.#ObjectExpression
 	NoDevice?:    string | fn.#StringExpression
 	VirtualName?: string | fn.#StringExpression
-}) |
+	if VirtualName != _|_ {
+		Ebs?:      error("Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+		NoDevice?: error("NoDevice cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+	}
+	if Ebs != _|_ {
+		NoDevice?: error("NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice")
+	}
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CapacityReservationSpecification": close({
@@ -795,28 +793,7 @@ _#defs: "/$defs/Properties/definitions/NetworkBandwidthGbps": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
-	matchN(0, [null | bool | number | string | [...] | {
-		AssociateCarrierIpAddress!: _
-		NetworkInterfaceId!:        _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		AssociatePublicIpAddress!: _
-		NetworkInterfaceId!:       _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		NetworkInterfaceId!:        _
-		AssociateCarrierIpAddress!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		NetworkInterfaceId!:       _
-		AssociatePublicIpAddress!: _
-		...
-	}]) & {...}
-]) & close({
+_#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 	AssociateCarrierIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AssociatePublicIpAddress?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ConnectionTrackingSpecification?: _#defs."/$defs/Properties/definitions/ConnectionTrackingSpecification" |
@@ -932,6 +909,12 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
 		} |
 		fn.#NumberExpression
 	SubnetId?: string | fn.#StringExpression
+	if AssociateCarrierIpAddress != _|_ {
+		NetworkInterfaceId?: error("NetworkInterfaceId cannot be used with AssociateCarrierIpAddress")
+	}
+	if AssociatePublicIpAddress != _|_ {
+		NetworkInterfaceId?: error("NetworkInterfaceId cannot be used with AssociatePublicIpAddress")
+	}
 }) |
 fn.#ObjectExpression
 

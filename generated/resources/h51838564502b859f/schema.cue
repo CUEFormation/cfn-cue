@@ -71,16 +71,13 @@ _#defs: "/$defs/Properties/definitions/ImageBuildConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageConfiguration": matchN(1, [{
-	Source!: _
-	...
-}, {
-	Build!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/ImageConfiguration": close({
 	Build?:  _#defs."/$defs/Properties/definitions/ImageBuildConfiguration" | fn.#ObjectExpression
 	Source?: _#defs."/$defs/Properties/definitions/ImageSource" | fn.#ObjectExpression
-}) |
+	if Source != _|_ {
+		Build?: error("Build cannot be used with Source; set exactly one of Source, Build")
+	}
+}) & matchN(>=1, [{Source!: _}, {Build!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/ImageSource": close({Uri?: string | fn.#StringExpression}) | fn.#ObjectExpression

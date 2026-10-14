@@ -84,11 +84,10 @@ _#defs: "/$defs/Properties/definitions/IncidentTemplate": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Integration": {
-	PagerDutyConfiguration!: _
-	...
-} & close({PagerDutyConfiguration?: _#defs."/$defs/Properties/definitions/PagerDutyConfiguration"}) |
-fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/Integration": close(
+	{PagerDutyConfiguration?: _#defs."/$defs/Properties/definitions/PagerDutyConfiguration"},
+) & matchN(>=1, [{PagerDutyConfiguration!: _}]) |
+	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/NotificationTargetItem": close(
 	{SnsTopicArn?: _#defs."/$defs/Properties/definitions/SnsArn"},

@@ -53,13 +53,7 @@ _#defs: "/$defs/Properties/definitions/ContactTargetInfo": close({
 
 // A set amount of time that an escalation plan or engagement plan engages the
 // specified contacts or contact methods.
-_#defs: "/$defs/Properties/definitions/Stage": matchN(1, [{
-	DurationInMinutes!: _
-	...
-}, {
-	RotationIds!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Stage": close({
 	// The time to wait until beginning the next stage.
 	DurationInMinutes?: int
 
@@ -68,7 +62,12 @@ _#defs: "/$defs/Properties/definitions/Stage": matchN(1, [{
 
 	// The contacts or contact methods that the escalation plan or engagement plan is engaging.
 	Targets?: [..._#defs."/$defs/Properties/definitions/Targets"]
-})
+	if DurationInMinutes != _|_ {
+		RotationIds?: error(
+			"RotationIds cannot be used with DurationInMinutes; set exactly one of DurationInMinutes, RotationIds",
+		)
+	}
+}) & matchN(>=1, [{DurationInMinutes!: _}, {RotationIds!: _}])
 
 // A key-value pair to associate with a resource.
 _#defs: "/$defs/Properties/definitions/Tag": close({
@@ -80,13 +79,12 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The contacts or contact methods that the escalation plan or engagement plan is engaging.
-_#defs: "/$defs/Properties/definitions/Targets": matchN(1, [{
-	ChannelTargetInfo!: _
-	...
-}, {
-	ContactTargetInfo!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Targets": close({
 	ChannelTargetInfo?: _#defs."/$defs/Properties/definitions/ChannelTargetInfo"
 	ContactTargetInfo?: _#defs."/$defs/Properties/definitions/ContactTargetInfo"
-})
+	if ChannelTargetInfo != _|_ {
+		ContactTargetInfo?: error(
+			"ContactTargetInfo cannot be used with ChannelTargetInfo; set exactly one of ChannelTargetInfo, ContactTargetInfo",
+		)
+	}
+}) & matchN(>=1, [{ChannelTargetInfo!: _}, {ContactTargetInfo!: _}])

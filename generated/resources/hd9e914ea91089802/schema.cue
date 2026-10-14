@@ -88,16 +88,15 @@ close({
 	HiddenColumns?:                 string | fn.#StringExpression
 	IgnoreCase?:                    string | fn.#StringExpression
 	IncludeInSplit?:                string | fn.#StringExpression
-	Input?: matchN(1, [{
-		S3InputDefinition!: _
-		...
-	}, {
-		DataCatalogInputDefinition!: _
-		...
-	}]) & close({
+	Input?: close({
 		DataCatalogInputDefinition?: _#defs."/$defs/Properties/definitions/DataCatalogInputDefinition"
 		S3InputDefinition?:          _#defs."/$defs/Properties/definitions/S3Location"
-	}) |
+		if S3InputDefinition != _|_ {
+			DataCatalogInputDefinition?: error(
+				"DataCatalogInputDefinition cannot be used with S3InputDefinition; set exactly one of S3InputDefinition, DataCatalogInputDefinition",
+			)
+		}
+	}) & matchN(>=1, [{S3InputDefinition!: _}, {DataCatalogInputDefinition!: _}]) |
 	fn.#ObjectExpression
 	Interval?:               string | fn.#StringExpression
 	IsText?:                 string | fn.#StringExpression
@@ -203,16 +202,15 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecondaryInput": matchN(1, [{
-	S3InputDefinition!: _
-	...
-}, {
-	DataCatalogInputDefinition!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/SecondaryInput": close({
 	DataCatalogInputDefinition?: _#defs."/$defs/Properties/definitions/DataCatalogInputDefinition"
 	S3InputDefinition?:          _#defs."/$defs/Properties/definitions/S3Location"
-}) |
+	if S3InputDefinition != _|_ {
+		DataCatalogInputDefinition?: error(
+			"DataCatalogInputDefinition cannot be used with S3InputDefinition; set exactly one of S3InputDefinition, DataCatalogInputDefinition",
+		)
+	}
+}) & matchN(>=1, [{S3InputDefinition!: _}, {DataCatalogInputDefinition!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

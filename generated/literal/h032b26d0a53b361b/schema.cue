@@ -99,16 +99,7 @@ _#defs: "/$defs/Properties/definitions/BaselinePerformanceFactors": close({
 // ``NoDevice``, or ``VirtualName``.
 // ``BlockDeviceMapping`` is a property of [AWS::EC2::LaunchTemplate
 // LaunchTemplateData](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html).
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
-	VirtualName!: _
-	...
-}, {
-	Ebs!: _
-	...
-}, {
-	NoDevice!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
 	// The device name (for example, /dev/sdh or xvdh).
 	DeviceName?: string
 
@@ -124,7 +115,14 @@ _#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
 	// instance store volumes depends on the instance type. After you connect to
 	// the instance, you must mount the volume.
 	VirtualName?: string
-})
+	if VirtualName != _|_ {
+		Ebs?:      error("Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+		NoDevice?: error("NoDevice cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+	}
+	if Ebs != _|_ {
+		NoDevice?: error("NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice")
+	}
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])
 
 // Specifies an instance's Capacity Reservation targeting option. You can
 // specify only one option at a time.
@@ -1160,28 +1158,7 @@ _#defs: "/$defs/Properties/definitions/NetworkBandwidthGbps": close({
 // Specifies the parameters for a network interface.
 // ``NetworkInterface`` is a property of [AWS::EC2::LaunchTemplate
 // LaunchTemplateData](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html).
-_#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
-	matchN(0, [null | bool | number | string | [...] | {
-		AssociateCarrierIpAddress!: _
-		NetworkInterfaceId!:        _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		AssociatePublicIpAddress!: _
-		NetworkInterfaceId!:       _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		NetworkInterfaceId!:        _
-		AssociateCarrierIpAddress!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		NetworkInterfaceId!:       _
-		AssociatePublicIpAddress!: _
-		...
-	}]) & {...}
-]) & close({
+_#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 	// Associates a Carrier IP address with eth0 for a new network interface.
 	// Use this option when you launch an instance in a Wavelength Zone and want to
 	// associate a Carrier IP address with the network interface. For more
@@ -1289,6 +1266,12 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
 
 	// The ID of the subnet for the network interface.
 	SubnetId?: string
+	if AssociateCarrierIpAddress != _|_ {
+		NetworkInterfaceId?: error("NetworkInterfaceId cannot be used with AssociateCarrierIpAddress")
+	}
+	if AssociatePublicIpAddress != _|_ {
+		NetworkInterfaceId?: error("NetworkInterfaceId cannot be used with AssociatePublicIpAddress")
+	}
 })
 
 // The minimum and maximum number of network interfaces.

@@ -25,20 +25,11 @@ _#defs: "/$defs/Properties/definitions/CountryRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CountryRuleSet": matchN(>=1, [{
-	SMS!: _
-	...
-}, {
-	VOICE!: _
-	...
-}, {
-	MMS!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/CountryRuleSet": close({
 	MMS?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"] | fn.#ListExpression
 	SMS?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"] | fn.#ListExpression
 	VOICE?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"] | fn.#ListExpression
-}) |
+}) & matchN(>=1, [{SMS!: _}, {VOICE!: _}, {MMS!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Tag": close({

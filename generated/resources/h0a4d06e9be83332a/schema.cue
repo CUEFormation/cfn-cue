@@ -34,16 +34,15 @@ _#defs: "/$defs/Properties/definitions/Configuration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobDriver": matchN(1, [{
-	SparkSubmitJobDriver!: _
-	...
-}, {
-	SparkSqlJobDriver!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/JobDriver": close({
 	SparkSqlJobDriver?:    _#defs."/$defs/Properties/definitions/SparkSqlJobDriver"
 	SparkSubmitJobDriver?: _#defs."/$defs/Properties/definitions/SparkSubmitJobDriver"
-}) |
+	if SparkSubmitJobDriver != _|_ {
+		SparkSqlJobDriver?: error(
+			"SparkSqlJobDriver cannot be used with SparkSubmitJobDriver; set exactly one of SparkSubmitJobDriver, SparkSqlJobDriver",
+		)
+	}
+}) & matchN(>=1, [{SparkSubmitJobDriver!: _}, {SparkSqlJobDriver!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/JobTemplateData": close({

@@ -477,28 +477,7 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SqlString": strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StorageConfiguration": matchN(1, [{
-	OpensearchServerlessConfiguration!: _
-	...
-}, {
-	PineconeConfiguration!: _
-	...
-}, {
-	RdsConfiguration!: _
-	...
-}, {
-	NeptuneAnalyticsConfiguration!: _
-	...
-}, {
-	S3VectorsConfiguration!: _
-	...
-}, {
-	MongoDbAtlasConfiguration!: _
-	...
-}, {
-	OpensearchManagedClusterConfiguration!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/StorageConfiguration": close({
 	MongoDbAtlasConfiguration?:             _#defs."/$defs/Properties/definitions/MongoDbAtlasConfiguration"
 	NeptuneAnalyticsConfiguration?:         _#defs."/$defs/Properties/definitions/NeptuneAnalyticsConfiguration"
 	OpensearchManagedClusterConfiguration?: _#defs."/$defs/Properties/definitions/OpenSearchManagedClusterConfiguration"
@@ -507,7 +486,99 @@ _#defs: "/$defs/Properties/definitions/StorageConfiguration": matchN(1, [{
 	RdsConfiguration?:                      _#defs."/$defs/Properties/definitions/RdsConfiguration"
 	S3VectorsConfiguration?:                _#defs."/$defs/Properties/definitions/S3VectorsConfiguration"
 	Type!:                                  _#defs."/$defs/Properties/definitions/KnowledgeBaseStorageType"
-}) |
+	if OpensearchServerlessConfiguration != _|_ {
+		PineconeConfiguration?: error(
+			"PineconeConfiguration cannot be used with OpensearchServerlessConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+		RdsConfiguration?: error(
+			"RdsConfiguration cannot be used with OpensearchServerlessConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+		NeptuneAnalyticsConfiguration?: error(
+			"NeptuneAnalyticsConfiguration cannot be used with OpensearchServerlessConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+		S3VectorsConfiguration?: error(
+			"S3VectorsConfiguration cannot be used with OpensearchServerlessConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+		MongoDbAtlasConfiguration?: error(
+			"MongoDbAtlasConfiguration cannot be used with OpensearchServerlessConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+		OpensearchManagedClusterConfiguration?: error(
+			"OpensearchManagedClusterConfiguration cannot be used with OpensearchServerlessConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+	}
+	if PineconeConfiguration != _|_ {
+		RdsConfiguration?: error(
+			"RdsConfiguration cannot be used with PineconeConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+		NeptuneAnalyticsConfiguration?: error(
+			"NeptuneAnalyticsConfiguration cannot be used with PineconeConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+		S3VectorsConfiguration?: error(
+			"S3VectorsConfiguration cannot be used with PineconeConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+		MongoDbAtlasConfiguration?: error(
+			"MongoDbAtlasConfiguration cannot be used with PineconeConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+		OpensearchManagedClusterConfiguration?: error(
+			"OpensearchManagedClusterConfiguration cannot be used with PineconeConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+	}
+	if RdsConfiguration != _|_ {
+		NeptuneAnalyticsConfiguration?: error(
+			"NeptuneAnalyticsConfiguration cannot be used with RdsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+		S3VectorsConfiguration?: error(
+			"S3VectorsConfiguration cannot be used with RdsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+		MongoDbAtlasConfiguration?: error(
+			"MongoDbAtlasConfiguration cannot be used with RdsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+		OpensearchManagedClusterConfiguration?: error(
+			"OpensearchManagedClusterConfiguration cannot be used with RdsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+	}
+	if NeptuneAnalyticsConfiguration != _|_ {
+		S3VectorsConfiguration?: error(
+			"S3VectorsConfiguration cannot be used with NeptuneAnalyticsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+		MongoDbAtlasConfiguration?: error(
+			"MongoDbAtlasConfiguration cannot be used with NeptuneAnalyticsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+		OpensearchManagedClusterConfiguration?: error(
+			"OpensearchManagedClusterConfiguration cannot be used with NeptuneAnalyticsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+	}
+	if S3VectorsConfiguration != _|_ {
+		MongoDbAtlasConfiguration?: error(
+			"MongoDbAtlasConfiguration cannot be used with S3VectorsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+		OpensearchManagedClusterConfiguration?: error(
+			"OpensearchManagedClusterConfiguration cannot be used with S3VectorsConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+	}
+	if MongoDbAtlasConfiguration != _|_ {
+		OpensearchManagedClusterConfiguration?: error(
+			"OpensearchManagedClusterConfiguration cannot be used with MongoDbAtlasConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
+		)
+	}
+}) & matchN(
+	>=1,
+	[{
+		OpensearchServerlessConfiguration!: _
+	}, {
+		PineconeConfiguration!: _
+	}, {
+		RdsConfiguration!: _
+	}, {
+		NeptuneAnalyticsConfiguration!: _
+	}, {
+		S3VectorsConfiguration!: _
+	}, {
+		MongoDbAtlasConfiguration!: _
+	}, {
+		OpensearchManagedClusterConfiguration!: _
+	}],
+) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SupplementalDataStorageConfiguration": close(

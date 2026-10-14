@@ -51,21 +51,25 @@ _#defs: "/$defs/Properties/definitions/DataflowEdge": close({
 	Source?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/StreamsKmsKey": matchN(1, [{
-	KmsKeyArn!: _
-	...
-}, {
-	KmsAliasArn!: _
-	...
-}, {
-	KmsAliasName!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/StreamsKmsKey": close({
 	KmsAliasArn?:  =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
 	KmsAliasName?: =~"^alias/[a-zA-Z0-9:/_-]+$"
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
-})
+	if KmsKeyArn != _|_ {
+		KmsAliasArn?: error(
+			"KmsAliasArn cannot be used with KmsKeyArn; set exactly one of KmsKeyArn, KmsAliasArn, KmsAliasName",
+		)
+		KmsAliasName?: error(
+			"KmsAliasName cannot be used with KmsKeyArn; set exactly one of KmsKeyArn, KmsAliasArn, KmsAliasName",
+		)
+	}
+	if KmsAliasArn != _|_ {
+		KmsAliasName?: error(
+			"KmsAliasName cannot be used with KmsAliasArn; set exactly one of KmsKeyArn, KmsAliasArn, KmsAliasName",
+		)
+	}
+}) & matchN(>=1, [{KmsKeyArn!: _}, {KmsAliasArn!: _}, {KmsAliasName!: _}])
 
 _#defs: "/$defs/Properties/definitions/Tag": close({
 	Key!:   =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$"

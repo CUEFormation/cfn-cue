@@ -103,16 +103,15 @@ _#defs: "/$defs/Properties/definitions/AuthorizingClaimMatchValueType": close({
 	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType"
 })
 
-_#defs: "/$defs/Properties/definitions/ClaimMatchValueType": matchN(1, [{
-	MatchValueString!: _
-	...
-}, {
-	MatchValueStringList!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/ClaimMatchValueType": close({
 	MatchValueString?:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-]+$"
 	MatchValueStringList?: list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-]+$"]
-})
+	if MatchValueString != _|_ {
+		MatchValueStringList?: error(
+			"MatchValueStringList cannot be used with MatchValueString; set exactly one of MatchValueString, MatchValueStringList",
+		)
+	}
+}) & matchN(>=1, [{MatchValueString!: _}, {MatchValueStringList!: _}])
 
 _#defs: "/$defs/Properties/definitions/ContainerConfiguration": close({
 	// The ECR URI of the container.
@@ -260,20 +259,18 @@ _#defs: "/$defs/Properties/definitions/HarnessEnvironmentProvider": close(
 	{AgentCoreRuntimeEnvironment?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreRuntimeEnvironment"},
 )
 
-_#defs: "/$defs/Properties/definitions/HarnessGatewayOutboundAuth": matchN(1, [{
-	AwsIam!: _
-	...
-}, {
-	None!: _
-	...
-}, {
-	Oauth!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/HarnessGatewayOutboundAuth": close({
 	AwsIam?: close({})
 	None?:   close({})
 	Oauth?:  _#defs."/$defs/Properties/definitions/OAuthCredentialProvider"
-})
+	if AwsIam != _|_ {
+		None?:  error("None cannot be used with AwsIam; set exactly one of AwsIam, None, Oauth")
+		Oauth?: error("Oauth cannot be used with AwsIam; set exactly one of AwsIam, None, Oauth")
+	}
+	if None != _|_ {
+		Oauth?: error("Oauth cannot be used with None; set exactly one of AwsIam, None, Oauth")
+	}
+}) & matchN(>=1, [{AwsIam!: _}, {None!: _}, {Oauth!: _}])
 
 _#defs: "/$defs/Properties/definitions/HarnessGeminiModelConfig": close({
 	// Provider-specific parameters passed through to the Gemini model provider unchanged.
@@ -288,24 +285,36 @@ _#defs: "/$defs/Properties/definitions/HarnessGeminiModelConfig": close({
 })
 
 // A lifecycle hook configured for one phase of the agent loop.
-_#defs: "/$defs/Properties/definitions/HarnessHook": matchN(1, [{
-	BeforeInvocation!: _
-	...
-}, {
-	AfterInvocation!: _
-	...
-}, {
-	BeforeToolCall!: _
-	...
-}, {
-	AfterToolCall!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/HarnessHook": close({
 	AfterInvocation?:  _#defs."/$defs/Properties/definitions/HarnessAfterInvocationHook"
 	AfterToolCall?:    _#defs."/$defs/Properties/definitions/HarnessAfterToolCallHook"
 	BeforeInvocation?: _#defs."/$defs/Properties/definitions/HarnessBeforeInvocationHook"
 	BeforeToolCall?:   _#defs."/$defs/Properties/definitions/HarnessBeforeToolCallHook"
-})
+	if BeforeInvocation != _|_ {
+		AfterInvocation?: error(
+			"AfterInvocation cannot be used with BeforeInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+		BeforeToolCall?: error(
+			"BeforeToolCall cannot be used with BeforeInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+		AfterToolCall?: error(
+			"AfterToolCall cannot be used with BeforeInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+	}
+	if AfterInvocation != _|_ {
+		BeforeToolCall?: error(
+			"BeforeToolCall cannot be used with AfterInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+		AfterToolCall?: error(
+			"AfterToolCall cannot be used with AfterInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+	}
+	if BeforeToolCall != _|_ {
+		AfterToolCall?: error(
+			"AfterToolCall cannot be used with BeforeToolCall; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+	}
+}) & matchN(>=1, [{BeforeInvocation!: _}, {AfterInvocation!: _}, {BeforeToolCall!: _}, {AfterToolCall!: _}])
 
 // An EventBridge event bus that receives lifecycle hook events asynchronously.
 _#defs: "/$defs/Properties/definitions/HarnessHookEventBridgeTarget": close({
@@ -334,20 +343,18 @@ _#defs: "/$defs/Properties/definitions/HarnessHookSnsTarget": close({
 })
 
 // The destination that receives lifecycle hook events.
-_#defs: "/$defs/Properties/definitions/HarnessHookTarget": matchN(1, [{
-	Lambda!: _
-	...
-}, {
-	Sns!: _
-	...
-}, {
-	EventBridge!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/HarnessHookTarget": close({
 	EventBridge?: _#defs."/$defs/Properties/definitions/HarnessHookEventBridgeTarget"
 	Lambda?:      _#defs."/$defs/Properties/definitions/HarnessHookLambdaTarget"
 	Sns?:         _#defs."/$defs/Properties/definitions/HarnessHookSnsTarget"
-})
+	if Lambda != _|_ {
+		Sns?:         error("Sns cannot be used with Lambda; set exactly one of Lambda, Sns, EventBridge")
+		EventBridge?: error("EventBridge cannot be used with Lambda; set exactly one of Lambda, Sns, EventBridge")
+	}
+	if Sns != _|_ {
+		EventBridge?: error("EventBridge cannot be used with Sns; set exactly one of Lambda, Sns, EventBridge")
+	}
+}) & matchN(>=1, [{Lambda!: _}, {Sns!: _}, {EventBridge!: _}])
 
 _#defs: "/$defs/Properties/definitions/HarnessInlineFunctionConfig": close({
 	Description!: strings.MaxRunes(4096) & strings.MinRunes(1)
@@ -393,24 +400,36 @@ _#defs: "/$defs/Properties/definitions/HarnessMemoryConfiguration": close({
 	ManagedMemoryConfiguration?:   _#defs."/$defs/Properties/definitions/HarnessManagedMemoryConfiguration"
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessModelConfiguration": matchN(1, [{
-	BedrockModelConfig!: _
-	...
-}, {
-	OpenAiModelConfig!: _
-	...
-}, {
-	GeminiModelConfig!: _
-	...
-}, {
-	LiteLlmModelConfig!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/HarnessModelConfiguration": close({
 	BedrockModelConfig?: _#defs."/$defs/Properties/definitions/HarnessBedrockModelConfig"
 	GeminiModelConfig?:  _#defs."/$defs/Properties/definitions/HarnessGeminiModelConfig"
 	LiteLlmModelConfig?: _#defs."/$defs/Properties/definitions/HarnessLiteLlmModelConfig"
 	OpenAiModelConfig?:  _#defs."/$defs/Properties/definitions/HarnessOpenAiModelConfig"
-})
+	if BedrockModelConfig != _|_ {
+		OpenAiModelConfig?: error(
+			"OpenAiModelConfig cannot be used with BedrockModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+		GeminiModelConfig?: error(
+			"GeminiModelConfig cannot be used with BedrockModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+		LiteLlmModelConfig?: error(
+			"LiteLlmModelConfig cannot be used with BedrockModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+	}
+	if OpenAiModelConfig != _|_ {
+		GeminiModelConfig?: error(
+			"GeminiModelConfig cannot be used with OpenAiModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+		LiteLlmModelConfig?: error(
+			"LiteLlmModelConfig cannot be used with OpenAiModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+	}
+	if GeminiModelConfig != _|_ {
+		LiteLlmModelConfig?: error(
+			"LiteLlmModelConfig cannot be used with GeminiModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+	}
+}) & matchN(>=1, [{BedrockModelConfig!: _}, {OpenAiModelConfig!: _}, {GeminiModelConfig!: _}, {LiteLlmModelConfig!: _}])
 
 _#defs: "/$defs/Properties/definitions/HarnessOpenAiModelConfig": close({
 	// Provider-specific parameters passed through to the model provider unchanged.
@@ -503,28 +522,64 @@ _#defs: "/$defs/Properties/definitions/HarnessTool": close({
 	Type!:   "remote_mcp" | "agentcore_browser" | "agentcore_gateway" | "inline_function" | "agentcore_code_interpreter"
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessToolConfiguration": matchN(1, [{
-	RemoteMcp!: _
-	...
-}, {
-	AgentCoreBrowser!: _
-	...
-}, {
-	AgentCoreGateway!: _
-	...
-}, {
-	InlineFunction!: _
-	...
-}, {
-	AgentCoreCodeInterpreter!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/HarnessToolConfiguration": close({
 	AgentCoreBrowser?:         _#defs."/$defs/Properties/definitions/HarnessAgentCoreBrowserConfig"
 	AgentCoreCodeInterpreter?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreCodeInterpreterConfig"
 	AgentCoreGateway?:         _#defs."/$defs/Properties/definitions/HarnessAgentCoreGatewayConfig"
 	InlineFunction?:           _#defs."/$defs/Properties/definitions/HarnessInlineFunctionConfig"
 	RemoteMcp?:                _#defs."/$defs/Properties/definitions/HarnessRemoteMcpConfig"
-})
+	if RemoteMcp != _|_ {
+		AgentCoreBrowser?: error(
+			"AgentCoreBrowser cannot be used with RemoteMcp; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		AgentCoreGateway?: error(
+			"AgentCoreGateway cannot be used with RemoteMcp; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		InlineFunction?: error(
+			"InlineFunction cannot be used with RemoteMcp; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		AgentCoreCodeInterpreter?: error(
+			"AgentCoreCodeInterpreter cannot be used with RemoteMcp; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+	}
+	if AgentCoreBrowser != _|_ {
+		AgentCoreGateway?: error(
+			"AgentCoreGateway cannot be used with AgentCoreBrowser; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		InlineFunction?: error(
+			"InlineFunction cannot be used with AgentCoreBrowser; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		AgentCoreCodeInterpreter?: error(
+			"AgentCoreCodeInterpreter cannot be used with AgentCoreBrowser; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+	}
+	if AgentCoreGateway != _|_ {
+		InlineFunction?: error(
+			"InlineFunction cannot be used with AgentCoreGateway; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		AgentCoreCodeInterpreter?: error(
+			"AgentCoreCodeInterpreter cannot be used with AgentCoreGateway; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+	}
+	if InlineFunction != _|_ {
+		AgentCoreCodeInterpreter?: error(
+			"AgentCoreCodeInterpreter cannot be used with InlineFunction; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+	}
+}) & matchN(
+	>=1,
+	[{
+		RemoteMcp!: _
+	}, {
+		AgentCoreBrowser!: _
+	}, {
+		AgentCoreGateway!: _
+	}, {
+		InlineFunction!: _
+	}, {
+		AgentCoreCodeInterpreter!: _
+	}],
+)
 
 _#defs: "/$defs/Properties/definitions/HarnessTruncationConfiguration": close({
 	Config?:   _#defs."/$defs/Properties/definitions/HarnessTruncationStrategyConfiguration"

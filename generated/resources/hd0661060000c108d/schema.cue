@@ -93,24 +93,12 @@ _#defs: "/$defs/Properties/definitions/Capacity": <=1 & >=0.01 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ChannelSubtypeConfig": matchN(>=1, [{
-	Telephony!: _
-	...
-}, {
-	Sms!: _
-	...
-}, {
-	Email!: _
-	...
-}, {
-	WhatsApp!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/ChannelSubtypeConfig": close({
 	Email?:     _#defs."/$defs/Properties/definitions/EmailChannelSubtypeConfig"
 	Sms?:       _#defs."/$defs/Properties/definitions/SmsChannelSubtypeConfig"
 	Telephony?: _#defs."/$defs/Properties/definitions/TelephonyChannelSubtypeConfig"
 	WhatsApp?:  _#defs."/$defs/Properties/definitions/WhatsAppChannelSubtypeConfig"
-}) |
+}) & matchN(>=1, [{Telephony!: _}, {Sms!: _}, {Email!: _}, {WhatsApp!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/CommunicationLimit": close({
@@ -316,11 +304,10 @@ _#defs: "/$defs/Properties/definitions/RestrictedPeriodList": [
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/RestrictedPeriods": {
-	RestrictedPeriodList!: _
-	...
-} & close({RestrictedPeriodList?: _#defs."/$defs/Properties/definitions/RestrictedPeriodList"}) |
-fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/RestrictedPeriods": close(
+	{RestrictedPeriodList?: _#defs."/$defs/Properties/definitions/RestrictedPeriodList"},
+) & matchN(>=1, [{RestrictedPeriodList!: _}]) |
+	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/RingTimeout": int & <=60 & >=15 |
 	{
@@ -364,16 +351,15 @@ _#defs: "/$defs/Properties/definitions/SmsOutboundMode": close(
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Source": matchN(1, [{
-	CustomerProfilesSegmentArn!: _
-	...
-}, {
-	EventTrigger!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Source": close({
 	CustomerProfilesSegmentArn?: _#defs."/$defs/Properties/definitions/Arn"
 	EventTrigger?:               _#defs."/$defs/Properties/definitions/EventTrigger"
-}) |
+	if CustomerProfilesSegmentArn != _|_ {
+		EventTrigger?: error(
+			"EventTrigger cannot be used with CustomerProfilesSegmentArn; set exactly one of CustomerProfilesSegmentArn, EventTrigger",
+		)
+	}
+}) & matchN(>=1, [{CustomerProfilesSegmentArn!: _}, {EventTrigger!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/SourceEmailAddressDisplayName": strings.MaxRunes(256) & strings.MinRunes(0) |
@@ -403,24 +389,36 @@ _#defs: "/$defs/Properties/definitions/TelephonyOutboundConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TelephonyOutboundMode": matchN(1, [{
-	ProgressiveConfig!: _
-	...
-}, {
-	PredictiveConfig!: _
-	...
-}, {
-	AgentlessConfig!: _
-	...
-}, {
-	PreviewConfig!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/TelephonyOutboundMode": close({
 	AgentlessConfig?:   _#defs."/$defs/Properties/definitions/AgentlessConfig"
 	PredictiveConfig?:  _#defs."/$defs/Properties/definitions/PredictiveConfig"
 	PreviewConfig?:     _#defs."/$defs/Properties/definitions/PreviewConfig"
 	ProgressiveConfig?: _#defs."/$defs/Properties/definitions/ProgressiveConfig"
-}) |
+	if ProgressiveConfig != _|_ {
+		PredictiveConfig?: error(
+			"PredictiveConfig cannot be used with ProgressiveConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
+		)
+		AgentlessConfig?: error(
+			"AgentlessConfig cannot be used with ProgressiveConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
+		)
+		PreviewConfig?: error(
+			"PreviewConfig cannot be used with ProgressiveConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
+		)
+	}
+	if PredictiveConfig != _|_ {
+		AgentlessConfig?: error(
+			"AgentlessConfig cannot be used with PredictiveConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
+		)
+		PreviewConfig?: error(
+			"PreviewConfig cannot be used with PredictiveConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
+		)
+	}
+	if AgentlessConfig != _|_ {
+		PreviewConfig?: error(
+			"PreviewConfig cannot be used with AgentlessConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
+		)
+	}
+}) & matchN(>=1, [{ProgressiveConfig!: _}, {PredictiveConfig!: _}, {AgentlessConfig!: _}, {PreviewConfig!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TimeRange": close({

@@ -87,16 +87,7 @@ _#defs: "/$defs/Properties/definitions/Rule": matchN(>=1, [{
 	ExpirationInDays?: int & >=1
 
 	// The container for the filter of the lifecycle rule.
-	Filter?: matchN(1, [{
-		Prefix!: _
-		...
-	}, {
-		Tag!: _
-		...
-	}, {
-		AndOperator!: _
-		...
-	}]) & close({
+	Filter?: close({
 		// The container for the AND condition for the lifecycle rule. A combination of
 		// Prefix and 1 or more Tags OR a minimum of 2 or more tags.
 		AndOperator?: _#defs."/$defs/Properties/definitions/FilterAndOperator"
@@ -106,7 +97,14 @@ _#defs: "/$defs/Properties/definitions/Rule": matchN(>=1, [{
 
 		// Specifies a tag used to identify a subset of objects for an Amazon S3Outposts bucket.
 		Tag?: _#defs."/$defs/Properties/definitions/FilterTag"
-	})
+		if Prefix != _|_ {
+			Tag?:         error("Tag cannot be used with Prefix; set exactly one of Prefix, Tag, AndOperator")
+			AndOperator?: error("AndOperator cannot be used with Prefix; set exactly one of Prefix, Tag, AndOperator")
+		}
+		if Tag != _|_ {
+			AndOperator?: error("AndOperator cannot be used with Tag; set exactly one of Prefix, Tag, AndOperator")
+		}
+	}) & matchN(>=1, [{Prefix!: _}, {Tag!: _}, {AndOperator!: _}])
 
 	// Unique identifier for the lifecycle rule. The value can't be longer than 255 characters.
 	Id?:     strings.MaxRunes(255)

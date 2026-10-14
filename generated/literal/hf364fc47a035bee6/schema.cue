@@ -27,16 +27,13 @@ _#defs: "/$defs/Properties/definitions/AppConfigResourceObject": close({
 })
 
 // Destinations for data.
-_#defs: "/$defs/Properties/definitions/DataDeliveryObject": matchN(1, [{
-	S3!: _
-	...
-}, {
-	LogGroup!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/DataDeliveryObject": close({
 	LogGroup?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9._/]+$"
 	S3?:       _#defs."/$defs/Properties/definitions/S3Destination"
-})
+	if S3 != _|_ {
+		LogGroup?: error("LogGroup cannot be used with S3; set exactly one of S3, LogGroup")
+	}
+}) & matchN(>=1, [{S3!: _}, {LogGroup!: _}])
 
 _#defs: "/$defs/Properties/definitions/S3Destination": close({
 	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]*[a-z0-9]$"

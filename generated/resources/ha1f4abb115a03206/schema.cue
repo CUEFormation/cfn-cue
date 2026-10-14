@@ -35,16 +35,13 @@ _#defs: "/$defs/Properties/definitions/GatewayCapabilitySummary": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayPlatform": matchN(1, [{
-	GreengrassV2!: _
-	...
-}, {
-	SiemensIE!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/GatewayPlatform": close({
 	GreengrassV2?: _#defs."/$defs/Properties/definitions/GreengrassV2" | fn.#ObjectExpression
 	SiemensIE?:    _#defs."/$defs/Properties/definitions/SiemensIE" | fn.#ObjectExpression
-}) |
+	if GreengrassV2 != _|_ {
+		SiemensIE?: error("SiemensIE cannot be used with GreengrassV2; set exactly one of GreengrassV2, SiemensIE")
+	}
+}) & matchN(>=1, [{GreengrassV2!: _}, {SiemensIE!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/GatewayVersion": string | fn.#StringExpression

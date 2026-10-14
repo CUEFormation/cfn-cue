@@ -76,16 +76,15 @@ _#defs: "/$defs/Properties/definitions/AutoScaling": close({
 })
 
 // Information about the capacity allocated to the connector.
-_#defs: "/$defs/Properties/definitions/Capacity": matchN(1, [{
-	AutoScaling!: _
-	...
-}, {
-	ProvisionedCapacity!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Capacity": close({
 	AutoScaling?:         _#defs."/$defs/Properties/definitions/AutoScaling"
 	ProvisionedCapacity?: _#defs."/$defs/Properties/definitions/ProvisionedCapacity"
-})
+	if AutoScaling != _|_ {
+		ProvisionedCapacity?: error(
+			"ProvisionedCapacity cannot be used with AutoScaling; set exactly one of AutoScaling, ProvisionedCapacity",
+		)
+	}
+}) & matchN(>=1, [{AutoScaling!: _}, {ProvisionedCapacity!: _}])
 
 // Details about delivering logs to Amazon CloudWatch Logs.
 _#defs: "/$defs/Properties/definitions/CloudWatchLogsLogDelivery": close({

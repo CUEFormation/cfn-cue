@@ -17,13 +17,7 @@ import (
 // and [Step scaling
 // policies](https://docs.aws.amazon.com/autoscaling/application/userguide/application-auto-scaling-step-scaling-policies.html)
 // in the *Application Auto Scaling User Guide*.
-#Properties: matchN(1, [{
-	ScalingTargetId!: _
-	...
-}, {
-	ResourceId!: _
-	...
-}]) & close({
+#Properties: close({
 	ResourceId?: _
 	if ResourceId != _|_ {
 		ScalableDimension!: _
@@ -112,7 +106,7 @@ import (
 	// Example: ``inference-component/my-inference-component``.
 	// + Pool of WorkSpaces - The resource type is ``workspacespool`` and the unique
 	// identifier is the pool ID. Example: ``workspacespool/wspool-123456``.
-	"ResourceId"?: strings.MaxRunes(1600) & strings.MinRunes(1)
+	ResourceId?: strings.MaxRunes(1600) & strings.MinRunes(1)
 
 	// The scalable dimension. This string consists of the service namespace,
 	// resource type, and scaling property.
@@ -216,7 +210,12 @@ import (
 	// A target tracking scaling policy.
 	TargetTrackingScalingPolicyConfiguration?:
 		_#defs."/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration"
-})
+	if ScalingTargetId != _|_ {
+		ResourceId?: error(
+			"ResourceId cannot be used with ScalingTargetId; set exactly one of ScalingTargetId, ResourceId",
+		)
+	}
+}) & matchN(>=1, [{ScalingTargetId!: _}, {ResourceId!: _}])
 
 // Contains customized metric specification information for a target tracking
 // scaling policy for Application Auto Scaling.

@@ -53,16 +53,15 @@ _#defs: "/$defs/Properties/definitions/AuditLogProcessingConfiguration": close({
 })
 
 // Contains information about an audit log destination.
-_#defs: "/$defs/Properties/definitions/Destination": matchN(1, [{
-	S3Bucket!: _
-	...
-}, {
-	FirehoseStream!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Destination": close({
 	FirehoseStream?: _#defs."/$defs/Properties/definitions/FirehoseStream"
 	S3Bucket?:       _#defs."/$defs/Properties/definitions/S3Bucket"
-})
+	if S3Bucket != _|_ {
+		FirehoseStream?: error(
+			"FirehoseStream cannot be used with S3Bucket; set exactly one of S3Bucket, FirehoseStream",
+		)
+	}
+}) & matchN(>=1, [{S3Bucket!: _}, {FirehoseStream!: _}])
 
 // Contains information about the destination of ingested data.
 _#defs: "/$defs/Properties/definitions/DestinationConfiguration": close(

@@ -36,21 +36,19 @@ import "list"
 	Volumes?:              list.UniqueItems() & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
-	VirtualName!: _
-	...
-}, {
-	Ebs!: _
-	...
-}, {
-	NoDevice!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
 	DeviceName?:  string
 	Ebs?:         _#defs."/$defs/Properties/definitions/EbsBlockDevice"
 	NoDevice?:    string
 	VirtualName?: string
-})
+	if VirtualName != _|_ {
+		Ebs?:      error("Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+		NoDevice?: error("NoDevice cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice")
+	}
+	if Ebs != _|_ {
+		NoDevice?: error("NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice")
+	}
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])
 
 _#defs: "/$defs/Properties/definitions/EbsBlockDevice": close({
 	DeleteOnTermination?: bool

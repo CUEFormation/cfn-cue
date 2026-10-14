@@ -34,19 +34,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [Migrate CloudFormation stacks from launch configurations to launch
 // templates](https://docs.aws.amazon.com/autoscaling/ec2/userguide/migrate-launch-configurations-with-cloudformation.html)
 // in the *Amazon EC2 Auto Scaling User Guide*.
-#Properties: matchN(1, [{
-	InstanceId!: _
-	...
-}, {
-	LaunchConfigurationName!: _
-	...
-}, {
-	LaunchTemplate!: _
-	...
-}, {
-	MixedInstancesPolicy!: _
-	...
-}]) & close({
+#Properties: close({
 	AutoScalingGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	AvailabilityZoneDistribution?: _#defs."/$defs/Properties/definitions/AvailabilityZoneDistribution" |
 		fn.#ObjectExpression
@@ -142,7 +130,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	TrafficSources?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TrafficSourceIdentifier"] |
 		fn.#ListExpression
 	VPCZoneIdentifier?: [...string | fn.#StringExpression] | fn.#ListExpression
-})
+	if InstanceId != _|_ {
+		LaunchConfigurationName?: error(
+			"LaunchConfigurationName cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+		)
+		LaunchTemplate?: error(
+			"LaunchTemplate cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+		)
+		MixedInstancesPolicy?: error(
+			"MixedInstancesPolicy cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+		)
+	}
+	if LaunchConfigurationName != _|_ {
+		LaunchTemplate?: error(
+			"LaunchTemplate cannot be used with LaunchConfigurationName; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+		)
+		MixedInstancesPolicy?: error(
+			"MixedInstancesPolicy cannot be used with LaunchConfigurationName; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+		)
+	}
+	if LaunchTemplate != _|_ {
+		MixedInstancesPolicy?: error(
+			"MixedInstancesPolicy cannot be used with LaunchTemplate; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+		)
+	}
+}) & matchN(>=1, [{InstanceId!: _}, {LaunchConfigurationName!: _}, {LaunchTemplate!: _}, {MixedInstancesPolicy!: _}])
 
 _#defs: "/$defs/Properties/definitions/AcceleratorCountRequest": close({
 	Max?: int & >=0 |
@@ -523,18 +535,17 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateOverrides": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": matchN(1, [{
-	LaunchTemplateId!: _
-	...
-}, {
-	LaunchTemplateName!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": close({
 	LaunchTemplateId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	LaunchTemplateName?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9\\(\\)\\.\\-/_]+$" |
 	fn.#StringExpression
 	Version!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-}) |
+	if LaunchTemplateId != _|_ {
+		LaunchTemplateName?: error(
+			"LaunchTemplateName cannot be used with LaunchTemplateId; set exactly one of LaunchTemplateId, LaunchTemplateName",
+		)
+	}
+}) & matchN(>=1, [{LaunchTemplateId!: _}, {LaunchTemplateName!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/LifecycleHookSpecification": close({

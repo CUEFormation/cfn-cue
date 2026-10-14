@@ -128,13 +128,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticateCognitoConfig": close({
 
 // Specifies information required using an identity provide (IdP) that is
 // compliant with OpenID Connect (OIDC) to authenticate users.
-_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": matchN(>=1, [{
-	ClientSecret!: _
-	...
-}, {
-	UseExistingClientSecret!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": close({
 	// The query parameters (up to 10) to include in the redirect request to the authorization endpoint.
 	AuthenticationRequestExtraParams?: close({
 
@@ -187,7 +181,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": matchN(>=1, [{
 	// The user info endpoint of the IdP. This must be a full URL, including the
 	// HTTPS protocol, the domain, and the path.
 	UserInfoEndpoint!: string
-})
+}) & matchN(>=1, [{ClientSecret!: _}, {UseExistingClientSecret!: _}])
 
 // Specifies information required when returning a custom HTTP response.
 _#defs: "/$defs/Properties/definitions/FixedResponseConfig": close({
@@ -504,14 +498,13 @@ _#defs: "/$defs/Properties/definitions/TargetGroupTuple": close({
 	Weight?: int
 })
 
-_#defs: "/$defs/Properties/definitions/Transform": matchN(1, [{
-	HostHeaderRewriteConfig!: _
-	...
-}, {
-	UrlRewriteConfig!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/Transform": close({
 	HostHeaderRewriteConfig?: _#defs."/$defs/Properties/definitions/RewriteConfigObject"
 	Type!:                    "host-header-rewrite" | "url-rewrite"
 	UrlRewriteConfig?:        _#defs."/$defs/Properties/definitions/RewriteConfigObject"
-})
+	if HostHeaderRewriteConfig != _|_ {
+		UrlRewriteConfig?: error(
+			"UrlRewriteConfig cannot be used with HostHeaderRewriteConfig; set exactly one of HostHeaderRewriteConfig, UrlRewriteConfig",
+		)
+	}
+}) & matchN(>=1, [{HostHeaderRewriteConfig!: _}, {UrlRewriteConfig!: _}])

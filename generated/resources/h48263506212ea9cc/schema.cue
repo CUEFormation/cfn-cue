@@ -12,24 +12,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Classifier
-#Properties: matchN(>=1, [{
-	XMLClassifier!: _
-	...
-}, {
-	CsvClassifier!: _
-	...
-}, {
-	GrokClassifier!: _
-	...
-}, {
-	JsonClassifier!: _
-	...
-}]) & close({
+#Properties: close({
 	CsvClassifier?:  _#defs."/$defs/Properties/definitions/CsvClassifier" | fn.#ObjectExpression
 	GrokClassifier?: _#defs."/$defs/Properties/definitions/GrokClassifier" | fn.#ObjectExpression
 	JsonClassifier?: _#defs."/$defs/Properties/definitions/JsonClassifier" | fn.#ObjectExpression
 	XMLClassifier?:  _#defs."/$defs/Properties/definitions/XMLClassifier" | fn.#ObjectExpression
-})
+}) & matchN(>=1, [{XMLClassifier!: _}, {CsvClassifier!: _}, {GrokClassifier!: _}, {JsonClassifier!: _}])
 
 _#defs: "/$defs/Properties/definitions/CsvClassifier": close({
 	AllowSingleColumn?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

@@ -105,13 +105,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticateCognitoConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": matchN(>=1, [{
-	ClientSecret!: _
-	...
-}, {
-	UseExistingClientSecret!: _
-	...
-}]) & close({
+_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": close({
 	AuthenticationRequestExtraParams?: {
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
 		...
@@ -127,7 +121,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": matchN(>=1, [{
 	TokenEndpoint!:            string | fn.#StringExpression
 	UseExistingClientSecret?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	UserInfoEndpoint!:         string | fn.#StringExpression
-}) |
+}) & matchN(>=1, [{ClientSecret!: _}, {UseExistingClientSecret!: _}]) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Certificate": close({CertificateArn?: string & string | fn.#StringExpression}) |

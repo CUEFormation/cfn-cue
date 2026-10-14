@@ -196,11 +196,10 @@ _#defs: "/$defs/Properties/definitions/TelemetrySinkConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TelemetrySinkData": {
-	KinesisDataStreamData!: _
-	...
-} & close({KinesisDataStreamData?: _#defs."/$defs/Properties/definitions/KinesisDataStreamData"}) |
-fn.#ObjectExpression
+_#defs: "/$defs/Properties/definitions/TelemetrySinkData": close(
+	{KinesisDataStreamData?: _#defs."/$defs/Properties/definitions/KinesisDataStreamData"},
+) & matchN(>=1, [{KinesisDataStreamData!: _}]) |
+	fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/TelemetrySinkType": "KINESIS_DATA_STREAM" | fn.#StringExpression
 

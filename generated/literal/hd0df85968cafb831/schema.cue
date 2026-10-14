@@ -47,22 +47,26 @@ _#defs: "/$defs/Properties/definitions/ApiKeyAuthParameters": close({
 	=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/AuthParameters": matchN(1, [{
-	BasicAuthParameters!: _
-	...
-}, {
-	OAuthParameters!: _
-	...
-}, {
-	ApiKeyAuthParameters!: _
-	...
-}]) & (struct.MaxFields(2) & struct.MinFields(1) & close({
+_#defs: "/$defs/Properties/definitions/AuthParameters": struct.MaxFields(2) & struct.MinFields(1) & (close({
 	ApiKeyAuthParameters?:     _#defs."/$defs/Properties/definitions/ApiKeyAuthParameters"
 	BasicAuthParameters?:      _#defs."/$defs/Properties/definitions/BasicAuthParameters"
 	ConnectivityParameters?:   _#defs."/$defs/Properties/definitions/ConnectivityParameters"
 	InvocationHttpParameters?: _#defs."/$defs/Properties/definitions/ConnectionHttpParameters"
 	OAuthParameters?:          _#defs."/$defs/Properties/definitions/OAuthParameters"
-}))
+	if BasicAuthParameters != _|_ {
+		OAuthParameters?: error(
+			"OAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
+		)
+		ApiKeyAuthParameters?: error(
+			"ApiKeyAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
+		)
+	}
+	if OAuthParameters != _|_ {
+		ApiKeyAuthParameters?: error(
+			"ApiKeyAuthParameters cannot be used with OAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
+		)
+	}
+}) & matchN(>=1, [{BasicAuthParameters!: _}, {OAuthParameters!: _}, {ApiKeyAuthParameters!: _}]))
 
 _#defs: "/$defs/Properties/definitions/BasicAuthParameters": close({
 	Password!: strings.MaxRunes(512) &
