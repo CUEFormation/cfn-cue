@@ -46,5 +46,6 @@ func TestCurrentResources(t *testing.T) {
 	validate(t, s, `{Resources:{Bucket:{Type:"AWS::S3::Bucket",Properties:{AccessControl:"DefinitelyNotAnACL"}}}}`, false)
 	validate(t, s, `{Resources:{Bucket:{Type:"AWS::S3::Bucket",Properties:{Arn:"read-only"}}}}`, false)
 	validate(t, s, `{Resources:{Role:{Type:"AWS::IAM::Role",Properties:{RoleName:"missing-assume-role-policy"}}}}`, false)
+	validate(t, s, `{Resources:{Role:{Type:"AWS::IAM::Role",Properties:{AssumeRolePolicyDocument:{Statement:[{Effect:"Allow",Principal:{Service:"lambda.amazonaws.com"},Action:"sts:AssumeRole",Resource:"*"}]}}}}}`, false)
 	validate(t, s, `{Resources:{Bucket:{Type:"AWS::DoesNotExist::Thing"}}}`, false)
 }

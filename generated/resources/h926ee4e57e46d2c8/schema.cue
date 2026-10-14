@@ -3,6 +3,7 @@
 package schema
 
 import (
+	"github.com/cueformation/cfn-cue/iam:iam"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
@@ -15,10 +16,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Policies in AWS Organizations enable you to manage different features of the
 // AWS accounts in your organization. You can use policies when all features
 // are enabled in your organization.
-#Properties: close({
-	Content!: fn.#Object & {...} |
+#Properties: matchIf({
+	Type!: "SERVICE_CONTROL_POLICY"
+	...
+}, {
+	Content?: iam.#ServiceControlPolicyValue
+	...
+}, matchIf({
+	Type!: "RESOURCE_CONTROL_POLICY"
+	...
+}, {
+	Content?: iam.#ResourceControlPolicyValue
+	...
+}, {
+	Content?: fn.#Object & {...} |
 	strings.MaxRunes(1000000) & strings.MinRunes(1) & =~"[\\s\\S]*" |
 	fn.#StringObjectExpression
+	...
+}) & {...}) & {...} & close({
+	Content!:     _
 	Description?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\S]*" | fn.#StringExpression
 	Name!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
 	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression

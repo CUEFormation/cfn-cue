@@ -3,8 +3,9 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
+	"github.com/cueformation/cfn-cue/iam:iam"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -24,9 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // quotas](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-quotas.html)
 // in the *IAM User Guide*.
 #Properties: close({
-	AssumeRolePolicyDocument!: fn.#Object & {...} |
-	strings.MaxRunes(131072) & strings.MinRunes(1) & =~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
-	fn.#StringObjectExpression
+	AssumeRolePolicyDocument!: iam.#TrustPolicyValue
 	Description?: strings.MaxRunes(1000) &
 	strings.MinRunes(0) &
 	=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]*$" |
@@ -60,7 +59,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })
 
 _#defs: "/$defs/Properties/definitions/Policy": close({
-	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
+	PolicyDocument!: iam.#IdentityPolicyValue
 	PolicyName!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

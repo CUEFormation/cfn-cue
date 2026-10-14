@@ -2,7 +2,10 @@
 
 package schema
 
-import "github.com/cueformation/cfn-cue/fn:fn"
+import (
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"github.com/cueformation/cfn-cue/iam:iam"
+)
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -43,7 +46,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // + [DeleteBucket](https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucket.html)
 #Properties: close({
 	Bucket!:         string | fn.#StringExpression
-	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
+	PolicyDocument!: iam.#S3BucketPolicyValue
 })
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::S3::BucketPolicy"

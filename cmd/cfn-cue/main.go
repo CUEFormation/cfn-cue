@@ -27,10 +27,12 @@ func run() error {
 	flag.BoolVar(&opt.IncludeSAM, "include-sam", false, "merge region-independent SAM types into each region")
 	flag.BoolVar(&opt.LanguageExtensions, "language-extensions", false, "allow LanguageExtensions intrinsics and require the transform")
 	flag.BoolVar(&opt.Strict, "strict", false, "fail without publishing when constraints require approximations")
+	iamPolicies := flag.Bool("iam-policies", true, "check listed IAM policy properties with iam package profiles")
 	flag.Parse()
 	if flag.NArg() != 0 {
 		return fmt.Errorf("unexpected arguments: %v", flag.Args())
 	}
+	opt.NoIAMPolicies = !*iamPolicies
 	opt.Regions = split(*regions)
 	opt.Resources = split(*resources)
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)

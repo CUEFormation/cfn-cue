@@ -6,6 +6,7 @@ import (
 	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/iam:iam"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -22,7 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]*" |
 	fn.#StringExpression
-	InlinePolicy?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	InlinePolicy?: iam.#IdentityPolicyValue
 	InstanceArn!: strings.MaxRunes(1224) &
 	strings.MinRunes(10) &
 	=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" |

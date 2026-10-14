@@ -63,6 +63,21 @@ Regional templates currently use a discriminated union of resource envelopes and
 
 For intrinsics, a common closed function table and result-type views keep evaluation practical. Detailed, mutually recursive per-argument allowlists caused CUE to expand many combinations before a concrete template was available. The current representation preserves recursive shape checking and known result categories while leaving exact function/context permissions to cfn-lint. No arbitrary recursion depth limit is used.
 
+## IAM policy profiles
+
+Investigated on October 13, 2026. About 80 properties in the snapshot hold IAM-style policies, and provider schemas type them as open objects or strings. The only earlier CUE work found, [jrbeverly/cuelang-aws-iam-policy-exploration](https://github.com/jrbeverly/cuelang-aws-iam-policy-exploration), is an abandoned, unlicensed experiment covering S3 identity policies. The `iam` package is a new implementation. The generator substitutes its profiles for 13 resource types listed in `internal/generate/iam.go`. Property names alone don't select the profile: several `*Policy` properties use other grammars, and `AWS::Organizations::Policy.Content` depends on `Type`.
+
+Findings with CUE v0.18.0-alpha.3 (timings predate the pattern-constraint intrinsics):
+
+- **Closedness:** `matchN` embedded in a definition (`#S: {a?: _, matchN(...)}` or `#S: {...} & matchN(...)`) admits undeclared fields. `close({...}) & matchN(...)` stays closed.
+- **No parameterized definitions:** a nested definition used as a parameter (`_#Document & {#S: #TrustStatement}`) is validated as an abstract value when the result sits in a disjunction, and its `matchN` checks then fail. Each profile therefore spells out its document.
+- **Narrowing cost:** narrowing a statement (`#Statement & {Action?: ...} & matchN(...)`) intersects two value disjunctions per field. Inside the statement entry disjunction, 20 trust statements took 15 s. Composing each profile as one closed struct took 0.2 s. Forbidding a field with `error()` or `_|_` also doubled the cost; leaving the field out is cheaper.
+- **Option C is too slow:** unifying a profile with the provider type (`{[string]: fn.#Value} | ...`) cost 21 s for one role, against 0.5 s for the schema alone and 1.7 s with the provider type replaced. The generator therefore replaces the type instead of adding constraints to it.
+- **Faster than provider types at scale:** with 90 resources in a filtered region, validation took 42 s with profiles and 57 s with provider types.
+- **Validation gaps:** `json.Validate` does not reliably fail `matchN` alternatives that use required fields (`{Principal!: _}`). In some cases CUE reports only the shallowest error of a nested disjunction, so statement errors can appear as `field not allowed` on the document.
+
+`testdata/iam.cases` holds the accepted and rejected documents that `TestIAMProfiles` runs. IAM rules for SCPs and RCPs follow the AWS Organizations [SCP syntax](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps_syntax.html) and [RCP syntax](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_rcps_syntax.html) pages.
+
 ## Property presence rules
 
 Upstream schemas express exclusions with `dependentExcluded`, and exactly-one or at-least-one groups with `requiredXor`, `requiredOr`, or `oneOf`/`anyOf` over single `required` lists. Through the extractor these became `matchN` checks whose failures read `2 matched, expected 1` or `1 matched, expected 0`. The generator now places a placeholder property on the object, and after extraction replaces it with `if A != _|_ {B?: error("B cannot be used with A")}` comprehensions plus a `matchN(>=1, ...)` conjoined outside the closed struct. In the 2026-10-12 snapshot this covers 80 resource schemas.
@@ -79,6 +94,7 @@ Findings with CUE v0.18.0-alpha.3:
 2. **Semantic validation.** Keep cfn-lint as the external authority initially. A later Go pass could resolve parameter/resource names, infer Ref/GetAtt result types, validate Sub variables and condition names, and evaluate simple literal expressions.
 3. **Template fidelity.** Import more current section constraints, fully type creation/update policies and parameter type names, and handle transform context. Complete ForEach support should describe fragments in Resources, Conditions and Outputs and expand loops before checking concrete resource properties.
 4. **Package ergonomics.** Hash packages avoid duplicated schemas. Service packages and stable resource aliases could give better authoring/completion while keeping hashes internal. Preserve each region's availability map rather than flattening everything into a globally permissive union.
-5. **Updates and compatibility.** Pin upstream archives and checksums, publish generated CUE modules separately from the Go generator, and compare availability/property changes between snapshots. Consider adapters for the earlier service/region imports once the desired public module layout is settled.
+5. **IAM policy coverage.** Extend the placement table to the remaining resource policies with `#ResourcePolicyValue` or service profiles, and report unlisted policy-like properties as diagnostics when the snapshot changes. An action and condition-key catalog generated from the AWS Service Authorization Reference JSON should be a separate, opt-in package because of its size.
+6. **Updates and compatibility.** Pin upstream archives and checksums, publish generated CUE modules separately from the Go generator, and compare availability/property changes between snapshots. Consider adapters for the earlier service/region imports once the desired public module layout is settled.
 
 The implementation provides a runnable starting point for those decisions. The source repository is [CUEFormation/cfn-cue](https://github.com/CUEFormation/cfn-cue). Generated CUE modules have not been published to a CUE registry.

@@ -5,6 +5,7 @@ package schema
 import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"github.com/cueformation/cfn-cue/iam:iam"
 	"list"
 )
 
@@ -21,7 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(8192) & strings.MinRunes(0) | fn.#StringExpression
 	Enabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KeyPolicy!:   fn.#Object & {...} | string | fn.#StringObjectExpression
+	KeyPolicy!:   iam.#KMSKeyPolicyValue
 	PendingWindowInDays?: int & <=30 & >=7 |
 		{
 			string &

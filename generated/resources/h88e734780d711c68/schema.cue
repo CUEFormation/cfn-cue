@@ -5,6 +5,7 @@ package schema
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/iam:iam"
 	"list"
 )
 
@@ -80,7 +81,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:       strings.MaxRunes(8192) & strings.MinRunes(0) | fn.#StringExpression
 	EnableKeyRotation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Enabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KeyPolicy?:         fn.#Object & {...} | string | fn.#StringObjectExpression
+	KeyPolicy?:         iam.#KMSKeyPolicyValue
 	KeySpec?: "SYMMETRIC_DEFAULT" |
 		"RSA_2048" |
 		"RSA_3072" |

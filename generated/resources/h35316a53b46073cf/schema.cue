@@ -6,6 +6,7 @@ import (
 	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/iam:iam"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -39,7 +40,7 @@ _#defs: "/$defs/Properties/definitions/LoginProfile": close({
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Policy": close({
-	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
+	PolicyDocument!: iam.#IdentityPolicyValue
 	PolicyName!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -34,7 +34,7 @@ go run ./cmd/cfn-cue -source snapshots/schemas-2026-10-12.zip \
   -out sam -include-sam
 ```
 
-`-source` accepts a local ZIP, a directory containing `providers/` and `resources/`, or an HTTPS ZIP URL. `-module` sets the generated CUE module path. `-strict` refuses to publish output if conversion diagnostics identify omitted or approximated upstream constraints. Strict mode covers schema conversion; semantic CloudFormation checks remain separate.
+`-source` accepts a local ZIP, a directory containing `providers/` and `resources/`, or an HTTPS ZIP URL. `-module` sets the generated CUE module path. `-strict` refuses to publish output if conversion diagnostics identify omitted or approximated upstream constraints. Strict mode covers schema conversion; semantic CloudFormation checks remain separate. `-iam-policies=false` keeps provider schemas for IAM policy properties (see [IAM policies](#iam-policies)).
 
 Output is generated in a staging directory. A failed run leaves the previous output intact. Only directories containing this generator's manifest marker may be replaced. Treat the entire generated directory as disposable; put authored templates elsewhere.
 
@@ -69,6 +69,7 @@ generated/
   cue.mod/module.cue
   fn/functions.cue                 Intrinsic function definitions
   template/template.cue            Shared template sections and resource envelope
+  iam/iam.cue                      IAM policy grammar and per-placement profiles
   literal/h<hash>/schema.cue        #Properties for literal resource data
   resources/h<hash>/schema.cue      #Properties with intrinsics, plus #Resource
   regions/<region>/region.cue      #Template, #Resources, #Resource, #ResourceTypes
@@ -163,7 +164,7 @@ The schema checks call shapes and known result categories. Dynamic functions suc
 
 This is a structural schema generator, not a replacement for cfn-lint. Keep cfn-lint in the validation workflow for reference existence, attribute names and return types, `Sub` variables, function-specific nesting permissions, function placement, transform execution, condition evaluation, cross-resource relationships, and AWS service rules.
 
-Literal property constraints apply directly to literal values. Intrinsic values receive argument and result-type checks; this version does not evaluate them or specialize their branches with the complete target property's enum, pattern, or nested object schema. Policy objects, parameter type names, and SAM Globals have structural coverage. ForEach expansion and ForEach in Conditions/Outputs remain future work.
+Literal property constraints apply directly to literal values. Intrinsic values receive argument and result-type checks; this version does not evaluate them or specialize their branches with the complete target property's enum, pattern, or nested object schema. Parameter type names and SAM Globals have structural coverage. Listed IAM policy properties use the profiles described below; other policy objects have structural coverage. ForEach expansion and ForEach in Conditions/Outputs remain future work.
 
 The conversion report in generated/manifest.json lists every remaining approximation. Unsupported Python/ECMAScript regex features are reported; Unicode `\uXXXX` escapes are translated to RE2 notation. Selected-key uniqueness degrades to whole-item uniqueness. Other unsupported constraints are reported rather than silently presented as enforced. AWS provider annotations and defaults are not emitted as deployable values.
 
@@ -175,6 +176,28 @@ format checks. LaunchTemplate's `resolve:ssm` ImageId exception is scoped to
 that property. Dynamic references still receive existing provider constraints;
 placement and syntax checks remain with cfn-lint. Embedded IAM policy semantics
 remain separate.
+
+## IAM policies
+
+`iam/iam.cue` defines the IAM policy grammar and one profile per policy kind. In `resources/` schemas, the generator replaces the provider type of these properties with a profile:
+
+| Profile | Properties |
+|---|---|
+| `#TrustPolicyValue` | `AWS::IAM::Role.AssumeRolePolicyDocument` |
+| `#IdentityPolicyValue` | inline `Policies[].PolicyDocument` on IAM Role, User and Group; `PolicyDocument` on IAM Policy, ManagedPolicy, RolePolicy, UserPolicy and GroupPolicy; `AWS::SSO::PermissionSet.InlinePolicy` |
+| `#S3BucketPolicyValue` | `AWS::S3::BucketPolicy.PolicyDocument` |
+| `#KMSKeyPolicyValue` | `KeyPolicy` on `AWS::KMS::Key` and `AWS::KMS::ReplicaKey` |
+| `#ServiceControlPolicyValue`, `#ResourceControlPolicyValue` | `AWS::Organizations::Policy.Content` when `Type` is `SERVICE_CONTROL_POLICY` or `RESOURCE_CONTROL_POLICY` |
+
+The profiles check which elements each policy kind allows. Trust policies need a principal and take no `Resource`. Identity policies take no `Principal`. SCP `Allow` statements may only name `Resource: "*"`. Customer-managed RCPs only deny, with `Principal: "*"`. They also check `Version`, the `Action` and ARN shapes, condition operators, and the exactly-one rules for `Action`/`NotAction` and the other element pairs. Every leaf also accepts an intrinsic, and statements can be `Fn::If` or `AWS::NoValue`. The profiles don't check whether an action, resource or condition key exists; leave that to IAM Access Analyzer or cfn-lint.
+
+A placement that no longer matches the provider schema is reported as an `iamPolicy` diagnostic. `literal/` schemas keep provider types. Known limits with CUE v0.18.0-alpha.3:
+
+- `Fn::If` over a whole `Statement` list is rejected; use `Fn::If` per statement.
+- A policy written as a literal JSON string is checked with `json.Validate`, which skips the exactly-one rules.
+- A failing policy often produces a vague error such as `Statement: field not allowed`. To find the failing field, unify the statement with its statement profile, for example `iam.#TrustStatement & {...}`.
+
+Other templates can import `iam` and unify profiles with their own values, or add organization rules on top.
 
 ## Checks
 

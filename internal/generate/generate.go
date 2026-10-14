@@ -22,6 +22,9 @@ type Options struct {
 	Out, Module                            string
 	Regions, Resources                     []string
 	IncludeSAM, LanguageExtensions, Strict bool
+	// NoIAMPolicies keeps provider schemas for IAM policy properties
+	// instead of substituting iam package profiles.
+	NoIAMPolicies bool
 }
 type SchemaInfo struct {
 	Type               string `json:"type"`
@@ -35,6 +38,7 @@ type Manifest struct {
 	Module             string                       `json:"module"`
 	LanguageExtensions bool                         `json:"languageExtensions"`
 	IncludeSAM         bool                         `json:"includeSAM"`
+	IAMPolicies        bool                         `json:"iamPolicies"`
 	Regions            map[string]map[string]string `json:"regions"`
 	Schemas            map[string]SchemaInfo        `json:"schemas"`
 	Diagnostics        []Diagnostic                 `json:"diagnostics"`
@@ -68,7 +72,7 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 	} else if !os.IsNotExist(e) {
 		return nil, e
 	}
-	m := &Manifest{Generator: "cfn-cue/v2", Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, Regions: map[string]map[string]string{}, Schemas: map[string]SchemaInfo{}, Diagnostics: []Diagnostic{}}
+	m := &Manifest{Generator: "cfn-cue/v2", Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, IAMPolicies: !opt.NoIAMPolicies, Regions: map[string]map[string]string{}, Schemas: map[string]SchemaInfo{}, Diagnostics: []Diagnostic{}}
 	m.ValidationNotes = []string{
 		"Each region has a full resource package and a separate types package. The types package checks template structure and regional type names, leaving resource Properties unconstrained.",
 		"The full region #Template checks each resource against a union of all resource types, about 0.5 s per resource in a complete region; #ResourceTypes entries and -resources modules avoid that cost.",
@@ -76,6 +80,9 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 		"Ref, GetAtt, Sub, mapping lookups, condition evaluation, macro expansion, and property-specific constraints on intrinsic results require semantic validation.",
 		"CreationPolicy, UpdatePolicy, parameter type names, and SAM Globals use structural schemas; service-specific restrictions require cfn-lint.",
 		"LanguageExtensions ForEach schemas describe resource fragments; loop expansion and ForEach in Conditions or Outputs are not implemented.",
+	}
+	if !opt.NoIAMPolicies {
+		m.ValidationNotes = append(m.ValidationNotes, "Listed IAM policy properties use iam package profiles in resources/ schemas. Profiles check policy grammar and placement rules, not whether actions, resources or condition keys exist; literal/ schemas keep provider types.")
 	}
 	requested := map[string]bool{}
 	for _, r := range opt.Regions {
@@ -184,6 +191,13 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 	if e = writeAST("template/template.cue", Template(opt.Module, opt.LanguageExtensions, opt.IncludeSAM)); e != nil {
 		return nil, e
 	}
+	policies, e := IAM(opt.Module)
+	if e != nil {
+		return nil, e
+	}
+	if e = writeAST("iam/iam.cue", policies); e != nil {
+		return nil, e
+	}
 	for _, hash := range sortedStringKeys(hashTypes) {
 		b, e := source.read("resources/" + hash + ".json")
 		if e != nil {
@@ -202,7 +216,7 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 		}
 		sum := sha256.Sum256(b)
 		m.Schemas[hash] = SchemaInfo{typ, hex.EncodeToString(sum[:]), len(asArray(root["required"])) > 0}
-		c := &converter{module: opt.Module, resource: typ, extensions: opt.LanguageExtensions}
+		c := &converter{module: opt.Module, resource: typ, extensions: opt.LanguageExtensions, iam: !opt.NoIAMPolicies}
 		f, e := c.extract(root, false)
 		if e != nil {
 			return nil, fmt.Errorf("literal %s: %w", typ, e)

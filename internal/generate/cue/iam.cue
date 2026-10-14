@@ -1,0 +1,242 @@
+// IAM policy document grammar (layer 0) and placement profiles (layer 1).
+//
+// Every leaf accepts a CloudFormation intrinsic, so pattern checks apply to
+// literal strings only. Closed statements use close({...}) & matchN(...):
+// a matchN embedded in a definition reopens it in CUE v0.18.
+//
+// The generator substitutes the *PolicyValue definitions for known policy
+// properties. Other templates can unify them with any policy-shaped value.
+package iam
+
+import (
+	"encoding/json"
+	"struct"
+	fn "github.com/cueformation/cfn-cue/fn:fn"
+)
+
+// Layer 0: shared grammar.
+
+#Version: "2012-10-17" | "2008-10-17"
+#Str:     string | fn.#StringExpression
+#Strs:    #Str | [...#Str] | _#ListIntrinsic
+
+// Ref, GetAtt, FindInMap and Select already match fn.#StringExpression.
+// Repeating them here would make {Ref: ...} ambiguous in list positions.
+// Pattern labels keep absent keys from being evaluated; see fn.#Function.
+_#ListIntrinsic: close({
+	[=~"^Fn::Split$"]: [string, fn.#String]
+	[=~"^Fn::If$"]:    [string, fn.#ListValue, fn.#ListValue]
+}) & struct.MinFields(1) & struct.MaxFields(1)
+
+// Service prefix, colon, action name with optional * and ? wildcards.
+// IAM compares actions case-insensitively.
+#ActionName: "*" | =~"^[A-Za-z0-9-]+:[A-Za-z0-9_*?-]+$"
+#Action:     #ActionName | fn.#StringExpression
+#Actions:    #Action | [...#Action] | _#ListIntrinsic
+#ARN:        =~"^arn:[^:]+:[^:]*:[^:]*:[^:]*:.+$"
+#Resource:   "*" | #ARN | fn.#StringExpression
+#Resources:  #Resource | [...#Resource] | _#ListIntrinsic
+
+#PrincipalMap: close({
+	AWS?:           #Strs
+	Service?:       #Strs
+	Federated?:     #Strs
+	CanonicalUser?: #Strs
+}) & struct.MinFields(1)
+#Principal: "*" | #PrincipalMap
+
+#ConditionOperator: =~"^(ForAllValues:|ForAnyValue:)?(String(Not)?Equals(IgnoreCase)?|String(Not)?Like|(Numeric|Date)(Not)?Equals|(Numeric|Date)(LessThan|GreaterThan)(Equals)?|Bool|BinaryEquals|(Not)?IpAddress|Arn(Not)?(Equals|Like))(IfExists)?$" | "Null"
+#ConditionValue:    string | number | bool | fn.#StringExpression
+#Condition: [#ConditionOperator]: [=~"^[A-Za-z0-9-]+:."]: #ConditionValue | [...#ConditionValue] | _#ListIntrinsic
+
+#Effect: "Allow" | "Deny"
+#IAMSid: =~"^[A-Za-z0-9]*$"
+#Statement: close({
+	Sid?:          string
+	Effect!:       #Effect
+	Action?:       #Actions
+	NotAction?:    #Actions
+	Principal?:    #Principal
+	NotPrincipal?: #Principal
+	Resource?:     #Resources
+	NotResource?:  #Resources
+	Condition?:    #Condition
+}) & _#OneAction & _#AtMostOnePrincipal & _#AtMostOneResource
+
+_#OneAction:          matchN(1, [{Action!: _}, {NotAction!: _}])
+_#OnePrincipal:       matchN(1, [{Principal!: _}, {NotPrincipal!: _}])
+_#OneResource:        matchN(1, [{Resource!: _}, {NotResource!: _}])
+_#AtMostOnePrincipal: matchN(<=1, [{Principal!: _}, {NotPrincipal!: _}])
+_#AtMostOneResource:  matchN(<=1, [{Resource!: _}, {NotResource!: _}])
+
+// Layer 1: one statement profile per policy kind.
+//
+// Each profile is a single closed struct that names every permitted field
+// once. Narrowing #Statement instead (#Statement & {Action?: ...}) intersects
+// two value disjunctions per field and was 20x slower in CUE v0.18; fields a
+// profile forbids are simply absent, so they fail as "field not allowed".
+
+// Identity-based policies attach to users, groups and roles: no Principal.
+#IdentityStatement: close({
+	Sid?:         #IAMSid
+	Effect!:      #Effect
+	Action?:      #Actions
+	NotAction?:   #Actions
+	Resource?:    #Resources
+	NotResource?: #Resources
+	Condition?:   #Condition
+}) & _#OneAction & _#OneResource
+
+// Role trust policies grant sts actions to a principal: no Resource.
+#TrustAction:   "*" | =~"(?i)^sts:(\\*|AssumeRole|AssumeRoleWithSAML|AssumeRoleWithWebIdentity|TagSession|SetSourceIdentity|SetContext|[A-Za-z]*[*?][A-Za-z*?]*)$"
+_#TrustAction:  #TrustAction | fn.#StringExpression
+_#TrustActions: _#TrustAction | [..._#TrustAction] | _#ListIntrinsic
+#TrustStatement: close({
+	Sid?:          #IAMSid
+	Effect!:       #Effect
+	Action?:       _#TrustActions
+	NotAction?:    _#TrustActions
+	Principal?:    #Principal
+	NotPrincipal?: #Principal
+	Condition?:    #Condition
+}) & _#OneAction & _#OnePrincipal
+
+// Resource-based policies name the principal they apply to.
+#ResourceStatement: close({
+	Sid?:          string
+	Effect!:       #Effect
+	Action?:       #Actions
+	NotAction?:    #Actions
+	Principal?:    #Principal
+	NotPrincipal?: #Principal
+	Resource?:     #Resources
+	NotResource?:  #Resources
+	Condition?:    #Condition
+}) & _#OneAction & _#OnePrincipal & _#AtMostOneResource
+
+// S3 bucket policies: s3 actions on bucket or object ARNs.
+_#S3Action:    "*" | =~"(?i)^s3:[A-Za-z*?]+$" | fn.#StringExpression
+_#S3Actions:   _#S3Action | [..._#S3Action] | _#ListIntrinsic
+_#S3Resource:  =~"^arn:[^:]+:s3:::[^/]+(/.*)?$" | fn.#StringExpression
+_#S3Resources: _#S3Resource | [..._#S3Resource] | _#ListIntrinsic
+#S3BucketStatement: close({
+	Sid?:          string
+	Effect!:       #Effect
+	Action?:       _#S3Actions
+	NotAction?:    _#S3Actions
+	Principal?:    #Principal
+	NotPrincipal?: #Principal
+	Resource?:     _#S3Resources
+	NotResource?:  _#S3Resources
+	Condition?:    #Condition
+}) & _#OneAction & _#OnePrincipal & _#OneResource
+
+// KMS key policies: Resource "*" means the key the policy is attached to.
+_#KMSResource:  "*" | =~"^arn:[^:]+:kms:" | fn.#StringExpression
+_#KMSResources: _#KMSResource | [..._#KMSResource] | _#ListIntrinsic
+#KMSKeyStatement: close({
+	Sid?:          string
+	Effect!:       #Effect
+	Action?:       #Actions
+	NotAction?:    #Actions
+	Principal?:    #Principal
+	NotPrincipal?: #Principal
+	Resource?:     _#KMSResources
+	NotResource?:  _#KMSResources
+	Condition?:    #Condition
+}) & _#OneAction & _#OnePrincipal & _#OneResource
+
+// Service control policies filter the permissions of accounts: no
+// Principal, and Allow statements may only name Resource "*".
+#ServiceControlStatement: close({
+	Sid?:         string
+	Effect!:      #Effect
+	Action?:      #Actions
+	NotAction?:   #Actions
+	Resource?:    #Resources
+	NotResource?: #Resources
+	Condition?:   #Condition
+}) & _#OneAction & _#OneResource & matchN(>=1, [{Effect: "Deny"}, {Resource: "*" | ["*"]}])
+
+// Resource control policies: customer-managed RCPs only deny, with
+// Principal "*", a service-qualified Action and no NotAction.
+_#RCPAction:  #ActionName & !="*" | fn.#StringExpression
+_#RCPActions: _#RCPAction | [..._#RCPAction] | _#ListIntrinsic
+#ResourceControlStatement: close({
+	Sid?:         string
+	Effect!:      "Deny"
+	Principal!:   "*"
+	Action!:      _#RCPActions
+	Resource?:    #Resources
+	NotResource?: #Resources
+	Condition?:   #Condition
+}) & _#OneResource
+
+// Layer 1 documents. CUE has no parameterized definitions, and a
+// definition-valued field (#S: #XStatement) is validated on its own inside
+// disjunctions, so each profile spells out its document.
+//
+// A statement entry may be Fn::If (with AWS::NoValue branches) or
+// AWS::NoValue. Fn::If over a whole statement list is not accepted: a third
+// Statement alternative hides element errors behind a type mismatch.
+//
+// A property value may be the document, a conditional document, a literal
+// JSON string, or a string intrinsic. Inside json.Validate, CUE v0.18 does
+// not enforce matchN's required-field alternatives, so JSON strings get
+// every check except the exactly-one rules.
+
+#IdentityPolicy: close({
+	Version?:   #Version
+	Id?:        #Str
+	Statement!: [..._#IdentityEntry] | _#IdentityEntry
+})
+_#IdentityEntry:      #IdentityStatement | fn.#NoValue | close({"Fn::If": [string, #IdentityStatement | fn.#NoValue, #IdentityStatement | fn.#NoValue]})
+#IdentityPolicyValue: #IdentityPolicy | close({"Fn::If": [string, #IdentityPolicy, #IdentityPolicy]}) | string & json.Validate(#IdentityPolicy) | fn.#StringExpression
+
+#TrustPolicy: close({
+	Version?:   #Version
+	Id?:        #Str
+	Statement!: [..._#TrustEntry] | _#TrustEntry
+})
+_#TrustEntry:      #TrustStatement | fn.#NoValue | close({"Fn::If": [string, #TrustStatement | fn.#NoValue, #TrustStatement | fn.#NoValue]})
+#TrustPolicyValue: #TrustPolicy | close({"Fn::If": [string, #TrustPolicy, #TrustPolicy]}) | string & json.Validate(#TrustPolicy) | fn.#StringExpression
+
+#ResourcePolicy: close({
+	Version?:   #Version
+	Id?:        #Str
+	Statement!: [..._#ResourceEntry] | _#ResourceEntry
+})
+_#ResourceEntry:      #ResourceStatement | fn.#NoValue | close({"Fn::If": [string, #ResourceStatement | fn.#NoValue, #ResourceStatement | fn.#NoValue]})
+#ResourcePolicyValue: #ResourcePolicy | close({"Fn::If": [string, #ResourcePolicy, #ResourcePolicy]}) | string & json.Validate(#ResourcePolicy) | fn.#StringExpression
+
+#S3BucketPolicy: close({
+	Version?:   #Version
+	Id?:        #Str
+	Statement!: [..._#S3BucketEntry] | _#S3BucketEntry
+})
+_#S3BucketEntry:      #S3BucketStatement | fn.#NoValue | close({"Fn::If": [string, #S3BucketStatement | fn.#NoValue, #S3BucketStatement | fn.#NoValue]})
+#S3BucketPolicyValue: #S3BucketPolicy | close({"Fn::If": [string, #S3BucketPolicy, #S3BucketPolicy]}) | string & json.Validate(#S3BucketPolicy) | fn.#StringExpression
+
+#KMSKeyPolicy: close({
+	Version?:   #Version
+	Id?:        #Str
+	Statement!: [..._#KMSKeyEntry] | _#KMSKeyEntry
+})
+_#KMSKeyEntry:      #KMSKeyStatement | fn.#NoValue | close({"Fn::If": [string, #KMSKeyStatement | fn.#NoValue, #KMSKeyStatement | fn.#NoValue]})
+#KMSKeyPolicyValue: #KMSKeyPolicy | close({"Fn::If": [string, #KMSKeyPolicy, #KMSKeyPolicy]}) | string & json.Validate(#KMSKeyPolicy) | fn.#StringExpression
+
+#ServiceControlPolicy: close({
+	Version?:   "2012-10-17"
+	Id?:        #Str
+	Statement!: [..._#ServiceControlEntry] | _#ServiceControlEntry
+})
+_#ServiceControlEntry:      #ServiceControlStatement | fn.#NoValue | close({"Fn::If": [string, #ServiceControlStatement | fn.#NoValue, #ServiceControlStatement | fn.#NoValue]})
+#ServiceControlPolicyValue: #ServiceControlPolicy | close({"Fn::If": [string, #ServiceControlPolicy, #ServiceControlPolicy]}) | string & json.Validate(#ServiceControlPolicy) | fn.#StringExpression
+
+#ResourceControlPolicy: close({
+	Version?:   "2012-10-17"
+	Id?:        #Str
+	Statement!: [..._#ResourceControlEntry] | _#ResourceControlEntry
+})
+_#ResourceControlEntry:      #ResourceControlStatement | fn.#NoValue | close({"Fn::If": [string, #ResourceControlStatement | fn.#NoValue, #ResourceControlStatement | fn.#NoValue]})
+#ResourceControlPolicyValue: #ResourceControlPolicy | close({"Fn::If": [string, #ResourceControlPolicy, #ResourceControlPolicy]}) | string & json.Validate(#ResourceControlPolicy) | fn.#StringExpression

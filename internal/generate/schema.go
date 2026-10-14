@@ -28,6 +28,8 @@ type converter struct {
 	extensions       bool
 	template         bool
 	rules            []*fieldRules
+	iam              bool
+	iamHits          map[string]bool
 }
 
 func (c *converter) warn(path, key, detail string) {
@@ -63,6 +65,12 @@ func pointer(s string) string { return strings.ReplaceAll(strings.ReplaceAll(s, 
 // lift applies only at value boundaries; applicator constraints do not become
 // independent escape hatches around required fields or closed objects.
 func (c *converter) normalize(v any, path string, lift bool, root map[string]any, visiting map[string]bool) any {
+	if profile, ok := iamPolicies[c.resource][path]; ok && c.template && c.iam {
+		// The profile already admits intrinsics; replacing the provider
+		// schema avoids intersecting two open policy disjunctions.
+		c.iamHits[path] = true
+		return iamRef(profile)
+	}
 	s, ok := v.(map[string]any)
 	if !ok {
 		if c.template && lift && v == true {
@@ -301,8 +309,16 @@ func (c *converter) extract(root map[string]any, template bool) (*ast.File, erro
 		c.removeReadOnly(s)
 	}
 	preservePatternReferences(s)
-	c.rules = nil
+	c.iamHits, c.rules = map[string]bool{}, nil
 	n := c.normalize(s, "#", false, s, map[string]bool{})
+	if template && c.iam {
+		for _, path := range sortedStringKeys(iamPolicies[c.resource]) {
+			if !c.iamHits[path] {
+				c.warn(path, "iamPolicy", "IAM policy placement not found; property keeps its provider schema")
+			}
+		}
+		c.selectPolicy(n.(map[string]any))
+	}
 	wrapper := map[string]any{"$schema": "https://json-schema.org/draft/2020-12/schema", "$defs": map[string]any{"Properties": n}, "$ref": "#/$defs/Properties"}
 	b, e := json.Marshal(wrapper)
 	if e != nil {
@@ -315,6 +331,9 @@ func (c *converter) extract(root map[string]any, template bool) (*ast.File, erro
 	cfg := &jsonschema.Config{PkgName: "schema", DefaultVersion: jsonschema.VersionDraft2020_12, MapRef: func(loc jsonschema.SchemaLoc) (string, cue.Path, error) {
 		if loc.ID.Scheme == "cue" && loc.ID.Host == "intrinsics" {
 			return c.module + "/fn:fn", cue.MakePath(cue.Def(strings.TrimPrefix(loc.ID.Path, "/"))), nil
+		}
+		if loc.ID.Scheme == "cue" && loc.ID.Host == "iam" {
+			return c.module + "/iam:iam", cue.MakePath(cue.Def(strings.TrimPrefix(loc.ID.Path, "/"))), nil
 		}
 		if !loc.IsLocal {
 			return "", cue.Path{}, fmt.Errorf("external schema reference requires explicit resolution: %s", loc.ID)

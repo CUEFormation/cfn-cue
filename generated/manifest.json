@@ -5,6 +5,7 @@
   "module": "github.com/cueformation/cfn-cue",
   "languageExtensions": false,
   "includeSAM": false,
+  "iamPolicies": true,
   "regions": {
     "af-south-1": {
       "AMZN::SDC::Deployment": "d49523269b8efe5f",
@@ -78057,6 +78058,7 @@
     "Intrinsic schemas validate argument shapes and result type classes. Function-specific nesting permissions and context permissions require cfn-lint.",
     "Ref, GetAtt, Sub, mapping lookups, condition evaluation, macro expansion, and property-specific constraints on intrinsic results require semantic validation.",
     "CreationPolicy, UpdatePolicy, parameter type names, and SAM Globals use structural schemas; service-specific restrictions require cfn-lint.",
-    "LanguageExtensions ForEach schemas describe resource fragments; loop expansion and ForEach in Conditions or Outputs are not implemented."
+    "LanguageExtensions ForEach schemas describe resource fragments; loop expansion and ForEach in Conditions or Outputs are not implemented.",
+    "Listed IAM policy properties use iam package profiles in resources/ schemas. Profiles check policy grammar and placement rules, not whether actions, resources or condition keys exist; literal/ schemas keep provider types."
   ]
 }
