@@ -20,16 +20,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Kendra::Index"
 	Properties!: close({
-		CapacityUnits?:                     #CapacityUnitsConfiguration | fn.#ObjectExpression
-		Description?:                       #Description | fn.#StringExpression
-		DocumentMetadataConfigurations?:    #DocumentMetadataConfigurationList | fn.#ListExpression
-		Edition!:                           #Edition
-		Name!:                              #Name
-		RoleArn!:                           #RoleArn
-		ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration | fn.#ObjectExpression
-		Tags?:                              #TagList | fn.#ListExpression
-		UserContextPolicy?:                 #UserContextPolicy
-		UserTokenConfigurations?:           #UserTokenConfigurationList
+		// Capacity units
+		CapacityUnits?: #CapacityUnitsConfiguration
+
+		// A description for the index
+		Description?: #Description
+
+		// Document metadata configurations
+		DocumentMetadataConfigurations?: #DocumentMetadataConfigurationList
+		Edition!:                        #Edition
+		Name!:                           #Name
+		RoleArn!:                        #RoleArn
+
+		// Server side encryption configuration
+		ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration
+
+		// Tags for labeling the index
+		Tags?:                    #TagList
+		UserContextPolicy?:       #UserContextPolicy
+		UserTokenConfigurations?: #UserTokenConfigurationList
 	})
 }
 

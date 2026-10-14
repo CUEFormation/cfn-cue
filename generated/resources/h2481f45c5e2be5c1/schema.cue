@@ -28,18 +28,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"AWS_LAMBDA" |
 			"OPENID_CONNECT" |
 			fn.#StringExpression
-		EnhancedMetricsConfig?: #EnhancedMetricsConfig | fn.#ObjectExpression
+
+		// Enables and controls the enhanced metrics feature. Enhanced metrics emit
+		// granular data on API usage and performance such as AppSync request and error
+		// counts, latency, and cache hits/misses. All enhanced metric data is sent to
+		// your CloudWatch account, and you can configure the types of data that will
+		// be sent.
+		EnhancedMetricsConfig?: #EnhancedMetricsConfig
 		EnvironmentVariables?: close({
 
 			{[=~"^[A-Za-z]+\\w*$"]: string | fn.#StringExpression}}) |
 		fn.#ObjectExpression
-		IntrospectionConfig?:    "DISABLED" | "ENABLED" | fn.#StringExpression
-		LambdaAuthorizerConfig?: #LambdaAuthorizerConfig | fn.#ObjectExpression
-		LogConfig?:              #LogConfig | fn.#ObjectExpression
+		IntrospectionConfig?: "DISABLED" | "ENABLED" | fn.#StringExpression
+
+		// A LambdaAuthorizerConfig holds configuration on how to authorize AWS AppSync
+		// API access when using the AWS_LAMBDA authorizer mode. Be aware that an AWS
+		// AppSync API may have only one Lambda authorizer configured at a time.
+		LambdaAuthorizerConfig?: #LambdaAuthorizerConfig
+
+		// The Amazon CloudWatch Logs configuration.
+		LogConfig?: #LogConfig
 		MergedApiExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
-		Name!:                string | fn.#StringExpression
-		OpenIDConnectConfig?: #OpenIDConnectConfig | fn.#ObjectExpression
+		Name!: string | fn.#StringExpression
+
+		// The OpenID Connect configuration.
+		OpenIDConnectConfig?: #OpenIDConnectConfig
 		OwnerContact?:        string | fn.#StringExpression
 		QueryDepthLimit?: int & <=75 & >=0 |
 			{
@@ -77,8 +91,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		UserPoolConfig?: #UserPoolConfig | fn.#ObjectExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// Optional authorization configuration for using Amazon Cognito user pools with
+		// your GraphQL endpoint.
+		UserPoolConfig?: #UserPoolConfig
 		Visibility?:     "GLOBAL" | "PRIVATE" | fn.#StringExpression
 		XrayEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	})

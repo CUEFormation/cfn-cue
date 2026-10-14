@@ -41,8 +41,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		CustomerContactsToSendToOCI?: [...#CustomerContact] | fn.#ListExpression
 		DatabaseServerType?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\/.=-]+$" |
 		fn.#StringExpression
-		DisplayName?:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		MaintenanceWindow?: #MaintenanceWindow | fn.#ObjectExpression
+		DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The scheduling details for the maintenance window. Patching and system
+		// updates take place during the maintenance window.
+		MaintenanceWindow?: #MaintenanceWindow
 		Shape?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\/.=-]+$" | fn.#StringExpression
 		StorageCount?: int |
 			{

@@ -20,10 +20,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTSecureTunneling::Tunnel"
 	Properties?: close({
-		Description?:       string | fn.#StringExpression
-		DestinationConfig?: #DestinationConfig | fn.#ObjectExpression
+		Description?: string | fn.#StringExpression
+
+		// The destination configuration for the tunnel.
+		DestinationConfig?: #DestinationConfig
 		Tags?:              [...#Tag] | fn.#ListExpression
-		TimeoutConfig?:     #TimeoutConfig | fn.#ObjectExpression
+
+		// Timeout configuration for the tunnel.
+		TimeoutConfig?: #TimeoutConfig
 	})
 }
 

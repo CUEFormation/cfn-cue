@@ -15,9 +15,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EMR::StudioSessionMapping"
 	Properties!: close({
-		IdentityName!:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		IdentityType!:     "USER" | "GROUP" | fn.#StringExpression
-		SessionPolicyArn!: #IamPolicyArn | fn.#StringExpression
+		IdentityName!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		IdentityType!: "USER" | "GROUP" | fn.#StringExpression
+
+		// The Amazon Resource Name (ARN) for the session policy that will be applied to
+		// the user or group. Session policies refine Studio user permissions without
+		// the need to use multiple IAM user roles.
+		SessionPolicyArn!: #IamPolicyArn
 		StudioId!:         strings.MaxRunes(256) & strings.MinRunes(4) & =~"^es-[0-9A-Z]+" | fn.#StringExpression
 	})
 }

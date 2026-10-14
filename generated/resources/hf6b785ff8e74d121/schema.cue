@@ -35,8 +35,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecretsManager::Secret"
 	Properties?: close({
-		Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-		GenerateSecretString?: #GenerateSecretString | fn.#ObjectExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+
+		// A structure that specifies how to generate a password to encrypt and store in
+		// the secret. To include a specific string in the secret, use ``SecretString``
+		// instead. If you omit both ``GenerateSecretString`` and ``SecretString``, you
+		// create an empty secret. When you make a change to this property, a new
+		// secret version is created.
+		// We recommend that you specify the maximum length and include every character
+		// type that the system you are generating a password for can support.
+		GenerateSecretString?: #GenerateSecretString
 		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			string) & (strings.MaxRunes(2048) & strings.MinRunes(0)) |
 		fn.#StringExpression

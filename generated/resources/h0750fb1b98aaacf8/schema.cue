@@ -21,18 +21,62 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GameLift::GameServerGroup"
 	Properties!: close({
-		AutoScalingPolicy?:          #AutoScalingPolicy | fn.#ObjectExpression
-		BalancingStrategy?:          #BalancingStrategy | fn.#StringExpression
-		DeleteOption?:               #DeleteOption | fn.#StringExpression
-		GameServerGroupName!:        #GameServerGroupName | fn.#StringExpression
-		GameServerProtectionPolicy?: #GameServerProtectionPolicy | fn.#StringExpression
-		InstanceDefinitions!:        #InstanceDefinitions | fn.#ListExpression
-		LaunchTemplate?:             #LaunchTemplate | fn.#ObjectExpression
-		MaxSize?:                    #MaxSize | fn.#NumberExpression
-		MinSize?:                    #MinSize | fn.#NumberExpression
-		RoleArn!:                    #RoleArn | fn.#StringExpression
-		Tags?:                       #Tags | fn.#ListExpression
-		VpcSubnets?:                 #VpcSubnets | fn.#ListExpression
+		// Configuration settings to define a scaling policy for the Auto Scaling group
+		// that is optimized for game hosting. Updating this game server group property
+		// will not take effect for the created EC2 Auto Scaling group, please update
+		// the EC2 Auto Scaling group directly after creating the resource.
+		AutoScalingPolicy?: #AutoScalingPolicy
+
+		// The fallback balancing method to use for the game server group when Spot
+		// Instances in a Region become unavailable or are not viable for game hosting.
+		BalancingStrategy?: #BalancingStrategy
+
+		// The type of delete to perform.
+		DeleteOption?: #DeleteOption
+
+		// An identifier for the new game server group.
+		GameServerGroupName!: #GameServerGroupName
+
+		// A flag that indicates whether instances in the game server group are
+		// protected from early termination.
+		GameServerProtectionPolicy?: #GameServerProtectionPolicy
+
+		// A set of EC2 instance types to use when creating instances in the group.
+		InstanceDefinitions!: #InstanceDefinitions
+
+		// The EC2 launch template that contains configuration settings and game server
+		// code to be deployed to all instances in the game server group. Updating this
+		// game server group property will not take effect for the created EC2 Auto
+		// Scaling group, please update the EC2 Auto Scaling group directly after
+		// creating the resource.
+		LaunchTemplate?: #LaunchTemplate
+
+		// The maximum number of instances allowed in the EC2 Auto Scaling group.
+		// Updating this game server group property will not take effect for the
+		// created EC2 Auto Scaling group, please update the EC2 Auto Scaling group
+		// directly after creating the resource.
+		MaxSize?: #MaxSize
+
+		// The minimum number of instances allowed in the EC2 Auto Scaling group.
+		// Updating this game server group property will not take effect for the
+		// created EC2 Auto Scaling group, please update the EC2 Auto Scaling group
+		// directly after creating the resource.
+		MinSize?: #MinSize
+
+		// The Amazon Resource Name (ARN) for an IAM role that allows Amazon GameLift to
+		// access your EC2 Auto Scaling groups.
+		RoleArn!: #RoleArn
+
+		// A list of labels to assign to the new game server group resource. Updating
+		// game server group tags with CloudFormation will not take effect. Please
+		// update this property using AWS GameLift APIs instead.
+		Tags?: #Tags
+
+		// A list of virtual private cloud (VPC) subnets to use with instances in the
+		// game server group. Updating this game server group property will not take
+		// effect for the created EC2 Auto Scaling group, please update the EC2 Auto
+		// Scaling group directly after creating the resource.
+		VpcSubnets?: #VpcSubnets
 	})
 }
 

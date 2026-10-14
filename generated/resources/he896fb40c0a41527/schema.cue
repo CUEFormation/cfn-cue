@@ -224,10 +224,15 @@ fn.#ObjectExpression
 	EnvironmentOverride?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#ContainerEnvironment] |
 		fn.#ListExpression
 	ImageUri!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.@\\/:]+$" | fn.#StringExpression
-	LinuxCapabilities?: #LinuxCapabilities | fn.#ObjectExpression
+
+	// Linux-specific modifications applied to the default Docker container
+	// configuration, such as Linux capabilities.
+	LinuxCapabilities?: #LinuxCapabilities
 	MountPoints?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#ContainerMountPoint] |
 		fn.#ListExpression
-	PortConfiguration?:   #PortConfiguration | fn.#ObjectExpression
+
+	// Defines the ports on the container.
+	PortConfiguration?:   #PortConfiguration
 	ResolvedImageDigest?: =~"^sha256:[a-fA-F0-9]{64}$" | fn.#StringExpression
 	ServerSdkVersion!:    strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\d+\\.\\d+\\.\\d+$" | fn.#StringExpression
 	Vcpu?: <=10 & >=0.125 |
@@ -310,10 +315,15 @@ fn.#ObjectExpression
 		fn.#ListExpression
 	EnvironmentOverride?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#ContainerEnvironment] |
 		fn.#ListExpression
-	Essential?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HealthCheck?: #ContainerHealthCheck | fn.#ObjectExpression
+	Essential?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// Specifies how the health of the containers will be checked.
+	HealthCheck?: #ContainerHealthCheck
 	ImageUri!:    strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.@\\/:]+$" | fn.#StringExpression
-	LinuxCapabilities?: #LinuxCapabilities | fn.#ObjectExpression
+
+	// Linux-specific modifications applied to the default Docker container
+	// configuration, such as Linux capabilities.
+	LinuxCapabilities?: #LinuxCapabilities
 	MemoryHardLimitMebibytes?: int & <=1024000 & >=4 |
 		{
 			string &
@@ -332,7 +342,9 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	MountPoints?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#ContainerMountPoint] |
 		fn.#ListExpression
-	PortConfiguration?:   #PortConfiguration | fn.#ObjectExpression
+
+	// Defines the ports on the container.
+	PortConfiguration?:   #PortConfiguration
 	ResolvedImageDigest?: =~"^sha256:[a-fA-F0-9]{64}$" | fn.#StringExpression
 	Vcpu?: <=10 & >=0.125 |
 		{

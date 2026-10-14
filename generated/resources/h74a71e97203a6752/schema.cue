@@ -20,7 +20,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTWireless::DeviceProfile"
 	Properties?: close({
-		LoRaWAN?: #LoRaWANDeviceProfile | fn.#ObjectExpression
+		// LoRaWANDeviceProfile supports all LoRa specific attributes for service
+		// profile for CreateDeviceProfile operation
+		LoRaWAN?: #LoRaWANDeviceProfile
 		Name?:    strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 		Tags?:    list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})

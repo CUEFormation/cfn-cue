@@ -20,9 +20,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::MonitoringSchedule"
 	Properties!: close({
-		EndpointName?:                   #EndpointName
-		FailureReason?:                  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		LastMonitoringExecutionSummary?: #MonitoringExecutionSummary | fn.#ObjectExpression
+		EndpointName?:  #EndpointName
+		FailureReason?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+
+		// Describes metadata on the last execution to run, if there was one.
+		LastMonitoringExecutionSummary?: #MonitoringExecutionSummary
 		MonitoringScheduleConfig!:       #MonitoringScheduleConfig
 		MonitoringScheduleName!:         #MonitoringScheduleName
 		MonitoringScheduleStatus?:       "Pending" | "Failed" | "Scheduled" | "Stopped" | fn.#StringExpression
@@ -85,7 +87,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ConstraintsResource: close({S3Uri?: #S3Uri | fn.#StringExpression}) | fn.#ObjectExpression
+#ConstraintsResource: close({
+	// The Amazon S3 URI for baseline constraint file in Amazon S3 that the current
+	// monitoring job should validated against.
+	S3Uri?: #S3Uri
+}) |
+fn.#ObjectExpression
 
 #ContainerArgument: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
@@ -125,9 +132,17 @@ fn.#ObjectExpression
 		...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	ImageUri!:                        strings.MaxRunes(255) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	PostAnalyticsProcessorSourceUri?: #S3Uri | fn.#StringExpression
-	RecordPreprocessorSourceUri?:     #S3Uri | fn.#StringExpression
+	ImageUri!: strings.MaxRunes(255) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+
+	// An Amazon S3 URI to a script that is called after analysis has been
+	// performed. Applicable only for the built-in (first party) containers.
+	PostAnalyticsProcessorSourceUri?: #S3Uri
+
+	// An Amazon S3 URI to a script that is called per row prior to running
+	// analysis. It can base64 decode the payload and convert it into a flatted
+	// json so that the built-in container can use the converted data. Applicable
+	// only for the built-in (first party) containers
+	RecordPreprocessorSourceUri?: #S3Uri
 }) |
 fn.#ObjectExpression
 
@@ -236,13 +251,21 @@ fn.#ObjectExpression
 #S3Uri: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
 
 #ScheduleConfig: close({
-	DataAnalysisEndTime?:   #DataAnalysisTimeString | fn.#StringExpression
-	DataAnalysisStartTime?: #DataAnalysisTimeString | fn.#StringExpression
+	// Data Analysis end time, e.g. PT0H
+	DataAnalysisEndTime?: #DataAnalysisTimeString
+
+	// Data Analysis start time, e.g. -PT1H
+	DataAnalysisStartTime?: #DataAnalysisTimeString
 	ScheduleExpression!:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#StatisticsResource: close({S3Uri?: #S3Uri | fn.#StringExpression}) | fn.#ObjectExpression
+#StatisticsResource: close({
+	// The Amazon S3 URI for the baseline statistics file in Amazon S3 that the
+	// current monitoring job should be validated against.
+	S3Uri?: #S3Uri
+}) |
+fn.#ObjectExpression
 
 #StoppingCondition: close({
 	MaxRuntimeInSeconds!: int & <=86400 & >=1 |

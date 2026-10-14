@@ -16,10 +16,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGatewayV2::ApiGatewayManagedOverrides"
 	Properties!: close({
-		ApiId!:       string | fn.#StringExpression
-		Integration?: #IntegrationOverrides | fn.#ObjectExpression
-		Route?:       #RouteOverrides | fn.#ObjectExpression
-		Stage?:       #StageOverrides | fn.#ObjectExpression
+		ApiId!: string | fn.#StringExpression
+
+		// Overrides the integration configuration for an API Gateway-managed integration.
+		Integration?: #IntegrationOverrides
+
+		// Overrides the route configuration for an API Gateway-managed route.
+		Route?: #RouteOverrides
+
+		// Overrides the stage configuration for an API Gateway-managed stage.
+		Stage?: #StageOverrides
 	})
 }
 
@@ -98,9 +104,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #StageOverrides: close({
-	AccessLogSettings?:    #AccessLogSettings | fn.#ObjectExpression
-	AutoDeploy?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DefaultRouteSettings?: #RouteSettings | fn.#ObjectExpression
+	// Settings for logging access in a stage.
+	AccessLogSettings?: #AccessLogSettings
+	AutoDeploy?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// The default route settings for the stage.
+	DefaultRouteSettings?: #RouteSettings
 	Description?:          string | fn.#StringExpression
 	RouteSettings?:        fn.#Object & {...} | string | fn.#StringObjectExpression
 	StageVariables?:       fn.#Object & {...} | string | fn.#StringObjectExpression

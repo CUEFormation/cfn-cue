@@ -19,12 +19,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		Description?: strings.MaxRunes(600) & strings.MinRunes(0) & =~"^[^\\x00]*$" | fn.#StringExpression
 		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\s\\x00]( *[^\\s\\x00])*$" | fn.#StringExpression
-		ScopeTags?:             #ScopeTagsMap | fn.#ObjectExpression
-		SourceConfigurations!:  list.MaxItems(2) & [...] & [...#SourceConfiguration] | fn.#ListExpression
-		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TargetDeployment?:      "SINGLE_ACCOUNT" | "MULTI_ACCOUNT" | fn.#StringExpression
-		TargetNetwork!:         #TargetNetwork | fn.#ObjectExpression
-		TargetS3Configuration!: #TargetS3Configuration | fn.#ObjectExpression
+
+		// Scope tags for the network migration definition.
+		ScopeTags?:            #ScopeTagsMap
+		SourceConfigurations!: list.MaxItems(2) & [...] & [...#SourceConfiguration] | fn.#ListExpression
+		Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetDeployment?:     "SINGLE_ACCOUNT" | "MULTI_ACCOUNT" | fn.#StringExpression
+
+		// The target network configuration including topology and CIDR ranges.
+		TargetNetwork!: #TargetNetwork
+
+		// The S3 configuration for storing the target network artifacts.
+		TargetS3Configuration!: #TargetS3Configuration
 	})
 }
 

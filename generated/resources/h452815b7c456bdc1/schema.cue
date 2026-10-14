@@ -286,11 +286,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		PreferredBackupWindow?:      string | fn.#StringExpression
 		PreferredMaintenanceWindow?: string | fn.#StringExpression
 		PubliclyAccessible?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ReplicationSourceIdentifier?:      string | fn.#StringExpression
-		RestoreToTime?:                    string | fn.#StringExpression
-		RestoreType?:                      string | fn.#StringExpression
-		ScalingConfiguration?:             #ScalingConfiguration | fn.#ObjectExpression
-		ServerlessV2ScalingConfiguration?: #ServerlessV2ScalingConfiguration | fn.#ObjectExpression
+		ReplicationSourceIdentifier?: string | fn.#StringExpression
+		RestoreToTime?:               string | fn.#StringExpression
+		RestoreType?:                 string | fn.#StringExpression
+
+		// The scaling configuration of an Aurora Serverless v1 DB cluster.
+		// This property is only supported for Aurora Serverless v1. For Aurora
+		// Serverless v2, Use the ``ServerlessV2ScalingConfiguration`` property.
+		// Valid for: Aurora Serverless v1 DB clusters only
+		ScalingConfiguration?: #ScalingConfiguration
+
+		// The scaling configuration of an Aurora Serverless V2 DB cluster.
+		// This property is only supported for Aurora Serverless v2. For Aurora
+		// Serverless v1, Use the ``ScalingConfiguration`` property.
+		// Valid for: Aurora Serverless v2 DB clusters only
+		ServerlessV2ScalingConfiguration?: #ServerlessV2ScalingConfiguration
 		SnapshotIdentifier?:               string | fn.#StringExpression
 		SourceDBClusterIdentifier?:        string | fn.#StringExpression
 		SourceDbClusterResourceId?:        string | fn.#StringExpression

@@ -15,13 +15,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElasticBeanstalk::ConfigurationTemplate"
 	Properties!: close({
-		ApplicationName!:     strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		Description?:         strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-		EnvironmentId?:       string | fn.#StringExpression
-		OptionSettings?:      [...#ConfigurationOptionSetting] | fn.#ListExpression
-		PlatformArn?:         string | fn.#StringExpression
-		SolutionStackName?:   string | fn.#StringExpression
-		SourceConfiguration?: #SourceConfiguration | fn.#ObjectExpression
+		ApplicationName!:   strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Description?:       strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+		EnvironmentId?:     string | fn.#StringExpression
+		OptionSettings?:    [...#ConfigurationOptionSetting] | fn.#ListExpression
+		PlatformArn?:       string | fn.#StringExpression
+		SolutionStackName?: string | fn.#StringExpression
+
+		// An Elastic Beanstalk configuration template to base this one on. If
+		// specified, Elastic Beanstalk uses the configuration values from the
+		// specified configuration template to create a new configuration.
+		//
+		// Values specified in OptionSettings override any values obtained from the SourceConfiguration.
+		//
+		// You must specify SourceConfiguration if you don't specify PlatformArn,
+		// EnvironmentId, or SolutionStackName.
+		//
+		// Constraint: If both solution stack name and source configuration are
+		// specified, the solution stack of the source configuration template must
+		// match the specified solution stack name.
+		SourceConfiguration?: #SourceConfiguration
 	})
 }
 

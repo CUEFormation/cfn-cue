@@ -23,12 +23,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		AdConditioningConfiguration?:   #AdConditioningConfiguration
 		AdDecisionServerConfiguration?: #AdDecisionServerConfiguration
 		AdDecisionServerUrl!:           string | fn.#StringExpression
-		AdsPersonalizationConcurrency?: #AdsPersonalizationConcurrency | fn.#ObjectExpression
-		AdsPersonalizationTimeouts?:    #AdsPersonalizationTimeouts | fn.#ObjectExpression
-		AvailSuppression?:              #AvailSuppression | fn.#ObjectExpression
-		Bumper?:                        #Bumper | fn.#ObjectExpression
-		CdnConfiguration?:              #CdnConfiguration | fn.#ObjectExpression
-		ConfigurationAliases?:          #ConfigurationAliases | fn.#ValueExpression
+
+		// The settings that control how many concurrent requests MediaTailor makes to
+		// the ad decision server (ADS).
+		AdsPersonalizationConcurrency?: #AdsPersonalizationConcurrency
+
+		// The ad decision server (ADS) request timeouts and personalization time
+		// budgets for live, VOD, and prefetch workflows.
+		AdsPersonalizationTimeouts?: #AdsPersonalizationTimeouts
+
+		// The configuration for avail suppression, also known as ad suppression. For
+		// more information about ad suppression, see Ad Suppression
+		// (https://docs.aws.amazon.com/mediatailor/latest/ug/ad-behavior.html).
+		AvailSuppression?: #AvailSuppression
+
+		// The configuration for bumpers. Bumpers are short audio or video clips that
+		// play at the start or before the end of an ad break. To learn more about
+		// bumpers, see Bumpers
+		// (https://docs.aws.amazon.com/mediatailor/latest/ug/bumpers.html).
+		Bumper?: #Bumper
+
+		// The configuration for using a content delivery network (CDN), like Amazon
+		// CloudFront, for content and ad segment management.
+		CdnConfiguration?: #CdnConfiguration
+
+		// The player parameters and aliases used as dynamic variables during session
+		// initialization. For more information, see Domain Variables.
+		ConfigurationAliases?: #ConfigurationAliases
 		DashConfiguration?: close({
 			MpdLocation?:        string | fn.#StringExpression
 			OriginManifestType?: "SINGLE_PERIOD" | "MULTI_PERIOD" | fn.#StringExpression
@@ -38,11 +59,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 			{[=~".*"]: string | fn.#StringExpression}}) |
 		fn.#ObjectExpression
-		HlsConfiguration?:         close({}) | fn.#ObjectExpression
-		InsertionMode?:            #InsertionMode | fn.#StringExpression
-		LivePreRollConfiguration?: #LivePreRollConfiguration | fn.#ObjectExpression
-		LogConfiguration?:         #LogConfiguration | fn.#ObjectExpression
-		ManifestProcessingRules?:  #ManifestProcessingRules | fn.#ObjectExpression
+		HlsConfiguration?: close({}) | fn.#ObjectExpression
+
+		// The setting that controls whether players can use stitched or guided ad
+		// insertion. The default, STITCHED_ONLY, forces all player sessions to use
+		// stitched (server-side) ad insertion. Choosing PLAYER_SELECT allows players
+		// to select either stitched or guided ad insertion at session-initialization
+		// time. The default for players that do not specify an insertion mode is
+		// stitched.
+		InsertionMode?: #InsertionMode
+
+		// The configuration for pre-roll ad insertion.
+		LivePreRollConfiguration?: #LivePreRollConfiguration
+
+		// The configuration that defines where AWS Elemental MediaTailor sends logs for
+		// the playback configuration.
+		LogConfiguration?: #LogConfiguration
+
+		// The configuration for manifest processing rules. Manifest processing rules
+		// enable customization of the personalized manifests created by MediaTailor.
+		ManifestProcessingRules?: #ManifestProcessingRules
 		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 		PersonalizationThresholdSeconds?: int & >=1 |
 			{
@@ -247,9 +283,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LogConfiguration: close({
-	AdsInteractionLog?:             #AdsInteractionLog | fn.#ObjectExpression
-	EnabledLoggingStrategies?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	ManifestServiceInteractionLog?: #ManifestServiceInteractionLog | fn.#ObjectExpression
+	// The event types that MediaTailor emits in logs for interactions with the ADS.
+	AdsInteractionLog?:        #AdsInteractionLog
+	EnabledLoggingStrategies?: [...string | fn.#StringExpression] | fn.#ListExpression
+
+	// The event types that MediaTailor emits in logs for interactions with the origin server.
+	ManifestServiceInteractionLog?: #ManifestServiceInteractionLog
 	PercentEnabled!: int & <=100 & >=0 |
 		{
 			string &
@@ -269,8 +308,15 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ManifestProcessingRules: close({AdMarkerPassthrough?: #AdMarkerPassthrough | fn.#ObjectExpression}) |
-	fn.#ObjectExpression
+#ManifestProcessingRules: close({
+	// For HLS, when set to true, MediaTailor passes through EXT-X-CUE-IN,
+	// EXT-X-CUE-OUT, and EXT-X-SPLICEPOINT-SCTE35 ad markers from the origin
+	// manifest to the MediaTailor personalized manifest. No logic is applied to
+	// these ad markers. For example, if EXT-X-CUE-OUT has a value of 60, but no
+	// ads are filled for that ad break, MediaTailor will not set the value to 0.
+	AdMarkerPassthrough?: #AdMarkerPassthrough
+}) |
+fn.#ObjectExpression
 
 #ManifestServiceInteractionLog: close({ExcludeEventTypes?: [...string | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression

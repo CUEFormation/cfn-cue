@@ -21,8 +21,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
 		fn.#StringExpression
 		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9\\-\\._]*$" | fn.#StringExpression
-		RunConfigurations!: #RunConfigurations | fn.#ObjectExpression
-		Tags?:              #TagMap | fn.#ObjectExpression
+
+		// Required run-specific configurations.
+		RunConfigurations!: #RunConfigurations
+
+		// Tags for the configuration.
+		Tags?: #TagMap
 	})
 }
 

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -33,7 +33,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }
 
 #AuthenticationConfiguration: close({
-	AccessRoleArn?: #RoleArn | fn.#StringExpression
+	// Access Role Arn
+	AccessRoleArn?: #RoleArn
 	ConnectionArn?: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -185,7 +186,9 @@ fn.#ObjectExpression
 #InstanceConfiguration: close({
 	Cpu?: strings.MaxRunes(9) & strings.MinRunes(3) & =~"256|512|1024|2048|4096|(0.25|0.5|1|2|4) vCPU" |
 	fn.#StringExpression
-	InstanceRoleArn?: #RoleArn | fn.#StringExpression
+
+	// Instance Role Arn
+	InstanceRoleArn?: #RoleArn
 	Memory?: strings.MaxRunes(6) &
 	strings.MinRunes(3) &
 	=~"512|1024|2048|3072|4096|6144|8192|10240|12288|(0.5|1|2|3|4|6|8|10|12) GB" |

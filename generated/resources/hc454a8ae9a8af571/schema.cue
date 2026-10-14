@@ -26,17 +26,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		BuildRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 			=~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 			fn.#StringExpression
-		CodeArtifact!:      #CodeArtifact | fn.#ObjectExpression
+
+		// Code artifact for the active MicroVM image.
+		CodeArtifact!:      #CodeArtifact
 		CpuConfigurations!: list.UniqueItems() & [...#CpuConfiguration] | fn.#ListExpression
 		Description!:       string | fn.#StringExpression
 		EgressNetworkConnectors!: list.MaxItems(10) & list.UniqueItems() & [...string | fn.#StringExpression] |
 			fn.#ListExpression
 		EnvironmentVariables!: list.MaxItems(50) & list.UniqueItems() & [...#EnvironmentVariable] | fn.#ListExpression
 		Hooks!:                #Hooks
-		Logging!:              #Logging | fn.#ObjectExpression
-		Name!:                 strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-		Resources!:            list.MaxItems(1) & list.UniqueItems() & [...#Resources] | fn.#ListExpression
-		Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// Configuration for MicroVM image logging.
+		Logging!:   #Logging
+		Name!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
+		Resources!: list.MaxItems(1) & list.UniqueItems() & [...#Resources] | fn.#ListExpression
+		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
 

@@ -37,7 +37,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		SourceConnection?:   #SourceConnection | fn.#ObjectExpression
+
+		// A top level ProductViewDetail response containing details about the product's
+		// connection. AWS Service Catalog returns this field for the CreateProduct,
+		// UpdateProduct, DescribeProductAsAdmin, and SearchProductAsAdmin APIs. This
+		// response contains the same fields as the ConnectionParameters request, with
+		// the addition of the LastSync response.
+		SourceConnection?:   #SourceConnection
 		SupportDescription?: strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
 		SupportEmail?:       strings.MaxRunes(254) & strings.MinRunes(0) | fn.#StringExpression
 		SupportUrl?:         strings.MaxRunes(2083) & strings.MinRunes(0) | fn.#StringExpression
@@ -53,7 +59,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#ConnectionParameters: close({CodeStar?: #CodeStarParameters | fn.#ObjectExpression}) | fn.#ObjectExpression
+#ConnectionParameters: close({
+	// The connection details based on the connection Type.
+	CodeStar?: #CodeStarParameters
+}) |
+fn.#ObjectExpression
 
 #ProvisioningArtifactProperties: close({
 	Description?:               string | fn.#StringExpression

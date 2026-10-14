@@ -16,9 +16,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Macie::FindingsFilter"
 	Properties!: close({
-		Action?:          #FindingFilterAction | fn.#StringExpression
-		Description?:     string | fn.#StringExpression
-		FindingCriteria!: #FindingCriteria | fn.#ObjectExpression
+		// Findings filter action.
+		Action?:      #FindingFilterAction
+		Description?: string | fn.#StringExpression
+
+		// Findings filter criteria.
+		FindingCriteria!: #FindingCriteria
 		Name!:            string | fn.#StringExpression
 		Position?: int |
 			{

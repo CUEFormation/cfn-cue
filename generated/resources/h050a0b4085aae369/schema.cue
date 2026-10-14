@@ -19,9 +19,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ExcludedAccounts?: list.MaxItems(1000) & [...] & [...=~"^\\d{12}$" | fn.#StringExpression] | fn.#ListExpression
 		OrganizationConfigRuleName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" |
 		fn.#StringExpression
-		OrganizationCustomPolicyRuleMetadata?: #OrganizationCustomPolicyRuleMetadata | fn.#ObjectExpression
-		OrganizationCustomRuleMetadata?:       #OrganizationCustomRuleMetadata | fn.#ObjectExpression
-		OrganizationManagedRuleMetadata?:      #OrganizationManagedRuleMetadata | fn.#ObjectExpression
+
+		// This object specifies metadata for your organization's AWS Config Custom Policy rule.
+		OrganizationCustomPolicyRuleMetadata?: #OrganizationCustomPolicyRuleMetadata
+
+		// This object specifies organization custom rule metadata such as resource
+		// type, resource ID of AWS resource, Lambda function ARN, and organization
+		// trigger types that trigger AWS Config to evaluate your AWS resources against
+		// a rule.
+		OrganizationCustomRuleMetadata?: #OrganizationCustomRuleMetadata
+
+		// This object specifies organization managed rule metadata such as resource
+		// type and ID of AWS resource along with the rule identifier.
+		OrganizationManagedRuleMetadata?: #OrganizationManagedRuleMetadata
 	})
 }
 

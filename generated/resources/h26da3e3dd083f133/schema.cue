@@ -17,10 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::SecurityControl"
 	Properties!: close({
-		LastUpdateReason?:   =~"^([^\u0000-\u007f]|[-_ a-zA-Z0-9])+$" | fn.#StringExpression
-		Parameters!:         #Parameters | fn.#ObjectExpression
-		SecurityControlArn?: #NonEmptyString | fn.#StringExpression
-		SecurityControlId?:  #NonEmptyString | fn.#StringExpression
+		LastUpdateReason?: =~"^([^\u0000-\u007f]|[-_ a-zA-Z0-9])+$" | fn.#StringExpression
+
+		// An object that identifies the name of a control parameter, its current value,
+		// and whether it has been customized.
+		Parameters!: #Parameters
+
+		// The Amazon Resource Name (ARN) for a security control across standards, such
+		// as `arn:aws:securityhub:eu-central-1:123456789012:security-control/S3.1`.
+		// This parameter doesn't mention a specific standard.
+		SecurityControlArn?: #NonEmptyString
+
+		// The unique identifier of a security control across standards. Values for this
+		// field typically consist of an AWS service name and a number, such as
+		// APIGateway.3.
+		SecurityControlId?: #NonEmptyString
 	}) & matchN(>=1, [{SecurityControlId!: _}, {SecurityControlArn!: _}])
 }
 
@@ -73,8 +84,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Enum?:     #NonEmptyString | fn.#StringExpression
-	EnumList?: #NonEmptyStringList | fn.#ListExpression
+
+	// A control parameter that is a enum.
+	Enum?: #NonEmptyString
+
+	// A control parameter that is a list of enums.
+	EnumList?: #NonEmptyStringList
 	Integer?: int |
 		{
 			string &
@@ -89,9 +104,15 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	IntegerList?: #IntegerList | fn.#ListExpression
-	String?:      #NonEmptyString | fn.#StringExpression
-	StringList?:  #NonEmptyStringList | fn.#ListExpression
+
+	// A control parameter that is a list of integers.
+	IntegerList?: #IntegerList
+
+	// A control parameter that is a string.
+	String?: #NonEmptyString
+
+	// A control parameter that is a list of strings.
+	StringList?: #NonEmptyStringList
 	if Boolean != _|_ if Boolean."Fn::If" == _|_ {
 		Double?: close({"Fn::If": _}) | error(
 			"Double cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",

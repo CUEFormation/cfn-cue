@@ -20,7 +20,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NetworkManager::ConnectPeer"
 	Properties!: close({
-		BgpOptions?: #BgpOptions | fn.#ObjectExpression
+		// Bgp options for connect peer.
+		BgpOptions?: #BgpOptions
 		ConnectAttachmentId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^attachment-([0-9a-f]{8,17})$" |
 		fn.#StringExpression
 		CoreNetworkAddress?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression

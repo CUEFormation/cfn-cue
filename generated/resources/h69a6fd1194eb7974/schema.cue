@@ -24,8 +24,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // changes](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/continuous-deployment.html)
 // in the *Amazon CloudFront Developer Guide*.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::ContinuousDeploymentPolicy"
-	Properties!: close({ContinuousDeploymentPolicyConfig!: #ContinuousDeploymentPolicyConfig | fn.#ObjectExpression})
+	Type!: "AWS::CloudFront::ContinuousDeploymentPolicy"
+	Properties!: close({
+		// Contains the configuration for a continuous deployment policy.
+		ContinuousDeploymentPolicyConfig!: #ContinuousDeploymentPolicyConfig
+	})
 }
 
 #ContinuousDeploymentPolicyConfig: close({
@@ -42,7 +45,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 	StagingDistributionDnsNames!: list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
 		fn.#ListExpression
-	TrafficConfig?: #TrafficConfig | fn.#ObjectExpression
+
+	// Contains the parameters for routing production traffic from your primary to
+	// staging distributions.
+	TrafficConfig?: #TrafficConfig
 	Type?:          "SingleWeight" | "SingleHeader" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -60,14 +66,22 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SingleWeightConfig: close({
-	SessionStickinessConfig?: #SessionStickinessConfig | fn.#ObjectExpression
+	// Session stickiness provides the ability to define multiple requests from a
+	// single viewer as a single session. This prevents the potentially
+	// inconsistent experience of sending some of a given user's requests to your
+	// staging distribution, while others are sent to your primary distribution.
+	// Define the session duration using TTL values.
+	SessionStickinessConfig?: #SessionStickinessConfig
 	Weight!:                  math.MultipleOf(0.01) & <=1 & >=0 | fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
 #TrafficConfig: close({
-	SingleHeaderConfig?: #SingleHeaderConfig | fn.#ObjectExpression
-	SingleWeightConfig?: #SingleWeightConfig | fn.#ObjectExpression
+	// Determines which HTTP requests are sent to the staging distribution.
+	SingleHeaderConfig?: #SingleHeaderConfig
+
+	// Contains the percentage of traffic to send to the staging distribution.
+	SingleWeightConfig?: #SingleWeightConfig
 	Type!:               "SingleWeight" | "SingleHeader" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

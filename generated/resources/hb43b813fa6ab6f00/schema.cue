@@ -87,11 +87,13 @@ fn.#ObjectExpression
 	LambdaExclusion?:                    "enable" | "disable" | fn.#StringExpression
 	Mode?:                               "monitor" | "enforce" | fn.#StringExpression
 	NatGatewayExclusion?:                "enable" | "disable" | fn.#StringExpression
-	ResourceExclusions?:                 #VpcEncryptionControlExclusions | fn.#ObjectExpression
-	State?:                              string | fn.#StringExpression
-	StateMessage?:                       string | fn.#StringExpression
-	VirtualPrivateGatewayExclusion?:     "enable" | "disable" | fn.#StringExpression
-	VpcEncryptionControlId?:             string | fn.#StringExpression
+
+	// Information about resource exclusions for the VPC Encryption Control configuration.
+	ResourceExclusions?:             #VpcEncryptionControlExclusions
+	State?:                          string | fn.#StringExpression
+	StateMessage?:                   string | fn.#StringExpression
+	VirtualPrivateGatewayExclusion?: "enable" | "disable" | fn.#StringExpression
+	VpcEncryptionControlId?:         string | fn.#StringExpression
 	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	VpcLatticeExclusion?: "enable" | "disable" | fn.#StringExpression
@@ -106,13 +108,28 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VpcEncryptionControlExclusions: close({
-	EgressOnlyInternetGateway?: #VpcEncryptionControlExclusion | fn.#ObjectExpression
-	ElasticFileSystem?:         #VpcEncryptionControlExclusion | fn.#ObjectExpression
-	InternetGateway?:           #VpcEncryptionControlExclusion | fn.#ObjectExpression
-	Lambda?:                    #VpcEncryptionControlExclusion | fn.#ObjectExpression
-	NatGateway?:                #VpcEncryptionControlExclusion | fn.#ObjectExpression
-	VirtualPrivateGateway?:     #VpcEncryptionControlExclusion | fn.#ObjectExpression
-	VpcLattice?:                #VpcEncryptionControlExclusion | fn.#ObjectExpression
-	VpcPeering?:                #VpcEncryptionControlExclusion | fn.#ObjectExpression
+	// The exclusion configuration for egress-only internet gateway traffic.
+	EgressOnlyInternetGateway?: #VpcEncryptionControlExclusion
+
+	// The exclusion configuration for Elastic File System traffic.
+	ElasticFileSystem?: #VpcEncryptionControlExclusion
+
+	// The exclusion configuration for internet gateway traffic.
+	InternetGateway?: #VpcEncryptionControlExclusion
+
+	// The exclusion configuration for Lambda function traffic.
+	Lambda?: #VpcEncryptionControlExclusion
+
+	// The exclusion configuration for NAT gateway traffic.
+	NatGateway?: #VpcEncryptionControlExclusion
+
+	// The exclusion configuration for virtual private gateway traffic.
+	VirtualPrivateGateway?: #VpcEncryptionControlExclusion
+
+	// The exclusion configuration for VPC Lattice traffic.
+	VpcLattice?: #VpcEncryptionControlExclusion
+
+	// The exclusion configuration for VPC peering connection traffic.
+	VpcPeering?: #VpcEncryptionControlExclusion
 }) |
 fn.#ObjectExpression

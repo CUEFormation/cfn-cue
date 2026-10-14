@@ -14,15 +14,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::MonitoringSubscription"
 	Properties!: close({
-		DistributionId!:         string | fn.#StringExpression
-		MonitoringSubscription!: #MonitoringSubscription | fn.#ObjectExpression
+		DistributionId!: string | fn.#StringExpression
+
+		// A subscription configuration for additional CloudWatch metrics.
+		MonitoringSubscription!: #MonitoringSubscription
 	})
 }
 
-#MonitoringSubscription: close(
-	{RealtimeMetricsSubscriptionConfig?: #RealtimeMetricsSubscriptionConfig | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#MonitoringSubscription: close({
+	// A subscription configuration for additional CloudWatch metrics.
+	RealtimeMetricsSubscriptionConfig?: #RealtimeMetricsSubscriptionConfig
+}) |
+fn.#ObjectExpression
 
 #RealtimeMetricsSubscriptionConfig: close(
 	{RealtimeMetricsSubscriptionStatus!: "Enabled" | "Disabled" | fn.#StringExpression},

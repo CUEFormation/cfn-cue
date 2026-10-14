@@ -20,8 +20,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		Description?: =~"\\S" | fn.#StringExpression
 		Name!:        =~"\\S" | fn.#StringExpression
-		Provider!:    #Provider | fn.#ObjectExpression
-		Tags?:        #Tags | fn.#ObjectExpression
+		Provider!:    #Provider
+		Tags?:        #Tags
 	})
 }
 
@@ -29,7 +29,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AWSConfigConnectorArn!: string | fn.#StringExpression
 	AzureRegions!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
 		fn.#ListExpression
-	ScopeConfiguration!: #AzureScopeConfiguration | fn.#ObjectExpression
+
+	// The scope configuration that defines which Azure resources are monitored.
+	ScopeConfiguration!: #AzureScopeConfiguration
 }) |
 fn.#ObjectExpression
 
@@ -45,7 +47,8 @@ fn.#ObjectExpression
 #EnablementStatus: string | fn.#StringExpression
 
 #HealthIssue: close({
-	Code!:    #HealthIssueCode | fn.#StringExpression
+	// The error code that identifies the type of health issue.
+	Code!:    #HealthIssueCode
 	Message!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -55,6 +58,6 @@ fn.#ObjectExpression
 #ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
 	fn.#StringExpression
 
-#Provider: close({Azure!: #AzureProviderConfiguration | fn.#ObjectExpression}) | fn.#ObjectExpression
+#Provider: close({Azure!: #AzureProviderConfiguration}) | fn.#ObjectExpression
 
 #Tags: {...} | fn.#ObjectExpression

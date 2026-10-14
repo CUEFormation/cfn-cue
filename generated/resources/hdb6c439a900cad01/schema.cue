@@ -60,7 +60,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		TlsConfig?: #TlsConfig | fn.#ObjectExpression
+
+		// The TLS configuration for a private integration. If you specify a TLS
+		// configuration, private integration traffic uses the HTTPS protocol.
+		// Supported only for HTTP APIs.
+		TlsConfig?: #TlsConfig
 	})
 }
 

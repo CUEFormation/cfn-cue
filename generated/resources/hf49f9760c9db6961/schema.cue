@@ -20,7 +20,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::DataTable"
 	Properties!: close({
-		Description?: #Description | fn.#StringExpression
+		// The description of the Data Table.
+		Description?: #Description
 		InstanceArn!: strings.MaxRunes(100) &
 		strings.MinRunes(1) &
 		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |

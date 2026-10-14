@@ -15,10 +15,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::Classifier"
 	Properties?: close({
-		CsvClassifier?:  #CsvClassifier | fn.#ObjectExpression
-		GrokClassifier?: #GrokClassifier | fn.#ObjectExpression
-		JsonClassifier?: #JsonClassifier | fn.#ObjectExpression
-		XMLClassifier?:  #XMLClassifier | fn.#ObjectExpression
+		// A classifier for comma-separated values (CSV).
+		CsvClassifier?: #CsvClassifier
+
+		// A classifier that uses grok.
+		GrokClassifier?: #GrokClassifier
+
+		// A classifier for JSON content.
+		JsonClassifier?: #JsonClassifier
+
+		// A classifier for XML content.
+		XMLClassifier?: #XMLClassifier
 	}) & matchN(>=1, [{XMLClassifier!: _}, {CsvClassifier!: _}, {GrokClassifier!: _}, {JsonClassifier!: _}])
 }
 

@@ -16,7 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EntityResolution::MatchingWorkflow"
 	Properties!: close({
-		Description?:          #Description | fn.#StringExpression
+		// The description of the MatchingWorkflow
+		Description?:          #Description
 		IncrementalRunConfig?: #IncrementalRunConfig
 		InputSourceConfig!:    list.MaxItems(20) & list.MinItems(1) & [...#InputSource] | fn.#ListExpression
 		OutputSourceConfig!:   list.MaxItems(1) & list.MinItems(1) & [...#OutputSource] | fn.#ListExpression
@@ -24,8 +25,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 			=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 			fn.#StringExpression
-		Tags?:         list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		WorkflowName!: #EntityName | fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+
+		// The name of the MatchingWorkflow
+		WorkflowName!: #EntityName
 	})
 }
 

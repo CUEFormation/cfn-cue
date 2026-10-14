@@ -24,8 +24,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // controlled using a private registry permissions policy. For more
 // information, see ``AWS::ECR::RegistryPolicy``.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECR::ReplicationConfiguration"
-	Properties!: close({ReplicationConfiguration!: #ReplicationConfiguration | fn.#ObjectExpression})
+	Type!: "AWS::ECR::ReplicationConfiguration"
+	Properties!: close({
+		// The replication configuration for a registry.
+		ReplicationConfiguration!: #ReplicationConfiguration
+	})
 }
 
 #Filter: strings.MaxRunes(256) &
@@ -43,8 +46,13 @@ fn.#StringExpression
 	fn.#ObjectExpression
 
 #ReplicationDestination: close({
-	Region!:     #Region | fn.#StringExpression
-	RegistryId!: #RegistryId | fn.#StringExpression
+	// The Region to replicate to.
+	Region!: #Region
+
+	// The AWS account ID of the Amazon ECR private registry to replicate to. When
+	// configuring cross-Region replication within your own registry, specify your
+	// own account ID.
+	RegistryId!: #RegistryId
 }) |
 fn.#ObjectExpression
 
@@ -55,7 +63,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RepositoryFilter: close({
-	Filter!:     #Filter | fn.#StringExpression
-	FilterType!: #FilterType | fn.#StringExpression
+	// The repository filter details. When the ``PREFIX_MATCH`` filter type is
+	// specified, this value is required and should be the repository name prefix
+	// to configure replication for.
+	Filter!: #Filter
+
+	// The repository filter type. The only supported value is ``PREFIX_MATCH``,
+	// which is a repository name prefix specified with the ``filter`` parameter.
+	FilterType!: #FilterType
 }) |
 fn.#ObjectExpression

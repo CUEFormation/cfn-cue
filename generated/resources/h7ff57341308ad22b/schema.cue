@@ -16,9 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::ConnectionFunction"
 	Properties!: close({
-		AutoPublish?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ConnectionFunctionCode!:   string | fn.#StringExpression
-		ConnectionFunctionConfig!: #ConnectionFunctionConfig | fn.#ObjectExpression
+		AutoPublish?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ConnectionFunctionCode!: string | fn.#StringExpression
+
+		// Contains configuration information about a CloudFront function.
+		ConnectionFunctionConfig!: #ConnectionFunctionConfig
 		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 	})

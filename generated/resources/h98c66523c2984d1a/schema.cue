@@ -63,7 +63,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		{[=~"[a-zA-Z_\\-0-9]+"]: #PropertyGroup}}) |
 	fn.#ObjectExpression
-	Status?: #Status | fn.#ObjectExpression
+
+	// The current status of the entity.
+	Status?: #Status
 }) |
 fn.#ObjectExpression
 
@@ -80,14 +82,20 @@ fn.#ObjectExpression
 
 		{[=~"[a-zA-Z_\\-0-9]+"]: #PropertyGroup}}) |
 	fn.#ObjectExpression
-	Status?: #Status | fn.#ObjectExpression
+
+	// The current status of the component.
+	Status?: #Status
 }) |
 fn.#ObjectExpression
 
 #DataType: close({
 	AllowedValues?: list.MaxItems(50) & [...] & [...#DataValue] | fn.#ListExpression
-	NestedType?:    #DataType | fn.#ObjectExpression
-	Relationship?:  #Relationship | fn.#ObjectExpression
+
+	// The nested type in the data type.
+	NestedType?: #DataType
+
+	// A relationship that associates a component with another component.
+	Relationship?: #Relationship
 	Type?: "RELATIONSHIP" | "STRING" | "LONG" | "BOOLEAN" | "INTEGER" | "DOUBLE" | "LIST" | "MAP" | fn.#StringExpression
 	UnitOfMeasure?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
 }) |
@@ -169,9 +177,14 @@ fn.#ObjectExpression
 #DateTimeFormat: time.Time | fn.#StringExpression
 
 #Definition: close({
-	Configuration?:      #PropertyDefinitionConfiguration | fn.#ObjectExpression
-	DataType?:           #DataType | fn.#ObjectExpression
-	DefaultValue?:       #DataValue | fn.#ObjectExpression
+	// An object that specifies information about a property configuration.
+	Configuration?: #PropertyDefinitionConfiguration
+
+	// An object that contains information about the data type.
+	DataType?: #DataType
+
+	// An object that contains the default value.
+	DefaultValue?:       #DataValue
 	IsExternalId?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IsFinal?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IsImported?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -183,8 +196,11 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Property: close({
-	Definition?: #Definition | fn.#ObjectExpression
-	Value?:      #DataValue | fn.#ObjectExpression
+	// The definition of the property.
+	Definition?: #Definition
+
+	// The value of the property.
+	Value?: #DataValue
 }) |
 fn.#ObjectExpression
 

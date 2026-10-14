@@ -36,7 +36,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		EnaSrdSpecification?: #EnaSrdSpecification | fn.#ObjectExpression
+
+		// Configures ENA Express for the network interface that this action attaches to the instance.
+		EnaSrdSpecification?: #EnaSrdSpecification
 		InstanceId!:          string | fn.#StringExpression
 		NetworkInterfaceId!:  string | fn.#StringExpression
 	})

@@ -24,10 +24,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		DisplayName!:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 		DomainName!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 		SegmentDefinitionName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		SegmentGroups?:         #SegmentGroup | fn.#ObjectExpression
-		SegmentSort?:           #SegmentSort | fn.#ObjectExpression
-		SegmentSqlQuery?:       strings.MaxRunes(50000) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:                  list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+
+		// An array that defines the set of segment criteria to evaluate when handling
+		// segment groups for the segment.
+		SegmentGroups?: #SegmentGroup
+
+		// The segment sort configuration for ordering segment results.
+		SegmentSort?:     #SegmentSort
+		SegmentSqlQuery?: strings.MaxRunes(50000) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:            list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
 }
 

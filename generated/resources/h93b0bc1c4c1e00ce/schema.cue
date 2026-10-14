@@ -18,7 +18,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!: "AWS::S3ObjectLambda::AccessPoint"
 	Properties!: close({
 		Name?: strings.MaxRunes(45) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" | fn.#StringExpression
-		ObjectLambdaConfiguration!: #ObjectLambdaConfiguration | fn.#ObjectExpression
+
+		// The Object lambda Access Point Configuration that configures transformations
+		// to be applied on the objects on specified S3 Actions
+		ObjectLambdaConfiguration!: #ObjectLambdaConfiguration
 	})
 }
 

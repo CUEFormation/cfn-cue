@@ -52,11 +52,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }
 
 #Action: close({
-	AuthenticateCognitoConfig?: #AuthenticateCognitoConfig | fn.#ObjectExpression
-	AuthenticateOidcConfig?:    #AuthenticateOidcConfig | fn.#ObjectExpression
-	FixedResponseConfig?:       #FixedResponseConfig | fn.#ObjectExpression
-	ForwardConfig?:             #ForwardConfig | fn.#ObjectExpression
-	JwtValidationConfig?:       #JwtValidationConfig | fn.#ObjectExpression
+	// [HTTPS listeners] Information for using Amazon Cognito to authenticate users.
+	// Specify only when ``Type`` is ``authenticate-cognito``.
+	AuthenticateCognitoConfig?: #AuthenticateCognitoConfig
+
+	// [HTTPS listeners] Information about an identity provider that is compliant
+	// with OpenID Connect (OIDC). Specify only when ``Type`` is
+	// ``authenticate-oidc``.
+	AuthenticateOidcConfig?: #AuthenticateOidcConfig
+
+	// [Application Load Balancer] Information for creating an action that returns a
+	// custom HTTP response. Specify only when ``Type`` is ``fixed-response``.
+	FixedResponseConfig?: #FixedResponseConfig
+
+	// Information for creating an action that distributes requests among multiple
+	// target groups. Specify only when ``Type`` is ``forward``.
+	// If you specify both ``ForwardConfig`` and ``TargetGroupArn``, you can specify
+	// only one target group using ``ForwardConfig`` and it must be the same target
+	// group specified in ``TargetGroupArn``.
+	ForwardConfig?: #ForwardConfig
+
+	// [HTTPS listeners] Information for validating JWT access tokens in client
+	// requests. Specify only when ``Type`` is ``jwt-validation``.
+	JwtValidationConfig?: #JwtValidationConfig
 	Order?: int & <=50000 & >=1 |
 		{
 			string &
@@ -73,7 +91,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	RedirectConfig?: #RedirectConfig | fn.#ObjectExpression
+
+	// [Application Load Balancer] Information for creating a redirect action.
+	// Specify only when ``Type`` is ``redirect``.
+	RedirectConfig?: #RedirectConfig
 	TargetGroupArn?: string | fn.#StringExpression
 	Type!: "authenticate-cognito" |
 		"authenticate-oidc" |
@@ -153,25 +174,55 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ForwardConfig: close({
-	TargetGroupStickinessConfig?: #TargetGroupStickinessConfig | fn.#ObjectExpression
+	// Information about the target group stickiness for a rule.
+	TargetGroupStickinessConfig?: #TargetGroupStickinessConfig
 	TargetGroups?:                list.UniqueItems() & [...#TargetGroupTuple] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #HostHeaderConfig: close({
-	RegexValues?: #ListOfStrings | fn.#ListExpression
-	Values?:      #ListOfStrings | fn.#ListExpression
+	RegexValues?: #ListOfStrings
+
+	// The host names. The maximum length of each string is 128 characters. The
+	// comparison is case insensitive. The following wildcard characters are
+	// supported: * (matches 0 or more characters) and ? (matches exactly 1
+	// character). You must include at least one "." character. You can include
+	// only alphabetical characters after the final "." character.
+	// If you specify multiple strings, the condition is satisfied if one of the
+	// strings matches the host name.
+	Values?: #ListOfStrings
 }) |
 fn.#ObjectExpression
 
 #HttpHeaderConfig: close({
 	HttpHeaderName?: string | fn.#StringExpression
-	RegexValues?:    #ListOfStrings | fn.#ListExpression
-	Values?:         #ListOfStrings | fn.#ListExpression
+	RegexValues?:    #ListOfStrings
+
+	// The strings to compare against the value of the HTTP header. The maximum
+	// length of each string is 128 characters. The comparison strings are case
+	// insensitive. The following wildcard characters are supported: * (matches 0
+	// or more characters) and ? (matches exactly 1 character).
+	// If the same header appears multiple times in the request, we search them in
+	// order until a match is found.
+	// If you specify multiple strings, the condition is satisfied if one of the
+	// strings matches the value of the HTTP header. To require that all of the
+	// strings are a match, create one condition per string.
+	Values?: #ListOfStrings
 }) |
 fn.#ObjectExpression
 
-#HttpRequestMethodConfig: close({Values?: #ListOfStrings | fn.#ListExpression}) | fn.#ObjectExpression
+#HttpRequestMethodConfig: close({
+	// The name of the request method. The maximum length is 40 characters. The
+	// allowed characters are A-Z, hyphen (-), and underscore (_). The comparison
+	// is case sensitive. Wildcards are not supported; therefore, the method name
+	// must be an exact match.
+	// If you specify multiple strings, the condition is satisfied if one of the
+	// strings matches the HTTP request method. We recommend that you route GET and
+	// HEAD requests in the same way, because the response to a HEAD request may be
+	// cached.
+	Values?: #ListOfStrings
+}) |
+fn.#ObjectExpression
 
 #JwtValidationActionAdditionalClaim: close({
 	Format!: "single-string" | "space-separated-values" | "string-array" | fn.#StringExpression
@@ -190,7 +241,7 @@ fn.#ObjectExpression
 #ListOfStrings: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 
 #PathPatternConfig: close({
-	RegexValues?: #ListOfStrings | fn.#ListExpression
+	RegexValues?: #ListOfStrings
 	Values?:      #ListOfStrings & (null | bool | number | string | list.MaxItems(5) | {...}) | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -222,18 +273,56 @@ fn.#ObjectExpression
 
 #RewriteConfigList: list.UniqueItems() & [...#RewriteConfig] | fn.#ListExpression
 
-#RewriteConfigObject: close({Rewrites!: #RewriteConfigList | fn.#ListExpression}) | fn.#ObjectExpression
+#RewriteConfigObject: close({Rewrites!: #RewriteConfigList}) | fn.#ObjectExpression
 
 #RuleCondition: close({
-	Field?:                   strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	HostHeaderConfig?:        #HostHeaderConfig | fn.#ObjectExpression
-	HttpHeaderConfig?:        #HttpHeaderConfig | fn.#ObjectExpression
-	HttpRequestMethodConfig?: #HttpRequestMethodConfig | fn.#ObjectExpression
-	PathPatternConfig?:       #PathPatternConfig | fn.#ObjectExpression
-	QueryStringConfig?:       #QueryStringConfig | fn.#ObjectExpression
-	RegexValues?:             #ListOfStrings | fn.#ListExpression
-	SourceIpConfig?:          #SourceIpConfig | fn.#ObjectExpression
-	Values?:                  #ListOfStrings | fn.#ListExpression
+	Field?: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+
+	// Information for a host header condition. Specify only when ``Field`` is ``host-header``.
+	HostHeaderConfig?: #HostHeaderConfig
+
+	// Information for an HTTP header condition. Specify only when ``Field`` is ``http-header``.
+	HttpHeaderConfig?: #HttpHeaderConfig
+
+	// Information for an HTTP method condition. Specify only when ``Field`` is ``http-request-method``.
+	HttpRequestMethodConfig?: #HttpRequestMethodConfig
+
+	// Information for a path pattern condition. Specify only when ``Field`` is ``path-pattern``.
+	PathPatternConfig?: #PathPatternConfig
+
+	// Information for a query string condition. Specify only when ``Field`` is ``query-string``.
+	QueryStringConfig?: #QueryStringConfig
+
+	// The regular expressions to match against the condition field. The maximum
+	// length of each string is 128 characters. Specify only when ``Field`` is
+	// ``http-header``, ``host-header``, or ``path-pattern``.
+	RegexValues?: #ListOfStrings
+
+	// Information for a source IP condition. Specify only when ``Field`` is ``source-ip``.
+	SourceIpConfig?: #SourceIpConfig
+
+	// The condition value. Specify only when ``Field`` is ``host-header`` or
+	// ``path-pattern``. Alternatively, to specify multiple host names or multiple
+	// path patterns, use ``HostHeaderConfig`` or ``PathPatternConfig``.
+	// If ``Field`` is ``host-header`` and you're not using ``HostHeaderConfig``,
+	// you can specify a single host name (for example, my.example.com). A host
+	// name is case insensitive, can be up to 128 characters in length, and can
+	// contain any of the following characters.
+	// + A-Z, a-z, 0-9
+	// + - .
+	// + * (matches 0 or more characters)
+	// + ? (matches exactly 1 character)
+	//
+	// If ``Field`` is ``path-pattern`` and you're not using ``PathPatternConfig``,
+	// you can specify a single path pattern (for example, /img/*). A path pattern
+	// is case-sensitive, can be up to 128 characters in length, and can contain
+	// any of the following characters.
+	// + A-Z, a-z, 0-9
+	// + _ - . $ / ~ " ' @ : +
+	// + & (using &amp;)
+	// + * (matches 0 or more characters)
+	// + ? (matches exactly 1 character)
+	Values?: #ListOfStrings
 }) |
 fn.#ObjectExpression
 
@@ -288,9 +377,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Transform: close({
-	HostHeaderRewriteConfig?: #RewriteConfigObject | fn.#ObjectExpression
+	HostHeaderRewriteConfig?: #RewriteConfigObject
 	Type!:                    "host-header-rewrite" | "url-rewrite" | fn.#StringExpression
-	UrlRewriteConfig?:        #RewriteConfigObject | fn.#ObjectExpression
+	UrlRewriteConfig?:        #RewriteConfigObject
 	if HostHeaderRewriteConfig != _|_ if HostHeaderRewriteConfig."Fn::If" == _|_ {
 		UrlRewriteConfig?: close({"Fn::If": _}) | error(
 			"UrlRewriteConfig cannot be used with HostHeaderRewriteConfig; set exactly one of HostHeaderRewriteConfig, UrlRewriteConfig",

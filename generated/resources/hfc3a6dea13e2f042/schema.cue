@@ -16,8 +16,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::ApiKeyCredentialProvider"
 	Properties!: close({
-		ApiKey?:             strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
-		ApiKeySecretConfig?: #SecretReference | fn.#ObjectExpression
+		ApiKey?: strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
+
+		// Configuration for a customer-provided secret containing the API key
+		ApiKeySecretConfig?: #SecretReference
 		ApiKeySecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
 		Name!:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
 		Tags?:               list.MaxItems(50) & [...#Tag] | fn.#ListExpression

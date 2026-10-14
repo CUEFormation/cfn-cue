@@ -22,7 +22,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Computations!: list.MaxItems(50) & list.MinItems(1) & [...#ComputeNode] | fn.#ListExpression
 		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 		fn.#StringExpression
-		EnvironmentVariables?: #EnvironmentVariablesMap | fn.#ObjectExpression
+
+		// Environment variables shared across all compute nodes in the pipeline.
+		EnvironmentVariables?: #EnvironmentVariablesMap
 		PipelineName!:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 		Tags?:                 list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 		WorkspaceName!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression

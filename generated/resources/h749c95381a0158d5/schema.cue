@@ -25,15 +25,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(10) &
 		=~"^arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
 		fn.#StringExpression
-		Name!:          strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-		PortalOptions?: #PortalOptionsConfiguration | fn.#ObjectExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+
+		// A structure that describes the options for the portal associated with an application
+		PortalOptions?: #PortalOptionsConfiguration
 		Status?:        "ENABLED" | "DISABLED" | fn.#StringExpression
-		Tags?:          list.MaxItems(75) & [...#Tag | fn.#ObjectExpression] | fn.#ListExpression
+		Tags?:          list.MaxItems(75) & [...#Tag] | fn.#ListExpression
 	})
 }
 
 #PortalOptionsConfiguration: close({
-	SignInOptions?: #SignInOptions | fn.#ObjectExpression
+	// A structure that describes the sign-in options for the access portal
+	SignInOptions?: #SignInOptions
 	Visibility?:    "ENABLED" | "DISABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

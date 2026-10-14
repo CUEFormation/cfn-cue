@@ -133,8 +133,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EmailMessageTemplateContentBody: close({
-	Html?:      #MessageTemplateBodyContentProvider | fn.#ObjectExpression
-	PlainText?: #MessageTemplateBodyContentProvider | fn.#ObjectExpression
+	// The message body, in HTML format, to use in email messages that are based on
+	// the message template. We recommend using HTML format for email clients that
+	// render HTML content. You can include links, formatted text, and more in an
+	// HTML message.
+	Html?: #MessageTemplateBodyContentProvider
+
+	// The message body, in plain text format, to use in email messages that are
+	// based on the message template. We recommend using plain text format for
+	// email clients that don't render HTML content and clients that are connected
+	// to high-latency networks, such as mobile devices.
+	PlainText?: #MessageTemplateBodyContentProvider
 }) |
 fn.#ObjectExpression
 
@@ -175,9 +184,12 @@ fn.#ObjectExpression
 #SmsMessageTemplateContentBody: close({PlainText?: #MessageTemplateBodyContentProvider}) | fn.#ObjectExpression
 
 #SystemAttributes: close({
-	CustomerEndpoint?: #SystemEndpointAttributes | fn.#ObjectExpression
+	// The CustomerEndpoint attribute.
+	CustomerEndpoint?: #SystemEndpointAttributes
 	Name?:             strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	SystemEndpoint?:   #SystemEndpointAttributes | fn.#ObjectExpression
+
+	// The SystemEndpoint attribute.
+	SystemEndpoint?: #SystemEndpointAttributes
 }) |
 fn.#ObjectExpression
 

@@ -16,12 +16,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaPackage::Channel"
 	Properties!: close({
-		Description?:      string | fn.#StringExpression
-		EgressAccessLogs?: #LogConfiguration | fn.#ObjectExpression
+		Description?: string | fn.#StringExpression
+
+		// The configuration parameters for egress access logging.
+		EgressAccessLogs?: #LogConfiguration
 		HlsIngest?: close({ingestEndpoints?: [...close({}) | fn.#ObjectExpression] | fn.#ListExpression}) |
 			fn.#ObjectExpression
-		Id!:                strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		IngressAccessLogs?: #LogConfiguration | fn.#ObjectExpression
+		Id!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The configuration parameters for egress access logging.
+		IngressAccessLogs?: #LogConfiguration
 		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }

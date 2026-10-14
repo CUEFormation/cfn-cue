@@ -20,13 +20,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataBrew::Dataset"
 	Properties!: close({
-		Format?:        "CSV" | "JSON" | "PARQUET" | "EXCEL" | "ORC" | fn.#StringExpression
-		FormatOptions?: #FormatOptions | fn.#ObjectExpression
-		Input!:         #Input | fn.#ObjectExpression
-		Name!:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		PathOptions?:   #PathOptions | fn.#ObjectExpression
-		Source?:        "S3" | "DATA-CATALOG" | "DATABASE" | fn.#StringExpression
-		Tags?:          [...#Tag] | fn.#ListExpression
+		Format?: "CSV" | "JSON" | "PARQUET" | "EXCEL" | "ORC" | fn.#StringExpression
+
+		// Format options for dataset
+		FormatOptions?: #FormatOptions
+
+		// Input
+		Input!: #Input
+		Name!:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+		// PathOptions
+		PathOptions?: #PathOptions
+		Source?:      "S3" | "DATA-CATALOG" | "DATABASE" | fn.#StringExpression
+		Tags?:        [...#Tag] | fn.#ListExpression
 	})
 }
 

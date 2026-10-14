@@ -23,12 +23,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 		DestinationName!:      strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
 		LastUplinkReceivedAt?: string | fn.#StringExpression
-		LoRaWAN?:              #LoRaWANDevice | fn.#ObjectExpression
-		Name?:                 strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		Positioning?:          "Enabled" | "Disabled" | fn.#StringExpression
-		Tags?:                 list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		ThingArn?:             string | fn.#StringExpression
-		Type!:                 "Sidewalk" | "LoRaWAN" | fn.#StringExpression
+
+		// The combination of Package, Station and Model which represents the version of
+		// the LoRaWAN Wireless Device.
+		LoRaWAN?:     #LoRaWANDevice
+		Name?:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Positioning?: "Enabled" | "Disabled" | fn.#StringExpression
+		Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		ThingArn?:    string | fn.#StringExpression
+		Type!:        "Sidewalk" | "LoRaWAN" | fn.#StringExpression
 	})
 }
 

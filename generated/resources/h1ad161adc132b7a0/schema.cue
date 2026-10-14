@@ -21,10 +21,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!: "AWS::Kinesis::Channel"
 	Properties!: close({
 		ChannelName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-		EncryptionConfiguration?:          #EncryptionConfiguration | fn.#ObjectExpression
-		LoggingConfiguration?:             #LoggingConfiguration | fn.#ObjectExpression
-		S3DestinationConfiguration?:       #S3DestinationConfiguration | fn.#ObjectExpression
-		S3TablesDestinationConfiguration?: #S3TablesDestinationConfiguration | fn.#ObjectExpression
+
+		// Server-side encryption configuration for data at rest.
+		EncryptionConfiguration?: #EncryptionConfiguration
+
+		// Configuration for delivering channel operational logs. Defaults to CloudWatch Logs disabled.
+		LoggingConfiguration?: #LoggingConfiguration
+
+		// Configuration for delivery to a vanilla S3 bucket destination. Exactly one of
+		// S3DestinationConfiguration and S3TablesDestinationConfiguration must be
+		// specified.
+		S3DestinationConfiguration?: #S3DestinationConfiguration
+
+		// Configuration for delivery to S3 Tables destinations. Exactly one of
+		// S3DestinationConfiguration and S3TablesDestinationConfiguration must be
+		// specified.
+		S3TablesDestinationConfiguration?: #S3TablesDestinationConfiguration
 		ServiceExecutionRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(512) &
 		strings.MinRunes(1) &
@@ -63,8 +75,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LoggingConfiguration: close({CloudWatchLogs!: #CloudWatchLogsConfiguration | fn.#ObjectExpression}) |
-	fn.#ObjectExpression
+#LoggingConfiguration: close({
+	// CloudWatch Logs configuration block. When provided, controls whether and
+	// where the channel writes operational logs.
+	CloudWatchLogs!: #CloudWatchLogsConfiguration
+}) |
+fn.#ObjectExpression
 
 #PartitionField: close({
 	SourceName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._]+$" | fn.#StringExpression
@@ -101,8 +117,15 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	DeadLetterQueueS3Configuration?: #DeadLetterQueueS3Configuration | fn.#ObjectExpression
-	StorageConfiguration!:           #S3StorageConfiguration | fn.#ObjectExpression
+
+	// Optional dead-letter queue (DLQ) configuration for records that cannot be
+	// delivered to the destination. When omitted, the service auto-fills using the
+	// storage BucketARN with an error prefix.
+	DeadLetterQueueS3Configuration?: #DeadLetterQueueS3Configuration
+
+	// S3 storage configuration including the destination bucket, output key
+	// template, storage class, and compression type.
+	StorageConfiguration!: #S3StorageConfiguration
 }) |
 fn.#ObjectExpression
 
@@ -120,7 +143,9 @@ fn.#ObjectExpression
 #S3TableConfiguration: close({
 	CompressionType!: "NONE" | "ZSTD" | "SNAPPY" | fn.#StringExpression
 	Namespace!:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]+$" | fn.#StringExpression
-	PartitionSpec?:   #PartitionSpec | fn.#ObjectExpression
+
+	// The partition specification used by the destination Iceberg table.
+	PartitionSpec?: #PartitionSpec
 	TableBucketARN!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[-a-z0-9]*:s3tables:[-a-z0-9]+:[0-9]{12}:bucket/[a-z0-9_-]{3,63}$" |
@@ -144,14 +169,19 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	DeadLetterQueueS3Configuration!: #DeadLetterQueueS3Configuration | fn.#ObjectExpression
+
+	// The dead-letter queue (DLQ) configuration for records that cannot be
+	// delivered to the S3 Tables destination. Required for S3 Tables: there is no
+	// safe fallback because S3 Tables metadata writes are critical-path.
+	DeadLetterQueueS3Configuration!: #DeadLetterQueueS3Configuration
 	S3TablesConfigurationList!: list.MaxItems(10000) & list.MinItems(1) & [...#S3TableConfiguration] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #StreamConfiguration: close({
-	RecordConfiguration!: #RecordConfiguration | fn.#ObjectExpression
+	// The configuration that describes how records on the source stream are encoded.
+	RecordConfiguration!: #RecordConfiguration
 	StreamARN!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws.*:kinesis:.*:\\d{12}:stream/\\S+" |
 	fn.#StringExpression
 }) |

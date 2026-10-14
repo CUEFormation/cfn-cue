@@ -16,8 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECR::RegistryScanningConfiguration"
 	Properties!: close({
-		Rules!:    #ScanningRules | fn.#ListExpression
-		ScanType!: #ScanType | fn.#StringExpression
+		// The scanning rules associated with the registry.
+		Rules!: #ScanningRules
+
+		// The type of scanning configured for the registry.
+		ScanType!: #ScanType
 	})
 }
 
@@ -29,8 +32,11 @@ fn.#StringExpression
 #RegistryId: =~"^[0-9]{12}$" | fn.#StringExpression
 
 #RepositoryFilter: close({
-	Filter!:     #Filter | fn.#StringExpression
-	FilterType!: #FilterType | fn.#StringExpression
+	// The filter to use when scanning.
+	Filter!: #Filter
+
+	// The type associated with the filter.
+	FilterType!: #FilterType
 }) |
 fn.#ObjectExpression
 
@@ -40,7 +46,13 @@ fn.#ObjectExpression
 
 #ScanningRule: close({
 	RepositoryFilters!: list.MaxItems(100) & [...] & [...#RepositoryFilter] | fn.#ListExpression
-	ScanFrequency!:     #ScanFrequency | fn.#StringExpression
+
+	// The frequency that scans are performed at for a private registry. When the
+	// ``ENHANCED`` scan type is specified, the supported scan frequencies are
+	// ``CONTINUOUS_SCAN`` and ``SCAN_ON_PUSH``. When the ``BASIC`` scan type is
+	// specified, the ``SCAN_ON_PUSH`` scan frequency is supported. If scan on push
+	// is not specified, then the ``MANUAL`` scan frequency is set by default.
+	ScanFrequency!: #ScanFrequency
 }) |
 fn.#ObjectExpression
 

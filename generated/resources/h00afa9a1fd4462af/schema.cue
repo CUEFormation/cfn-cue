@@ -93,8 +93,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		AvailabilityZoneRebalancing?: "ENABLED" | "DISABLED" | fn.#StringExpression
 		CapacityProviderStrategy?:    [...#CapacityProviderStrategyItem] | fn.#ListExpression
 		Cluster?:                     string | fn.#StringExpression
-		DeploymentConfiguration?:     #DeploymentConfiguration | fn.#ObjectExpression
-		DeploymentController?:        #DeploymentController | fn.#ObjectExpression
+
+		// Optional deployment parameters that control how many tasks run during the
+		// deployment and the ordering of stopping and starting tasks.
+		DeploymentConfiguration?: #DeploymentConfiguration
+
+		// The deployment controller to use for the service.
+		DeploymentController?: #DeploymentController
 		DesiredCount?: int |
 			{
 				string &
@@ -113,7 +118,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		EnableECSManagedTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ForceNewDeployment?:   #ForceNewDeployment | fn.#ObjectExpression
+
+		// Determines whether to force a new deployment of the service. By default,
+		// deployments aren't forced. You can use this option to start a new deployment
+		// with no service definition changes. For example, you can update a service's
+		// tasks to use a newer Docker image with the same image/tag combination
+		// (``my_image:latest``) or to roll Fargate tasks onto a newer platform
+		// version.
+		ForceNewDeployment?: #ForceNewDeployment
 		HealthCheckGracePeriodSeconds?: int |
 			{
 				string &
@@ -130,17 +142,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		LaunchType?:                  "EC2" | "FARGATE" | "EXTERNAL" | fn.#StringExpression
-		LoadBalancers?:               [...#LoadBalancer] | fn.#ListExpression
-		Monitoring?:                  #MonitoringConfiguration | fn.#ObjectExpression
-		NetworkConfiguration?:        #NetworkConfiguration | fn.#ObjectExpression
-		PlacementConstraints?:        [...#PlacementConstraint] | fn.#ListExpression
-		PlacementStrategies?:         [...#PlacementStrategy] | fn.#ListExpression
-		PlatformVersion?:             string | fn.#StringExpression
-		PropagateTags?:               "SERVICE" | "TASK_DEFINITION" | fn.#StringExpression
-		Role?:                        string | fn.#StringExpression
-		SchedulingStrategy?:          "DAEMON" | "REPLICA" | fn.#StringExpression
-		ServiceConnectConfiguration?: #ServiceConnectConfiguration | fn.#ObjectExpression
+		LaunchType?:    "EC2" | "FARGATE" | "EXTERNAL" | fn.#StringExpression
+		LoadBalancers?: [...#LoadBalancer] | fn.#ListExpression
+
+		// The optional monitoring configuration for the service, which defines the
+		// resolution for the service-level ``CPUUtilization`` and
+		// ``MemoryUtilization`` Amazon CloudWatch metrics. When not specified, Amazon
+		// ECS uses the default resolution of ``60`` seconds.
+		Monitoring?: #MonitoringConfiguration
+
+		// The network configuration for the service. This parameter is required for
+		// task definitions that use the ``awsvpc`` network mode to receive their own
+		// elastic network interface, and it is not supported for other network modes.
+		// For more information, see [Task
+		// Networking](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-networking.html)
+		// in the *Amazon Elastic Container Service Developer Guide*.
+		NetworkConfiguration?: #NetworkConfiguration
+		PlacementConstraints?: [...#PlacementConstraint] | fn.#ListExpression
+		PlacementStrategies?:  [...#PlacementStrategy] | fn.#ListExpression
+		PlatformVersion?:      string | fn.#StringExpression
+		PropagateTags?:        "SERVICE" | "TASK_DEFINITION" | fn.#StringExpression
+		Role?:                 string | fn.#StringExpression
+		SchedulingStrategy?:   "DAEMON" | "REPLICA" | fn.#StringExpression
+
+		// The configuration for this service to discover and connect to services, and
+		// be discovered by, and connected from, other services within a namespace.
+		// Tasks that run in a namespace can use short names to connect to services in
+		// the namespace. Tasks can connect to services across all of the clusters in
+		// the namespace. Tasks connect through a managed proxy container that collects
+		// logs and metrics for increased visibility. Only the tasks that Amazon ECS
+		// services create are supported with Service Connect. For more information,
+		// see [Service
+		// Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html)
+		// in the *Amazon Elastic Container Service Developer Guide*.
+		ServiceConnectConfiguration?: #ServiceConnectConfiguration
 		ServiceName?:                 string | fn.#StringExpression
 		ServiceRegistries?:           [...#ServiceRegistry] | fn.#ListExpression
 		Tags?:                        list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
@@ -236,15 +271,20 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DeploymentCircuitBreaker: close({
-	Enable!:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ResetOnHealthyTask?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Rollback!:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ThresholdConfiguration?: #ThresholdConfiguration | fn.#ObjectExpression
+	Enable!:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ResetOnHealthyTask?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Rollback!:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// The threshold configuration that controls when the deployment circuit breaker
+	// triggers. The ``type`` and ``value`` together determine how many task
+	// failures are tolerated before the circuit breaker activates.
+	ThresholdConfiguration?: #ThresholdConfiguration
 }) |
 fn.#ObjectExpression
 
 #DeploymentConfiguration: close({
-	Alarms?: #DeploymentAlarms | fn.#ObjectExpression
+	// Information about the CloudWatch alarms.
+	Alarms?: #DeploymentAlarms
 	BakeTimeInMinutes?: int & <=1440 & >=0 |
 		{
 			string &
@@ -261,11 +301,37 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	CanaryConfiguration?:      #CanaryConfiguration | fn.#ObjectExpression
-	DeploymentCircuitBreaker?: #DeploymentCircuitBreaker | fn.#ObjectExpression
-	EarlySuccessCriteria?:     #DeploymentEarlySuccessCriteria | fn.#ObjectExpression
-	LifecycleHooks?:           [...#DeploymentLifecycleHook] | fn.#ListExpression
-	LinearConfiguration?:      #LinearConfiguration | fn.#ObjectExpression
+
+	// Configuration for canary deployment strategy. Only valid when the deployment
+	// strategy is ``CANARY``. This configuration enables shifting a fixed
+	// percentage of traffic for testing, followed by shifting the remaining
+	// traffic after a bake period.
+	CanaryConfiguration?: #CanaryConfiguration
+
+	// The deployment circuit breaker can only be used for services using the
+	// rolling update (``ECS``) deployment type.
+	// The *deployment circuit breaker* determines whether a service deployment will
+	// fail if the service can't reach a steady state. If you use the deployment
+	// circuit breaker, a service deployment will transition to a failed state and
+	// stop launching new tasks. If you use the rollback option, when a service
+	// deployment fails, the service is rolled back to the last deployment that
+	// completed successfully. For more information, see [Rolling
+	// update](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-type-ecs.html)
+	// in the *Amazon Elastic Container Service Developer Guide*
+	DeploymentCircuitBreaker?: #DeploymentCircuitBreaker
+
+	// The early success criteria configuration for a rolling deployment. With early
+	// success criteria, you can configure an Amazon ECS deployment to complete
+	// faster. Amazon ECS declares a deployment successful once a target percentage
+	// of tasks are healthy, instead of waiting for the service to fully stabilize.
+	EarlySuccessCriteria?: #DeploymentEarlySuccessCriteria
+	LifecycleHooks?:       [...#DeploymentLifecycleHook] | fn.#ListExpression
+
+	// Configuration for linear deployment strategy. Only valid when the deployment
+	// strategy is ``LINEAR``. This configuration enables progressive traffic
+	// shifting in equal percentage increments with configurable bake times between
+	// each step.
+	LinearConfiguration?: #LinearConfiguration
 	MaximumPercent?: int |
 		{
 			string &
@@ -339,8 +405,12 @@ fn.#ObjectExpression
 		fn.#ListExpression
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	TargetType?:           "AWS_LAMBDA" | "PAUSE" | fn.#StringExpression
-	TimeoutConfiguration?: #HookTimeoutConfig | fn.#ObjectExpression
+	TargetType?: "AWS_LAMBDA" | "PAUSE" | fn.#StringExpression
+
+	// The timeout configuration for the lifecycle hook. This specifies how long
+	// Amazon ECS waits before taking the timeout action if the hook is not
+	// resolved.
+	TimeoutConfiguration?: #HookTimeoutConfig
 }) |
 fn.#ObjectExpression
 
@@ -400,7 +470,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LoadBalancer: close({
-	AdvancedConfiguration?: #AdvancedConfiguration | fn.#ObjectExpression
+	// The advanced settings for the load balancer used in blue/green deployments.
+	// Specify the alternate target group, listener rules, and IAM role required
+	// for traffic shifting during blue/green deployments.
+	AdvancedConfiguration?: #AdvancedConfiguration
 	ContainerName?:         string | fn.#StringExpression
 	ContainerPort?: int |
 		{
@@ -446,7 +519,12 @@ fn.#ObjectExpression
 ) |
 	fn.#ObjectExpression
 
-#NetworkConfiguration: close({AwsvpcConfiguration?: #AwsVpcConfiguration | fn.#ObjectExpression}) | fn.#ObjectExpression
+#NetworkConfiguration: close({
+	// The VPC subnets and security groups that are associated with a task.
+	// All specified subnets and security groups must be from the same VPC.
+	AwsvpcConfiguration?: #AwsVpcConfiguration
+}) |
+fn.#ObjectExpression
 
 #PlacementConstraint: close({
 	Expression?: string | fn.#StringExpression
@@ -490,16 +568,58 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TestTrafficRules?: #ServiceConnectTestTrafficRules | fn.#ObjectExpression
+
+	// The configuration for test traffic routing rules used during blue/green
+	// deployments with Amazon ECS Service Connect. This allows you to route a
+	// portion of traffic to the new service revision of your service for testing
+	// before shifting all production traffic.
+	TestTrafficRules?: #ServiceConnectTestTrafficRules
 }) |
 fn.#ObjectExpression
 
 #ServiceConnectConfiguration: close({
-	AccessLogConfiguration?: #ServiceConnectAccessLogConfiguration | fn.#ObjectExpression
+	// The configuration for Service Connect access logging. Access logs capture
+	// detailed information about requests made to your service, including request
+	// patterns, response codes, and timing data. They can be useful for debugging
+	// connectivity issues, monitoring service performance, and auditing
+	// service-to-service communication for security and compliance purposes.
+	// To enable access logs, you must also specify a ``logConfiguration`` in the
+	// ``serviceConnectConfiguration``.
+	AccessLogConfiguration?: #ServiceConnectAccessLogConfiguration
 	Enabled!:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LogConfiguration?:       #LogConfiguration | fn.#ObjectExpression
-	Namespace?:              string | fn.#StringExpression
-	Services?:               [...#ServiceConnectService] | fn.#ListExpression
+
+	// The log configuration for the container. This parameter maps to ``LogConfig``
+	// in the docker container create command and the ``--log-driver`` option to
+	// docker run.
+	// By default, containers use the same logging driver that the Docker daemon
+	// uses. However, the container might use a different logging driver than the
+	// Docker daemon by specifying a log driver configuration in the container
+	// definition.
+	// Understand the following when specifying a log configuration for your containers.
+	// + Amazon ECS currently supports a subset of the logging drivers available to
+	// the Docker daemon. Additional log drivers may be available in future
+	// releases of the Amazon ECS container agent.
+	// For tasks on FARGATElong, the supported log drivers are ``awslogs``,
+	// ``splunk``, and ``awsfirelens``.
+	// For tasks hosted on Amazon EC2 instances, the supported log drivers are
+	// ``awslogs``, ``fluentd``, ``gelf``, ``json-file``, ``journald``,``syslog``,
+	// ``splunk``, and ``awsfirelens``.
+	// + This parameter requires version 1.18 of the Docker Remote API or greater on
+	// your container instance.
+	// + For tasks that are hosted on Amazon EC2 instances, the Amazon ECS container
+	// agent must register the available logging drivers with the
+	// ``ECS_AVAILABLE_LOGGING_DRIVERS`` environment variable before containers
+	// placed on that instance can use these log configuration options. For more
+	// information, see [Amazon ECS container agent
+	// configuration](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-agent-config.html)
+	// in the *Amazon Elastic Container Service Developer Guide*.
+	// + For tasks that are on FARGATElong, because you don't have access to the
+	// underlying infrastructure your tasks are hosted on, any additional software
+	// needed must be installed outside of the task. For example, the Fluentd
+	// output aggregators or a remote host running Logstash to send Gelf logs to.
+	LogConfiguration?: #LogConfiguration
+	Namespace?:        string | fn.#StringExpression
+	Services?:         [...#ServiceConnectService] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -523,17 +643,27 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	PortName!: string | fn.#StringExpression
-	Timeout?:  #TimeoutConfiguration | fn.#ObjectExpression
-	Tls?:      #ServiceConnectTlsConfiguration | fn.#ObjectExpression
+
+	// A reference to an object that represents the configured timeouts for Service Connect.
+	Timeout?: #TimeoutConfiguration
+
+	// A reference to an object that represents a Transport Layer Security (TLS) configuration.
+	Tls?: #ServiceConnectTlsConfiguration
 }) |
 fn.#ObjectExpression
 
-#ServiceConnectTestTrafficRules: close({Header!: #ServiceConnectTestTrafficRulesHeader | fn.#ObjectExpression}) |
-	fn.#ObjectExpression
+#ServiceConnectTestTrafficRules: close({
+	// The HTTP header-based routing rules that determine which requests should be
+	// routed to the new service version during blue/green deployment testing.
+	// These rules provide fine-grained control over test traffic routing based on
+	// request headers.
+	Header!: #ServiceConnectTestTrafficRulesHeader
+}) |
+fn.#ObjectExpression
 
 #ServiceConnectTestTrafficRulesHeader: close({
 	Name!:  string | fn.#StringExpression
-	Value?: #ServiceConnectTestTrafficRulesHeaderValue | fn.#ObjectExpression
+	Value?: #ServiceConnectTestTrafficRulesHeaderValue
 }) |
 fn.#ObjectExpression
 
@@ -543,7 +673,8 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #ServiceConnectTlsConfiguration: close({
-	IssuerCertificateAuthority!: #ServiceConnectTlsCertificateAuthority | fn.#ObjectExpression
+	// The signer certificate authority.
+	IssuerCertificateAuthority!: #ServiceConnectTlsCertificateAuthority
 	KmsKey?:                     string | fn.#StringExpression
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
@@ -655,7 +786,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ServiceVolumeConfiguration: close({
-	ManagedEBSVolume?: #ServiceManagedEBSVolumeConfiguration | fn.#ObjectExpression
+	// The configuration for the Amazon EBS volume that Amazon ECS creates and
+	// manages on your behalf. These settings are used to create each Amazon EBS
+	// volume, with one volume created for each task in the service. The Amazon EBS
+	// volumes are visible in your account in the Amazon EC2 console once they are
+	// created.
+	ManagedEBSVolume?: #ServiceManagedEBSVolumeConfiguration
 	Name!:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -729,7 +865,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VpcLatticeConfiguration: close({
-	AdvancedConfiguration?: #VpcLatticeAdvancedConfiguration | fn.#ObjectExpression
+	AdvancedConfiguration?: #VpcLatticeAdvancedConfiguration
 	PortName!:              string | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression

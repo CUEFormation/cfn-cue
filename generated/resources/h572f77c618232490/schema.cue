@@ -48,9 +48,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #ContainerDistributionConfiguration: close({
-	ContainerTags?:    [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Description?:      strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	TargetRepository?: #TargetContainerRepository | fn.#ObjectExpression
+	ContainerTags?: [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+	Description?:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+
+	// The destination repository for the container distribution configuration.
+	TargetRepository?: #TargetContainerRepository
 }) |
 fn.#ObjectExpression
 
@@ -68,9 +70,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FastLaunchConfiguration: close({
-	AccountId?:      =~"^[0-9]{12}$" | fn.#StringExpression
-	Enabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LaunchTemplate?: #FastLaunchLaunchTemplateSpecification | fn.#ObjectExpression
+	AccountId?: =~"^[0-9]{12}$" | fn.#StringExpression
+	Enabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// The launch template that the fast-launch enabled Windows AMI uses when it
+	// launches Windows instances to create pre-provisioned snapshots.
+	LaunchTemplate?: #FastLaunchLaunchTemplateSpecification
 	MaxParallelLaunches?: int & >=1 |
 		{
 			string &
@@ -86,7 +91,11 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SnapshotConfiguration?: #FastLaunchSnapshotConfiguration | fn.#ObjectExpression
+
+	// Configuration settings for managing the number of snapshots that are created
+	// from pre-provisioned instances for the Windows AMI when faster launching is
+	// enabled.
+	SnapshotConfiguration?: #FastLaunchSnapshotConfiguration
 }) |
 fn.#ObjectExpression
 

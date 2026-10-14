@@ -15,13 +15,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::LakeFormation::DataCellsFilter"
 	Properties!: close({
-		ColumnNames?:    #ColumnNames | fn.#ListExpression
-		ColumnWildcard?: #ColumnWildcard | fn.#ObjectExpression
-		DatabaseName!:   #NameString | fn.#StringExpression
-		Name!:           #NameString | fn.#StringExpression
-		RowFilter?:      #RowFilter | fn.#ObjectExpression
-		TableCatalogId!: #CatalogIdString | fn.#StringExpression
-		TableName!:      #NameString | fn.#StringExpression
+		// A list of columns to be included in this Data Cells Filter.
+		ColumnNames?: #ColumnNames
+
+		// An object representing the Data Cells Filter's Columns. Either Column Names
+		// or a Wildcard is required
+		ColumnWildcard?: #ColumnWildcard
+
+		// The name of the Database that the Table resides in.
+		DatabaseName!: #NameString
+
+		// The desired name of the Data Cells Filter.
+		Name!: #NameString
+
+		// An object representing the Data Cells Filter's Row Filter. Either a Filter
+		// Expression or a Wildcard is required
+		RowFilter?: #RowFilter
+
+		// The Catalog Id of the Table on which to create a Data Cells Filter.
+		TableCatalogId!: #CatalogIdString
+
+		// The name of the Table to create a Data Cells Filter for.
+		TableName!: #NameString
 	})
 }
 
@@ -29,7 +44,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #ColumnNames: [...#NameString] | fn.#ListExpression
 
-#ColumnWildcard: close({ExcludedColumnNames?: #ColumnNames | fn.#ListExpression}) | fn.#ObjectExpression
+#ColumnWildcard: close({
+	// A list of column names to be excluded from the Data Cells Filter.
+	ExcludedColumnNames?: #ColumnNames
+}) |
+fn.#ObjectExpression
 
 #NameString: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 

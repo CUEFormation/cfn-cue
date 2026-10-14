@@ -15,7 +15,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		AgentSpaceId!: string | fn.#StringExpression
 		Assets!: close({
 			Actors?: [...close({
-				Authentication?: #Authentication | fn.#ObjectExpression
+				// Authentication credentials for this actor
+				Authentication?: #Authentication
 				Description?:    string | fn.#StringExpression
 				EnableEmailMfa?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 				Identifier?:     string | fn.#StringExpression
@@ -30,20 +31,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			TrustedCaCertificates?:  [...#TrustedCaCertificate] | fn.#ListExpression
 		}) |
 		fn.#ObjectExpression
-		CleanUpStrategy?:         #CleanUpStrategy | fn.#StringExpression
-		CodeRemediationStrategy?: #CodeRemediationStrategy | fn.#StringExpression
+
+		// Strategy for cleaning up resources after pentest job completion
+		CleanUpStrategy?: #CleanUpStrategy
+
+		// Strategy for code remediation on findings
+		CodeRemediationStrategy?: #CodeRemediationStrategy
 		DisableManagedSkills?:    [...#SkillType] | fn.#ListExpression
 		ExcludeRiskTypes?:        [...#RiskType] | fn.#ListExpression
-		LogConfig?:               #CloudWatchLog | fn.#ObjectExpression
-		NetworkTrafficConfig?:    #NetworkTrafficConfig | fn.#ObjectExpression
-		ServiceRole!:             string | fn.#StringExpression
-		Title?:                   string | fn.#StringExpression
-		VpcConfig?:               #VpcConfig | fn.#ObjectExpression
+
+		// CloudWatch logs config
+		LogConfig?: #CloudWatchLog
+
+		// Configuration for network traffic filtering
+		NetworkTrafficConfig?: #NetworkTrafficConfig
+		ServiceRole!:          string | fn.#StringExpression
+		Title?:                string | fn.#StringExpression
+
+		// VPC configuration that the security testing environment accesses
+		VpcConfig?: #VpcConfig
 	})
 }
 
 #Actor: close({
-	Authentication?:       #Authentication | fn.#ObjectExpression
+	// Authentication credentials for this actor
+	Authentication?:       #Authentication
 	Description?:          string | fn.#StringExpression
 	EnableEmailMfa?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Identifier?:           string | fn.#StringExpression
@@ -166,7 +178,11 @@ fn.#ObjectExpression
 
 #SourceCodeRepository: close({S3Location?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-#TrustedCaCertificate: close({Source!: #CaCertificateSource | fn.#ObjectExpression}) | fn.#ObjectExpression
+#TrustedCaCertificate: close({
+	// Where to read the certificate from
+	Source!: #CaCertificateSource
+}) |
+fn.#ObjectExpression
 
 #VpcConfig: close({
 	SecurityGroupArns?: [...string | fn.#StringExpression] | fn.#ListExpression

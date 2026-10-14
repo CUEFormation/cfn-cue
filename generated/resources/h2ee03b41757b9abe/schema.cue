@@ -16,7 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SMSVOICE::ProtectConfiguration"
 	Properties?: close({
-		CountryRuleSet?: #CountryRuleSet | fn.#ObjectExpression
+		// An array of CountryRule containing the rules for the NumberCapability.
+		CountryRuleSet?: #CountryRuleSet
 		DeletionProtectionEnabled?: bool |
 			"true" |
 			"True" |

@@ -18,7 +18,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		CodeRepositoryName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 		fn.#StringExpression
-		GitConfig!: #GitConfig | fn.#ObjectExpression
+
+		// Configuration details for the Git repository, including the URL where it is
+		// located and the ARN of the AWS Secrets Manager secret that contains the
+		// credentials used to access the repository.
+		GitConfig!: #GitConfig
 		Tags?:      list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
 }

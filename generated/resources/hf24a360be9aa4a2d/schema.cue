@@ -22,7 +22,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		CutoffBehavior?: "CANCEL_TASK" | "CONTINUE_TASK" | fn.#StringExpression
 		Description?:    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		LoggingInfo?:    #LoggingInfo | fn.#ObjectExpression
+
+		// Information about an Amazon S3 bucket to write Run Command task-level logs to.
+		LoggingInfo?: #LoggingInfo
 		MaxConcurrency?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]*|[1-9][0-9]%|[1-9]%|100%)$" |
 		fn.#StringExpression
 		MaxErrors?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]*|[0]|[1-9][0-9]%|[0-9]%|100%)$" |
@@ -47,9 +49,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		ServiceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
-		Targets?:                  list.MaxItems(5) & [...] & [...#Target] | fn.#ListExpression
-		TaskArn!:                  strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-		TaskInvocationParameters?: #TaskInvocationParameters | fn.#ObjectExpression
+		Targets?: list.MaxItems(5) & [...] & [...#Target] | fn.#ListExpression
+		TaskArn!: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The parameters to pass to the task when it runs. Populate only the fields
+		// that match the task type. All other fields should be empty.
+		TaskInvocationParameters?: #TaskInvocationParameters
 		TaskParameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 		TaskType!:                 "AUTOMATION" | "LAMBDA" | "RUN_COMMAND" | "STEP_FUNCTIONS" | fn.#StringExpression
 		WindowId!: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^mw-[0-9a-f]{17}$" | fn.#StringExpression

@@ -21,7 +21,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::Distribution"
 	Properties!: close({
-		DistributionConfig!: #DistributionConfig | fn.#ObjectExpression
+		// The distribution's configuration.
+		DistributionConfig!: #DistributionConfig
 		Tags?:               [...#Tag] | fn.#ListExpression
 	})
 }
@@ -50,10 +51,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	FieldLevelEncryptionId?:     string | fn.#StringExpression
-	ForwardedValues?:            #ForwardedValues | fn.#ObjectExpression
-	FunctionAssociations?:       [...#FunctionAssociation] | fn.#ListExpression
-	GrpcConfig?:                 #GrpcConfig | fn.#ObjectExpression
+	FieldLevelEncryptionId?: string | fn.#StringExpression
+
+	// This field is deprecated. We recommend that you use a cache policy or an
+	// origin request policy instead of this field. For more information, see
+	// [Working with
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/working-with-policies.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	// If you want to include values in the cache key, use a cache policy. For more
+	// information, see [Creating cache
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy)
+	// or [Using the managed cache
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	// If you want to send values to the origin but not include them in the cache
+	// key, use an origin request policy. For more information, see [Creating
+	// origin request
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html#origin-request-create-origin-request-policy)
+	// or [Using the managed origin request
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	// A ``CacheBehavior`` must include either a ``CachePolicyId`` or
+	// ``ForwardedValues``. We recommend that you use a ``CachePolicyId``.
+	// A complex type that specifies how CloudFront handles query strings, cookies, and HTTP headers.
+	ForwardedValues?:      #ForwardedValues
+	FunctionAssociations?: [...#FunctionAssociation] | fn.#ListExpression
+
+	// The gRPC configuration for your cache behavior.
+	GrpcConfig?:                 #GrpcConfig
 	LambdaFunctionAssociations?: [...#LambdaFunctionAssociation] | fn.#ListExpression
 	MaxTTL?: number |
 		{
@@ -196,7 +221,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	OriginMtlsConfig?:     #OriginMtlsConfig | fn.#ObjectExpression
+
+	// Configures mutual TLS authentication between CloudFront and your origin server.
+	OriginMtlsConfig?:     #OriginMtlsConfig
 	OriginProtocolPolicy!: string | fn.#StringExpression
 	OriginReadTimeout?: int |
 		{
@@ -240,10 +267,34 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	FieldLevelEncryptionId?:     string | fn.#StringExpression
-	ForwardedValues?:            #ForwardedValues | fn.#ObjectExpression
-	FunctionAssociations?:       [...#FunctionAssociation] | fn.#ListExpression
-	GrpcConfig?:                 #GrpcConfig | fn.#ObjectExpression
+	FieldLevelEncryptionId?: string | fn.#StringExpression
+
+	// This field is deprecated. We recommend that you use a cache policy or an
+	// origin request policy instead of this field. For more information, see
+	// [Working with
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/working-with-policies.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	// If you want to include values in the cache key, use a cache policy. For more
+	// information, see [Creating cache
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy)
+	// or [Using the managed cache
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	// If you want to send values to the origin but not include them in the cache
+	// key, use an origin request policy. For more information, see [Creating
+	// origin request
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html#origin-request-create-origin-request-policy)
+	// or [Using the managed origin request
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	// A ``DefaultCacheBehavior`` must include either a ``CachePolicyId`` or
+	// ``ForwardedValues``. We recommend that you use a ``CachePolicyId``.
+	// A complex type that specifies how CloudFront handles query strings, cookies, and HTTP headers.
+	ForwardedValues?:      #ForwardedValues
+	FunctionAssociations?: [...#FunctionAssociation] | fn.#ListExpression
+
+	// The gRPC configuration for your cache behavior.
+	GrpcConfig?:                 #GrpcConfig
 	LambdaFunctionAssociations?: [...#LambdaFunctionAssociation] | fn.#ListExpression
 	MaxTTL?: number |
 		{
@@ -295,38 +346,103 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DistributionConfig: close({
-	Aliases?:                       [...string | fn.#StringExpression] | fn.#ListExpression
-	AnycastIpListId?:               string | fn.#StringExpression
-	CNAMEs?:                        [...string | fn.#StringExpression] | fn.#ListExpression
-	CacheBehaviors?:                [...#CacheBehavior] | fn.#ListExpression
-	CacheTagConfig?:                #CacheTagConfig | fn.#ObjectExpression
-	Comment?:                       string | fn.#StringExpression
-	ConnectionFunctionAssociation?: #ConnectionFunctionAssociation | fn.#ObjectExpression
-	ConnectionMode?:                #ConnectionMode | fn.#StringExpression
-	ContinuousDeploymentPolicyId?:  string | fn.#StringExpression
-	CustomErrorResponses?:          [...#CustomErrorResponse] | fn.#ListExpression
-	CustomOrigin?:                  #LegacyCustomOrigin | fn.#ObjectExpression
-	DefaultCacheBehavior!:          #DefaultCacheBehavior | fn.#ObjectExpression
-	DefaultRootObject?:             string | fn.#StringExpression
-	Enabled!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HttpVersion?:  "http1.1" | "http2" | "http2and3" | "http3" | fn.#StringExpression
-	IPV6Enabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Logging?:      #Logging | fn.#ObjectExpression
-	OriginGroups?: #OriginGroups | fn.#ObjectExpression
+	Aliases?:         [...string | fn.#StringExpression] | fn.#ListExpression
+	AnycastIpListId?: string | fn.#StringExpression
+	CNAMEs?:          [...string | fn.#StringExpression] | fn.#ListExpression
+	CacheBehaviors?:  [...#CacheBehavior] | fn.#ListExpression
+
+	// Configuration for cache tag extraction from origin responses. When specified,
+	// CloudFront reads the header named in ``HeaderName`` from origin responses
+	// and stores the comma-separated values as cache tags on the object.
+	// Distributions without ``CacheTagConfig`` do not extract tags. When
+	// ``CacheTagConfig`` is removed from a distribution via
+	// ``UpdateDistribution``, CloudFront stops extracting tags from origin
+	// responses.
+	// Changing the ``HeaderName`` on an existing distribution does not
+	// retroactively affect previously cached objects. Tag-based invalidations will
+	// not apply to objects already cached using a previous header. To ensure tag
+	// invalidations function after updating the header name, use path-based
+	// invalidations to recache all objects that use cache tags.
+	CacheTagConfig?: #CacheTagConfig
+	Comment?:        string | fn.#StringExpression
+
+	// The distribution's connection function association.
+	ConnectionFunctionAssociation?: #ConnectionFunctionAssociation
+
+	// This field specifies whether the connection mode is through a standard
+	// distribution (direct) or a multi-tenant distribution with distribution
+	// tenants (tenant-only).
+	ConnectionMode?:               #ConnectionMode
+	ContinuousDeploymentPolicyId?: string | fn.#StringExpression
+	CustomErrorResponses?:         [...#CustomErrorResponse] | fn.#ListExpression
+
+	// The user-defined HTTP server that serves as the origin for content that CF distributes.
+	// This property is legacy. We recommend that you use
+	// [Origin](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-origin.html)
+	// instead.
+	CustomOrigin?: #LegacyCustomOrigin
+
+	// A complex type that describes the default cache behavior if you don't specify
+	// a ``CacheBehavior`` element or if files don't match any of the values of
+	// ``PathPattern`` in ``CacheBehavior`` elements. You must create exactly one
+	// default cache behavior.
+	DefaultCacheBehavior!: #DefaultCacheBehavior
+	DefaultRootObject?:    string | fn.#StringExpression
+	Enabled!:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	HttpVersion?:          "http1.1" | "http2" | "http2and3" | "http3" | fn.#StringExpression
+	IPV6Enabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// A complex type that controls whether access logs are written for the distribution.
+	// For more information about logging, see [Access
+	// Logs](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/AccessLogs.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	Logging?: #Logging
+
+	// A complex type that contains information about origin groups for this distribution.
+	// Specify a value for either the ``Origins`` or ``OriginGroups`` property.
+	OriginGroups?: #OriginGroups
 	Origins?:      [...#Origin] | fn.#ListExpression
 	PriceClass?:   "None" | "PriceClass_100" | "PriceClass_200" | "PriceClass_All" | fn.#StringExpression
-	Restrictions?: #Restrictions | fn.#ObjectExpression
-	S3Origin?:     #LegacyS3Origin | fn.#ObjectExpression
+
+	// A complex type that identifies ways in which you want to restrict distribution of your content.
+	Restrictions?: #Restrictions
+
+	// The origin as an S3 bucket.
+	// This property is legacy. We recommend that you use
+	// [Origin](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-origin.html)
+	// instead.
+	S3Origin?:     #LegacyS3Origin
 	Staging?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TenantConfig?: close({ParameterDefinitions?: [...#ParameterDefinition] | fn.#ListExpression}) | fn.#ObjectExpression
-	ViewerCertificate?: #ViewerCertificate | fn.#ObjectExpression
-	ViewerMtlsConfig?:  #ViewerMtlsConfig | fn.#ObjectExpression
-	WebACLId?:          string | fn.#StringExpression
+
+	// A complex type that determines the distribution's SSL/TLS configuration for
+	// communicating with viewers.
+	ViewerCertificate?: #ViewerCertificate
+
+	// The distribution's viewer mTLS configuration.
+	ViewerMtlsConfig?: #ViewerMtlsConfig
+	WebACLId?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ForwardedValues: close({
-	Cookies?:              #Cookies | fn.#ObjectExpression
+	// This field is deprecated. We recommend that you use a cache policy or an
+	// origin request policy instead of this field.
+	// If you want to include cookies in the cache key, use a cache policy. For more
+	// information, see [Creating cache
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy)
+	// in the *Amazon CloudFront Developer Guide*.
+	// If you want to send cookies to the origin but not include them in the cache
+	// key, use an origin request policy. For more information, see [Creating
+	// origin request
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html#origin-request-create-origin-request-policy)
+	// in the *Amazon CloudFront Developer Guide*.
+	// A complex type that specifies whether you want CloudFront to forward cookies
+	// to the origin and, if so, which ones. For more information about forwarding
+	// cookies to the origin, see [How CloudFront Forwards, Caches, and Logs
+	// Cookies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Cookies.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	Cookies?:              #Cookies
 	Headers?:              [...string | fn.#StringExpression] | fn.#ListExpression
 	QueryString!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	QueryStringCacheKeys?: [...string | fn.#StringExpression] | fn.#ListExpression
@@ -684,13 +800,23 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	CustomOriginConfig?:    #CustomOriginConfig | fn.#ObjectExpression
+
+	// Use this type to specify an origin that is not an Amazon S3 bucket, with one
+	// exception. If the Amazon S3 bucket is configured with static website
+	// hosting, use this type. If the Amazon S3 bucket is not configured with
+	// static website hosting, use the ``S3OriginConfig`` type instead.
+	CustomOriginConfig?:    #CustomOriginConfig
 	DomainName!:            string | fn.#StringExpression
 	Id!:                    string | fn.#StringExpression
 	OriginAccessControlId?: string | fn.#StringExpression
 	OriginCustomHeaders?:   [...#OriginCustomHeader] | fn.#ListExpression
 	OriginPath?:            string | fn.#StringExpression
-	OriginShield?:          #OriginShield | fn.#ObjectExpression
+
+	// CloudFront Origin Shield. Using Origin Shield can help reduce the load on your origin.
+	// For more information, see [Using Origin
+	// Shield](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	OriginShield?: #OriginShield
 	ResponseCompletionTimeout?: int |
 		{
 			string &
@@ -705,8 +831,15 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	S3OriginConfig?:  #S3OriginConfig | fn.#ObjectExpression
-	VpcOriginConfig?: #VpcOriginConfig | fn.#ObjectExpression
+
+	// Use this type to specify an origin that is an Amazon S3 bucket that is not
+	// configured with static website hosting. To specify any other type of origin,
+	// including an Amazon S3 bucket that is configured with static website
+	// hosting, use the ``CustomOriginConfig`` type instead.
+	S3OriginConfig?: #S3OriginConfig
+
+	// The VPC origin configuration.
+	VpcOriginConfig?: #VpcOriginConfig
 	if CustomOriginConfig != _|_ if CustomOriginConfig."Fn::If" == _|_ {
 		S3OriginConfig?: close({"Fn::If": _}) | error("S3OriginConfig cannot be used with CustomOriginConfig")
 	}
@@ -720,14 +853,27 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #OriginGroup: close({
-	FailoverCriteria!:  #OriginGroupFailoverCriteria | fn.#ObjectExpression
-	Id!:                string | fn.#StringExpression
-	Members!:           #OriginGroupMembers | fn.#ObjectExpression
-	SelectionCriteria?: #OriginGroupSelectionCriteria | fn.#StringExpression
+	// A complex type that contains information about the failover criteria for an origin group.
+	FailoverCriteria!: #OriginGroupFailoverCriteria
+	Id!:               string | fn.#StringExpression
+
+	// A complex type that contains information about the origins in an origin group.
+	Members!: #OriginGroupMembers
+
+	// The selection criteria for the origin group. For more information, see
+	// [Create an origin
+	// group](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/high_availability_origin_failover.html#concept_origin_groups.creating)
+	// in the *Amazon CloudFront Developer Guide*.
+	SelectionCriteria?: #OriginGroupSelectionCriteria
 }) |
 fn.#ObjectExpression
 
-#OriginGroupFailoverCriteria: close({StatusCodes!: #StatusCodes | fn.#ObjectExpression}) | fn.#ObjectExpression
+#OriginGroupFailoverCriteria: close({
+	// The status codes that, when returned from the primary origin, will trigger
+	// CloudFront to failover to the second origin.
+	StatusCodes!: #StatusCodes
+}) |
+fn.#ObjectExpression
 
 #OriginGroupMember: close({OriginId!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -793,7 +939,15 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Restrictions: close({GeoRestriction!: #GeoRestriction | fn.#ObjectExpression}) | fn.#ObjectExpression
+#Restrictions: close({
+	// A complex type that controls the countries in which your content is
+	// distributed. CF determines the location of your users using ``MaxMind``
+	// GeoIP databases. To disable geo restriction, remove the
+	// [Restrictions](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-distributionconfig.html#cfn-cloudfront-distribution-distributionconfig-restrictions)
+	// property from your stack template.
+	GeoRestriction!: #GeoRestriction
+}) |
+fn.#ObjectExpression
 
 #S3OriginConfig: close({
 	OriginAccessIdentity?: string | fn.#StringExpression
@@ -906,8 +1060,11 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ViewerMtlsConfig: close({
-	Mode?:             #ViewerMtlsMode | fn.#StringExpression
-	TrustStoreConfig?: #TrustStoreConfig | fn.#ObjectExpression
+	// The viewer mTLS mode.
+	Mode?: #ViewerMtlsMode
+
+	// The trust store configuration associated with the viewer mTLS configuration.
+	TrustStoreConfig?: #TrustStoreConfig
 }) |
 fn.#ObjectExpression
 

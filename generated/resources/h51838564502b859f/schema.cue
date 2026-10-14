@@ -19,12 +19,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElasticBeanstalk::ApplicationVersion"
 	Properties!: close({
-		ApplicationName!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		BuildConfiguration?: #BuildConfiguration | fn.#ObjectExpression
+		ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+
+		// Settings for an AWS CodeBuild build that packages and builds an application
+		// version from source code.
+		BuildConfiguration?: #BuildConfiguration
 		Description?:        strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-		ImageConfiguration?: #ImageConfiguration | fn.#ObjectExpression
+
+		// Configuration for image-based application versions.
+		ImageConfiguration?: #ImageConfiguration
 		Process?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		SourceBundle?:       #SourceBundle | fn.#ObjectExpression
+
+		// The Amazon S3 bucket and key that identify the location of the source bundle for this version.
+		SourceBundle?: #SourceBundle
 	})
 }
 
@@ -75,8 +82,11 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ImageConfiguration: close({
-	Build?:  #ImageBuildConfiguration | fn.#ObjectExpression
-	Source?: #ImageSource | fn.#ObjectExpression
+	// Configuration for building a container image from source code.
+	Build?: #ImageBuildConfiguration
+
+	// The container image source for this version, as an ECR image URI.
+	Source?: #ImageSource
 	if Source != _|_ if Source."Fn::If" == _|_ {
 		Build?: close({"Fn::If": _}) | error("Build cannot be used with Source; set exactly one of Source, Build")
 	}

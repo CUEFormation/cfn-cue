@@ -60,17 +60,27 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	DependsOn?:             [...#ContainerDependency] | fn.#ListExpression
-	EntryPoint?:            [...string | fn.#StringExpression] | fn.#ListExpression
-	Environment?:           [...#KeyValuePair] | fn.#ListExpression
-	EnvironmentFiles?:      [...#EnvironmentFile] | fn.#ListExpression
-	Essential?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FirelensConfiguration?: #FirelensConfiguration | fn.#ObjectExpression
-	HealthCheck?:           #HealthCheck | fn.#ObjectExpression
-	Image!:                 string | fn.#StringExpression
-	Interactive?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LinuxParameters?:       #LinuxParameters | fn.#ObjectExpression
-	LogConfiguration?:      #LogConfiguration | fn.#ObjectExpression
+	DependsOn?:        [...#ContainerDependency] | fn.#ListExpression
+	EntryPoint?:       [...string | fn.#StringExpression] | fn.#ListExpression
+	Environment?:      [...#KeyValuePair] | fn.#ListExpression
+	EnvironmentFiles?: [...#EnvironmentFile] | fn.#ListExpression
+	Essential?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// The FireLens configuration for the container. This is used to specify and
+	// configure a log router for container logs.
+	FirelensConfiguration?: #FirelensConfiguration
+
+	// The container health check command and associated configuration parameters for the container.
+	HealthCheck?: #HealthCheck
+	Image!:       string | fn.#StringExpression
+	Interactive?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// Linux-specific modifications that are applied to the container configuration,
+	// such as Linux kernel capabilities.
+	LinuxParameters?: #LinuxParameters
+
+	// The log configuration specification for the container.
+	LogConfiguration?: #LogConfiguration
 	Memory?: int |
 		{
 			string &
@@ -104,9 +114,14 @@ fn.#ObjectExpression
 	Privileged?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PseudoTerminal?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReadonlyRootFilesystem?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RepositoryCredentials?:  #RepositoryCredentials | fn.#ObjectExpression
-	RestartPolicy?:          #RestartPolicy | fn.#ObjectExpression
-	Secrets?:                [...#Secret] | fn.#ListExpression
+
+	// The private repository authentication credentials to use.
+	RepositoryCredentials?: #RepositoryCredentials
+
+	// The restart policy for the container. When you set up a restart policy,
+	// Amazon ECS can restart the container without needing to replace the task.
+	RestartPolicy?: #RestartPolicy
+	Secrets?:       [...#Secret] | fn.#ListExpression
 	StartTimeout?: int |
 		{
 			string &
@@ -240,7 +255,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LinuxParameters: close({
-	Capabilities?:       #KernelCapabilities | fn.#ObjectExpression
+	// The Linux capabilities for the container that are added to or dropped from
+	// the default configuration provided by Docker.
+	// For tasks that use the Fargate launch type, ``capabilities`` is supported for
+	// all platform versions but the ``add`` parameter is only supported if using
+	// platform version 1.4.0 or later.
+	Capabilities?:       #KernelCapabilities
 	Devices?:            [...#Device] | fn.#ListExpression
 	InitProcessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Tmpfs?:              [...#Tmpfs] | fn.#ListExpression
@@ -391,7 +411,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Volume: close({
-	Host?: #HostVolumeProperties | fn.#ObjectExpression
+	// This parameter is specified when you use bind mount host volumes. The
+	// contents of the ``host`` parameter determine whether your bind mount host
+	// volume persists on the host container instance and where it's stored. If the
+	// ``host`` parameter is empty, then the Docker daemon assigns a host path for
+	// your data volume. However, the data isn't guaranteed to persist after the
+	// containers that are associated with it stop running.
+	// Windows containers can mount whole directories on the same drive as
+	// ``$env:ProgramData``. Windows containers can't mount directories on a
+	// different drive, and mount point can't be across drives. For example, you
+	// can mount ``C:\my\path:C:\my\path`` and ``D:\:D:\``, but not
+	// ``D:\my\path:C:\my\path`` or ``D:\:C:\my\path``.
+	Host?: #HostVolumeProperties
 	Name?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

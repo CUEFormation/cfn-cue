@@ -35,7 +35,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(20) &
 		=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[0-9]{0,12}:key\\/[a-zA-Z0-9-]+$" |
 		fn.#StringExpression
-		MaintenanceWindow?:         #MaintenanceWindow | fn.#ObjectExpression
+
+		// A specification for a time window to apply software updates.
+		MaintenanceWindow?:         #MaintenanceWindow
 		Name?:                      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 		SoftwareSetUpdateMode?:     "USE_LATEST" | "USE_DESIRED" | fn.#StringExpression
 		SoftwareSetUpdateSchedule?: "USE_MAINTENANCE_WINDOW" | "APPLY_IMMEDIATELY" | fn.#StringExpression
@@ -63,12 +65,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#NumberExpression
 
 #MaintenanceWindow: close({
-	ApplyTimeOf?:     "UTC" | "DEVICE" | fn.#StringExpression
-	DaysOfTheWeek?:   list.MaxItems(7) & list.MinItems(1) & list.UniqueItems() & [...#DayOfWeek] | fn.#ListExpression
-	EndTimeHour?:     #Hour | fn.#NumberExpression
-	EndTimeMinute?:   #Minute | fn.#NumberExpression
-	StartTimeHour?:   #Hour | fn.#NumberExpression
-	StartTimeMinute?: #Minute | fn.#NumberExpression
+	ApplyTimeOf?:   "UTC" | "DEVICE" | fn.#StringExpression
+	DaysOfTheWeek?: list.MaxItems(7) & list.MinItems(1) & list.UniqueItems() & [...#DayOfWeek] | fn.#ListExpression
+
+	// The hour end time of maintenance window.
+	EndTimeHour?: #Hour
+
+	// The minute end time of maintenance window.
+	EndTimeMinute?: #Minute
+
+	// The hour start time of maintenance window.
+	StartTimeHour?: #Hour
+
+	// The minute start time of maintenance window.
+	StartTimeMinute?: #Minute
 	Type!:            "SYSTEM" | "CUSTOM" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

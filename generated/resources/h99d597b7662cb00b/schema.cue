@@ -17,9 +17,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GameLift::Alias"
 	Properties!: close({
-		Description?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		Name!:            strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-		RoutingStrategy!: #RoutingStrategy | fn.#ObjectExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:        strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+
+		// A routing configuration that specifies where traffic is directed for this
+		// alias, such as to a fleet or to a message.
+		RoutingStrategy!: #RoutingStrategy
 		Tags?:            list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
 }

@@ -25,12 +25,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		DirectoryUserId?:         string | fn.#StringExpression
 		HierarchyGroupArn?: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent-group/[-a-zA-Z0-9]*$" |
 			fn.#StringExpression
-		IdentityInfo?: #UserIdentityInfo | fn.#ObjectExpression
+
+		// The information about the identity of the user.
+		IdentityInfo?: #UserIdentityInfo
 		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 		Password?:    string | fn.#StringExpression
 		PersistentConnectionConfigs?: [...#PersistentConnectionConfig] | fn.#ListExpression
-		PhoneConfig?:                 #UserPhoneConfig | fn.#ObjectExpression
-		PhoneNumberConfigs?:          [...#PhoneNumberConfig] | fn.#ListExpression
+
+		// The phone settings for the user.
+		PhoneConfig?:        #UserPhoneConfig
+		PhoneNumberConfigs?: [...#PhoneNumberConfig] | fn.#ListExpression
 		RoutingProfileArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/routing-profile/[-a-zA-Z0-9]*$" |
 			fn.#StringExpression
 		SecurityProfileArns!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#SecurityProfileArn] |

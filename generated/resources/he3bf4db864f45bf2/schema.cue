@@ -19,10 +19,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		AccountLinked?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		PartnerAccountId?: strings.MaxRunes(256) | fn.#StringExpression
 		PartnerType?:      "Sidewalk" | fn.#StringExpression
-		Sidewalk?:         #SidewalkAccountInfo | fn.#ObjectExpression
-		SidewalkResponse?: #SidewalkAccountInfoWithFingerprint | fn.#ObjectExpression
-		SidewalkUpdate?:   #SidewalkUpdateAccount | fn.#ObjectExpression
-		Tags?:             list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// The Sidewalk account credentials.
+		Sidewalk?: #SidewalkAccountInfo
+
+		// The Sidewalk account credentials.
+		SidewalkResponse?: #SidewalkAccountInfoWithFingerprint
+
+		// The Sidewalk account credentials.
+		SidewalkUpdate?: #SidewalkUpdateAccount
+		Tags?:           list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
 

@@ -46,10 +46,18 @@ fn.#ListExpression
 
 #Cors: close({
 	AllowCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AllowHeaders?:     #AllowHeaders | fn.#ListExpression
-	AllowMethods?:     #AllowMethods | fn.#ListExpression
-	AllowOrigins?:     #AllowOrigins | fn.#ListExpression
-	ExposeHeaders?:    #ExposeHeaders | fn.#ListExpression
+
+	// Represents a collection of allowed headers.
+	AllowHeaders?: #AllowHeaders
+
+	// Represents a collection of allowed HTTP methods.
+	AllowMethods?: #AllowMethods
+
+	// Represents a collection of allowed origins.
+	AllowOrigins?: #AllowOrigins
+
+	// Represents a collection of exposed headers.
+	ExposeHeaders?: #ExposeHeaders
 	MaxAge?: int & <=86400 & >=0 |
 		{
 			string &

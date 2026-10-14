@@ -26,9 +26,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 			{[=~"^.{1,255}$"]: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression}}) |
 		fn.#ObjectExpression
-		LogType?:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
-		Name!:        strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
-		ResourceArn?: #Arn | fn.#StringExpression
+		LogType?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
+		Name!:    strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
+
+		// The ARN of the resource that will be sending the logs.
+		ResourceArn?: #Arn
 		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }

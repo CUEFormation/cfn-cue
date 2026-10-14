@@ -25,7 +25,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(1) &
 		=~"^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?$" |
 		fn.#StringExpression
-		Properties?: _#defs."/$defs/Properties/definitions/Properties" | fn.#ObjectExpression
+
+		// Properties for the public DNS namespace.
+		Properties?: _#defs."/$defs/Properties/definitions/Properties"
 		Tags?:       list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
 }

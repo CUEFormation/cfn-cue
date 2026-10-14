@@ -19,12 +19,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EMR::InstanceFleetConfig"
 	Properties!: close({
-		ClusterId!:            strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		InstanceFleetType!:    string | fn.#StringExpression
-		InstanceTypeConfigs?:  [...#InstanceTypeConfig] | fn.#ListExpression
-		LaunchSpecifications?: #InstanceFleetProvisioningSpecifications | fn.#ObjectExpression
+		ClusterId!:           strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		InstanceFleetType!:   string | fn.#StringExpression
+		InstanceTypeConfigs?: [...#InstanceTypeConfig] | fn.#ListExpression
+
+		// The launch specification for the instance fleet.
+		LaunchSpecifications?: #InstanceFleetProvisioningSpecifications
 		Name?:                 string | fn.#StringExpression
-		ResizeSpecifications?: #InstanceFleetResizingSpecifications | fn.#ObjectExpression
+
+		// The resize specification for the instance fleet.
+		ResizeSpecifications?: #InstanceFleetResizingSpecifications
 		TargetOnDemandCapacity?: int |
 			{
 				string &
@@ -71,7 +75,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #EbsBlockDeviceConfig: close({
-	VolumeSpecification!: #VolumeSpecification | fn.#ObjectExpression
+	// EBS volume specifications such as volume type, IOPS, size (GiB) and
+	// throughput (MiB/s) that are requested for the EBS volume attached to an
+	// Amazon EC2 instance in the cluster.
+	VolumeSpecification!: #VolumeSpecification
 	VolumesPerInstance?: int |
 		{
 			string &
@@ -96,14 +103,26 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #InstanceFleetProvisioningSpecifications: close({
-	OnDemandSpecification?: #OnDemandProvisioningSpecification | fn.#ObjectExpression
-	SpotSpecification?:     #SpotProvisioningSpecification | fn.#ObjectExpression
+	// The launch specification for On-Demand Instances in the instance fleet, which
+	// determines the allocation strategy.
+	OnDemandSpecification?: #OnDemandProvisioningSpecification
+
+	// The launch specification for Spot instances in the fleet, which determines
+	// the defined duration, provisioning timeout behavior, and allocation
+	// strategy.
+	SpotSpecification?: #SpotProvisioningSpecification
 }) |
 fn.#ObjectExpression
 
 #InstanceFleetResizingSpecifications: close({
-	OnDemandResizeSpecification?: #OnDemandResizingSpecification | fn.#ObjectExpression
-	SpotResizeSpecification?:     #SpotResizingSpecification | fn.#ObjectExpression
+	// The resize specification for On-Demand Instances in the instance fleet, which
+	// contains the allocation strategy, capacity reservation options, and the
+	// resize timeout period.
+	OnDemandResizeSpecification?: #OnDemandResizingSpecification
+
+	// The resize specification for Spot Instances in the instance fleet, which
+	// contains the allocation strategy and the resize timeout period.
+	SpotResizeSpecification?: #SpotResizingSpecification
 }) |
 fn.#ObjectExpression
 
@@ -128,9 +147,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Configurations?:   [...#ApplicationConfiguration] | fn.#ListExpression
-	CustomAmiId?:      string | fn.#StringExpression
-	EbsConfiguration?: #EbsConfiguration | fn.#ObjectExpression
+	Configurations?: [...#ApplicationConfiguration] | fn.#ListExpression
+	CustomAmiId?:    string | fn.#StringExpression
+
+	// The configuration of Amazon Elastic Block Store (Amazon EBS) attached to each
+	// instance as defined by InstanceType.
+	EbsConfiguration?: #EbsConfiguration
 	InstanceType!:     string | fn.#StringExpression
 	Priority?: number |
 		{
@@ -182,8 +204,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #OnDemandResizingSpecification: close({
-	AllocationStrategy?:         string | fn.#StringExpression
-	CapacityReservationOptions?: #OnDemandCapacityReservationOptions | fn.#ObjectExpression
+	AllocationStrategy?: string | fn.#StringExpression
+
+	// Describes the strategy for using unused Capacity Reservations for fulfilling On-Demand capacity.
+	CapacityReservationOptions?: #OnDemandCapacityReservationOptions
 	TimeoutDurationMinutes?: int |
 		{
 			string &

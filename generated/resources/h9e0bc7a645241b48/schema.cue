@@ -23,8 +23,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		AssociatedTemplateAndRuleList?: list.MaxItems(100) & [...] & [...#AssociatedTemplateAndRule] |
 			fn.#ListExpression
-		FirewallType!:        "WAF" | "SHIELD_ADVANCED" | fn.#StringExpression
-		PolicyConfiguration!: #PolicyConfiguration | fn.#ObjectExpression
+		FirewallType!: "WAF" | "SHIELD_ADVANCED" | fn.#StringExpression
+
+		// Configuration settings for policy behavior.
+		PolicyConfiguration!: #PolicyConfiguration
 		PolicyDescription?:   strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
 		PolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _.:/=+\\-@]*$" |
 		fn.#StringExpression

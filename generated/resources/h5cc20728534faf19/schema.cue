@@ -20,8 +20,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(4) &
 		=~"[A-Za-z0-9][A-Za-z0-9\\-_]{3,31}" |
 		fn.#StringExpression
-		Tags?:               [...#Tag] | fn.#ListExpression
-		TraceConfiguration?: #TraceConfiguration | fn.#ObjectExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+
+		// The configuration of the tracing feature within this observability
+		// configuration. If you don't specify it, App Runner doesn't enable tracing.
+		TraceConfiguration?: #TraceConfiguration
 	})
 }
 

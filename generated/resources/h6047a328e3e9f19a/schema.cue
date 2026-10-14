@@ -31,11 +31,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		LoadBalancers?:            [...#LoadBalancer] | fn.#ListExpression
 		NetworkConfiguration?:     #NetworkConfiguration
 		PlatformVersion?:          string | fn.#StringExpression
-		Scale?:                    #Scale | fn.#ObjectExpression
-		Service!:                  string | fn.#StringExpression
-		ServiceRegistries?:        [...#ServiceRegistry] | fn.#ListExpression
-		Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-		TaskDefinition!:           string | fn.#StringExpression
+
+		// A floating-point percentage of the desired number of tasks to place and keep
+		// running in the task set.
+		Scale?:             #Scale
+		Service!:           string | fn.#StringExpression
+		ServiceRegistries?: [...#ServiceRegistry] | fn.#ListExpression
+		Tags?:              list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		TaskDefinition!:    string | fn.#StringExpression
 	})
 }
 

@@ -16,12 +16,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::NetworkAclEntry"
 	Properties!: close({
-		CidrBlock?:     string | fn.#StringExpression
-		Egress?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Icmp?:          #Icmp | fn.#ObjectExpression
+		CidrBlock?: string | fn.#StringExpression
+		Egress?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// The Internet Control Message Protocol (ICMP) code and type. Requirement is
+		// conditional: Required if specifying 1 (ICMP) for the protocol parameter
+		Icmp?:          #Icmp
 		Ipv6CidrBlock?: string | fn.#StringExpression
 		NetworkAclId!:  string | fn.#StringExpression
-		PortRange?:     #PortRange | fn.#ObjectExpression
+
+		// The IPv4 network range to allow or deny, in CIDR notation (for example
+		// 172.16.0.0/24). We modify the specified CIDR block to its canonical form;
+		// for example, if you specify 100.68.0.18/18, we modify it to 100.68.0.0/18
+		PortRange?: #PortRange
 		Protocol!: int |
 			{
 				string &

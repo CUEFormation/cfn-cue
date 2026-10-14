@@ -46,8 +46,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		EnableSimpleResponses?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		IdentitySource?:        [...string | fn.#StringExpression] | fn.#ListExpression
 		IdentityValidationExpression?: string | fn.#StringExpression
-		JwtConfiguration?:             #JWTConfiguration | fn.#ObjectExpression
-		Name!:                         string | fn.#StringExpression
+
+		// The ``JWTConfiguration`` property specifies the configuration of a JWT
+		// authorizer. Required for the ``JWT`` authorizer type. Supported only for
+		// HTTP APIs.
+		JwtConfiguration?: #JWTConfiguration
+		Name!:             string | fn.#StringExpression
 	})
 }
 

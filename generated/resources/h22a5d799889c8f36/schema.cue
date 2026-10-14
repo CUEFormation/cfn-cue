@@ -16,7 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EntityResolution::IdMappingWorkflow"
 	Properties!: close({
-		Description?:                   #Description | fn.#StringExpression
+		// The description of the IdMappingWorkflow
+		Description?:                   #Description
 		IdMappingIncrementalRunConfig?: #IdMappingIncrementalRunConfig
 		IdMappingTechniques!:           #IdMappingTechniques
 		InputSourceConfig!: list.MaxItems(20) & list.MinItems(1) & [...#IdMappingWorkflowInputSource] |
@@ -28,8 +29,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(0) &
 		=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 		fn.#StringExpression
-		Tags?:         list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		WorkflowName!: #EntityName | fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+
+		// The name of the IdMappingWorkflow
+		WorkflowName!: #EntityName
 	})
 }
 

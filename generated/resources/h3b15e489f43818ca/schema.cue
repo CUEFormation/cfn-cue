@@ -22,7 +22,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		CoreNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^core-network-([0-9a-f]{8,17})$" |
 		fn.#StringExpression
-		Options?:            #VpcOptions | fn.#ObjectExpression
+
+		// Vpc options of the attachment.
+		Options?:            #VpcOptions
 		RoutingPolicyLabel?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 		SubnetArns!: [
 			...strings.MaxRunes(500) &

@@ -26,10 +26,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ApiKeySelectionExpression?: string | fn.#StringExpression
 		BasePath?:                  string | fn.#StringExpression
 		Body?:                      fn.#Object & {...} | string | fn.#StringObjectExpression
-		BodyS3Location?:            #BodyS3Location | fn.#ObjectExpression
-		CorsConfiguration?:         #Cors | fn.#ObjectExpression
-		CredentialsArn?:            string | fn.#StringExpression
-		Description?:               string | fn.#StringExpression
+
+		// The S3 location of an OpenAPI definition. Supported only for HTTP APIs. To
+		// import an HTTP API, you must specify a ``Body`` or ``BodyS3Location``. If
+		// you specify a ``Body`` or ``BodyS3Location``, don't specify CloudFormation
+		// resources such as ``AWS::ApiGatewayV2::Authorizer`` or
+		// ``AWS::ApiGatewayV2::Route``. API Gateway doesn't support the combination of
+		// OpenAPI and CloudFormation resources.
+		BodyS3Location?: #BodyS3Location
+
+		// A CORS configuration. Supported only for HTTP APIs. See [Configuring
+		// CORS](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-cors.html)
+		// for more information.
+		CorsConfiguration?: #Cors
+		CredentialsArn?:    string | fn.#StringExpression
+		Description?:       string | fn.#StringExpression
 		DisableExecuteApiEndpoint?: bool |
 			"true" |
 			"True" |

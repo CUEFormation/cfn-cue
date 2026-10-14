@@ -21,13 +21,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		ArtifactName?: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
 		fn.#StringExpression
-		ArtifactType!:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		MetadataProperties?: #MetadataProperties | fn.#ObjectExpression
+		ArtifactType!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+
+		// Metadata properties of the tracking entity, trial, or trial component.
+		MetadataProperties?: #MetadataProperties
 		Properties?: struct.MaxFields(30) & close({
 
 			{[=~".+"]: strings.MaxRunes(4096) | fn.#StringExpression}}) |
 		fn.#ObjectExpression
-		Source!: #ArtifactSource | fn.#ObjectExpression
+
+		// The source of the artifact.
+		Source!: #ArtifactSource
 		Tags?:   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
 }

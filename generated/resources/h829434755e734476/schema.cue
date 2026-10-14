@@ -19,10 +19,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Bucket!:          strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
 		BucketAccountId?: strings.MaxRunes(64) & =~"^\\d{12}$" | fn.#StringExpression
 		Name?: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" | fn.#StringExpression
-		Policy?:                         fn.#Object & {...} | string | fn.#StringObjectExpression
-		PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration | fn.#ObjectExpression
+		Policy?: fn.#Object & {...} | string | fn.#StringObjectExpression
+
+		// The PublicAccessBlock configuration that you want to apply to this Access
+		// Point. You can enable the configuration options in any combination. For more
+		// information about when Amazon S3 considers a bucket or object public, see
+		// https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html#access-control-block-public-access-policy-status
+		// 'The Meaning of Public' in the Amazon Simple Storage Service Developer
+		// Guide.
+		PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration
 		Tags?:                           [...#Tag] | fn.#ListExpression
-		VpcConfiguration?:               #VpcConfiguration | fn.#ObjectExpression
+
+		// If you include this field, Amazon S3 restricts access to this Access Point to
+		// requests from the specified Virtual Private Cloud (VPC).
+		VpcConfiguration?: #VpcConfiguration
 	})
 }
 

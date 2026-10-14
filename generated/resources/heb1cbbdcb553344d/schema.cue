@@ -63,7 +63,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		MaintenanceSchedule?: #MaintenanceSchedule | fn.#ObjectExpression
+
+		// The maintenance schedule for the InfluxDB cluster.
+		MaintenanceSchedule?: #MaintenanceSchedule
 		Name?: strings.MaxRunes(40) & strings.MinRunes(3) & =~"^[a-zA-z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" |
 		fn.#StringExpression
 		NetworkType?:  "IPV4" | "DUAL" | fn.#StringExpression

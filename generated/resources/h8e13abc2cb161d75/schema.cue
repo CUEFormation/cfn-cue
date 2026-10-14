@@ -91,7 +91,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		ScheduledQueryConfiguration!: #ScheduledQueryConfiguration | fn.#ObjectExpression
+
+		// The scheduled query configuration for the log alarm.
+		ScheduledQueryConfiguration!: #ScheduledQueryConfiguration
 		Tags?:                        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		Threshold!: number |
 			{
@@ -112,8 +114,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		TreatMissingData?:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		WarmUpConfiguration?: #WarmUpConfiguration | fn.#ObjectExpression
+		TreatMissingData?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The warm-up configuration for the alarm. During the warm-up period, the alarm
+		// stays in INSUFFICIENT_DATA and doesn't perform alarm actions. For more
+		// information, see Alarm warm-up periods in the Amazon CloudWatch User Guide.
+		WarmUpConfiguration?: #WarmUpConfiguration
 	})
 }
 
@@ -160,8 +166,10 @@ fn.#ObjectExpression
 		...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	QueryString!:           strings.MaxRunes(10000) & strings.MinRunes(0) | fn.#StringExpression
-	ScheduleConfiguration!: #ScheduleConfiguration | fn.#ObjectExpression
+	QueryString!: strings.MaxRunes(10000) & strings.MinRunes(0) | fn.#StringExpression
+
+	// The schedule configuration.
+	ScheduleConfiguration!: #ScheduleConfiguration
 	ScheduledQueryRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
 	fn.#StringExpression
 	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression

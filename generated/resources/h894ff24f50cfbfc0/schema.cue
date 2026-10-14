@@ -682,23 +682,25 @@ fn.#ObjectExpression
 
 #Intent: close({
 	BedrockAgentIntentConfiguration?: #BedrockAgentIntentConfiguration
-	Description?:                     #Description | fn.#StringExpression
-	DialogCodeHook?:                  #DialogCodeHookSetting
-	DisplayName?:                     #DisplayName
-	FulfillmentCodeHook?:             #FulfillmentCodeHookSetting
-	InitialResponseSetting?:          #InitialResponseSetting
-	InputContexts?:                   #InputContextsList
-	IntentClosingSetting?:            #IntentClosingSetting
-	IntentConfirmationSetting?:       #IntentConfirmationSetting
-	KendraConfiguration?:             #KendraConfiguration
-	Name!:                            #Name
-	OutputContexts?:                  #OutputContextsList
-	ParentIntentSignature?:           #ParentIntentSignature
-	QInConnectIntentConfiguration?:   #QInConnectIntentConfiguration
-	QnAIntentConfiguration?:          #QnAIntentConfiguration
-	SampleUtterances?:                #SampleUtterancesList
-	SlotPriorities?:                  #SlotPrioritiesList
-	Slots?:                           list.MaxItems(100) & list.UniqueItems() & [...#Slot] | fn.#ListExpression
+
+	// Resource Type definition for the intent.
+	Description?:                   #Description
+	DialogCodeHook?:                #DialogCodeHookSetting
+	DisplayName?:                   #DisplayName
+	FulfillmentCodeHook?:           #FulfillmentCodeHookSetting
+	InitialResponseSetting?:        #InitialResponseSetting
+	InputContexts?:                 #InputContextsList
+	IntentClosingSetting?:          #IntentClosingSetting
+	IntentConfirmationSetting?:     #IntentConfirmationSetting
+	KendraConfiguration?:           #KendraConfiguration
+	Name!:                          #Name
+	OutputContexts?:                #OutputContextsList
+	ParentIntentSignature?:         #ParentIntentSignature
+	QInConnectIntentConfiguration?: #QInConnectIntentConfiguration
+	QnAIntentConfiguration?:        #QnAIntentConfiguration
+	SampleUtterances?:              #SampleUtterancesList
+	SlotPriorities?:                #SlotPrioritiesList
+	Slots?:                         list.MaxItems(100) & list.UniqueItems() & [...#Slot] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

@@ -17,16 +17,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::CodeInterpreterCustom"
 	Properties!: close({
-		Certificates?:         #CertificateList | fn.#ListExpression
-		Description?:          #Description | fn.#StringExpression
-		ExecutionRoleArn?:     #RoleArn | fn.#StringExpression
-		Name!:                 #SandboxName | fn.#StringExpression
-		NetworkConfiguration!: #CodeInterpreterNetworkConfiguration | fn.#ObjectExpression
+		// List of root CA certificates in PEM format.
+		Certificates?: #CertificateList
+
+		// The description of the code interpreter.
+		Description?: #Description
+
+		// The ARN of the IAM role that the code interpreter uses to access resources.
+		ExecutionRoleArn?: #RoleArn
+
+		// The name of the code interpreter.
+		Name!: #SandboxName
+
+		// Network configuration for code interpreter.
+		NetworkConfiguration!: #CodeInterpreterNetworkConfiguration
 		Tags?:                 #TagsMap
 	})
 }
 
-#Certificate: close({CertificateLocation!: #CertificateLocation | fn.#ObjectExpression}) | fn.#ObjectExpression
+#Certificate: close({
+	// Certificate location in Secrets Manager.
+	CertificateLocation!: #CertificateLocation
+}) |
+fn.#ObjectExpression
 
 #CertificateList: list.MaxItems(10) & [...] & [...#Certificate] | fn.#ListExpression
 

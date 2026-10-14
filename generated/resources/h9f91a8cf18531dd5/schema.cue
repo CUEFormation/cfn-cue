@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Logs::QueryDefinition"
 	Properties!: close({
-		LogGroupNames?: [...#LogGroup | fn.#StringExpression] | fn.#ListExpression
+		LogGroupNames?: [...#LogGroup] | fn.#ListExpression
 		Name!:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 		Parameters?:    list.MaxItems(20) & [...] & [...#QueryParameter] | fn.#ListExpression
 		QueryLanguage?: "CWLI" | "SQL" | "PPL" | fn.#StringExpression

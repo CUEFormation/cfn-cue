@@ -29,7 +29,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#ListExpression
 		GrantName?:  string | fn.#StringExpression
 		HomeRegion?: string | fn.#StringExpression
-		LicenseArn?: #Arn | fn.#StringExpression
+
+		// License Arn for the grant.
+		LicenseArn?: #Arn
 		Principals?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#Arn] | fn.#ListExpression
 		Status?: "ACTIVE" |
 			"DELETED" |

@@ -20,12 +20,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::FSx::S3AccessPointAttachment"
 	Properties!: close({
-		Name!:                 strings.MaxRunes(50) & strings.MinRunes(3) | fn.#StringExpression
-		OntapConfiguration?:   #S3AccessPointOntapConfiguration | fn.#ObjectExpression
-		OpenZFSConfiguration?: #S3AccessPointOpenZFSConfiguration | fn.#ObjectExpression
+		Name!: strings.MaxRunes(50) & strings.MinRunes(3) | fn.#StringExpression
+
+		// The OntapConfiguration of the S3 access point attachment.
+		OntapConfiguration?: #S3AccessPointOntapConfiguration
+
+		// The OpenZFSConfiguration of the S3 access point attachment.
+		OpenZFSConfiguration?: #S3AccessPointOpenZFSConfiguration
 		S3AccessPoint?: close({
 			Policy?: fn.#Object & {...} | strings.MaxRunes(200000) & strings.MinRunes(1) | fn.#StringObjectExpression
-			VpcConfiguration?: #S3AccessPointVpcConfiguration | fn.#ObjectExpression
+
+			// The S3 access point's virtual private cloud (VPC) configuration.
+			VpcConfiguration?: #S3AccessPointVpcConfiguration
 		}) |
 		fn.#ObjectExpression
 		Type!: "OPENZFS" | "ONTAP" | fn.#StringExpression
@@ -62,9 +68,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 
 #OntapFileSystemIdentity: close({
-	Type!:        "UNIX" | "WINDOWS" | fn.#StringExpression
-	UnixUser?:    #OntapUnixFileSystemUser | fn.#ObjectExpression
-	WindowsUser?: #OntapWindowsFileSystemUser | fn.#ObjectExpression
+	Type!: "UNIX" | "WINDOWS" | fn.#StringExpression
+
+	// Specifies the properties of the file system UNIX user.
+	UnixUser?: #OntapUnixFileSystemUser
+
+	// Specifies the properties of the file system Windows user.
+	WindowsUser?: #OntapWindowsFileSystemUser
 	if UnixUser != _|_ if UnixUser."Fn::If" == _|_ {
 		WindowsUser?: close({"Fn::If": _}) | error(
 			"WindowsUser cannot be used with UnixUser; set exactly one of UnixUser, WindowsUser",
@@ -86,7 +96,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #OpenZFSFileSystemIdentity: close({
-	PosixUser!: #OpenZFSPosixFileSystemUser | fn.#ObjectExpression
+	// Specifies the UID and GIDs of the file system POSIX user.
+	PosixUser!: #OpenZFSPosixFileSystemUser
 	Type!:      "POSIX" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -137,21 +148,25 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #S3AccessPoint: close({
-	Alias?:            strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[0-9a-z\\\\-]{1,63}" | fn.#StringExpression
-	Policy?:           fn.#Object & {...} | strings.MaxRunes(200000) & strings.MinRunes(1) | fn.#StringObjectExpression
-	ResourceARN?:      strings.MaxRunes(1024) & strings.MinRunes(8) | fn.#StringExpression
-	VpcConfiguration?: #S3AccessPointVpcConfiguration | fn.#ObjectExpression
+	Alias?:       strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[0-9a-z\\\\-]{1,63}" | fn.#StringExpression
+	Policy?:      fn.#Object & {...} | strings.MaxRunes(200000) & strings.MinRunes(1) | fn.#StringObjectExpression
+	ResourceARN?: strings.MaxRunes(1024) & strings.MinRunes(8) | fn.#StringExpression
+
+	// The S3 access point's virtual private cloud (VPC) configuration.
+	VpcConfiguration?: #S3AccessPointVpcConfiguration
 }) |
 fn.#ObjectExpression
 
 #S3AccessPointOntapConfiguration: close({
-	FileSystemIdentity!: #OntapFileSystemIdentity | fn.#ObjectExpression
+	// The file system identity used to authorize file access requests made using the S3 access point.
+	FileSystemIdentity!: #OntapFileSystemIdentity
 	VolumeId!: strings.MaxRunes(23) & strings.MinRunes(23) & =~"^(fsvol-[0-9a-f]{17,})$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3AccessPointOpenZFSConfiguration: close({
-	FileSystemIdentity!: #OpenZFSFileSystemIdentity | fn.#ObjectExpression
+	// The file system identity used to authorize file access requests made using the S3 access point.
+	FileSystemIdentity!: #OpenZFSFileSystemIdentity
 	VolumeId!: strings.MaxRunes(23) & strings.MinRunes(23) & =~"^(fsvol-[0-9a-f]{17,})$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

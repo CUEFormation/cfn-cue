@@ -20,23 +20,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EMRServerless::Application"
 	Properties!: close({
-		Architecture?:                #Architecture
-		AutoStartConfiguration?:      #AutoStartConfiguration | fn.#ObjectExpression
-		AutoStopConfiguration?:       #AutoStopConfiguration | fn.#ObjectExpression
-		IdentityCenterConfiguration?: #IdentityCenterConfiguration | fn.#ObjectExpression
+		Architecture?: #Architecture
+
+		// Configuration for Auto Start of Application.
+		AutoStartConfiguration?: #AutoStartConfiguration
+
+		// Configuration for Auto Stop of Application.
+		AutoStopConfiguration?: #AutoStopConfiguration
+
+		// The IAM IdentityCenter configuration for trusted-identity-propagation on this
+		// application. Supported with release labels emr-7.8.0 and above.
+		IdentityCenterConfiguration?: #IdentityCenterConfiguration
 		ImageConfiguration?:          #ImageConfigurationInput
-		InitialCapacity?:             #InitialCapacityConfigMap | fn.#ListExpression
-		InteractiveConfiguration?:    #InteractiveConfiguration
-		MaximumCapacity?:             #MaximumAllowedResources | fn.#ObjectExpression
-		MonitoringConfiguration?:     #MonitoringConfiguration
+
+		// Initial capacity initialized when an Application is started.
+		InitialCapacity?:          #InitialCapacityConfigMap
+		InteractiveConfiguration?: #InteractiveConfiguration
+
+		// Maximum allowed cumulative resources for an Application. No new resources
+		// will be created once the limit is hit.
+		MaximumCapacity?:         #MaximumAllowedResources
+		MonitoringConfiguration?: #MonitoringConfiguration
 		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9._\\/#-]+$" | fn.#StringExpression
-		NetworkConfiguration?: #NetworkConfiguration | fn.#ObjectExpression
+
+		// Network Configuration for customer VPC connectivity.
+		NetworkConfiguration?: #NetworkConfiguration
 		ReleaseLabel!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9._/-]+$" | fn.#StringExpression
-		RuntimeConfiguration?:     #ConfigurationList
-		SchedulerConfiguration?:   #SchedulerConfiguration | fn.#ObjectExpression
-		Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		Type!:                     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		WorkerTypeSpecifications?: #WorkerTypeSpecificationInputMap | fn.#ObjectExpression
+		RuntimeConfiguration?: #ConfigurationList
+
+		// The scheduler configuration for batch and streaming jobs running on this
+		// application. Supported with release labels emr-7.0.0 and above.
+		SchedulerConfiguration?: #SchedulerConfiguration
+		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type!:                   strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The key-value pairs that specify worker type to WorkerTypeSpecificationInput.
+		// This parameter must contain all valid worker types for a Spark or Hive
+		// application. Valid worker types include Driver and Executor for Spark
+		// applications and HiveDriver and TezTask for Hive applications. You can
+		// either set image details in this parameter for each worker type, or in
+		// imageConfiguration for all worker types.
+		WorkerTypeSpecifications?: #WorkerTypeSpecificationInputMap
 	})
 }
 
@@ -74,10 +98,17 @@ number |
 string |
 [...] |
 close({
-	Enabled?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EncryptionKeyArn?:    #EncryptionKeyArn | fn.#StringExpression
-	LogGroupName?:        #LogGroupName | fn.#StringExpression
-	LogStreamNamePrefix?: #LogStreamNamePrefix | fn.#StringExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// KMS key ARN to encrypt the logs stored in given CloudWatch log-group.
+	EncryptionKeyArn?: #EncryptionKeyArn
+
+	// Log-group name to produce log-streams on CloudWatch. If undefined, logs will
+	// be produced in a default log-group /aws/emr-serverless
+	LogGroupName?: #LogGroupName
+
+	// Log-stream name prefix by which log-stream names will start in the CloudWatch Log-group.
+	LogStreamNamePrefix?: #LogStreamNamePrefix
 	LogTypeMap?:          list.UniqueItems() & [...#LogTypeMapKeyValuePair] | fn.#ListExpression
 }) |
 fn.#ValueExpression
@@ -85,7 +116,8 @@ fn.#ValueExpression
 #ConfigurationList: list.MaxItems(100) & list.UniqueItems() & [...] & [...#ConfigurationObject] | fn.#ListExpression
 
 #ConfigurationObject: close({
-	Classification!: #Classification | fn.#StringExpression
+	// String with a maximum length of 1024.
+	Classification!: #Classification
 	Configurations?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#ConfigurationObject] | fn.#ListExpression
 	Properties?: close({
 
@@ -177,25 +209,39 @@ number |
 string |
 [...] |
 close({
-	Enabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EncryptionKeyArn?: #EncryptionKeyArn | fn.#StringExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// KMS key ARN to encrypt the logs stored in managed persistence
+	EncryptionKeyArn?: #EncryptionKeyArn
 }) |
 fn.#ValueExpression
 
 #MaximumAllowedResources: close({
-	Cpu!:    #CpuSize | fn.#StringExpression
-	Disk?:   #DiskSize | fn.#StringExpression
-	Memory!: #MemorySize | fn.#StringExpression
+	// Per worker CPU resource. vCPU is the only supported unit and specifying vCPU is optional.
+	Cpu!: #CpuSize
+
+	// Per worker Disk resource. GB is the only supported unit and specifying GB is optional
+	Disk?: #DiskSize
+
+	// Per worker memory resource. GB is the only supported unit and specifying GB is optional.
+	Memory!: #MemorySize
 }) |
 fn.#ObjectExpression
 
 #MemorySize: strings.MaxRunes(15) & strings.MinRunes(1) & =~"^[1-9][0-9]*(\\s)?(GB|gb|gB|Gb)?$" | fn.#StringExpression
 
 #MonitoringConfiguration: close({
-	CloudWatchLoggingConfiguration?:            #CloudWatchLoggingConfiguration | fn.#ValueExpression
-	ManagedPersistenceMonitoringConfiguration?: #ManagedPersistenceMonitoringConfiguration | fn.#ValueExpression
-	PrometheusMonitoringConfiguration?:         #PrometheusMonitoringConfiguration | fn.#ValueExpression
-	S3MonitoringConfiguration?:                 #S3MonitoringConfiguration | fn.#ValueExpression
+	// CloudWatch logging configurations for a JobRun.
+	CloudWatchLoggingConfiguration?: #CloudWatchLoggingConfiguration
+
+	// Managed log persistence configurations for a JobRun.
+	ManagedPersistenceMonitoringConfiguration?: #ManagedPersistenceMonitoringConfiguration
+
+	// Prometheus monitoring configurations for a JobRun.
+	PrometheusMonitoringConfiguration?: #PrometheusMonitoringConfiguration
+
+	// S3 monitoring configurations for a JobRun.
+	S3MonitoringConfiguration?: #S3MonitoringConfiguration
 }) |
 fn.#ObjectExpression
 
@@ -207,12 +253,15 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PrometheusMonitoringConfiguration: null |
-	bool |
-	number |
-	string |
-	[...] |
-	close({RemoteWriteUrl?: #RemoteWriteUrl | fn.#StringExpression}) |
-	fn.#ValueExpression
+bool |
+number |
+string |
+[...] |
+close({
+	// The remote write URL in the Amazon Managed Service for Prometheus workspace to send metrics to.
+	RemoteWriteUrl?: #RemoteWriteUrl
+}) |
+fn.#ValueExpression
 
 #RemoteWriteUrl: strings.MaxRunes(10280) &
 strings.MinRunes(1) &
@@ -225,7 +274,8 @@ number |
 string |
 [...] |
 close({
-	EncryptionKeyArn?: #EncryptionKeyArn | fn.#StringExpression
+	// KMS key ARN to encrypt the logs stored in given s3
+	EncryptionKeyArn?: #EncryptionKeyArn
 	LogUri?:           #UriString
 }) |
 fn.#ValueExpression
@@ -286,10 +336,18 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 #WorkerConfiguration: close({
-	Cpu!:      #CpuSize | fn.#StringExpression
-	Disk?:     #DiskSize | fn.#StringExpression
-	DiskType?: #DiskType | fn.#StringExpression
-	Memory!:   #MemorySize | fn.#StringExpression
+	// Per worker CPU resource. vCPU is the only supported unit and specifying vCPU is optional.
+	Cpu!: #CpuSize
+
+	// Per worker Disk resource. GB is the only supported unit and specifying GB is optional
+	Disk?: #DiskSize
+
+	// Per worker DiskType resource. Shuffle optimized and Standard are only
+	// supported types and specifying diskType is optional
+	DiskType?: #DiskType
+
+	// Per worker memory resource. GB is the only supported unit and specifying GB is optional.
+	Memory!: #MemorySize
 }) |
 fn.#ObjectExpression
 

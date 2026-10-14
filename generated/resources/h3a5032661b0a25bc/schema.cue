@@ -19,8 +19,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		ExpiresAt?: time.Time | fn.#StringExpression
 		Name!:      strings.MaxRunes(64) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-		RateType?:  #WorkloadEstimateRateType | fn.#StringExpression
-		Tags?:      list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+
+		// The type of pricing rates used for the estimate.
+		RateType?: #WorkloadEstimateRateType
+		Tags?:     list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 	})
 }
 

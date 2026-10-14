@@ -21,13 +21,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECS::Cluster"
 	Properties?: close({
-		CapacityProviders?:               [...string | fn.#StringExpression] | fn.#ListExpression
-		ClusterName?:                     string | fn.#StringExpression
-		ClusterSettings?:                 [...#ClusterSettings] | fn.#ListExpression
-		Configuration?:                   #ClusterConfiguration | fn.#ObjectExpression
+		CapacityProviders?: [...string | fn.#StringExpression] | fn.#ListExpression
+		ClusterName?:       string | fn.#StringExpression
+		ClusterSettings?:   [...#ClusterSettings] | fn.#ListExpression
+
+		// The execute command and managed storage configuration for the cluster.
+		Configuration?:                   #ClusterConfiguration
 		DefaultCapacityProviderStrategy?: [...#CapacityProviderStrategyItem] | fn.#ListExpression
-		ServiceConnectDefaults?:          #ServiceConnectDefaults | fn.#ObjectExpression
-		Tags?:                            list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+
+		// Use this parameter to set a default Service Connect namespace. After you set
+		// a default Service Connect namespace, any new services with Service Connect
+		// turned on that are created in the cluster are added as client services in
+		// the namespace. This setting only applies to new services that set the
+		// ``enabled`` parameter to ``true`` in the ``ServiceConnectConfiguration``.
+		// You can set the namespace of each service individually in the
+		// ``ServiceConnectConfiguration`` to override this default parameter.
+		// Tasks that run in a namespace can use short names to connect to services in
+		// the namespace. Tasks can connect to services across all of the clusters in
+		// the namespace. Tasks connect through a managed proxy container that collects
+		// logs and metrics for increased visibility. Only the tasks that Amazon ECS
+		// services create are supported with Service Connect. For more information,
+		// see [Service
+		// Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html)
+		// in the *Amazon Elastic Container Service Developer Guide*.
+		ServiceConnectDefaults?: #ServiceConnectDefaults
+		Tags?:                   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
 }
 
@@ -69,8 +87,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #ClusterConfiguration: close({
-	ExecuteCommandConfiguration?: #ExecuteCommandConfiguration | fn.#ObjectExpression
-	ManagedStorageConfiguration?: #ManagedStorageConfiguration | fn.#ObjectExpression
+	// The details of the execute command configuration.
+	ExecuteCommandConfiguration?: #ExecuteCommandConfiguration
+
+	// The details of the managed storage configuration.
+	ManagedStorageConfiguration?: #ManagedStorageConfiguration
 }) |
 fn.#ObjectExpression
 
@@ -84,7 +105,11 @@ fn.#ObjectExpression
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
-	LogConfiguration?: #ExecuteCommandLogConfiguration | fn.#ObjectExpression
+
+	// The log configuration for the results of the execute command actions. The
+	// logs can be sent to CloudWatch Logs or an Amazon S3 bucket. When
+	// ``logging=OVERRIDE`` is specified, a ``logConfiguration`` must be provided.
+	LogConfiguration?: #ExecuteCommandLogConfiguration
 	Logging?:          "DEFAULT" | "NONE" | "OVERRIDE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

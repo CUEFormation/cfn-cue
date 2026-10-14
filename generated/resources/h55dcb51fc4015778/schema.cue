@@ -18,9 +18,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		Description?:    strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 		EventBridgeBus!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
-		EventFilter!:    #EventFilter | fn.#ObjectExpression
-		Name!:           strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
-		Tags?:           list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+
+		// The EventFilter (source) associated with the event integration.
+		EventFilter!: #EventFilter
+		Name!:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
+		Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
 }
 

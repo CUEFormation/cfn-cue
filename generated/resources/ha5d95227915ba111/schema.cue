@@ -49,7 +49,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		S3?:   #S3 | fn.#ObjectExpression
+
+		// The configuration for an Amazon S3 data repository linked to an Amazon FSx
+		// Lustre file system with a data repository association. The configuration
+		// defines which file events (new, changed, or deleted files or directories)
+		// are automatically imported from the linked data repository to the file
+		// system or automatically exported from the file system to the data
+		// repository.
+		S3?:   #S3
 		Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
 }

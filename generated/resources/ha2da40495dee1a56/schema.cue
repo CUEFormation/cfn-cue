@@ -20,8 +20,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Evidently::Launch"
 	Properties!: close({
-		Description?:     strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
-		ExecutionStatus?: #ExecutionStatusObject | fn.#ObjectExpression
+		Description?: strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
+
+		// Start or Stop Launch Launch. Default is not started.
+		ExecutionStatus?: #ExecutionStatusObject
 		Groups!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#LaunchGroupObject] | fn.#ListExpression
 		MetricMonitors?: list.MaxItems(3) & list.UniqueItems() & [...] & [...#MetricDefinitionObject] |
 			fn.#ListExpression

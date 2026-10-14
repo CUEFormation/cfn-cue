@@ -19,7 +19,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Description?: strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
 		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 		Name!:        strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-		QuickConnectConfig!: #QuickConnectConfig | fn.#ObjectExpression
+
+		// Configuration settings for the quick connect.
+		QuickConnectConfig!: #QuickConnectConfig
 		Tags?:               list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }

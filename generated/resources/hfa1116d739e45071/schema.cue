@@ -87,7 +87,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ConstraintsResource: close({S3Uri?: #S3Uri | fn.#StringExpression}) | fn.#ObjectExpression
+#ConstraintsResource: close({
+	// The Amazon S3 URI for baseline constraint file in Amazon S3 that the current
+	// monitoring job should validated against.
+	S3Uri?: #S3Uri
+}) |
+fn.#ObjectExpression
 
 #Csv: {
 	Header?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -110,9 +115,17 @@ fn.#ObjectExpression
 		{[=~"[a-zA-Z_][a-zA-Z0-9_]*"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}
 	}) |
 	fn.#ObjectExpression
-	ImageUri!:                        strings.MaxRunes(255) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	PostAnalyticsProcessorSourceUri?: #S3Uri | fn.#StringExpression
-	RecordPreprocessorSourceUri?:     #S3Uri | fn.#StringExpression
+	ImageUri!: strings.MaxRunes(255) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+
+	// An Amazon S3 URI to a script that is called after analysis has been
+	// performed. Applicable only for the built-in (first party) containers.
+	PostAnalyticsProcessorSourceUri?: #S3Uri
+
+	// An Amazon S3 URI to a script that is called per row prior to running
+	// analysis. It can base64 decode the payload and convert it into a flatted
+	// json so that the built-in container can use the converted data. Applicable
+	// only for the built-in (first party) containers
+	RecordPreprocessorSourceUri?: #S3Uri
 }) |
 fn.#ObjectExpression
 
@@ -198,7 +211,12 @@ fn.#ObjectExpression
 
 #S3Uri: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
 
-#StatisticsResource: close({S3Uri?: #S3Uri | fn.#StringExpression}) | fn.#ObjectExpression
+#StatisticsResource: close({
+	// The Amazon S3 URI for the baseline statistics file in Amazon S3 that the
+	// current monitoring job should be validated against.
+	S3Uri?: #S3Uri
+}) |
+fn.#ObjectExpression
 
 #StoppingCondition: close({
 	MaxRuntimeInSeconds!: int & <=86400 & >=1 |

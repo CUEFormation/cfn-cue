@@ -37,16 +37,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AutoScaling::AutoScalingGroup"
 	Properties!: close({
-		AutoScalingGroupName?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		AvailabilityZoneDistribution?: #AvailabilityZoneDistribution | fn.#ObjectExpression
+		AutoScalingGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The EC2 instance capacity distribution across Availability Zones for the Auto Scaling group.
+		AvailabilityZoneDistribution?: #AvailabilityZoneDistribution
 		AvailabilityZoneIds?: list.UniqueItems() & [
 			...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 		] |
 		fn.#ListExpression
-		AvailabilityZoneImpairmentPolicy?: #AvailabilityZoneImpairmentPolicy | fn.#ObjectExpression
+
+		// The Availability Zone impairment policy for the Auto Scaling group.
+		AvailabilityZoneImpairmentPolicy?: #AvailabilityZoneImpairmentPolicy
 		AvailabilityZones?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 		CapacityRebalance?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		CapacityReservationSpecification?: #CapacityReservationSpecification | fn.#ObjectExpression
+
+		// The capacity reservation specification for the Auto Scaling group.
+		CapacityReservationSpecification?: #CapacityReservationSpecification
 		Context?:                          string | fn.#StringExpression
 		Cooldown?:                         string | fn.#StringExpression
 		DefaultInstanceWarmup?: int |
@@ -88,11 +94,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(1) &
 		=~"^(EBS|EC2|ELB|VPC_LATTICE)(,(EBS|EC2|ELB|VPC_LATTICE))*,?$" |
 		fn.#StringExpression
-		InstanceId?:                     strings.MaxRunes(19) & strings.MinRunes(1) | fn.#StringExpression
-		InstanceLifecyclePolicy?:        #InstanceLifecyclePolicy | fn.#ObjectExpression
-		InstanceMaintenancePolicy?:      #InstanceMaintenancePolicy | fn.#ObjectExpression
-		LaunchConfigurationName?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		LaunchTemplate?:                 #LaunchTemplateSpecification | fn.#ObjectExpression
+		InstanceId?: strings.MaxRunes(19) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The instance lifecycle policy for the Auto Scaling group.
+		InstanceLifecyclePolicy?: #InstanceLifecyclePolicy
+
+		// An instance maintenance policy. For more information, see [Set instance
+		// maintenance
+		// policy](https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-instance-maintenance-policy.html)
+		// in the *Amazon EC2 Auto Scaling User Guide*.
+		InstanceMaintenancePolicy?: #InstanceMaintenancePolicy
+		LaunchConfigurationName?:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+		// Information used to specify the launch template and version to use to launch
+		// instances. You can alternatively associate a launch template to the Auto
+		// Scaling group by specifying a ``MixedInstancesPolicy``. For more information
+		// about creating launch templates, see [Create a launch template for an Auto
+		// Scaling
+		// group](https://docs.aws.amazon.com/autoscaling/ec2/userguide/create-launch-template.html)
+		// in the *Amazon EC2 Auto Scaling User Guide*.
+		// If you omit this property, you must specify ``MixedInstancesPolicy``,
+		// ``LaunchConfigurationName``, or ``InstanceId``.
+		LaunchTemplate?:                 #LaunchTemplateSpecification
 		LifecycleHookSpecificationList?: [...#LifecycleHookSpecification] | fn.#ListExpression
 		LoadBalancerNames?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 		MaxInstanceLifetime?: int |
@@ -111,10 +134,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		MaxSize!:              =~"^[0-9]+$" | fn.#StringExpression
-		MetricsCollection?:    [...#MetricsCollection] | fn.#ListExpression
-		MinSize!:              =~"^[0-9]+$" | fn.#StringExpression
-		MixedInstancesPolicy?: #MixedInstancesPolicy | fn.#ObjectExpression
+		MaxSize!:           =~"^[0-9]+$" | fn.#StringExpression
+		MetricsCollection?: [...#MetricsCollection] | fn.#ListExpression
+		MinSize!:           =~"^[0-9]+$" | fn.#StringExpression
+
+		// An embedded object that specifies a mixed instances policy.
+		// The policy includes properties that not only define the distribution of
+		// On-Demand Instances and Spot Instances, the maximum price to pay for Spot
+		// Instances (optional), and how the Auto Scaling group allocates instance
+		// types to fulfill On-Demand and Spot capacities, but also the properties that
+		// specify the instance configuration information—the launch template and
+		// instance types. The policy can also include a weight for each instance type
+		// and different launch templates for individual instance types.
+		// For more information, see [Auto Scaling groups with multiple instance types
+		// and purchase
+		// options](https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-mixed-instances-groups.html)
+		// in the *Amazon EC2 Auto Scaling User Guide*.
+		MixedInstancesPolicy?: #MixedInstancesPolicy
 		NewInstancesProtectedFromScaleIn?: bool |
 			"true" |
 			"True" |
@@ -123,7 +159,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		NotificationConfiguration?:  #NotificationConfiguration | fn.#ObjectExpression
+		NotificationConfiguration?:  #NotificationConfiguration
 		NotificationConfigurations?: [...#NotificationConfiguration] | fn.#ListExpression
 		PlacementGroup?:             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 		ServiceLinkedRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
@@ -281,8 +317,11 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#BaselinePerformanceFactorsRequest: close({Cpu?: #CpuPerformanceFactorRequest | fn.#ObjectExpression}) |
-	fn.#ObjectExpression
+#BaselinePerformanceFactorsRequest: close({
+	// The CPU performance to consider, using an instance family as the baseline reference.
+	Cpu?: #CpuPerformanceFactorRequest
+}) |
+fn.#ObjectExpression
 
 #CapacityReservationIds: list.UniqueItems() & [
 	...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-_\\/]+$" | fn.#StringExpression
@@ -300,18 +339,30 @@ fn.#ListExpression
 		"default" |
 		"none" |
 		fn.#StringExpression
-	CapacityReservationTarget?: #CapacityReservationTarget | fn.#ObjectExpression
+
+	// Describes a target Capacity Reservation or Capacity Reservation resource group.
+	CapacityReservationTarget?: #CapacityReservationTarget
 }) |
 fn.#ObjectExpression
 
 #CapacityReservationTarget: close({
-	CapacityReservationIds?:               #CapacityReservationIds | fn.#ListExpression
-	CapacityReservationResourceGroupArns?: #CapacityReservationResourceGroupArns | fn.#ListExpression
+	// The Capacity Reservation IDs to launch instances into.
+	CapacityReservationIds?: #CapacityReservationIds
+
+	// The resource group ARNs of the Capacity Reservation to launch instances into.
+	CapacityReservationResourceGroupArns?: #CapacityReservationResourceGroupArns
 }) |
 fn.#ObjectExpression
 
-#CpuPerformanceFactorRequest: close({References?: #PerformanceFactorReferenceSetRequest | fn.#ListExpression}) |
-	fn.#ObjectExpression
+#CpuPerformanceFactorRequest: close({
+	// Specify an instance family to use as the baseline reference for CPU
+	// performance. All instance types that match your specified attributes will be
+	// compared against the CPU performance of the referenced instance family,
+	// regardless of CPU manufacturer or architecture differences.
+	// Currently only one instance family can be specified in the list.
+	References?: #PerformanceFactorReferenceSetRequest
+}) |
+fn.#ObjectExpression
 
 #DistributionSegment: close({
 	TargetCapacityTypes!: list.MinItems(1) & list.UniqueItems() & [
@@ -325,7 +376,14 @@ fn.#ObjectExpression
 }) |
 	fn.#ObjectExpression
 
-#InstanceLifecyclePolicy: close({RetentionTriggers?: #RetentionTriggers | fn.#ObjectExpression}) | fn.#ObjectExpression
+#InstanceLifecyclePolicy: close({
+	// Specifies the conditions that trigger instance retention behavior. These
+	// triggers determine when instances should move to a ``Retained`` state
+	// instead of automatic termination. This allows you to maintain control over
+	// instance management when lifecycles transition and operations fail.
+	RetentionTriggers?: #RetentionTriggers
+}) |
+fn.#ObjectExpression
 
 #InstanceMaintenancePolicy: close({
 	MaxHealthyPercentage?: _
@@ -373,7 +431,11 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #InstanceRequirements: close({
-	AcceleratorCount?: #AcceleratorCountRequest | fn.#ObjectExpression
+	// The minimum and maximum number of accelerators (GPUs, FPGAs, or AWS
+	// Inferentia chips) for an instance type.
+	// To exclude accelerator-enabled instance types, set ``Max`` to ``0``.
+	// Default: No minimum or maximum limits
+	AcceleratorCount?: #AcceleratorCountRequest
 	AcceleratorManufacturers?: list.UniqueItems() & [
 		..."amazon-web-services" | "amd" | "nvidia" | "xilinx" | fn.#StringExpression
 	] |
@@ -382,16 +444,27 @@ fn.#ObjectExpression
 		..."a100" | "k80" | "m60" | "radeon-pro-v520" | "t4" | "v100" | "vu9p" | fn.#StringExpression
 	] |
 		fn.#ListExpression
-	AcceleratorTotalMemoryMiB?: #AcceleratorTotalMemoryMiBRequest | fn.#ObjectExpression
+
+	// The minimum and maximum total memory size for the accelerators on an instance type, in MiB.
+	// Default: No minimum or maximum limits
+	AcceleratorTotalMemoryMiB?: #AcceleratorTotalMemoryMiBRequest
 	AcceleratorTypes?: list.UniqueItems() & [..."fpga" | "gpu" | "inference" | fn.#StringExpression] |
 		fn.#ListExpression
 	AllowedInstanceTypes?: list.MaxItems(400) & list.UniqueItems() & [...] & [
 		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	BareMetal?:                  "excluded" | "included" | "required" | fn.#StringExpression
-	BaselineEbsBandwidthMbps?:   #BaselineEbsBandwidthMbpsRequest | fn.#ObjectExpression
-	BaselinePerformanceFactors?: #BaselinePerformanceFactorsRequest | fn.#ObjectExpression
+	BareMetal?: "excluded" | "included" | "required" | fn.#StringExpression
+
+	// The minimum and maximum baseline bandwidth performance for an instance type,
+	// in Mbps. For more information, see [Amazon EBS–optimized
+	// instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-optimized.html)
+	// in the *Amazon EC2 User Guide*.
+	// Default: No minimum or maximum limits
+	BaselineEbsBandwidthMbps?: #BaselineEbsBandwidthMbpsRequest
+
+	// The baseline performance factors for the instance requirements.
+	BaselinePerformanceFactors?: #BaselinePerformanceFactorsRequest
 	BurstablePerformance?:       "excluded" | "included" | "required" | fn.#StringExpression
 	CpuManufacturers?: list.UniqueItems() & [
 		..."amazon-web-services" | "amd" | "apple" | "intel" | fn.#StringExpression
@@ -419,10 +492,21 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	MemoryGiBPerVCpu?:      #MemoryGiBPerVCpuRequest | fn.#ObjectExpression
-	MemoryMiB!:             #MemoryMiBRequest | fn.#ObjectExpression
-	NetworkBandwidthGbps?:  #NetworkBandwidthGbpsRequest | fn.#ObjectExpression
-	NetworkInterfaceCount?: #NetworkInterfaceCountRequest | fn.#ObjectExpression
+
+	// The minimum and maximum amount of memory per vCPU for an instance type, in GiB.
+	// Default: No minimum or maximum limits
+	MemoryGiBPerVCpu?: #MemoryGiBPerVCpuRequest
+
+	// The minimum and maximum instance memory size for an instance type, in MiB.
+	MemoryMiB!: #MemoryMiBRequest
+
+	// The minimum and maximum amount of network bandwidth, in gigabits per second (Gbps).
+	// Default: No minimum or maximum limits
+	NetworkBandwidthGbps?: #NetworkBandwidthGbpsRequest
+
+	// The minimum and maximum number of network interfaces for an instance type.
+	// Default: No minimum or maximum limits
+	NetworkInterfaceCount?: #NetworkInterfaceCountRequest
 	OnDemandMaxPricePercentageOverLowestPrice?: int & >=0 |
 		{
 			string &
@@ -454,8 +538,13 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TotalLocalStorageGB?: #TotalLocalStorageGBRequest | fn.#ObjectExpression
-	VCpuCount!:           #VCpuCountRequest | fn.#ObjectExpression
+
+	// The minimum and maximum total local storage size for an instance type, in GB.
+	// Default: No minimum or maximum limits
+	TotalLocalStorageGB?: #TotalLocalStorageGBRequest
+
+	// The minimum and maximum number of vCPUs for an instance type.
+	VCpuCount!: #VCpuCountRequest
 }) |
 fn.#ObjectExpression
 
@@ -510,7 +599,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LaunchTemplate: close({
-	LaunchTemplateSpecification!: #LaunchTemplateSpecification | fn.#ObjectExpression
+	// The launch template.
+	LaunchTemplateSpecification!: #LaunchTemplateSpecification
 	Overrides?:                   [...#LaunchTemplateOverrides] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -521,9 +611,31 @@ fn.#ObjectExpression
 	strings.MinRunes(5) &
 	=~"^ami-[a-z0-9]{1,17}$" |
 	fn.#StringExpression
-	InstanceRequirements?:        #InstanceRequirements | fn.#ObjectExpression
-	InstanceType?:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	LaunchTemplateSpecification?: #LaunchTemplateSpecification | fn.#ObjectExpression
+
+	// The instance requirements. Amazon EC2 Auto Scaling uses your specified
+	// requirements to identify instance types. Then, it uses your On-Demand and
+	// Spot allocation strategies to launch instances from these instance types.
+	// You can specify up to four separate sets of instance requirements per Auto
+	// Scaling group. This is useful for provisioning instances from different
+	// Amazon Machine Images (AMIs) in the same Auto Scaling group. To do this,
+	// create the AMIs and create a new launch template for each AMI. Then, create
+	// a compatible set of instance requirements for each launch template.
+	// If you specify ``InstanceRequirements``, you can't specify ``InstanceType``.
+	InstanceRequirements?: #InstanceRequirements
+	InstanceType?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+	// Provides a launch template for the specified instance type or set of instance
+	// requirements. For example, some instance types might require a launch
+	// template with a different AMI. If not provided, Amazon EC2 Auto Scaling uses
+	// the launch template that's specified in the ``LaunchTemplate`` definition.
+	// For more information, see [Specifying a different launch template for an
+	// instance
+	// type](https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-mixed-instances-groups-launch-template-overrides.html)
+	// in the *Amazon EC2 Auto Scaling User Guide*.
+	// You can specify up to 20 launch templates per Auto Scaling group. The launch
+	// templates specified in the overrides and in the ``LaunchTemplate``
+	// definition count towards this limit.
+	LaunchTemplateSpecification?: #LaunchTemplateSpecification
 	WeightedCapacity?:            strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -652,8 +764,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MixedInstancesPolicy: close({
-	InstancesDistribution?: #InstancesDistribution | fn.#ObjectExpression
-	LaunchTemplate!:        #LaunchTemplate | fn.#ObjectExpression
+	// The instances distribution.
+	InstancesDistribution?: #InstancesDistribution
+
+	// One or more launch templates and the instance types (overrides) that are used
+	// to launch EC2 instances to fulfill the configured capacities.
+	LaunchTemplate!: #LaunchTemplate
 }) |
 fn.#ObjectExpression
 

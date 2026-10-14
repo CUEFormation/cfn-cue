@@ -16,14 +16,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Kendra::Faq"
 	Properties!: close({
-		Description?:  #Description | fn.#StringExpression
-		FileFormat?:   #FileFormat | fn.#StringExpression
-		IndexId!:      #IndexId | fn.#StringExpression
+		// FAQ description
+		Description?: #Description
+
+		// FAQ file format
+		FileFormat?: #FileFormat
+
+		// Index ID
+		IndexId!:      #IndexId
 		LanguageCode?: #LanguageCode
-		Name!:         #FaqName | fn.#StringExpression
-		RoleArn!:      #RoleArn | fn.#StringExpression
-		S3Path!:       #S3Path | fn.#ObjectExpression
-		Tags?:         #TagList | fn.#ListExpression
+
+		// FAQ name
+		Name!: #FaqName
+
+		// FAQ role ARN
+		RoleArn!: #RoleArn
+
+		// FAQ S3 path
+		S3Path!: #S3Path
+
+		// Tags for labeling the FAQ
+		Tags?: #TagList
 	})
 }
 

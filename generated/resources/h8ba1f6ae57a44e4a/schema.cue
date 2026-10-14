@@ -18,8 +18,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		AssetModelCompositeModels?: [...close({
 			ComposedAssetModelId?: string | fn.#StringExpression
 			CompositeModelProperties?: [...close({
-				DataType!:     #DataType | fn.#StringExpression
-				DataTypeSpec?: #DataTypeSpec | fn.#StringExpression
+				// The data type of the asset model property.
+				DataType!: #DataType
+
+				// The data type of the structure for this property.
+				DataTypeSpec?: #DataTypeSpec
 				ExternalId?: strings.MaxRunes(128) &
 				strings.MinRunes(2) &
 				=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
@@ -62,7 +65,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						}) |
 						fn.#ObjectExpression] |
 						fn.#ListExpression
-						Window!: #MetricWindow | fn.#ObjectExpression
+
+						// The window (time interval) over which AWS IoT SiteWise computes the metric's
+						// aggregation expression
+						Window!: #MetricWindow
 					}) |
 					fn.#ObjectExpression
 					Transform?: close({
@@ -143,8 +149,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		AssetModelName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 		fn.#StringExpression
 		AssetModelProperties?: [...close({
-			DataType!:     #DataType | fn.#StringExpression
-			DataTypeSpec?: #DataTypeSpec | fn.#StringExpression
+			// The data type of the asset model property.
+			DataType!: #DataType
+
+			// The data type of the structure for this property.
+			DataTypeSpec?: #DataTypeSpec
 			ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
 			fn.#StringExpression
 			LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
@@ -184,7 +193,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					}) |
 					fn.#ObjectExpression] |
 					fn.#ListExpression
-					Window!: #MetricWindow | fn.#ObjectExpression
+
+					// The window (time interval) over which AWS IoT SiteWise computes the metric's
+					// aggregation expression
+					Window!: #MetricWindow
 				}) |
 				fn.#ObjectExpression
 				Transform?: close({
@@ -270,8 +282,11 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #AssetModelProperty: close({
-	DataType!:     #DataType | fn.#StringExpression
-	DataTypeSpec?: #DataTypeSpec | fn.#StringExpression
+	// The data type of the asset model property.
+	DataType!: #DataType
+
+	// The data type of the structure for this property.
+	DataTypeSpec?: #DataTypeSpec
 	ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
 	fn.#StringExpression
 	Id?: strings.MaxRunes(36) &
@@ -281,7 +296,9 @@ fn.#ObjectExpression
 	LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
 	fn.#StringExpression
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" | fn.#StringExpression
-	Type!: #PropertyType | fn.#ObjectExpression
+
+	// The property type
+	Type!: #PropertyType
 	Unit?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -306,8 +323,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ExpressionVariable: close({
-	Name!:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" | fn.#StringExpression
-	Value!: #VariableValue | fn.#ObjectExpression
+	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" | fn.#StringExpression
+
+	// The variable that identifies an asset property from which to use values.
+	Value!: #VariableValue
 }) |
 fn.#ObjectExpression
 
@@ -316,7 +335,10 @@ fn.#ObjectExpression
 #Metric: close({
 	Expression!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Variables!:  [...#ExpressionVariable] | fn.#ListExpression
-	Window!:     #MetricWindow | fn.#ObjectExpression
+
+	// The window (time interval) over which AWS IoT SiteWise computes the metric's
+	// aggregation expression
+	Window!: #MetricWindow
 }) |
 fn.#ObjectExpression
 

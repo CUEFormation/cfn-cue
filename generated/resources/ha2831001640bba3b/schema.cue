@@ -25,17 +25,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // that matches the request's cache key. If you want to send values to the
 // origin but *not* include them in the cache key, use ``OriginRequestPolicy``.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::CachePolicy"
-	Properties!: close({CachePolicyConfig!: #CachePolicyConfig | fn.#ObjectExpression})
+	Type!: "AWS::CloudFront::CachePolicy"
+	Properties!: close({
+		// The cache policy configuration.
+		CachePolicyConfig!: #CachePolicyConfig
+	})
 }
 
 #CachePolicyConfig: close({
-	Comment?:                                  string | fn.#StringExpression
-	DefaultTTL!:                               math.MultipleOf(1) & >=0 | fn.#NumberExpression
-	MaxTTL!:                                   math.MultipleOf(1) & >=0 | fn.#NumberExpression
-	MinTTL!:                                   math.MultipleOf(1) & >=0 | fn.#NumberExpression
-	Name!:                                     string | fn.#StringExpression
-	ParametersInCacheKeyAndForwardedToOrigin!: #ParametersInCacheKeyAndForwardedToOrigin | fn.#ObjectExpression
+	Comment?:    string | fn.#StringExpression
+	DefaultTTL!: math.MultipleOf(1) & >=0 | fn.#NumberExpression
+	MaxTTL!:     math.MultipleOf(1) & >=0 | fn.#NumberExpression
+	MinTTL!:     math.MultipleOf(1) & >=0 | fn.#NumberExpression
+	Name!:       string | fn.#StringExpression
+
+	// The HTTP headers, cookies, and URL query strings to include in the cache key.
+	// The values included in the cache key are also included in requests that
+	// CloudFront sends to the origin.
+	ParametersInCacheKeyAndForwardedToOrigin!: #ParametersInCacheKeyAndForwardedToOrigin
 }) |
 fn.#ObjectExpression
 
@@ -52,11 +59,22 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ParametersInCacheKeyAndForwardedToOrigin: close({
-	CookiesConfig!:              #CookiesConfig | fn.#ObjectExpression
+	// An object that determines whether any cookies in viewer requests (and if so,
+	// which cookies) are included in the cache key and in requests that CloudFront
+	// sends to the origin.
+	CookiesConfig!:              #CookiesConfig
 	EnableAcceptEncodingBrotli?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableAcceptEncodingGzip!:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HeadersConfig!:              #HeadersConfig | fn.#ObjectExpression
-	QueryStringsConfig!:         #QueryStringsConfig | fn.#ObjectExpression
+
+	// An object that determines whether any HTTP headers (and if so, which headers)
+	// are included in the cache key and in requests that CloudFront sends to the
+	// origin.
+	HeadersConfig!: #HeadersConfig
+
+	// An object that determines whether any URL query strings in viewer requests
+	// (and if so, which query strings) are included in the cache key and in
+	// requests that CloudFront sends to the origin.
+	QueryStringsConfig!: #QueryStringsConfig
 }) |
 fn.#ObjectExpression
 

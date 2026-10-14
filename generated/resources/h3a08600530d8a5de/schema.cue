@@ -20,7 +20,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		DomainName!:               string | fn.#StringExpression
 		DomainNameConfigurations?: [...#DomainNameConfiguration] | fn.#ListExpression
-		MutualTlsAuthentication?:  #MutualTlsAuthentication | fn.#ObjectExpression
+
+		// The mutual TLS authentication configuration for a custom domain name.
+		MutualTlsAuthentication?: #MutualTlsAuthentication
 		RoutingMode?: "API_MAPPING_ONLY" | "ROUTING_RULE_THEN_API_MAPPING" | "ROUTING_RULE_ONLY" | fn.#StringExpression
 		Tags?: close({
 

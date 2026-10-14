@@ -67,22 +67,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 			{[=~"^.+$"]: string | fn.#StringExpression}}) |
 		fn.#ObjectExpression
-		LaunchTemplate?:   #LaunchTemplateSpecification | fn.#ObjectExpression
-		NodeRepairConfig?: #NodeRepairConfig | fn.#ObjectExpression
+
+		// An object representing a node group's launch template specification.
+		LaunchTemplate?: #LaunchTemplateSpecification
+
+		// The node auto repair configuration for node group.
+		NodeRepairConfig?: #NodeRepairConfig
 		NodeRole!:         string | fn.#StringExpression
 		NodegroupName?:    strings.MinRunes(1) | fn.#StringExpression
 		ReleaseVersion?:   string | fn.#StringExpression
-		RemoteAccess?:     #RemoteAccess | fn.#ObjectExpression
-		ScalingConfig?:    #ScalingConfig | fn.#ObjectExpression
-		Subnets!:          [...string | fn.#StringExpression] | fn.#ListExpression
+
+		// The remote access (SSH) configuration to use with your node group.
+		RemoteAccess?: #RemoteAccess
+
+		// The scaling configuration details for the Auto Scaling group that is created for your node group.
+		ScalingConfig?: #ScalingConfig
+		Subnets!:       [...string | fn.#StringExpression] | fn.#ListExpression
 		Tags?: close({
 
 			{[=~"^.+$"]: string | fn.#StringExpression}}) |
 		fn.#ObjectExpression
-		Taints?:         [...#Taint] | fn.#ListExpression
-		UpdateConfig?:   #UpdateConfig | fn.#ObjectExpression
-		Version?:        string | fn.#StringExpression
-		WarmPoolConfig?: #WarmPoolConfig | fn.#ObjectExpression
+		Taints?: [...#Taint] | fn.#ListExpression
+
+		// The node group update configuration.
+		UpdateConfig?: #UpdateConfig
+		Version?:      string | fn.#StringExpression
+
+		// The warm pool configuration details for the Auto Scaling group that is
+		// created for the node group.
+		WarmPoolConfig?: #WarmPoolConfig
 	})
 }
 

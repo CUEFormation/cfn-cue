@@ -43,7 +43,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		DataCollectionOptions?: #DataCollectionOptions | fn.#ObjectExpression
+
+		// The set of diagnostic collection options enabled for the VM cluster.
+		DataCollectionOptions?: #DataCollectionOptions
 		DataStorageSizeInTBs?: number |
 			{
 				string &

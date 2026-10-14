@@ -31,7 +31,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 		RandomizationSalt?: strings.MaxRunes(127) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 		RemoveSegment?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		RunningStatus?:     #RunningStatusObject | fn.#ObjectExpression
+
+		// Start Experiment. Default is False
+		RunningStatus?: #RunningStatusObject
 		SamplingRate?: int & <=100000 & >=0 |
 			{
 				string &

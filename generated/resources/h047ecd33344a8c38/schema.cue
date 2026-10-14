@@ -25,18 +25,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ComputeOptimizer::AutomationRule"
 	Properties!: close({
-		Criteria?: #Criteria | fn.#ObjectExpression
+		// Filter criteria that specify which recommended actions qualify for implementation.
+		Criteria?: #Criteria
 		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\s@\\.]*$" |
 		fn.#StringExpression
 		Name!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_-]*$" | fn.#StringExpression
-		OrganizationConfiguration?: #OrganizationConfiguration | fn.#ObjectExpression
+
+		// Organization configuration for organization rules, including rule apply order and account scope.
+		OrganizationConfiguration?: #OrganizationConfiguration
 		Priority?:                  string | fn.#StringExpression
 		RecommendedActionTypes!: list.MinItems(1) & [
 			..."SnapshotAndDeleteUnattachedEbsVolume" | "UpgradeEbsVolumeType" | fn.#StringExpression
 		] |
 			fn.#ListExpression
 		RuleType!: "AccountRule" | "OrganizationRule" | fn.#StringExpression
-		Schedule!: #Schedule | fn.#ObjectExpression
+
+		// The schedule configuration for when the rule runs.
+		Schedule!: #Schedule
 		Status!:   "Active" | "Inactive" | fn.#StringExpression
 		Tags?:     list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 	})

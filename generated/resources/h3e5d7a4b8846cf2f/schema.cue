@@ -19,9 +19,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::MLTransform"
 	Properties!: close({
-		Description?:       strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-		GlueVersion?:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
-		InputRecordTables!: #InputRecordTables | fn.#ObjectExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		GlueVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
+
+		// A list of AWS Glue table definitions used by the transform.
+		InputRecordTables!: #InputRecordTables
 		MaxCapacity?: <=100 & >=1 |
 			{
 				string &
@@ -94,8 +96,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		TransformEncryption?: #TransformEncryption | fn.#ObjectExpression
-		TransformParameters!: #TransformParameters | fn.#ObjectExpression
+
+		// The encryption-at-rest settings of the transform.
+		TransformEncryption?: #TransformEncryption
+
+		// The algorithm-specific parameters that are associated with the machine learning transform.
+		TransformParameters!: #TransformParameters
 		WorkerType?:          "G.025X" | "G.1X" | "G.2X" | "G.4X" | "G.8X" | "Standard" | "Z.2X" | fn.#StringExpression
 	})
 }

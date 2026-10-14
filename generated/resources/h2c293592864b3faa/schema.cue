@@ -22,7 +22,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!: "AWS::Lambda::WebFunctionRevision"
 	Properties!: close({
 		BuildConfig!: close({
-			CodeConfig!: close({S3Object!: #S3Object | fn.#ObjectExpression}) | fn.#ObjectExpression
+			CodeConfig!: close({
+				// The Amazon S3 location of the deployment artifact.
+				S3Object!: #S3Object
+			}) |
+			fn.#ObjectExpression
 			RuntimeConfig!: close({
 				Runtime!: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*[0-9]+(\\.[a-z0-9]+)*$" |
 				fn.#StringExpression
@@ -68,7 +72,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						)
 				} |
 				fn.#NumberExpression
-			TelemetryConfig?: close({LoggingConfig?: #LoggingConfig | fn.#ObjectExpression}) | fn.#ObjectExpression
+			TelemetryConfig?: close({
+				// The logging configuration for the web function.
+				LoggingConfig?: #LoggingConfig
+			}) |
+			fn.#ObjectExpression
 			TimeoutSeconds?: int & <=900 & >=3 |
 				{
 					string &

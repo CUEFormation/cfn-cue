@@ -73,7 +73,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				fn.#StringExpression
 		] |
 			fn.#ListExpression
-		Content!:     #Content | fn.#ObjectExpression
+
+		// The function layer archive.
+		Content!:     #Content
 		Description?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 		LayerName?: strings.MaxRunes(140) &
 		strings.MinRunes(1) &

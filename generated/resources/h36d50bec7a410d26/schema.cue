@@ -49,18 +49,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 		ImageRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):image-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
 			fn.#StringExpression
-		ImageScanningConfiguration?: #ImageScanningConfiguration | fn.#ObjectExpression
+
+		// Contains settings for vulnerability scans that Amazon Inspector runs against
+		// the test instance during image creation.
+		ImageScanningConfiguration?: #ImageScanningConfiguration
 		ImageTags?: close({
 
 			{[=~".{1,}"]: string | fn.#StringExpression}}) |
 		fn.#ObjectExpression
-		ImageTestsConfiguration?: #ImageTestsConfiguration | fn.#ObjectExpression
+
+		// The image tests configuration of the image pipeline.
+		ImageTestsConfiguration?: #ImageTestsConfiguration
 		InfrastructureConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):infrastructure-configuration/[a-z0-9-_]+$" |
 			fn.#StringExpression
-		LoggingConfiguration?: #PipelineLoggingConfiguration | fn.#ObjectExpression
+
+		// The logging configuration settings for the image pipeline.
+		LoggingConfiguration?: #PipelineLoggingConfiguration
 		Name?:                 =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-		Schedule?:             #Schedule | fn.#ObjectExpression
-		Status?:               "DISABLED" | "ENABLED" | fn.#StringExpression
+
+		// The schedule of the image pipeline.
+		Schedule?: #Schedule
+		Status?:   "DISABLED" | "ENABLED" | fn.#StringExpression
 		Tags?: close({
 
 			{[=~".{1,}"]: string | fn.#StringExpression}}) |
@@ -96,7 +105,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #ImageScanningConfiguration: close({
-	EcrConfiguration?:     #EcrConfiguration | fn.#ObjectExpression
+	// Contains ECR settings for vulnerability scans.
+	EcrConfiguration?:     #EcrConfiguration
 	ImageScanningEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -131,7 +141,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Schedule: close({
-	AutoDisablePolicy?: #AutoDisablePolicy | fn.#ObjectExpression
+	// The auto-disable policy for the image pipeline.
+	AutoDisablePolicy?: #AutoDisablePolicy
 	PipelineExecutionStartCondition?: "EXPRESSION_MATCH_ONLY" |
 		"EXPRESSION_MATCH_AND_DEPENDENCY_UPDATES_AVAILABLE" |
 		fn.#StringExpression

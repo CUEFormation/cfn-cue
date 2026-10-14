@@ -207,7 +207,11 @@ fn.#ObjectExpression
 	AccountId?:  string | fn.#StringExpression
 	Expression?: string | fn.#StringExpression
 	Id!:         string | fn.#StringExpression
-	MetricStat?: #MetricStat | fn.#ObjectExpression
+
+	// A metric to be used directly for the SLO, or to be used in the math
+	// expression that will be used for the SLO. Within one MetricDataQuery, you
+	// must specify either Expression or MetricStat but not both.
+	MetricStat?: #MetricStat
 	ReturnData?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -262,8 +266,15 @@ fn.#ValueExpression
 fn.#ObjectExpression
 
 #MonitoredRequestCountMetric: close({
-	BadCountMetric?:  #MetricDataQueries | fn.#ListExpression
-	GoodCountMetric?: #MetricDataQueries | fn.#ListExpression
+	// If you want to count "bad requests" to determine the percentage of successful
+	// requests for this request-based SLO, specify the metric to use as "bad
+	// requests" in this structure.
+	BadCountMetric?: #MetricDataQueries
+
+	// If you want to count "good requests" to determine the percentage of
+	// successful requests for this request-based SLO, specify the metric to use as
+	// "good requests" in this structure.
+	GoodCountMetric?: #MetricDataQueries
 }) |
 fn.#ObjectExpression
 
@@ -308,7 +319,12 @@ fn.#ObjectExpression
 	MetricType?:                  "LATENCY" | "AVAILABILITY" | fn.#StringExpression
 	MonitoredRequestCountMetric?: #MonitoredRequestCountMetric
 	OperationName?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TotalRequestCountMetric?:     #MetricDataQueries | fn.#ListExpression
+
+	// This structure defines the metric that is used as the "total requests" number
+	// for a request-based SLO. The number observed for this metric is divided by
+	// the number of "good requests" or "bad requests" that is observed for the
+	// metric defined in `MonitoredRequestCountMetric`.
+	TotalRequestCountMetric?: #MetricDataQueries
 }) |
 fn.#ObjectExpression
 

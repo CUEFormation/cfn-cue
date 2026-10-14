@@ -16,10 +16,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EntityResolution::SchemaMapping"
 	Properties!: close({
-		Description?:       #Description | fn.#StringExpression
-		MappedInputFields!: #MappedInputFields | fn.#ListExpression
-		SchemaName!:        #EntityName | fn.#StringExpression
-		Tags?:              list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		// The description of the SchemaMapping
+		Description?: #Description
+
+		// The SchemaMapping attributes input
+		MappedInputFields!: #MappedInputFields
+
+		// The name of the SchemaMapping
+		SchemaName!: #EntityName
+		Tags?:       list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
 }
 

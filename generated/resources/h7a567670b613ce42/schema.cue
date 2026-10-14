@@ -18,8 +18,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // origin](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-origin.html)
 // in the *Amazon CloudFront Developer Guide*.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::OriginAccessControl"
-	Properties!: close({OriginAccessControlConfig!: #OriginAccessControlConfig | fn.#ObjectExpression})
+	Type!: "AWS::CloudFront::OriginAccessControl"
+	Properties!: close({
+		// The origin access control.
+		OriginAccessControlConfig!: #OriginAccessControlConfig
+	})
 }
 
 #OriginAccessControlConfig: close({

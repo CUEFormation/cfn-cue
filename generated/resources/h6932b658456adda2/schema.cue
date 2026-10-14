@@ -20,12 +20,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaTailor::Function"
 	Properties!: close({
-		AwsServiceRequestConfiguration?:  #AwsServiceRequestConfiguration
-		ConcurrentExecutorConfiguration?: #ConcurrentExecutorConfiguration | fn.#ObjectExpression
+		AwsServiceRequestConfiguration?: #AwsServiceRequestConfiguration
+
+		// The configuration for a CONCURRENT_EXECUTOR function. Required when
+		// FunctionType is CONCURRENT_EXECUTOR.
+		ConcurrentExecutorConfiguration?: #ConcurrentExecutorConfiguration
 		CustomOutputConfiguration?:       #CustomOutputConfiguration
 		Description?:                     string | fn.#StringExpression
 		FunctionId!:                      string | fn.#StringExpression
-		FunctionType!:                    #FunctionType | fn.#StringExpression
+
+		// The type of the function. Determines which configuration object is used.
+		FunctionType!:                    #FunctionType
 		HttpRequestConfiguration?:        #HttpRequestConfiguration
 		SequentialExecutorConfiguration?: #SequentialExecutorConfiguration
 		Tags?:                            list.UniqueItems() & [...#Tag] | fn.#ListExpression
@@ -110,8 +115,11 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CustomOutputConfiguration: close({
-	Output?:  #StringMap | fn.#ObjectExpression
-	Runtime!: #RuntimeType | fn.#StringExpression
+	// A map of output key-value pairs that define the custom output.
+	Output?: #StringMap
+
+	// The runtime environment for the function expression language.
+	Runtime!: #RuntimeType
 }) |
 fn.#ObjectExpression
 
@@ -131,10 +139,17 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #HttpRequestConfiguration: close({
-	Body?:       string | fn.#StringExpression
-	Headers?:    #StringMap | fn.#ObjectExpression
-	MethodType!: #MethodType | fn.#StringExpression
-	Output?:     #StringMap | fn.#ObjectExpression
+	Body?: string | fn.#StringExpression
+
+	// A map of HTTP headers to include in the request.
+	Headers?: #StringMap
+
+	// The HTTP method type for the request.
+	MethodType!: #MethodType
+
+	// A map of output key-value pairs. Keys must start with session., temp.,
+	// avail., scte., or be a valid adsRequest directive.
+	Output?: #StringMap
 	RequestTimeoutMilliseconds!: int |
 		{
 			string &
@@ -149,7 +164,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Runtime!: #RuntimeType | fn.#StringExpression
+
+	// The runtime environment for the function expression language.
+	Runtime!: #RuntimeType
 	Url!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

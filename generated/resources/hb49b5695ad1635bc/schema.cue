@@ -20,11 +20,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Bucket!:          strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
 		BucketAccountId?: strings.MaxRunes(64) & =~"^\\d{12}$" | fn.#StringExpression
 		Name?: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" | fn.#StringExpression
-		Policy?:                         fn.#Object & {...} | fn.#ObjectExpression
-		PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration | fn.#ObjectExpression
-		Scope?:                          #Scope | fn.#ObjectExpression
-		Tags?:                           list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		VpcConfiguration?:               #VpcConfiguration | fn.#ObjectExpression
+		Policy?: fn.#Object & {...} | fn.#ObjectExpression
+
+		// The PublicAccessBlock configuration that you want to apply to this Access Point.
+		PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration
+
+		// For directory buckets, you can ﬁlter access control to speciﬁc preﬁxes, API
+		// operations, or a combination of both.
+		Scope?: #Scope
+		Tags?:  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// If you include this field, Amazon S3 restricts access to this Access Point to
+		// requests from the specified Virtual Private Cloud (VPC).
+		VpcConfiguration?: #VpcConfiguration
 	})
 }
 

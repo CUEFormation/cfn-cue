@@ -23,7 +23,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(1) &
 		=~"^d-[0-9a-f]{10}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
 		fn.#StringExpression
-		MemberId!: #MemberId | fn.#ObjectExpression
+
+		// An object containing the identifier of a group member.
+		MemberId!: #MemberId
 	})
 }
 

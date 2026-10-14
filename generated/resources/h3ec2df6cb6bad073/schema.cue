@@ -17,8 +17,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFormation::GuardHook"
 	Properties!: close({
-		Alias!:         string | fn.#StringExpression
-		ExecutionRole!: #Role | fn.#StringExpression
+		Alias!: string | fn.#StringExpression
+
+		// The execution role ARN assumed by hooks to read Guard rules from S3 and write
+		// Guard outputs to S3.
+		ExecutionRole!: #Role
 		FailureMode!:   "FAIL" | "WARN" | fn.#StringExpression
 		HookStatus!:    "ENABLED" | "DISABLED" | fn.#StringExpression
 		LogBucket?:     string | fn.#StringExpression

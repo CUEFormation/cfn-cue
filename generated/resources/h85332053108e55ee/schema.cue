@@ -17,13 +17,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3::AccessGrant"
 	Properties!: close({
-		AccessGrantsLocationConfiguration?: #AccessGrantsLocationConfiguration | fn.#ObjectExpression
+		// The configuration options of the grant location, which is the S3 path to the
+		// data to which you are granting access.
+		AccessGrantsLocationConfiguration?: #AccessGrantsLocationConfiguration
 		AccessGrantsLocationId!:            string | fn.#StringExpression
 		ApplicationArn?:                    string | fn.#StringExpression
-		Grantee!:                           #Grantee | fn.#ObjectExpression
-		Permission!:                        "READ" | "WRITE" | "READWRITE" | fn.#StringExpression
-		S3PrefixType?:                      "Object" | fn.#StringExpression
-		Tags?:                              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// The principal who will be granted permission to access S3.
+		Grantee!:      #Grantee
+		Permission!:   "READ" | "WRITE" | "READWRITE" | fn.#StringExpression
+		S3PrefixType?: "Object" | fn.#StringExpression
+		Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
 

@@ -21,11 +21,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Mappings?: close({
 			Properties?: close({
 
-				{[=~"^[A-Za-z0-9_.-]{1,64}$"]: #PropertyMapping | fn.#ObjectExpression}}) |
+				{[=~"^[A-Za-z0-9_.-]{1,64}$"]: #PropertyMapping}}) |
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		Settings?: #IndexSettings | fn.#ObjectExpression
+
+		// Index settings
+		Settings?: #IndexSettings
 	})
 }
 
@@ -134,7 +136,7 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 	Properties?: close({
 
-		{[=~"^[A-Za-z0-9_.-]{1,64}$"]: #PropertyMapping | fn.#ObjectExpression}}) |
+		{[=~"^[A-Za-z0-9_.-]{1,64}$"]: #PropertyMapping}}) |
 	fn.#ObjectExpression
 	SpaceType?: "l2" | "l1" | "linf" | "cosinesimil" | "innerproduct" | "hamming" | fn.#StringExpression
 	Type!:      "text" | "knn_vector" | "keyword" | "integer" | fn.#StringExpression

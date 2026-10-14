@@ -19,13 +19,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		CreateAlias?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Description?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^([a-zA-Z0-9_])[\\\\a-zA-Z0-9_@#%*+=:?./!\\s-]*$" |
 		fn.#StringExpression
-		EnableSso?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Name!:        =~"^([a-zA-Z0-9]+[\\\\.-])+([a-zA-Z0-9])+$" | fn.#StringExpression
-		Password?:    string | fn.#StringExpression
-		ShortName?:   =~"^[^\\\\/:*?\"<>|.]+[^\\\\/:*?\"<>|]*$" | fn.#StringExpression
-		Size!:        "Large" | "Small" | fn.#StringExpression
-		Tags?:        [...#Tag] | fn.#ListExpression
-		VpcSettings!: #VpcSettings | fn.#ObjectExpression
+		EnableSso?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Name!:      =~"^([a-zA-Z0-9]+[\\\\.-])+([a-zA-Z0-9])+$" | fn.#StringExpression
+		Password?:  string | fn.#StringExpression
+		ShortName?: =~"^[^\\\\/:*?\"<>|.]+[^\\\\/:*?\"<>|]*$" | fn.#StringExpression
+		Size!:      "Large" | "Small" | fn.#StringExpression
+		Tags?:      [...#Tag] | fn.#ListExpression
+
+		// VPC settings of the Simple AD directory server in AWS.
+		VpcSettings!: #VpcSettings
 	})
 }
 

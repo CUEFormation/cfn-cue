@@ -229,23 +229,35 @@ fn.#ObjectExpression
 	BaseInferenceComponentName?:  #BaseInferenceComponentName
 	ComputeResourceRequirements?: #InferenceComponentComputeResourceRequirements
 	Container?:                   #InferenceComponentContainerSpecification
-	CurrentDataCacheConfig?:      #InferenceComponentDataCacheConfig | fn.#ObjectExpression
-	DataCacheConfig?:             #InferenceComponentDataCacheConfig
-	ModelName?:                   #ModelName
-	SchedulingConfig?:            #InferenceComponentSchedulingConfig
-	StartupParameters?:           #InferenceComponentStartupParameters
+
+	// The data caching configuration actually in effect, including a value the
+	// service chose rather than the template: SageMaker enables caching
+	// automatically on instance types with more than 232 GiB of local NVMe
+	// storage, whether or not DataCacheConfig was set. Returned by Describe and
+	// not settable; set DataCacheConfig instead.
+	CurrentDataCacheConfig?: #InferenceComponentDataCacheConfig
+	DataCacheConfig?:        #InferenceComponentDataCacheConfig
+	ModelName?:              #ModelName
+	SchedulingConfig?:       #InferenceComponentSchedulingConfig
+	StartupParameters?:      #InferenceComponentStartupParameters
 }) |
 fn.#ObjectExpression
 
 #InferenceComponentSpecificationForInstanceType: close({
 	ComputeResourceRequirements?: #InferenceComponentComputeResourceRequirements
 	Container?:                   #InferenceComponentContainerSpecificationForInstanceType
-	CurrentDataCacheConfig?:      #InferenceComponentDataCacheConfig | fn.#ObjectExpression
-	DataCacheConfig?:             #InferenceComponentDataCacheConfig
-	InstanceType!:                #InstanceType
-	ModelName?:                   #ModelName
-	SchedulingConfig?:            #InferenceComponentSchedulingConfig
-	StartupParameters?:           #InferenceComponentStartupParameters
+
+	// The data caching configuration actually in effect for this instance type,
+	// including a value the service chose rather than the template: SageMaker
+	// enables caching automatically on instance types with more than 232 GiB of
+	// local NVMe storage, whether or not DataCacheConfig was set. Returned by
+	// Describe and not settable; set DataCacheConfig instead.
+	CurrentDataCacheConfig?: #InferenceComponentDataCacheConfig
+	DataCacheConfig?:        #InferenceComponentDataCacheConfig
+	InstanceType!:           #InstanceType
+	ModelName?:              #ModelName
+	SchedulingConfig?:       #InferenceComponentSchedulingConfig
+	StartupParameters?:      #InferenceComponentStartupParameters
 }) |
 fn.#ObjectExpression
 

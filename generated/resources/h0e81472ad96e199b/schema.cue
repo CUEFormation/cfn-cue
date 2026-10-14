@@ -16,28 +16,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DMS::Endpoint"
 	Properties!: close({
-		CertificateArn?:            string | fn.#StringExpression
-		DatabaseName?:              string | fn.#StringExpression
-		DocDbSettings?:             #DocDbSettings | fn.#ObjectExpression
-		DynamoDbSettings?:          #DynamoDbSettings | fn.#ObjectExpression
-		ElasticsearchSettings?:     #ElasticsearchSettings | fn.#ObjectExpression
+		CertificateArn?: string | fn.#StringExpression
+		DatabaseName?:   string | fn.#StringExpression
+
+		// Settings in JSON format for the source and target DocumentDB endpoint
+		DocDbSettings?: #DocDbSettings
+
+		// Settings in JSON format for the target Amazon DynamoDB endpoint
+		DynamoDbSettings?: #DynamoDbSettings
+
+		// Settings in JSON format for the target OpenSearch endpoint
+		ElasticsearchSettings?:     #ElasticsearchSettings
 		EndpointIdentifier?:        string | fn.#StringExpression
 		EndpointType!:              string | fn.#StringExpression
 		EngineName!:                string | fn.#StringExpression
 		ExtraConnectionAttributes?: string | fn.#StringExpression
-		GcpMySQLSettings?:          #GcpMySQLSettings | fn.#ObjectExpression
-		IbmDb2Settings?:            #IbmDb2Settings | fn.#ObjectExpression
-		KafkaSettings?:             #KafkaSettings | fn.#ObjectExpression
-		KinesisSettings?:           #KinesisSettings | fn.#ObjectExpression
+
+		// Settings in JSON format for the source GCP MySQL endpoint
+		GcpMySQLSettings?: #GcpMySQLSettings
+
+		// Settings in JSON format for the source IBM Db2 LUW endpoint
+		IbmDb2Settings?: #IbmDb2Settings
+
+		// Settings in JSON format for the target Apache Kafka endpoint
+		KafkaSettings?: #KafkaSettings
+
+		// Settings in JSON format for the target endpoint for Amazon Kinesis Data Streams
+		KinesisSettings?: #KinesisSettings
 		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			string |
 			fn.#StringExpression
-		MicrosoftSqlServerSettings?: #MicrosoftSqlServerSettings | fn.#ObjectExpression
-		MongoDbSettings?:            #MongoDbSettings | fn.#ObjectExpression
-		MySqlSettings?:              #MySqlSettings | fn.#ObjectExpression
-		NeptuneSettings?:            #NeptuneSettings | fn.#ObjectExpression
-		OracleSettings?:             #OracleSettings | fn.#ObjectExpression
-		Password?:                   string | fn.#StringExpression
+
+		// Settings in JSON format for the source and target Microsoft SQL Server endpoint
+		MicrosoftSqlServerSettings?: #MicrosoftSqlServerSettings
+
+		// Settings in JSON format for the source MongoDB endpoint
+		MongoDbSettings?: #MongoDbSettings
+
+		// Settings in JSON format for the source and target MySQL endpoin
+		MySqlSettings?: #MySqlSettings
+
+		// Settings in JSON format for the target Amazon Neptune endpoint
+		NeptuneSettings?: #NeptuneSettings
+
+		// Settings in JSON format for the source and target Oracle endpoint
+		OracleSettings?: #OracleSettings
+		Password?:       string | fn.#StringExpression
 		Port?: int |
 			{
 				string &
@@ -54,16 +78,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		PostgreSqlSettings?: #PostgreSqlSettings | fn.#ObjectExpression
-		RedisSettings?:      #RedisSettings | fn.#ObjectExpression
-		RedshiftSettings?:   #RedshiftSettings | fn.#ObjectExpression
+
+		// Settings in JSON format for the source and target PostgreSQL endpoint.
+		PostgreSqlSettings?: #PostgreSqlSettings
+
+		// Settings in JSON format for the target Redis endpoint
+		RedisSettings?: #RedisSettings
+
+		// Settings in JSON format for the Amazon Redshift endpoint.
+		RedshiftSettings?:   #RedshiftSettings
 		ResourceIdentifier?: string | fn.#StringExpression
-		S3Settings?:         #S3Settings | fn.#ObjectExpression
-		ServerName?:         string | fn.#StringExpression
-		SslMode?:            string | fn.#StringExpression
-		SybaseSettings?:     #SybaseSettings | fn.#ObjectExpression
-		Tags?:               [...#Tag] | fn.#ListExpression
-		Username?:           string | fn.#StringExpression
+
+		// Settings in JSON format for the source and target Amazon S3 endpoint
+		S3Settings?: #S3Settings
+		ServerName?: string | fn.#StringExpression
+		SslMode?:    string | fn.#StringExpression
+
+		// Settings in JSON format for the source and target SAP ASE endpoint.
+		SybaseSettings?: #SybaseSettings
+		Tags?:           [...#Tag] | fn.#ListExpression
+		Username?:       string | fn.#StringExpression
 	})
 }
 

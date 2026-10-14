@@ -24,18 +24,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(1) &
 		=~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:capacity-provider:[a-zA-Z0-9-_]+)|[a-zA-Z0-9-_]+$" |
 		fn.#StringExpression
-		CapacityProviderScalingConfig?: #CapacityProviderScalingConfig | fn.#ObjectExpression
-		InstanceRequirements?:          #InstanceRequirements | fn.#ObjectExpression
+
+		// The scaling configuration for the capacity provider.
+		CapacityProviderScalingConfig?: #CapacityProviderScalingConfig
+
+		// The instance requirements for compute resources managed by the capacity provider.
+		InstanceRequirements?: #InstanceRequirements
 		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(10000) &
 		strings.MinRunes(0) &
 		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
 		fn.#StringExpression
-		PermissionsConfig!: #CapacityProviderPermissionsConfig | fn.#ObjectExpression
-		PropagateTags?:     #PropagateTagsConfig | fn.#ObjectExpression
-		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TelemetryConfig?:   #CapacityProviderTelemetryConfig | fn.#ObjectExpression
-		VpcConfig!:         #CapacityProviderVpcConfig | fn.#ObjectExpression
+
+		// The permissions configuration for the capacity provider.
+		PermissionsConfig!: #CapacityProviderPermissionsConfig
+
+		// Configuration for tag propagation to managed resources launched by the capacity provider.
+		PropagateTags?: #PropagateTagsConfig
+		Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// The telemetry configuration for the capacity provider, including logging settings.
+		TelemetryConfig?: #CapacityProviderTelemetryConfig
+
+		// The VPC configuration for the capacity provider.
+		VpcConfig!: #CapacityProviderVpcConfig
 	})
 }
 
@@ -77,7 +89,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ScalingMode?:     #CapacityProviderScalingMode | fn.#StringExpression
+
+	// The scaling mode that determines how the capacity provider responds to changes in demand.
+	ScalingMode?:     #CapacityProviderScalingMode
 	ScalingPolicies?: list.MaxItems(10) & list.MinItems(1) & [...#TargetTrackingScalingPolicy] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -86,8 +100,11 @@ fn.#ObjectExpression
 
 #CapacityProviderState: "Pending" | "Active" | "Failed" | "Deleting" | fn.#StringExpression
 
-#CapacityProviderTelemetryConfig: close({LoggingConfig?: #CapacityProviderLoggingConfig | fn.#ObjectExpression}) |
-	fn.#ObjectExpression
+#CapacityProviderTelemetryConfig: close({
+	// The capacity provider's Amazon CloudWatch Logs configuration settings.
+	LoggingConfig?: #CapacityProviderLoggingConfig
+}) |
+fn.#ObjectExpression
 
 #CapacityProviderVpcConfig: close({
 	SecurityGroupIds!: list.MaxItems(5) & [...] & [
@@ -120,7 +137,10 @@ fn.#ObjectExpression
 
 #PropagateTagsConfig: close({
 	ExplicitTags?: list.MaxItems(40) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	Mode?:         #PropagateTagsMode | fn.#StringExpression
+
+	// The mode for tag propagation. Use ``Explicit`` to propagate specific tags, or
+	// ``None`` to disable propagation.
+	Mode?: #PropagateTagsMode
 }) |
 fn.#ObjectExpression
 
@@ -133,7 +153,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TargetTrackingScalingPolicy: close({
-	PredefinedMetricType!: #CapacityProviderPredefinedMetricType | fn.#StringExpression
+	// The predefined metric type to track for scaling decisions.
+	PredefinedMetricType!: #CapacityProviderPredefinedMetricType
 	TargetValue!: <=100 & >=0 |
 		{
 			string &

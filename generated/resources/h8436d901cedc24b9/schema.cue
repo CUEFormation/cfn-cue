@@ -19,8 +19,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!: "AWS::S3::MultiRegionAccessPoint"
 	Properties!: close({
 		Name?: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]{1,48}[a-z0-9]$" | fn.#StringExpression
-		PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration | fn.#ObjectExpression
-		Regions!: list.MinItems(1) & list.UniqueItems() & [...#Region | fn.#ObjectExpression] | fn.#ListExpression
+
+		// The PublicAccessBlock configuration that you want to apply to this Multi
+		// Region Access Point. You can enable the configuration options in any
+		// combination. For more information about when Amazon S3 considers a bucket or
+		// object public, see
+		// https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html#access-control-block-public-access-policy-status
+		// 'The Meaning of Public' in the Amazon Simple Storage Service Developer
+		// Guide.
+		PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration
+		Regions!:                        list.MinItems(1) & list.UniqueItems() & [...#Region] | fn.#ListExpression
 	})
 }
 

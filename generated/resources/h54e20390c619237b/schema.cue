@@ -20,11 +20,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppStream::Stack"
 	Properties?: close({
-		AccessEndpoints?:         list.MaxItems(4) & list.MinItems(1) & [...#AccessEndpoint] | fn.#ListExpression
-		AgentAccessConfig?:       #AgentAccessConfig | fn.#ObjectExpression
-		ApplicationSettings?:     #ApplicationSettings | fn.#ObjectExpression
-		AttributesToDelete?:      [...string | fn.#StringExpression] | fn.#ListExpression
-		ContentRedirection?:      #ContentRedirection | fn.#ObjectExpression
+		AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & [...#AccessEndpoint] | fn.#ListExpression
+
+		// The configuration for agent access on the stack. If specified, agent access
+		// is enabled for the stack.
+		AgentAccessConfig?: #AgentAccessConfig
+
+		// The persistent application settings for users of the stack. When these
+		// settings are enabled, changes that users make to applications and Windows
+		// settings are automatically saved after each session and applied to the next
+		// session.
+		ApplicationSettings?: #ApplicationSettings
+		AttributesToDelete?:  [...string | fn.#StringExpression] | fn.#ListExpression
+
+		// The content redirection settings for the stack. These settings control URL
+		// redirection between the streaming session and the local device.
+		ContentRedirection?:      #ContentRedirection
 		DeleteStorageConnectors?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Description?:             strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 		DisplayName?:             strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
@@ -45,7 +56,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		StreamingExperienceSettings?: #StreamingExperienceSettings | fn.#ObjectExpression
+
+		// The streaming protocol that you want your stack to prefer. This can be UDP or
+		// TCP. Currently, UDP is only supported in the Windows native client.
+		StreamingExperienceSettings?: #StreamingExperienceSettings
 		Tags?:                        [...#Tag] | fn.#ListExpression
 		UserSettings?:                list.MinItems(1) & [...#UserSetting] | fn.#ListExpression
 	})
@@ -80,7 +94,11 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ContentRedirection: close({HostToClient?: #UrlRedirectionConfig | fn.#ObjectExpression}) | fn.#ObjectExpression
+#ContentRedirection: close({
+	// The URL redirection configuration from the streaming session host to the client.
+	HostToClient?: #UrlRedirectionConfig
+}) |
+fn.#ObjectExpression
 
 #StorageConnector: close({
 	ConnectorType!: "GOOGLE_DRIVE" | "HOMEFOLDERS" | "ONE_DRIVE" | fn.#StringExpression

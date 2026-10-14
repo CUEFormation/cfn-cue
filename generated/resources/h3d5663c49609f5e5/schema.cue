@@ -16,8 +16,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::CodeSigningConfig"
 	Properties!: close({
-		AllowedPublishers!:   #AllowedPublishers | fn.#ObjectExpression
-		CodeSigningPolicies?: #CodeSigningPolicies | fn.#ObjectExpression
+		// When the CodeSigningConfig is later on attached to a function, the function
+		// code will be expected to be signed by profiles from this list
+		AllowedPublishers!: #AllowedPublishers
+
+		// Policies to control how to act if a signature is invalid
+		CodeSigningPolicies?: #CodeSigningPolicies
 		Description?:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 		Tags?:                list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})

@@ -28,11 +28,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(20) &
 		=~"arn:aws:kms:.*:[0-9]+:.*" |
 		fn.#StringExpression
-		MetadataCatalogConfig?: #MetadataCatalogConfig | fn.#ObjectExpression
-		SourceFlowConfig!:      #SourceFlowConfig | fn.#ObjectExpression
-		Tags?:                  [...#Tag] | fn.#ListExpression
-		Tasks!:                 [...#Task] | fn.#ListExpression
-		TriggerConfig!:         #TriggerConfig | fn.#ObjectExpression
+
+		// Configurations of metadata catalog of the flow.
+		MetadataCatalogConfig?: #MetadataCatalogConfig
+
+		// Configurations of Source connector of the flow.
+		SourceFlowConfig!: #SourceFlowConfig
+		Tags?:             [...#Tag] | fn.#ListExpression
+		Tasks!:            [...#Task] | fn.#ListExpression
+
+		// Trigger settings of the flow.
+		TriggerConfig!: #TriggerConfig
 	})
 }
 
@@ -163,10 +169,17 @@ fn.#ObjectExpression
 } | fn.#ObjectExpression
 
 #DestinationFlowConfig: close({
-	ApiVersion?:                     #ApiVersion | fn.#StringExpression
-	ConnectorProfileName?:           #ConnectorProfileName | fn.#StringExpression
-	ConnectorType!:                  #ConnectorType | fn.#StringExpression
-	DestinationConnectorProperties!: #DestinationConnectorProperties | fn.#ObjectExpression
+	// The API version that the destination connector uses.
+	ApiVersion?: #ApiVersion
+
+	// Name of destination connector profile
+	ConnectorProfileName?: #ConnectorProfileName
+
+	// Destination connector type
+	ConnectorType!: #ConnectorType
+
+	// Destination connector details
+	DestinationConnectorProperties!: #DestinationConnectorProperties
 }) |
 fn.#ObjectExpression
 
@@ -285,7 +298,11 @@ fn.#ObjectExpression
 
 #MarketoSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
 
-#MetadataCatalogConfig: close({GlueDataCatalog?: #GlueDataCatalog | fn.#ObjectExpression}) | fn.#ObjectExpression
+#MetadataCatalogConfig: close({
+	// Configurations of glue data catalog of the flow.
+	GlueDataCatalog?: #GlueDataCatalog
+}) |
+fn.#ObjectExpression
 
 #Name: strings.MaxRunes(128) & =~"\\S+" | fn.#StringExpression
 
@@ -736,11 +753,20 @@ fn.#ObjectExpression
 } | fn.#ObjectExpression
 
 #SourceFlowConfig: close({
-	ApiVersion?:                #ApiVersion | fn.#StringExpression
-	ConnectorProfileName?:      #ConnectorProfileName | fn.#StringExpression
-	ConnectorType!:             #ConnectorType | fn.#StringExpression
-	IncrementalPullConfig?:     #IncrementalPullConfig | fn.#ObjectExpression
-	SourceConnectorProperties!: #SourceConnectorProperties | fn.#ObjectExpression
+	// The API version that the destination connector uses.
+	ApiVersion?: #ApiVersion
+
+	// Name of source connector profile
+	ConnectorProfileName?: #ConnectorProfileName
+
+	// Type of source connector
+	ConnectorType!: #ConnectorType
+
+	// Configuration for scheduled incremental data pull
+	IncrementalPullConfig?: #IncrementalPullConfig
+
+	// Source connector details required to query a connector
+	SourceConnectorProperties!: #SourceConnectorProperties
 }) |
 fn.#ObjectExpression
 
@@ -773,11 +799,14 @@ fn.#ObjectExpression
 	fn.#NumberExpression
 
 #Task: close({
-	ConnectorOperator?: #ConnectorOperator | fn.#ObjectExpression
+	// Operation to be performed on provided source fields
+	ConnectorOperator?: #ConnectorOperator
 	DestinationField?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	SourceFields!:      [...strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
 	TaskProperties?:    [...#TaskPropertiesObject] | fn.#ListExpression
-	TaskType!:          #TaskType | fn.#StringExpression
+
+	// Type of task
+	TaskType!: #TaskType
 }) |
 fn.#ObjectExpression
 
@@ -818,8 +847,11 @@ fn.#ObjectExpression
 #TrendmicroSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
 
 #TriggerConfig: close({
-	TriggerProperties?: #ScheduledTriggerProperties | fn.#ObjectExpression
-	TriggerType!:       #TriggerType | fn.#StringExpression
+	// Details required based on the type of trigger
+	TriggerProperties?: #ScheduledTriggerProperties
+
+	// Trigger type of the flow
+	TriggerType!: #TriggerType
 }) |
 fn.#ObjectExpression
 

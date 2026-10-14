@@ -24,7 +24,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }
 
 #EndPoint: close({
-	KinesisStreamConfig!: #KinesisStreamConfig | fn.#ObjectExpression
+	// Contains information about the Amazon Kinesis data stream where you are
+	// sending real-time log data in a real-time log configuration.
+	KinesisStreamConfig!: #KinesisStreamConfig
 	StreamType!:          string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

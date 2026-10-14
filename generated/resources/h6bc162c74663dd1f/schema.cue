@@ -15,7 +15,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 		EntityIdentifier!: string | fn.#StringExpression
 		EntityType!:       "DOMAIN_UNIT" | fn.#StringExpression
-		Owner!:            #OwnerProperties | fn.#ObjectExpression
+
+		// The owner that you want to add to the entity.
+		Owner!: #OwnerProperties
 	})
 }
 

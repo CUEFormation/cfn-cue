@@ -77,8 +77,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		StreamEncryption?:  #StreamEncryption | fn.#ObjectExpression
-		StreamModeDetails?: #StreamModeDetails | fn.#ObjectExpression
+
+		// When specified, enables or updates server-side encryption using an AWS KMS
+		// key for a specified stream.
+		StreamEncryption?: #StreamEncryption
+
+		// The mode in which the stream is running.
+		StreamModeDetails?: #StreamModeDetails
 		Tags?:              list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 		WarmThroughputMiBps?: int & >=0 |
 			{

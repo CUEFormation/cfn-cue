@@ -55,10 +55,16 @@ fn.#ObjectExpression
 
 #IcebergMetadata: close({
 	IcebergPartitionSpec?: #IcebergPartitionSpec
-	IcebergSchema?:        #IcebergSchema | fn.#ObjectExpression
-	IcebergSchemaV2?:      #IcebergSchemaV2 | fn.#ObjectExpression
-	IcebergSortOrder?:     #IcebergSortOrder
-	TableProperties?:      #TableProperties
+
+	// Schema definition for flat tables with primitive types only. Mutually
+	// exclusive with IcebergSchemaV2.
+	IcebergSchema?: #IcebergSchema
+
+	// Schema definition that supports Apache Iceberg nested types (struct, list,
+	// map) and primitive types. Mutually exclusive with IcebergSchema.
+	IcebergSchemaV2?:  #IcebergSchemaV2
+	IcebergSortOrder?: #IcebergSortOrder
+	TableProperties?:  #TableProperties
 }) |
 fn.#ObjectExpression
 
@@ -99,7 +105,8 @@ fn.#ObjectExpression
 #IcebergPartitionFieldList: [...#IcebergPartitionField] | fn.#ListExpression
 
 #IcebergPartitionSpec: close({
-	Fields!: #IcebergPartitionFieldList | fn.#ListExpression
+	// List of partition fields
+	Fields!: #IcebergPartitionFieldList
 	SpecId?: int |
 		{
 			string &
@@ -153,7 +160,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SchemaV2FieldList!: #SchemaV2FieldList | fn.#ListExpression
+
+	// The schema fields for the table
+	SchemaV2FieldList!: #SchemaV2FieldList
 	SchemaV2FieldType!: "struct" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -182,7 +191,8 @@ fn.#ObjectExpression
 #IcebergSortFieldList: [...#IcebergSortField] | fn.#ListExpression
 
 #IcebergSortOrder: close({
-	Fields!: #IcebergSortFieldList | fn.#ListExpression
+	// List of sort fields
+	Fields!: #IcebergSortFieldList
 	OrderId?: int |
 		{
 			string &

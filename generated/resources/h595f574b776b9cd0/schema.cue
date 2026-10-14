@@ -99,8 +99,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #CloudWatchLogsDestinationDetails: close({LogGroup!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #DestinationDetails: close({
-	CloudWatchLogsDetails?:  #CloudWatchLogsDestinationDetails | fn.#ObjectExpression
-	KinesisFirehoseDetails?: #KinesisFirehoseDestinationDetails | fn.#ObjectExpression
+	// The configuration details of the CloudWatch Logs destination
+	CloudWatchLogsDetails?: #CloudWatchLogsDestinationDetails
+
+	// The configuration details of the Kinesis Data Firehose destination.
+	KinesisFirehoseDetails?: #KinesisFirehoseDestinationDetails
 }) |
 fn.#ObjectExpression
 
@@ -113,7 +116,9 @@ fn.#ObjectExpression
 #KinesisFirehoseDestinationDetails: close({DeliveryStream!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #LogDeliveryConfigurationRequest: close({
-	DestinationDetails!: #DestinationDetails | fn.#ObjectExpression
+	// Configuration details of either a CloudWatch Logs destination or Kinesis Data
+	// Firehose destination.
+	DestinationDetails!: #DestinationDetails
 	DestinationType!:    =~"(?i)^(?:cloudwatch-logs|kinesis-firehose)$" | fn.#StringExpression
 	LogFormat!:          =~"(?i)^(?:json|text)$" | fn.#StringExpression
 	LogType!:            =~"(?i)^(?:engine-log|slow-log)$" | fn.#StringExpression

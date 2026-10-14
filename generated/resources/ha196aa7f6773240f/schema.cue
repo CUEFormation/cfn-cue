@@ -88,8 +88,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		IpAddressType?: "ipv4" | "ipv6" | fn.#StringExpression
-		Matcher?:       #Matcher | fn.#ObjectExpression
-		Name?:          string | fn.#StringExpression
+
+		// [HTTP/HTTPS health checks] The HTTP or gRPC codes to use when checking for a
+		// successful response from a target.
+		Matcher?: #Matcher
+		Name?:    string | fn.#StringExpression
 		Port?: int & <=65535 & >=1 |
 			{
 				string &

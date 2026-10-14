@@ -29,9 +29,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"WINDOWS_2022" |
 			fn.#StringExpression
 		ServerSdkVersion?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\d+\\.\\d+\\.\\d+$" | fn.#StringExpression
-		StorageLocation?:  #StorageLocation | fn.#ObjectExpression
-		Tags?:             list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		Version?:          strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+
+		// Information indicating where your game build files are stored. Use this
+		// parameter only when creating a build with files stored in an Amazon S3
+		// bucket that you own. The storage location must specify an Amazon S3 bucket
+		// name and key. The location must also specify a role ARN that you set up to
+		// allow Amazon GameLift to access your Amazon S3 bucket. The S3 bucket and
+		// your new build must be in the same Region.
+		StorageLocation?: #StorageLocation
+		Tags?:            list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		Version?:         strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	})
 }
 

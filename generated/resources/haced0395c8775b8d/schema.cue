@@ -22,7 +22,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		AccessRole!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" | fn.#StringExpression
 		As2Config?: close({
-			AsyncMdnConfig?:    #ConnectorAsyncMdnConfig | fn.#ObjectExpression
+			// Configuration for an AS2 connector with ASYNC MDN Response
+			AsyncMdnConfig?:    #ConnectorAsyncMdnConfig
 			BasicAuthSecretId?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 			Compression?:       "ZLIB" | "DISABLED" | fn.#StringExpression
 			EncryptionAlgorithm?: "AES128_CBC" |
@@ -42,8 +43,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			SigningAlgorithm?:    "SHA256" | "SHA384" | "SHA512" | "SHA1" | "NONE" | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
-		EgressConfig?:  #ConnectorEgressConfig | fn.#ObjectExpression
-		EgressType?:    #ConnectorEgressType | fn.#StringExpression
+
+		// Egress configuration for the connector.
+		EgressConfig?: #ConnectorEgressConfig
+
+		// Specifies the egress type for the connector.
+		EgressType?:    #ConnectorEgressType
 		IpAddressType?: #IpAddressType
 		LoggingRole?:   strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" | fn.#StringExpression
 		SecurityPolicyName?: strings.MaxRunes(50) &

@@ -28,8 +28,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Name!:                                  #Name
 		RoleArn?:                               #RoleArn
 		Schedule?:                              #Schedule
-		Tags?:                                  #TagList | fn.#ListExpression
-		Type!:                                  #Type
+
+		// Tags for labeling the data source
+		Tags?: #TagList
+		Type!: #Type
 	})
 }
 

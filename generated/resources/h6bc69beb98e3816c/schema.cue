@@ -23,7 +23,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		AdministrationRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 		fn.#StringExpression
-		AutoDeployment?: #AutoDeployment | fn.#ObjectExpression
+
+		// Describes whether StackSets automatically deploys to AWS Organizations
+		// accounts that are added to the target organization or organizational unit
+		// (OU). Specify only if PermissionModel is SERVICE_MANAGED.
+		AutoDeployment?: #AutoDeployment
 		CallAs?:         "SELF" | "DELEGATED_ADMIN" | fn.#StringExpression
 		Capabilities?:   list.UniqueItems() & [...#Capability] | fn.#ListExpression
 		Description?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression

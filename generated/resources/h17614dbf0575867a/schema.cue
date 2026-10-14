@@ -20,7 +20,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lightsail::Container"
 	Properties!: close({
-		ContainerServiceDeployment?: #ContainerServiceDeployment | fn.#ObjectExpression
+		// Describes a container deployment configuration of an Amazon Lightsail container service.
+		ContainerServiceDeployment?: #ContainerServiceDeployment
 		IsDisabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Power!:      "large" | "medium" | "micro" | "nano" | "small" | "xlarge" | fn.#StringExpression
 		PrivateRegistryAccess?: close({
@@ -65,8 +66,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #ContainerServiceDeployment: close({
-	Containers?:     list.UniqueItems() & [...#Container] | fn.#ListExpression
-	PublicEndpoint?: #PublicEndpoint | fn.#ObjectExpression
+	Containers?: list.UniqueItems() & [...#Container] | fn.#ListExpression
+
+	// An object that describes the endpoint of the deployment.
+	PublicEndpoint?: #PublicEndpoint
 }) |
 fn.#ObjectExpression
 
@@ -175,7 +178,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	HealthCheckConfig?: #HealthCheckConfig | fn.#ObjectExpression
+
+	// An object that describes the health check configuration of the container.
+	HealthCheckConfig?: #HealthCheckConfig
 }) |
 fn.#ObjectExpression
 

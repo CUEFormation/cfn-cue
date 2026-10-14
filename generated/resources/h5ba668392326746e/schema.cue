@@ -12,9 +12,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppSync::SourceApiAssociation"
 	Properties?: close({
-		Description?:                string | fn.#StringExpression
-		MergedApiIdentifier?:        string | fn.#StringExpression
-		SourceApiAssociationConfig?: #SourceApiAssociationConfig | fn.#ValueExpression
+		Description?:         string | fn.#StringExpression
+		MergedApiIdentifier?: string | fn.#StringExpression
+
+		// Customized configuration for SourceApiAssociation.
+		SourceApiAssociationConfig?: #SourceApiAssociationConfig
 		SourceApiIdentifier?:        string | fn.#StringExpression
 	})
 }

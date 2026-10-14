@@ -59,11 +59,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Compliance?:                close({}) | fn.#ObjectExpression
 		ConfigRuleName?:            string | fn.#StringExpression
 		Description?:               strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		EvaluationModes?:           [...#EvaluationModeConfiguration | fn.#ObjectExpression] | fn.#ListExpression
+		EvaluationModes?:           [...#EvaluationModeConfiguration] | fn.#ListExpression
 		InputParameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 		MaximumExecutionFrequency?: string | fn.#StringExpression
-		Scope?:                     #Scope | fn.#ObjectExpression
-		Source!:                    #Source | fn.#ObjectExpression
+
+		// Defines which resources can trigger an evaluation for the rule. The scope can
+		// include one or more resource types, a combination of one resource type and
+		// one resource ID, or a combination of a tag key and value. Specify a scope to
+		// constrain the resources that can trigger an evaluation for the rule. If you
+		// do not specify a scope, evaluations are triggered when any resource in the
+		// recording group changes.
+		Scope?: #Scope
+
+		// Provides the rule owner (```` for managed rules, ``CUSTOM_POLICY`` for Custom
+		// Policy rules, and ``CUSTOM_LAMBDA`` for Custom Lambda rules), the rule
+		// identifier, and the notifications that cause the function to evaluate your
+		// AWS resources.
+		Source!: #Source
 	})
 }
 
@@ -85,9 +97,11 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Source: close({
-	CustomPolicyDetails?: #CustomPolicyDetails | fn.#ObjectExpression
+	// Provides the runtime system, policy definition, and whether debug logging is
+	// enabled. Required when owner is set to ``CUSTOM_POLICY``.
+	CustomPolicyDetails?: #CustomPolicyDetails
 	Owner!:               string | fn.#StringExpression
-	SourceDetails?:       list.UniqueItems() & [...#SourceDetail | fn.#ObjectExpression] | fn.#ListExpression
+	SourceDetails?:       list.UniqueItems() & [...#SourceDetail] | fn.#ListExpression
 	SourceIdentifier?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

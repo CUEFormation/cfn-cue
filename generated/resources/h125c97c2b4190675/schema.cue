@@ -16,9 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::Workteam"
 	Properties!: close({
-		Description!:               strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-		MemberDefinitions!:         list.MaxItems(10) & list.MinItems(1) & [...#MemberDefinition] | fn.#ListExpression
-		NotificationConfiguration?: #NotificationConfiguration | fn.#ObjectExpression
+		Description!:       strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+		MemberDefinitions!: list.MaxItems(10) & list.MinItems(1) & [...#MemberDefinition] | fn.#ListExpression
+
+		// Configures SNS notifications of available or expiring work items for work teams.
+		NotificationConfiguration?: #NotificationConfiguration
 		Tags?:                      list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 		WorkforceName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9\\-]){0,62}$" |
 		fn.#StringExpression
@@ -35,8 +37,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #MemberDefinition: close({
-	CognitoMemberDefinition?: #CognitoMemberDefinition | fn.#ObjectExpression
-	OidcMemberDefinition?:    #OidcMemberDefinition | fn.#ObjectExpression
+	// The Amazon Cognito user group that is part of the work team
+	CognitoMemberDefinition?: #CognitoMemberDefinition
+
+	// A list user groups that exist in your OIDC Identity Provider (IdP).
+	OidcMemberDefinition?: #OidcMemberDefinition
 }) |
 fn.#ObjectExpression
 

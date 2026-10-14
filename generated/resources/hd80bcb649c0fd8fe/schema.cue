@@ -23,7 +23,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(20) &
 		=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" |
 		fn.#StringExpression
-		InputDataConfig!: #EntityRecognizerInputDataConfig | fn.#ObjectExpression
+
+		// Specifies the format and location of the input data. The S3 bucket containing
+		// the input data must be located in the same Region as the entity recognizer
+		// being created.
+		InputDataConfig!: #EntityRecognizerInputDataConfig
 		LanguageCode!: "en" |
 			"es" |
 			"fr" |
@@ -48,7 +52,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		VersionName?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
 		fn.#StringExpression
 		VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^\\p{ASCII}+$" | fn.#StringExpression
-		VpcConfig?:      #VpcConfig | fn.#ObjectExpression
+
+		// Configuration parameters for an optional private VPC containing the resources
+		// you are using for your custom entity recognizer.
+		VpcConfig?: #VpcConfig
 	})
 }
 
@@ -96,12 +103,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EntityRecognizerInputDataConfig: close({
-	Annotations?:        #EntityRecognizerAnnotations | fn.#ObjectExpression
+	// The S3 location of the CSV file that annotates your training documents.
+	Annotations?:        #EntityRecognizerAnnotations
 	AugmentedManifests?: [...#AugmentedManifestsListItem] | fn.#ListExpression
 	DataFormat?:         "COMPREHEND_CSV" | "AUGMENTED_MANIFEST" | fn.#StringExpression
-	Documents?:          #EntityRecognizerDocuments | fn.#ObjectExpression
-	EntityList?:         #EntityRecognizerEntityList | fn.#ObjectExpression
-	EntityTypes!:        [...#EntityTypesListItem] | fn.#ListExpression
+
+	// The S3 location of the folder that contains the training documents.
+	Documents?: #EntityRecognizerDocuments
+
+	// The S3 location of the CSV file that has the entity list.
+	EntityList?:  #EntityRecognizerEntityList
+	EntityTypes!: [...#EntityTypesListItem] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

@@ -20,24 +20,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeDeploy::DeploymentGroup"
 	Properties!: close({
-		AlarmConfiguration?: #AlarmConfiguration | fn.#ObjectExpression
+		// Information about the Amazon CloudWatch alarms that are associated with the deployment group.
+		AlarmConfiguration?: #AlarmConfiguration
 		ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" | fn.#StringExpression
-		AutoRollbackConfiguration?:        #AutoRollbackConfiguration | fn.#ObjectExpression
-		AutoScalingGroups?:                list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		BlueGreenDeploymentConfiguration?: #BlueGreenDeploymentConfiguration | fn.#ObjectExpression
-		Deployment?:                       #Deployment | fn.#ObjectExpression
+
+		// Information about the automatic rollback configuration that is associated
+		// with the deployment group. If you specify this property, don't specify the
+		// Deployment property.
+		AutoRollbackConfiguration?: #AutoRollbackConfiguration
+		AutoScalingGroups?:         list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+
+		// Information about blue/green deployment options for a deployment group.
+		BlueGreenDeploymentConfiguration?: #BlueGreenDeploymentConfiguration
+
+		// The application revision to deploy to this deployment group. If you specify
+		// this property, your target application revision is deployed as soon as the
+		// provisioning process is complete. If you specify this property, don't
+		// specify the AutoRollbackConfiguration property.
+		Deployment?: #Deployment
 		DeploymentConfigName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
 		fn.#StringExpression
 		DeploymentGroupName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
 		fn.#StringExpression
-		DeploymentStyle?:              #DeploymentStyle | fn.#ObjectExpression
-		ECSServices?:                  list.UniqueItems() & [...#ECSService] | fn.#ListExpression
-		Ec2TagFilters?:                list.UniqueItems() & [...#EC2TagFilter] | fn.#ListExpression
-		Ec2TagSet?:                    #EC2TagSet | fn.#ObjectExpression
-		LoadBalancerInfo?:             #LoadBalancerInfo | fn.#ObjectExpression
+
+		// Attributes that determine the type of deployment to run and whether to route
+		// deployment traffic behind a load balancer. If you specify this property with
+		// a blue/green deployment type, don't specify the AutoScalingGroups,
+		// LoadBalancerInfo, or Deployment properties.
+		DeploymentStyle?: #DeploymentStyle
+		ECSServices?:     list.UniqueItems() & [...#ECSService] | fn.#ListExpression
+		Ec2TagFilters?:   list.UniqueItems() & [...#EC2TagFilter] | fn.#ListExpression
+
+		// Information about groups of tags applied to Amazon EC2 instances. Use when
+		// the deployment group includes only Amazon EC2 instances identified by all
+		// the tag groups. Cannot be used in the same call as ec2TagFilter.
+		Ec2TagSet?: #EC2TagSet
+
+		// Information about the load balancer to use in a deployment.
+		LoadBalancerInfo?:             #LoadBalancerInfo
 		OnPremisesInstanceTagFilters?: list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
-		OnPremisesTagSet?:             #OnPremisesTagSet | fn.#ObjectExpression
-		OutdatedInstancesStrategy?:    "IGNORE" | "UPDATE" | fn.#StringExpression
+
+		// Information about groups of tags applied to on-premises instances. The
+		// deployment group includes only on-premises instances identified by all the
+		// tag groups. You can specify OnPremisesInstanceTagFilters or
+		// OnPremisesInstanceTagSet, but not both.
+		OnPremisesTagSet?:          #OnPremisesTagSet
+		OutdatedInstancesStrategy?: "IGNORE" | "UPDATE" | fn.#StringExpression
 		ServiceRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
 		Tags?:                   [...#Tag] | fn.#ListExpression
@@ -65,9 +93,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #BlueGreenDeploymentConfiguration: close({
-	DeploymentReadyOption?:                     #DeploymentReadyOption | fn.#ObjectExpression
-	GreenFleetProvisioningOption?:              #GreenFleetProvisioningOption | fn.#ObjectExpression
-	TerminateBlueInstancesOnDeploymentSuccess?: #BlueInstanceTerminationOption | fn.#ObjectExpression
+	// Information about the action to take when newly provisioned instances are
+	// ready to receive traffic in a blue/green deployment.
+	DeploymentReadyOption?: #DeploymentReadyOption
+
+	// Information about how instances are provisioned for a replacement environment
+	// in a blue/green deployment.
+	GreenFleetProvisioningOption?: #GreenFleetProvisioningOption
+
+	// Information about whether to terminate instances in the original fleet during
+	// a blue/green deployment.
+	TerminateBlueInstancesOnDeploymentSuccess?: #BlueInstanceTerminationOption
 }) |
 fn.#ObjectExpression
 
@@ -100,7 +136,10 @@ fn.#ObjectExpression
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	Revision!: #RevisionLocation | fn.#ObjectExpression
+
+	// Information about the location of stored application artifacts and the
+	// service from which to retrieve them.
+	Revision!: #RevisionLocation
 }) |
 fn.#ObjectExpression
 
@@ -206,9 +245,15 @@ fn.#ObjectExpression
 #TargetGroupInfo: close({Name?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #TargetGroupPairInfo: close({
-	ProdTrafficRoute?: #TrafficRoute | fn.#ObjectExpression
+	// The path used by a load balancer to route production traffic when an Amazon
+	// ECS deployment is complete.
+	ProdTrafficRoute?: #TrafficRoute
 	TargetGroups?:     list.UniqueItems() & [...#TargetGroupInfo] | fn.#ListExpression
-	TestTrafficRoute?: #TrafficRoute | fn.#ObjectExpression
+
+	// An optional path used by a load balancer to route test traffic after an
+	// Amazon ECS deployment. Validation can occur while test traffic is served
+	// during a deployment.
+	TestTrafficRoute?: #TrafficRoute
 }) |
 fn.#ObjectExpression
 

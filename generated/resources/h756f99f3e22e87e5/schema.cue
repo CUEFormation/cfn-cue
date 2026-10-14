@@ -17,9 +17,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon CloudFront Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::CloudFrontOriginAccessIdentity"
-	Properties!: close(
-		{CloudFrontOriginAccessIdentityConfig!: #CloudFrontOriginAccessIdentityConfig | fn.#ObjectExpression},
-	)
+	Properties!: close({
+		// The current configuration information for the identity.
+		CloudFrontOriginAccessIdentityConfig!: #CloudFrontOriginAccessIdentityConfig
+	})
 }
 
 #CloudFrontOriginAccessIdentityConfig: close({Comment!: string | fn.#StringExpression}) | fn.#ObjectExpression

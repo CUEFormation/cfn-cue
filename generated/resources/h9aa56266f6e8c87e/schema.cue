@@ -27,7 +27,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(\\*|@?[^/]+(/[^/]+)?)$" | fn.#StringExpression
 		] |
 		fn.#ListExpression
-		AuthorizerConfiguration?: #AuthorizerConfiguration | fn.#ObjectExpression
+
+		// The inbound authorization configuration for authenticating incoming requests.
+		AuthorizerConfiguration?: #AuthorizerConfiguration
 		Environment?: close({
 			AgentCoreRuntimeEnvironment?: close({
 				FilesystemConfigurations?: list.MaxItems(5) & [...] & [...#FilesystemConfiguration] | fn.#ListExpression
@@ -37,7 +39,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		EnvironmentArtifact?: #HarnessEnvironmentArtifact | fn.#ObjectExpression
+
+		// The environment artifact for the harness, such as a custom container image.
+		EnvironmentArtifact?: #HarnessEnvironmentArtifact
 		EnvironmentVariables?: struct.MaxFields(50) & close({
 
 			{[=~"^[\\s\\S]*$"]: strings.MaxRunes(5000) & strings.MinRunes(0) | fn.#StringExpression}}) |
@@ -112,7 +116,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		Model!:        #HarnessModelConfiguration | fn.#ObjectExpression
+
+		// The model configuration for the harness.
+		Model!:        #HarnessModelConfiguration
 		Skills?:       [...#HarnessSkill] | fn.#ListExpression
 		SystemPrompt?: [...#HarnessSystemContentBlock] | fn.#ListExpression
 		Tags?:         list.MaxItems(50) & [...#Tag] | fn.#ListExpression
@@ -132,8 +138,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Tools?:      [...#HarnessTool] | fn.#ListExpression
-		Truncation?: #HarnessTruncationConfiguration | fn.#ObjectExpression
+		Tools?: [...#HarnessTool] | fn.#ListExpression
+
+		// The truncation configuration for managing conversation context.
+		Truncation?: #HarnessTruncationConfiguration
 	})
 }
 

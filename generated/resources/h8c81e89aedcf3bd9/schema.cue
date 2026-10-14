@@ -15,11 +15,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::InspectorV2::CodeSecurityIntegration"
 	Properties?: close({
-		CreateIntegrationDetails?: #CreateDetails | fn.#ObjectExpression
+		// Create Integration Details
+		CreateIntegrationDetails?: #CreateDetails
 		Name?: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" | fn.#StringExpression
 		Tags?: #TagMap
-		Type?: #IntegrationType | fn.#StringExpression
-		UpdateIntegrationDetails?: #UpdateDetails | fn.#ObjectExpression
+
+		// Integration Type
+		Type?: #IntegrationType
+
+		// Update Integration Details
+		UpdateIntegrationDetails?: #UpdateDetails
 	})
 }
 

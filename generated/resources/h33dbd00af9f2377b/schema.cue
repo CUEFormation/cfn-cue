@@ -20,7 +20,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Synthetics::Canary"
 	Properties!: close({
-		ArtifactConfig?:     #ArtifactConfig | fn.#ObjectExpression
+		// Provide artifact configuration
+		ArtifactConfig?:     #ArtifactConfig
 		ArtifactS3Location!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^(s3|S3)://" | fn.#StringExpression
 		BrowserConfigs?:     list.MaxItems(2) & list.MinItems(1) & [...#BrowserConfig] | fn.#ListExpression
 		Code!: matchN(>=1, [{
@@ -129,9 +130,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 		ResourcesToReplicateTags?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#ResourceToTag] |
 			fn.#ListExpression
-		RunConfig?:                #RunConfig | fn.#ObjectExpression
-		RuntimeVersion!:           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		Schedule!:                 #Schedule | fn.#ObjectExpression
+
+		// Provide canary run configuration
+		RunConfig?:      #RunConfig
+		RuntimeVersion!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+
+		// Frequency to run your canaries
+		Schedule!:                 #Schedule
 		StartCanaryAfterCreation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		SuccessRetentionPeriod?: int |
 			{
@@ -149,14 +154,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Tags?:             [...#Tag] | fn.#ListExpression
-		VPCConfig?:        #VPCConfig | fn.#ObjectExpression
-		VisualReference?:  #VisualReference | fn.#ObjectExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+
+		// Provide VPC Configuration if enabled.
+		VPCConfig?: #VPCConfig
+
+		// Visual reference configuration for visual testing
+		VisualReference?:  #VisualReference
 		VisualReferences?: list.MaxItems(2) & list.MinItems(1) & [...#VisualReference] | fn.#ListExpression
 	})
 }
 
-#ArtifactConfig: close({S3Encryption?: #S3Encryption | fn.#ObjectExpression}) | fn.#ObjectExpression
+#ArtifactConfig: close({
+	// Encryption configuration for uploading artifacts to S3
+	S3Encryption?: #S3Encryption
+}) |
+fn.#ObjectExpression
 
 #BaseScreenshot: {
 	IgnoreCoordinates?: [...string | fn.#StringExpression] | fn.#ListExpression
@@ -243,11 +256,15 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Location!:                 string | fn.#StringExpression
-	ReplicationStatus?:        #ReplicaReplicationStatus | fn.#ObjectExpression
+	Location!: string | fn.#StringExpression
+
+	// Replication status for this replica
+	ReplicationStatus?:        #ReplicaReplicationStatus
 	ResourcesToReplicateTags?: list.UniqueItems() & [...#ResourceToTag] | fn.#ListExpression
 	Tags?:                     [...#Tag] | fn.#ListExpression
-	VpcConfig?:                #VPCConfig | fn.#ObjectExpression
+
+	// VPC configuration for this replica location
+	VpcConfig?: #VPCConfig
 }) |
 fn.#ObjectExpression
 
@@ -345,7 +362,9 @@ fn.#ObjectExpression
 #Schedule: close({
 	DurationInSeconds?: string | fn.#StringExpression
 	Expression!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	RetryConfig?:       #RetryConfig | fn.#ObjectExpression
+
+	// Provide canary auto retry configuration
+	RetryConfig?: #RetryConfig
 }) |
 fn.#ObjectExpression
 

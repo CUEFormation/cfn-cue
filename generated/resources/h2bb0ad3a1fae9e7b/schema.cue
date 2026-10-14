@@ -25,9 +25,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(1) &
 		=~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
 		fn.#StringExpression
-		FunctionScalingConfig?:        #FunctionScalingConfig | fn.#ObjectExpression
-		ProvisionedConcurrencyConfig?: #ProvisionedConcurrencyConfiguration | fn.#ObjectExpression
-		RuntimePolicy?:                #RuntimePolicy | fn.#ObjectExpression
+
+		// The scaling configuration to apply to the function, including minimum and
+		// maximum execution environment limits.
+		FunctionScalingConfig?: #FunctionScalingConfig
+
+		// Specifies a provisioned concurrency configuration for a function's version.
+		// Updates are not supported for this property.
+		ProvisionedConcurrencyConfig?: #ProvisionedConcurrencyConfiguration
+
+		// Specifies the runtime management configuration of a function. Displays
+		// runtimeVersionArn only for Manual.
+		RuntimePolicy?: #RuntimePolicy
 	})
 }
 

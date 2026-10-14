@@ -20,7 +20,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EMRContainers::Endpoint"
 	Properties!: close({
-		ConfigurationOverrides?: #ConfigurationOverrides | fn.#ObjectExpression
+		// The configuration overrides for the managed endpoint.
+		ConfigurationOverrides?: #ConfigurationOverrides
 		ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &

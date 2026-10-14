@@ -16,15 +16,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!: "AWS::AppFlow::Connector"
 	Properties!: close({
 		ConnectorLabel?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[a-zA-Z0-9][\\w!@#.-]+" | fn.#StringExpression
-		ConnectorProvisioningConfig!: #ConnectorProvisioningConfig | fn.#ObjectExpression
+
+		// Contains information about the configuration of the connector being registered.
+		ConnectorProvisioningConfig!: #ConnectorProvisioningConfig
 		ConnectorProvisioningType!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9][\\w!@#.-]+" |
 		fn.#StringExpression
 		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\s\\w/!@#+=.-]*" | fn.#StringExpression
 	})
 }
 
-#ConnectorProvisioningConfig: close({Lambda?: #LambdaConnectorProvisioningConfig | fn.#ObjectExpression}) |
-	fn.#ObjectExpression
+#ConnectorProvisioningConfig: close({
+	// Contains information about the configuration of the lambda which is being
+	// registered as the connector.
+	Lambda?: #LambdaConnectorProvisioningConfig
+}) |
+fn.#ObjectExpression
 
 #LambdaConnectorProvisioningConfig: close({
 	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &

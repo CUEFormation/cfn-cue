@@ -16,8 +16,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::VpcOrigin"
 	Properties!: close({
-		Tags?:                    [...#Tag] | fn.#ListExpression
-		VpcOriginEndpointConfig!: #VpcOriginEndpointConfig | fn.#ObjectExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+
+		// The VPC origin endpoint configuration.
+		VpcOriginEndpointConfig!: #VpcOriginEndpointConfig
 	})
 }
 

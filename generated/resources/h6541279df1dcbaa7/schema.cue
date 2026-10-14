@@ -34,8 +34,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		) |
 			fn.#ObjectExpression
 		JobExecutionsRolloutConfig?: close({
-			ExponentialRolloutRate?: #ExponentialRolloutRate | fn.#ObjectExpression
-			MaximumPerMinute?:       #MaximumPerMinute | fn.#NumberExpression
+			// The rate of increase for a job rollout. This parameter allows you to define
+			// an exponential rate for a job rollout.
+			ExponentialRolloutRate?: #ExponentialRolloutRate
+
+			// The maximum number of things that will be notified of a pending job, per
+			// minute. This parameter allows you to create a staged rollout.
+			MaximumPerMinute?: #MaximumPerMinute
 		}) |
 		fn.#ObjectExpression
 		JobTemplateId!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
@@ -51,10 +56,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }
 
 #AbortCriteria: close({
-	Action!:                    #Action | fn.#StringExpression
-	FailureType!:               #FailureType | fn.#StringExpression
-	MinNumberOfExecutedThings!: #MinNumberOfExecutedThings | fn.#NumberExpression
-	ThresholdPercentage!:       #ThresholdPercentage | fn.#NumberExpression
+	// The type of job action to take to initiate the job abort.
+	Action!: #Action
+
+	// The type of job execution failures that can initiate a job abort.
+	FailureType!: #FailureType
+
+	// The minimum number of things which must receive job execution notifications
+	// before the job can be aborted.
+	MinNumberOfExecutedThings!: #MinNumberOfExecutedThings
+
+	// The minimum percentage of job execution failures that must occur to initiate the job abort.
+	ThresholdPercentage!: #ThresholdPercentage
 }) |
 fn.#ObjectExpression
 
@@ -96,8 +109,13 @@ fn.#ObjectExpression
 	fn.#NumberExpression
 
 #ExponentialRolloutRate: close({
-	BaseRatePerMinute!:    #BaseRatePerMinute | fn.#NumberExpression
-	IncrementFactor!:      #IncrementFactor | fn.#NumberExpression
+	// The minimum number of things that will be notified of a pending job, per
+	// minute at the start of job rollout. This parameter allows you to define the
+	// initial rate of rollout.
+	BaseRatePerMinute!: #BaseRatePerMinute
+
+	// The exponential factor to increase the rate of rollout for a job.
+	IncrementFactor!:      #IncrementFactor
 	RateIncreaseCriteria!: #RateIncreaseCriteria & fn.#Object & {...} | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression

@@ -20,7 +20,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(1) &
 		=~"^arn:.+:iam::[0-9]{12}:role/.+$" |
 		fn.#StringExpression
-		LoggingConfig?:        #LoggingConfig | fn.#ObjectExpression
+
+		// Specifies logging configuration information for a type.
+		LoggingConfig?:        #LoggingConfig
 		SchemaHandlerPackage!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 		TypeName!:             =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}$" | fn.#StringExpression
 	})

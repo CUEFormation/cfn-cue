@@ -51,7 +51,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		GameSessionCreationLimitPolicy?: #GameSessionCreationLimitPolicy | fn.#ObjectExpression
+
+		// A policy that limits the number of game sessions an individual player can
+		// create over a span of time for this fleet.
+		GameSessionCreationLimitPolicy?: #GameSessionCreationLimitPolicy
 		InstanceConnectionPortRange?:    #ConnectionPortRange
 		InstanceInboundPermissions?:     list.MaxItems(50) & [...] & [...#IpPermission] | fn.#ListExpression
 		InstanceType?:                   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
@@ -232,7 +235,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ManagedCapacityConfiguration?: #ManagedCapacityConfiguration | fn.#ObjectExpression
+
+	// Configuration options for Amazon GameLift Servers-managed capacity behavior.
+	ManagedCapacityConfiguration?: #ManagedCapacityConfiguration
 	MaxSize!: int & >=0 |
 		{
 			string &
@@ -355,7 +360,9 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	ScalingAdjustmentType?: "ChangeInCapacity" | "ExactCapacity" | "PercentChangeInCapacity" | fn.#StringExpression
-	TargetConfiguration?:   #TargetConfiguration | fn.#ObjectExpression
+
+	// An object that contains settings for a target-based scaling policy.
+	TargetConfiguration?: #TargetConfiguration
 	Threshold?: number |
 		{
 			string &

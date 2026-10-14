@@ -21,14 +21,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		ActionName!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
 		fn.#StringExpression
-		ActionType!:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		Description?:        strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
-		MetadataProperties?: #MetadataProperties | fn.#ObjectExpression
+		ActionType!:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Description?: strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
+
+		// Metadata properties of the tracking entity, trial, or trial component.
+		MetadataProperties?: #MetadataProperties
 		Properties?: struct.MaxFields(30) & close({
 
 			{[=~".+"]: strings.MaxRunes(2500) | fn.#StringExpression}}) |
 		fn.#ObjectExpression
-		Source!: #ActionSource | fn.#ObjectExpression
+
+		// The source type, ID, and URI.
+		Source!: #ActionSource
 		Status?: "Unknown" | "InProgress" | "Completed" | "Failed" | "Stopping" | "Stopped" | fn.#StringExpression
 		Tags?:   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})

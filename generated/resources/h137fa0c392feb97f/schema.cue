@@ -72,24 +72,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			..."x86_64" | "arm64" | fn.#StringExpression
 		] |
 			fn.#ListExpression
-		CapacityProviderConfig?: #CapacityProviderConfig | fn.#ObjectExpression
-		Code!:                   #Code | fn.#ObjectExpression
+
+		// Configuration for the capacity provider that manages compute resources for Lambda functions.
+		CapacityProviderConfig?: #CapacityProviderConfig
+
+		// The code for the function. You can define your function code in multiple ways:
+		// + For .zip deployment packages, you can specify the S3 location of the .zip
+		// file in the ``S3Bucket``, ``S3Key``, and ``S3ObjectVersion`` properties.
+		// + For .zip deployment packages, you can alternatively define the function
+		// code inline in the ``ZipFile`` property. This method works only for Node.js
+		// and Python functions.
+		// + For container images, specify the URI of your container image in the ECR
+		// registry in the ``ImageUri`` property.
+		Code!: #Code
 		CodeSigningConfigArn?: strings.MaxRunes(200) &
 		strings.MinRunes(0) &
 		=~"arn:(aws[a-zA-Z-]*)?:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:code-signing-config:csc-[a-z0-9]{17}" |
 		fn.#StringExpression
-		DeadLetterConfig?:  #DeadLetterConfig | fn.#ObjectExpression
-		Description?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		DurableConfig?:     #DurableConfig | fn.#ObjectExpression
-		Environment?:       #Environment | fn.#ObjectExpression
-		EphemeralStorage?:  #EphemeralStorage | fn.#ObjectExpression
+
+		// A dead-letter queue configuration that specifies the queue or topic where
+		// Lambda sends asynchronous events when they fail processing. For more
+		// information, see [Dead-letter
+		// queues](https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html#invocation-dlq).
+		DeadLetterConfig?: #DeadLetterConfig
+		Description?:      strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+
+		// Configuration settings for [durable
+		// functions](https://docs.aws.amazon.com/lambda/latest/dg/durable-functions.html),
+		// including execution timeout, retention period for execution history, and an
+		// optional ARN of the KMSlong (KMS) customer managed key that is used to
+		// encrypt your durable execution's payload data, including input, output, and
+		// error payloads.
+		DurableConfig?: #DurableConfig
+
+		// Environment variables that are accessible from function code during execution.
+		Environment?: #Environment
+
+		// The size of the function's ``/tmp`` directory in MB. The default value is
+		// 512, but it can be any whole number between 512 and 10,240 MB.
+		EphemeralStorage?:  #EphemeralStorage
 		FileSystemConfigs?: list.MaxItems(1) & [...] & [...#FileSystemConfig] | fn.#ListExpression
 		FunctionName?: strings.MinRunes(1) &
 		=~"^([a-zA-Z0-9_-]{1,64}|arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:function:[a-zA-Z0-9_-]{1,64})$" |
 		fn.#StringExpression
-		FunctionScalingConfig?: #FunctionScalingConfig | fn.#ObjectExpression
+
+		// Configuration that defines the scaling behavior for a Lambda Managed
+		// Instances function, including the minimum and maximum number of execution
+		// environments that can be provisioned.
+		FunctionScalingConfig?: #FunctionScalingConfig
 		Handler?:               strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[^\\s]+$" | fn.#StringExpression
-		ImageConfig?:           #ImageConfig | fn.#ObjectExpression
+
+		// Configuration values that override the container image Dockerfile settings.
+		// For more information, see [Container image
+		// settings](https://docs.aws.amazon.com/lambda/latest/dg/images-create.html#images-parms).
+		ImageConfig?: #ImageConfig
 		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(10000) &
 		strings.MinRunes(0) &
@@ -101,7 +137,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 		] |
 		fn.#ListExpression
-		LoggingConfig?: #LoggingConfig | fn.#ObjectExpression
+
+		// The function's Amazon CloudWatch Logs configuration settings.
+		LoggingConfig?: #LoggingConfig
 		MemorySize?: int & <=32768 & >=128 |
 			{
 				string &
@@ -122,7 +160,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		PackageType?:              "Image" | "Zip" | fn.#StringExpression
 		PublishToLatestPublished?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		RecursiveLoop?:            #RecursiveLoop | fn.#StringExpression
+
+		// The status of your function's recursive loop detection configuration.
+		// When this value is set to ``Allow``and Lambda detects your function being
+		// invoked as part of a recursive loop, it doesn't take any action.
+		// When this value is set to ``Terminate`` and Lambda detects your function
+		// being invoked as part of a recursive loop, it stops your function being
+		// invoked and notifies you.
+		RecursiveLoop?: #RecursiveLoop
 		ReservedConcurrentExecutions?: int & >=0 |
 			{
 				string &
@@ -196,10 +241,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"ruby3.4" |
 			"ruby4.0" |
 			fn.#StringExpression
-		RuntimeManagementConfig?: #RuntimeManagementConfig | fn.#ObjectExpression
-		SnapStart?:               #SnapStart | fn.#ObjectExpression
-		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TenancyConfig?:           #TenancyConfig | fn.#ObjectExpression
+
+		// Sets the runtime management configuration for a function's version. For more
+		// information, see [Runtime
+		// updates](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-update.html).
+		RuntimeManagementConfig?: #RuntimeManagementConfig
+
+		// The function's [SnapStart](https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html) setting.
+		SnapStart?: #SnapStart
+		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// The function's tenant isolation configuration settings. Determines whether
+		// the Lambda function runs on a shared or dedicated infrastructure per unique
+		// tenant.
+		TenancyConfig?: #TenancyConfig
 		Timeout?: int & <=5400 & >=1 |
 			{
 				string &
@@ -218,15 +273,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		TracingConfig?: #TracingConfig | fn.#ObjectExpression
-		VpcConfig?:     #VpcConfig | fn.#ObjectExpression
+
+		// Set ``Mode`` to ``Active`` to sample and trace a subset of incoming requests
+		// with
+		// [X-Ray](https://docs.aws.amazon.com/lambda/latest/dg/services-xray.html).
+		TracingConfig?: #TracingConfig
+
+		// For network connectivity to AWS resources in a VPC, specify a list of
+		// security groups and subnets in the VPC. When you connect a function to a
+		// VPC, it can access resources and the internet only through that VPC. For
+		// more information, see [Configuring a Lambda function to access resources in
+		// a VPC](https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html).
+		VpcConfig?: #VpcConfig
 	})
 }
 
 #CapacityProviderConfig: close({
-	LambdaManagedInstancesCapacityProviderConfig!: #LambdaManagedInstancesCapacityProviderConfig | fn.#ObjectExpression
+	// Configuration for Lambda-managed instances used by the capacity provider.
+	LambdaManagedInstancesCapacityProviderConfig!: #LambdaManagedInstancesCapacityProviderConfig
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 #Code: close({
 	ImageUri?:            string | fn.#StringExpression
@@ -325,7 +391,13 @@ fn.#ObjectExpression
 	=~"^arn:aws[a-zA-Z-]*:elasticfilesystem:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:access-point/fsap-[a-f0-9]{17}$|^arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}/access-point/fsap-[0-9a-f]{17,40}$" |
 	fn.#StringExpression
 	LocalMountPath!: strings.MaxRunes(160) & strings.MinRunes(0) & =~"^/mnt/[a-zA-Z0-9-_.]+$" | fn.#StringExpression
-	S3FilesConfig?:  #S3FilesConfig | fn.#ObjectExpression
+
+	// The configuration for how your function accesses data on an Amazon S3 file
+	// system. Valid only when the file system access point ARN is an Amazon S3
+	// Files access point. If you specify a different access point type (for
+	// example, Amazon Elastic File System), the operation returns an
+	// ``InvalidParameterException``.
+	S3FilesConfig?: #S3FilesConfig
 }) |
 fn.#ObjectExpression
 

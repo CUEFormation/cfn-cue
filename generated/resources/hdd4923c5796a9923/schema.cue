@@ -25,9 +25,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(1) &
 		=~"^(?:arn:aws(?:-[a-z]+)*:iam::[0-9]{12}:role/)?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 		fn.#StringExpression
-		Name!:              =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-		PolicyDetails!:     list.MaxItems(3) & list.MinItems(1) & [...#PolicyDetail] | fn.#ListExpression
-		ResourceSelection!: #ResourceSelection | fn.#ObjectExpression
+		Name!:          =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
+		PolicyDetails!: list.MaxItems(3) & list.MinItems(1) & [...#PolicyDetail] | fn.#ListExpression
+
+		// The resource selection of the lifecycle policy.
+		ResourceSelection!: #ResourceSelection
 		ResourceType!:      "AMI_IMAGE" | "CONTAINER_IMAGE" | fn.#StringExpression
 		Status?:            "DISABLED" | "ENABLED" | fn.#StringExpression
 		Tags?: close({
@@ -44,8 +46,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #AmiExclusionRules: close({
-	IsPublic?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LastLaunched?: #LastLaunched | fn.#ObjectExpression
+	IsPublic?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// Use to apply lifecycle policy actions on AMIs launched before a certain time.
+	LastLaunched?: #LastLaunched
 	Regions?:      [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	SharedAccounts?: list.MaxItems(1536) & list.MinItems(1) & [...=~"^[0-9]{12}$" | fn.#StringExpression] |
 		fn.#ListExpression
@@ -83,7 +87,9 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Type!: "AGE" | "COUNT" | fn.#StringExpression
-	Unit?: #TimeUnit | fn.#StringExpression
+
+	// The value's time unit.
+	Unit?: #TimeUnit
 	Value!: int & <=1000 & >=1 |
 		{
 			string &
@@ -111,7 +117,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LastLaunched: close({
-	Unit!: #TimeUnit | fn.#StringExpression
+	// The value's time unit.
+	Unit!: #TimeUnit
 	Value!: int & <=365 & >=1 |
 		{
 			string &

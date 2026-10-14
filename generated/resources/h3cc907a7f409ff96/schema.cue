@@ -46,7 +46,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTEvents::DetectorModel"
 	Properties!: close({
-		DetectorModelDefinition!:  #DetectorModelDefinition | fn.#ObjectExpression
+		// Information that defines how a detector operates.
+		DetectorModelDefinition!:  #DetectorModelDefinition
 		DetectorModelDescription?: strings.MaxRunes(1024) | fn.#StringExpression
 		DetectorModelName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 		EvaluationMethod?:  "BATCH" | "SERIAL" | fn.#StringExpression
@@ -61,19 +62,64 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }
 
 #Action: close({
-	ClearTimer?:      #ClearTimer | fn.#ObjectExpression
-	DynamoDB?:        #DynamoDB | fn.#ObjectExpression
-	DynamoDBv2?:      #DynamoDBv2 | fn.#ObjectExpression
-	Firehose?:        #Firehose | fn.#ObjectExpression
-	IotEvents?:       #IotEvents | fn.#ObjectExpression
-	IotSiteWise?:     #IotSiteWise | fn.#ObjectExpression
-	IotTopicPublish?: #IotTopicPublish | fn.#ObjectExpression
-	Lambda?:          #Lambda | fn.#ObjectExpression
-	ResetTimer?:      #ResetTimer | fn.#ObjectExpression
-	SetTimer?:        #SetTimer | fn.#ObjectExpression
-	SetVariable?:     #SetVariable | fn.#ObjectExpression
-	Sns?:             #Sns | fn.#ObjectExpression
-	Sqs?:             #Sqs | fn.#ObjectExpression
+	// Information needed to clear the timer.
+	ClearTimer?: #ClearTimer
+
+	// Writes to the DynamoDB table that you created. The default action payload
+	// contains all attribute-value pairs that have the information about the
+	// detector model instance and the event that triggered the action. You can
+	// customize the
+	// [payload](https://docs.aws.amazon.com/iotevents/latest/apireference/API_Payload.html).
+	// One column of the DynamoDB table receives all attribute-value pairs in the
+	// payload that you specify. For more information, see
+	// [Actions](https://docs.aws.amazon.com/iotevents/latest/developerguide/iotevents-event-actions.html)
+	// in *Developer Guide*.
+	DynamoDB?: #DynamoDB
+
+	// Writes to the DynamoDB table that you created. The default action payload
+	// contains all attribute-value pairs that have the information about the
+	// detector model instance and the event that triggered the action. You can
+	// customize the
+	// [payload](https://docs.aws.amazon.com/iotevents/latest/apireference/API_Payload.html).
+	// A separate column of the DynamoDB table receives one attribute-value pair in
+	// the payload that you specify. For more information, see
+	// [Actions](https://docs.aws.amazon.com/iotevents/latest/developerguide/iotevents-event-actions.html)
+	// in *Developer Guide*.
+	DynamoDBv2?: #DynamoDBv2
+
+	// Sends information about the detector model instance and the event that
+	// triggered the action to an Amazon Kinesis Data Firehose delivery stream.
+	Firehose?: #Firehose
+
+	// Sends ITE input, which passes information about the detector model instance
+	// and the event that triggered the action.
+	IotEvents?: #IotEvents
+
+	// Sends information about the detector model instance and the event that
+	// triggered the action to an asset property in ITSW .
+	IotSiteWise?: #IotSiteWise
+
+	// Publishes an MQTT message with the given topic to the IoT message broker.
+	IotTopicPublish?: #IotTopicPublish
+
+	// Calls a Lambda function, passing in information about the detector model
+	// instance and the event that triggered the action.
+	Lambda?: #Lambda
+
+	// Information needed to reset the timer.
+	ResetTimer?: #ResetTimer
+
+	// Information needed to set the timer.
+	SetTimer?: #SetTimer
+
+	// Sets a variable to a specified value.
+	SetVariable?: #SetVariable
+
+	// Sends an Amazon SNS message.
+	Sns?: #Sns
+
+	// Sends an Amazon SNS message.
+	Sqs?: #Sqs
 }) |
 fn.#ObjectExpression
 
@@ -84,9 +130,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #AssetPropertyValue: close({
-	Quality?:   string | fn.#StringExpression
-	Timestamp?: #AssetPropertyTimestamp | fn.#ObjectExpression
-	Value!:     #AssetPropertyVariant | fn.#ObjectExpression
+	Quality?: string | fn.#StringExpression
+
+	// The timestamp associated with the asset property value. The default is the current event time.
+	Timestamp?: #AssetPropertyTimestamp
+
+	// The value to send to an asset property.
+	Value!: #AssetPropertyVariant
 }) |
 fn.#ObjectExpression
 
@@ -108,11 +158,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DynamoDB: close({
-	HashKeyField!:  string | fn.#StringExpression
-	HashKeyType?:   string | fn.#StringExpression
-	HashKeyValue!:  string | fn.#StringExpression
-	Operation?:     string | fn.#StringExpression
-	Payload?:       #Payload | fn.#ObjectExpression
+	HashKeyField!: string | fn.#StringExpression
+	HashKeyType?:  string | fn.#StringExpression
+	HashKeyValue!: string | fn.#StringExpression
+	Operation?:    string | fn.#StringExpression
+
+	// Information needed to configure the payload.
+	// By default, ITE generates a standard payload in JSON for any action. This
+	// action payload contains all attribute-value pairs that have the information
+	// about the detector model instance and the event triggered the action. To
+	// configure the action payload, you can use ``contentExpression``.
+	Payload?:       #Payload
 	PayloadField?:  string | fn.#StringExpression
 	RangeKeyField?: string | fn.#StringExpression
 	RangeKeyType?:  string | fn.#StringExpression
@@ -122,7 +178,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DynamoDBv2: close({
-	Payload?:   #Payload | fn.#ObjectExpression
+	// Information needed to configure the payload.
+	// By default, ITE generates a standard payload in JSON for any action. This
+	// action payload contains all attribute-value pairs that have the information
+	// about the detector model instance and the event triggered the action. To
+	// configure the action payload, you can use ``contentExpression``.
+	Payload?:   #Payload
 	TableName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -136,14 +197,19 @@ fn.#ObjectExpression
 
 #Firehose: close({
 	DeliveryStreamName!: string | fn.#StringExpression
-	Payload?:            #Payload | fn.#ObjectExpression
-	Separator?:          =~"([\\n\\t])|(\\r\\n)|(,)" | fn.#StringExpression
+
+	// You can configure the action payload when you send a message to an Amazon
+	// Data Firehose delivery stream.
+	Payload?:   #Payload
+	Separator?: =~"([\\n\\t])|(\\r\\n)|(,)" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IotEvents: close({
 	InputName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
-	Payload?:   #Payload | fn.#ObjectExpression
+
+	// You can configure the action payload when you send a message to an ITE input.
+	Payload?: #Payload
 }) |
 fn.#ObjectExpression
 
@@ -152,20 +218,27 @@ fn.#ObjectExpression
 	EntryId?:       string | fn.#StringExpression
 	PropertyAlias?: string | fn.#StringExpression
 	PropertyId?:    string | fn.#StringExpression
-	PropertyValue!: #AssetPropertyValue | fn.#ObjectExpression
+
+	// The value to send to the asset property. This value contains timestamp,
+	// quality, and value (TQV) information.
+	PropertyValue!: #AssetPropertyValue
 }) |
 fn.#ObjectExpression
 
 #IotTopicPublish: close({
 	MqttTopic!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Payload?:   #Payload | fn.#ObjectExpression
+
+	// You can configure the action payload when you publish a message to an IoTCore topic.
+	Payload?: #Payload
 }) |
 fn.#ObjectExpression
 
 #Lambda: close({
 	FunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
 	fn.#StringExpression
-	Payload?: #Payload | fn.#ObjectExpression
+
+	// You can configure the action payload when you send a message to a Lambda function.
+	Payload?: #Payload
 }) |
 fn.#ObjectExpression
 
@@ -217,22 +290,29 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Sns: close({
-	Payload?:   #Payload | fn.#ObjectExpression
+	// You can configure the action payload when you send a message as an Amazon SNS push notification.
+	Payload?:   #Payload
 	TargetArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Sqs: close({
-	Payload?:   #Payload | fn.#ObjectExpression
+	// You can configure the action payload when you send a message to an Amazon SQS queue.
+	Payload?:   #Payload
 	QueueUrl!:  string | fn.#StringExpression
 	UseBase64?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #State: close({
-	OnEnter?:   #OnEnter | fn.#ObjectExpression
-	OnExit?:    #OnExit | fn.#ObjectExpression
-	OnInput?:   #OnInput | fn.#ObjectExpression
+	// When entering this state, perform these ``actions`` if the ``condition`` is TRUE.
+	OnEnter?: #OnEnter
+
+	// When exiting this state, perform these ``actions`` if the specified ``condition`` is ``TRUE``.
+	OnExit?: #OnExit
+
+	// When an input is received and the ``condition`` is TRUE, perform the specified ``actions``.
+	OnInput?:   #OnInput
 	StateName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression

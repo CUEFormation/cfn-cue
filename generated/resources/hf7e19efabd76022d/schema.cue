@@ -24,10 +24,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		BucketName?:              strings.MaxRunes(63) & =~"^[a-z0-9][a-z0-9//.//-]*[a-z0-9]$" | fn.#StringExpression
 		DataRedundancy!:          "SingleAvailabilityZone" | "SingleLocalZone" | fn.#StringExpression
 		InventoryConfigurations?: list.UniqueItems() & [...#InventoryConfiguration] | fn.#ListExpression
-		LifecycleConfiguration?:  #LifecycleConfiguration | fn.#ObjectExpression
-		LocationName!:            string | fn.#StringExpression
-		MetricsConfigurations?:   list.UniqueItems() & [...#MetricsConfiguration] | fn.#ListExpression
-		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// Lifecycle rules that define how Amazon S3 Express manages objects during their lifetime.
+		LifecycleConfiguration?: #LifecycleConfiguration
+		LocationName!:           string | fn.#StringExpression
+		MetricsConfigurations?:  list.UniqueItems() & [...#MetricsConfiguration] | fn.#ListExpression
+		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
 

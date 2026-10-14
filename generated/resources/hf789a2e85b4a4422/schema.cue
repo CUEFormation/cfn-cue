@@ -25,8 +25,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::AutomationRule"
 	Properties!: close({
-		Actions!:     list.MaxItems(1) & list.MinItems(1) & [...#AutomationRulesAction] | fn.#ListExpression
-		Criteria!:    #AutomationRulesFindingFilters | fn.#ObjectExpression
+		Actions!: list.MaxItems(1) & list.MinItems(1) & [...#AutomationRulesAction] | fn.#ListExpression
+
+		// A set of [Security Finding Format
+		// (ASFF)](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-findings-format.html)
+		// finding field attributes and corresponding expected values that ASH uses to
+		// filter findings. If a rule is enabled and a finding matches the criteria
+		// specified in this parameter, ASH applies the rule action to the finding.
+		Criteria!:    #AutomationRulesFindingFilters
 		Description!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 		IsTerminal?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		RuleName!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
@@ -49,25 +55,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		RuleStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
-		Tags?:       #Tags | fn.#ObjectExpression
+
+		// User-defined tags associated with an automation rule.
+		Tags?: #Tags
 	})
 }
 
 #AutomationRulesAction: {
-	FindingFieldsUpdate!: #AutomationRulesFindingFieldsUpdate | fn.#ObjectExpression
+	// Specifies that the automation rule action is an update to a finding field.
+	FindingFieldsUpdate!: #AutomationRulesFindingFieldsUpdate
 	Type!:                "FINDING_FIELDS_UPDATE" | fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
 #AutomationRulesFindingFieldsUpdate: {
-	Confidence?:      #int100 | fn.#NumberExpression
-	Criticality?:     #int100 | fn.#NumberExpression
+	// The rule action updates the ``Confidence`` field of a finding.
+	Confidence?: #int100
+
+	// The rule action updates the ``Criticality`` field of a finding.
+	Criticality?:     #int100
 	Note?:            #NoteUpdate & fn.#Object & {...} | fn.#ObjectExpression
 	RelatedFindings?: list.MaxItems(10) & list.MinItems(1) & [...#RelatedFinding] | fn.#ListExpression
 	Severity?:        #SeverityUpdate & fn.#Object & {...} | fn.#ObjectExpression
 	Types?: list.MaxItems(50) & list.UniqueItems() & [...=~"^([^/]+)(/[^/]+){0,2}$" | fn.#StringExpression] |
 		fn.#ListExpression
-	UserDefinedFields?: #map | fn.#ObjectExpression
+
+	// The rule action updates the ``UserDefinedFields`` field of a finding.
+	UserDefinedFields?: #map
 	VerificationState?: "UNKNOWN" | "TRUE_POSITIVE" | "FALSE_POSITIVE" | "BENIGN_POSITIVE" | fn.#StringExpression
 	Workflow?:          #WorkflowUpdate & fn.#Object & {...} | fn.#ObjectExpression
 	...
@@ -128,9 +142,20 @@ fn.#ObjectExpression
 		...
 	}
 ]) & close({
-	DateRange?: #DateRange | fn.#ObjectExpression
-	End?:       #ISO8601DateString | fn.#StringExpression
-	Start?:     #ISO8601DateString | fn.#StringExpression
+	// A date range for the date filter.
+	DateRange?: #DateRange
+
+	// A timestamp that provides the end date for the date filter.
+	// For more information about the validation and formatting of timestamp fields
+	// in ASHlong, see
+	// [Timestamps](https://docs.aws.amazon.com/securityhub/1.0/APIReference/Welcome.html#timestamps).
+	End?: #ISO8601DateString
+
+	// A timestamp that provides the start date for the date filter.
+	// For more information about the validation and formatting of timestamp fields
+	// in ASHlong, see
+	// [Timestamps](https://docs.aws.amazon.com/securityhub/1.0/APIReference/Welcome.html#timestamps).
+	Start?: #ISO8601DateString
 }) |
 fn.#ObjectExpression
 
@@ -171,8 +196,10 @@ fn.#ObjectExpression
 #NonEmptyString: strings.MinRunes(1) | fn.#StringExpression
 
 #NoteUpdate: close({
-	Text!:      strings.MaxRunes(512) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	UpdatedBy!: #arnOrId | fn.#ValueExpression
+	Text!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+
+	// The principal that updated the note.
+	UpdatedBy!: #arnOrId
 }) |
 fn.#ObjectExpression
 
@@ -247,14 +274,28 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RelatedFinding: close({
-	Id!:         #arnOrId | fn.#ValueExpression
-	ProductArn!: #arn | fn.#StringExpression
+	// The product-generated identifier for a related finding.
+	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+	Id!: #arnOrId
+
+	// The Amazon Resource Name (ARN) for the product that generated a related finding.
+	ProductArn!: #arn
 }) |
 fn.#ObjectExpression
 
 #SeverityUpdate: close({
-	Label?:      "INFORMATIONAL" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | fn.#StringExpression
-	Normalized?: #int100 | fn.#NumberExpression
+	Label?: "INFORMATIONAL" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | fn.#StringExpression
+
+	// The normalized severity for the finding. This attribute is to be deprecated
+	// in favor of ``Label``.
+	// If you provide ``Normalized`` and don't provide ``Label``, ``Label`` is set
+	// automatically as follows.
+	// + 0 - ``INFORMATIONAL``
+	// + 1–39 - ``LOW``
+	// + 40–69 - ``MEDIUM``
+	// + 70–89 - ``HIGH``
+	// + 90–100 - ``CRITICAL``
+	Normalized?: #int100
 	Product?: number |
 		{
 			string &
@@ -278,7 +319,71 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #StringFilter: close({
-	Comparison!: #StringFilterComparison | fn.#StringExpression
+	// The condition to apply to a string value when filtering Security Hub CSPM findings.
+	// To search for values that have the filter value, use one of the following comparison operators:
+	// + To search for values that include the filter value, use ``CONTAINS``. For
+	// example, the filter ``Title CONTAINS CloudFront`` matches findings that have
+	// a ``Title`` that includes the string CloudFront.
+	// + To search for values that exactly match the filter value, use ``EQUALS``.
+	// For example, the filter ``AwsAccountId EQUALS 123456789012`` only matches
+	// findings that have an account ID of ``123456789012``.
+	// + To search for values that start with the filter value, use ``PREFIX``. For
+	// example, the filter ``ResourceRegion PREFIX us`` matches findings that have
+	// a ``ResourceRegion`` that starts with ``us``. A ``ResourceRegion`` that
+	// starts with a different value, such as ``af``, ``ap``, or ``ca``, doesn't
+	// match.
+	//
+	// ``CONTAINS``, ``EQUALS``, and ``PREFIX`` filters on the same field are joined
+	// by ``OR``. A finding matches if it matches any one of those filters. For
+	// example, the filters ``Title CONTAINS CloudFront OR Title CONTAINS
+	// CloudWatch`` match a finding that includes either ``CloudFront``,
+	// ``CloudWatch``, or both strings in the title.
+	// To search for values that don’t have the filter value, use one of the
+	// following comparison operators:
+	// + To search for values that exclude the filter value, use ``NOT_CONTAINS``.
+	// For example, the filter ``Title NOT_CONTAINS CloudFront`` matches findings
+	// that have a ``Title`` that excludes the string CloudFront.
+	// + To search for values other than the filter value, use ``NOT_EQUALS``. For
+	// example, the filter ``AwsAccountId NOT_EQUALS 123456789012`` only matches
+	// findings that have an account ID other than ``123456789012``.
+	// + To search for values that don't start with the filter value, use
+	// ``PREFIX_NOT_EQUALS``. For example, the filter ``ResourceRegion
+	// PREFIX_NOT_EQUALS us`` matches findings with a ``ResourceRegion`` that
+	// starts with a value other than ``us``.
+	//
+	// ``NOT_CONTAINS``, ``NOT_EQUALS``, and ``PREFIX_NOT_EQUALS`` filters on the
+	// same field are joined by ``AND``. A finding matches only if it matches all
+	// of those filters. For example, the filters ``Title NOT_CONTAINS CloudFront
+	// AND Title NOT_CONTAINS CloudWatch`` match a finding that excludes both
+	// ``CloudFront`` and ``CloudWatch`` in the title.
+	// You can’t have both a ``CONTAINS`` filter and a ``NOT_CONTAINS`` filter on
+	// the same field. Similarly, you can't provide both an ``EQUALS`` filter and a
+	// ``NOT_EQUALS`` or ``PREFIX_NOT_EQUALS`` filter on the same field. Combining
+	// filters in this way returns an error. ``CONTAINS`` filters can only be used
+	// with other ``CONTAINS`` filters. ``NOT_CONTAINS`` filters can only be used
+	// with other ``NOT_CONTAINS`` filters.
+	// You can combine ``PREFIX`` filters with ``NOT_EQUALS`` or
+	// ``PREFIX_NOT_EQUALS`` filters for the same field. Security Hub CSPM first
+	// processes the ``PREFIX`` filters, and then the ``NOT_EQUALS`` or
+	// ``PREFIX_NOT_EQUALS`` filters.
+	// For example, for the following filters, Security Hub CSPM first identifies
+	// findings that have resource types that start with either ``AwsIam`` or
+	// ``AwsEc2``. It then excludes findings that have a resource type of
+	// ``AwsIamPolicy`` and findings that have a resource type of
+	// ``AwsEc2NetworkInterface``.
+	// + ``ResourceType PREFIX AwsIam``
+	// + ``ResourceType PREFIX AwsEc2``
+	// + ``ResourceType NOT_EQUALS AwsIamPolicy``
+	// + ``ResourceType NOT_EQUALS AwsEc2NetworkInterface``
+	//
+	// The ``CONTAINS`` operator works with automation rules V1 and V2. The
+	// ``NOT_CONTAINS`` operator works only with automation rules V1. The
+	// ``CONTAINS_WORD`` operator works only in the ``GetFindingsV2``,
+	// ``GetFindingStatisticsV2``, ``GetResourcesV2``, and
+	// ``GetResourcesStatisticsV2`` APIs. For more information, see [Automation
+	// rules](https://docs.aws.amazon.com/securityhub/latest/userguide/automation-rules.html)
+	// in the *User Guide*.
+	Comparison!: #StringFilterComparison
 	Value!:      =~"\\S" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

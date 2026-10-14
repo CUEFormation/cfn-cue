@@ -89,7 +89,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ConstraintsResource: close({S3Uri?: #S3Uri | fn.#StringExpression}) | fn.#ObjectExpression
+#ConstraintsResource: close({
+	// The Amazon S3 URI for baseline constraint file in Amazon S3 that the current
+	// monitoring job should validated against.
+	S3Uri?: #S3Uri
+}) |
+fn.#ObjectExpression
 
 #Csv: {
 	Header?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -125,7 +130,8 @@ fn.#StringExpression
 } | fn.#ObjectExpression
 
 #ModelExplainabilityAppSpecification: close({
-	ConfigUri!: #S3Uri | fn.#StringExpression
+	// The S3 URI to an analysis configuration file
+	ConfigUri!: #S3Uri
 	Environment?: close({
 
 		{[=~"[\\S\\s]*"]: strings.MaxRunes(256) | fn.#StringExpression}

@@ -22,10 +22,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties?: close({
 		CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
-		DomainName?:                          string | fn.#StringExpression
-		EndpointAccessMode?:                  string | fn.#StringExpression
-		EndpointConfiguration?:               #EndpointConfiguration | fn.#ObjectExpression
-		MutualTlsAuthentication?:             #MutualTlsAuthentication | fn.#ObjectExpression
+		DomainName?:         string | fn.#StringExpression
+		EndpointAccessMode?: string | fn.#StringExpression
+
+		// The endpoint configuration of this DomainName showing the endpoint types and
+		// IP address types of the domain name.
+		EndpointConfiguration?:               #EndpointConfiguration
+		MutualTlsAuthentication?:             #MutualTlsAuthentication
 		OwnershipVerificationCertificateArn?: string | fn.#StringExpression
 		RegionalCertificateArn?:              string | fn.#StringExpression
 		RoutingMode?: "BASE_PATH_MAPPING_ONLY" |

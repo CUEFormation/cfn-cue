@@ -21,11 +21,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Batch::QuotaShare"
 	Properties!: close({
-		CapacityLimits!:               [...#QuotaShareCapacityLimit] | fn.#ListExpression
-		JobQueue!:                     string | fn.#StringExpression
-		PreemptionConfiguration!:      #QuotaSharePreemptionConfiguration | fn.#ObjectExpression
-		QuotaShareName!:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		ResourceSharingConfiguration!: #QuotaShareResourceSharingConfiguration | fn.#ObjectExpression
+		CapacityLimits!: [...#QuotaShareCapacityLimit] | fn.#ListExpression
+		JobQueue!:       string | fn.#StringExpression
+
+		// Specifies the preemption behavior for jobs in a quota share.
+		PreemptionConfiguration!: #QuotaSharePreemptionConfiguration
+		QuotaShareName!:          strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+
+		// Specifies whether a quota share reserves, lends, or both lends and borrows idle compute capacity.
+		ResourceSharingConfiguration!: #QuotaShareResourceSharingConfiguration
 		State?:                        "ENABLED" | "DISABLED" | fn.#StringExpression
 		Tags?: close({
 

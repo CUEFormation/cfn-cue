@@ -19,21 +19,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElasticBeanstalk::Application"
 	Properties?: close({
-		ApplicationName?:         strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		Description?:             strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-		ResourceLifecycleConfig?: #ApplicationResourceLifecycleConfig | fn.#ObjectExpression
+		ApplicationName?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Description?:     strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+
+		// Specifies an application resource lifecycle configuration to prevent your
+		// application from accumulating too many versions.
+		ResourceLifecycleConfig?: #ApplicationResourceLifecycleConfig
 	})
 }
 
 #ApplicationResourceLifecycleConfig: close({
-	ServiceRole?:            string | fn.#StringExpression
-	VersionLifecycleConfig?: #ApplicationVersionLifecycleConfig | fn.#ObjectExpression
+	ServiceRole?: string | fn.#StringExpression
+
+	// Defines lifecycle settings for application versions.
+	VersionLifecycleConfig?: #ApplicationVersionLifecycleConfig
 }) |
 fn.#ObjectExpression
 
 #ApplicationVersionLifecycleConfig: close({
-	MaxAgeRule?:   #MaxAgeRule | fn.#ObjectExpression
-	MaxCountRule?: #MaxCountRule | fn.#ObjectExpression
+	// Specify a max age rule to restrict the length of time that application
+	// versions are retained for an application.
+	MaxAgeRule?: #MaxAgeRule
+
+	// Specify a max count rule to restrict the number of application versions that
+	// are retained for an application.
+	MaxCountRule?: #MaxCountRule
 }) |
 fn.#ObjectExpression
 

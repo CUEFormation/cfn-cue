@@ -18,8 +18,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::LakeFormation::TagAssociation"
 	Properties!: close({
-		LFTags!:   #LFTagsList | fn.#ListExpression
-		Resource!: _#defs."/$defs/Properties/definitions/Resource" | fn.#ObjectExpression
+		// List of Lake Formation Tags to associate with the Lake Formation Resource
+		LFTags!: #LFTagsList
+
+		// Resource to tag with the Lake Formation Tags
+		Resource!: _#defs."/$defs/Properties/definitions/Resource"
 	})
 }
 

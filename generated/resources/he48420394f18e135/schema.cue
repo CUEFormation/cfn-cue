@@ -16,10 +16,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VerifiedAccessGroup"
 	Properties!: close({
-		Description?:              string | fn.#StringExpression
-		PolicyDocument?:           string | fn.#StringExpression
-		PolicyEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		SseSpecification?:         #SseSpecification | fn.#ObjectExpression
+		Description?:    string | fn.#StringExpression
+		PolicyDocument?: string | fn.#StringExpression
+		PolicyEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// The configuration options for customer provided KMS encryption.
+		SseSpecification?:         #SseSpecification
 		Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		VerifiedAccessInstanceId!: string | fn.#StringExpression
 	})

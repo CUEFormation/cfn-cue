@@ -181,7 +181,9 @@ fn.#ObjectExpression
 #RangedSocketAddress: close({
 	Name?: strings.MaxRunes(16) & strings.MinRunes(7) & =~"^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$" |
 	fn.#StringExpression
-	PortRange?: #IntegerRange | fn.#ObjectExpression
+
+	// Port range of a socket address.
+	PortRange?: #IntegerRange
 }) |
 fn.#ObjectExpression
 

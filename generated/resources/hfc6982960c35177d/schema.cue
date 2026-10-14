@@ -23,7 +23,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::AnycastIpList"
 	Properties!: close({
-		IpAddressType?: #IpAddressType | fn.#StringExpression
+		// The IP address type for the Anycast static IP list.
+		IpAddressType?: #IpAddressType
 		IpCount!: int |
 			{
 				string &
@@ -40,17 +41,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		IpamCidrConfigs?: #IpamCidrConfigs | fn.#ListExpression
+
+		// A list of IPAM CIDR configurations that define the IP address ranges, IPAM
+		// pools, and associated Anycast IP addresses.
+		IpamCidrConfigs?: #IpamCidrConfigs
 		Name!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
-		Tags?:            #Tags | fn.#ObjectExpression
+
+		// A complex type that contains zero or more ``Tag`` elements.
+		Tags?: #Tags
 	})
 }
 
 #AnycastIpList: close({
-	AnycastIps!:    [...string | fn.#StringExpression] | fn.#ListExpression
-	Arn!:           string | fn.#StringExpression
-	Id!:            string | fn.#StringExpression
-	IpAddressType?: #IpAddressType | fn.#StringExpression
+	AnycastIps!: [...string | fn.#StringExpression] | fn.#ListExpression
+	Arn!:        string | fn.#StringExpression
+	Id!:         string | fn.#StringExpression
+
+	// The IP address type for the Anycast static IP list.
+	IpAddressType?: #IpAddressType
 	IpCount!: int |
 		{
 			string &
@@ -65,7 +73,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	IpamCidrConfigResults?: #IpamCidrConfigResults | fn.#ListExpression
+
+	// The results for the IPAM CIDRs that defines a specific IP address range, IPAM
+	// pool, and associated Anycast IP address.
+	IpamCidrConfigResults?: #IpamCidrConfigResults
 	LastModifiedTime!:      time.Time | fn.#StringExpression
 	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
 	Status!: string | fn.#StringExpression

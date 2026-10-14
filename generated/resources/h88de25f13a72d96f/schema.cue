@@ -15,17 +15,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppSync::DataSource"
 	Properties!: close({
-		ApiId!:               string | fn.#StringExpression
-		Description?:         string | fn.#StringExpression
-		DynamoDBConfig?:      #DynamoDBConfig | fn.#ObjectExpression
-		ElasticsearchConfig?: #ElasticsearchConfig | fn.#ObjectExpression
-		EventBridgeConfig?:   #EventBridgeConfig | fn.#ObjectExpression
-		HttpConfig?:          #HttpConfig | fn.#ObjectExpression
-		LambdaConfig?:        #LambdaConfig | fn.#ObjectExpression
-		MetricsConfig?:       "DISABLED" | "ENABLED" | fn.#StringExpression
+		ApiId!:       string | fn.#StringExpression
+		Description?: string | fn.#StringExpression
+
+		// AWS Region and TableName for an Amazon DynamoDB table in your account.
+		DynamoDBConfig?: #DynamoDBConfig
+
+		// AWS Region and Endpoints for an Amazon OpenSearch Service domain in your account.
+		// As of September 2021, Amazon Elasticsearch Service is Amazon OpenSearch
+		// Service. This property is deprecated. For new data sources, use
+		// OpenSearchServiceConfig to specify an OpenSearch Service data source.
+		ElasticsearchConfig?: #ElasticsearchConfig
+
+		// ARN for the EventBridge bus.
+		EventBridgeConfig?: #EventBridgeConfig
+
+		// Endpoints for an HTTP data source.
+		HttpConfig?: #HttpConfig
+
+		// An ARN of a Lambda function in valid ARN format. This can be the ARN of a
+		// Lambda function that exists in the current account or in another account.
+		LambdaConfig?:  #LambdaConfig
+		MetricsConfig?: "DISABLED" | "ENABLED" | fn.#StringExpression
 		Name!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
-		OpenSearchServiceConfig?:  #OpenSearchServiceConfig | fn.#ObjectExpression
-		RelationalDatabaseConfig?: #RelationalDatabaseConfig | fn.#ObjectExpression
+
+		// AWS Region and Endpoints for an Amazon OpenSearch Service domain in your account.
+		OpenSearchServiceConfig?: #OpenSearchServiceConfig
+
+		// Relational Database configuration of the relational database data source.
+		RelationalDatabaseConfig?: #RelationalDatabaseConfig
 		ServiceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
 		Type!: "AMAZON_BEDROCK_RUNTIME" |
@@ -43,7 +61,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #AuthorizationConfig: close({
 	AuthorizationType!: "AWS_IAM" | fn.#StringExpression
-	AwsIamConfig?:      #AwsIamConfig | fn.#ObjectExpression
+
+	// The AWS Identity and Access Management settings.
+	AwsIamConfig?: #AwsIamConfig
 }) |
 fn.#ObjectExpression
 
@@ -61,8 +81,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DynamoDBConfig: close({
-	AwsRegion!:            string | fn.#StringExpression
-	DeltaSyncConfig?:      #DeltaSyncConfig | fn.#ObjectExpression
+	AwsRegion!: string | fn.#StringExpression
+
+	// The DeltaSyncConfig for a versioned datasource.
+	DeltaSyncConfig?:      #DeltaSyncConfig
 	TableName!:            string | fn.#StringExpression
 	UseCallerCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Versioned?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -78,7 +100,8 @@ fn.#ObjectExpression
 #EventBridgeConfig: close({EventBusArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #HttpConfig: close({
-	AuthorizationConfig?: #AuthorizationConfig | fn.#ObjectExpression
+	// The authorization configuration.
+	AuthorizationConfig?: #AuthorizationConfig
 	Endpoint!:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -101,7 +124,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RelationalDatabaseConfig: close({
-	RdsHttpEndpointConfig?:        #RdsHttpEndpointConfig | fn.#ObjectExpression
+	// Information about the Amazon RDS resource.
+	RdsHttpEndpointConfig?:        #RdsHttpEndpointConfig
 	RelationalDatabaseSourceType!: "RDS_HTTP_ENDPOINT" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

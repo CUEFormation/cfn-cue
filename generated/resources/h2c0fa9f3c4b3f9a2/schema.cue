@@ -21,8 +21,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(20) &
 		=~"^arn:aws[a-z-]*:ce::[0-9]{12}:costcategory/[a-f0-9-]{36}$" |
 		fn.#StringExpression
-		ExpiresAt?:              time.Time | fn.#StringExpression
-		GroupSharingPreference?: #GroupSharingPreference | fn.#StringExpression
+		ExpiresAt?: time.Time | fn.#StringExpression
+
+		// The group sharing preference for the bill scenario
+		GroupSharingPreference?: #GroupSharingPreference
 		Name?:                   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
 		Tags?:                   list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 	})

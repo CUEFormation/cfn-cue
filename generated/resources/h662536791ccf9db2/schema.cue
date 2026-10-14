@@ -18,7 +18,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 		Name!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		ParentGroupArn?: #UserHierarchyGroupArn | fn.#StringExpression
+
+		// The Amazon Resource Name (ARN) for the parent user hierarchy group.
+		ParentGroupArn?: #UserHierarchyGroupArn
 		Tags?:           list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }

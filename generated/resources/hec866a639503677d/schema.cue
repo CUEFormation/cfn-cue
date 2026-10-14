@@ -17,8 +17,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!: "AWS::SSMIncidents::ReplicationSet"
 	Properties!: close({
 		DeletionProtected?: #DeletionProtected
-		Regions!:           #RegionList | fn.#ListExpression
-		Tags?:              list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// The ReplicationSet configuration.
+		Regions!: #RegionList
+		Tags?:    list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
 

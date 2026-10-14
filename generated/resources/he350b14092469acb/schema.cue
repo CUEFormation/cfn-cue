@@ -46,7 +46,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #CrossRegionS3RestoreSourcesAccess: close({
 	Ipv4Addresses?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Region?:        string | fn.#StringExpression
-	Status?:        #ManagedResourceStatus | fn.#StringExpression
+
+	// The current status of the cross-Region Amazon S3 restore access configuration.
+	Status?: #ManagedResourceStatus
 }) |
 fn.#ObjectExpression
 
@@ -59,12 +61,16 @@ fn.#ObjectExpression
 		DomainName?:        string | fn.#StringExpression
 		Ipv4Addresses?:     [...string | fn.#StringExpression] | fn.#ListExpression
 		KmsPolicyDocument?: string | fn.#StringExpression
-		Status?:            #ManagedResourceStatus | fn.#StringExpression
+
+		// The status of the AWS KMS access.
+		Status?: #ManagedResourceStatus
 	}) |
 	fn.#ObjectExpression
 	ManagedS3BackupAccess?: close({
 		Ipv4Addresses?: [...string | fn.#StringExpression] | fn.#ListExpression
-		Status?:        #ManagedResourceStatus | fn.#StringExpression
+
+		// The status of the managed Amazon S3 backup access.
+		Status?: #ManagedResourceStatus
 	}) |
 	fn.#ObjectExpression
 	ManagedServicesIpv4Cidrs?: [...string | fn.#StringExpression] | fn.#ListExpression
@@ -73,7 +79,9 @@ fn.#ObjectExpression
 		DomainName?:       string | fn.#StringExpression
 		Ipv4Addresses?:    [...string | fn.#StringExpression] | fn.#ListExpression
 		S3PolicyDocument?: string | fn.#StringExpression
-		Status?:           #ManagedResourceStatus | fn.#StringExpression
+
+		// The status of the Amazon S3 access.
+		Status?: #ManagedResourceStatus
 	}) |
 	fn.#ObjectExpression
 	ServiceNetworkArn?: string | fn.#StringExpression
@@ -83,15 +91,19 @@ fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
 	StsAccess?: close({
-		DomainName?:        string | fn.#StringExpression
-		Ipv4Addresses?:     [...string | fn.#StringExpression] | fn.#ListExpression
-		Status?:            #ManagedResourceStatus | fn.#StringExpression
+		DomainName?:    string | fn.#StringExpression
+		Ipv4Addresses?: [...string | fn.#StringExpression] | fn.#ListExpression
+
+		// The status of the AWS STS access.
+		Status?:            #ManagedResourceStatus
 		StsPolicyDocument?: string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	ZeroEtlAccess?: close({
-		Cidr?:   string | fn.#StringExpression
-		Status?: #ManagedResourceStatus | fn.#StringExpression
+		Cidr?: string | fn.#StringExpression
+
+		// The status of the Zero-ETL access.
+		Status?: #ManagedResourceStatus
 	}) |
 	fn.#ObjectExpression
 }) |

@@ -20,7 +20,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Name!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 		Ruleset?:     strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
 		Tags?:        fn.#Object & {...} | string | fn.#StringObjectExpression
-		TargetTable?: #DataQualityTargetTable | fn.#ObjectExpression
+
+		// An object representing an AWS Glue table.
+		TargetTable?: #DataQualityTargetTable
 	})
 }
 

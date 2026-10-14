@@ -17,8 +17,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::PartnerApp"
 	Properties!: close({
-		AppVersion?:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		ApplicationConfig?: #PartnerAppConfig | fn.#ObjectExpression
+		AppVersion?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+
+		// A collection of settings that specify the maintenance schedule for the PartnerApp.
+		ApplicationConfig?: #PartnerAppConfig
 		AuthType!:          "IAM" | fn.#StringExpression
 		ClientToken?:       strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
 		EnableAutoMinorVersionUpgrade?: bool |
@@ -48,7 +50,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(0) &
 		=~".*" |
 		fn.#StringExpression
-		MaintenanceConfig?: #PartnerAppMaintenanceConfig | fn.#ObjectExpression
+
+		// A collection of settings that specify the maintenance schedule for the PartnerApp.
+		MaintenanceConfig?: #PartnerAppMaintenanceConfig
 		Name!:              strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+" | fn.#StringExpression
 		Tags?:              list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 		Tier!:              strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression

@@ -21,7 +21,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTEvents::Input"
 	Properties!: close({
-		InputDefinition!:  #InputDefinition | fn.#ObjectExpression
+		// The definition of the input.
+		InputDefinition!:  #InputDefinition
 		InputDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 		InputName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
 		Tags?:      [...#Tag] | fn.#ListExpression

@@ -24,37 +24,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(20) &
 		=~"^arn:aws[-a-z0-9]*:bcm-dashboards::[0-9]{12}:dashboard/(\\*|[-a-z0-9]+)$" |
 		fn.#StringExpression
-		Description?:    strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-		Name!:           strings.MaxRunes(50) & strings.MinRunes(2) | fn.#StringExpression
-		ScheduleConfig!: #ScheduleConfig | fn.#ObjectExpression
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:        strings.MaxRunes(50) & strings.MinRunes(2) | fn.#StringExpression
+
+		// The schedule configuration that defines when and how often the report is generated.
+		ScheduleConfig!: #ScheduleConfig
 		ScheduledReportExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role/[a-zA-Z0-9+=,.@_/-]+$" |
 		fn.#StringExpression
-		Tags?:                    list.MaxItems(200) & [...#Tag] | fn.#ListExpression
-		WidgetDateRangeOverride?: #DateTimeRange | fn.#ObjectExpression
+		Tags?: list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+
+		// The date range override applied to widgets in the scheduled report.
+		WidgetDateRangeOverride?: #DateTimeRange
 		WidgetIds?:               list.MaxItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	})
 }
 
 #DateTimeRange: close({
-	EndTime!:   #DateTimeValue | fn.#ObjectExpression
-	StartTime!: #DateTimeValue | fn.#ObjectExpression
+	// The end of the range.
+	EndTime!: #DateTimeValue
+
+	// The start of the range.
+	StartTime!: #DateTimeValue
 }) |
 fn.#ObjectExpression
 
 #DateTimeType: "ABSOLUTE" | "RELATIVE" | fn.#StringExpression
 
 #DateTimeValue: close({
-	Type!:  #DateTimeType | fn.#StringExpression
+	// Whether Value is an absolute date or a duration relative to now.
+	Type!:  #DateTimeType
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HealthStatus: close({
 	LastRefreshedAt?: time.Time | fn.#StringExpression
-	StatusCode!:      #HealthStatusCode | fn.#StringExpression
+
+	// Whether the scheduled report is healthy.
+	StatusCode!: #HealthStatusCode
 }) |
 fn.#ObjectExpression
 
@@ -63,8 +73,14 @@ fn.#ObjectExpression
 #ScheduleConfig: close({
 	ScheduleExpression?:         strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
 	ScheduleExpressionTimeZone?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
-	SchedulePeriod?:             #SchedulePeriod | fn.#ObjectExpression
-	State?:                      #ScheduleState | fn.#StringExpression
+
+	// The time period during which the schedule is active.
+	SchedulePeriod?: #SchedulePeriod
+
+	// The state of the schedule. ENABLED means the scheduled report runs according
+	// to its schedule expression. DISABLED means the scheduled report is paused
+	// and will not run until re-enabled.
+	State?: #ScheduleState
 }) |
 fn.#ObjectExpression
 

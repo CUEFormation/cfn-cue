@@ -18,7 +18,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		Description?: #BrowserProfileDescription
 		Name!:        #BrowserProfileName
-		Tags?:        #TagsMap | fn.#ObjectExpression
+
+		// A map of tag keys and values.
+		Tags?: #TagsMap
 	})
 }
 

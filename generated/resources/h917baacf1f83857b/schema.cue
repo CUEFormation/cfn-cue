@@ -43,7 +43,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		KubeControllerManagerConfig?: #KubeControllerManagerConfig
 		KubeSchedulerConfig?:         #KubeSchedulerConfig
 		KubernetesNetworkConfig?: close({
-			ElasticLoadBalancing?: #ElasticLoadBalancing | fn.#ObjectExpression
+			// Todo: add description
+			ElasticLoadBalancing?: #ElasticLoadBalancing
 			IpFamily?:             "ipv4" | "ipv6" | fn.#StringExpression
 			ServiceIpv4Cidr?:      string | fn.#StringExpression
 		}) |
@@ -123,7 +124,8 @@ fn.#ObjectExpression
 #EnabledTypes: [...#LoggingTypeConfig] | fn.#ListExpression
 
 #EncryptionConfig: close({
-	Provider?:  #Provider | fn.#ObjectExpression
+	// The encryption provider for the cluster.
+	Provider?:  #Provider
 	Resources?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -148,14 +150,19 @@ fn.#ObjectExpression
 #KubeSchedulerConfig: close({NodeResourcesFit?: #NodeResourcesFitConfig}) | fn.#ObjectExpression
 
 #KubernetesNetworkConfig: close({
-	ElasticLoadBalancing?: #ElasticLoadBalancing | fn.#ObjectExpression
+	// Todo: add description
+	ElasticLoadBalancing?: #ElasticLoadBalancing
 	IpFamily?:             "ipv4" | "ipv6" | fn.#StringExpression
 	ServiceIpv4Cidr?:      string | fn.#StringExpression
 	ServiceIpv6Cidr?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Logging: close({ClusterLogging?: #ClusterLogging | fn.#ObjectExpression}) | fn.#ObjectExpression
+#Logging: close({
+	// The cluster control plane logging configuration for your cluster.
+	ClusterLogging?: #ClusterLogging
+}) |
+fn.#ObjectExpression
 
 #LoggingTypeConfig: close(
 	{Type?: "api" | "audit" | "authenticator" | "controllerManager" | "scheduler" | fn.#StringExpression},
@@ -166,10 +173,16 @@ fn.#ObjectExpression
 
 #OutpostConfig: close({
 	ControlPlaneInstanceType!: string | fn.#StringExpression
-	ControlPlanePlacement?:    #ControlPlanePlacement | fn.#ObjectExpression
-	EtcdInstanceType?:         string | fn.#StringExpression
-	EtcdPlacement?:            #EtcdPlacement | fn.#ObjectExpression
-	OutpostArns!:              [...string | fn.#StringExpression] | fn.#ListExpression
+
+	// An object representing the placement configuration for all the control plane
+	// instances of your local Amazon EKS cluster on an AWS Outpost.
+	ControlPlanePlacement?: #ControlPlanePlacement
+	EtcdInstanceType?:      string | fn.#StringExpression
+
+	// An object representing the placement configuration for the etcd instances of
+	// your local Amazon EKS cluster on an AWS Outpost.
+	EtcdPlacement?: #EtcdPlacement
+	OutpostArns!:   [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -196,8 +209,11 @@ fn.#ObjectExpression
 #Provider: close({KeyArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #RemoteNetworkConfig: close({
-	RemoteNodeNetworks?: #RemoteNodeNetworks | fn.#ListExpression
-	RemotePodNetworks?:  #RemotePodNetworks | fn.#ListExpression
+	// Network configuration of nodes run on-premises with EKS Hybrid Nodes.
+	RemoteNodeNetworks?: #RemoteNodeNetworks
+
+	// Network configuration of pods run on-premises with EKS Hybrid Nodes.
+	RemotePodNetworks?: #RemotePodNetworks
 }) |
 fn.#ObjectExpression
 
@@ -302,7 +318,11 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#StorageConfig: close({BlockStorage?: #BlockStorage | fn.#ObjectExpression}) | fn.#ObjectExpression
+#StorageConfig: close({
+	// Todo: add description
+	BlockStorage?: #BlockStorage
+}) |
+fn.#ObjectExpression
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

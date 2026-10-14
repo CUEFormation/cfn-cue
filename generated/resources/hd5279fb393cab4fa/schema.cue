@@ -20,14 +20,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Panorama::ApplicationInstance"
 	Properties!: close({
-		ApplicationInstanceIdToReplace?: #ApplicationInstanceId | fn.#StringExpression
-		DefaultRuntimeContextDevice!:    #DefaultRuntimeContextDevice | fn.#StringExpression
-		Description?:                    #Description | fn.#StringExpression
-		ManifestOverridesPayload?:       #ManifestOverridesPayload | fn.#ObjectExpression
-		ManifestPayload!:                #ManifestPayload | fn.#ObjectExpression
-		Name?:                           #Name | fn.#StringExpression
-		RuntimeRoleArn?:                 #RuntimeRoleArn | fn.#StringExpression
-		Tags?:                           #TagList | fn.#ListExpression
+		// The ID of an application instance to replace with the new instance.
+		ApplicationInstanceIdToReplace?: #ApplicationInstanceId
+
+		// The device's ID.
+		DefaultRuntimeContextDevice!: #DefaultRuntimeContextDevice
+
+		// A description for the application instance.
+		Description?: #Description
+
+		// Setting overrides for the application manifest.
+		ManifestOverridesPayload?: #ManifestOverridesPayload
+
+		// The application's manifest document.
+		ManifestPayload!: #ManifestPayload
+
+		// A name for the application instance.
+		Name?: #Name
+
+		// The ARN of a runtime role for the application instance.
+		RuntimeRoleArn?: #RuntimeRoleArn
+
+		// Tags for the application instance.
+		Tags?: #TagList
 	})
 }
 
@@ -60,12 +75,19 @@ fn.#StringExpression
 
 #DeviceName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
 
-#ManifestOverridesPayload: close({PayloadData?: #ManifestOverridesPayloadData | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#ManifestOverridesPayload: close({
+	// The overrides document.
+	PayloadData?: #ManifestOverridesPayloadData
+}) |
+fn.#ObjectExpression
 
 #ManifestOverridesPayloadData: strings.MaxRunes(51200) & strings.MinRunes(0) & =~"^.+$" | fn.#StringExpression
 
-#ManifestPayload: close({PayloadData?: #ManifestPayloadData | fn.#StringExpression}) | fn.#ObjectExpression
+#ManifestPayload: close({
+	// The application manifest.
+	PayloadData?: #ManifestPayloadData
+}) |
+fn.#ObjectExpression
 
 #ManifestPayloadData: strings.MaxRunes(51200) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 

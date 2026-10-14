@@ -24,8 +24,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // matches the request. If you want to send values to the origin and also
 // include them in the cache key, use ``CachePolicy``.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::OriginRequestPolicy"
-	Properties!: close({OriginRequestPolicyConfig!: #OriginRequestPolicyConfig | fn.#ObjectExpression})
+	Type!: "AWS::CloudFront::OriginRequestPolicy"
+	Properties!: close({
+		// The origin request policy configuration.
+		OriginRequestPolicyConfig!: #OriginRequestPolicyConfig
+	})
 }
 
 #CookiesConfig: close({
@@ -41,11 +44,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #OriginRequestPolicyConfig: close({
-	Comment?:            string | fn.#StringExpression
-	CookiesConfig!:      #CookiesConfig | fn.#ObjectExpression
-	HeadersConfig!:      #HeadersConfig | fn.#ObjectExpression
-	Name!:               string | fn.#StringExpression
-	QueryStringsConfig!: #QueryStringsConfig | fn.#ObjectExpression
+	Comment?: string | fn.#StringExpression
+
+	// The cookies from viewer requests to include in origin requests.
+	CookiesConfig!: #CookiesConfig
+
+	// The HTTP headers to include in origin requests. These can include headers
+	// from viewer requests and additional headers added by CloudFront.
+	HeadersConfig!: #HeadersConfig
+	Name!:          string | fn.#StringExpression
+
+	// The URL query strings from viewer requests to include in origin requests.
+	QueryStringsConfig!: #QueryStringsConfig
 }) |
 fn.#ObjectExpression
 

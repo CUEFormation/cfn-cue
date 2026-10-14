@@ -31,8 +31,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppSync::Resolver"
 	Properties!: close({
-		ApiId!:          string | fn.#StringExpression
-		CachingConfig?:  #CachingConfig | fn.#ObjectExpression
+		ApiId!: string | fn.#StringExpression
+
+		// The caching configuration for the resolver.
+		CachingConfig?:  #CachingConfig
 		Code?:           strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
 		CodeS3Location?: string | fn.#StringExpression
 		DataSourceName?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" |
@@ -57,15 +59,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		MetricsConfig?:                     "ENABLED" | "DISABLED" | fn.#StringExpression
-		PipelineConfig?:                    #PipelineConfig | fn.#ObjectExpression
+		MetricsConfig?: "ENABLED" | "DISABLED" | fn.#StringExpression
+
+		// Functions linked with the pipeline resolver.
+		PipelineConfig?:                    #PipelineConfig
 		RequestMappingTemplate?:            strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
 		RequestMappingTemplateS3Location?:  string | fn.#StringExpression
 		ResponseMappingTemplate?:           strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
 		ResponseMappingTemplateS3Location?: string | fn.#StringExpression
-		Runtime?:                           #AppSyncRuntime | fn.#ObjectExpression
-		SyncConfig?:                        #SyncConfig | fn.#ObjectExpression
-		TypeName!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
+
+		// Describes a runtime used by an APSYlong resolver or APSYlong function.
+		// Specifies the name and version of the runtime to use. Note that if a runtime
+		// is specified, code must also be specified.
+		Runtime?: #AppSyncRuntime
+
+		// The ``SyncConfig`` for a resolver attached to a versioned data source.
+		SyncConfig?: #SyncConfig
+		TypeName!:   strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
 	})
 }
 
@@ -104,8 +114,10 @@ fn.#ObjectExpression
 #PipelineConfig: close({Functions?: [...string | fn.#StringExpression] | fn.#ListExpression}) | fn.#ObjectExpression
 
 #SyncConfig: close({
-	ConflictDetection!:           "NONE" | "VERSION" | fn.#StringExpression
-	ConflictHandler?:             "AUTOMERGE" | "LAMBDA" | "NONE" | "OPTIMISTIC_CONCURRENCY" | fn.#StringExpression
-	LambdaConflictHandlerConfig?: #LambdaConflictHandlerConfig | fn.#ObjectExpression
+	ConflictDetection!: "NONE" | "VERSION" | fn.#StringExpression
+	ConflictHandler?:   "AUTOMERGE" | "LAMBDA" | "NONE" | "OPTIMISTIC_CONCURRENCY" | fn.#StringExpression
+
+	// The ``LambdaConflictHandlerConfig`` when configuring ``LAMBDA`` as the Conflict Handler.
+	LambdaConflictHandlerConfig?: #LambdaConflictHandlerConfig
 }) |
 fn.#ObjectExpression

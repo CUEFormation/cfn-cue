@@ -64,7 +64,9 @@ fn.#ObjectExpression
 	ResourceId?:     string | fn.#StringExpression
 	ResourceOwner?:  string | fn.#StringExpression
 	ResourceRegion?: string | fn.#StringExpression
-	ResourceTag?:    #Tag | fn.#ObjectExpression
+
+	// Condition for the IPAM Resource CIDR rule type. Resource Tag (like dev-vpc-1).
+	ResourceTag?: #Tag
 }) |
 fn.#ObjectExpression
 

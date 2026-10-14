@@ -28,9 +28,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ApiKeySourceType?: string | fn.#StringExpression
 		BinaryMediaTypes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 		Body?:             fn.#Object & {...} | string | fn.#StringObjectExpression
-		BodyS3Location?:   #S3Location | fn.#ObjectExpression
-		CloneFrom?:        string | fn.#StringExpression
-		Description?:      string | fn.#StringExpression
+
+		// The Amazon Simple Storage Service (Amazon S3) location that points to an
+		// OpenAPI file, which defines a set of RESTful APIs in JSON or YAML format.
+		BodyS3Location?: #S3Location
+		CloneFrom?:      string | fn.#StringExpression
+		Description?:    string | fn.#StringExpression
 		DisableExecuteApiEndpoint?: bool |
 			"true" |
 			"True" |
@@ -39,8 +42,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		EndpointAccessMode?:    string | fn.#StringExpression
-		EndpointConfiguration?: #EndpointConfiguration | fn.#ObjectExpression
+		EndpointAccessMode?: string | fn.#StringExpression
+
+		// A list of the endpoint types and IP address types of the API. Use this
+		// property when creating an API. When importing an existing API, specify the
+		// endpoint configuration types using the ``Parameters`` property.
+		EndpointConfiguration?: #EndpointConfiguration
 		FailOnWarnings?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		MinimumCompressionSize?: int |
 			{

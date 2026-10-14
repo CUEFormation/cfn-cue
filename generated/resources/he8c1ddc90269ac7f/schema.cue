@@ -25,8 +25,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		DatasetName?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 		EncryptionKeyArn?:   strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 		EncryptionMode?:     "SSE-KMS" | "SSE-S3" | fn.#StringExpression
-		JobSample?:          #JobSample | fn.#ObjectExpression
-		LogSubscription?:    "ENABLE" | "DISABLE" | fn.#StringExpression
+
+		// Job Sample
+		JobSample?:       #JobSample
+		LogSubscription?: "ENABLE" | "DISABLE" | fn.#StringExpression
 		MaxCapacity?: int |
 			{
 				string &
@@ -60,10 +62,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name!:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		OutputLocation?:       #OutputLocation | fn.#ObjectExpression
-		Outputs?:              list.MinItems(1) & [...#Output] | fn.#ListExpression
-		ProfileConfiguration?: #ProfileConfiguration | fn.#ObjectExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+		// Output location
+		OutputLocation?: #OutputLocation
+		Outputs?:        list.MinItems(1) & [...#Output] | fn.#ListExpression
+
+		// Profile Job configuration
+		ProfileConfiguration?: #ProfileConfiguration
 		ProjectName?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 		Recipe?:               #Recipe
 		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |

@@ -19,11 +19,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaPackage::PackagingConfiguration"
 	Properties!: close({
-		CmafPackage?:      #CmafPackage | fn.#ObjectExpression
-		DashPackage?:      #DashPackage | fn.#ObjectExpression
-		HlsPackage?:       #HlsPackage | fn.#ObjectExpression
-		Id!:               string | fn.#StringExpression
-		MssPackage?:       #MssPackage | fn.#ObjectExpression
+		// A CMAF packaging configuration.
+		CmafPackage?: #CmafPackage
+
+		// A Dynamic Adaptive Streaming over HTTP (DASH) packaging configuration.
+		DashPackage?: #DashPackage
+
+		// An HTTP Live Streaming (HLS) packaging configuration.
+		HlsPackage?: #HlsPackage
+		Id!:         string | fn.#StringExpression
+
+		// A Microsoft Smooth Streaming (MSS) PackagingConfiguration.
+		MssPackage?:       #MssPackage
 		PackagingGroupId!: string | fn.#StringExpression
 		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})

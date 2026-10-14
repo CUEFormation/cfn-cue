@@ -20,9 +20,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DMS::DataMigration"
 	Properties!: close({
-		DataMigrationIdentifier?:    strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-		DataMigrationName?:          strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-		DataMigrationSettings?:      #DataMigrationSettings | fn.#ObjectExpression
+		DataMigrationIdentifier?: strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
+		DataMigrationName?:       strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The property describes the settings for the data migration.
+		DataMigrationSettings?:      #DataMigrationSettings
 		DataMigrationType!:          "full-load" | "cdc" | "full-load-and-cdc" | fn.#StringExpression
 		MigrationProjectIdentifier!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 		ServiceAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(300) & strings.MinRunes(1)) |

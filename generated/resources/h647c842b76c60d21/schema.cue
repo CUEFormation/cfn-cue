@@ -20,8 +20,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		FileSystemId!: strings.MaxRunes(128) &
 		=~"^(arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}|fs-[0-9a-f]{17,40})$" |
 		fn.#StringExpression
-		PosixUser?:     #PosixUser | fn.#ObjectExpression
-		RootDirectory?: #RootDirectory | fn.#ObjectExpression
+
+		// The operating system user and group applied to all compute drive requests
+		// made using the access point.
+		PosixUser?: #PosixUser
+
+		// Specifies the directory on the Amazon EFS file system that the access point
+		// exposes as the root directory of your file system to NFS clients using the
+		// access point. The clients using the access point can only access the root
+		// directory and below. If the RootDirectory>Path specified does not exist, EFS
+		// creates it and applies the CreationPermissions settings when a client
+		// connects to an access point. When specifying a RootDirectory, you need to
+		// provide the Path, and the CreationPermissions is optional.
+		RootDirectory?: #RootDirectory
 		Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#AccessPointTag] | fn.#ListExpression
 	})
 }
@@ -47,7 +58,14 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RootDirectory: close({
-	CreationPermissions?: #CreationPermissions | fn.#ObjectExpression
+	// (Optional) Specifies the POSIX IDs and permissions to apply to the access
+	// point's RootDirectory. If the RootDirectory>Path specified does not exist,
+	// EFS creates the root directory using the CreationPermissions settings when a
+	// client connects to an access point. When specifying the CreationPermissions,
+	// you must provide values for all properties. If you do not provide
+	// CreationPermissions and the specified RootDirectory>Path does not exist,
+	// attempts to mount the file system using the access point will fail.
+	CreationPermissions?: #CreationPermissions
 	Path?:                strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression

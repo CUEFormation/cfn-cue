@@ -20,16 +20,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lightsail::Distribution"
 	Properties!: close({
-		BundleId!:              string | fn.#StringExpression
-		CacheBehaviorSettings?: #CacheSettings | fn.#ObjectExpression
+		BundleId!: string | fn.#StringExpression
+
+		// An object that describes the cache behavior settings for the distribution.
+		CacheBehaviorSettings?: #CacheSettings
 		CacheBehaviors?:        list.UniqueItems() & [...#CacheBehaviorPerPath] | fn.#ListExpression
 		CertificateName?:       =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
-		DefaultCacheBehavior!:  #CacheBehavior | fn.#ObjectExpression
-		DistributionName!:      =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
-		IpAddressType?:         "dualstack" | "ipv4" | "ipv6" | fn.#StringExpression
-		IsEnabled?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Origin!:                #InputOrigin | fn.#ObjectExpression
-		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// An object that describes the default cache behavior for the distribution.
+		DefaultCacheBehavior!: #CacheBehavior
+		DistributionName!:     =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
+		IpAddressType?:        "dualstack" | "ipv4" | "ipv6" | fn.#StringExpression
+		IsEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// An object that describes the origin resource for the distribution, such as a
+		// Lightsail instance or load balancer.
+		Origin!: #InputOrigin
+		Tags?:   list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
 
@@ -58,9 +65,18 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ForwardedCookies?:      #CookieObject | fn.#ObjectExpression
-	ForwardedHeaders?:      #HeaderObject | fn.#ObjectExpression
-	ForwardedQueryStrings?: #QueryStringObject | fn.#ObjectExpression
+
+	// An object that describes the cookies that are forwarded to the origin. Your
+	// content is cached based on the cookies that are forwarded.
+	ForwardedCookies?: #CookieObject
+
+	// An object that describes the headers that are forwarded to the origin. Your
+	// content is cached based on the headers that are forwarded.
+	ForwardedHeaders?: #HeaderObject
+
+	// An object that describes the query strings that are forwarded to the origin.
+	// Your content is cached based on the query strings that are forwarded.
+	ForwardedQueryStrings?: #QueryStringObject
 	MaximumTTL?: int |
 		{
 			string &

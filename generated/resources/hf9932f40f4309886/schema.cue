@@ -20,22 +20,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VerifiedAccessEndpoint"
 	Properties!: close({
-		ApplicationDomain?:       string | fn.#StringExpression
-		AttachmentType!:          "vpc" | fn.#StringExpression
-		CidrOptions?:             #CidrOptions | fn.#ObjectExpression
-		Description?:             string | fn.#StringExpression
-		DomainCertificateArn?:    string | fn.#StringExpression
-		EndpointDomainPrefix?:    string | fn.#StringExpression
-		EndpointType!:            "cidr" | "load-balancer" | "network-interface" | "rds" | fn.#StringExpression
-		LoadBalancerOptions?:     #LoadBalancerOptions | fn.#ObjectExpression
-		NetworkInterfaceOptions?: #NetworkInterfaceOptions | fn.#ObjectExpression
+		ApplicationDomain?: string | fn.#StringExpression
+		AttachmentType!:    "vpc" | fn.#StringExpression
+
+		// The options for cidr type endpoint.
+		CidrOptions?:          #CidrOptions
+		Description?:          string | fn.#StringExpression
+		DomainCertificateArn?: string | fn.#StringExpression
+		EndpointDomainPrefix?: string | fn.#StringExpression
+		EndpointType!:         "cidr" | "load-balancer" | "network-interface" | "rds" | fn.#StringExpression
+
+		// The load balancer details if creating the AWS Verified Access endpoint as load-balancer type.
+		LoadBalancerOptions?: #LoadBalancerOptions
+
+		// The options for network-interface type endpoint.
+		NetworkInterfaceOptions?: #NetworkInterfaceOptions
 		PolicyDocument?:          string | fn.#StringExpression
 		PolicyEnabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		RdsOptions?:              #RdsOptions | fn.#ObjectExpression
-		SecurityGroupIds?:        list.UniqueItems() & [...#SecurityGroupId] | fn.#ListExpression
-		SseSpecification?:        #SseSpecification | fn.#ObjectExpression
-		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		VerifiedAccessGroupId!:   string | fn.#StringExpression
+
+		// The options for rds type endpoint.
+		RdsOptions?:       #RdsOptions
+		SecurityGroupIds?: list.UniqueItems() & [...#SecurityGroupId] | fn.#ListExpression
+
+		// The configuration options for customer provided KMS encryption.
+		SseSpecification?:      #SseSpecification
+		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VerifiedAccessGroupId!: string | fn.#StringExpression
 	})
 }
 

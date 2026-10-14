@@ -23,7 +23,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Name!:                  =~"[a-zA-Z0-9._-]{1,128}" | fn.#StringExpression
 		RecursiveDeleteOption?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		State?:                 "ENABLED" | "DISABLED" | fn.#StringExpression
-		Tags?:                  #Tags | fn.#ListExpression
+
+		// One or more tags, separated by commas, that you want to attach to the workgroup as you create it
+		Tags?: #Tags
 		WorkGroupConfiguration?: close({
 			AdditionalConfiguration?:                #AdditionalConfiguration
 			BytesScannedCutoffPerQuery?:             #BytesScannedCutoffPerQuery

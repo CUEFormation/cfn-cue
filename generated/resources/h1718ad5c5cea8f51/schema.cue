@@ -20,11 +20,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::Table"
 	Properties!: close({
-		CatalogId!:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		DatabaseName!:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Name?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		OpenTableFormatInput?: #OpenTableFormatInput | fn.#ObjectExpression
-		TableInput?:           #TableInput | fn.#ObjectExpression
+		CatalogId!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		DatabaseName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Name?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+		// Specifies an OpenTableFormatInput structure when creating an open format table.
+		OpenTableFormatInput?: #OpenTableFormatInput
+
+		// A structure used to define a table.
+		TableInput?: #TableInput
 	})
 }
 
@@ -36,8 +40,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #IcebergInput: close({
-	IcebergTableInput?: #IcebergTableInput | fn.#ObjectExpression
-	MetadataOperation?: #MetadataOperation | fn.#StringExpression
+	// Specifies the Iceberg table configuration.
+	IcebergTableInput?: #IcebergTableInput
+
+	// A required metadata operation. Can only be set to CREATE.
+	MetadataOperation?: #MetadataOperation
 	Version?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -197,20 +204,30 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #IcebergTableInput: close({
-	Location!:      string | fn.#StringExpression
-	PartitionSpec?: #IcebergPartitionSpec | fn.#ObjectExpression
+	Location!: string | fn.#StringExpression
+
+	// The partition spec for the Iceberg table.
+	PartitionSpec?: #IcebergPartitionSpec
 	Properties?: close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Schema!:     #IcebergSchema | fn.#ObjectExpression
-	WriteOrder?: #IcebergSortOrder | fn.#ObjectExpression
+
+	// The schema for the Iceberg table.
+	Schema!: #IcebergSchema
+
+	// The write order for the Iceberg table.
+	WriteOrder?: #IcebergSortOrder
 }) |
 fn.#ObjectExpression
 
 #MetadataOperation: "CREATE" | fn.#StringExpression
 
-#OpenTableFormatInput: close({IcebergInput?: #IcebergInput | fn.#ObjectExpression}) | fn.#ObjectExpression
+#OpenTableFormatInput: close({
+	// Specifies an IcebergInput structure that defines an Apache Iceberg metadata table.
+	IcebergInput?: #IcebergInput
+}) |
+fn.#ObjectExpression
 
 #Order: close({
 	Column!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
@@ -242,7 +259,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SchemaReference: close({
-	SchemaId?: #SchemaId | fn.#ObjectExpression
+	// A structure that contains schema identity fields. Either this or the
+	// SchemaVersionId has to be provided.
+	SchemaId?: #SchemaId
 	SchemaVersionId?: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
@@ -300,12 +319,18 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	OutputFormat?:           strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Parameters?:             fn.#Object & {...} | string | fn.#StringObjectExpression
-	SchemaReference?:        #SchemaReference | fn.#ObjectExpression
-	SerdeInfo?:              #SerdeInfo | fn.#ObjectExpression
-	SkewedInfo?:             #SkewedInfo | fn.#ObjectExpression
-	SortColumns?:            [...#Order | fn.#ObjectExpression] | fn.#ListExpression
+	OutputFormat?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+	Parameters?:   fn.#Object & {...} | string | fn.#StringObjectExpression
+
+	// An object that references a schema stored in the AWS Glue Schema Registry.
+	SchemaReference?: #SchemaReference
+
+	// The serialization/deserialization (SerDe) information.
+	SerdeInfo?: #SerdeInfo
+
+	// The information about values that appear frequently in a column (skewed values).
+	SkewedInfo?:             #SkewedInfo
+	SortColumns?:            [...#Order] | fn.#ListExpression
 	StoredAsSubDirectories?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -339,11 +364,17 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	StorageDescriptor?: #StorageDescriptor | fn.#ObjectExpression
+
+	// A storage descriptor containing information about the physical storage of this table.
+	StorageDescriptor?: #StorageDescriptor
 	TableType?: ("EXTERNAL_TABLE" | "VIRTUAL_VIEW") & (strings.MaxRunes(255) & strings.MinRunes(0)) |
 	fn.#StringExpression
-	TargetTable?:      #TableIdentifier | fn.#ObjectExpression
-	ViewDefinition?:   #ViewDefinition | fn.#ObjectExpression
+
+	// A TableIdentifier structure that describes a target table for resource linking.
+	TargetTable?: #TableIdentifier
+
+	// The view definition for the table.
+	ViewDefinition?:   #ViewDefinition
 	ViewExpandedText?: strings.MaxRunes(409600) & strings.MinRunes(0) | fn.#StringExpression
 	ViewOriginalText?: strings.MaxRunes(409600) & strings.MinRunes(0) | fn.#StringExpression
 }) |

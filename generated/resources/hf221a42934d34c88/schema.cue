@@ -24,7 +24,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		RecipeName!:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 		fn.#StringExpression
-		Sample?: #Sample | fn.#ObjectExpression
+
+		// Sample
+		Sample?: #Sample
 		Tags?:   [...#Tag] | fn.#ListExpression
 	})
 }

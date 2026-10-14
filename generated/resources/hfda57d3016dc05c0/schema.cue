@@ -39,7 +39,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::EventSourceMapping"
 	Properties!: close({
-		AmazonManagedKafkaEventSourceConfig?: #AmazonManagedKafkaEventSourceConfig | fn.#ObjectExpression
+		// Specific configuration settings for an Amazon Managed Streaming for Apache
+		// Kafka (Amazon MSK) event source.
+		AmazonManagedKafkaEventSourceConfig?: #AmazonManagedKafkaEventSourceConfig
 		BatchSize?: int & <=10000 & >=1 |
 			{
 				string &
@@ -66,14 +68,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		DestinationConfig?:           #DestinationConfig | fn.#ObjectExpression
-		DocumentDBEventSourceConfig?: #DocumentDBEventSourceConfig | fn.#ObjectExpression
+
+		// (Kinesis, DynamoDB Streams, Amazon MSK, and self-managed Apache Kafka) A
+		// configuration object that specifies the destination of an event after Lambda
+		// processes it.
+		DestinationConfig?: #DestinationConfig
+
+		// Specific configuration settings for a DocumentDB event source.
+		DocumentDBEventSourceConfig?: #DocumentDBEventSourceConfig
 		Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		EventSourceArn?: strings.MaxRunes(1024) &
 		strings.MinRunes(12) &
 		=~"arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" |
 		fn.#StringExpression
-		FilterCriteria?: #FilterCriteria | fn.#ObjectExpression
+
+		// An object that defines the filter criteria that determine whether Lambda
+		// should process an event. For more information, see [Lambda event
+		// filtering](https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html).
+		FilterCriteria?: #FilterCriteria
 		FunctionName!: strings.MaxRunes(140) &
 		strings.MinRunes(1) &
 		=~"(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?" |
@@ -87,7 +99,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(12) &
 		=~"(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()" |
 		fn.#StringExpression
-		LoggingConfig?: #LoggingConfig | fn.#ObjectExpression
+
+		// (Amazon MSK, and self-managed Apache Kafka only) The logging configuration
+		// for your event source. For more information, see [Event source mapping
+		// logging](https://docs.aws.amazon.com/lambda/latest/dg/esm-logging.html).
+		LoggingConfig?: #LoggingConfig
 		MaximumBatchingWindowInSeconds?: int & <=300 & >=0 |
 			{
 				string &
@@ -142,7 +158,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		MetricsConfig?: #MetricsConfig | fn.#ObjectExpression
+
+		// The metrics configuration for your event source. For more information, see
+		// [Event source mapping
+		// metrics](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics-types.html#event-source-mapping-metrics).
+		MetricsConfig?: #MetricsConfig
 		ParallelizationFactor?: int & <=10 & >=1 |
 			{
 				string &
@@ -161,14 +181,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		ProvisionedPollerConfig?: #ProvisionedPollerConfig | fn.#ObjectExpression
+
+		// (Amazon SQS, Amazon MSK, and self-managed Apache Kafka only) The provisioned
+		// mode configuration for the event source. For more information, see
+		// [provisioned
+		// mode](https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html#invocation-eventsourcemapping-provisioned-mode).
+		ProvisionedPollerConfig?: #ProvisionedPollerConfig
 		Queues?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
 			...strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
 		] |
 		fn.#ListExpression
-		ScalingConfig?:                     #ScalingConfig | fn.#ObjectExpression
-		SelfManagedEventSource?:            #SelfManagedEventSource | fn.#ObjectExpression
-		SelfManagedKafkaEventSourceConfig?: #SelfManagedKafkaEventSourceConfig | fn.#ObjectExpression
+
+		// This property is for Amazon SQS event sources only. You cannot use
+		// ``ProvisionedPollerConfig`` while using ``ScalingConfig``. These options are
+		// mutually exclusive. To remove the scaling configuration, pass an empty
+		// value.
+		ScalingConfig?: #ScalingConfig
+
+		// The self-managed Apache Kafka cluster for your event source.
+		SelfManagedEventSource?: #SelfManagedEventSource
+
+		// Specific configuration settings for a self-managed Apache Kafka event source.
+		SelfManagedKafkaEventSourceConfig?: #SelfManagedKafkaEventSourceConfig
 		SourceAccessConfigurations?: list.MaxItems(29) & list.MinItems(1) & list.UniqueItems() & [
 			...#SourceAccessConfiguration
 		] |
@@ -221,8 +255,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }
 
 #AmazonManagedKafkaEventSourceConfig: close({
-	ConsumerGroupId?:      #ConsumerGroupId | fn.#StringExpression
-	SchemaRegistryConfig?: #SchemaRegistryConfig | fn.#ObjectExpression
+	// The identifier for the Kafka consumer group to join. The consumer group ID
+	// must be unique among all your Kafka event sources. After creating a Kafka
+	// event source mapping with the consumer group ID specified, you cannot update
+	// this value. For more information, see [Customizable consumer group
+	// ID](https://docs.aws.amazon.com/lambda/latest/dg/with-msk.html#services-msk-consumer-group-id).
+	ConsumerGroupId?: #ConsumerGroupId
+
+	// Specific configuration settings for a Kafka schema registry.
+	SchemaRegistryConfig?: #SchemaRegistryConfig
 }) |
 fn.#ObjectExpression
 
@@ -230,7 +271,11 @@ fn.#ObjectExpression
 
 #ConsumptionMode: "Stream" | "Queue" | fn.#StringExpression
 
-#DestinationConfig: close({OnFailure?: #OnFailure | fn.#ObjectExpression}) | fn.#ObjectExpression
+#DestinationConfig: close({
+	// The destination configuration for failed invocations.
+	OnFailure?: #OnFailure
+}) |
+fn.#ObjectExpression
 
 #DocumentDBEventSourceConfig: close({
 	CollectionName?: strings.MaxRunes(57) & strings.MinRunes(1) | fn.#StringExpression
@@ -330,7 +375,11 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ScalingConfig: close({MaximumConcurrency?: #MaximumConcurrency | fn.#NumberExpression}) | fn.#ObjectExpression
+#ScalingConfig: close({
+	// Limits the number of concurrent instances that the SQS event source can invoke.
+	MaximumConcurrency?: #MaximumConcurrency
+}) |
+fn.#ObjectExpression
 
 #SchemaRegistryAccessConfig: close({
 	Type?: "BASIC_AUTH" |
@@ -357,12 +406,24 @@ fn.#ObjectExpression
 
 #SchemaValidationConfig: close({Attribute?: "KEY" | "VALUE" | fn.#StringExpression}) | fn.#ObjectExpression
 
-#SelfManagedEventSource: close({Endpoints?: #Endpoints | fn.#ObjectExpression}) | fn.#ObjectExpression
+#SelfManagedEventSource: close({
+	// The list of bootstrap servers for your Kafka brokers in the following format:
+	// ``"KafkaBootstrapServers": ["abc.xyz.com:xxxx","abc2.xyz.com:xxxx"]``.
+	Endpoints?: #Endpoints
+}) |
+fn.#ObjectExpression
 
 #SelfManagedKafkaEventSourceConfig: close({
-	ConsumerGroupId?:      #ConsumerGroupId | fn.#StringExpression
-	ConsumptionMode?:      #ConsumptionMode | fn.#StringExpression
-	SchemaRegistryConfig?: #SchemaRegistryConfig | fn.#ObjectExpression
+	// The identifier for the Kafka consumer group to join. The consumer group ID
+	// must be unique among all your Kafka event sources. After creating a Kafka
+	// event source mapping with the consumer group ID specified, you cannot update
+	// this value. For more information, see [Customizable consumer group
+	// ID](https://docs.aws.amazon.com/lambda/latest/dg/with-kafka-process.html#services-smaa-topic-add).
+	ConsumerGroupId?: #ConsumerGroupId
+	ConsumptionMode?: #ConsumptionMode
+
+	// Specific configuration settings for a Kafka schema registry.
+	SchemaRegistryConfig?: #SchemaRegistryConfig
 }) |
 fn.#ObjectExpression
 

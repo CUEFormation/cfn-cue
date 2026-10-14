@@ -24,7 +24,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!: "AWS::EFS::FileSystem"
 	Properties?: close({
 		AvailabilityZoneName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-		BackupPolicy?:         #BackupPolicy | fn.#ObjectExpression
+
+		// Use the ``BackupPolicy`` to turn automatic backups on or off for the file system.
+		BackupPolicy?: #BackupPolicy
 		BypassPolicyLockoutSafetyCheck?: bool |
 			"true" |
 			"True" |
@@ -33,9 +35,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		Encrypted?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		FileSystemPolicy?:     fn.#Object & {...} | string | fn.#StringObjectExpression
-		FileSystemProtection?: #FileSystemProtection | fn.#ObjectExpression
+		Encrypted?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		FileSystemPolicy?: fn.#Object & {...} | string | fn.#StringObjectExpression
+
+		// Describes the protection on the file system.
+		FileSystemProtection?: #FileSystemProtection
 		FileSystemTags?:       list.UniqueItems() & [...#ElasticFileSystemTag] | fn.#ListExpression
 		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			string) &

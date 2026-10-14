@@ -21,7 +21,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodePipeline::Pipeline"
 	Properties!: close({
-		ArtifactStore?:                  #ArtifactStore | fn.#ObjectExpression
+		// The S3 bucket where artifacts for the pipeline are stored.
+		ArtifactStore?:                  #ArtifactStore
 		ArtifactStores?:                 list.UniqueItems() & [...#ArtifactStoreMap] | fn.#ListExpression
 		DisableInboundStageTransitions?: list.UniqueItems() & [...#StageTransition] | fn.#ListExpression
 		ExecutionMode?:                  "QUEUED" | "SUPERSEDED" | "PARALLEL" | fn.#StringExpression

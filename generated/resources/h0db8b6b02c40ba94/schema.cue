@@ -15,12 +15,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RoboMaker::SimulationApplication"
 	Properties!: close({
-		CurrentRevisionId?:  string | fn.#StringExpression
-		Environment?:        string | fn.#StringExpression
-		Name?:               strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\-]*" | fn.#StringExpression
-		RenderingEngine?:    #RenderingEngine | fn.#ObjectExpression
-		RobotSoftwareSuite!: #RobotSoftwareSuite | fn.#ObjectExpression
-		SimulationSoftwareSuite!: #SimulationSoftwareSuite | fn.#ObjectExpression
+		CurrentRevisionId?: string | fn.#StringExpression
+		Environment?:       string | fn.#StringExpression
+		Name?:              strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\-]*" | fn.#StringExpression
+
+		// The rendering engine for the simulation application.
+		RenderingEngine?: #RenderingEngine
+
+		// The robot software suite used by the simulation application.
+		RobotSoftwareSuite!: #RobotSoftwareSuite
+
+		// The simulation software suite used by the simulation application.
+		SimulationSoftwareSuite!: #SimulationSoftwareSuite
 		Sources?:                 [...#SourceConfig] | fn.#ListExpression
 		Tags?:                    #Tags
 	})

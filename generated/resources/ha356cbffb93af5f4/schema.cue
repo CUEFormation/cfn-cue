@@ -20,10 +20,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::Stage"
 	Properties!: close({
-		AccessLogSetting?:     #AccessLogSetting | fn.#ObjectExpression
+		AccessLogSetting?:     #AccessLogSetting
 		CacheClusterEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		CacheClusterSize?:     string | fn.#StringExpression
-		CanarySetting?:        #CanarySetting | fn.#ObjectExpression
+		CanarySetting?:        #CanarySetting
 		ClientCertificateId?:  string | fn.#StringExpression
 		DeploymentId?:         string | fn.#StringExpression
 		Description?:          string | fn.#StringExpression

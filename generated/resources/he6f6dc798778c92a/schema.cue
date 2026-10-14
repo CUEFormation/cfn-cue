@@ -16,9 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaConnect::BridgeOutput"
 	Properties!: close({
-		BridgeArn!:     string | fn.#StringExpression
-		Name!:          string | fn.#StringExpression
-		NetworkOutput!: #BridgeNetworkOutput | fn.#ObjectExpression
+		BridgeArn!: string | fn.#StringExpression
+		Name!:      string | fn.#StringExpression
+
+		// The output of the bridge.
+		NetworkOutput!: #BridgeNetworkOutput
 	})
 }
 

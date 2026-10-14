@@ -21,8 +21,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IAM::User"
 	Properties?: close({
-		Groups?:       list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-		LoginProfile?: #LoginProfile | fn.#ObjectExpression
+		Groups?: list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+
+		// Creates a password for the specified IAM user. A password allows an IAM user
+		// to access AWS services through the console.
+		// You can use the CLI, the AWS API, or the *Users* page in the IAM console to
+		// create a password for any IAM user. Use
+		// [ChangePassword](https://docs.aws.amazon.com/IAM/latest/APIReference/API_ChangePassword.html)
+		// to update your own existing password in the *My Security Credentials* page
+		// in the console.
+		// For more information about managing passwords, see [Managing
+		// passwords](https://docs.aws.amazon.com/IAM/latest/UserGuide/Using_ManagingLogins.html)
+		// in the *User Guide*.
+		LoginProfile?: #LoginProfile
 		ManagedPolicyArns?: list.MaxItems(20) & list.UniqueItems() & [...] & [
 			...=~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" | fn.#StringExpression
 		] |

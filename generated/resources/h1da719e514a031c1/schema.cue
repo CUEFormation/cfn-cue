@@ -20,11 +20,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppFlow::ConnectorProfile"
 	Properties!: close({
-		ConnectionMode!:         "Public" | "Private" | fn.#StringExpression
-		ConnectorLabel?:         strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w!@#.-]+" | fn.#StringExpression
-		ConnectorProfileConfig?: #ConnectorProfileConfig | fn.#ObjectExpression
+		ConnectionMode!: "Public" | "Private" | fn.#StringExpression
+		ConnectorLabel?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w!@#.-]+" | fn.#StringExpression
+
+		// Connector specific configurations needed to create connector profile
+		ConnectorProfileConfig?: #ConnectorProfileConfig
 		ConnectorProfileName!:   strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+" | fn.#StringExpression
-		ConnectorType!:          #ConnectorType | fn.#StringExpression
+
+		// List of Saas providers that need connector profile to be created
+		ConnectorType!: #ConnectorType
 		KMSArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
@@ -40,7 +44,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #AccountName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
 #AmplitudeConnectorProfileCredentials: {
-	ApiKey!:    #ApiKey | fn.#StringExpression
+	// A unique alphanumeric identiﬁer used to authenticate a user, developer, or
+	// calling program to your API.
+	ApiKey!:    #ApiKey
 	SecretKey!: #SecretKey
 	...
 } | fn.#ObjectExpression
@@ -204,45 +210,72 @@ fn.#StringExpression
 #DatabaseUrl: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
 #DatadogConnectorProfileCredentials: {
-	ApiKey!:         #ApiKey | fn.#StringExpression
-	ApplicationKey!: #ApplicationKey | fn.#StringExpression
+	// A unique alphanumeric identiﬁer used to authenticate a user, developer, or
+	// calling program to your API.
+	ApiKey!: #ApiKey
+
+	// Application keys, in conjunction with your API key, give you full access to
+	// Datadog’s programmatic API. Application keys are associated with the user
+	// account that created them. The application key is used to log all requests
+	// made to the API.
+	ApplicationKey!: #ApplicationKey
 	...
 } | fn.#ObjectExpression
 
 #DatadogConnectorProfileProperties: {
-	InstanceUrl!: #InstanceUrl | fn.#StringExpression
+	// The location of the Datadog resource
+	InstanceUrl!: #InstanceUrl
 	...
 } | fn.#ObjectExpression
 
 #DynatraceConnectorProfileCredentials: {
-	ApiToken!: #ApiToken | fn.#StringExpression
+	// The API tokens used by Dynatrace API to authenticate various API calls.
+	ApiToken!: #ApiToken
 	...
 } | fn.#ObjectExpression
 
 #DynatraceConnectorProfileProperties: {
-	InstanceUrl!: #InstanceUrl | fn.#StringExpression
+	// The location of the Dynatrace resource
+	InstanceUrl!: #InstanceUrl
 	...
 } | fn.#ObjectExpression
 
 #GoogleAnalyticsConnectorProfileCredentials: {
-	AccessToken?:           #AccessToken | fn.#StringExpression
-	ClientId!:              #ClientId | fn.#StringExpression
-	ClientSecret!:          #ClientSecret | fn.#StringExpression
-	ConnectorOAuthRequest?: #ConnectorOAuthRequest | fn.#ObjectExpression
-	RefreshToken?:          #RefreshToken | fn.#StringExpression
+	// The credentials used to access protected resources.
+	AccessToken?: #AccessToken
+
+	// The identiﬁer for the desired client.
+	ClientId!: #ClientId
+
+	// The client secret used by the oauth client to authenticate to the authorization server.
+	ClientSecret!: #ClientSecret
+
+	// The oauth needed to request security tokens from the connector endpoint.
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
+
+	// The credentials used to acquire new access tokens.
+	RefreshToken?: #RefreshToken
 	...
 } | fn.#ObjectExpression
 
 #InforNexusConnectorProfileCredentials: {
-	AccessKeyId!:     #AccessKeyId | fn.#StringExpression
-	Datakey!:         #Key | fn.#StringExpression
-	SecretAccessKey!: #Key | fn.#StringExpression
-	UserId!:          #Username | fn.#StringExpression
+	// The Access Key portion of the credentials.
+	AccessKeyId!: #AccessKeyId
+
+	// The encryption keys used to encrypt data.
+	Datakey!: #Key
+
+	// The secret key used to sign requests.
+	SecretAccessKey!: #Key
+
+	// The identiﬁer for the user.
+	UserId!: #Username
 	...
 } | fn.#ObjectExpression
 
 #InforNexusConnectorProfileProperties: {
-	InstanceUrl!: #InstanceUrl | fn.#StringExpression
+	// The location of the InforNexus resource
+	InstanceUrl!: #InstanceUrl
 	...
 } | fn.#ObjectExpression
 
@@ -256,15 +289,23 @@ fn.#StringExpression
 #LogonLanguage: strings.MaxRunes(2) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_]*$" | fn.#StringExpression
 
 #MarketoConnectorProfileCredentials: {
-	AccessToken?:           #AccessToken | fn.#StringExpression
-	ClientId!:              #ClientId | fn.#StringExpression
-	ClientSecret!:          #ClientSecret | fn.#StringExpression
-	ConnectorOAuthRequest?: #ConnectorOAuthRequest | fn.#ObjectExpression
+	// The credentials used to access protected resources.
+	AccessToken?: #AccessToken
+
+	// The identiﬁer for the desired client.
+	ClientId!: #ClientId
+
+	// The client secret used by the oauth client to authenticate to the authorization server.
+	ClientSecret!: #ClientSecret
+
+	// The oauth needed to request security tokens from the connector endpoint.
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
 	...
 } | fn.#ObjectExpression
 
 #MarketoConnectorProfileProperties: {
-	InstanceUrl!: #InstanceUrl | fn.#StringExpression
+	// The location of the Marketo resource
+	InstanceUrl!: #InstanceUrl
 	...
 } | fn.#ObjectExpression
 
@@ -306,16 +347,26 @@ fn.#ObjectExpression
 } | fn.#ObjectExpression
 
 #PardotConnectorProfileCredentials: {
-	AccessToken?:           #AccessToken | fn.#StringExpression
-	ClientCredentialsArn?:  #ClientCredentialsArn | fn.#StringExpression
-	ConnectorOAuthRequest?: #ConnectorOAuthRequest | fn.#ObjectExpression
-	RefreshToken?:          #RefreshToken | fn.#StringExpression
+	// The credentials used to access protected resources.
+	AccessToken?: #AccessToken
+
+	// The client credentials to fetch access token and refresh token.
+	ClientCredentialsArn?: #ClientCredentialsArn
+
+	// The oauth needed to request security tokens from the connector endpoint.
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
+
+	// The credentials used to acquire new access tokens.
+	RefreshToken?: #RefreshToken
 	...
 } | fn.#ObjectExpression
 
 #PardotConnectorProfileProperties: {
-	BusinessUnitId!:       #BusinessUnitId | fn.#StringExpression
-	InstanceUrl?:          #InstanceUrl | fn.#StringExpression
+	// The Business unit id of Salesforce Pardot instance to be connected
+	BusinessUnitId!: #BusinessUnitId
+
+	// The location of the Salesforce Pardot resource
+	InstanceUrl?:          #InstanceUrl
 	IsSandboxEnvironment?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	...
 } | fn.#ObjectExpression
@@ -347,21 +398,40 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RedshiftConnectorProfileCredentials: {
-	Password?: #Password | fn.#StringExpression
-	Username?: #Username | fn.#StringExpression
+	// The password that corresponds to the username.
+	Password?: #Password
+
+	// The name of the user.
+	Username?: #Username
 	...
 } | fn.#ObjectExpression
 
 #RedshiftConnectorProfileProperties: {
-	BucketName!:           #BucketName | fn.#StringExpression
-	BucketPrefix?:         #BucketPrefix | fn.#StringExpression
-	ClusterIdentifier?:    #ClusterIdentifier | fn.#StringExpression
-	DataApiRoleArn?:       #DataApiRoleArn | fn.#StringExpression
-	DatabaseName?:         #DatabaseName | fn.#StringExpression
-	DatabaseUrl?:          #DatabaseUrl | fn.#StringExpression
+	// The name of the Amazon S3 bucket associated with Redshift.
+	BucketName!: #BucketName
+
+	// The object key for the destination bucket in which Amazon AppFlow will place the ﬁles.
+	BucketPrefix?: #BucketPrefix
+
+	// The unique identifier of the Amazon Redshift cluster.
+	ClusterIdentifier?: #ClusterIdentifier
+
+	// The Amazon Resource Name (ARN) of the IAM role that grants Amazon AppFlow
+	// access to the data through the Amazon Redshift Data API.
+	DataApiRoleArn?: #DataApiRoleArn
+
+	// The name of the Amazon Redshift database that will store the transferred data.
+	DatabaseName?: #DatabaseName
+
+	// The JDBC URL of the Amazon Redshift cluster.
+	DatabaseUrl?:          #DatabaseUrl
 	IsRedshiftServerless?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RoleArn!:              #RoleArn | fn.#StringExpression
-	WorkgroupName?:        #WorkgroupName | fn.#StringExpression
+
+	// The Amazon Resource Name (ARN) of the IAM role.
+	RoleArn!: #RoleArn
+
+	// The name of the Amazon Redshift serverless workgroup
+	WorkgroupName?: #WorkgroupName
 	...
 } | fn.#ObjectExpression
 
@@ -401,17 +471,29 @@ fn.#StringExpression
 } | fn.#ObjectExpression
 
 #SalesforceConnectorProfileCredentials: {
-	AccessToken?:           #AccessToken | fn.#StringExpression
-	ClientCredentialsArn?:  #ClientCredentialsArn | fn.#StringExpression
-	ConnectorOAuthRequest?: #ConnectorOAuthRequest | fn.#ObjectExpression
-	JwtToken?:              #JwtToken | fn.#StringExpression
-	OAuth2GrantType?:       #OAuth2GrantType | fn.#StringExpression
-	RefreshToken?:          #RefreshToken | fn.#StringExpression
+	// The credentials used to access protected resources.
+	AccessToken?: #AccessToken
+
+	// The client credentials to fetch access token and refresh token.
+	ClientCredentialsArn?: #ClientCredentialsArn
+
+	// The oauth needed to request security tokens from the connector endpoint.
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
+
+	// The credentials used to access your Salesforce records
+	JwtToken?: #JwtToken
+
+	// The grant types to fetch an access token
+	OAuth2GrantType?: #OAuth2GrantType
+
+	// The credentials used to acquire new access tokens.
+	RefreshToken?: #RefreshToken
 	...
 } | fn.#ObjectExpression
 
 #SalesforceConnectorProfileProperties: {
-	InstanceUrl?:          #InstanceUrl | fn.#StringExpression
+	// The location of the Salesforce resource
+	InstanceUrl?:          #InstanceUrl
 	isSandboxEnvironment?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	usePrivateLinkForMetadataAndAuthorization?: bool |
 		"true" |
@@ -427,49 +509,82 @@ fn.#StringExpression
 #SecretKey: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
 #ServiceNowConnectorProfileCredentials: {
-	OAuth2Credentials?: #OAuth2Credentials | fn.#ObjectExpression
-	Password?:          #Password | fn.#StringExpression
-	Username?:          #Username | fn.#StringExpression
+	// The OAuth 2.0 credentials required to authenticate the user.
+	OAuth2Credentials?: #OAuth2Credentials
+
+	// The password that corresponds to the username.
+	Password?: #Password
+
+	// The name of the user.
+	Username?: #Username
 	...
 } | fn.#ObjectExpression
 
 #ServiceNowConnectorProfileProperties: {
-	InstanceUrl!: #InstanceUrl | fn.#StringExpression
+	// The location of the ServiceNow resource
+	InstanceUrl!: #InstanceUrl
 	...
 } | fn.#ObjectExpression
 
 #SingularConnectorProfileCredentials: {
-	ApiKey!: #ApiKey | fn.#StringExpression
+	// A unique alphanumeric identiﬁer used to authenticate a user, developer, or
+	// calling program to your API.
+	ApiKey!: #ApiKey
 	...
 } | fn.#ObjectExpression
 
 #SlackConnectorProfileCredentials: {
-	AccessToken?:           #AccessToken | fn.#StringExpression
-	ClientId!:              #ClientId | fn.#StringExpression
-	ClientSecret!:          #ClientSecret | fn.#StringExpression
-	ConnectorOAuthRequest?: #ConnectorOAuthRequest | fn.#ObjectExpression
+	// The credentials used to access protected resources.
+	AccessToken?: #AccessToken
+
+	// The identiﬁer for the desired client.
+	ClientId!: #ClientId
+
+	// The client secret used by the oauth client to authenticate to the authorization server.
+	ClientSecret!: #ClientSecret
+
+	// The oauth needed to request security tokens from the connector endpoint.
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
 	...
 } | fn.#ObjectExpression
 
 #SlackConnectorProfileProperties: {
-	InstanceUrl!: #InstanceUrl | fn.#StringExpression
+	// The location of the Slack resource
+	InstanceUrl!: #InstanceUrl
 	...
 } | fn.#ObjectExpression
 
 #SnowflakeConnectorProfileCredentials: {
-	Password!: #Password | fn.#StringExpression
-	Username!: #Username | fn.#StringExpression
+	// The password that corresponds to the username.
+	Password!: #Password
+
+	// The name of the user.
+	Username!: #Username
 	...
 } | fn.#ObjectExpression
 
 #SnowflakeConnectorProfileProperties: {
-	AccountName?:            #AccountName | fn.#StringExpression
-	BucketName!:             #BucketName | fn.#StringExpression
-	BucketPrefix?:           #BucketPrefix | fn.#StringExpression
-	PrivateLinkServiceName?: #PrivateLinkServiceName | fn.#StringExpression
-	Region?:                 #Region | fn.#StringExpression
-	Stage!:                  #Stage | fn.#StringExpression
-	Warehouse!:              #Warehouse | fn.#StringExpression
+	// The name of the account.
+	AccountName?: #AccountName
+
+	// The name of the Amazon S3 bucket associated with Snowﬂake.
+	BucketName!: #BucketName
+
+	// The bucket prefix that refers to the Amazon S3 bucket associated with Snowﬂake.
+	BucketPrefix?: #BucketPrefix
+
+	// The Snowﬂake Private Link service name to be used for private data transfers.
+	PrivateLinkServiceName?: #PrivateLinkServiceName
+
+	// The region of the Snowﬂake account.
+	Region?: #Region
+
+	// The name of the Amazon S3 stage that was created while setting up an Amazon S3 stage in the
+	// Snowﬂake account. This is written in the following format: < Database>< Schema><Stage Name>.
+	Stage!: #Stage
+
+	// The name of the Snowﬂake warehouse.
+	Warehouse!: #Warehouse
 	...
 } | fn.#ObjectExpression
 
@@ -481,20 +596,25 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #TrendmicroConnectorProfileCredentials: {
-	ApiSecretKey!: #ApiSecretKey | fn.#StringExpression
+	// The Secret Access Key portion of the credentials.
+	ApiSecretKey!: #ApiSecretKey
 	...
 } | fn.#ObjectExpression
 
 #Username: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
 #VeevaConnectorProfileCredentials: {
-	Password!: #Password | fn.#StringExpression
-	Username!: #Username | fn.#StringExpression
+	// The password that corresponds to the username.
+	Password!: #Password
+
+	// The name of the user.
+	Username!: #Username
 	...
 } | fn.#ObjectExpression
 
 #VeevaConnectorProfileProperties: {
-	InstanceUrl!: #InstanceUrl | fn.#StringExpression
+	// The location of the Veeva resource
+	InstanceUrl!: #InstanceUrl
 	...
 } | fn.#ObjectExpression
 
@@ -503,14 +623,22 @@ fn.#ObjectExpression
 #WorkgroupName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
 #ZendeskConnectorProfileCredentials: {
-	AccessToken?:           #AccessToken | fn.#StringExpression
-	ClientId!:              #ClientId | fn.#StringExpression
-	ClientSecret!:          #ClientSecret | fn.#StringExpression
-	ConnectorOAuthRequest?: #ConnectorOAuthRequest | fn.#ObjectExpression
+	// The credentials used to access protected resources.
+	AccessToken?: #AccessToken
+
+	// The identiﬁer for the desired client.
+	ClientId!: #ClientId
+
+	// The client secret used by the oauth client to authenticate to the authorization server.
+	ClientSecret!: #ClientSecret
+
+	// The oauth needed to request security tokens from the connector endpoint.
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
 	...
 } | fn.#ObjectExpression
 
 #ZendeskConnectorProfileProperties: {
-	InstanceUrl!: #InstanceUrl | fn.#StringExpression
+	// The location of the Zendesk resource
+	InstanceUrl!: #InstanceUrl
 	...
 } | fn.#ObjectExpression

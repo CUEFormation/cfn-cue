@@ -18,8 +18,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		HumanTaskUiName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9](-*[a-z0-9])*$" |
 		fn.#StringExpression
-		Tags?:       list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-		UiTemplate?: #UiTemplate | fn.#ObjectExpression
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+
+		// The Liquid template for the worker user interface.
+		UiTemplate?: #UiTemplate
 	})
 }
 

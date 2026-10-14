@@ -25,7 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		AuthorizationType?:   string | fn.#StringExpression
 		AuthorizerId?:        string | fn.#StringExpression
 		HttpMethod!:          string | fn.#StringExpression
-		Integration?:         #Integration | fn.#ObjectExpression
+		Integration?:         #Integration
 		MethodResponses?:     list.UniqueItems() & [...#MethodResponse] | fn.#ListExpression
 		OperationName?:       string | fn.#StringExpression
 		RequestModels?: close({

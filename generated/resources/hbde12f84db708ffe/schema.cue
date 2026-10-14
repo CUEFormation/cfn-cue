@@ -62,7 +62,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		PolicyType?: ("PredictiveScaling" | "SimpleScaling" | "StepScaling" | "TargetTrackingScaling") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
 		fn.#StringExpression
-		PredictiveScalingConfiguration?: #PredictiveScalingConfiguration | fn.#ObjectExpression
+
+		// A predictive scaling policy. Includes support for predefined metrics only.
+		PredictiveScalingConfiguration?: #PredictiveScalingConfiguration
 		ScalingAdjustment?: int |
 			{
 				string &
@@ -79,8 +81,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		StepAdjustments?:             list.UniqueItems() & [...#StepAdjustment] | fn.#ListExpression
-		TargetTrackingConfiguration?: #TargetTrackingConfiguration | fn.#ObjectExpression
+		StepAdjustments?: list.UniqueItems() & [...#StepAdjustment] | fn.#ListExpression
+
+		// A target tracking scaling policy. Includes support for predefined or customized metrics.
+		TargetTrackingConfiguration?: #TargetTrackingConfiguration
 	})
 }
 

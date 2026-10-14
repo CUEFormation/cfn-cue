@@ -50,7 +50,8 @@ fn.#ObjectExpression
 #AlarmMetric: close({AlarmMetricName!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ComponentConfiguration: close({
-	ConfigurationDetails?:           #ConfigurationDetails | fn.#ObjectExpression
+	// The configuration settings
+	ConfigurationDetails?:           #ConfigurationDetails
 	SubComponentTypeConfigurations?: list.MinItems(1) & [...#SubComponentTypeConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -62,8 +63,12 @@ fn.#ObjectExpression
 	fn.#StringExpression
 	ComponentConfigurationMode!: "DEFAULT" | "DEFAULT_WITH_OVERWRITE" | "CUSTOM" | fn.#StringExpression
 	ComponentName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\d\\w\\-_.+]*$" | fn.#StringExpression
-	CustomComponentConfiguration?:           #ComponentConfiguration | fn.#ObjectExpression
-	DefaultOverwriteComponentConfiguration?: #ComponentConfiguration | fn.#ObjectExpression
+
+	// The monitoring configuration of the component.
+	CustomComponentConfiguration?: #ComponentConfiguration
+
+	// The overwritten settings on default component monitoring configuration.
+	DefaultOverwriteComponentConfiguration?: #ComponentConfiguration
 	Tier!:                                   =~"^[A-Z][A-Z_]*$" | fn.#StringExpression
 	if ComponentName != _|_ if ComponentName."Fn::If" == _|_ {
 		ComponentARN?: close({"Fn::If": _}) | error(
@@ -74,15 +79,25 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ConfigurationDetails: close({
-	AlarmMetrics?:                [...#AlarmMetric] | fn.#ListExpression
-	Alarms?:                      [...#Alarm] | fn.#ListExpression
-	HAClusterPrometheusExporter?: #HAClusterPrometheusExporter | fn.#ObjectExpression
-	HANAPrometheusExporter?:      #HANAPrometheusExporter | fn.#ObjectExpression
-	JMXPrometheusExporter?:       #JMXPrometheusExporter | fn.#ObjectExpression
-	Logs?:                        [...#Log] | fn.#ListExpression
-	NetWeaverPrometheusExporter?: #NetWeaverPrometheusExporter | fn.#ObjectExpression
+	AlarmMetrics?: [...#AlarmMetric] | fn.#ListExpression
+	Alarms?:       [...#Alarm] | fn.#ListExpression
+
+	// The HA cluster Prometheus Exporter settings.
+	HAClusterPrometheusExporter?: #HAClusterPrometheusExporter
+
+	// The HANA DB Prometheus Exporter settings.
+	HANAPrometheusExporter?: #HANAPrometheusExporter
+
+	// The JMX Prometheus Exporter settings.
+	JMXPrometheusExporter?: #JMXPrometheusExporter
+	Logs?:                  [...#Log] | fn.#ListExpression
+
+	// The NetWeaver Prometheus Exporter settings.
+	NetWeaverPrometheusExporter?: #NetWeaverPrometheusExporter
 	Processes?:                   [...#Process] | fn.#ListExpression
-	SQLServerPrometheusExporter?: #SQLServerPrometheusExporter | fn.#ObjectExpression
+
+	// The SQL Prometheus Exporter settings.
+	SQLServerPrometheusExporter?: #SQLServerPrometheusExporter
 	WindowsEvents?:               [...#WindowsEvent] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -186,7 +201,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SubComponentTypeConfiguration: close({
-	SubComponentConfigurationDetails!: #SubComponentConfigurationDetails | fn.#ObjectExpression
+	// The configuration settings of sub components.
+	SubComponentConfigurationDetails!: #SubComponentConfigurationDetails
 	SubComponentType!:                 "AWS::EC2::Instance" | "AWS::EC2::Volume" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -75,8 +75,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name!:          =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
-		StreamsKmsKey?: #StreamsKmsKey | fn.#ObjectExpression
+		Name!: =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
+
+		// The ARN of a KMS Key used for encrypting data during transmission from the
+		// source to destination locations.
+		StreamsKmsKey?: #StreamsKmsKey
 		StreamsKmsRole?: strings.MaxRunes(165) &
 		strings.MinRunes(30) &
 		=~"^arn:[a-z0-9-.]{1,63}:iam::[0-9]{12}:role/[\\w+=,.@-]{1,64}$" |

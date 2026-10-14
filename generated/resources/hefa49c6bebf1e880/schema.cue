@@ -18,8 +18,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		Description?:     strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 		GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		Location?:        #Location | fn.#ObjectExpression
-		Tags?:            list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// The location of the site.
+		Location?: #Location
+		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
 

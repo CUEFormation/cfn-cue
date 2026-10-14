@@ -21,7 +21,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Name!:        =~"^([a-zA-Z0-9]+[\\\\.-])+([a-zA-Z0-9])+$" | fn.#StringExpression
 		Password?:    string | fn.#StringExpression
 		ShortName?:   =~"^[^\\\\/:*?\"<>|.]+[^\\\\/:*?\"<>|]*$" | fn.#StringExpression
-		VpcSettings!: #VpcSettings | fn.#ObjectExpression
+
+		// Specifies the VPC settings of the Microsoft AD directory server in AWS.
+		VpcSettings!: #VpcSettings
 	})
 }
 

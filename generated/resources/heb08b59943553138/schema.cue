@@ -21,7 +21,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 		Identifier?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 		Name!:       strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
-		Parameters?: #AwsConsoleLinkParameters | fn.#ObjectExpression
+
+		// The parameters of the environment action.
+		Parameters?: #AwsConsoleLinkParameters
 	})
 }
 

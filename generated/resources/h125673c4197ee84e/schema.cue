@@ -23,8 +23,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudTrail::Dashboard"
 	Properties?: close({
-		Name?:            strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-]+$" | fn.#StringExpression
-		RefreshSchedule?: #RefreshSchedule | fn.#ObjectExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-]+$" | fn.#StringExpression
+
+		// Configures the automatic refresh schedule for the dashboard. Includes the
+		// frequency unit (DAYS or HOURS) and value, as well as the status (ENABLED or
+		// DISABLED) of the refresh schedule.
+		RefreshSchedule?: #RefreshSchedule
 		Tags?:            [...#Tag] | fn.#ListExpression
 		TerminationProtectionEnabled?: bool |
 			"true" |

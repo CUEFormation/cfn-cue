@@ -15,10 +15,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::TopicRuleDestination"
 	Properties?: close({
-		HttpUrlProperties?:  #HttpUrlDestinationSummary | fn.#ObjectExpression
-		InfluxDBProperties?: #InfluxDBDestinationProperties | fn.#ObjectExpression
-		Status?:             #TopicRuleDestinationStatus | fn.#StringExpression
-		VpcProperties?:      #VpcDestinationProperties | fn.#ObjectExpression
+		// HTTP URL destination properties.
+		HttpUrlProperties?: #HttpUrlDestinationSummary
+
+		// InfluxDB destination properties.
+		InfluxDBProperties?: #InfluxDBDestinationProperties
+
+		// The status of the TopicRuleDestination.
+		Status?: #TopicRuleDestinationStatus
+
+		// VPC destination properties.
+		VpcProperties?: #VpcDestinationProperties
 	})
 }
 

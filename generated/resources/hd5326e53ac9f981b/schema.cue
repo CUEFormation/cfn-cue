@@ -30,8 +30,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }
 
 #BridgeFlowSource: close({
-	FlowArn!:                    string | fn.#StringExpression
-	FlowVpcInterfaceAttachment?: #VpcInterfaceAttachment | fn.#ObjectExpression
+	FlowArn!: string | fn.#StringExpression
+
+	// The name of the VPC interface attachment to use for this source.
+	FlowVpcInterfaceAttachment?: #VpcInterfaceAttachment
 	Name!:                       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -54,7 +56,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Protocol!: #ProtocolEnum | fn.#StringExpression
+
+	// The network output protocol.
+	Protocol!: #ProtocolEnum
 	Ttl!: int |
 		{
 			string &
@@ -73,8 +77,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #BridgeNetworkSource: close({
-	MulticastIp!:             string | fn.#StringExpression
-	MulticastSourceSettings?: #MulticastSourceSettings | fn.#ObjectExpression
+	MulticastIp!: string | fn.#StringExpression
+
+	// The settings related to the multicast source.
+	MulticastSourceSettings?: #MulticastSourceSettings
 	Name!:                    string | fn.#StringExpression
 	NetworkName!:             string | fn.#StringExpression
 	Port!: int |
@@ -91,7 +97,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Protocol!: #ProtocolEnum | fn.#StringExpression
+
+	// The network source protocol.
+	Protocol!: #ProtocolEnum
 }) |
 fn.#ObjectExpression
 
@@ -135,8 +143,13 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #FailoverConfig: close({
-	FailoverMode!:   #FailoverModeEnum | fn.#StringExpression
-	SourcePriority?: #SourcePriority | fn.#ObjectExpression
+	// The type of failover you choose for this flow. FAILOVER allows switching
+	// between different streams.
+	FailoverMode!: #FailoverModeEnum
+
+	// The priority you want to assign to a source. You can have a primary stream
+	// and a backup stream or two equally prioritized streams.
+	SourcePriority?: #SourcePriority
 	State?:          #FailoverConfigStateEnum
 }) |
 fn.#ObjectExpression

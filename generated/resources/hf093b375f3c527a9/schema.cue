@@ -16,8 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTSiteWise::ComputationModel"
 	Properties!: close({
-		ComputationModelConfiguration!: #ComputationModelConfiguration | fn.#ObjectExpression
-		ComputationModelDataBinding!:   #ComputationModelDataBinding | fn.#ObjectExpression
+		// The configuration for the computation model.
+		ComputationModelConfiguration!: #ComputationModelConfiguration
+
+		// The data binding for the computation model.
+		ComputationModelDataBinding!: #ComputationModelDataBinding
 		ComputationModelDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@]+$" |
 		fn.#StringExpression
 		ComputationModelName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@]+$" |
@@ -56,10 +59,11 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ComputationModelConfiguration: close(
-	{AnomalyDetection?: #AnomalyDetectionComputationModelConfiguration | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#ComputationModelConfiguration: close({
+	// Contains configuration for anomaly detection computation model.
+	AnomalyDetection?: #AnomalyDetectionComputationModelConfiguration
+}) |
+fn.#ObjectExpression
 
 #ComputationModelDataBinding: close({
 
@@ -67,9 +71,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ComputationModelDataBindingValue: close({
-	AssetModelProperty?: #AssetModelPropertyBindingValue | fn.#ObjectExpression
-	AssetProperty?:      #AssetPropertyBindingValue | fn.#ObjectExpression
-	List?:               [...#ComputationModelDataBindingValue] | fn.#ListExpression
+	// Defines an asset model property binding.
+	AssetModelProperty?: #AssetModelPropertyBindingValue
+
+	// Defines an asset property binding.
+	AssetProperty?: #AssetPropertyBindingValue
+	List?:          [...#ComputationModelDataBindingValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

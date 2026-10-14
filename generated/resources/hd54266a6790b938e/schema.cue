@@ -19,7 +19,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		AuthMode!:          "SSO" | "IAM" | fn.#StringExpression
 		DefaultS3Location!: strings.MaxRunes(10280) & strings.MinRunes(6) & =~"^s3://.*" | fn.#StringExpression
 		Description?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		EncryptionKeyArn?:  #Arn | fn.#StringExpression
+
+		// The AWS KMS key identifier (ARN) used to encrypt AWS EMR Studio workspace and
+		// notebook files when backed up to AWS S3.
+		EncryptionKeyArn?: #Arn
 		EngineSecurityGroupId!: strings.MaxRunes(256) & strings.MinRunes(4) & =~"^sg-[a-zA-Z0-9\\-._]+$" |
 		fn.#StringExpression
 		IdcInstanceArn?:    strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
@@ -29,10 +32,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		=~"^https://[0-9a-zA-Z]([-.\\w]*[0-9a-zA-Z])(:[0-9]*)*([?/#].*)?$" |
 		fn.#StringExpression
 		IdpRelayStateParameterName?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
-		ServiceRole!: #Arn | fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
+
+		// The IAM role that will be assumed by the Amazon EMR Studio. The service role
+		// provides a way for Amazon EMR Studio to interoperate with other AWS
+		// services.
+		ServiceRole!: #Arn
 		SubnetIds!:   list.MinItems(1) & [...#SubnetId] | fn.#ListExpression
-		Tags?:        #Tags | fn.#ListExpression
+
+		// A list of tags to associate with the Studio. Tags are user-defined key-value
+		// pairs that consist of a required key string with a maximum of 128
+		// characters, and an optional value string with a maximum of 256 characters.
+		Tags?: #Tags
 		TrustedIdentityPropagationEnabled?: bool |
 			"true" |
 			"True" |
@@ -41,7 +52,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		UserRole?: #Arn | fn.#StringExpression
+
+		// The IAM user role that will be assumed by users and groups logged in to a
+		// Studio. The permissions attached to this IAM role can be scoped down for
+		// each user or group using session policies.
+		UserRole?: #Arn
 		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(256) &
 		strings.MinRunes(0) &

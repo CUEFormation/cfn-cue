@@ -17,10 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DevOpsAgent::Association"
 	Properties!: close({
-		AgentSpaceId!:         #AgentSpaceId | fn.#StringExpression
-		Configuration!:        #ServiceConfiguration | fn.#ObjectExpression
+		// The unique identifier of the AgentSpace
+		AgentSpaceId!: #AgentSpaceId
+
+		// The configuration that directs how AgentSpace interacts with the given service
+		Configuration!:        #ServiceConfiguration
 		LinkedAssociationIds?: [...#AssociationId] | fn.#ListExpression
-		ServiceId!:            #ServiceId | fn.#StringExpression
+
+		// The identifier for the associated service
+		ServiceId!: #ServiceId
 	})
 }
 
@@ -236,7 +241,11 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#SlackTransmissionTarget: close({IncidentResponseTarget!: #SlackChannel | fn.#ObjectExpression}) | fn.#ObjectExpression
+#SlackTransmissionTarget: close({
+	// Destination for IncidentResponse agent.
+	IncidentResponseTarget!: #SlackChannel
+}) |
+fn.#ObjectExpression
 
 #SourceAwsConfiguration: close({
 	AccountId!:   =~"\\d{12}" | fn.#StringExpression

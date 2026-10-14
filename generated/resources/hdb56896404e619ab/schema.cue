@@ -20,7 +20,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		Description?: strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
 		Name!:        strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N}_-]+$" | fn.#StringExpression
-		Provider!:    #CloudProvider | fn.#StringExpression
+
+		// The cloud provider for this connector.
+		Provider!: #CloudProvider
 		ProviderConfiguration!: close({
 			Azure!: close({
 				AutoInstallVMScanner?: bool |

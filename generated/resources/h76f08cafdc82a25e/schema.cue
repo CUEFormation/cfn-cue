@@ -22,7 +22,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#ListExpression
 		Description?:      strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s]+$" | fn.#StringExpression
 		PaymentManagerId!: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
-		ProvisionMode?:    #PaymentConnectorProvisionMode | fn.#StringExpression
+
+		// The provision mode for creating the connector. MANUAL requires
+		// CredentialProviderConfigurations; QUICK_CREATE orchestrates OAuth consent
+		// and credential provisioning.
+		ProvisionMode?: #PaymentConnectorProvisionMode
 	})
 }
 

@@ -21,7 +21,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Logs::Delivery"
 	Properties!: close({
-		DeliveryDestinationArn!: #Arn | fn.#StringExpression
+		// The ARN of the delivery destination that is associated with this delivery.
+		DeliveryDestinationArn!: #Arn
 		DeliverySourceName!:     strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
 		FieldDelimiter?:         strings.MaxRunes(5) & strings.MinRunes(1) | fn.#StringExpression
 		RecordFields?:           list.MaxItems(128) & [...] & [...#FieldHeader] | fn.#ListExpression

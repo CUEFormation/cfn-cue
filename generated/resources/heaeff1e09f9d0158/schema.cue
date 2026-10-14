@@ -18,7 +18,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		Description?:          string | fn.#StringExpression
 		DestinationCidrBlock!: string | fn.#StringExpression
-		DestinationPortRange?: #TrafficMirrorPortRange | fn.#ObjectExpression
+
+		// The destination port range.
+		DestinationPortRange?: #TrafficMirrorPortRange
 		Protocol?: int |
 			{
 				string &
@@ -35,7 +37,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		RuleAction!: #TrafficMirrorRuleAction | fn.#StringExpression
+
+		// The action to take on the filtered traffic (accept/reject).
+		RuleAction!: #TrafficMirrorRuleAction
 		RuleNumber!: int |
 			{
 				string &
@@ -52,10 +56,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SourceCidrBlock!:       string | fn.#StringExpression
-		SourcePortRange?:       #TrafficMirrorPortRange | fn.#ObjectExpression
-		Tags?:                  [...#Tag] | fn.#ListExpression
-		TrafficDirection!:      #TrafficDirection | fn.#StringExpression
+		SourceCidrBlock!: string | fn.#StringExpression
+
+		// The source port range.
+		SourcePortRange?: #TrafficMirrorPortRange
+		Tags?:            [...#Tag] | fn.#ListExpression
+
+		// The direction of traffic (ingress/egress).
+		TrafficDirection!:      #TrafficDirection
 		TrafficMirrorFilterId!: string | fn.#StringExpression
 	})
 }

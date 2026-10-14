@@ -24,9 +24,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		FunctionName!: string | fn.#StringExpression
 		FunctionVersion!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(\\$LATEST(\\.PUBLISHED)?|[0-9]*)$" |
 		fn.#StringExpression
-		Name!:                         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		ProvisionedConcurrencyConfig?: #ProvisionedConcurrencyConfiguration | fn.#ObjectExpression
-		RoutingConfig?:                #AliasRoutingConfiguration | fn.#ObjectExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+
+		// Specifies a provisioned concurrency configuration for a function's alias.
+		ProvisionedConcurrencyConfig?: #ProvisionedConcurrencyConfiguration
+
+		// The routing configuration of the alias.
+		RoutingConfig?: #AliasRoutingConfiguration
 		if ProvisionedConcurrencyConfig != _|_ if ProvisionedConcurrencyConfig."Fn::If" == _|_ {
 			RoutingConfig?: close({"Fn::If": _}) | error(
 				"RoutingConfig cannot be used with ProvisionedConcurrencyConfig",

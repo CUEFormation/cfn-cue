@@ -31,9 +31,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::Function"
 	Properties!: close({
-		AutoPublish?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		FunctionCode!:     string | fn.#StringExpression
-		FunctionConfig!:   #FunctionConfig | fn.#ObjectExpression
+		AutoPublish?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		FunctionCode!: string | fn.#StringExpression
+
+		// Contains configuration information about a CloudFront function.
+		FunctionConfig!:   #FunctionConfig
 		FunctionMetadata?: close({}) | fn.#ObjectExpression
 		Name!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
 		Tags?:             [...#Tag] | fn.#ListExpression

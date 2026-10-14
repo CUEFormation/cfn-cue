@@ -19,9 +19,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ApiId!:                    string | fn.#StringExpression
 		ModelSelectionExpression?: string | fn.#StringExpression
 		ResponseModels?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-		ResponseParameters?:       #RouteParameters | fn.#ValueExpression
-		RouteId!:                  string | fn.#StringExpression
-		RouteResponseKey!:         string | fn.#StringExpression
+
+		// The route response parameters.
+		ResponseParameters?: #RouteParameters
+		RouteId!:            string | fn.#StringExpression
+		RouteResponseKey!:   string | fn.#StringExpression
 	})
 }
 

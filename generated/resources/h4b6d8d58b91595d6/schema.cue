@@ -34,7 +34,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VPCEndpoint"
 	Properties!: close({
-		DnsOptions?:               #DnsOptionsSpecification | fn.#ObjectExpression
+		// Describes the DNS options for an endpoint.
+		DnsOptions?:               #DnsOptionsSpecification
 		IpAddressType?:            "ipv4" | "ipv6" | "dualstack" | "not-specified" | fn.#StringExpression
 		PolicyDocument?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 		PrivateDnsEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

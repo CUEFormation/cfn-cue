@@ -35,7 +35,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		{}
 		PolicyName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 		PolicyType!: "PredictiveScaling" | "StepScaling" | "TargetTrackingScaling" | fn.#StringExpression
-		PredictiveScalingPolicyConfiguration?: #PredictiveScalingPolicyConfiguration | fn.#ObjectExpression
+
+		// The predictive scaling policy configuration.
+		PredictiveScalingPolicyConfiguration?: #PredictiveScalingPolicyConfiguration
 		ResourceId?:                           strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
 		ScalableDimension?: "appstream:fleet:DesiredCapacity" |
 			"cassandra:table:ReadCapacityUnits" |
@@ -79,8 +81,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"sagemaker" |
 			"workspaces" |
 			fn.#StringExpression
-		StepScalingPolicyConfiguration?:           #StepScalingPolicyConfiguration | fn.#ObjectExpression
-		TargetTrackingScalingPolicyConfiguration?: #TargetTrackingScalingPolicyConfiguration | fn.#ObjectExpression
+
+		// A step scaling policy.
+		StepScalingPolicyConfiguration?: #StepScalingPolicyConfiguration
+
+		// A target tracking scaling policy.
+		TargetTrackingScalingPolicyConfiguration?: #TargetTrackingScalingPolicyConfiguration
 		if ScalingTargetId != _|_ if ScalingTargetId."Fn::If" == _|_ {
 			ResourceId?: close({"Fn::If": _}) | error(
 				"ResourceId cannot be used with ScalingTargetId; set exactly one of ScalingTargetId, ResourceId",
@@ -168,7 +174,11 @@ fn.#ObjectExpression
 	Expression?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	Id?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Label?:      string | fn.#StringExpression
-	MetricStat?: #PredictiveScalingMetricStat | fn.#ObjectExpression
+
+	// Information about the metric data to return.
+	// Conditional: Within each ``MetricDataQuery`` object, you must specify either
+	// ``Expression`` or ``MetricStat``, but not both.
+	MetricStat?: #PredictiveScalingMetricStat
 	ReturnData?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -180,12 +190,24 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PredictiveScalingMetricSpecification: close({
-	CustomizedCapacityMetricSpecification?: #PredictiveScalingCustomizedCapacityMetric | fn.#ObjectExpression
-	CustomizedLoadMetricSpecification?:     #PredictiveScalingCustomizedLoadMetric | fn.#ObjectExpression
-	CustomizedScalingMetricSpecification?:  #PredictiveScalingCustomizedScalingMetric | fn.#ObjectExpression
-	PredefinedLoadMetricSpecification?:     #PredictiveScalingPredefinedLoadMetric | fn.#ObjectExpression
-	PredefinedMetricPairSpecification?:     #PredictiveScalingPredefinedMetricPair | fn.#ObjectExpression
-	PredefinedScalingMetricSpecification?:  #PredictiveScalingPredefinedScalingMetric | fn.#ObjectExpression
+	// The customized capacity metric specification.
+	CustomizedCapacityMetricSpecification?: #PredictiveScalingCustomizedCapacityMetric
+
+	// The customized load metric specification.
+	CustomizedLoadMetricSpecification?: #PredictiveScalingCustomizedLoadMetric
+
+	// The customized scaling metric specification.
+	CustomizedScalingMetricSpecification?: #PredictiveScalingCustomizedScalingMetric
+
+	// The predefined load metric specification.
+	PredefinedLoadMetricSpecification?: #PredictiveScalingPredefinedLoadMetric
+
+	// The predefined metric pair specification that determines the appropriate
+	// scaling metric and load metric to use.
+	PredefinedMetricPairSpecification?: #PredictiveScalingPredefinedMetricPair
+
+	// The predefined scaling metric specification.
+	PredefinedScalingMetricSpecification?: #PredictiveScalingPredefinedScalingMetric
 	TargetValue!: number |
 		{
 			string &
@@ -209,7 +231,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PredictiveScalingMetricStat: close({
-	Metric?: #PredictiveScalingMetric | fn.#ObjectExpression
+	// The CloudWatch metric to return, including the metric name, namespace, and
+	// dimensions. To get the exact metric name, namespace, and dimensions, inspect
+	// the
+	// [Metric](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Metric.html)
+	// object that is returned by a call to
+	// [ListMetrics](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_ListMetrics.html).
+	Metric?: #PredictiveScalingMetric
 	Stat?:   string | fn.#StringExpression
 	Unit?:   strings.MaxRunes(1023) & strings.MinRunes(1) | fn.#StringExpression
 }) |
@@ -401,7 +429,11 @@ fn.#ObjectExpression
 	Expression?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	Id?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Label?:      string | fn.#StringExpression
-	MetricStat?: #TargetTrackingMetricStat | fn.#ObjectExpression
+
+	// Information about the metric data to return.
+	// Conditional: Within each ``MetricDataQuery`` object, you must specify either
+	// ``Expression`` or ``MetricStat``, but not both.
+	MetricStat?: #TargetTrackingMetricStat
 	ReturnData?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -413,16 +445,25 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TargetTrackingMetricStat: close({
-	Metric?: #TargetTrackingMetric | fn.#ObjectExpression
+	// The CloudWatch metric to return, including the metric name, namespace, and
+	// dimensions. To get the exact metric name, namespace, and dimensions, inspect
+	// the
+	// [Metric](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Metric.html)
+	// object that is returned by a call to
+	// [ListMetrics](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_ListMetrics.html).
+	Metric?: #TargetTrackingMetric
 	Stat?:   string | fn.#StringExpression
 	Unit?:   strings.MaxRunes(1023) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TargetTrackingScalingPolicyConfiguration: close({
-	CustomizedMetricSpecification?: #CustomizedMetricSpecification | fn.#ObjectExpression
+	// A customized metric. You can specify either a predefined metric or a customized metric.
+	CustomizedMetricSpecification?: #CustomizedMetricSpecification
 	DisableScaleIn?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PredefinedMetricSpecification?: #PredefinedMetricSpecification | fn.#ObjectExpression
+
+	// A predefined metric. You can specify either a predefined metric or a customized metric.
+	PredefinedMetricSpecification?: #PredefinedMetricSpecification
 	ScaleInCooldown?: int |
 		{
 			string &

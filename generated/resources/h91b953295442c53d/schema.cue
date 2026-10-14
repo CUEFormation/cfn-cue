@@ -16,11 +16,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!: "AWS::CloudFront::DistributionTenant"
 	Properties!: close({
 		ConnectionGroupId?: string | fn.#StringExpression
-		Customizations?:    #Customizations | fn.#ObjectExpression
-		DistributionId!:    string | fn.#StringExpression
-		Domains!:           [...string | fn.#StringExpression] | fn.#ListExpression
-		Enabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ManagedCertificateRequest?: #ManagedCertificateRequest | fn.#ObjectExpression
+
+		// Customizations for the distribution tenant. For each distribution tenant, you
+		// can specify the geographic restrictions, and the Amazon Resource Names
+		// (ARNs) for the ACM certificate and WAF web ACL. These are specific values
+		// that you can override or disable from the multi-tenant distribution that was
+		// used to create the distribution tenant.
+		Customizations?: #Customizations
+		DistributionId!: string | fn.#StringExpression
+		Domains!:        [...string | fn.#StringExpression] | fn.#ListExpression
+		Enabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// An object that represents the request for the Amazon CloudFront managed ACM certificate.
+		ManagedCertificateRequest?: #ManagedCertificateRequest
 		Name!:                      string | fn.#StringExpression
 		Parameters?:                [...#Parameter] | fn.#ListExpression
 		Tags?:                      [...#Tag] | fn.#ListExpression
@@ -30,9 +38,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Certificate: close({Arn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Customizations: close({
-	Certificate?:     #Certificate | fn.#ObjectExpression
-	GeoRestrictions?: #GeoRestrictionCustomization | fn.#ObjectExpression
-	WebAcl?:          #WebAclCustomization | fn.#ObjectExpression
+	// The ACMlong (ACM) certificate.
+	Certificate?: #Certificate
+
+	// The geographic restrictions.
+	GeoRestrictions?: #GeoRestrictionCustomization
+
+	// The WAF web ACL.
+	WebAcl?: #WebAclCustomization
 }) |
 fn.#ObjectExpression
 

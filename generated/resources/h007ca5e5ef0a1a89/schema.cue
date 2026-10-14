@@ -15,9 +15,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTSiteWise::AccessPolicy"
 	Properties!: close({
-		AccessPolicyIdentity!:   #AccessPolicyIdentity | fn.#ObjectExpression
+		// The identity for this access policy. Choose either a user or a group but not both.
+		AccessPolicyIdentity!:   #AccessPolicyIdentity
 		AccessPolicyPermission!: "ADMINISTRATOR" | "VIEWER" | fn.#StringExpression
-		AccessPolicyResource!:   #AccessPolicyResource | fn.#ObjectExpression
+
+		// The AWS IoT SiteWise Monitor resource for this access policy. Choose either
+		// portal or project but not both.
+		AccessPolicyResource!: #AccessPolicyResource
 	})
 }
 

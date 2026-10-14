@@ -25,8 +25,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		SolutionStackName?: string | fn.#StringExpression
 		Tags?:              [...#Tag] | fn.#ListExpression
 		TemplateName?:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		Tier?:              #Tier | fn.#ObjectExpression
-		VersionLabel?:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+
+		// Specifies the tier to use in creating this environment. The environment tier
+		// that you choose determines whether Elastic Beanstalk provisions resources to
+		// support a web application that handles HTTP(S) requests or a web application
+		// that handles background-processing tasks.
+		Tier?:         #Tier
+		VersionLabel?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	})
 }
 

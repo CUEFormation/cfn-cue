@@ -16,13 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppSync::ChannelNamespace"
 	Properties!: close({
-		ApiId!:              string | fn.#StringExpression
-		CodeHandlers?:       #Code
-		CodeS3Location?:     string | fn.#StringExpression
-		HandlerConfigs?:     #HandlerConfigs
-		Name!:               #Namespace
-		PublishAuthModes?:   #AuthModes | fn.#ListExpression
-		SubscribeAuthModes?: #AuthModes | fn.#ListExpression
+		ApiId!:          string | fn.#StringExpression
+		CodeHandlers?:   #Code
+		CodeS3Location?: string | fn.#StringExpression
+		HandlerConfigs?: #HandlerConfigs
+		Name!:           #Namespace
+
+		// List of AuthModes supported for Publish operations.
+		PublishAuthModes?: #AuthModes
+
+		// List of AuthModes supported for Subscribe operations.
+		SubscribeAuthModes?: #AuthModes
 		Tags?:               #Tags
 	})
 }

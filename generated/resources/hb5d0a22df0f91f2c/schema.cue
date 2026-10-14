@@ -18,7 +18,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!: "AWS::Interconnect::Connection"
 	Properties!: close({
 		ActivationKey?: string | fn.#StringExpression
-		AttachPoint!:   #AttachPoint | fn.#ObjectExpression
+
+		// The logical attachment point in your AWS network where the managed connection will be connected.
+		AttachPoint!:   #AttachPoint
 		Bandwidth?:     strings.MaxRunes(8) & strings.MinRunes(1) & =~"^\\d+[MG]bps$" | fn.#StringExpression
 		Description?:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9_ ]+$" | fn.#StringExpression
 		EnvironmentId?: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression

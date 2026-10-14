@@ -19,7 +19,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		LocalGatewayId!: string | fn.#StringExpression
 		Mode?:           "coip" | "direct-vpc-routing" | fn.#StringExpression
-		Tags?:           #Tags | fn.#ListExpression
+
+		// The tags for the local gateway route table.
+		Tags?: #Tags
 	})
 }
 

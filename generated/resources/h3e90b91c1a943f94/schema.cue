@@ -16,9 +16,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataExchange::EventAction"
 	Properties!: close({
-		Action!: #Action | fn.#ObjectExpression
-		Event!:  #Event | fn.#ObjectExpression
-		Tags?:   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		// What occurs after a certain event.
+		Action!: #Action
+
+		// What occurs to start an action.
+		Event!: #Event
+		Tags?:  list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
 

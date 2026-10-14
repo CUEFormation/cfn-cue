@@ -16,9 +16,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EMRContainers::SecurityConfiguration"
 	Properties!: close({
-		ContainerProvider?: #ContainerProvider | fn.#ObjectExpression
+		// Container provider for the security configuration.
+		ContainerProvider?: #ContainerProvider
 		Name?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
-		SecurityConfigurationData!: #SecurityConfigurationData | fn.#ObjectExpression
+
+		// Security configuration input for the security configuration.
+		SecurityConfigurationData!: #SecurityConfigurationData
 		Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }

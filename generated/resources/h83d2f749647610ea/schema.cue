@@ -23,12 +23,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::KinesisAnalyticsV2::Application"
 	Properties!: close({
-		ApplicationConfiguration?:            #ApplicationConfiguration | fn.#ObjectExpression
-		ApplicationDescription?:              strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		ApplicationMaintenanceConfiguration?: #ApplicationMaintenanceConfiguration | fn.#ObjectExpression
+		// Use this parameter to configure the application.
+		ApplicationConfiguration?: #ApplicationConfiguration
+		ApplicationDescription?:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+
+		// Used to configure start of maintenance window.
+		ApplicationMaintenanceConfiguration?: #ApplicationMaintenanceConfiguration
 		ApplicationMode?:                     "INTERACTIVE" | "STREAMING" | fn.#StringExpression
-		ApplicationName?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-		RunConfiguration?: #RunConfiguration | fn.#ObjectExpression
+		ApplicationName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+
+		// Specifies run configuration (start parameters) of a Kinesis Data Analytics
+		// application. Evaluated on update for RUNNING applications an only.
+		RunConfiguration?: #RunConfiguration
 		RuntimeEnvironment!: "FLINK-1_11" |
 			"FLINK-1_13" |
 			"FLINK-1_15" |
@@ -44,27 +50,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"ZEPPELIN-FLINK-2_0" |
 			"ZEPPELIN-FLINK-3_0" |
 			fn.#StringExpression
-		ServiceExecutionRole!: #Arn | fn.#StringExpression
+
+		// Specifies the IAM role that the application uses to access external resources.
+		ServiceExecutionRole!: #Arn
 		Tags?:                 list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
 }
 
 #ApplicationCodeConfiguration: close({
-	CodeContent!:     #CodeContent | fn.#ObjectExpression
+	// The location and type of the application code.
+	CodeContent!:     #CodeContent
 	CodeContentType!: "PLAINTEXT" | "ZIPFILE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ApplicationConfiguration: close({
-	ApplicationCodeConfiguration?:           #ApplicationCodeConfiguration | fn.#ObjectExpression
-	ApplicationEncryptionConfiguration?:     #ApplicationEncryptionConfiguration | fn.#ObjectExpression
-	ApplicationSnapshotConfiguration?:       #ApplicationSnapshotConfiguration | fn.#ObjectExpression
-	ApplicationSystemRollbackConfiguration?: #ApplicationSystemRollbackConfiguration | fn.#ObjectExpression
-	EnvironmentProperties?:                  #EnvironmentProperties | fn.#ObjectExpression
-	FlinkApplicationConfiguration?:          #FlinkApplicationConfiguration | fn.#ObjectExpression
-	SqlApplicationConfiguration?:            #SqlApplicationConfiguration | fn.#ObjectExpression
-	VpcConfigurations?:                      #VpcConfigurations | fn.#ListExpression
-	ZeppelinApplicationConfiguration?:       #ZeppelinApplicationConfiguration | fn.#ObjectExpression
+	// The code location and type parameters for a Flink-based Kinesis Data Analytics application.
+	ApplicationCodeConfiguration?: #ApplicationCodeConfiguration
+
+	// Describes whether customer managed key is enabled and key details for customer data encryption
+	ApplicationEncryptionConfiguration?: #ApplicationEncryptionConfiguration
+
+	// Describes whether snapshots are enabled for a Flink-based Kinesis Data Analytics application.
+	ApplicationSnapshotConfiguration?: #ApplicationSnapshotConfiguration
+
+	// Describes whether system initiated rollbacks are enabled for a Flink-based
+	// Kinesis Data Analytics application.
+	ApplicationSystemRollbackConfiguration?: #ApplicationSystemRollbackConfiguration
+
+	// Describes execution properties for a Flink-based Kinesis Data Analytics application.
+	EnvironmentProperties?: #EnvironmentProperties
+
+	// The creation and update parameters for a Flink-based Kinesis Data Analytics application.
+	FlinkApplicationConfiguration?: #FlinkApplicationConfiguration
+
+	// The creation and update parameters for a SQL-based Kinesis Data Analytics application.
+	SqlApplicationConfiguration?: #SqlApplicationConfiguration
+
+	// The array of descriptions of VPC configurations available to the application.
+	VpcConfigurations?: #VpcConfigurations
+
+	// The configuration parameters for a Kinesis Data Analytics Studio notebook.
+	ZeppelinApplicationConfiguration?: #ZeppelinApplicationConfiguration
 }) |
 fn.#ObjectExpression
 
@@ -109,8 +136,13 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#CatalogConfiguration: close({GlueDataCatalogConfiguration?: #GlueDataCatalogConfiguration | fn.#ObjectExpression}) |
-	fn.#ObjectExpression
+#CatalogConfiguration: close({
+	// The configuration parameters for the default Amazon Glue database. You use
+	// this database for Apache Flink SQL queries and table API transforms that you
+	// write in a Kinesis Data Analytics Studio notebook.
+	GlueDataCatalogConfiguration?: #GlueDataCatalogConfiguration
+}) |
+fn.#ObjectExpression
 
 #CheckpointConfiguration: close({
 	CheckpointInterval?: int & <=9223372036854776000 & >=1 |
@@ -151,32 +183,50 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CodeContent: close({
-	S3ContentLocation?: #S3ContentLocation | fn.#ObjectExpression
+	// Information about the Amazon S3 bucket that contains the application code.
+	S3ContentLocation?: #S3ContentLocation
 	TextContent?:       strings.MaxRunes(102400) & strings.MinRunes(1) | fn.#StringExpression
 	ZipFileContent?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CustomArtifactConfiguration: close({
-	ArtifactType!:      "DEPENDENCY_JAR" | "UDF" | fn.#StringExpression
-	MavenReference?:    #MavenReference | fn.#ObjectExpression
-	S3ContentLocation?: #S3ContentLocation | fn.#ObjectExpression
+	ArtifactType!: "DEPENDENCY_JAR" | "UDF" | fn.#StringExpression
+
+	// The parameters required to fully specify a Maven reference.
+	MavenReference?: #MavenReference
+
+	// The location of the custom artifacts.
+	S3ContentLocation?: #S3ContentLocation
 }) |
 fn.#ObjectExpression
 
-#CustomArtifactsConfiguration: list.MaxItems(50) & [...] & [...#CustomArtifactConfiguration | fn.#ObjectExpression] |
-	fn.#ListExpression
+#CustomArtifactsConfiguration: list.MaxItems(50) & [...] & [...#CustomArtifactConfiguration] | fn.#ListExpression
 
-#DeployAsApplicationConfiguration: close({S3ContentLocation!: #S3ContentBaseLocation | fn.#ObjectExpression}) |
-	fn.#ObjectExpression
+#DeployAsApplicationConfiguration: close({
+	// The description of an Amazon S3 object that contains the Amazon Data
+	// Analytics application, including the Amazon Resource Name (ARN) of the S3
+	// bucket, the name of the Amazon S3 object that contains the data, and the
+	// version number of the Amazon S3 object that contains the data.
+	S3ContentLocation!: #S3ContentBaseLocation
+}) |
+fn.#ObjectExpression
 
 #EnvironmentProperties: close({PropertyGroups?: list.MaxItems(50) & [...] & [...#PropertyGroup] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
 #FlinkApplicationConfiguration: close({
-	CheckpointConfiguration?:  #CheckpointConfiguration | fn.#ObjectExpression
-	MonitoringConfiguration?:  #MonitoringConfiguration | fn.#ObjectExpression
-	ParallelismConfiguration?: #ParallelismConfiguration | fn.#ObjectExpression
+	// Describes an application's checkpointing configuration. Checkpointing is the
+	// process of persisting application state for fault tolerance. For more
+	// information, see Checkpoints for Fault Tolerance in the Apache Flink
+	// Documentation.
+	CheckpointConfiguration?: #CheckpointConfiguration
+
+	// Describes configuration parameters for Amazon CloudWatch logging for an application.
+	MonitoringConfiguration?: #MonitoringConfiguration
+
+	// Describes parameters for how an application executes multiple tasks simultaneously.
+	ParallelismConfiguration?: #ParallelismConfiguration
 }) |
 fn.#ObjectExpression
 
@@ -185,19 +235,43 @@ fn.#ObjectExpression
 ) |
 	fn.#ObjectExpression
 
-#GlueDataCatalogConfiguration: close({DatabaseARN?: #Arn | fn.#StringExpression}) | fn.#ObjectExpression
-
-#Input: close({
-	InputParallelism?:             #InputParallelism | fn.#ObjectExpression
-	InputProcessingConfiguration?: #InputProcessingConfiguration | fn.#ObjectExpression
-	InputSchema!:                  #InputSchema | fn.#ObjectExpression
-	KinesisFirehoseInput?:         #KinesisFirehoseInput | fn.#ObjectExpression
-	KinesisStreamsInput?:          #KinesisStreamsInput | fn.#ObjectExpression
-	NamePrefix!:                   strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[^-\\s<>&]*$" | fn.#StringExpression
+#GlueDataCatalogConfiguration: close({
+	// The Amazon Resource Name (ARN) of the database.
+	DatabaseARN?: #Arn
 }) |
 fn.#ObjectExpression
 
-#InputLambdaProcessor: close({ResourceARN!: #Arn | fn.#StringExpression}) | fn.#ObjectExpression
+#Input: close({
+	// Describes the number of in-application streams to create.
+	InputParallelism?: #InputParallelism
+
+	// The InputProcessingConfiguration for the input. An input processor transforms
+	// records as they are received from the stream, before the application's SQL
+	// code executes. Currently, the only input processing configuration available
+	// is InputLambdaProcessor.
+	InputProcessingConfiguration?: #InputProcessingConfiguration
+
+	// Describes the format of the data in the streaming source, and how each data
+	// element maps to corresponding columns in the in-application stream that is
+	// being created.
+	InputSchema!: #InputSchema
+
+	// If the streaming source is an Amazon Kinesis Data Firehose delivery stream,
+	// identifies the delivery stream's ARN.
+	KinesisFirehoseInput?: #KinesisFirehoseInput
+
+	// If the streaming source is an Amazon Kinesis data stream, identifies the
+	// stream's Amazon Resource Name (ARN).
+	KinesisStreamsInput?: #KinesisStreamsInput
+	NamePrefix!:          strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[^-\\s<>&]*$" | fn.#StringExpression
+}) |
+fn.#ObjectExpression
+
+#InputLambdaProcessor: close({
+	// The ARN of the Amazon Lambda function that operates on records in the stream.
+	ResourceARN!: #Arn
+}) |
+fn.#ObjectExpression
 
 #InputParallelism: close({
 	Count?: int & <=64 & >=1 |
@@ -219,26 +293,44 @@ fn.#ObjectExpression
 }) |
 	fn.#ObjectExpression
 
-#InputProcessingConfiguration: close({InputLambdaProcessor?: #InputLambdaProcessor | fn.#ObjectExpression}) |
-	fn.#ObjectExpression
+#InputProcessingConfiguration: close({
+	// The InputLambdaProcessor that is used to preprocess the records in the stream
+	// before being processed by your application code.
+	InputLambdaProcessor?: #InputLambdaProcessor
+}) |
+fn.#ObjectExpression
 
 #InputSchema: close({
 	RecordColumns!:  list.MaxItems(1000) & list.MinItems(1) & [...#RecordColumn] | fn.#ListExpression
 	RecordEncoding?: "UTF-8" & (strings.MaxRunes(5) & strings.MinRunes(5)) | fn.#StringExpression
-	RecordFormat!:   #RecordFormat | fn.#ObjectExpression
+
+	// Specifies the format of the records on the streaming source.
+	RecordFormat!: #RecordFormat
 }) |
 fn.#ObjectExpression
 
 #JSONMappingParameters: close({RecordRowPath!: strings.MaxRunes(65535) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-#KinesisFirehoseInput: close({ResourceARN!: #Arn | fn.#StringExpression}) | fn.#ObjectExpression
+#KinesisFirehoseInput: close({
+	// The Amazon Resource Name (ARN) of the delivery stream.
+	ResourceARN!: #Arn
+}) |
+fn.#ObjectExpression
 
-#KinesisStreamsInput: close({ResourceARN!: #Arn | fn.#StringExpression}) | fn.#ObjectExpression
+#KinesisStreamsInput: close({
+	// The ARN of the input Kinesis data stream to read.
+	ResourceARN!: #Arn
+}) |
+fn.#ObjectExpression
 
 #MappingParameters: close({
-	CSVMappingParameters?:  #CSVMappingParameters | fn.#ObjectExpression
-	JSONMappingParameters?: #JSONMappingParameters | fn.#ObjectExpression
+	// Provides additional mapping information when the record format uses
+	// delimiters (for example, CSV).
+	CSVMappingParameters?: #CSVMappingParameters
+
+	// Provides additional mapping information when JSON is the record format on the streaming source.
+	JSONMappingParameters?: #JSONMappingParameters
 }) |
 fn.#ObjectExpression
 
@@ -306,25 +398,35 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RecordFormat: close({
-	MappingParameters?: #MappingParameters | fn.#ObjectExpression
+	// When you configure application input at the time of creating or updating an
+	// application, provides additional mapping information specific to the record
+	// format (such as JSON, CSV, or record fields delimited by some delimiter) on
+	// the streaming source.
+	MappingParameters?: #MappingParameters
 	RecordFormatType!:  "CSV" | "JSON" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RunConfiguration: close({
-	ApplicationRestoreConfiguration?: #ApplicationRestoreConfiguration | fn.#ObjectExpression
-	FlinkRunConfiguration?:           #FlinkRunConfiguration | fn.#ObjectExpression
+	// Describes the restore behavior of a restarting application.
+	ApplicationRestoreConfiguration?: #ApplicationRestoreConfiguration
+
+	// Describes the starting parameters for a Flink-based Kinesis Data Analytics application.
+	FlinkRunConfiguration?: #FlinkRunConfiguration
 }) |
 fn.#ObjectExpression
 
 #S3ContentBaseLocation: close({
-	BasePath?:  strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/!-_.*'()]+$" | fn.#StringExpression
-	BucketARN!: #Arn | fn.#StringExpression
+	BasePath?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/!-_.*'()]+$" | fn.#StringExpression
+
+	// The Amazon Resource Name (ARN) of the S3 bucket.
+	BucketARN!: #Arn
 }) |
 fn.#ObjectExpression
 
 #S3ContentLocation: close({
-	BucketARN!:     #Arn | fn.#StringExpression
+	// The Amazon Resource Name (ARN) for the S3 bucket containing the application code.
+	BucketARN!:     #Arn
 	FileKey!:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	ObjectVersion?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
@@ -349,13 +451,21 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#VpcConfigurations: list.MaxItems(1) & [...#VpcConfiguration | fn.#ObjectExpression] | fn.#ListExpression
+#VpcConfigurations: list.MaxItems(1) & [...#VpcConfiguration] | fn.#ListExpression
 
 #ZeppelinApplicationConfiguration: close({
-	CatalogConfiguration?:             #CatalogConfiguration | fn.#ObjectExpression
-	CustomArtifactsConfiguration?:     #CustomArtifactsConfiguration | fn.#ListExpression
-	DeployAsApplicationConfiguration?: #DeployAsApplicationConfiguration | fn.#ObjectExpression
-	MonitoringConfiguration?:          #ZeppelinMonitoringConfiguration | fn.#ObjectExpression
+	// The Amazon Glue Data Catalog that you use in queries in a Kinesis Data Analytics Studio notebook.
+	CatalogConfiguration?: #CatalogConfiguration
+
+	// A list of CustomArtifactConfiguration objects.
+	CustomArtifactsConfiguration?: #CustomArtifactsConfiguration
+
+	// The information required to deploy a Kinesis Data Analytics Studio notebook
+	// as an application with durable state.
+	DeployAsApplicationConfiguration?: #DeployAsApplicationConfiguration
+
+	// The monitoring configuration of a Kinesis Data Analytics Studio notebook.
+	MonitoringConfiguration?: #ZeppelinMonitoringConfiguration
 }) |
 fn.#ObjectExpression
 

@@ -23,7 +23,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		AuthenticationStrategy?:  =~"(?i)^(?:config_managed|ldap|simple)$" | fn.#StringExpression
 		AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		BrokerName!:              =~"^[0-9A-Za-z_-]{1,50}$" | fn.#StringExpression
-		Configuration?:           #ConfigurationId | fn.#ObjectExpression
+
+		// The intended configuration (ID and revision) to be set when creating or updating.
+		// This property is write-only so that applications of a
+		// ConfigurationAssociation do not cause drift.
+		Configuration?: #ConfigurationId
 		DataReplicationMode?: =~"(?i)^(?:crdr|none)$" &
 			("NONE" | "CRDR" | =~"^[Nn][Oo][Nn][Ee]$" | =~"^[Cc][Rr][Dd][Rr]$") |
 			fn.#StringExpression

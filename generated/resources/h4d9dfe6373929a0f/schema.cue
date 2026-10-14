@@ -23,11 +23,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		AppNetworkAccessType?:       "PublicInternetOnly" | "VpcOnly" | fn.#StringExpression
 		AppSecurityGroupManagement?: "Service" | "Customer" | fn.#StringExpression
 		AuthMode!:                   "SSO" | "IAM" | fn.#StringExpression
-		DefaultSpaceSettings?:       #DefaultSpaceSettings | fn.#ObjectExpression
-		DefaultUserSettings!:        #UserSettings | fn.#ObjectExpression
-		DomainName!:                 strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" | fn.#StringExpression
-		DomainSettings?:             #DomainSettings
-		HomeEfsFileSystemCreation?:  "Enabled" | "Disabled" | fn.#StringExpression
+
+		// The default space settings.
+		DefaultSpaceSettings?: #DefaultSpaceSettings
+
+		// The default user settings.
+		DefaultUserSettings!:       #UserSettings
+		DomainName!:                strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" | fn.#StringExpression
+		DomainSettings?:            #DomainSettings
+		HomeEfsFileSystemCreation?: "Enabled" | "Disabled" | fn.#StringExpression
 		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			string) &
 		strings.MaxRunes(2048) &
@@ -238,8 +242,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(0) &
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" |
 	fn.#StringExpression
-	CustomImages?:        list.MaxItems(200) & [...] & [...#CustomImage] | fn.#ListExpression
-	DefaultResourceSpec?: #ResourceSpec | fn.#ObjectExpression
+	CustomImages?: list.MaxItems(200) & [...] & [...#CustomImage] | fn.#ListExpression
+
+	// The default instance type and the Amazon Resource Name (ARN) of the default
+	// SageMaker image used by the CodeEditor app.
+	DefaultResourceSpec?: #ResourceSpec
 	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -311,22 +318,34 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DefaultEbsStorageSettings: close({
-	DefaultEbsVolumeSizeInGb!: #SpaceEbsVolumeSizeInGb | fn.#NumberExpression
-	MaximumEbsVolumeSizeInGb!: #SpaceEbsVolumeSizeInGb | fn.#NumberExpression
+	// Default size of the Amazon EBS volume in Gb
+	DefaultEbsVolumeSizeInGb!: #SpaceEbsVolumeSizeInGb
+
+	// Maximum size of the Amazon EBS volume in Gb. Must be greater than or equal to
+	// the DefaultEbsVolumeSizeInGb.
+	MaximumEbsVolumeSizeInGb!: #SpaceEbsVolumeSizeInGb
 }) |
 fn.#ObjectExpression
 
 #DefaultSpaceSettings: close({
 	CustomFileSystemConfigs?: list.MaxItems(2) & list.UniqueItems() & [...] & [...#CustomFileSystemConfig] |
 		fn.#ListExpression
-	CustomPosixUserConfig?: #CustomPosixUserConfig | fn.#ObjectExpression
+
+	// The Jupyter lab's custom posix user configurations.
+	CustomPosixUserConfig?: #CustomPosixUserConfig
 	ExecutionRole!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
-	JupyterLabAppSettings?:    #JupyterLabAppSettings | fn.#ObjectExpression
-	JupyterServerAppSettings?: #JupyterServerAppSettings | fn.#ObjectExpression
-	KernelGatewayAppSettings?: #KernelGatewayAppSettings | fn.#ObjectExpression
+
+	// The Jupyter lab's app settings.
+	JupyterLabAppSettings?: #JupyterLabAppSettings
+
+	// The Jupyter server's app settings.
+	JupyterServerAppSettings?: #JupyterServerAppSettings
+
+	// The kernel gateway app settings.
+	KernelGatewayAppSettings?: #KernelGatewayAppSettings
 	SecurityGroups?: list.MaxItems(5) & [...] & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(32) &
@@ -335,7 +354,9 @@ fn.#ObjectExpression
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	SpaceStorageSettings?: #DefaultSpaceStorageSettings | fn.#ObjectExpression
+
+	// The Jupyter lab's space storage settings.
+	SpaceStorageSettings?: #DefaultSpaceStorageSettings
 }) |
 fn.#ObjectExpression
 
@@ -421,9 +442,12 @@ fn.#ObjectExpression
 	strings.MinRunes(0) &
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" |
 	fn.#StringExpression
-	CodeRepositories?:    list.MaxItems(30) & [...] & [...#CodeRepository] | fn.#ListExpression
-	CustomImages?:        list.MaxItems(200) & [...] & [...#CustomImage] | fn.#ListExpression
-	DefaultResourceSpec?: #ResourceSpec | fn.#ObjectExpression
+	CodeRepositories?: list.MaxItems(30) & [...] & [...#CodeRepository] | fn.#ListExpression
+	CustomImages?:     list.MaxItems(200) & [...] & [...#CustomImage] | fn.#ListExpression
+
+	// The default instance type and the Amazon Resource Name (ARN) of the default
+	// SageMaker image used by the JupyterLab app.
+	DefaultResourceSpec?: #ResourceSpec
 	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -435,8 +459,11 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #KernelGatewayAppSettings: close({
-	CustomImages?:        list.MaxItems(200) & [...] & [...#CustomImage] | fn.#ListExpression
-	DefaultResourceSpec?: #ResourceSpec | fn.#ObjectExpression
+	CustomImages?: list.MaxItems(200) & [...] & [...#CustomImage] | fn.#ListExpression
+
+	// The default instance type and the Amazon Resource Name (ARN) of the default
+	// SageMaker image used by the KernelGateway app.
+	DefaultResourceSpec?: #ResourceSpec
 	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -617,9 +644,13 @@ fn.#ObjectExpression
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
-	JupyterLabAppSettings?:       #JupyterLabAppSettings
-	JupyterServerAppSettings?:    #JupyterServerAppSettings | fn.#ObjectExpression
-	KernelGatewayAppSettings?:    #KernelGatewayAppSettings | fn.#ObjectExpression
+	JupyterLabAppSettings?: #JupyterLabAppSettings
+
+	// The Jupyter server's app settings.
+	JupyterServerAppSettings?: #JupyterServerAppSettings
+
+	// The kernel gateway app settings.
+	KernelGatewayAppSettings?:    #KernelGatewayAppSettings
 	RSessionAppSettings?:         #RSessionAppSettings
 	RStudioServerProAppSettings?: #RStudioServerProAppSettings
 	SecurityGroups?: list.MaxItems(5) & [...] & [
@@ -630,7 +661,9 @@ fn.#ObjectExpression
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	SharingSettings?:         #SharingSettings | fn.#ObjectExpression
+
+	// The sharing settings.
+	SharingSettings?:         #SharingSettings
 	SpaceStorageSettings?:    #DefaultSpaceStorageSettings
 	StudioWebPortal?:         "ENABLED" | "DISABLED" | fn.#StringExpression
 	StudioWebPortalSettings?: #StudioWebPortalSettings

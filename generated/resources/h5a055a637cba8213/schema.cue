@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -21,8 +21,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Endpoint?:    string | fn.#StringExpression
 		IamIdentityCenterOptions?: close({
 			Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-			IamIdentityCenterInstanceArn?: _#defs."/$defs/Properties/definitions/_PropertyRefb91010e65b1f7292" |
-				fn.#StringExpression
+
+			// The ARN of the IAM Identity Center instance.
+			IamIdentityCenterInstanceArn?:           _#defs."/$defs/Properties/definitions/_PropertyRefb91010e65b1f7292"
 			IamRoleForIdentityCenterApplicationArn?: string | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
@@ -37,7 +38,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }
 
 #AppConfig: close({
-	Key!:   #AppConfigType | fn.#StringExpression
+	// The configuration key
+	Key!:   #AppConfigType
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -47,7 +49,8 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #DataSource: close({
-	DataSourceArn!:         _#defs."/$defs/Properties/definitions/_PropertyRefb91010e65b1f7292" | fn.#StringExpression
+	// The ARN of the data source.
+	DataSourceArn!:         _#defs."/$defs/Properties/definitions/_PropertyRefb91010e65b1f7292"
 	DataSourceDescription?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -71,7 +71,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 		IsMtlsEnabledVmCluster?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		LicenseModel?:           "BRING_YOUR_OWN_LICENSE" | "LICENSE_INCLUDED" | fn.#StringExpression
-		MaintenanceWindow?:      #MaintenanceWindow | fn.#ObjectExpression
+
+		// The scheduling details for the maintenance window. Patching and system
+		// updates take place during the maintenance window.
+		MaintenanceWindow?: #MaintenanceWindow
 		MemoryPerOracleComputeUnitInGBs?: int |
 			{
 				string &

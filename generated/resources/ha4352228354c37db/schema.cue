@@ -17,7 +17,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EventsV2::EventSource"
 	Properties!: close({
-		Configuration!: #EventSourceConfiguration | fn.#ObjectExpression
+		// The event source configuration. Specify exactly one of
+		// AwsServiceEventsConfiguration or PartnerEventsConfiguration.
+		Configuration!: #EventSourceConfiguration
 		Description?:   strings.MaxRunes(512) | fn.#StringExpression
 		EventBusArn!: strings.MaxRunes(1011) &
 		strings.MinRunes(1) &
@@ -30,14 +32,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #AwsServiceEventsConfiguration: close({
 	AwsService!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^aws\\.[a-z0-9\\-]+$" | fn.#StringExpression
-	OnFailureConfiguration?: #OnFailureConfiguration | fn.#ObjectExpression
+
+	// The destination for events that could not be forwarded.
+	OnFailureConfiguration?: #OnFailureConfiguration
 	Pattern?:                strings.MaxRunes(3753) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EventSourceConfiguration: close({
-	AwsServiceEventsConfiguration?: #AwsServiceEventsConfiguration | fn.#ObjectExpression
-	PartnerEventsConfiguration?:    #PartnerEventsConfiguration | fn.#ObjectExpression
+	// Configuration for forwarding a single AWS service's events.
+	AwsServiceEventsConfiguration?: #AwsServiceEventsConfiguration
+
+	// Configuration for forwarding a partner event source's events.
+	PartnerEventsConfiguration?: #PartnerEventsConfiguration
 	if AwsServiceEventsConfiguration != _|_ if AwsServiceEventsConfiguration."Fn::If" == _|_ {
 		PartnerEventsConfiguration?: close({"Fn::If": _}) | error(
 			"PartnerEventsConfiguration cannot be used with AwsServiceEventsConfiguration; set exactly one of AwsServiceEventsConfiguration, PartnerEventsConfiguration",
@@ -55,7 +62,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PartnerEventsConfiguration: close({
-	OnFailureConfiguration?:     #OnFailureConfiguration | fn.#ObjectExpression
+	// The destination for events that could not be forwarded, covering both the
+	// forwarding target and the managed partner event bus.
+	OnFailureConfiguration?:     #OnFailureConfiguration
 	PartnerBusKmsKeyIdentifier?: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$" | fn.#StringExpression
 	PartnerEventSourceArn!: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &

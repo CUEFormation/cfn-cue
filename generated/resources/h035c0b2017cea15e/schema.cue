@@ -19,7 +19,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 		KafkaClusters!: list.MaxItems(2) & list.MinItems(2) & list.UniqueItems() & [...#KafkaCluster] |
 			fn.#ListExpression
-		LogDelivery?: #LogDelivery | fn.#ObjectExpression
+
+		// Configuration for log delivery for the replicator.
+		LogDelivery?: #LogDelivery
 		ReplicationInfoList!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#ReplicationInfo] |
 			fn.#ListExpression
 		ReplicatorName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9A-Za-z][0-9A-Za-z-]{0,}$" |
@@ -49,7 +51,8 @@ fn.#ObjectExpression
 #ConsumerGroupOffsetSyncMode: "LEGACY" | "ENHANCED" | fn.#StringExpression
 
 #ConsumerGroupReplication: close({
-	ConsumerGroupOffsetSyncMode?: #ConsumerGroupOffsetSyncMode | fn.#StringExpression
+	// The consumer group offset synchronization mode.
+	ConsumerGroupOffsetSyncMode?: #ConsumerGroupOffsetSyncMode
 	ConsumerGroupsToExclude?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	] |
@@ -86,18 +89,32 @@ fn.#ObjectExpression
 #JwtSigningAlgorithm: "RS256" | "ES384" | fn.#StringExpression
 
 #KafkaCluster: close({
-	AmazonMskCluster?:     #AmazonMskCluster | fn.#ObjectExpression
-	ApacheKafkaCluster?:   #ApacheKafkaCluster | fn.#ObjectExpression
-	ClientAuthentication?: #KafkaClusterClientAuthentication | fn.#ObjectExpression
-	EncryptionInTransit?:  #KafkaClusterEncryptionInTransit | fn.#ObjectExpression
-	VpcConfig?:            #KafkaClusterClientVpcConfig | fn.#ObjectExpression
+	// Details of an Amazon MSK cluster.
+	AmazonMskCluster?: #AmazonMskCluster
+
+	// Details of an Apache Kafka cluster.
+	ApacheKafkaCluster?: #ApacheKafkaCluster
+
+	// Details of the client authentication used by the Apache Kafka cluster.
+	ClientAuthentication?: #KafkaClusterClientAuthentication
+
+	// Details of encryption in transit to the Apache Kafka cluster.
+	EncryptionInTransit?: #KafkaClusterEncryptionInTransit
+
+	// Details of an Amazon VPC which has network connectivity to the Apache Kafka cluster.
+	VpcConfig?: #KafkaClusterClientVpcConfig
 }) |
 fn.#ObjectExpression
 
 #KafkaClusterClientAuthentication: close({
-	MTLS?:            #KafkaClusterMtlsAuthentication | fn.#ObjectExpression
-	SaslOAuthBearer?: #KafkaClusterSaslOAuthBearerAuthentication | fn.#ObjectExpression
-	SaslScram?:       #KafkaClusterSaslScramAuthentication | fn.#ObjectExpression
+	// Details for mTLS client authentication.
+	MTLS?: #KafkaClusterMtlsAuthentication
+
+	// Details for client authentication using SASL/OAUTHBEARER.
+	SaslOAuthBearer?: #KafkaClusterSaslOAuthBearerAuthentication
+
+	// Details for SASL/SCRAM client authentication.
+	SaslScram?: #KafkaClusterSaslScramAuthentication
 }) |
 fn.#ObjectExpression
 
@@ -113,7 +130,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #KafkaClusterEncryptionInTransit: close({
-	EncryptionType!:    #KafkaClusterEncryptionInTransitType | fn.#StringExpression
+	// The type of encryption in transit to the Apache Kafka cluster.
+	EncryptionType!:    #KafkaClusterEncryptionInTransitType
 	RootCaCertificate?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -126,48 +144,71 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #KafkaClusterOAuthClientCredentialsAssertion: close({
-	Audience!:              string | fn.#StringExpression
-	SigningAlgorithm!:      #JwtSigningAlgorithm | fn.#StringExpression
+	Audience!: string | fn.#StringExpression
+
+	// The algorithm used to sign the JWT client assertion.
+	SigningAlgorithm!:      #JwtSigningAlgorithm
 	TokenRequestSecretArn?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KafkaClusterOAuthIamJwtBearer: close({
-	Audience!:              string | fn.#StringExpression
-	SigningAlgorithm!:      #JwtSigningAlgorithm | fn.#StringExpression
+	Audience!: string | fn.#StringExpression
+
+	// The algorithm used to sign the JWT assertion.
+	SigningAlgorithm!:      #JwtSigningAlgorithm
 	TokenRequestSecretArn?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KafkaClusterSaslOAuthBearerAuthentication: close({
-	ClientCredentials?:                 #KafkaClusterOAuthClientCredentials | fn.#ObjectExpression
-	ClientCredentialsAssertion?:        #KafkaClusterOAuthClientCredentialsAssertion | fn.#ObjectExpression
-	IamJwtBearer?:                      #KafkaClusterOAuthIamJwtBearer | fn.#ObjectExpression
-	Scope?:                             string | fn.#StringExpression
-	TokenEndpointAuthenticationMethod!: #TokenEndpointAuthenticationMethod | fn.#StringExpression
+	// Details for SASL/OAUTHBEARER using standard client_credentials grant.
+	// Mutually exclusive with iamJwtBearer and clientCredentialsAssertion.
+	ClientCredentials?: #KafkaClusterOAuthClientCredentials
+
+	// Details for SASL/OAUTHBEARER using client credentials grant with JWT client
+	// assertion (RFC 7521/7523). Mutually exclusive with clientCredentials and
+	// iamJwtBearer.
+	ClientCredentialsAssertion?: #KafkaClusterOAuthClientCredentialsAssertion
+
+	// Details for SASL/OAUTHBEARER using JWT Bearer assertion grant (RFC 7523).
+	// Mutually exclusive with clientCredentials and clientCredentialsAssertion.
+	IamJwtBearer?: #KafkaClusterOAuthIamJwtBearer
+	Scope?:        string | fn.#StringExpression
+
+	// How client credentials are sent to the identity provider (POST, BASIC, or NONE).
+	TokenEndpointAuthenticationMethod!: #TokenEndpointAuthenticationMethod
 	TokenEndpointTlsCertificateArn?:    string | fn.#StringExpression
 	TokenEndpointUrl!:                  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KafkaClusterSaslScramAuthentication: close({
-	Mechanism!: #KafkaClusterSaslScramMechanism | fn.#StringExpression
+	// The SASL/SCRAM authentication mechanism.
+	Mechanism!: #KafkaClusterSaslScramMechanism
 	SecretArn!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KafkaClusterSaslScramMechanism: "SHA256" | "SHA512" | fn.#StringExpression
 
-#LogDelivery: close({ReplicatorLogDelivery?: #ReplicatorLogDelivery | fn.#ObjectExpression}) | fn.#ObjectExpression
+#LogDelivery: close({
+	// The replicator logs configuration.
+	ReplicatorLogDelivery?: #ReplicatorLogDelivery
+}) |
+fn.#ObjectExpression
 
 #ReplicationInfo: close({
-	ConsumerGroupReplication!: #ConsumerGroupReplication | fn.#ObjectExpression
+	// Configuration relating to consumer group replication.
+	ConsumerGroupReplication!: #ConsumerGroupReplication
 	SourceKafkaClusterArn?:    =~"arn:(aws|aws-us-gov|aws-cn):kafka:.*" | fn.#StringExpression
 	SourceKafkaClusterId?:     string | fn.#StringExpression
 	TargetCompressionType!:    "NONE" | "GZIP" | "SNAPPY" | "LZ4" | "ZSTD" | fn.#StringExpression
 	TargetKafkaClusterArn?:    =~"arn:(aws|aws-us-gov|aws-cn):kafka:.*" | fn.#StringExpression
 	TargetKafkaClusterId?:     string | fn.#StringExpression
-	TopicReplication!:         #TopicReplication | fn.#ObjectExpression
+
+	// Configuration relating to topic replication.
+	TopicReplication!: #TopicReplication
 }) |
 fn.#ObjectExpression
 
@@ -180,9 +221,14 @@ fn.#ObjectExpression
 #ReplicationTopicNameConfigurationType: "PREFIXED_WITH_SOURCE_CLUSTER_ALIAS" | "IDENTICAL" | fn.#StringExpression
 
 #ReplicatorLogDelivery: close({
-	CloudWatchLogs?: #CloudWatchLogs | fn.#ObjectExpression
-	Firehose?:       #Firehose | fn.#ObjectExpression
-	S3?:             #S3 | fn.#ObjectExpression
+	// Details of the CloudWatch Logs destination for replicator logs.
+	CloudWatchLogs?: #CloudWatchLogs
+
+	// Details of the Kinesis Data Firehose delivery stream that is the destination for replicator logs.
+	Firehose?: #Firehose
+
+	// Details of the Amazon S3 destination for replicator logs.
+	S3?: #S3
 }) |
 fn.#ObjectExpression
 
@@ -212,8 +258,13 @@ fn.#ObjectExpression
 		fn.#BooleanExpression
 	CopyTopicConfigurations?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DetectAndCopyNewTopics?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	StartingPosition?:        #ReplicationStartingPosition | fn.#ObjectExpression
-	TopicNameConfiguration?:  #ReplicationTopicNameConfiguration | fn.#ObjectExpression
+
+	// Configuration for specifying the position in the topics to start replicating from.
+	StartingPosition?: #ReplicationStartingPosition
+
+	// Configuration for specifying replicated topic names should be the same as
+	// their corresponding upstream topics or prefixed with source cluster alias.
+	TopicNameConfiguration?: #ReplicationTopicNameConfiguration
 	TopicsToExclude?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(249) & strings.MinRunes(0) | fn.#StringExpression
 	] |

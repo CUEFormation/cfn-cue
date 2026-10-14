@@ -12,11 +12,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::FpgaImage"
 	Properties?: close({
-		Description?:          string | fn.#StringExpression
-		InputStorageLocation?: #StorageLocation | fn.#ObjectExpression
-		LogsStorageLocation?:  #StorageLocation | fn.#ObjectExpression
-		Name?:                 string | fn.#StringExpression
-		Tags?:                 [...#Tag] | fn.#ListExpression
+		Description?: string | fn.#StringExpression
+
+		// The location of the encrypted design checkpoint in Amazon S3. The input must be a tarball.
+		InputStorageLocation?: #StorageLocation
+
+		// The location in Amazon S3 for the output logs.
+		LogsStorageLocation?: #StorageLocation
+		Name?:                string | fn.#StringExpression
+		Tags?:                [...#Tag] | fn.#ListExpression
 	})
 }
 

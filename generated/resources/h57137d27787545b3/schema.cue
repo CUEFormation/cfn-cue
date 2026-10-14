@@ -57,8 +57,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		IdentityCenterOptions?: close({
 			EnabledAPIAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 			IdentityCenterInstanceARN?: string | fn.#StringExpression
-			RolesKey?:                  #RolesKeyIdcType | fn.#StringExpression
-			SubjectKey?:                #SubjectKeyIdcType | fn.#StringExpression
+
+			// The roles key for Identity Center options.
+			RolesKey?: #RolesKeyIdcType
+
+			// The subject key for Identity Center options.
+			SubjectKey?: #SubjectKeyIdcType
 		}) |
 		fn.#ObjectExpression
 		LogPublishingOptions?: close({
@@ -251,8 +255,12 @@ fn.#ObjectExpression
 	IdentityCenterApplicationARN?: string | fn.#StringExpression
 	IdentityCenterInstanceARN?:    string | fn.#StringExpression
 	IdentityStoreId?:              string | fn.#StringExpression
-	RolesKey?:                     #RolesKeyIdcType | fn.#StringExpression
-	SubjectKey?:                   #SubjectKeyIdcType | fn.#StringExpression
+
+	// The roles key for Identity Center options.
+	RolesKey?: #RolesKeyIdcType
+
+	// The subject key for Identity Center options.
+	SubjectKey?: #SubjectKeyIdcType
 }) |
 fn.#ObjectExpression
 

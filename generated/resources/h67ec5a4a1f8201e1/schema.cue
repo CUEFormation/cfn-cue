@@ -49,7 +49,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			FirewallDomainRedirectionAction?: "INSPECT_REDIRECTION_DOMAIN" |
 				"TRUST_REDIRECTION_DOMAIN" |
 				fn.#StringExpression
-			FirewallRuleType?: #FirewallRuleType | fn.#ObjectExpression
+
+			// Advanced firewall rule type. Mutually exclusive with FirewallDomainListId and
+			// DnsThreatProtection/ConfidenceThreshold.
+			FirewallRuleType?: #FirewallRuleType
 			Priority!: int |
 				{
 					string &
@@ -110,8 +113,11 @@ fn.#ObjectExpression
 	DnsThreatProtection?:             "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA" | fn.#StringExpression
 	FirewallDomainListId?:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	FirewallDomainRedirectionAction?: "INSPECT_REDIRECTION_DOMAIN" | "TRUST_REDIRECTION_DOMAIN" | fn.#StringExpression
-	FirewallRuleType?:                #FirewallRuleType | fn.#ObjectExpression
-	FirewallThreatProtectionId?:      strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+
+	// Advanced firewall rule type. Mutually exclusive with FirewallDomainListId and
+	// DnsThreatProtection/ConfidenceThreshold.
+	FirewallRuleType?:           #FirewallRuleType
+	FirewallThreatProtectionId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	Priority!: int |
 		{
 			string &

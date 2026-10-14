@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::DocumentationPart"
 	Properties!: close({
-		Location!:   #Location | fn.#ObjectExpression
+		Location!:   #Location
 		Properties!: string | fn.#StringExpression
 		RestApiId!:  string | fn.#StringExpression
 	})

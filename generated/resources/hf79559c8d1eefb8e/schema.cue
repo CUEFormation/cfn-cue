@@ -16,9 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Deadline::Worker"
 	Properties!: close({
-		FarmId!:         =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
-		FleetId!:        =~"^fleet-[0-9a-f]{32}$" | fn.#StringExpression
-		HostProperties?: #HostPropertiesRequest | fn.#ObjectExpression
+		FarmId!:  =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
+		FleetId!: =~"^fleet-[0-9a-f]{32}$" | fn.#StringExpression
+
+		// The IP address and host name of the worker.
+		HostProperties?: #HostPropertiesRequest
 		Tags?: list.MaxItems(50) & [...close({
 			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression

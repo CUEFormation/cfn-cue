@@ -22,9 +22,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ComputePlatform?: "ECS" | "Lambda" | "Server" | fn.#StringExpression
 		DeploymentConfigName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
 		fn.#StringExpression
-		MinimumHealthyHosts?:  #MinimumHealthyHosts | fn.#ObjectExpression
-		TrafficRoutingConfig?: #TrafficRoutingConfig | fn.#ObjectExpression
-		ZonalConfig?:          #ZonalConfig | fn.#ObjectExpression
+
+		// The minimum number of healthy instances that should be available at any time
+		// during the deployment. There are two parameters expected in the input: type
+		// and value.
+		MinimumHealthyHosts?: #MinimumHealthyHosts
+
+		// The configuration that specifies how the deployment traffic is routed.
+		TrafficRoutingConfig?: #TrafficRoutingConfig
+
+		// The zonal deployment config that specifies how the zonal deployment behaves
+		ZonalConfig?: #ZonalConfig
 	})
 }
 

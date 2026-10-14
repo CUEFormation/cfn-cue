@@ -22,10 +22,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(1) &
 		=~"^arn:.+$|^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
 		fn.#StringExpression
-		AuthType!:   "oauth2" | "apiKey" | fn.#StringExpression
-		Credential?: #Credential | fn.#ObjectExpression
+		AuthType!: "oauth2" | "apiKey" | fn.#StringExpression
+
+		// Contains credentials for the application.
+		Credential?: #Credential
 		Tags?:       list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		Tenant!:     #Tenant | fn.#ObjectExpression
+
+		// Contains information about an application tenant.
+		Tenant!: #Tenant
 	})
 }
 

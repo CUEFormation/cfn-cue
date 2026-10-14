@@ -79,11 +79,13 @@ fn.#ObjectExpression
 		])
 	}
 	{}
-	"HostHeader"?:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" | fn.#StringExpression
-	HostHeaderWildcard?:  strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[A-Za-z0-9._~*-]+$" | fn.#StringExpression
-	PathExact?:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/[A-Za-z0-9._~/-]*$" | fn.#StringExpression
-	"PathPrefix"?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/[A-Za-z0-9._~/-]*$" | fn.#StringExpression
-	"QueryStringEquals"?: #QueryStringKeyValuePair | fn.#ObjectExpression
+	"HostHeader"?:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" | fn.#StringExpression
+	HostHeaderWildcard?: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[A-Za-z0-9._~*-]+$" | fn.#StringExpression
+	PathExact?:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/[A-Za-z0-9._~/-]*$" | fn.#StringExpression
+	"PathPrefix"?:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/[A-Za-z0-9._~/-]*$" | fn.#StringExpression
+
+	// Query string key=value pair match (single pair).
+	"QueryStringEquals"?: #QueryStringKeyValuePair
 	QueryStringExists?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

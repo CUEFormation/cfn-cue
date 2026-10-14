@@ -17,18 +17,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!: "AWS::MediaConnect::Flow"
 	Properties!: close({
 		AvailabilityZone?: string | fn.#StringExpression
-		EncodingConfig?:   #EncodingConfig | fn.#ObjectExpression
-		FlowSize?:         "MEDIUM" | "LARGE" | "LARGE_4X" | fn.#StringExpression
-		Maintenance?:      #Maintenance | fn.#ObjectExpression
-		MediaStreams?:     [...#MediaStream] | fn.#ListExpression
-		Name!:             string | fn.#StringExpression
-		NdiConfig?:        #NdiConfig | fn.#ObjectExpression
+
+		// The encoding configuration to apply to the NDI source content when
+		// transcoding it to a transport stream (TS) for downstream distribution. You
+		// can choose between several predefined encoding profiles based on common use
+		// cases.
+		EncodingConfig?: #EncodingConfig
+		FlowSize?:       "MEDIUM" | "LARGE" | "LARGE_4X" | fn.#StringExpression
+
+		// The maintenance settings you want to use for the flow.
+		Maintenance?:  #Maintenance
+		MediaStreams?: [...#MediaStream] | fn.#ListExpression
+		Name!:         string | fn.#StringExpression
+
+		// Specifies the configuration settings for NDI sources and outputs. Required
+		// when the flow includes NDI sources or outputs.
+		NdiConfig?: #NdiConfig
 		Source!: close({
-			Decryption?:  #Encryption | fn.#ObjectExpression
+			// The type of decryption that is used on the content ingested from this source.
+			Decryption?:  #Encryption
 			Description?: string | fn.#StringExpression
 			EntitlementArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:entitlement:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 				fn.#StringExpression
-			GatewayBridgeSource?: #GatewayBridgeSource | fn.#ObjectExpression
+
+			// The source configuration for cloud flows receiving a stream from a bridge.
+			GatewayBridgeSource?: #GatewayBridgeSource
 			IngestPort?: int |
 				{
 					string &
@@ -110,8 +123,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						)
 				} |
 				fn.#NumberExpression
-			Name?:              string | fn.#StringExpression
-			NdiSourceSettings?: #NdiSourceSettings | fn.#ObjectExpression
+			Name?: string | fn.#StringExpression
+
+			// The settings for the NDI flow source. This includes the exact name of the
+			// upstream NDI sender that you want to connect to your flow source.
+			NdiSourceSettings?: #NdiSourceSettings
 			Protocol?: "zixi-push" |
 				"rtp-fec" |
 				"rtp" |
@@ -164,8 +180,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			WhitelistCidr?:    string | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
-		SourceFailoverConfig?:   #FailoverConfig | fn.#ObjectExpression
-		SourceMonitoringConfig?: #SourceMonitoringConfig | fn.#ObjectExpression
+
+		// The source failover config of the flow.
+		SourceFailoverConfig?: #FailoverConfig
+
+		// The source monitoring config of the flow.
+		SourceMonitoringConfig?: #SourceMonitoringConfig
 		Tags?:                   [...#Tag] | fn.#ListExpression
 		VpcInterfaces?:          [...#VpcInterface] | fn.#ListExpression
 	})
@@ -309,7 +329,9 @@ fn.#ObjectExpression
 #GatewayBridgeSource: close({
 	BridgeArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:bridge:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 		fn.#StringExpression
-	VpcInterfaceAttachment?: #VpcInterfaceAttachment | fn.#ObjectExpression
+
+	// The name of the VPC interface attachment to use for this bridge source.
+	VpcInterfaceAttachment?: #VpcInterfaceAttachment
 }) |
 fn.#ObjectExpression
 
@@ -328,7 +350,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Interface!: #Interface | fn.#ObjectExpression
+
+	// The VPC interface where the media stream comes in from.
+	Interface!: #Interface
 }) |
 fn.#ObjectExpression
 
@@ -348,7 +372,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MediaStream: close({
-	Attributes?: #MediaStreamAttributes | fn.#ObjectExpression
+	// Attributes that are related to the media stream.
+	Attributes?: #MediaStreamAttributes
 	ClockRate?: int |
 		{
 			string &
@@ -400,7 +425,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MediaStreamAttributes: close({
-	Fmtp?: #Fmtp | fn.#ObjectExpression
+	// A set of parameters that define the media stream.
+	Fmtp?: #Fmtp
 	Lang?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -415,7 +441,11 @@ fn.#ObjectExpression
 #NdiConfig: close({
 	MachineName?:         string | fn.#StringExpression
 	NdiDiscoveryServers?: [...#NdiDiscoveryServerConfig] | fn.#ListExpression
-	NdiState?:            #NdiState | fn.#StringExpression
+
+	// A setting that controls whether NDI sources or outputs can be used in the
+	// flow. The default value is DISABLED. This value must be set as ENABLED for
+	// your flow to support NDI sources or outputs.
+	NdiState?: #NdiState
 }) |
 fn.#ObjectExpression
 
@@ -472,11 +502,14 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Source: close({
-	Decryption?:  #Encryption | fn.#ObjectExpression
+	// The type of decryption that is used on the content ingested from this source.
+	Decryption?:  #Encryption
 	Description?: string | fn.#StringExpression
 	EntitlementArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:entitlement:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 		fn.#StringExpression
-	GatewayBridgeSource?: #GatewayBridgeSource | fn.#ObjectExpression
+
+	// The source configuration for cloud flows receiving a stream from a bridge.
+	GatewayBridgeSource?: #GatewayBridgeSource
 	IngestIp?:            string | fn.#StringExpression
 	IngestPort?: int |
 		{
@@ -549,8 +582,11 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name?:              string | fn.#StringExpression
-	NdiSourceSettings?: #NdiSourceSettings | fn.#ObjectExpression
+	Name?: string | fn.#StringExpression
+
+	// The settings for the NDI flow source. This includes the exact name of the
+	// upstream NDI sender that you want to connect to your flow source.
+	NdiSourceSettings?: #NdiSourceSettings
 	Protocol?: "zixi-push" |
 		"rtp-fec" |
 		"rtp" |

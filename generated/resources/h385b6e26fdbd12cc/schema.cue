@@ -17,16 +17,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFormation::LambdaHook"
 	Properties!: close({
-		Alias!:         string | fn.#StringExpression
-		AutoUpdate?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ExecutionRole!: #Role | fn.#StringExpression
+		Alias!:      string | fn.#StringExpression
+		AutoUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// The execution role ARN assumed by Hooks to invoke Lambda.
+		ExecutionRole!: #Role
 		FailureMode!:   "FAIL" | "WARN" | fn.#StringExpression
 		HookStatus!:    "ENABLED" | "DISABLED" | fn.#StringExpression
 		LambdaFunction!: strings.MaxRunes(170) &
 		strings.MinRunes(1) &
 		=~"(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}(-gov)?(-iso([a-z])?)?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?" |
 		fn.#StringExpression
-		LoggingConfig?: #LoggingConfig | fn.#ObjectExpression
+
+		// Contains logging configuration information for the hook.
+		LoggingConfig?: #LoggingConfig
 		StackFilters?: close({
 			FilteringCriteria!: "ALL" | "ANY" | fn.#StringExpression
 			StackNames?: struct.MinFields(1) & close({

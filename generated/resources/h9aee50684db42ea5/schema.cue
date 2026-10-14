@@ -70,12 +70,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			string |
 			fn.#StringExpression
-		NetworkType?:                    "IPV4" | "DUAL" | fn.#StringExpression
-		PreferredBackupWindow?:          string | fn.#StringExpression
-		PreferredMaintenanceWindow?:     string | fn.#StringExpression
-		RestoreToTime?:                  string | fn.#StringExpression
-		RestoreType?:                    string | fn.#StringExpression
-		ServerlessScalingConfiguration?: #ServerlessScalingConfiguration | fn.#ObjectExpression
+		NetworkType?:                "IPV4" | "DUAL" | fn.#StringExpression
+		PreferredBackupWindow?:      string | fn.#StringExpression
+		PreferredMaintenanceWindow?: string | fn.#StringExpression
+		RestoreToTime?:              string | fn.#StringExpression
+		RestoreType?:                string | fn.#StringExpression
+
+		// Contains the scaling configuration used by the Neptune Serverless Instances
+		// within this DB cluster.
+		ServerlessScalingConfiguration?: #ServerlessScalingConfiguration
 		SnapshotIdentifier?:             string | fn.#StringExpression
 		SourceDBClusterIdentifier?:      string | fn.#StringExpression
 		StorageEncrypted?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

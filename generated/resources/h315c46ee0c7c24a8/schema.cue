@@ -16,7 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::Device"
 	Properties!: close({
-		Device?: #Device | fn.#ObjectExpression
+		// The Edge Device you want to register against a device fleet
+		Device?: #Device
 		DeviceFleetName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*_*[a-zA-Z0-9])*$" |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression

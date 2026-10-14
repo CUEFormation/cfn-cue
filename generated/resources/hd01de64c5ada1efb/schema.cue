@@ -29,9 +29,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Name!:        strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 		Pages?:       list.UniqueItems() & [...#WorkspacePage] | fn.#ListExpression
 		Tags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		Theme?:       #WorkspaceTheme | fn.#ObjectExpression
-		Title?:       strings.MaxRunes(127) & strings.MinRunes(0) & =~"^[\\P{C}]*$" | fn.#StringExpression
-		Visibility?:  #Visibility | fn.#StringExpression
+
+		// The theme configuration for the workspace
+		Theme?: #WorkspaceTheme
+		Title?: strings.MaxRunes(127) & strings.MinRunes(0) & =~"^[\\P{C}]*$" | fn.#StringExpression
+
+		// The visibility of the workspace. Will always be set to ASSIGNED oninitial creation.
+		Visibility?: #Visibility
 	})
 }
 

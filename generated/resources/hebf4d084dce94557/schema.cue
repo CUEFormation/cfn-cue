@@ -37,9 +37,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		KernelId?:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 		KeyName?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 		LaunchConfigurationName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		MetadataOptions?:         #MetadataOptions | fn.#ObjectExpression
-		PlacementTenancy?:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		RamDiskId?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The metadata options for the instances.
+		MetadataOptions?:  #MetadataOptions
+		PlacementTenancy?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		RamDiskId?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 		SecurityGroups?: [...] & [
 			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 				string |
@@ -108,8 +110,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #BlockDeviceMapping: close({
-	DeviceName!:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Ebs?:         #BlockDevice | fn.#ObjectExpression
+	DeviceName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+	// Parameters used to automatically set up EBS volumes when an instance is launched.
+	Ebs?:         #BlockDevice
 	NoDevice?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VirtualName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	if VirtualName != _|_ if VirtualName."Fn::If" == _|_ {

@@ -21,20 +21,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::Runtime"
 	Properties!: close({
-		AgentRuntimeArtifact!:          #AgentRuntimeArtifact | fn.#ObjectExpression
-		AgentRuntimeName!:              #AgentRuntimeName | fn.#StringExpression
-		AuthorizerConfiguration?:       #AuthorizerConfiguration | fn.#ObjectExpression
-		CapacityProviderConfiguration?: #CapacityProviderConfiguration | fn.#ObjectExpression
-		Description?:                   #Description | fn.#StringExpression
-		EnvironmentVariables?:          #EnvironmentVariablesMap | fn.#ObjectExpression
-		FilesystemConfigurations?:      #FilesystemConfigurations | fn.#ListExpression
-		LifecycleConfiguration?:        #LifecycleConfiguration | fn.#ObjectExpression
-		NetworkConfiguration?:          #NetworkConfiguration | fn.#ObjectExpression
-		PlatformVersion?:               #PlatformVersion | fn.#StringExpression
-		ProtocolConfiguration?:         #ProtocolConfiguration | fn.#StringExpression
-		RequestHeaderConfiguration?:    #RequestHeaderConfiguration | fn.#ObjectExpression
-		RoleArn!:                       #RoleArn | fn.#StringExpression
-		Tags?:                          #TagsMap
+		// The artifact of the agent
+		AgentRuntimeArtifact!: #AgentRuntimeArtifact
+
+		// Name for a resource
+		AgentRuntimeName!: #AgentRuntimeName
+
+		// Authorizer configuration for the agent runtime
+		AuthorizerConfiguration?: #AuthorizerConfiguration
+
+		// Capacity provider configuration for the agent runtime
+		CapacityProviderConfiguration?: #CapacityProviderConfiguration
+
+		// Description of the resource
+		Description?: #Description
+
+		// Environment variables for the agent runtime
+		EnvironmentVariables?: #EnvironmentVariablesMap
+
+		// Filesystem configurations for the agent runtime
+		FilesystemConfigurations?: #FilesystemConfigurations
+
+		// Lifecycle configuration for managing runtime sessions
+		LifecycleConfiguration?: #LifecycleConfiguration
+
+		// Network access configuration for the Agent
+		NetworkConfiguration?: #NetworkConfiguration
+
+		// The version of the runtime platform
+		PlatformVersion?: #PlatformVersion
+
+		// Protocol configuration for the agent runtime
+		ProtocolConfiguration?: #ProtocolConfiguration
+
+		// Configuration for HTTP request headers
+		RequestHeaderConfiguration?: #RequestHeaderConfiguration
+
+		// Amazon Resource Name (ARN) of an IAM role
+		RoleArn!: #RoleArn
+		Tags?:    #TagsMap
 	})
 }
 

@@ -34,7 +34,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::LaunchTemplate"
 	Properties!: close({
-		LaunchTemplateData!: #LaunchTemplateData | fn.#ObjectExpression
+		// The information for the launch template.
+		LaunchTemplateData!: #LaunchTemplateData
 		LaunchTemplateName?: string | fn.#StringExpression
 		TagSpecifications?:  [...#LaunchTemplateTagSpecification] | fn.#ListExpression
 		VersionDescription?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
@@ -137,11 +138,17 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#BaselinePerformanceFactors: close({Cpu?: #Cpu | fn.#ObjectExpression}) | fn.#ObjectExpression
+#BaselinePerformanceFactors: close({
+	// The CPU performance to consider, using an instance family as the baseline reference.
+	Cpu?: #Cpu
+}) |
+fn.#ObjectExpression
 
 #BlockDeviceMapping: close({
-	DeviceName?:  string | fn.#StringExpression
-	Ebs?:         #Ebs | fn.#ObjectExpression
+	DeviceName?: string | fn.#StringExpression
+
+	// Parameters used to automatically set up EBS volumes when the instance is launched.
+	Ebs?:         #Ebs
 	NoDevice?:    string | fn.#StringExpression
 	VirtualName?: string | fn.#StringExpression
 	if VirtualName != _|_ if VirtualName."Fn::If" == _|_ {
@@ -162,7 +169,9 @@ fn.#ObjectExpression
 
 #CapacityReservationSpecification: close({
 	CapacityReservationPreference?: "capacity-reservations-only" | "none" | "open" | fn.#StringExpression
-	CapacityReservationTarget?:     #CapacityReservationTarget | fn.#ObjectExpression
+
+	// Information about the target Capacity Reservation or Capacity Reservation group.
+	CapacityReservationTarget?: #CapacityReservationTarget
 }) |
 fn.#ObjectExpression
 
@@ -218,7 +227,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Cpu: close({References?: #References | fn.#ListExpression}) | fn.#ObjectExpression
+#Cpu: close({
+	// The instance family to use as the baseline reference for CPU performance. All
+	// instance types that match your specified attributes are compared against the
+	// CPU performance of the referenced instance family, regardless of CPU
+	// manufacturer or architecture differences.
+	References?: #References
+}) |
+fn.#ObjectExpression
 
 #CpuOptions: close({
 	AmdSevSnp?: "enabled" | "disabled" | fn.#StringExpression
@@ -338,8 +354,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EnaSrdSpecification: close({
-	EnaSrdEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnaSrdUdpSpecification?: #EnaSrdUdpSpecification | fn.#ObjectExpression
+	EnaSrdEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// Configures ENA Express for UDP network traffic.
+	EnaSrdUdpSpecification?: #EnaSrdUdpSpecification
 }) |
 fn.#ObjectExpression
 
@@ -365,13 +383,19 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #InstanceMarketOptions: close({
-	MarketType?:  "capacity-block" | "interruptible-capacity-reservation" | "on-demand" | "spot" | fn.#StringExpression
-	SpotOptions?: #SpotOptions | fn.#ObjectExpression
+	MarketType?: "capacity-block" | "interruptible-capacity-reservation" | "on-demand" | "spot" | fn.#StringExpression
+
+	// The options for Spot Instances.
+	SpotOptions?: #SpotOptions
 }) |
 fn.#ObjectExpression
 
 #InstanceRequirements: close({
-	AcceleratorCount?: #AcceleratorCount | fn.#ObjectExpression
+	// The minimum and maximum number of accelerators (GPUs, FPGAs, or AWS
+	// Inferentia chips) on an instance.
+	// To exclude accelerator-enabled instance types, set ``Max`` to ``0``.
+	// Default: No minimum or maximum limits
+	AcceleratorCount?: #AcceleratorCount
 	AcceleratorManufacturers?: [
 		..."amazon-web-services" | "amd" | "habana" | "nvidia" | "xilinx" | fn.#StringExpression
 	] |
@@ -399,15 +423,34 @@ fn.#ObjectExpression
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	AcceleratorTotalMemoryMiB?: #AcceleratorTotalMemoryMiB | fn.#ObjectExpression
+
+	// The minimum and maximum amount of total accelerator memory, in MiB.
+	// Default: No minimum or maximum limits
+	AcceleratorTotalMemoryMiB?: #AcceleratorTotalMemoryMiB
 	AcceleratorTypes?:          [..."fpga" | "gpu" | "inference" | "media" | fn.#StringExpression] | fn.#ListExpression
 	AllowedInstanceTypes?: list.MaxItems(400) & [...] & [
 		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	BareMetal?:                  "excluded" | "included" | "required" | fn.#StringExpression
-	BaselineEbsBandwidthMbps?:   #BaselineEbsBandwidthMbps | fn.#ObjectExpression
-	BaselinePerformanceFactors?: #BaselinePerformanceFactors | fn.#ObjectExpression
+	BareMetal?: "excluded" | "included" | "required" | fn.#StringExpression
+
+	// The minimum and maximum baseline bandwidth to Amazon EBS, in Mbps. For more
+	// information, see [Amazon EBS–optimized
+	// instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-optimized.html)
+	// in the *Amazon EC2 User Guide*.
+	// Default: No minimum or maximum limits
+	BaselineEbsBandwidthMbps?: #BaselineEbsBandwidthMbps
+
+	// The baseline performance to consider, using an instance family as a baseline
+	// reference. The instance family establishes the lowest acceptable level of
+	// performance. Amazon EC2 uses this baseline to guide instance type selection,
+	// but there is no guarantee that the selected instance types will always
+	// exceed the baseline for every application. Currently, this parameter only
+	// supports CPU performance as a baseline performance factor. For more
+	// information, see [Performance
+	// protection](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-attribute-based-instance-type-selection.html#ec2fleet-abis-performance-protection)
+	// in the *Amazon EC2 User Guide*.
+	BaselinePerformanceFactors?: #BaselinePerformanceFactors
 	BurstablePerformance?:       "excluded" | "included" | "required" | fn.#StringExpression
 	CpuManufacturers?: [..."amazon-web-services" | "amd" | "apple" | "intel" | fn.#StringExpression] |
 		fn.#ListExpression
@@ -432,10 +475,21 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	MemoryGiBPerVCpu?:      #MemoryGiBPerVCpu | fn.#ObjectExpression
-	MemoryMiB?:             #MemoryMiB | fn.#ObjectExpression
-	NetworkBandwidthGbps?:  #NetworkBandwidthGbps | fn.#ObjectExpression
-	NetworkInterfaceCount?: #NetworkInterfaceCount | fn.#ObjectExpression
+
+	// The minimum and maximum amount of memory per vCPU, in GiB.
+	// Default: No minimum or maximum limits
+	MemoryGiBPerVCpu?: #MemoryGiBPerVCpu
+
+	// The minimum and maximum amount of memory, in MiB.
+	MemoryMiB?: #MemoryMiB
+
+	// The minimum and maximum amount of network bandwidth, in gigabits per second (Gbps).
+	// Default: No minimum or maximum limits
+	NetworkBandwidthGbps?: #NetworkBandwidthGbps
+
+	// The minimum and maximum number of network interfaces.
+	// Default: No minimum or maximum limits
+	NetworkInterfaceCount?: #NetworkInterfaceCount
 	OnDemandMaxPricePercentageOverLowestPrice?: int |
 		{
 			string &
@@ -465,8 +519,13 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TotalLocalStorageGB?: #TotalLocalStorageGB | fn.#ObjectExpression
-	VCpuCount?:           #VCpuCount | fn.#ObjectExpression
+
+	// The minimum and maximum amount of total local storage, in GB.
+	// Default: No minimum or maximum limits
+	TotalLocalStorageGB?: #TotalLocalStorageGB
+
+	// The minimum and maximum number of vCPUs.
+	VCpuCount?: #VCpuCount
 }) |
 fn.#ObjectExpression
 
@@ -477,33 +536,116 @@ fn.#ObjectExpression
 #Ipv6PrefixSpecification: close({Ipv6Prefix?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #LaunchTemplateData: close({
-	BlockDeviceMappings?:              [...#BlockDeviceMapping] | fn.#ListExpression
-	CapacityReservationSpecification?: #CapacityReservationSpecification | fn.#ObjectExpression
-	CpuOptions?:                       #CpuOptions | fn.#ObjectExpression
-	CreditSpecification?:              #CreditSpecification | fn.#ObjectExpression
+	BlockDeviceMappings?: [...#BlockDeviceMapping] | fn.#ListExpression
+
+	// The Capacity Reservation targeting option. If you do not specify this
+	// parameter, the instance's Capacity Reservation preference defaults to
+	// ``open``, which enables it to run in any open Capacity Reservation that has
+	// matching attributes (instance type, platform, Availability Zone).
+	CapacityReservationSpecification?: #CapacityReservationSpecification
+
+	// The CPU options for the instance. For more information, see [CPU options for
+	// Amazon EC2
+	// instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-optimize-cpu.html)
+	// in the *Amazon EC2 User Guide*.
+	CpuOptions?: #CpuOptions
+
+	// The credit option for CPU usage of the instance. Valid only for T instances.
+	CreditSpecification?:   #CreditSpecification
 	DisableApiStop?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DisableApiTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EbsOptimized?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnclaveOptions?:        #EnclaveOptions | fn.#ObjectExpression
-	HibernationOptions?:    #HibernationOptions | fn.#ObjectExpression
-	IamInstanceProfile?:    #IamInstanceProfile | fn.#ObjectExpression
+
+	// Indicates whether the instance is enabled for AWS Nitro Enclaves. For more
+	// information, see [What is Nitro
+	// Enclaves?](https://docs.aws.amazon.com/enclaves/latest/user/nitro-enclave.html)
+	// in the *Nitro Enclaves User Guide*.
+	// You can't enable AWS Nitro Enclaves and hibernation on the same instance.
+	EnclaveOptions?: #EnclaveOptions
+
+	// Indicates whether an instance is enabled for hibernation. This parameter is
+	// valid only if the instance meets the [hibernation
+	// prerequisites](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/hibernating-prerequisites.html).
+	// For more information, see [Hibernate your Amazon EC2
+	// instance](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html)
+	// in the *Amazon EC2 User Guide*.
+	HibernationOptions?: #HibernationOptions
+
+	// The name or Amazon Resource Name (ARN) of an IAM instance profile.
+	IamInstanceProfile?: #IamInstanceProfile
 	ImageId?: =~"(?:(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|(?s:^resolve:ssm.*$))|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	InstanceInitiatedShutdownBehavior?: "stop" | "terminate" | fn.#StringExpression
-	InstanceMarketOptions?:             #InstanceMarketOptions | fn.#ObjectExpression
-	InstanceRequirements?:              #InstanceRequirements | fn.#ObjectExpression
-	InstanceType?:                      string | fn.#StringExpression
-	KernelId?:                          string | fn.#StringExpression
-	KeyName?:                           string | fn.#StringExpression
-	LicenseSpecifications?:             [...#LicenseSpecification] | fn.#ListExpression
-	MaintenanceOptions?:                #MaintenanceOptions | fn.#ObjectExpression
-	MetadataOptions?:                   #MetadataOptions | fn.#ObjectExpression
-	Monitoring?:                        #Monitoring | fn.#ObjectExpression
-	NetworkInterfaces?:                 [...#NetworkInterface] | fn.#ListExpression
-	NetworkPerformanceOptions?:         #NetworkPerformanceOptions | fn.#ObjectExpression
-	Placement?:                         #Placement | fn.#ObjectExpression
-	PrivateDnsNameOptions?:             #PrivateDnsNameOptions | fn.#ObjectExpression
-	RamDiskId?:                         string | fn.#StringExpression
+
+	// The market (purchasing) option for the instances.
+	InstanceMarketOptions?: #InstanceMarketOptions
+
+	// The attributes for the instance types. When you specify instance attributes,
+	// Amazon EC2 will identify instance types with these attributes.
+	// You must specify ``VCpuCount`` and ``MemoryMiB``. All other attributes are
+	// optional. Any unspecified optional attribute is set to its default.
+	// When you specify multiple attributes, you get instance types that satisfy all
+	// of the specified attributes. If you specify multiple values for an
+	// attribute, you get instance types that satisfy any of the specified values.
+	// To limit the list of instance types from which Amazon EC2 can identify
+	// matching instance types, you can use one of the following parameters, but
+	// not both in the same request:
+	// + ``AllowedInstanceTypes`` - The instance types to include in the list. All
+	// other instance types are ignored, even if they match your specified
+	// attributes.
+	// + ``ExcludedInstanceTypes`` - The instance types to exclude from the list,
+	// even if they match your specified attributes.
+	//
+	// If you specify ``InstanceRequirements``, you can't specify ``InstanceType``.
+	// Attribute-based instance type selection is only supported when using Auto
+	// Scaling groups, EC2 Fleet, and Spot Fleet to launch instances. If you plan
+	// to use the launch template in the [launch instance
+	// wizard](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-launch-instance-wizard.html),
+	// or with the
+	// [RunInstances](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RunInstances.html)
+	// API or
+	// [AWS::EC2::Instance](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html)AWS
+	// CloudFormation resource, you can't specify ``InstanceRequirements``.
+	// For more information, see [Specify attributes for instance type selection for
+	// EC2 Fleet or Spot
+	// Fleet](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-attribute-based-instance-type-selection.html)
+	// and [Spot placement
+	// score](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-placement-score.html)
+	// in the *Amazon EC2 User Guide*.
+	InstanceRequirements?:  #InstanceRequirements
+	InstanceType?:          string | fn.#StringExpression
+	KernelId?:              string | fn.#StringExpression
+	KeyName?:               string | fn.#StringExpression
+	LicenseSpecifications?: [...#LicenseSpecification] | fn.#ListExpression
+
+	// The maintenance options of your instance.
+	MaintenanceOptions?: #MaintenanceOptions
+
+	// The metadata options for the instance. For more information, see [Configure
+	// the Instance Metadata Service
+	// options](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-options.html)
+	// in the *Amazon EC2 User Guide*.
+	MetadataOptions?: #MetadataOptions
+
+	// The monitoring for the instance.
+	Monitoring?:        #Monitoring
+	NetworkInterfaces?: [...#NetworkInterface] | fn.#ListExpression
+
+	// The settings for the network performance options for the instance. For more
+	// information, see [EC2 instance bandwidth weighting
+	// configuration](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configure-bandwidth-weighting.html).
+	NetworkPerformanceOptions?: #NetworkPerformanceOptions
+
+	// The placement for the instance.
+	Placement?: #Placement
+
+	// The hostname type for EC2 instances launched into this subnet and how DNS A
+	// and AAAA record queries should be handled. For more information, see [Amazon
+	// EC2 instance hostname
+	// types](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-naming.html)
+	// in the *User Guide*.
+	PrivateDnsNameOptions?: #PrivateDnsNameOptions
+	RamDiskId?:             string | fn.#StringExpression
 	SecurityGroupIds?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -785,7 +927,9 @@ fn.#ObjectExpression
 #NetworkInterface: close({
 	AssociateCarrierIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AssociatePublicIpAddress?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ConnectionTrackingSpecification?: #ConnectionTrackingSpecification | fn.#ObjectExpression
+
+	// A connection tracking specification for the network interface.
+	ConnectionTrackingSpecification?: #ConnectionTrackingSpecification
 	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Description?:         string | fn.#StringExpression
 	DeviceIndex?: int |
@@ -816,7 +960,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	EnaSrdSpecification?: #EnaSrdSpecification | fn.#ObjectExpression
+
+	// The ENA Express configuration for the network interface.
+	EnaSrdSpecification?: #EnaSrdSpecification
 	Groups?:              [...string | fn.#StringExpression] | fn.#ListExpression
 	InterfaceType?:       string | fn.#StringExpression
 	Ipv4PrefixCount?: int |

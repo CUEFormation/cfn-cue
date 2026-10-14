@@ -78,7 +78,11 @@ fn.#ObjectExpression
 ) |
 fn.#ObjectExpression
 
-#EbsStorageSettings: close({EbsVolumeSizeInGb!: #SpaceEbsVolumeSizeInGb | fn.#NumberExpression}) | fn.#ObjectExpression
+#EbsStorageSettings: close({
+	// Size of the Amazon EBS volume in Gb
+	EbsVolumeSizeInGb!: #SpaceEbsVolumeSizeInGb
+}) |
+fn.#ObjectExpression
 
 #FSxLustreFileSystem: close(
 	{FileSystemId!: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" | fn.#StringExpression},
@@ -92,8 +96,11 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #KernelGatewayAppSettings: close({
-	CustomImages?:        list.MaxItems(30) & [...] & [...#CustomImage] | fn.#ListExpression
-	DefaultResourceSpec?: #ResourceSpec | fn.#ObjectExpression
+	CustomImages?: list.MaxItems(30) & [...] & [...#CustomImage] | fn.#ListExpression
+
+	// The default instance type and the Amazon Resource Name (ARN) of the default
+	// SageMaker image used by the KernelGateway app.
+	DefaultResourceSpec?: #ResourceSpec
 	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -240,15 +247,29 @@ fn.#ObjectExpression
 #SpaceManagedResources: "ENABLED" | "DISABLED" | fn.#StringExpression
 
 #SpaceSettings: close({
-	AppType?:                  #AppType
-	CodeEditorAppSettings?:    #SpaceCodeEditorAppSettings | fn.#ObjectExpression
-	CustomFileSystems?:        #CustomFileSystems
-	JupyterLabAppSettings?:    #SpaceJupyterLabAppSettings | fn.#ObjectExpression
-	JupyterServerAppSettings?: #JupyterServerAppSettings | fn.#ObjectExpression
-	KernelGatewayAppSettings?: #KernelGatewayAppSettings | fn.#ObjectExpression
-	RemoteAccess?:             #RemoteAccess | fn.#StringExpression
-	SpaceManagedResources?:    #SpaceManagedResources | fn.#StringExpression
-	SpaceStorageSettings?:     #SpaceStorageSettings | fn.#ObjectExpression
+	AppType?: #AppType
+
+	// The CodeEditor app settings.
+	CodeEditorAppSettings?: #SpaceCodeEditorAppSettings
+	CustomFileSystems?:     #CustomFileSystems
+
+	// The JupyterLab app settings.
+	JupyterLabAppSettings?: #SpaceJupyterLabAppSettings
+
+	// The Jupyter server's app settings.
+	JupyterServerAppSettings?: #JupyterServerAppSettings
+
+	// The kernel gateway app settings.
+	KernelGatewayAppSettings?: #KernelGatewayAppSettings
+
+	// This is a flag used to indicate if remote access is enabled.
+	RemoteAccess?: #RemoteAccess
+
+	// This is a flag used to indicate if space managed resources needs to be created.
+	SpaceManagedResources?: #SpaceManagedResources
+
+	// Default storage settings for a space.
+	SpaceStorageSettings?: #SpaceStorageSettings
 }) |
 fn.#ObjectExpression
 

@@ -21,12 +21,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElasticLoadBalancingV2::Listener"
 	Properties!: close({
-		AlpnPolicy?:           [...string | fn.#StringExpression] | fn.#ListExpression
-		Certificates?:         list.UniqueItems() & [...#Certificate] | fn.#ListExpression
-		DefaultActions!:       list.UniqueItems() & [...#Action] | fn.#ListExpression
-		ListenerAttributes?:   list.UniqueItems() & [...#ListenerAttribute] | fn.#ListExpression
-		LoadBalancerArn!:      string | fn.#StringExpression
-		MutualAuthentication?: #MutualAuthentication | fn.#ObjectExpression
+		AlpnPolicy?:         [...string | fn.#StringExpression] | fn.#ListExpression
+		Certificates?:       list.UniqueItems() & [...#Certificate] | fn.#ListExpression
+		DefaultActions!:     list.UniqueItems() & [...#Action] | fn.#ListExpression
+		ListenerAttributes?: list.UniqueItems() & [...#ListenerAttribute] | fn.#ListExpression
+		LoadBalancerArn!:    string | fn.#StringExpression
+
+		// The mutual authentication configuration information.
+		MutualAuthentication?: #MutualAuthentication
 		Port?: int & <=65535 & >=1 |
 			{
 				string &
@@ -61,11 +63,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }
 
 #Action: close({
-	AuthenticateCognitoConfig?: #AuthenticateCognitoConfig | fn.#ObjectExpression
-	AuthenticateOidcConfig?:    #AuthenticateOidcConfig | fn.#ObjectExpression
-	FixedResponseConfig?:       #FixedResponseConfig | fn.#ObjectExpression
-	ForwardConfig?:             #ForwardConfig | fn.#ObjectExpression
-	JwtValidationConfig?:       #JwtValidationConfig | fn.#ObjectExpression
+	// [HTTPS listeners] Information for using Amazon Cognito to authenticate users.
+	// Specify only when ``Type`` is ``authenticate-cognito``.
+	AuthenticateCognitoConfig?: #AuthenticateCognitoConfig
+
+	// [HTTPS listeners] Information about an identity provider that is compliant
+	// with OpenID Connect (OIDC). Specify only when ``Type`` is
+	// ``authenticate-oidc``.
+	AuthenticateOidcConfig?: #AuthenticateOidcConfig
+
+	// [Application Load Balancer] Information for creating an action that returns a
+	// custom HTTP response. Specify only when ``Type`` is ``fixed-response``.
+	FixedResponseConfig?: #FixedResponseConfig
+
+	// Information for creating an action that distributes requests among multiple
+	// target groups. Specify only when ``Type`` is ``forward``.
+	// If you specify both ``ForwardConfig`` and ``TargetGroupArn``, you can specify
+	// only one target group using ``ForwardConfig`` and it must be the same target
+	// group specified in ``TargetGroupArn``.
+	ForwardConfig?: #ForwardConfig
+
+	// [HTTPS listeners] Information for validating JWT access tokens in client
+	// requests. Specify only when ``Type`` is ``jwt-validation``.
+	JwtValidationConfig?: #JwtValidationConfig
 	Order?: int & <=50000 & >=1 |
 		{
 			string &
@@ -82,7 +102,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	RedirectConfig?: #RedirectConfig | fn.#ObjectExpression
+
+	// [Application Load Balancer] Information for creating a redirect action.
+	// Specify only when ``Type`` is ``redirect``.
+	RedirectConfig?: #RedirectConfig
 	TargetGroupArn?: string | fn.#StringExpression
 	Type!: "authenticate-cognito" |
 		"authenticate-oidc" |
@@ -138,7 +161,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ForwardConfig: close({
-	TargetGroupStickinessConfig?: #TargetGroupStickinessConfig | fn.#ObjectExpression
+	// Information about the target group stickiness for a rule.
+	TargetGroupStickinessConfig?: #TargetGroupStickinessConfig
 	TargetGroups?:                list.UniqueItems() & [...#TargetGroupTuple] | fn.#ListExpression
 }) |
 fn.#ObjectExpression

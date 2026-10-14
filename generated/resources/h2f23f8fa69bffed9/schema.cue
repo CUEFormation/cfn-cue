@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -20,7 +20,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ImageBuilder::ImageRecipe"
 	Properties!: close({
-		AdditionalInstanceConfiguration?: #AdditionalInstanceConfiguration | fn.#ObjectExpression
+		// Specify additional settings and launch scripts for your build instances.
+		AdditionalInstanceConfiguration?: #AdditionalInstanceConfiguration
 		AmiTags?: close({
 
 			{[=~".{1,}"]: string | fn.#StringExpression}}) |
@@ -47,7 +48,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }
 
 #AdditionalInstanceConfiguration: close({
-	SystemsManagerAgent?: #SystemsManagerAgent | fn.#ObjectExpression
+	// Contains settings for the SSM agent on your build instance.
+	SystemsManagerAgent?: #SystemsManagerAgent
 	UserDataOverride?: strings.MaxRunes(21847) &
 	strings.MinRunes(1) &
 	=~"^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$" |
@@ -128,8 +130,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #InstanceBlockDeviceMapping: close({
-	DeviceName?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Ebs?:         #EbsInstanceBlockDeviceSpecification | fn.#ObjectExpression
+	DeviceName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+
+	// Use to manage Amazon EBS-specific configuration for this mapping.
+	Ebs?:         #EbsInstanceBlockDeviceSpecification
 	NoDevice?:    strings.MaxRunes(0) & strings.MinRunes(0) | fn.#StringExpression
 	VirtualName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |

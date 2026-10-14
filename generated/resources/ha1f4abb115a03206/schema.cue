@@ -19,7 +19,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		GatewayCapabilitySummaries?: list.UniqueItems() & [...#GatewayCapabilitySummary] | fn.#ListExpression
 		GatewayName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 		fn.#StringExpression
-		GatewayPlatform!: #GatewayPlatform | fn.#ObjectExpression
+
+		// The gateway's platform. You can only specify one platform in a gateway.
+		GatewayPlatform!: #GatewayPlatform
 		GatewayVersion?:  strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]+$" | fn.#StringExpression
 		Tags?:            [...#Tag] | fn.#ListExpression
 	})
@@ -36,8 +38,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #GatewayPlatform: close({
-	GreengrassV2?: #GreengrassV2 | fn.#ObjectExpression
-	SiemensIE?:    #SiemensIE | fn.#ObjectExpression
+	// A gateway that runs on AWS IoT Greengrass V2.
+	GreengrassV2?: #GreengrassV2
+
+	// A gateway that runs on Siemens Industrial Edge.
+	SiemensIE?: #SiemensIE
 	if GreengrassV2 != _|_ if GreengrassV2."Fn::If" == _|_ {
 		SiemensIE?: close({"Fn::If": _}) | error(
 			"SiemensIE cannot be used with GreengrassV2; set exactly one of GreengrassV2, SiemensIE",

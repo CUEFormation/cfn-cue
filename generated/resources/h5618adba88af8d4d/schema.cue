@@ -22,14 +22,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GameLift::Fleet"
 	Properties!: close({
-		AnywhereConfiguration?: #AnywhereConfiguration | fn.#ValueExpression
+		// Configuration for Anywhere fleet.
+		AnywhereConfiguration?: #AnywhereConfiguration
 		ApplyCapacity?: "ON_UPDATE" |
 			"ON_CREATE_AND_UPDATE" |
 			"ON_CREATE_AND_UPDATE_WITH_AUTOSCALING" |
 			fn.#StringExpression
 		BuildId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^build-\\S+|^arn:.*:build/build-\\S+" |
 		fn.#StringExpression
-		CertificateConfiguration?: #CertificateConfiguration | fn.#ObjectExpression
+
+		// Indicates whether to generate a TLS/SSL certificate for the new fleet. TLS
+		// certificates are used for encrypting traffic between game clients and game
+		// servers running on GameLift. If this parameter is not set, certificate
+		// generation is disabled. This fleet setting cannot be changed once the fleet
+		// is created.
+		CertificateConfiguration?: #CertificateConfiguration
 		ComputeType?:              "EC2" | "ANYWHERE" | fn.#StringExpression
 		Description?:              strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 		DesiredEC2Instances?: int & >=0 |
@@ -106,11 +113,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		NewGameSessionProtectionPolicy?: "FullProtection" | "NoProtection" | fn.#StringExpression
 		PeerVpcAwsAccountId?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]{12}$" | fn.#StringExpression
 		PeerVpcId?:           strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^vpc-\\S+" | fn.#StringExpression
-		PlayerGatewayConfiguration?:  #PlayerGatewayConfiguration | fn.#ObjectExpression
-		PlayerGatewayMode?:           "DISABLED" | "ENABLED" | "REQUIRED" | fn.#StringExpression
-		ResourceCreationLimitPolicy?: #ResourceCreationLimitPolicy | fn.#ObjectExpression
-		RuntimeConfiguration?:        #RuntimeConfiguration | fn.#ObjectExpression
-		ScalingPolicies?:             list.MaxItems(50) & [...#ScalingPolicy] | fn.#ListExpression
+
+		// Configuration for player gateway.
+		PlayerGatewayConfiguration?: #PlayerGatewayConfiguration
+		PlayerGatewayMode?:          "DISABLED" | "ENABLED" | "REQUIRED" | fn.#StringExpression
+
+		// A policy that limits the number of game sessions an individual player can
+		// create over a span of time for this fleet.
+		ResourceCreationLimitPolicy?: #ResourceCreationLimitPolicy
+
+		// Instructions for launching server processes on each instance in the fleet.
+		// Server processes run either a custom game build executable or a Realtime
+		// script. The runtime configuration defines the server executables or launch
+		// script file, launch parameters, and the number of processes to run
+		// concurrently on each instance. When creating a fleet, the runtime
+		// configuration must have at least one server process configuration; otherwise
+		// the request fails with an invalid request exception.
+		//
+		// This parameter is required unless the parameters ServerLaunchPath and
+		// ServerLaunchParameters are defined. Runtime configuration has replaced these
+		// parameters, but fleets that use them will continue to work.
+		RuntimeConfiguration?: #RuntimeConfiguration
+		ScalingPolicies?:      list.MaxItems(50) & [...#ScalingPolicy] | fn.#ListExpression
 		ScriptId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^script-\\S+|^arn:.*:script/script-\\S+" |
 		fn.#StringExpression
 		ServerLaunchParameters?: strings.MaxRunes(1024) &
@@ -191,7 +215,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ManagedCapacityConfiguration?: #ManagedCapacityConfiguration | fn.#ObjectExpression
+
+	// Configuration options for Amazon GameLift Servers-managed capacity behavior.
+	ManagedCapacityConfiguration?: #ManagedCapacityConfiguration
 	MaxSize!: int & >=0 |
 		{
 			string &
@@ -387,7 +413,9 @@ fn.#ObjectExpression
 		"DELETED" |
 		"ERROR" |
 		fn.#StringExpression
-	TargetConfiguration?: #TargetConfiguration | fn.#ObjectExpression
+
+	// An object that contains settings for a target-based scaling policy.
+	TargetConfiguration?: #TargetConfiguration
 	Threshold?: number |
 		{
 			string &

@@ -12,16 +12,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Macie::AllowList"
 	Properties!: close({
-		Criteria!:    #Criteria | fn.#ObjectExpression
+		// AllowList criteria.
+		Criteria!:    #Criteria
 		Description?: string | fn.#StringExpression
 		Name!:        string | fn.#StringExpression
 		Tags?:        [...#Tag] | fn.#ListExpression
 	})
 }
 
-#Criteria: fn.#Object & {...} & matchN(1, [
-	close({Regex!: string | fn.#StringExpression}), close({S3WordsList!: #S3WordsList | fn.#ObjectExpression}),
-]) |
+#Criteria: fn.#Object & {...} & matchN(1, [close(
+	{Regex!: string | fn.#StringExpression},
+), close({
+	// The S3 location for the AllowList.
+	S3WordsList!: #S3WordsList
+})]) |
 fn.#ObjectExpression
 
 #Regex: string | fn.#StringExpression

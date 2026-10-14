@@ -17,8 +17,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		AccessType?:            "CustomerOwnedIp" | "Private" | fn.#StringExpression
 		CustomerOwnedIpv4Pool?: =~"^ipv4pool-coip-([0-9a-f]{17})$" | fn.#StringExpression
-		FailedReason?:          #FailedReason | fn.#ObjectExpression
-		OutpostId!:             =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$" | fn.#StringExpression
+
+		// The failure reason, if any, for a create or delete endpoint operation.
+		FailedReason?: #FailedReason
+		OutpostId!:    =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$" | fn.#StringExpression
 		SecurityGroupId!: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(100) &
 		strings.MinRunes(1) &

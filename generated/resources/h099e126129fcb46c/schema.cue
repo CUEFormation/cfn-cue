@@ -24,15 +24,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::Evaluator"
 	Properties!: close({
-		Description?:     strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-		EvaluatorConfig!: #EvaluatorConfig | fn.#ObjectExpression
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The configuration for the evaluator, including LLM-as-a-Judge, code-based, or derived settings.
+		EvaluatorConfig!: #EvaluatorConfig
 		EvaluatorName!:   =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
 		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]+:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
 		fn.#StringExpression
-		Level!: #EvaluatorLevel | fn.#StringExpression
+
+		// The evaluation level that determines the scope of evaluation. Required for
+		// all evaluator configuration types. For Derived evaluators it must match the
+		// level of the base evaluator identified by BaseEvaluatorId.
+		Level!: #EvaluatorLevel
 		Tags?:  list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
 }

@@ -33,7 +33,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}]) & close({
 		ContainerRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):container-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
 			fn.#StringExpression
-		DeletionSettings?: #DeletionSettings | fn.#ObjectExpression
+
+		// The deletion settings of the image, indicating whether to delete the
+		// underlying resources in addition to the image.
+		DeletionSettings?: #DeletionSettings
 		DistributionConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):distribution-configuration/[a-z0-9-_]+$" |
 			fn.#StringExpression
 		EnhancedImageMetadataEnabled?: bool |
@@ -97,11 +100,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 		ImageRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):image-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
 			fn.#StringExpression
-		ImageScanningConfiguration?: #ImageScanningConfiguration | fn.#ObjectExpression
-		ImageTestsConfiguration?:    #ImageTestsConfiguration | fn.#ObjectExpression
+
+		// Contains settings for vulnerability scans that Amazon Inspector runs against
+		// the test instance during image creation.
+		ImageScanningConfiguration?: #ImageScanningConfiguration
+
+		// The image tests configuration used when creating this image.
+		ImageTestsConfiguration?: #ImageTestsConfiguration
 		InfrastructureConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):infrastructure-configuration/[a-z0-9-_]+$" |
 			fn.#StringExpression
-		LoggingConfiguration?: #ImageLoggingConfiguration | fn.#ObjectExpression
+
+		// The logging configuration settings for the image.
+		LoggingConfiguration?: #ImageLoggingConfiguration
 		Tags?: close({
 
 			{[=~".{1,}"]: string | fn.#StringExpression}}) |
@@ -130,7 +140,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ImageScanningConfiguration: close({
-	EcrConfiguration?:     #EcrConfiguration | fn.#ObjectExpression
+	// Contains ECR settings for vulnerability scans.
+	EcrConfiguration?:     #EcrConfiguration
 	ImageScanningEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression

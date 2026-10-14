@@ -55,7 +55,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ContainerDefinitions?: list.UniqueItems() & [...#ContainerDefinition] | fn.#ListExpression
 		Cpu?:                  string | fn.#StringExpression
 		EnableFaultInjection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		EphemeralStorage?:     #EphemeralStorage | fn.#ObjectExpression
+
+		// The ephemeral storage settings to use for tasks run with the task definition.
+		EphemeralStorage?: #EphemeralStorage
 		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
 		Family?:                string | fn.#StringExpression
@@ -65,12 +67,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		NetworkMode?:           "awsvpc" | "bridge" | "host" | "none" | fn.#StringExpression
 		PidMode?:               "host" | "task" | fn.#StringExpression
 		PlacementConstraints?:  list.UniqueItems() & [...#TaskDefinitionPlacementConstraint] | fn.#ListExpression
-		ProxyConfiguration?:    #ProxyConfiguration | fn.#ObjectExpression
+
+		// The configuration details for the App Mesh proxy.
+		// Your Amazon ECS container instances require at least version 1.26.0 of the
+		// container agent and at least version 1.26.0-1 of the ``ecs-init`` package to
+		// use a proxy configuration. If your container instances are launched from the
+		// Amazon ECS optimized AMI version ``20190301`` or later, they contain the
+		// required versions of the container agent and ``ecs-init``. For more
+		// information, see [Amazon ECS-optimized Linux
+		// AMI](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html)
+		// in the *Amazon Elastic Container Service Developer Guide*.
+		ProxyConfiguration?: #ProxyConfiguration
 		RequiresCompatibilities?: list.UniqueItems() & [
 			..."EC2" | "EXTERNAL" | "FARGATE" | "MANAGED_INSTANCES" | fn.#StringExpression
 		] |
 			fn.#ListExpression
-		RuntimePlatform?: #RuntimePlatform | fn.#ObjectExpression
+
+		// The operating system that your tasks definitions run on.
+		RuntimePlatform?: #RuntimePlatform
 		Tags?:            list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 		TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -115,14 +129,58 @@ fn.#ObjectExpression
 	EnvironmentFiles?:      [...#EnvironmentFile] | fn.#ListExpression
 	Essential?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ExtraHosts?:            [...#HostEntry] | fn.#ListExpression
-	FirelensConfiguration?: #FirelensConfiguration | fn.#ObjectExpression
-	HealthCheck?:           #HealthCheck | fn.#ObjectExpression
-	Hostname?:              string | fn.#StringExpression
-	Image!:                 string | fn.#StringExpression
-	Interactive?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Links?:                 list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	LinuxParameters?:       #LinuxParameters | fn.#ObjectExpression
-	LogConfiguration?:      #LogConfiguration | fn.#ObjectExpression
+
+	// The FireLens configuration for the container. This is used to specify and
+	// configure a log router for container logs. For more information, see [Custom
+	// Log
+	// Routing](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_firelens.html)
+	// in the *Amazon Elastic Container Service Developer Guide*.
+	FirelensConfiguration?: #FirelensConfiguration
+
+	// The container health check command and associated configuration parameters
+	// for the container. This parameter maps to ``HealthCheck`` in the docker
+	// container create command and the ``HEALTHCHECK`` parameter of docker run.
+	HealthCheck?: #HealthCheck
+	Hostname?:    string | fn.#StringExpression
+	Image!:       string | fn.#StringExpression
+	Interactive?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Links?:       list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+
+	// Linux-specific modifications that are applied to the container, such as Linux
+	// kernel capabilities. For more information see
+	// [KernelCapabilities](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_KernelCapabilities.html).
+	// This parameter is not supported for Windows containers.
+	LinuxParameters?: #LinuxParameters
+
+	// The log configuration specification for the container.
+	// This parameter maps to ``LogConfig`` in the docker Create a container command
+	// and the ``--log-driver`` option to docker run. By default, containers use
+	// the same logging driver that the Docker daemon uses. However, the container
+	// may use a different logging driver than the Docker daemon by specifying a
+	// log driver with this parameter in the container definition. To use a
+	// different logging driver for a container, the log system must be configured
+	// properly on the container instance (or on a different log server for remote
+	// logging options). For more information on the options for different
+	// supported log drivers, see [Configure logging
+	// drivers](https://docs.aws.amazon.com/https://docs.docker.com/engine/admin/logging/overview/)
+	// in the Docker documentation.
+	// Amazon ECS currently supports a subset of the logging drivers available to
+	// the Docker daemon (shown in the
+	// [LogConfiguration](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_LogConfiguration.html)
+	// data type). Additional log drivers may be available in future releases of
+	// the Amazon ECS container agent.
+	// This parameter requires version 1.18 of the Docker Remote API or greater on
+	// your container instance. To check the Docker Remote API version on your
+	// container instance, log in to your container instance and run the following
+	// command: ``sudo docker version --format '{{.Server.APIVersion}}'``
+	// The Amazon ECS container agent running on a container instance must register
+	// the logging drivers available on that instance with the
+	// ``ECS_AVAILABLE_LOGGING_DRIVERS`` environment variable before containers
+	// placed on that instance can use these log configuration options. For more
+	// information, see [Container Agent
+	// Configuration](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-agent-config.html)
+	// in the *Developer Guide*.
+	LogConfiguration?: #LogConfiguration
 	Memory?: int |
 		{
 			string &
@@ -157,10 +215,19 @@ fn.#ObjectExpression
 	Privileged?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PseudoTerminal?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReadonlyRootFilesystem?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RepositoryCredentials?:  #RepositoryCredentials | fn.#ObjectExpression
-	ResourceRequirements?:   [...#ResourceRequirement] | fn.#ListExpression
-	RestartPolicy?:          #RestartPolicy | fn.#ObjectExpression
-	Secrets?:                [...#Secret] | fn.#ListExpression
+
+	// The private repository authentication credentials to use.
+	RepositoryCredentials?: #RepositoryCredentials
+	ResourceRequirements?:  [...#ResourceRequirement] | fn.#ListExpression
+
+	// The restart policy for a container. When you set up a restart policy, Amazon
+	// ECS can restart the container without needing to replace the task. For more
+	// information, see [Restart individual containers in Amazon ECS tasks with
+	// container restart
+	// policies](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-restart-policy.html)
+	// in the *Amazon Elastic Container Service Developer Guide*.
+	RestartPolicy?: #RestartPolicy
+	Secrets?:       [...#Secret] | fn.#ListExpression
 	StartTimeout?: int |
 		{
 			string &
@@ -227,7 +294,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EFSVolumeConfiguration: close({
-	AuthorizationConfig?: #AuthorizationConfig | fn.#ObjectExpression
+	// The authorization configuration details for the Amazon EFS file system.
+	AuthorizationConfig?: #AuthorizationConfig
 	FilesystemId!:        string | fn.#StringExpression
 	RootDirectory?:       string | fn.#StringExpression
 	TransitEncryption?:   "ENABLED" | "DISABLED" | fn.#StringExpression
@@ -279,7 +347,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FSxWindowsFileServerVolumeConfiguration: close({
-	AuthorizationConfig?: #FSxAuthorizationConfig | fn.#ObjectExpression
+	// The authorization configuration details for the Amazon FSx for Windows File Server file system.
+	AuthorizationConfig?: #FSxAuthorizationConfig
 	FileSystemId!:        string | fn.#StringExpression
 	RootDirectory!:       string | fn.#StringExpression
 }) |
@@ -382,7 +451,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LinuxParameters: close({
-	Capabilities?:       #KernelCapabilities | fn.#ObjectExpression
+	// The Linux capabilities for the container that are added to or dropped from
+	// the default configuration provided by Docker.
+	// For tasks that use the Fargate launch type, ``capabilities`` is supported for
+	// all platform versions but the ``add`` parameter is only supported if using
+	// platform version 1.4.0 or later.
+	Capabilities?:       #KernelCapabilities
 	Devices?:            [...#Device] | fn.#ListExpression
 	InitProcessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxSwap?: int |
@@ -667,13 +741,38 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Volume: close({
-	ConfiguredAtLaunch?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DockerVolumeConfiguration?: #DockerVolumeConfiguration | fn.#ObjectExpression
-	EFSVolumeConfiguration?:    #EFSVolumeConfiguration | fn.#ObjectExpression
-	FSxWindowsFileServerVolumeConfiguration?: #FSxWindowsFileServerVolumeConfiguration | fn.#ObjectExpression
-	Host?:                                    #HostVolumeProperties | fn.#ObjectExpression
-	Name?:                                    string | fn.#StringExpression
-	S3FilesVolumeConfiguration?:              #S3FilesVolumeConfiguration | fn.#ObjectExpression
+	ConfiguredAtLaunch?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// This parameter is specified when you use Docker volumes.
+	// Windows containers only support the use of the ``local`` driver. To use bind
+	// mounts, specify the ``host`` parameter instead.
+	// Docker volumes aren't supported by tasks run on FARGATElong.
+	DockerVolumeConfiguration?: #DockerVolumeConfiguration
+
+	// This parameter is specified when you use an Amazon Elastic File System file
+	// system for task storage.
+	EFSVolumeConfiguration?: #EFSVolumeConfiguration
+
+	// This parameter is specified when you use Amazon FSx for Windows File Server
+	// file system for task storage.
+	FSxWindowsFileServerVolumeConfiguration?: #FSxWindowsFileServerVolumeConfiguration
+
+	// This parameter is specified when you use bind mount host volumes. The
+	// contents of the ``host`` parameter determine whether your bind mount host
+	// volume persists on the host container instance and where it's stored. If the
+	// ``host`` parameter is empty, then the Docker daemon assigns a host path for
+	// your data volume. However, the data isn't guaranteed to persist after the
+	// containers that are associated with it stop running.
+	// Windows containers can mount whole directories on the same drive as
+	// ``$env:ProgramData``. Windows containers can't mount directories on a
+	// different drive, and mount point can't be across drives. For example, you
+	// can mount ``C:\my\path:C:\my\path`` and ``D:\:D:\``, but not
+	// ``D:\my\path:C:\my\path`` or ``D:\:C:\my\path``.
+	Host?: #HostVolumeProperties
+	Name?: string | fn.#StringExpression
+
+	// This parameter is specified when you use an Amazon S3 Files file system for task storage.
+	S3FilesVolumeConfiguration?: #S3FilesVolumeConfiguration
 }) |
 fn.#ObjectExpression
 

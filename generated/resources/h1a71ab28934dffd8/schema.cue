@@ -17,15 +17,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::BrowserCustom"
 	Properties!: close({
-		BrowserSigning?:       #BrowserSigning | fn.#ObjectExpression
-		Certificates?:         #CertificateList | fn.#ListExpression
-		Description?:          string | fn.#StringExpression
-		EnterprisePolicies?:   #BrowserEnterprisePolicies | fn.#ListExpression
-		ExecutionRoleArn?:     #RoleArn | fn.#StringExpression
-		Name!:                 string | fn.#StringExpression
-		NetworkConfiguration!: #BrowserNetworkConfiguration | fn.#ObjectExpression
-		RecordingConfig?:      #RecordingConfig | fn.#ObjectExpression
-		Tags?:                 #TagsMap
+		// Browser signing configuration.
+		BrowserSigning?: #BrowserSigning
+
+		// List of root CA certificates in PEM format.
+		Certificates?: #CertificateList
+		Description?:  string | fn.#StringExpression
+
+		// A list of enterprise policy files for the browser.
+		EnterprisePolicies?: #BrowserEnterprisePolicies
+
+		// The Amazon Resource Name (ARN) of the IAM role that the browser uses to access resources.
+		ExecutionRoleArn?: #RoleArn
+		Name!:             string | fn.#StringExpression
+
+		// Network configuration for browser.
+		NetworkConfiguration!: #BrowserNetworkConfiguration
+
+		// Recording configuration for browser.
+		RecordingConfig?: #RecordingConfig
+		Tags?:            #TagsMap
 	})
 }
 
@@ -35,8 +46,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #BrowserEnterprisePolicies: list.MaxItems(10) & [...] & [...#BrowserEnterprisePolicy] | fn.#ListExpression
 
 #BrowserEnterprisePolicy: close({
-	Location!: #S3Location | fn.#ObjectExpression
-	Type!:     #BrowserEnterprisePolicyType | fn.#StringExpression
+	// The S3 location of the enterprise policy file.
+	Location!: #S3Location
+
+	// The type of browser enterprise policy.
+	Type!: #BrowserEnterprisePolicyType
 }) |
 fn.#ObjectExpression
 
@@ -72,7 +86,11 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Certificate: close({CertificateLocation!: #CertificateLocation | fn.#ObjectExpression}) | fn.#ObjectExpression
+#Certificate: close({
+	// Certificate location in Secrets Manager.
+	CertificateLocation!: #CertificateLocation
+}) |
+fn.#ObjectExpression
 
 #CertificateList: list.MaxItems(10) & [...] & [...#Certificate] | fn.#ListExpression
 

@@ -42,12 +42,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name!:                 strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-		OutboundCallerConfig?: #OutboundCallerConfig | fn.#ObjectExpression
-		OutboundEmailConfig?:  #OutboundEmailConfig | fn.#ObjectExpression
-		QuickConnectArns?:     list.MinItems(1) & [...#QuickConnectArn] | fn.#ListExpression
-		Status?:               "ENABLED" | "DISABLED" | fn.#StringExpression
-		Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The outbound caller ID name, number, and outbound whisper flow.
+		OutboundCallerConfig?: #OutboundCallerConfig
+
+		// The outbound email configuration for a specified queue.
+		OutboundEmailConfig?: #OutboundEmailConfig
+		QuickConnectArns?:    list.MinItems(1) & [...#QuickConnectArn] | fn.#ListExpression
+		Status?:              "ENABLED" | "DISABLED" | fn.#StringExpression
+		Tags?:                list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
 

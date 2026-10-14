@@ -187,8 +187,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RangedSocketAddress: close({
-	Name!:      =~"^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$" | fn.#StringExpression
-	PortRange!: #IntegerRange | fn.#ObjectExpression
+	Name!: =~"^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$" | fn.#StringExpression
+
+	// Port range of a socket address.
+	PortRange!: #IntegerRange
 }) |
 fn.#ObjectExpression
 

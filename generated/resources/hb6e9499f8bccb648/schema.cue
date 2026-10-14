@@ -16,12 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::Notification"
 	Properties!: close({
-		Content!:     #NotificationContent | fn.#ObjectExpression
+		// The content of the notification.
+		Content!:     #NotificationContent
 		ExpiresAt?:   =~"^[0-9]+$" | fn.#StringExpression
 		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-		Priority?:    #Priority | fn.#StringExpression
-		Recipients?:  #RecipientList | fn.#ListExpression
-		Tags?:        list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// The priority of the notification.
+		Priority?: #Priority
+
+		// The recipients of the notification.
+		Recipients?: #RecipientList
+		Tags?:       list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
 

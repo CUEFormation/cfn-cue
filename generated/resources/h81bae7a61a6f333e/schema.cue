@@ -24,25 +24,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EventsV2::Subscriber"
 	Properties!: close({
-		BatchConfiguration?: #BatchConfiguration | fn.#ObjectExpression
+		// Configuration for batching events into a single delivery to the target.
+		BatchConfiguration?: #BatchConfiguration
 		Description?:        strings.MaxRunes(512) | fn.#StringExpression
 		EventBusArn!: strings.MaxRunes(1011) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" |
 		fn.#StringExpression
-		FilterConfiguration?: #FilterConfiguration | fn.#ObjectExpression
-		InvokeConfiguration!: #InvokeConfiguration | fn.#ObjectExpression
-		LogConfiguration?:    #LogConfiguration | fn.#ObjectExpression
+
+		// Configuration for filtering which events are delivered to the target. An
+		// event must match every filter to be delivered.
+		FilterConfiguration?: #FilterConfiguration
+
+		// Configuration for how the subscriber invokes its target, including the target
+		// ARN, the IAM role used to invoke it, and, optionally, the target-specific
+		// parameters object that matches the target type.
+		InvokeConfiguration!: #InvokeConfiguration
+
+		// Delivery logging configuration for the subscriber.
+		LogConfiguration?: #LogConfiguration
 		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" | fn.#StringExpression
-		OnFailureConfiguration?:   #OnFailureConfiguration | fn.#ObjectExpression
-		PointInTimeConfiguration?: #PointInTimeConfiguration | fn.#ObjectExpression
+
+		// The destination for events that could not be delivered to the target.
+		OnFailureConfiguration?: #OnFailureConfiguration
+
+		// The point in time to start delivering events from. Used when StartingPosition is POINT_IN_TIME.
+		PointInTimeConfiguration?: #PointInTimeConfiguration
 		ResumePosition?:           "LAST_PROCESSED" | "LATEST" | fn.#StringExpression
-		RetryPolicy?:              #RetryPolicy | fn.#ObjectExpression
-		StartingPosition?:         "LATEST" | "POINT_IN_TIME" | fn.#StringExpression
-		State?:                    "RUNNING" | "STOPPED" | fn.#StringExpression
-		Tags?:                     list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		Transformer?:              #Transformer | fn.#ObjectExpression
-		Type?:                     "FIFO" | "UNORDERED" | fn.#StringExpression
+
+		// The retry policy for failed deliveries to the target.
+		RetryPolicy?:      #RetryPolicy
+		StartingPosition?: "LATEST" | "POINT_IN_TIME" | fn.#StringExpression
+		State?:            "RUNNING" | "STOPPED" | fn.#StringExpression
+		Tags?:             list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// Configuration for transforming events before delivery to the target.
+		Transformer?: #Transformer
+		Type?:        "FIFO" | "UNORDERED" | fn.#StringExpression
 	})
 }
 
@@ -406,16 +424,25 @@ fn.#ObjectExpression
 	}
 	{}
 	"EventBusV2Parameters"?: close({
-		DeduplicationConfiguration?: #DeduplicationConfiguration | fn.#ObjectExpression
-		Metadata?:                   #EventBusV2MetadataMap | fn.#ObjectExpression
-		SystemMetadata?:             #EventBusV2SystemMetadata | fn.#ObjectExpression
+		// Deduplication settings applied to the forwarded events on the downstream event bus.
+		DeduplicationConfiguration?: #DeduplicationConfiguration
+
+		// Metadata forwarded with each event, as key-value string pairs.
+		Metadata?: #EventBusV2MetadataMap
+
+		// System metadata attached to each forwarded event, controlling FIFO ordering
+		// and deduplication on the downstream event bus.
+		SystemMetadata?: #EventBusV2SystemMetadata
 	}) |
 	fn.#ObjectExpression
 	"HttpParameters"?: close({
-		HeaderParameters?:         #HeaderParametersMap | fn.#ObjectExpression
+		// HTTP headers to add to the request.
+		HeaderParameters?:         #HeaderParametersMap
 		InvocationTimeoutSeconds?: string | fn.#StringExpression
 		PathParameterValues?:      list.MaxItems(50) & [...string | fn.#StringExpression] | fn.#ListExpression
-		QueryStringParameters?:    #QueryStringParametersMap | fn.#ObjectExpression
+
+		// Query string parameters to add to the request.
+		QueryStringParameters?: #QueryStringParametersMap
 	}) |
 	fn.#ObjectExpression
 	"KinesisParameters"?: close({
@@ -437,7 +464,9 @@ fn.#ObjectExpression
 	=~"^arn:aws(-[a-z0-9]+)*:iam::\\d{12}:role\\/[\\w+=,.@/-]+$" |
 	fn.#StringExpression
 	"SnsParameters"?: close({
-		MessageAttributes?:      #MessageAttributeMap | fn.#ObjectExpression
+		// Custom message attributes to attach to each message; Amazon SNS subscription
+		// filter policies can match on them.
+		MessageAttributes?:      #MessageAttributeMap
 		MessageDeduplicationId?: string | fn.#StringExpression
 		MessageGroupId?:         string | fn.#StringExpression
 		MessageStructure?:       string | fn.#StringExpression
@@ -445,11 +474,15 @@ fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
 	"SqsParameters"?: close({
-		DelaySeconds?:            string | fn.#StringExpression
-		MessageAttributes?:       #MessageAttributeMap | fn.#ObjectExpression
-		MessageDeduplicationId?:  string | fn.#StringExpression
-		MessageGroupId?:          string | fn.#StringExpression
-		MessageSystemAttributes?: #MessageAttributeMap | fn.#ObjectExpression
+		DelaySeconds?: string | fn.#StringExpression
+
+		// Custom message attributes to attach to each message.
+		MessageAttributes?:      #MessageAttributeMap
+		MessageDeduplicationId?: string | fn.#StringExpression
+		MessageGroupId?:         string | fn.#StringExpression
+
+		// Message system attributes to attach to each message, such as AWSTraceHeader.
+		MessageSystemAttributes?: #MessageAttributeMap
 	}) |
 	fn.#ObjectExpression
 	"StepFunctionsParameters"?: close({
@@ -581,7 +614,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Transformer: close({
-	JsonataConfiguration?: #JsonataConfiguration | fn.#ObjectExpression
+	// The JSONata expression configuration. Required when Type is JSONATA.
+	JsonataConfiguration?: #JsonataConfiguration
 	Type?:                 "RAW" | "WITH_METADATA" | "JSONATA" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

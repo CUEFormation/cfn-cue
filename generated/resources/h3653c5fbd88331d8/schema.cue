@@ -18,9 +18,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties?: close({
 		CidrEndpointsCustomSubDomain?: string | fn.#StringExpression
 		Description?:                  string | fn.#StringExpression
-		FipsEnabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		LoggingConfigurations?: #VerifiedAccessLogs | fn.#ObjectExpression
-		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		FipsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// The configuration options for AWS Verified Access instances.
+		LoggingConfigurations?:          #VerifiedAccessLogs
+		Tags?:                           list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		VerifiedAccessTrustProviderIds?: list.UniqueItems() & [...#VerifiedAccessTrustProviderId] | fn.#ListExpression
 		VerifiedAccessTrustProviders?:   list.UniqueItems() & [...#VerifiedAccessTrustProvider] | fn.#ListExpression
 	})

@@ -21,11 +21,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::Deployment"
 	Properties!: close({
-		DeploymentCanarySettings?: #DeploymentCanarySettings | fn.#ObjectExpression
+		DeploymentCanarySettings?: #DeploymentCanarySettings
 		Description?:              string | fn.#StringExpression
 		RestApiId!:                string | fn.#StringExpression
-		StageDescription?:         #StageDescription | fn.#ObjectExpression
-		StageName?:                string | fn.#StringExpression
+
+		// The description of the Stage resource for the Deployment resource to create.
+		// To specify a stage description, you must also provide a stage name.
+		StageDescription?: #StageDescription
+		StageName?:        string | fn.#StringExpression
 	})
 }
 
@@ -150,7 +153,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #StageDescription: close({
-	AccessLogSetting?:    #AccessLogSetting | fn.#ObjectExpression
+	// Specifies settings for logging access in this stage.
+	AccessLogSetting?:    #AccessLogSetting
 	CacheClusterEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CacheClusterSize?:    string | fn.#StringExpression
 	CacheDataEncrypted?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -168,8 +172,10 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	CachingEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CanarySetting?:        #CanarySetting | fn.#ObjectExpression
+	CachingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// Specifies settings for the canary deployment in this stage.
+	CanarySetting?:        #CanarySetting
 	ClientCertificateId?:  string | fn.#StringExpression
 	DataTraceEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Description?:          string | fn.#StringExpression

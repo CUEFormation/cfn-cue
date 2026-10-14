@@ -15,8 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::Database"
 	Properties!: close({
-		CatalogId!:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		DatabaseInput!: #DatabaseInput | fn.#ObjectExpression
+		CatalogId!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The metadata for the database.
+		DatabaseInput!: #DatabaseInput
 		DatabaseName?:  string | fn.#StringExpression
 	})
 }
@@ -34,13 +36,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DatabaseInput: close({
-	CreateTableDefaultPermissions?: [...#PrincipalPrivileges | fn.#ObjectExpression] | fn.#ListExpression
+	CreateTableDefaultPermissions?: [...#PrincipalPrivileges] | fn.#ListExpression
 	Description?:                   strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	FederatedDatabase?:             #FederatedDatabase | fn.#ObjectExpression
-	LocationUri?:                   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:                          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters?:                    fn.#Object & {...} | string | fn.#StringObjectExpression
-	TargetDatabase?:                #DatabaseIdentifier | fn.#ObjectExpression
+
+	// A FederatedDatabase structure that references an entity outside the AWS Glue Data Catalog.
+	FederatedDatabase?: #FederatedDatabase
+	LocationUri?:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Name?:              strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Parameters?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+
+	// A DatabaseIdentifier structure that describes a target database for resource linking.
+	TargetDatabase?: #DatabaseIdentifier
 }) |
 fn.#ObjectExpression
 
@@ -64,6 +70,8 @@ fn.#ObjectExpression
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	Principal?: #DataLakePrincipal | fn.#ObjectExpression
+
+	// The principal who is granted permissions.
+	Principal?: #DataLakePrincipal
 }) |
 fn.#ObjectExpression

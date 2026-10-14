@@ -205,7 +205,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	MinEntryInterval!: #Iso8601Duration | fn.#StringExpression
+
+	// Minimum time interval between entries for the same participant in ISO 8601 duration format
+	MinEntryInterval!: #Iso8601Duration
 }) |
 fn.#ObjectExpression
 

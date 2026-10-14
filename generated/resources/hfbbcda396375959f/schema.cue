@@ -13,8 +13,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The ARN of the IAM principal to remove from the pull time update exclusion list.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECR::PullTimeUpdateExclusion"
-	Properties!: close({PrincipalArn!: #PrincipalArn | fn.#StringExpression})
+	Type!: "AWS::ECR::PullTimeUpdateExclusion"
+	Properties!: close({
+		// The ARN of the IAM principal to remove from the pull time update exclusion list.
+		PrincipalArn!: #PrincipalArn
+	})
 }
 
 #PrincipalArn: strings.MaxRunes(200) &

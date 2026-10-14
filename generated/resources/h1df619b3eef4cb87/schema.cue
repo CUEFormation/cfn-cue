@@ -16,7 +16,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaConvert::JobTemplate"
 	Properties!: close({
-		AccelerationSettings?: #AccelerationSettings | fn.#ObjectExpression
+		// Accelerated transcoding can significantly speed up jobs with long, visually
+		// complex content. Outputs that use this feature incur pro-tier pricing.
+		AccelerationSettings?: #AccelerationSettings
 		Category?:             string | fn.#StringExpression
 		Description?:          string | fn.#StringExpression
 		HopDestinations?:      [...#HopDestination] | fn.#ListExpression

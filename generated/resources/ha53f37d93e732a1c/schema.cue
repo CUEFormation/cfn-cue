@@ -31,8 +31,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(0) &
 		=~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$" |
 		fn.#StringExpression
-		PosixUser?:     #PosixUser | fn.#ObjectExpression
-		RootDirectory?: #RootDirectory | fn.#ObjectExpression
+
+		// The full POSIX identity, including the user ID, group ID, and secondary group
+		// IDs on the access point that is used for all file operations by NFS clients
+		// using the access point.
+		PosixUser?: #PosixUser
+
+		// The directory on the EFS file system that the access point exposes as the
+		// root directory to NFS clients using the access point.
+		RootDirectory?: #RootDirectory
 	})
 }
 
@@ -57,7 +64,15 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RootDirectory: close({
-	CreationInfo?: #CreationInfo | fn.#ObjectExpression
+	// (Optional) Specifies the POSIX IDs and permissions to apply to the access
+	// point's ``RootDirectory``. If the ``RootDirectory`` > ``Path`` specified
+	// does not exist, EFS creates the root directory using the ``CreationInfo``
+	// settings when a client connects to an access point. When specifying the
+	// ``CreationInfo``, you must provide values for all properties.
+	// If you do not provide ``CreationInfo`` and the specified ``RootDirectory`` >
+	// ``Path`` does not exist, attempts to mount the file system using the access
+	// point will fail.
+	CreationInfo?: #CreationInfo
 	Path?:         strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression

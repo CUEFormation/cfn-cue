@@ -21,21 +21,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		AIWorkloadConfigName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9](-*[a-z0-9]){0,62}$" |
 		fn.#StringExpression
-		AIWorkloadConfigs?: #AIWorkloadConfigs | fn.#ObjectExpression
-		DatasetConfig?:     #AIDatasetConfig | fn.#ObjectExpression
-		Tags?:              list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+
+		// The benchmark tool configuration and workload specification.
+		AIWorkloadConfigs?: #AIWorkloadConfigs
+
+		// The dataset configuration for the workload. Specify input data channels with
+		// their data sources for benchmark workloads.
+		DatasetConfig?: #AIDatasetConfig
+		Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
 }
 
 #AIDatasetConfig: close({InputDataConfig!: [...#AIWorkloadInputDataConfig] | fn.#ListExpression}) | fn.#ObjectExpression
 
-#AIWorkloadConfigs: close({WorkloadSpec!: #WorkloadSpec | fn.#ObjectExpression}) | fn.#ObjectExpression
+#AIWorkloadConfigs: close({
+	// The workload specification that defines benchmark parameters.
+	WorkloadSpec!: #WorkloadSpec
+}) |
+fn.#ObjectExpression
 
-#AIWorkloadDataSource: close({S3DataSource?: #AIWorkloadS3DataSource | fn.#ObjectExpression}) | fn.#ObjectExpression
+#AIWorkloadDataSource: close({
+	// The Amazon S3 data source configuration.
+	S3DataSource?: #AIWorkloadS3DataSource
+}) |
+fn.#ObjectExpression
 
 #AIWorkloadInputDataConfig: close({
 	ChannelName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\.\\-_]+$" | fn.#StringExpression
-	DataSource!:  #AIWorkloadDataSource | fn.#ObjectExpression
+
+	// The data source for this channel.
+	DataSource!: #AIWorkloadDataSource
 }) |
 fn.#ObjectExpression
 

@@ -19,14 +19,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Redshift::ScheduledAction"
 	Properties!: close({
-		Enable?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		EndTime?:  #timestamp | fn.#StringExpression
-		IamRole?:  strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-		Schedule?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		Enable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// The end time in UTC of the scheduled action. After this time, the scheduled
+		// action does not trigger.
+		EndTime?:                    #timestamp
+		IamRole?:                    strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		Schedule?:                   strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
 		ScheduledActionDescription?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
 		ScheduledActionName!:        strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-		StartTime?:                  #timestamp | fn.#StringExpression
-		TargetAction?:               #ScheduledActionType | fn.#ObjectExpression
+
+		// The start time in UTC of the scheduled action. Before this time, the
+		// scheduled action does not trigger.
+		StartTime?: #timestamp
+
+		// A JSON format string of the Amazon Redshift API operation with input parameters.
+		TargetAction?: #ScheduledActionType
 	})
 }
 

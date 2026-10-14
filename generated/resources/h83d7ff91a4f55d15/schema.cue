@@ -16,11 +16,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TransitGatewayMeteringPolicyEntry"
 	Properties!: close({
-		DestinationCidrBlock?:                    string | fn.#StringExpression
-		DestinationPortRange?:                    string | fn.#StringExpression
-		DestinationTransitGatewayAttachmentId?:   string | fn.#StringExpression
-		DestinationTransitGatewayAttachmentType?: #TransitGatewayAttachmentResourceType | fn.#StringExpression
-		MeteredAccount!:                          #TransitGatewayMeteringPayerType | fn.#StringExpression
+		DestinationCidrBlock?:                  string | fn.#StringExpression
+		DestinationPortRange?:                  string | fn.#StringExpression
+		DestinationTransitGatewayAttachmentId?: string | fn.#StringExpression
+
+		// The type of the attachment through which traffic leaves a transit gateway
+		DestinationTransitGatewayAttachmentType?: #TransitGatewayAttachmentResourceType
+
+		// The resource owner information responsible for paying default billable
+		// charges for the traffic flow
+		MeteredAccount!: #TransitGatewayMeteringPayerType
 		PolicyRuleNumber!: int |
 			{
 				string &
@@ -37,11 +42,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Protocol?:                           string | fn.#StringExpression
-		SourceCidrBlock?:                    string | fn.#StringExpression
-		SourcePortRange?:                    string | fn.#StringExpression
-		SourceTransitGatewayAttachmentId?:   string | fn.#StringExpression
-		SourceTransitGatewayAttachmentType?: #TransitGatewayAttachmentResourceType | fn.#StringExpression
+		Protocol?:                         string | fn.#StringExpression
+		SourceCidrBlock?:                  string | fn.#StringExpression
+		SourcePortRange?:                  string | fn.#StringExpression
+		SourceTransitGatewayAttachmentId?: string | fn.#StringExpression
+
+		// The type of the attachment through which traffic enters a transit gateway
+		SourceTransitGatewayAttachmentType?: #TransitGatewayAttachmentResourceType
 		TransitGatewayMeteringPolicyId!:     string | fn.#StringExpression
 	})
 }

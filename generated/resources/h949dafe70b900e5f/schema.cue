@@ -26,12 +26,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Category!: "Approval" | "Build" | "Compute" | "Deploy" | "Invoke" | "Source" | "Test" | fn.#StringExpression
 		ConfigurationProperties?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#ConfigurationProperties] |
 			fn.#ListExpression
-		InputArtifactDetails!:  #ArtifactDetails | fn.#ObjectExpression
-		OutputArtifactDetails!: #ArtifactDetails | fn.#ObjectExpression
+
+		// The details of the input artifact for the action, such as its commit ID.
+		InputArtifactDetails!: #ArtifactDetails
+
+		// The details of the output artifact of the action, such as its commit ID.
+		OutputArtifactDetails!: #ArtifactDetails
 		Provider!:              strings.MaxRunes(35) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
-		Settings?:              #Settings | fn.#ObjectExpression
-		Tags?:                  [...#Tag] | fn.#ListExpression
-		Version!:               strings.MaxRunes(9) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
+
+		// URLs that provide users information about this custom action.
+		Settings?: #Settings
+		Tags?:     [...#Tag] | fn.#ListExpression
+		Version!:  strings.MaxRunes(9) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
 	})
 }
 

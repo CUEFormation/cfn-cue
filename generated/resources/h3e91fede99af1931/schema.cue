@@ -18,10 +18,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		ActionOnFailure!:  string | fn.#StringExpression
 		EncryptionKeyArn?: string | fn.#StringExpression
-		HadoopJarStep!:    #HadoopJarStepConfig | fn.#ObjectExpression
-		JobFlowId!:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		LogUri?:           string | fn.#StringExpression
-		Name!:             string | fn.#StringExpression
+
+		// The HadoopJarStepConfig property type specifies a job flow step consisting of
+		// a JAR file whose main function will be executed. The main function submits a
+		// job for the cluster to execute as a step on the master node, and then waits
+		// for the job to finish or fail before executing subsequent steps.
+		HadoopJarStep!: #HadoopJarStepConfig
+		JobFlowId!:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		LogUri?:        string | fn.#StringExpression
+		Name!:          string | fn.#StringExpression
 	})
 }
 

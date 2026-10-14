@@ -19,8 +19,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Signer::SigningProfile"
 	Properties!: close({
-		PlatformId!:              #PlatformId | fn.#StringExpression
-		SignatureValidityPeriod?: #SignatureValidityPeriod | fn.#ObjectExpression
+		// The ID of the target signing platform.
+		PlatformId!: #PlatformId
+
+		// Signature validity period of the profile.
+		SignatureValidityPeriod?: #SignatureValidityPeriod
 		Tags?:                    [...#Tag] | fn.#ListExpression
 	})
 }

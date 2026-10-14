@@ -20,26 +20,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::Rule"
 	Properties!: close({
-		Actions!:     #Actions | fn.#ObjectExpression
+		// A list of actions to be run when the rule is triggered.
+		Actions!:     #Actions
 		Function!:    string | fn.#StringExpression
 		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 		Name!:        =~"^[a-zA-Z0-9._-]{1,200}$" | fn.#StringExpression
-		PublishStatus!:      "DRAFT" | "PUBLISHED" | fn.#StringExpression
-		Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TriggerEventSource!: #RuleTriggerEventSource | fn.#ObjectExpression
+		PublishStatus!: "DRAFT" | "PUBLISHED" | fn.#StringExpression
+		Tags?:          list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// The event source to trigger the rule.
+		TriggerEventSource!: #RuleTriggerEventSource
 	})
 }
 
 #Actions: close({
-	AssignContactCategoryActions?: #AssignContactCategoryActions | fn.#ListExpression
-	AssignSlaActions?:             #AssignSlaActions | fn.#ListExpression
-	CreateCaseActions?:            #CreateCaseActions | fn.#ListExpression
-	EndAssociatedTasksActions?:    #EndAssociatedTasksActions | fn.#ListExpression
-	EventBridgeActions?:           #EventBridgeActions | fn.#ListExpression
-	SendNotificationActions?:      #SendNotificationActions | fn.#ListExpression
-	SubmitAutoEvaluationActions?:  #SubmitAutoEvaluationActions | fn.#ListExpression
-	TaskActions?:                  #TaskActions | fn.#ListExpression
-	UpdateCaseActions?:            #UpdateCaseActions | fn.#ListExpression
+	// Information about the contact category action. The syntax can be empty, for example, ``{}``.
+	AssignContactCategoryActions?: #AssignContactCategoryActions
+	AssignSlaActions?:             #AssignSlaActions
+	CreateCaseActions?:            #CreateCaseActions
+	EndAssociatedTasksActions?:    #EndAssociatedTasksActions
+
+	// Information about the EV action.
+	EventBridgeActions?: #EventBridgeActions
+
+	// Information about the send notification action.
+	SendNotificationActions?:     #SendNotificationActions
+	SubmitAutoEvaluationActions?: #SubmitAutoEvaluationActions
+
+	// Information about the task action. This field is required if
+	// ``TriggerEventSource`` is one of the following values:
+	// ``OnZendeskTicketCreate`` | ``OnZendeskTicketStatusUpdate`` |
+	// ``OnSalesforceCaseCreate``
+	TaskActions?:       #TaskActions
+	UpdateCaseActions?: #UpdateCaseActions
 }) |
 fn.#ObjectExpression
 
@@ -85,7 +98,7 @@ fn.#ObjectExpression
 #AssignSlaActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#AssignSlaAction] | fn.#ListExpression
 
 #CreateCaseAction: close({
-	Fields!:     #Fields | fn.#ListExpression
+	Fields!:     #Fields
 	TemplateId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -105,7 +118,7 @@ fn.#ObjectExpression
 
 #Field: close({
 	Id!:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: #FieldValue | fn.#ObjectExpression
+	Value!: #FieldValue
 }) |
 fn.#ObjectExpression
 
@@ -184,9 +197,11 @@ fn.#ObjectExpression
 	Content!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	ContentType!:    "PLAIN_TEXT" | fn.#StringExpression
 	DeliveryMethod!: "EMAIL" | fn.#StringExpression
-	Exclusion?:      #NotificationRecipientType | fn.#ObjectExpression
-	Recipient!:      #NotificationRecipientType | fn.#ObjectExpression
-	Subject?:        strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	Exclusion?:      #NotificationRecipientType
+
+	// Notification recipient.
+	Recipient!: #NotificationRecipientType
+	Subject?:   strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -231,7 +246,7 @@ fn.#ObjectExpression
 
 #TaskActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#TaskAction] | fn.#ListExpression
 
-#UpdateCaseAction: close({Fields!: #Fields | fn.#ListExpression}) | fn.#ObjectExpression
+#UpdateCaseAction: close({Fields!: #Fields}) | fn.#ObjectExpression
 
 #UpdateCaseActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#UpdateCaseAction] |
 	fn.#ListExpression

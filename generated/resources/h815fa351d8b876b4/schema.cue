@@ -16,7 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3::AccessGrantsInstance"
 	Properties?: close({
-		IdentityCenterArn?: #IdentityCenterArn | fn.#StringExpression
+		// The Amazon Resource Name (ARN) of the specified AWS Identity Center.
+		IdentityCenterArn?: #IdentityCenterArn
 		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }

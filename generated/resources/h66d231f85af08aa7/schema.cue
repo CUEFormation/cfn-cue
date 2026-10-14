@@ -20,9 +20,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::InspectorV2::Filter"
 	Properties!: close({
-		Description?:    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-		FilterAction!:   #FilterAction | fn.#StringExpression
-		FilterCriteria!: #FilterCriteria | fn.#ObjectExpression
+		Description?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+
+		// Findings filter action.
+		FilterAction!: #FilterAction
+
+		// Findings filter criteria.
+		FilterCriteria!: #FilterCriteria
 		Name!:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 		Tags?:           #FilterTagMap
 	})

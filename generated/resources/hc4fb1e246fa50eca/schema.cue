@@ -16,9 +16,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SES::Tenant"
 	Properties!: close({
-		ReputationEntity?:      #ReputationEntity | fn.#ObjectExpression
-		ResourceAssociations?:  [...] & [...#ResourceAssociation] | fn.#ListExpression
-		SuppressionAttributes?: #TenantSuppressionAttributes | fn.#ObjectExpression
+		// The reputation configuration for the tenant. Sending status remains managed by SES.
+		ReputationEntity?:     #ReputationEntity
+		ResourceAssociations?: [...] & [...#ResourceAssociation] | fn.#ListExpression
+
+		// The suppression attributes for the tenant.
+		SuppressionAttributes?: #TenantSuppressionAttributes
 		Tags?:                  list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 		TenantName!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-_]+$" | fn.#StringExpression
 	})

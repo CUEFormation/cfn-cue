@@ -18,8 +18,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		DeploymentPatternName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][a-zA-Z0-9-]*$" |
 		fn.#StringExpression
-		Name!:           strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[A-Za-z0-9_\\s\\.-]+$" | fn.#StringExpression
-		Specifications?: #DeploymentSpecifications | fn.#ObjectExpression
+		Name!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[A-Za-z0-9_\\s\\.-]+$" | fn.#StringExpression
+
+		// LaunchWizard deployment specifications
+		Specifications?: #DeploymentSpecifications
 		Tags?:           [...#Tags] | fn.#ListExpression
 		WorkloadName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z][a-zA-Z0-9-_]*$" | fn.#StringExpression
 	})

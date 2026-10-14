@@ -40,7 +40,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#ListExpression
 		StorageConfigurations?: [...#StorageConfiguration] | fn.#ListExpression
 		SubnetIds?:             [...=~"^\\S{1,50}$" | fn.#StringExpression] | fn.#ListExpression
-		Tags?:                  #TagMap | fn.#ObjectExpression
+
+		// Tags associated to this environment.
+		Tags?: #TagMap
 	})
 }
 

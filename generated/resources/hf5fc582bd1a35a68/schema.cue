@@ -19,11 +19,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaLive::Multiplexprogram"
 	Properties?: close({
-		MultiplexId?:              string | fn.#StringExpression
-		MultiplexProgramSettings?: #MultiplexProgramSettings | fn.#ObjectExpression
-		PacketIdentifiersMap?:     #MultiplexProgramPacketIdentifiersMap | fn.#ObjectExpression
-		PipelineDetails?:          [...#MultiplexProgramPipelineDetail] | fn.#ListExpression
-		PreferredChannelPipeline?: #PreferredChannelPipeline | fn.#StringExpression
+		MultiplexId?: string | fn.#StringExpression
+
+		// The settings for this multiplex program.
+		MultiplexProgramSettings?: #MultiplexProgramSettings
+
+		// The packet identifier map for this multiplex program.
+		PacketIdentifiersMap?: #MultiplexProgramPacketIdentifiersMap
+		PipelineDetails?:      [...#MultiplexProgramPipelineDetail] | fn.#ListExpression
+
+		// The settings for this multiplex program.
+		PreferredChannelPipeline?: #PreferredChannelPipeline
 		ProgramName?:              string | fn.#StringExpression
 	})
 }
@@ -264,8 +270,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ServiceDescriptor?: #MultiplexProgramServiceDescriptor | fn.#ObjectExpression
-	VideoSettings?:     #MultiplexVideoSettings | fn.#ObjectExpression
+
+	// Transport stream service descriptor configuration for the Multiplex program.
+	ServiceDescriptor?: #MultiplexProgramServiceDescriptor
+
+	// Program video settings configuration.
+	VideoSettings?: #MultiplexVideoSettings
 }) |
 fn.#ObjectExpression
 
@@ -323,9 +333,11 @@ fn.#ObjectExpression
 
 #MultiplexVideoSettings: fn.#Object & {...} & matchN(1, [close(
 	{ConstantBitrate!: int & <=100000000 & >=100000 | fn.#NumberExpression},
-), close(
-	{StatmuxSettings!: #MultiplexStatmuxVideoSettings | fn.#ObjectExpression},
-)]) |
+), close({
+	// Statmux rate control settings.
+	// When this field is defined, ConstantBitrate must be undefined.
+	StatmuxSettings!: #MultiplexStatmuxVideoSettings
+})]) |
 fn.#ObjectExpression
 
 #PreferredChannelPipeline: "CURRENTLY_ACTIVE" | "PIPELINE_0" | "PIPELINE_1" | fn.#StringExpression

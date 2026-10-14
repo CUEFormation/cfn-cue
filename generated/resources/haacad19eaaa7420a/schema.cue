@@ -20,8 +20,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Outposts::Bucket"
 	Properties!: close({
-		BucketName!:             strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-		LifecycleConfiguration?: #LifecycleConfiguration | fn.#ObjectExpression
+		BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+
+		// Rules that define how Amazon S3Outposts manages objects during their lifetime.
+		LifecycleConfiguration?: #LifecycleConfiguration
 		OutpostId!:              =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$" | fn.#StringExpression
 		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
@@ -47,7 +49,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 
 #FilterAndOperator: close({
-	Prefix?: #FilterPrefix | fn.#StringExpression
+	// Prefix identifies one or more objects to which the rule applies.
+	Prefix?: #FilterPrefix
 	Tags!:   list.MinItems(1) & list.UniqueItems() & [...#FilterTag] | fn.#ListExpression
 }) |
 fn.#ValueExpression
@@ -77,8 +80,13 @@ fn.#ObjectExpression
 	ExpirationInDays!: _
 	...
 }]) & close({
-	AbortIncompleteMultipartUpload?: #AbortIncompleteMultipartUpload | fn.#ObjectExpression
-	ExpirationDate?:                 #iso8601UTC | fn.#StringExpression
+	// Specifies a lifecycle rule that stops incomplete multipart uploads to an
+	// Amazon S3Outposts bucket.
+	AbortIncompleteMultipartUpload?: #AbortIncompleteMultipartUpload
+
+	// Indicates when objects are deleted from Amazon S3Outposts. The date value
+	// must be in ISO 8601 format. The time is always midnight UTC.
+	ExpirationDate?: #iso8601UTC
 	ExpirationInDays?: int & >=1 |
 		{
 			string &
@@ -95,9 +103,15 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Filter?: close({
-		AndOperator?: #FilterAndOperator | fn.#ValueExpression
-		Prefix?:      #FilterPrefix | fn.#StringExpression
-		Tag?:         #FilterTag | fn.#ObjectExpression
+		// The container for the AND condition for the lifecycle rule. A combination of
+		// Prefix and 1 or more Tags OR a minimum of 2 or more tags.
+		AndOperator?: #FilterAndOperator
+
+		// Object key prefix that identifies one or more objects to which this rule applies.
+		Prefix?: #FilterPrefix
+
+		// Specifies a tag used to identify a subset of objects for an Amazon S3Outposts bucket.
+		Tag?: #FilterTag
 		if Prefix != _|_ if Prefix."Fn::If" == _|_ {
 			Tag?: close({"Fn::If": _}) | error(
 				"Tag cannot be used with Prefix; set exactly one of Prefix, Tag, AndOperator",

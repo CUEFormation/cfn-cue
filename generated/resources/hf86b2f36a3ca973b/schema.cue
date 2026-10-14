@@ -16,7 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeCommit::Repository"
 	Properties!: close({
-		Code?: #Code | fn.#ObjectExpression
+		// Information about code to be committed to a repository after it is created in
+		// an AWS CloudFormation stack. Information about code is only used in resource
+		// creation. Updates to a stack will not reflect changes made to code
+		// properties after initial resource creation.
+		Code?: #Code
 		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			string) &
 		strings.MaxRunes(100) &
@@ -32,7 +36,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #Code: close({
 	BranchName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	S3!:         #S3 | fn.#ObjectExpression
+
+	// Information about the Amazon S3 bucket that contains a ZIP file of code to be
+	// committed to the repository. Changes to this property are ignored after
+	// initial resource creation.
+	S3!: #S3
 }) |
 fn.#ObjectExpression
 

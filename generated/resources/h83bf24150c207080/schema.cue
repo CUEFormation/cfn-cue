@@ -15,14 +15,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GuardDuty::MalwareProtectionPlan"
 	Properties!: close({
-		Actions?:           #CFNActions | fn.#ObjectExpression
-		ProtectedResource!: #CFNProtectedResource | fn.#ObjectExpression
+		// Specifies the action that is to be applied to the Malware Protection plan resource.
+		Actions?: #CFNActions
+
+		// Information about the protected resource. Presently, S3Bucket is the only
+		// supported protected resource.
+		ProtectedResource!: #CFNProtectedResource
 		Role!:              string | fn.#StringExpression
 		Tags?:              [...#TagItem] | fn.#ListExpression
 	})
 }
 
-#CFNActions: close({Tagging?: #CFNTagging | fn.#ObjectExpression}) | fn.#ObjectExpression
+#CFNActions: close({
+	// Contains information about tagging status of the Malware Protection plan resource.
+	Tagging?: #CFNTagging
+}) |
+fn.#ObjectExpression
 
 #CFNProtectedResource: close({
 	S3Bucket!: close({

@@ -17,8 +17,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cases::RelatedItem"
 	Properties!: close({
-		CaseId!:   strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-		Content!:  #RelatedItemContent | fn.#ObjectExpression
+		CaseId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The content of a related item to be created.
+		Content!:  #RelatedItemContent
 		DomainId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
 		Tags?:     list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 		Type!:     "Contact" | "Comment" | "File" | "Sla" | "ConnectCase" | "Custom" | fn.#StringExpression

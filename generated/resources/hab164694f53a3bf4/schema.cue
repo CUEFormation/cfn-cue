@@ -13,7 +13,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Redshift::EndpointAuthorization"
 	Properties!: close({
-		Account!:           #AwsAccount | fn.#StringExpression
+		// The target AWS account ID to grant or revoke access for.
+		Account!:           #AwsAccount
 		ClusterIdentifier!: string | fn.#StringExpression
 		Force?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		VpcIds?:            [...#VpcId] | fn.#ListExpression

@@ -27,7 +27,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Name!: string | fn.#StringExpression
 		ServiceRole?: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" |
 			fn.#StringExpression
-		SingleSignOn?: #SingleSignOn | fn.#ObjectExpression
+
+		// The single-sign on configuration of the Amazon DataZone domain.
+		SingleSignOn?: #SingleSignOn
 		Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }

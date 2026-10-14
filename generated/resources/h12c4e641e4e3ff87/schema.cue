@@ -16,12 +16,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaTailor::Program"
 	Properties!: close({
-		AdBreaks?:              [...#AdBreak] | fn.#ListExpression
-		AudienceMedia?:         [...#AudienceMedia] | fn.#ListExpression
-		ChannelName!:           string | fn.#StringExpression
-		LiveSourceName?:        string | fn.#StringExpression
-		ProgramName!:           string | fn.#StringExpression
-		ScheduleConfiguration?: #ScheduleConfiguration | fn.#ObjectExpression
+		AdBreaks?:       [...#AdBreak] | fn.#ListExpression
+		AudienceMedia?:  [...#AudienceMedia] | fn.#ListExpression
+		ChannelName!:    string | fn.#StringExpression
+		LiveSourceName?: string | fn.#StringExpression
+		ProgramName!:    string | fn.#StringExpression
+
+		// The schedule configuration settings.
+		ScheduleConfiguration?: #ScheduleConfiguration
 		SourceLocationName!:    string | fn.#StringExpression
 		VodSourceName?:         string | fn.#StringExpression
 	})

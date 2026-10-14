@@ -16,7 +16,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Config::Connector"
 	Properties!: close({
-		ConnectorConfiguration!: #ConnectorConfiguration | fn.#ObjectExpression
+		// The configuration for the connector that specifies the third-party cloud
+		// provider connection details.
+		ConnectorConfiguration!: #ConnectorConfiguration
 		Tags?:                   list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
 }
@@ -27,7 +29,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#ConnectorConfiguration: close({Azure?: #AzureConnectorConfiguration | fn.#ObjectExpression}) | fn.#ObjectExpression
+#ConnectorConfiguration: close({
+	// The configuration for connecting to Microsoft Azure.
+	Azure?: #AzureConnectorConfiguration
+}) |
+fn.#ObjectExpression
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

@@ -20,8 +20,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodePipeline::Webhook"
 	Properties!: close({
-		Authentication!:              "GITHUB_HMAC" | "IP" | "UNAUTHENTICATED" | fn.#StringExpression
-		AuthenticationConfiguration!: #WebhookAuthConfiguration | fn.#ObjectExpression
+		Authentication!: "GITHUB_HMAC" | "IP" | "UNAUTHENTICATED" | fn.#StringExpression
+
+		// Properties that configure the authentication applied to incoming webhook trigger requests
+		AuthenticationConfiguration!: #WebhookAuthConfiguration
 		Filters!:                     [...#WebhookFilterRule] | fn.#ListExpression
 		Name?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" | fn.#StringExpression
 		RegisterWithThirdParty?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

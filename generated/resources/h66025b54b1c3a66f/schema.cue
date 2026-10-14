@@ -16,12 +16,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppIntegrations::DataIntegration"
 	Properties!: close({
-		Description?:       strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-		FileConfiguration?: #FileConfiguration | fn.#ObjectExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The configuration for what files should be pulled from the source.
+		FileConfiguration?: #FileConfiguration
 		KmsKey!:            strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
-		ObjectConfiguration?: #ObjectConfiguration | fn.#ObjectExpression
-		ScheduleConfig?:      #ScheduleConfig | fn.#ObjectExpression
+
+		// The configuration for what data should be pulled from the source.
+		ObjectConfiguration?: #ObjectConfiguration
+
+		// The name of the data and how often it should be pulled from the source.
+		ScheduleConfig?: #ScheduleConfig
 		SourceURI!: strings.MaxRunes(1000) &
 		strings.MinRunes(1) &
 		=~"^(\\w+\\:\\/\\/[\\w.-]+[\\w/!@#+=.-]+$)|(\\w+\\:\\/\\/[\\w.-]+[\\w/!@#+=.-]+[\\w/!@#+=.-]+[\\w/!@#+=.,-]+$)" |

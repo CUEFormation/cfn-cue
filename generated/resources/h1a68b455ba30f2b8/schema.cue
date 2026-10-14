@@ -16,8 +16,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // key signatures. Field-level encryption is only compatible with RSA 2048 key
 // signatures.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::PublicKey"
-	Properties!: close({PublicKeyConfig!: #PublicKeyConfig | fn.#ObjectExpression})
+	Type!: "AWS::CloudFront::PublicKey"
+	Properties!: close({
+		// Configuration information about a public key that you can use with [signed
+		// URLs and signed
+		// cookies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html),
+		// or with [field-level
+		// encryption](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/field-level-encryption.html).
+		PublicKeyConfig!: #PublicKeyConfig
+	})
 }
 
 #PublicKeyConfig: close({

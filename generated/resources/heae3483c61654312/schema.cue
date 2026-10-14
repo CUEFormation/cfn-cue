@@ -226,8 +226,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(0) &
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" |
 	fn.#StringExpression
-	CustomImages?:        list.MaxItems(200) & [...] & [...#CustomImage] | fn.#ListExpression
-	DefaultResourceSpec?: #ResourceSpec | fn.#ObjectExpression
+	CustomImages?: list.MaxItems(200) & [...] & [...#CustomImage] | fn.#ListExpression
+
+	// The default instance type and the Amazon Resource Name (ARN) of the default
+	// SageMaker image used by the CodeEditor app.
+	DefaultResourceSpec?: #ResourceSpec
 	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -299,8 +302,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DefaultEbsStorageSettings: close({
-	DefaultEbsVolumeSizeInGb!: #SpaceEbsVolumeSizeInGb | fn.#NumberExpression
-	MaximumEbsVolumeSizeInGb!: #SpaceEbsVolumeSizeInGb | fn.#NumberExpression
+	// Default size of the Amazon EBS volume in Gb
+	DefaultEbsVolumeSizeInGb!: #SpaceEbsVolumeSizeInGb
+
+	// Maximum size of the Amazon EBS volume in Gb. Must be greater than or equal to
+	// the DefaultEbsVolumeSizeInGb.
+	MaximumEbsVolumeSizeInGb!: #SpaceEbsVolumeSizeInGb
 }) |
 fn.#ObjectExpression
 
@@ -375,10 +382,15 @@ fn.#ObjectExpression
 	strings.MinRunes(0) &
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" |
 	fn.#StringExpression
-	CodeRepositories?:    list.MaxItems(30) & [...] & [...#CodeRepository] | fn.#ListExpression
-	CustomImages?:        list.MaxItems(200) & [...] & [...#CustomImage] | fn.#ListExpression
-	DefaultResourceSpec?: #ResourceSpec | fn.#ObjectExpression
-	EmrSettings?:         #EmrSettings | fn.#ObjectExpression
+	CodeRepositories?: list.MaxItems(30) & [...] & [...#CodeRepository] | fn.#ListExpression
+	CustomImages?:     list.MaxItems(200) & [...] & [...#CustomImage] | fn.#ListExpression
+
+	// The default instance type and the Amazon Resource Name (ARN) of the default
+	// SageMaker image used by the JupyterLab app.
+	DefaultResourceSpec?: #ResourceSpec
+
+	// The configuration parameters for EMR settings.
+	EmrSettings?:         #EmrSettings
 	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -390,8 +402,11 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #KernelGatewayAppSettings: close({
-	CustomImages?:        list.MaxItems(30) & [...] & [...#CustomImage] | fn.#ListExpression
-	DefaultResourceSpec?: #ResourceSpec | fn.#ObjectExpression
+	CustomImages?: list.MaxItems(30) & [...] & [...#CustomImage] | fn.#ListExpression
+
+	// The default instance type and the Amazon Resource Name (ARN) of the default
+	// SageMaker image used by the KernelGateway app.
+	DefaultResourceSpec?: #ResourceSpec
 	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -543,9 +558,13 @@ fn.#ObjectExpression
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
-	JupyterLabAppSettings?:       #JupyterLabAppSettings
-	JupyterServerAppSettings?:    #JupyterServerAppSettings | fn.#ObjectExpression
-	KernelGatewayAppSettings?:    #KernelGatewayAppSettings | fn.#ObjectExpression
+	JupyterLabAppSettings?: #JupyterLabAppSettings
+
+	// The Jupyter server's app settings.
+	JupyterServerAppSettings?: #JupyterServerAppSettings
+
+	// The kernel gateway app settings.
+	KernelGatewayAppSettings?:    #KernelGatewayAppSettings
 	RStudioServerProAppSettings?: #RStudioServerProAppSettings
 	SecurityGroups?: list.MaxItems(5) & [...] & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -555,7 +574,9 @@ fn.#ObjectExpression
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	SharingSettings?:         #SharingSettings | fn.#ObjectExpression
+
+	// The sharing settings.
+	SharingSettings?:         #SharingSettings
 	SpaceStorageSettings?:    #DefaultSpaceStorageSettings
 	StudioWebPortal?:         "ENABLED" | "DISABLED" | fn.#StringExpression
 	StudioWebPortalSettings?: #StudioWebPortalSettings

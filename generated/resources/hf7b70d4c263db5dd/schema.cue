@@ -16,7 +16,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!: "AWS::SES::ConfigurationSetEventDestination"
 	Properties!: close({
 		ConfigurationSetName!: string | fn.#StringExpression
-		EventDestination!:     #EventDestination | fn.#ObjectExpression
+
+		// The event destination object.
+		EventDestination!: #EventDestination
 	})
 }
 
@@ -46,13 +48,22 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EventDestination: close({
-	CloudWatchDestination?:      #CloudWatchDestination | fn.#ObjectExpression
-	Enabled?:                    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EventBridgeDestination?:     #EventBridgeDestination | fn.#ObjectExpression
-	KinesisFirehoseDestination?: #KinesisFirehoseDestination | fn.#ObjectExpression
+	// An object that contains the names, default values, and sources of the
+	// dimensions associated with an Amazon CloudWatch event destination.
+	CloudWatchDestination?: #CloudWatchDestination
+	Enabled?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// An object that contains Event bus ARN associated with the event bridge destination.
+	EventBridgeDestination?: #EventBridgeDestination
+
+	// An object that contains the delivery stream ARN and the IAM role ARN
+	// associated with an Amazon Kinesis Firehose event destination.
+	KinesisFirehoseDestination?: #KinesisFirehoseDestination
 	MatchingEventTypes!:         [...string | fn.#StringExpression] | fn.#ListExpression
 	Name?:                       =~"^[a-zA-Z0-9_-]{0,64}$" | fn.#StringExpression
-	SnsDestination?:             #SnsDestination | fn.#ObjectExpression
+
+	// An object that contains SNS topic ARN associated event destination.
+	SnsDestination?: #SnsDestination
 }) |
 fn.#ObjectExpression
 

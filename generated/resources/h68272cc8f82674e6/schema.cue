@@ -17,8 +17,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::KeyValueStore"
 	Properties!: close({
-		Comment?:      strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-		ImportSource?: #ImportSource | fn.#ObjectExpression
+		Comment?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+
+		// The import source for the key value store.
+		ImportSource?: #ImportSource
 		Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
 		Tags?:         [...#Tag] | fn.#ListExpression
 	})

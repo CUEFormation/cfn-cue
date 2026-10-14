@@ -20,10 +20,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::KendraRanking::ExecutionPlan"
 	Properties!: close({
-		CapacityUnits?: #CapacityUnitsConfiguration | fn.#ObjectExpression
-		Description?:   #Description | fn.#StringExpression
-		Name!:          #Name
-		Tags?:          #Tags | fn.#ListExpression
+		// Capacity units
+		CapacityUnits?: #CapacityUnitsConfiguration
+
+		// A description for the execution plan
+		Description?: #Description
+		Name!:        #Name
+
+		// Tags for labeling the execution plan
+		Tags?: #Tags
 	})
 }
 

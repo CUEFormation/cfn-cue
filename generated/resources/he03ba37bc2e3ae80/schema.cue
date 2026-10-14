@@ -35,8 +35,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Description!:       string | fn.#StringExpression
-		Encryption?:        #Encryption | fn.#ObjectExpression
+		Description!: string | fn.#StringExpression
+
+		// The type of encryption that will be used on the output that is associated with this entitlement.
+		Encryption?:        #Encryption
 		EntitlementStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
 		FlowArn!:           string | fn.#StringExpression
 		Name!:              string | fn.#StringExpression

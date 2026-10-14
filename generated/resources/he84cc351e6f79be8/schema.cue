@@ -28,12 +28,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WAFv2::WebACL"
 	Properties!: close({
-		ApplicationConfig?:            #ApplicationConfig | fn.#ObjectExpression
-		AssociationConfig?:            #AssociationConfig
-		CaptchaConfig?:                #CaptchaConfig
-		ChallengeConfig?:              #ChallengeConfig
-		CustomResponseBodies?:         #CustomResponseBodies
-		DataProtectionConfig?:         #DataProtectionConfig | fn.#ObjectExpression
+		// Collection of application attributes.
+		ApplicationConfig?:    #ApplicationConfig
+		AssociationConfig?:    #AssociationConfig
+		CaptchaConfig?:        #CaptchaConfig
+		ChallengeConfig?:      #ChallengeConfig
+		CustomResponseBodies?: #CustomResponseBodies
+
+		// Collection of dataProtects.
+		DataProtectionConfig?:         #DataProtectionConfig
 		DefaultAction!:                #DefaultAction
 		Description?:                  #EntityDescription
 		MonetizationConfig?:           #MonetizationConfig

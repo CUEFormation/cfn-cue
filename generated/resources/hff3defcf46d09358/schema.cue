@@ -16,7 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::Instance"
 	Properties!: close({
-		Attributes!:  #Attributes | fn.#ObjectExpression
+		// The attributes for the instance.
+		Attributes!:  #Attributes
 		DirectoryId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^d-[0-9a-f]{10}$" | fn.#StringExpression
 		IdentityManagementType!: "SAML" | "CONNECT_MANAGED" | "EXISTING_DIRECTORY" | fn.#StringExpression
 		InstanceAlias?:          strings.MaxRunes(45) & strings.MinRunes(1) | fn.#StringExpression

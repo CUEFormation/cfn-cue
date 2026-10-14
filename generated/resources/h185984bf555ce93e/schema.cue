@@ -38,9 +38,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #EffectiveTill: =~"^\\d{4}-\\d{2}-\\d{2}$" | fn.#StringExpression
 
 #HoursOfOperationConfig: close({
-	Day!:     "SUNDAY" | "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | fn.#StringExpression
-	EndTime!: #HoursOfOperationTimeSlice | fn.#ObjectExpression
-	StartTime!: #HoursOfOperationTimeSlice | fn.#ObjectExpression
+	Day!: "SUNDAY" | "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | fn.#StringExpression
+
+	// The end time that your contact center closes.
+	EndTime!: #HoursOfOperationTimeSlice
+
+	// The start time that your contact center opens.
+	StartTime!: #HoursOfOperationTimeSlice
 }) |
 fn.#ObjectExpression
 
@@ -57,9 +61,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #HoursOfOperationOverrideConfig: close({
-	Day!:     "SUNDAY" | "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | fn.#StringExpression
-	EndTime!: #OverrideTimeSlice | fn.#ObjectExpression
-	StartTime!: #OverrideTimeSlice | fn.#ObjectExpression
+	Day!: "SUNDAY" | "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | fn.#StringExpression
+
+	// The new end time that your contact center closes for the overriden days.
+	EndTime!: #OverrideTimeSlice
+
+	// The new start time that your contact center opens for the overriden days.
+	StartTime!: #OverrideTimeSlice
 }) |
 fn.#ObjectExpression
 

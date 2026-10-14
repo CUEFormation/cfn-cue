@@ -43,7 +43,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }
 
 #Action: {
-	InvokeApi!: #ActionInvokeApi | fn.#ObjectExpression
+	// Represents an InvokeApi action.
+	InvokeApi!: #ActionInvokeApi
 	...
 } | fn.#ObjectExpression
 
@@ -55,8 +56,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 } | fn.#ObjectExpression
 
 #Condition: {
-	MatchBasePaths?: #MatchBasePaths | fn.#ObjectExpression
-	MatchHeaders?:   #MatchHeaders | fn.#ObjectExpression
+	// The base path to be matched.
+	MatchBasePaths?: #MatchBasePaths
+
+	// The headers to be matched.
+	MatchHeaders?: #MatchHeaders
 	...
 } | fn.#ObjectExpression
 

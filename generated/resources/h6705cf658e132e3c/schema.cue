@@ -12,7 +12,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TransitGatewayPolicyTableEntry"
 	Properties!: close({
-		PolicyRule!:                  #TransitGatewayPolicyRule | fn.#ObjectExpression
+		// The policy rule associated with the entry.
+		PolicyRule!:                  #TransitGatewayPolicyRule
 		PolicyRuleNumber!:            string | fn.#StringExpression
 		TargetRouteTableId!:          string | fn.#StringExpression
 		TransitGatewayPolicyTableId!: string | fn.#StringExpression

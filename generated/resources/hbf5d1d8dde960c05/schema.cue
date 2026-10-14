@@ -16,21 +16,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTSiteWise::Dataset"
 	Properties!: close({
-		DatasetConfig?: #DatasetConfig | fn.#ObjectExpression
+		// The configuration for the dataset.
+		DatasetConfig?: #DatasetConfig
 		DatasetDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 		fn.#StringExpression
 		DatasetName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@.]+$" | fn.#StringExpression
-		DatasetSource?: #DatasetSource | fn.#ObjectExpression
+
+		// The data source for the dataset.
+		DatasetSource?: #DatasetSource
 		DatasetType?:   "SESSION" | "CURATED" | "EXTERNAL" | fn.#StringExpression
 		Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		WorkspaceName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	})
 }
 
-#DatasetConfig: close({Session?: #SessionConfig | fn.#ObjectExpression}) | fn.#ObjectExpression
+#DatasetConfig: close({
+	// The session configuration for a SESSION dataset.
+	Session?: #SessionConfig
+}) |
+fn.#ObjectExpression
 
 #DatasetSource: close({
-	SourceDetail?: #SourceDetail | fn.#ObjectExpression
+	// The details of the dataset source associated with the dataset.
+	SourceDetail?: #SourceDetail
 	SourceFormat!: "KNOWLEDGE_BASE" | "TIMESERIES" | fn.#StringExpression
 	SourceType!:   "KENDRA" | "SITEWISE" | fn.#StringExpression
 }) |
@@ -53,7 +61,11 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#SourceDetail: close({Kendra?: #KendraSourceDetail | fn.#ObjectExpression}) | fn.#ObjectExpression
+#SourceDetail: close({
+	// Contains details about the Kendra dataset source.
+	Kendra?: #KendraSourceDetail
+}) |
+fn.#ObjectExpression
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression

@@ -179,10 +179,14 @@ fn.#ObjectExpression
 #ModelPackageCreator: close({UserProfileName?: strings.MaxRunes(63) | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ModelPackageDetails: close({
-	ApprovalDescription?:     strings.MaxRunes(1024) | fn.#StringExpression
-	CreatedBy?:               #ModelPackageCreator | fn.#ObjectExpression
-	Domain?:                  string | fn.#StringExpression
-	InferenceSpecification?:  #InferenceSpecification | fn.#ObjectExpression
+	ApprovalDescription?: strings.MaxRunes(1024) | fn.#StringExpression
+
+	// Information about the user who created model package.
+	CreatedBy?: #ModelPackageCreator
+	Domain?:    string | fn.#StringExpression
+
+	// Details about inference jobs that can be run with models based on this model package.
+	InferenceSpecification?:  #InferenceSpecification
 	ModelApprovalStatus?:     "Approved" | "Rejected" | "PendingManualApproval" | fn.#StringExpression
 	ModelPackageArn?:         strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	ModelPackageDescription?: strings.MaxRunes(1024) | fn.#StringExpression
@@ -208,7 +212,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SourceAlgorithms?: #SourceAlgorithms | fn.#ListExpression
+
+	// A list of algorithms that were used to create a model package.
+	SourceAlgorithms?: #SourceAlgorithms
 	Task?:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

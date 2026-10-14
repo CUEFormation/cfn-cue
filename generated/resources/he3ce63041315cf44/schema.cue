@@ -58,7 +58,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		Dimensions?:                       list.MaxItems(30) & [...] & [...#Dimension] | fn.#ListExpression
 		EvaluateLowSampleCountPercentile?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		EvaluationCriteria?:               #EvaluationCriteria | fn.#ObjectExpression
+
+		// The evaluation criteria for the alarm.
+		EvaluationCriteria?: #EvaluationCriteria
 		EvaluationInterval?: int & <=3600 & >=10 |
 			{
 				string &
@@ -94,7 +96,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		EvaluationWindow?:  #EvaluationWindow | fn.#ObjectExpression
+
+		// The evaluation window that the alarm uses to select the range of metric data
+		// that it evaluates. This is either a sliding window or a wall clock window.
+		// For more information, see [Alarm evaluation
+		// windows](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/alarm-evaluation-window.html)
+		// in the *CloudWatch User Guide*.
+		EvaluationWindow?:  #EvaluationWindow
 		ExtendedStatistic?: string | fn.#StringExpression
 		InsufficientDataActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
 		fn.#ListExpression
@@ -172,7 +180,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"Terabytes" |
 			"Terabytes/Second" |
 			fn.#StringExpression
-		WarmUpConfiguration?: #WarmUpConfiguration | fn.#ObjectExpression
+
+		// The warm-up configuration for the alarm. A warm-up period delays alarm
+		// evaluation after you create or update the alarm. During the warm-up period,
+		// the alarm stays in ``INSUFFICIENT_DATA`` and does not perform alarm actions.
+		// For more information, see [Alarm warm-up
+		// periods](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/alarm-warm-up.html)
+		// in the *Amazon CloudWatch User Guide*.
+		WarmUpConfiguration?: #WarmUpConfiguration
 		if ExtendedStatistic != _|_ if ExtendedStatistic."Fn::If" == _|_ {
 			Statistic?: close({"Fn::If": _}) | error("Statistic cannot be used with ExtendedStatistic")
 		}
@@ -243,11 +258,19 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#EvaluationCriteria: close({PromQLCriteria?: #AlarmPromQLCriteria | fn.#ObjectExpression}) | fn.#ObjectExpression
+#EvaluationCriteria: close({
+	// The PromQL criteria for the alarm evaluation.
+	PromQLCriteria?: #AlarmPromQLCriteria
+}) |
+fn.#ObjectExpression
 
 #EvaluationWindow: close({
-	SlidingWindow?:   close({}) | fn.#ObjectExpression
-	WallClockWindow?: #WallClockWindow | fn.#ObjectExpression
+	SlidingWindow?: close({}) | fn.#ObjectExpression
+
+	// A wall clock window, which aligns the evaluated range to fixed clock
+	// boundaries that match the alarm's period, such as the top of the hour,
+	// midnight, or the start of the calendar week.
+	WallClockWindow?: #WallClockWindow
 	if WallClockWindow != _|_ if WallClockWindow."Fn::If" == _|_ {
 		SlidingWindow?: close({"Fn::If": _}) | error(
 			"SlidingWindow cannot be used with WallClockWindow; set exactly one of WallClockWindow, SlidingWindow",
@@ -268,7 +291,13 @@ fn.#ObjectExpression
 	Expression?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	Id!:         strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([a-z])([A-Za-z0-9\\_]*)$" | fn.#StringExpression
 	Label?:      string | fn.#StringExpression
-	MetricStat?: #MetricStat | fn.#ObjectExpression
+
+	// The metric to be returned, along with statistics, period, and units. Use this
+	// parameter only if this object is retrieving a metric and not performing a
+	// math expression on returned data.
+	// Within one MetricDataQuery object, you must specify either ``Expression`` or
+	// ``MetricStat`` but not both.
+	MetricStat?: #MetricStat
 	Period?: int & >=1 |
 		{
 			string &
@@ -289,7 +318,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MetricStat: close({
-	Metric!: #Metric | fn.#ObjectExpression
+	// The metric to return, including the metric name, namespace, and dimensions.
+	Metric!: #Metric
 	Period!: int & >=1 |
 		{
 			string &

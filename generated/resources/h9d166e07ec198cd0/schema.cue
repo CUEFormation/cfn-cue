@@ -138,8 +138,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #BlockDeviceMapping: close({
-	DeviceName!:  string | fn.#StringExpression
-	Ebs?:         #Ebs | fn.#ObjectExpression
+	DeviceName!: string | fn.#StringExpression
+
+	// Parameters used to automatically set up EBS volumes when the instance is launched.
+	Ebs?:         #Ebs
 	NoDevice?:    close({}) | fn.#ObjectExpression
 	VirtualName?: string | fn.#StringExpression
 	if VirtualName != _|_ if VirtualName."Fn::If" == _|_ {

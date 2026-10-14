@@ -20,7 +20,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		LocalGatewayRouteTableId!:            string | fn.#StringExpression
 		LocalGatewayVirtualInterfaceGroupId!: string | fn.#StringExpression
-		Tags?:                                #Tags | fn.#ListExpression
+
+		// The tags for the local gateway route table virtual interface group association.
+		Tags?: #Tags
 	})
 }
 

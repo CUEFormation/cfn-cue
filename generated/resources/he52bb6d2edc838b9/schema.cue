@@ -20,7 +20,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		PermissionArns?:          [...string | fn.#StringExpression] | fn.#ListExpression
 		Principals?:              [...string | fn.#StringExpression] | fn.#ListExpression
 		ResourceArns?:            [...string | fn.#StringExpression] | fn.#ListExpression
-		ResourceShareConfiguration?: #ResourceShareConfiguration | fn.#ObjectExpression
+
+		// Specifies the configuration for the resource share
+		ResourceShareConfiguration?: #ResourceShareConfiguration
 		Sources?:                    [...string | fn.#StringExpression] | fn.#ListExpression
 		Tags?:                       list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})

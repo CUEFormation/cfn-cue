@@ -22,10 +22,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EventsV2::EventBus"
 	Properties!: close({
-		Description?:             strings.MaxRunes(512) | fn.#StringExpression
-		EncryptionConfiguration?: #EncryptionConfiguration | fn.#ObjectExpression
+		Description?: strings.MaxRunes(512) | fn.#StringExpression
+
+		// Encryption configuration for the event bus. The service stores and returns
+		// the customer managed key as its key ARN. The key ARN is recommended so that
+		// drift detection stays accurate. A key ID is also accepted and is matched to
+		// the returned key ARN when CloudFormation checks for drift; a key alias is
+		// accepted but can be reported as a value difference, because an alias cannot
+		// be matched to the key ARN it points to.
+		EncryptionConfiguration?: #EncryptionConfiguration
 		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" | fn.#StringExpression
-		StorageConfiguration?: #StorageConfiguration | fn.#ObjectExpression
+
+		// The event storage configuration for the event bus, which controls the number
+		// of days events are retained on the bus.
+		StorageConfiguration?: #StorageConfiguration
 		Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }

@@ -19,7 +19,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ExternalSecretRotationMetadata?: [...#ExternalSecretRotationMetadataItem] | fn.#ListExpression
 		ExternalSecretRotationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
-		HostedRotationLambda?: #HostedRotationLambda | fn.#ObjectExpression
+
+		// Creates a new Lambda rotation function based on one of the Secrets Manager
+		// rotation function templates. To use a rotation function that already exists,
+		// specify RotationLambdaARN instead.
+		HostedRotationLambda?: #HostedRotationLambda
 		RotateImmediatelyOnUpdate?: bool |
 			"true" |
 			"True" |
@@ -29,8 +33,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FALSE" |
 			fn.#BooleanExpression
 		RotationLambdaARN?: string | fn.#StringExpression
-		RotationRules?:     #RotationRules | fn.#ObjectExpression
-		SecretId!:          string | fn.#StringExpression
+
+		// A structure that defines the rotation configuration for this secret.
+		RotationRules?: #RotationRules
+		SecretId!:      string | fn.#StringExpression
 	})
 }
 

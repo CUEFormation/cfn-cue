@@ -20,8 +20,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::APS::AnomalyDetector"
 	Properties!: close({
-		Alias!:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		Configuration!: #AnomalyDetectorConfiguration | fn.#ObjectExpression
+		Alias!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+
+		// Determines the anomaly detector's algorithm and its configuration.
+		Configuration!: #AnomalyDetectorConfiguration
 		EvaluationIntervalInSeconds?: int |
 			{
 				string &
@@ -38,8 +40,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Labels?:            list.UniqueItems() & [...#Label] | fn.#ListExpression
-		MissingDataAction?: #MissingDataAction | fn.#ValueExpression
+		Labels?: list.UniqueItems() & [...#Label] | fn.#ListExpression
+
+		// The action to perform when running the expression returns no data.
+		MissingDataAction?: #MissingDataAction
 		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		Workspace!: =~"^arn:(aws|aws-us-gov|aws-cn):aps:[a-z0-9-]+:[0-9]+:workspace/[a-zA-Z0-9-]+$" |
 			fn.#StringExpression

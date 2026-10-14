@@ -43,7 +43,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		AvailableSecurityUpdatesComplianceStatus?: "NON_COMPLIANT" | "COMPLIANT" | fn.#StringExpression
 		DefaultBaseline?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Description?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		GlobalFilters?:   #PatchFilterGroup | fn.#ObjectExpression
+
+		// A set of global filters used to include patches in the baseline.
+		GlobalFilters?: #PatchFilterGroup
 		Name!: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
 		OperatingSystem?: "WINDOWS" |
 			"AMAZON_LINUX" |

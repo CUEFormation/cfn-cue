@@ -19,12 +19,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Panorama::PackageVersion"
 	Properties!: close({
-		MarkLatest?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		OwnerAccount?:   #PackageOwnerAccount | fn.#StringExpression
-		PackageId!:      #NodePackageId | fn.#StringExpression
-		PackageVersion!: #NodePackageVersion | fn.#StringExpression
-		PatchVersion!:   #NodePackagePatchVersion | fn.#StringExpression
-		UpdatedLatestPatchVersion?: #NodePackagePatchVersion | fn.#StringExpression
+		MarkLatest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// An owner account.
+		OwnerAccount?: #PackageOwnerAccount
+
+		// A package ID.
+		PackageId!: #NodePackageId
+
+		// A package version.
+		PackageVersion!: #NodePackageVersion
+
+		// A patch version.
+		PatchVersion!: #NodePackagePatchVersion
+
+		// If the version was marked latest, the new version to maker as latest.
+		UpdatedLatestPatchVersion?: #NodePackagePatchVersion
 	})
 }
 

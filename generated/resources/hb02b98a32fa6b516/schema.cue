@@ -25,7 +25,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Critical?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		DaemonName?:              string | fn.#StringExpression
 		DaemonTaskDefinitionArn?: string | fn.#StringExpression
-		DeploymentConfiguration?: #DaemonDeploymentConfiguration | fn.#ObjectExpression
+
+		// The deployment configuration used for this daemon deployment.
+		DeploymentConfiguration?: #DaemonDeploymentConfiguration
 		EnableECSManagedTags?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		EnableExecuteCommand?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		PropagateTags?:           "DAEMON" | "NONE" | fn.#StringExpression
@@ -40,7 +42,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #DaemonDeploymentConfiguration: close({
-	Alarms?: #DaemonAlarmConfiguration | fn.#ObjectExpression
+	// The CloudWatch alarm configuration for the daemon deployment. When alarms are
+	// triggered during a deployment, the deployment can be automatically rolled
+	// back.
+	Alarms?: #DaemonAlarmConfiguration
 	BakeTimeInMinutes?: int & <=1440 & >=0 |
 		{
 			string &

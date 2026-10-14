@@ -20,18 +20,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ACMPCA::CertificateAuthority"
 	Properties!: close({
-		CsrExtensions?: #CsrExtensions | fn.#ObjectExpression
+		// Structure that contains CSR pass through extension information used by the
+		// CreateCertificateAuthority action.
+		CsrExtensions?: #CsrExtensions
 		KeyAlgorithm!:  string | fn.#StringExpression
 		KeyStorageSecurityStandard?: "CCPC_LEVEL_1_OR_HIGHER" |
 			"FIPS_140_2_LEVEL_2_OR_HIGHER" |
 			"FIPS_140_2_LEVEL_3_OR_HIGHER" |
 			fn.#StringExpression
-		RevocationConfiguration?: #RevocationConfiguration | fn.#ObjectExpression
+
+		// Certificate revocation information used by the CreateCertificateAuthority and
+		// UpdateCertificateAuthority actions.
+		RevocationConfiguration?: #RevocationConfiguration
 		SigningAlgorithm!:        string | fn.#StringExpression
-		Subject!:                 #Subject | fn.#ObjectExpression
-		Tags?:                    list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-		Type!:                    string | fn.#StringExpression
-		UsageMode?:               "GENERAL_PURPOSE" | "SHORT_LIVED_CERTIFICATE" | fn.#StringExpression
+
+		// Structure that contains X.500 distinguished name information for your CA.
+		Subject!:   #Subject
+		Tags?:      list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Type!:      string | fn.#StringExpression
+		UsageMode?: "GENERAL_PURPOSE" | "SHORT_LIVED_CERTIFICATE" | fn.#StringExpression
 	})
 }
 

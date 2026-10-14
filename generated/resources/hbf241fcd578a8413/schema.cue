@@ -20,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!: "AWS::Connect::DataTableAttribute"
 	Properties!: close({
 		DataTableArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		Description?:  #Description | fn.#StringExpression
+		Description?:  #Description
 		InstanceArn!: strings.MaxRunes(100) &
 		strings.MinRunes(1) &
 		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
@@ -72,8 +72,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						)
 				} |
 				fn.#NumberExpression
-			MaxLength?: #LengthBoundary | fn.#NumberExpression
-			MaxValues?: #ValueBoundary | fn.#NumberExpression
+			MaxLength?: #LengthBoundary
+			MaxValues?: #ValueBoundary
 			Maximum?: number |
 				{
 					string &
@@ -93,8 +93,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						)
 				} |
 				fn.#NumberExpression
-			MinLength?: #LengthBoundary | fn.#NumberExpression
-			MinValues?: #ValueBoundary | fn.#NumberExpression
+			MinLength?: #LengthBoundary
+			MinValues?: #ValueBoundary
 			Minimum?: number |
 				{
 					string &

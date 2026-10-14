@@ -22,7 +22,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		CidrAllowList?: [...string | fn.#StringExpression] | fn.#ListExpression
 		Description?:   string | fn.#StringExpression
 		Destination?:   string | fn.#StringExpression
-		Encryption?:    #Encryption | fn.#ObjectExpression
+
+		// The type of key used for the encryption. If no keyType is provided, the
+		// service will use the default setting (static-key).
+		Encryption?: #Encryption
 		FlowArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 			fn.#StringExpression
 		MaxLatency?: int |
@@ -124,9 +127,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		StreamId?:               string | fn.#StringExpression
-		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		VpcInterfaceAttachment?: #VpcInterfaceAttachment | fn.#ObjectExpression
+		StreamId?: string | fn.#StringExpression
+		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// The name of the VPC interface attachment to use for this output.
+		VpcInterfaceAttachment?: #VpcInterfaceAttachment
 	})
 }
 
@@ -148,7 +153,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Interface!: #Interface | fn.#ObjectExpression
+
+	// The VPC interface that is used for the media stream associated with the output.
+	Interface!: #Interface
 }) |
 fn.#ObjectExpression
 
@@ -207,8 +214,11 @@ fn.#ValueExpression
 #MediaStreamOutputConfiguration: close({
 	DestinationConfigurations?: [...#DestinationConfiguration] | fn.#ListExpression
 	EncodingName!:              "jxsv" | "raw" | "smpte291" | "pcm" | fn.#StringExpression
-	EncodingParameters?:        #EncodingParameters | fn.#ObjectExpression
-	MediaStreamName!:           string | fn.#StringExpression
+
+	// A collection of parameters that determine how MediaConnect will convert the
+	// content. These fields only apply to outputs on flows that have a CDI source.
+	EncodingParameters?: #EncodingParameters
+	MediaStreamName!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

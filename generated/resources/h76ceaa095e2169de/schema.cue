@@ -60,14 +60,20 @@ fn.#ObjectExpression
 
 #DataConnector: close({
 	IsNative?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Lambda?:   #LambdaFunction | fn.#ObjectExpression
+
+	// The Lambda function associated with this data connector.
+	Lambda?: #LambdaFunction
 }) |
 fn.#ObjectExpression
 
 #DataType: close({
 	AllowedValues?: list.MaxItems(50) & [...] & [...#DataValue] | fn.#ListExpression
-	NestedType?:    #DataType | fn.#ObjectExpression
-	Relationship?:  #Relationship | fn.#ObjectExpression
+
+	// The nested type in the data type.
+	NestedType?: #DataType
+
+	// A relationship that associates a component with another component.
+	Relationship?: #Relationship
 	Type!: "RELATIONSHIP" | "STRING" | "LONG" | "BOOLEAN" | "INTEGER" | "DOUBLE" | "LIST" | "MAP" | fn.#StringExpression
 	UnitOfMeasure?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
 }) |
@@ -149,7 +155,8 @@ fn.#ObjectExpression
 #DateTimeFormat: time.Time | fn.#StringExpression
 
 #Function: close({
-	ImplementedBy?: #DataConnector | fn.#ObjectExpression
+	// The data connector.
+	ImplementedBy?: #DataConnector
 	RequiredProperties?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [...#RequiredProperty] |
 		fn.#ListExpression
 	Scope?: "ENTITY" | "WORKSPACE" | fn.#StringExpression
@@ -172,8 +179,12 @@ fn.#ObjectExpression
 		{[=~"[a-zA-Z_\\-0-9]+"]: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" |
 		fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	DataType?:           #DataType | fn.#ObjectExpression
-	DefaultValue?:       #DataValue | fn.#ObjectExpression
+
+	// An object that contains information about the data type.
+	DataType?: #DataType
+
+	// An object that contains the default value.
+	DefaultValue?:       #DataValue
 	IsExternalId?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IsRequiredInEntity?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IsStoredExternally?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

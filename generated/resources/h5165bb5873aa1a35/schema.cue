@@ -22,19 +22,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ACMPCA::Certificate"
 	Properties!: close({
-		ApiPassthrough?:            #ApiPassthrough | fn.#ObjectExpression
-		CertificateAuthorityArn!:   #Arn | fn.#StringExpression
+		// Specifies X.509 certificate information to be included in the issued
+		// certificate. An ``APIPassthrough`` or ``APICSRPassthrough`` template variant
+		// must be selected, or else this parameter is ignored.
+		ApiPassthrough?: #ApiPassthrough
+
+		// The Amazon Resource Name (ARN) for the private CA issues the certificate.
+		CertificateAuthorityArn!:   #Arn
 		CertificateSigningRequest!: strings.MinRunes(1) | fn.#StringExpression
 		SigningAlgorithm!:          string | fn.#StringExpression
-		TemplateArn?:               #Arn | fn.#StringExpression
-		Validity!:                  #Validity | fn.#ObjectExpression
-		ValidityNotBefore?:         #Validity | fn.#ObjectExpression
+
+		// Specifies a custom configuration template to use when issuing a certificate.
+		// If this parameter is not provided, PCAshort defaults to the
+		// ``EndEntityCertificate/V1`` template. For more information about PCAshort
+		// templates, see [Using
+		// Templates](https://docs.aws.amazon.com/privateca/latest/userguide/UsingTemplates.html).
+		TemplateArn?: #Arn
+
+		// The period of time during which the certificate will be valid.
+		Validity!: #Validity
+
+		// Information describing the start of the validity period of the certificate.
+		// This parameter sets the “Not Before" date for the certificate.
+		// By default, when issuing a certificate, PCAshort sets the "Not Before" date
+		// to the issuance time minus 60 minutes. This compensates for clock
+		// inconsistencies across computer systems. The ``ValidityNotBefore`` parameter
+		// can be used to customize the “Not Before” value.
+		// Unlike the ``Validity`` parameter, the ``ValidityNotBefore`` parameter is optional.
+		// The ``ValidityNotBefore`` value is expressed as an explicit date and time,
+		// using the ``Validity`` type value ``ABSOLUTE``.
+		ValidityNotBefore?: #Validity
 	})
 }
 
 #ApiPassthrough: close({
-	Extensions?: #Extensions | fn.#ObjectExpression
-	Subject?:    #Subject | fn.#ObjectExpression
+	// Specifies X.509 extension information for a certificate.
+	Extensions?: #Extensions
+
+	// Contains information about the certificate subject. The Subject field in the
+	// certificate identifies the entity that owns or controls the public key in
+	// the certificate. The entity can be a user, computer, device, or service. The
+	// Subject must contain an X.500 distinguished name (DN). A DN is a sequence of
+	// relative distinguished names (RDNs). The RDNs are separated by commas in the
+	// certificate.
+	Subject?: #Subject
 }) |
 fn.#ObjectExpression
 
@@ -43,7 +74,9 @@ fn.#ObjectExpression
 #CertificatePolicyList: [...#PolicyInformation] | fn.#ListExpression
 
 #CustomAttribute: close({
-	ObjectIdentifier!: #CustomObjectIdentifier | fn.#StringExpression
+	// Specifies the object identifier (OID) of the attribute type of the relative
+	// distinguished name (RDN).
+	ObjectIdentifier!: #CustomObjectIdentifier
 	Value!:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -51,8 +84,12 @@ fn.#ObjectExpression
 #CustomAttributeList: [...#CustomAttribute] | fn.#ListExpression
 
 #CustomExtension: close({
-	Critical?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ObjectIdentifier!: #CustomObjectIdentifier | fn.#StringExpression
+	Critical?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// Specifies the object identifier (OID) of the X.509 extension. For more
+	// information, see the [Global OID reference
+	// database.](https://docs.aws.amazon.com/https://oidref.com/2.5.29)
+	ObjectIdentifier!: #CustomObjectIdentifier
 	Value!:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -70,7 +107,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ExtendedKeyUsage: close({
-	ExtendedKeyUsageObjectIdentifier?: #CustomObjectIdentifier | fn.#StringExpression
+	// Specifies a custom ``ExtendedKeyUsage`` with an object identifier (OID).
+	ExtendedKeyUsageObjectIdentifier?: #CustomObjectIdentifier
 	ExtendedKeyUsageType?:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -78,23 +116,71 @@ fn.#ObjectExpression
 #ExtendedKeyUsageList: [...#ExtendedKeyUsage] | fn.#ListExpression
 
 #Extensions: close({
-	CertificatePolicies?:     #CertificatePolicyList | fn.#ListExpression
-	CustomExtensions?:        #CustomExtensionList | fn.#ListExpression
-	ExtendedKeyUsage?:        #ExtendedKeyUsageList | fn.#ListExpression
-	KeyUsage?:                #KeyUsage | fn.#ObjectExpression
-	SubjectAlternativeNames?: #GeneralNameList | fn.#ListExpression
+	// Contains a sequence of one or more policy information terms, each of which
+	// consists of an object identifier (OID) and optional qualifiers. For more
+	// information, see NIST's definition of [Object Identifier
+	// (OID)](https://docs.aws.amazon.com/https://csrc.nist.gov/glossary/term/Object_Identifier).
+	// In an end-entity certificate, these terms indicate the policy under which the
+	// certificate was issued and the purposes for which it may be used. In a CA
+	// certificate, these terms limit the set of policies for certification paths
+	// that include this certificate.
+	CertificatePolicies?: #CertificatePolicyList
+
+	// Contains a sequence of one or more X.509 extensions, each of which consists
+	// of an object identifier (OID), a base64-encoded value, and the critical
+	// flag. For more information, see the [Global OID reference
+	// database.](https://docs.aws.amazon.com/https://oidref.com/2.5.29)
+	CustomExtensions?: #CustomExtensionList
+
+	// Specifies additional purposes for which the certified public key may be used
+	// other than basic purposes indicated in the ``KeyUsage`` extension.
+	ExtendedKeyUsage?: #ExtendedKeyUsageList
+
+	// Defines one or more purposes for which the key contained in the certificate
+	// can be used. Default value for each option is false.
+	KeyUsage?: #KeyUsage
+
+	// The subject alternative name extension allows identities to be bound to the
+	// subject of the certificate. These identities may be included in addition to
+	// or in place of the identity in the subject field of the certificate.
+	SubjectAlternativeNames?: #GeneralNameList
 }) |
 fn.#ObjectExpression
 
 #GeneralName: close({
-	DirectoryName?:             #Subject | fn.#ObjectExpression
-	DnsName?:                   #DnsName | fn.#StringExpression
-	EdiPartyName?:              #EdiPartyName | fn.#ObjectExpression
-	IpAddress?:                 #IpAddress | fn.#StringExpression
-	OtherName?:                 #OtherName | fn.#ObjectExpression
-	RegisteredId?:              #CustomObjectIdentifier | fn.#StringExpression
-	Rfc822Name?:                #Rfc822Name | fn.#StringExpression
-	UniformResourceIdentifier?: #UniformResourceIdentifier | fn.#StringExpression
+	// Contains information about the certificate subject. The certificate can be
+	// one issued by your private certificate authority (CA) or it can be your
+	// private CA certificate. The Subject field in the certificate identifies the
+	// entity that owns or controls the public key in the certificate. The entity
+	// can be a user, computer, device, or service. The Subject must contain an
+	// X.500 distinguished name (DN). A DN is a sequence of relative distinguished
+	// names (RDNs). The RDNs are separated by commas in the certificate. The DN
+	// must be unique for each entity, but your private CA can issue more than one
+	// certificate with the same DN to the same entity.
+	DirectoryName?: #Subject
+
+	// Represents ``GeneralName`` as a DNS name.
+	DnsName?: #DnsName
+
+	// Represents ``GeneralName`` as an ``EdiPartyName`` object.
+	EdiPartyName?: #EdiPartyName
+
+	// Represents ``GeneralName`` as an IPv4 or IPv6 address.
+	IpAddress?: #IpAddress
+
+	// Represents ``GeneralName`` using an ``OtherName`` object.
+	OtherName?: #OtherName
+
+	// Represents ``GeneralName`` as an object identifier (OID).
+	RegisteredId?: #CustomObjectIdentifier
+
+	// Represents ``GeneralName`` as an [RFC
+	// 822](https://docs.aws.amazon.com/https://datatracker.ietf.org/doc/html/rfc822)
+	// email address.
+	Rfc822Name?: #Rfc822Name
+
+	// Represents ``GeneralName`` as a URI.
+	UniformResourceIdentifier?: #UniformResourceIdentifier
 }) |
 fn.#ObjectExpression
 
@@ -116,20 +202,31 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #OtherName: close({
-	TypeId!: #CustomObjectIdentifier | fn.#StringExpression
+	// Specifies an OID.
+	TypeId!: #CustomObjectIdentifier
 	Value!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PolicyInformation: close({
-	CertPolicyId!:     #CustomObjectIdentifier | fn.#StringExpression
-	PolicyQualifiers?: #PolicyQualifierInfoList | fn.#ListExpression
+	// Specifies the object identifier (OID) of the certificate policy under which
+	// the certificate was issued. For more information, see NIST's definition of
+	// [Object Identifier
+	// (OID)](https://docs.aws.amazon.com/https://csrc.nist.gov/glossary/term/Object_Identifier).
+	CertPolicyId!: #CustomObjectIdentifier
+
+	// Modifies the given ``CertPolicyId`` with a qualifier. AWS Private CA supports
+	// the certification practice statement (CPS) qualifier.
+	PolicyQualifiers?: #PolicyQualifierInfoList
 }) |
 fn.#ObjectExpression
 
 #PolicyQualifierInfo: close({
 	PolicyQualifierId!: string | fn.#StringExpression
-	Qualifier!:         #Qualifier | fn.#ObjectExpression
+
+	// Defines the qualifier type. AWS Private CA supports the use of a URI for a
+	// CPS qualifier in this field.
+	Qualifier!: #Qualifier
 }) |
 fn.#ObjectExpression
 
@@ -140,9 +237,15 @@ fn.#ObjectExpression
 #Rfc822Name: string | fn.#StringExpression
 
 #Subject: close({
-	CommonName?:                 string | fn.#StringExpression
-	Country?:                    string | fn.#StringExpression
-	CustomAttributes?:           #CustomAttributeList | fn.#ListExpression
+	CommonName?: string | fn.#StringExpression
+	Country?:    string | fn.#StringExpression
+
+	// Contains a sequence of one or more X.500 relative distinguished names (RDNs),
+	// each of which consists of an object identifier (OID) and a value. For more
+	// information, see NIST’s definition of [Object Identifier
+	// (OID)](https://docs.aws.amazon.com/https://csrc.nist.gov/glossary/term/Object_Identifier).
+	// Custom attributes cannot be used in combination with standard attributes.
+	CustomAttributes?:           #CustomAttributeList
 	DistinguishedNameQualifier?: string | fn.#StringExpression
 	GenerationQualifier?:        string | fn.#StringExpression
 	GivenName?:                  string | fn.#StringExpression

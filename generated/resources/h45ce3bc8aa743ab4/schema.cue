@@ -16,8 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaPackage::PackagingGroup"
 	Properties!: close({
-		Authorization?:    #Authorization | fn.#ObjectExpression
-		EgressAccessLogs?: #LogConfiguration | fn.#ObjectExpression
+		// CDN Authorization
+		Authorization?: #Authorization
+
+		// The configuration parameters for egress access logging.
+		EgressAccessLogs?: #LogConfiguration
 		Id!:               strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})

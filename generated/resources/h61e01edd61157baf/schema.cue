@@ -12,7 +12,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Config::DeliveryChannel"
 	Properties!: close({
-		ConfigSnapshotDeliveryProperties?: #ConfigSnapshotDeliveryProperties | fn.#ObjectExpression
+		// The options for how often AWS Config delivers configuration snapshots to the Amazon S3 bucket.
+		ConfigSnapshotDeliveryProperties?: #ConfigSnapshotDeliveryProperties
 		Name?:                             string | fn.#StringExpression
 		S3BucketName!:                     string | fn.#StringExpression
 		S3KeyPrefix?:                      string | fn.#StringExpression

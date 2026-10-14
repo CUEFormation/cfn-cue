@@ -20,9 +20,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::TestCase"
 	Properties!: close({
-		Content!:            strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
-		Description?:        strings.MaxRunes(500) & =~".*\\S.*" | fn.#StringExpression
-		EntryPoint?:         #EntryPoint | fn.#ObjectExpression
+		Content!:     strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(500) & =~".*\\S.*" | fn.#StringExpression
+
+		// Entry point for Testcase.
+		EntryPoint?:         #EntryPoint
 		InitializationData?: strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
 		InstanceArn!: strings.MaxRunes(256) &
 		strings.MinRunes(1) &

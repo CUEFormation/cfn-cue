@@ -20,7 +20,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::Endpoint"
 	Properties!: close({
-		DeploymentConfig?: #DeploymentConfig | fn.#ObjectExpression
+		// Specifies deployment configuration for updating the SageMaker endpoint.
+		// Includes rollback and update policies.
+		DeploymentConfig?: #DeploymentConfig
 		EndpointConfigName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 		fn.#StringExpression
 		EndpointName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
@@ -77,7 +79,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	TrafficRoutingConfiguration!: #TrafficRoutingConfig | fn.#ObjectExpression
+
+	// The traffic routing configuration for the blue/green deployment.
+	TrafficRoutingConfiguration!: #TrafficRoutingConfig
 }) |
 fn.#ObjectExpression
 
@@ -102,14 +106,20 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DeploymentConfig: close({
-	AutoRollbackConfiguration?: #AutoRollbackConfig | fn.#ObjectExpression
-	BlueGreenUpdatePolicy?:     #BlueGreenUpdatePolicy | fn.#ObjectExpression
-	RollingUpdatePolicy?:       #RollingUpdatePolicy | fn.#ObjectExpression
+	// Configuration for automatic rollback if an error occurs during deployment.
+	AutoRollbackConfiguration?: #AutoRollbackConfig
+
+	// Configuration for blue-green update deployment policies.
+	BlueGreenUpdatePolicy?: #BlueGreenUpdatePolicy
+
+	// Configuration for rolling update deployment policies.
+	RollingUpdatePolicy?: #RollingUpdatePolicy
 }) |
 fn.#ObjectExpression
 
 #RollingUpdatePolicy: close({
-	MaximumBatchSize!: #CapacitySize | fn.#ObjectExpression
+	// Specifies the maximum batch size for each rolling update.
+	MaximumBatchSize!: #CapacitySize
 	MaximumExecutionTimeoutInSeconds?: int & <=28800 & >=600 |
 		{
 			string &
@@ -126,7 +136,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	RollbackMaximumBatchSize?: #CapacitySize | fn.#ObjectExpression
+
+	// The maximum batch size for rollback during an update failure.
+	RollbackMaximumBatchSize?: #CapacitySize
 	WaitIntervalInSeconds!: int & <=3600 & >=0 |
 		{
 			string &
@@ -153,8 +165,11 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TrafficRoutingConfig: close({
-	CanarySize?:     #CapacitySize | fn.#ObjectExpression
-	LinearStepSize?: #CapacitySize | fn.#ObjectExpression
+	// Specifies the size of the canary traffic in a canary deployment.
+	CanarySize?: #CapacitySize
+
+	// Specifies the step size for linear traffic routing.
+	LinearStepSize?: #CapacitySize
 	Type!:           "ALL_AT_ONCE" | "CANARY" | "LINEAR" | fn.#StringExpression
 	WaitIntervalInSeconds?: int & <=3600 & >=0 |
 		{

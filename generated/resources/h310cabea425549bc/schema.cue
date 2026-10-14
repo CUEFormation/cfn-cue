@@ -15,7 +15,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Wisdom::ContentAssociation"
 	Properties!: close({
-		Association!:     #ContentAssociationContents | fn.#ObjectExpression
+		// The identifier of the associated resource.
+		Association!:     #ContentAssociationContents
 		AssociationType!: "AMAZON_CONNECT_GUIDE" | fn.#StringExpression
 		ContentId!:       =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
 		KnowledgeBaseId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression

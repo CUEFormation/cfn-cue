@@ -17,7 +17,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cases::Field"
 	Properties!: close({
-		Attributes?:  #FieldAttributes | fn.#ObjectExpression
+		// Field-type specific attributes that control rendering and validation behavior
+		Attributes?:  #FieldAttributes
 		Description?: strings.MaxRunes(255) | fn.#StringExpression
 		DomainId?:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
 		Name!:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression

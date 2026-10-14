@@ -37,10 +37,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }
 
 #AppMonitorConfiguration: close({
-	AllowCookies?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnableXRay?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExcludedPages?: #Pages | fn.#ListExpression
-	FavoritePages?: #FavoritePages | fn.#ListExpression
+	AllowCookies?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableXRay?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// A list of URLs in your website or application to exclude from RUM data
+	// collection. You can't include both ExcludedPages and IncludedPages in the
+	// same operation.
+	ExcludedPages?: #Pages
+
+	// A list of pages in the RUM console that are to be displayed with a favorite icon.
+	FavoritePages?: #FavoritePages
 	GuestRoleArn?: #Arn &
 	(null |
 	bool |
@@ -49,8 +55,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	[...] |
 	{...}) |
 	fn.#StringExpression
-	IdentityPoolId?:     strings.MaxRunes(55) & strings.MinRunes(1) & =~"[\\w-]+:[0-9a-f-]+" | fn.#StringExpression
-	IncludedPages?:      #Pages | fn.#ListExpression
+	IdentityPoolId?: strings.MaxRunes(55) & strings.MinRunes(1) & =~"[\\w-]+:[0-9a-f-]+" | fn.#StringExpression
+
+	// If this app monitor is to collect data from only certain pages in your
+	// application, this structure lists those pages. You can't include both
+	// ExcludedPages and IncludedPages in the same operation.
+	IncludedPages?:      #Pages
 	MetricDestinations?: list.MaxItems(20) & list.UniqueItems() & [...] & [...#MetricDestination] | fn.#ListExpression
 	SessionSampleRate?: <=1 & >=0 |
 		{
@@ -78,7 +88,11 @@ fn.#ObjectExpression
 
 #Arn: =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*" | fn.#StringExpression
 
-#CustomEvents: close({Status?: #CustomEventsStatus | fn.#StringExpression}) | fn.#ObjectExpression
+#CustomEvents: close({
+	// Indicates whether AppMonitor accepts custom events.
+	Status?: #CustomEventsStatus
+}) |
+fn.#ObjectExpression
 
 #CustomEventsStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 

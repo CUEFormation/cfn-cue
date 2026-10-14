@@ -108,7 +108,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"sagemaker" |
 			"workspaces" |
 			fn.#StringExpression
-		SuspendedState?: #SuspendedState | fn.#ObjectExpression
+
+		// An embedded object that contains attributes and attribute values that are
+		// used to suspend and resume automatic scaling. Setting the value of an
+		// attribute to ``true`` suspends the specified scaling activities. Setting it
+		// to ``false`` (default) resumes the specified scaling activities.
+		// *Suspension Outcomes*
+		// + For ``DynamicScalingInSuspended``, while a suspension is in effect, all
+		// scale-in activities that are triggered by a scaling policy are suspended.
+		// + For ``DynamicScalingOutSuspended``, while a suspension is in effect, all
+		// scale-out activities that are triggered by a scaling policy are suspended.
+		// + For ``ScheduledScalingSuspended``, while a suspension is in effect, all
+		// scaling activities that involve scheduled actions are suspended.
+		SuspendedState?: #SuspendedState
 		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
@@ -146,8 +158,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #ScheduledAction: close({
-	EndTime?:              string | fn.#StringExpression
-	ScalableTargetAction?: #ScalableTargetAction | fn.#ObjectExpression
+	EndTime?: string | fn.#StringExpression
+
+	// The new minimum and maximum capacity. You can set both values or just one. At
+	// the scheduled time, if the current capacity is below the minimum capacity,
+	// Application Auto Scaling scales out to the minimum capacity. If the current
+	// capacity is above the maximum capacity, Application Auto Scaling scales in
+	// to the maximum capacity.
+	ScalableTargetAction?: #ScalableTargetAction
 	Schedule!:             string | fn.#StringExpression
 	ScheduledActionName!:  string | fn.#StringExpression
 	StartTime?:            string | fn.#StringExpression

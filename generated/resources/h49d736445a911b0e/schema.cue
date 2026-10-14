@@ -33,19 +33,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		] |
 		fn.#ListExpression
 		RevisionWeights?: list.MaxItems(2) & list.MinItems(1) & [...#RevisionWeight] | fn.#ListExpression
-		ScalingConfig?:   #ScalingConfig | fn.#ObjectExpression
-		ThrottleConfig?:  #ThrottleConfig | fn.#ObjectExpression
+
+		// The scaling configuration for the endpoint. Optionally constrains how many
+		// concurrent execution environments the endpoint can use, in addition to your
+		// account's vCPU quota.
+		ScalingConfig?: #ScalingConfig
+
+		// The throttling configuration for the endpoint. Optionally constrains the
+		// request rate that the endpoint accepts, in addition to your account's rate
+		// limit quota.
+		ThrottleConfig?: #ThrottleConfig
 	})
 }
 
 #RegionalEndpoint: close({
-	AuthType?:           "ApplicationManaged" | "IamAuth" | fn.#StringExpression
-	DomainName?:         string | fn.#StringExpression
-	RevisionWeights?:    [...#RevisionWeight] | fn.#ListExpression
-	ScalingConfig?:      #ScalingConfig | fn.#ObjectExpression
-	State?:              "Pending" | "Active" | "Failed" | "Deleting" | fn.#StringExpression
-	StateReason?:        string | fn.#StringExpression
-	ThrottleConfig?:     #ThrottleConfig | fn.#ObjectExpression
+	AuthType?:        "ApplicationManaged" | "IamAuth" | fn.#StringExpression
+	DomainName?:      string | fn.#StringExpression
+	RevisionWeights?: [...#RevisionWeight] | fn.#ListExpression
+
+	// The scaling configuration for the endpoint.
+	ScalingConfig?: #ScalingConfig
+	State?:         "Pending" | "Active" | "Failed" | "Deleting" | fn.#StringExpression
+	StateReason?:   string | fn.#StringExpression
+
+	// The throttling configuration for the endpoint.
+	ThrottleConfig?:     #ThrottleConfig
 	UpdateStatus?:       "InProgress" | "Successful" | "Failed" | fn.#StringExpression
 	UpdateStatusReason?: string | fn.#StringExpression
 }) |

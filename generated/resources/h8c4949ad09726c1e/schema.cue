@@ -22,14 +22,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		AppImageConfigName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
 		fn.#StringExpression
-		CodeEditorAppImageConfig?: #CodeEditorAppImageConfig | fn.#ObjectExpression
-		JupyterLabAppImageConfig?: #JupyterLabAppImageConfig | fn.#ObjectExpression
-		KernelGatewayImageConfig?: #KernelGatewayImageConfig | fn.#ObjectExpression
+
+		// The CodeEditorAppImageConfig.
+		CodeEditorAppImageConfig?: #CodeEditorAppImageConfig
+
+		// The JupyterLabAppImageConfig.
+		JupyterLabAppImageConfig?: #JupyterLabAppImageConfig
+
+		// The KernelGatewayImageConfig.
+		KernelGatewayImageConfig?: #KernelGatewayImageConfig
 		Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
 }
 
-#CodeEditorAppImageConfig: close({ContainerConfig?: #ContainerConfig | fn.#ObjectExpression}) | fn.#ObjectExpression
+#CodeEditorAppImageConfig: close({
+	// The container configuration for a SageMaker image.
+	ContainerConfig?: #ContainerConfig
+}) |
+fn.#ObjectExpression
 
 #ContainerConfig: close({
 	ContainerArguments?:  list.MaxItems(50) & [...] & [...#CustomImageContainerArguments] | fn.#ListExpression
@@ -86,10 +96,15 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#JupyterLabAppImageConfig: close({ContainerConfig?: #ContainerConfig | fn.#ObjectExpression}) | fn.#ObjectExpression
+#JupyterLabAppImageConfig: close({
+	// The container configuration for a SageMaker image.
+	ContainerConfig?: #ContainerConfig
+}) |
+fn.#ObjectExpression
 
 #KernelGatewayImageConfig: close({
-	FileSystemConfig?: #FileSystemConfig | fn.#ObjectExpression
+	// The Amazon Elastic File System (EFS) storage configuration for a SageMaker image.
+	FileSystemConfig?: #FileSystemConfig
 	KernelSpecs!:      list.MaxItems(1) & list.MinItems(1) & [...#KernelSpec] | fn.#ListExpression
 }) |
 fn.#ObjectExpression

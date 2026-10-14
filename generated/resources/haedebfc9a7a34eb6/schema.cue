@@ -24,9 +24,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 		EdgeLocation!:             strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
 		NetworkFunctionGroupName?: string | fn.#StringExpression
-		Options!:                  #ConnectAttachmentOptions | fn.#ObjectExpression
-		RoutingPolicyLabel?:       strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// Protocol options for connect attachment
+		Options!:            #ConnectAttachmentOptions
+		RoutingPolicyLabel?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		TransportAttachmentId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^attachment-([0-9a-f]{8,17})$" |
 		fn.#StringExpression
 	})

@@ -23,7 +23,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		DeletionProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		GraphName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" |
 		fn.#StringExpression
-		ImportTask?: #ImportTask | fn.#ObjectExpression
+
+		// The details of the import task to use to create the graph. When specified,
+		// the graph is created using CreateGraphUsingImportTask and data is imported
+		// from the supplied source.
+		ImportTask?: #ImportTask
 		KmsKeyIdentifier?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"arn:aws(|-cn|-us-gov|-iso|-iso-b|-iso-e|-iso-f|-eusc):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}" |
@@ -65,18 +69,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Tags?:                      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		VectorSearchConfiguration?: #VectorSearchConfiguration | fn.#ObjectExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// Vector Search Configuration
+		VectorSearchConfiguration?: #VectorSearchConfiguration
 	})
 }
 
-#ImportOptions: close({Neptune?: #NeptuneImportOptions | fn.#ObjectExpression}) | fn.#ObjectExpression
+#ImportOptions: close({
+	// Options for importing data from a Neptune database.
+	Neptune?: #NeptuneImportOptions
+}) |
+fn.#ObjectExpression
 
 #ImportTask: close({
 	BlankNodeHandling?: "convertToIri" | fn.#StringExpression
 	FailOnError?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Format?:            "CSV" | "OPEN_CYPHER" | "PARQUET" | "NTRIPLES" | fn.#StringExpression
-	ImportOptions?:     #ImportOptions | fn.#ObjectExpression
+
+	// Contains options for controlling the import process. For example, if the
+	// failOnError key is set to false, the import skips the data that caused the
+	// error and continues if possible (whereas if set to true, the default, or if
+	// omitted, the import operation halts immediately when an error is
+	// encountered).
+	ImportOptions?: #ImportOptions
 	MaxProvisionedMemory?: int & <=24576 & >=16 |
 		{
 			string &

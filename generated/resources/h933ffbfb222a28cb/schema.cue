@@ -18,19 +18,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::DataSource"
 	Properties!: close({
-		AssetFormsInput?:       list.MaxItems(10) & [...] & [...#FormInput] | fn.#ListExpression
-		Configuration?:         #DataSourceConfigurationInput | fn.#ValueExpression
-		ConnectionIdentifier?:  string | fn.#StringExpression
-		Description?:           strings.MaxRunes(2048) | fn.#StringExpression
-		DomainIdentifier!:      =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		EnableSetting?:         #EnableSetting | fn.#StringExpression
+		AssetFormsInput?: list.MaxItems(10) & [...] & [...#FormInput] | fn.#ListExpression
+
+		// Configuration of the data source. It can be set to either
+		// glueRunConfiguration or redshiftRunConfiguration.
+		Configuration?:        #DataSourceConfigurationInput
+		ConnectionIdentifier?: string | fn.#StringExpression
+		Description?:          strings.MaxRunes(2048) | fn.#StringExpression
+		DomainIdentifier!:     =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+
+		// Specifies whether the data source is enabled.
+		EnableSetting?:         #EnableSetting
 		EnvironmentIdentifier?: string | fn.#StringExpression
 		Name!:                  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 		ProjectIdentifier!:     string | fn.#StringExpression
 		PublishOnImport?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Recommendation?:        #RecommendationConfiguration | fn.#ObjectExpression
-		Schedule?:              #ScheduleConfiguration | fn.#ObjectExpression
-		Type!:                  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+
+		// Specifies whether the business name generation is to be enabled for this data source.
+		Recommendation?: #RecommendationConfiguration
+
+		// The schedule of the data source runs.
+		Schedule?: #ScheduleConfiguration
+		Type!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	})
 }
 
@@ -68,10 +77,14 @@ fn.#ObjectExpression
 #FilterExpressionType: "INCLUDE" | "EXCLUDE" | fn.#StringExpression
 
 #FormInput: close({
-	Content?:        strings.MaxRunes(75000) | fn.#StringExpression
-	FormName!:       #FormName | fn.#StringExpression
+	Content?: strings.MaxRunes(75000) | fn.#StringExpression
+
+	// The name of the metadata form.
+	FormName!:       #FormName
 	TypeIdentifier?: strings.MaxRunes(385) & strings.MinRunes(1) | fn.#StringExpression
-	TypeRevision?:   #TypeRevision | fn.#StringExpression
+
+	// The revision of the metadata form type.
+	TypeRevision?: #TypeRevision
 }) |
 fn.#ObjectExpression
 
@@ -80,7 +93,9 @@ fn.#ObjectExpression
 #GlueRunConfigurationInput: close({
 	AutoImportDataQualityResult?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CatalogName?:                 strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	DataAccessRole?:              #DataAccessRole | fn.#StringExpression
+
+	// The data access role included in the configuration details of the AWS Glue data source.
+	DataAccessRole?:                 #DataAccessRole
 	RelationalFilterConfigurations!: [...#RelationalFilterConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -103,10 +118,16 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RedshiftRunConfigurationInput: close({
-	DataAccessRole?:                  #DataAccessRole | fn.#StringExpression
-	RedshiftCredentialConfiguration?: #RedshiftCredentialConfiguration | fn.#ObjectExpression
-	RedshiftStorage?:                 #RedshiftStorage | fn.#ValueExpression
-	RelationalFilterConfigurations!:  #RelationalFilterConfigurations
+	// The data access role included in the configuration details of the Amazon Redshift data source.
+	DataAccessRole?: #DataAccessRole
+
+	// The details of the credentials required to access an Amazon Redshift cluster.
+	RedshiftCredentialConfiguration?: #RedshiftCredentialConfiguration
+
+	// The details of the Amazon Redshift storage as part of the configuration of an
+	// Amazon Redshift data source run.
+	RedshiftStorage?:                #RedshiftStorage
+	RelationalFilterConfigurations!: #RelationalFilterConfigurations
 }) |
 fn.#ObjectExpression
 
@@ -133,14 +154,20 @@ fn.#ObjectExpression
 
 #RelationalFilterConfigurations: [...#RelationalFilterConfiguration] | fn.#ListExpression
 
-#SageMakerRunConfigurationInput: close({TrackingAssets!: #TrackingAssets | fn.#ObjectExpression}) | fn.#ObjectExpression
+#SageMakerRunConfigurationInput: close({
+	// The tracking assets of the Amazon SageMaker run.
+	TrackingAssets!: #TrackingAssets
+}) |
+fn.#ObjectExpression
 
 #ScheduleConfiguration: close({
 	Schedule?: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"cron\\((\\b[0-5]?[0-9]\\b) (\\b2[0-3]\\b|\\b[0-1]?[0-9]\\b) (.*){1,5} (.*){1,5} (.*){1,5} (.*){1,5}\\)" |
 	fn.#StringExpression
-	Timezone?: #Timezone | fn.#StringExpression
+
+	// The timezone of the data source run.
+	Timezone?: #Timezone
 }) |
 fn.#ObjectExpression
 

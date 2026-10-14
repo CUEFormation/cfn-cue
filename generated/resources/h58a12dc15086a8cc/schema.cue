@@ -30,9 +30,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N} _-]+$" | fn.#StringExpression
 		PrivateConnectionName?: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
 		fn.#StringExpression
-		ServiceDetails?: #ServiceDetails | fn.#ObjectExpression
-		ServiceType!:    #ServiceType | fn.#StringExpression
-		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// Service-specific configuration details for create operation
+		ServiceDetails?: #ServiceDetails
+
+		// The type of service being registered
+		ServiceType!: #ServiceType
+		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		TargetUrlPrivateConnectionName?: strings.MaxRunes(30) &
 		strings.MinRunes(3) &
 		=~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |

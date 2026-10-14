@@ -214,7 +214,7 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 	if !lift || !c.template {
 		return m
 	}
-	if len(m) == 1 && localReferenceIsLifted(s, root) {
+	if onlyReference(m) && localReferenceIsLifted(s, root) {
 		return m
 	}
 	if len(m) == 0 {
@@ -663,4 +663,19 @@ func propertiesFirst(f *ast.File) {
 			return
 		}
 	}
+}
+
+// onlyReference reports whether m is a $ref with at most documentation
+// beside it. The referenced definition already admits intrinsics, so lifting
+// the reference again would make every intrinsic match two alternatives.
+func onlyReference(m map[string]any) bool {
+	if _, ok := m["$ref"]; !ok {
+		return false
+	}
+	for k := range m {
+		if k != "$ref" && k != "description" && k != "title" && k != "$comment" && k != "examples" {
+			return false
+		}
+	}
+	return true
 }

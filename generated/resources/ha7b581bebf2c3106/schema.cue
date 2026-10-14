@@ -55,9 +55,14 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 #PolicyDefinition: close({
-	Rules?:     #PolicyDefinitionRuleList | fn.#ListExpression
-	Types?:     #PolicyDefinitionTypeList | fn.#ListExpression
-	Variables?: #PolicyDefinitionVariableList | fn.#ListExpression
+	// The rules definition block of an AutomatedReasoningPolicyDefinition.
+	Rules?: #PolicyDefinitionRuleList
+
+	// The types definition block of an AutomatedReasoningPolicyDefinition.
+	Types?: #PolicyDefinitionTypeList
+
+	// The variables definition block of an AutomatedReasoningPolicyDefinition.
+	Variables?: #PolicyDefinitionVariableList
 	Version?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -74,7 +79,9 @@ fn.#ObjectExpression
 #PolicyDefinitionType: close({
 	Description?: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" | fn.#StringExpression
 	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$" | fn.#StringExpression
-	Values!:      #PolicyDefinitionTypeValueList | fn.#ListExpression
+
+	// A list of valid values for this type.
+	Values!: #PolicyDefinitionTypeValueList
 }) |
 fn.#ObjectExpression
 

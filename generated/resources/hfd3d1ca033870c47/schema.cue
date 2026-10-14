@@ -12,7 +12,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TransitGatewayConnect"
 	Properties!: close({
-		Options!:                             #TransitGatewayConnectOptions | fn.#ObjectExpression
+		// The Connect attachment options.
+		Options!:                             #TransitGatewayConnectOptions
 		Tags?:                                [...#Tag] | fn.#ListExpression
 		TransportTransitGatewayAttachmentId!: string | fn.#StringExpression
 	})

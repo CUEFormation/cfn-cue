@@ -20,13 +20,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElasticLoadBalancing::LoadBalancer"
 	Properties!: close({
-		AccessLoggingPolicy?:       #AccessLoggingPolicy | fn.#ObjectExpression
+		// Information about where and how access logs are stored for the load balancer.
+		AccessLoggingPolicy?:       #AccessLoggingPolicy
 		AppCookieStickinessPolicy?: [...#AppCookieStickinessPolicy] | fn.#ListExpression
 		AvailabilityZones?:         [...string | fn.#StringExpression] | fn.#ListExpression
-		ConnectionDrainingPolicy?:  #ConnectionDrainingPolicy | fn.#ObjectExpression
-		ConnectionSettings?:        #ConnectionSettings | fn.#ObjectExpression
-		CrossZone?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		HealthCheck?:              #HealthCheck | fn.#ObjectExpression
+
+		// If enabled, the load balancer allows existing requests to complete before the
+		// load balancer shifts traffic away from a deregistered or unhealthy instance.
+		ConnectionDrainingPolicy?: #ConnectionDrainingPolicy
+
+		// If enabled, the load balancer allows the connections to remain idle (no data
+		// is sent over the connection) for the specified duration.
+		ConnectionSettings?: #ConnectionSettings
+		CrossZone?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// The health check settings to use when evaluating the health of your EC2 instances.
+		HealthCheck?:              #HealthCheck
 		Instances?:                [...string | fn.#StringExpression] | fn.#ListExpression
 		LBCookieStickinessPolicy?: [...#LBCookieStickinessPolicy] | fn.#ListExpression
 		Listeners!:                [...#Listeners] | fn.#ListExpression

@@ -16,10 +16,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::InspectorV2::CodeSecurityScanConfiguration"
 	Properties?: close({
-		Configuration?: #CodeSecurityScanConfiguration | fn.#ObjectExpression
-		Level?:         #ConfigurationLevel | fn.#StringExpression
-		Name?:          strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" | fn.#StringExpression
-		ScopeSettings?: #ScopeSettings | fn.#ObjectExpression
+		// Code Security Scan Configuration
+		Configuration?: #CodeSecurityScanConfiguration
+
+		// Configuration Level
+		Level?: #ConfigurationLevel
+		Name?:  strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" | fn.#StringExpression
+
+		// Scope Settings
+		ScopeSettings?: #ScopeSettings
 		Tags?:          #TagMap
 	})
 }

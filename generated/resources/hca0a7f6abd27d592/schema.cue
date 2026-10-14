@@ -22,10 +22,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		DeliveryDestinationPolicy?: #DestinationPolicy & fn.#Object & {...} | fn.#ObjectExpression
 		DeliveryDestinationType?: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" | fn.#StringExpression
-		DestinationResourceArn?:  #Arn | fn.#StringExpression
-		Name!:                    strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
-		OutputFormat?:            strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" | fn.#StringExpression
-		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// The ARN of the Amazon Web Services destination that this delivery destination
+		// represents. That Amazon Web Services destination can be a log group in
+		// CloudWatch Logs, an Amazon S3 bucket, or a delivery stream in Firehose.
+		DestinationResourceArn?: #Arn
+		Name!:                   strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
+		OutputFormat?:           strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" | fn.#StringExpression
+		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
 

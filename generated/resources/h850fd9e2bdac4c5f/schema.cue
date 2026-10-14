@@ -20,23 +20,78 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53::RecordSet"
 	Properties!: close({
-		AliasTarget?:          #AliasTarget | fn.#ObjectExpression
-		CidrRoutingConfig?:    #CidrRoutingConfig | fn.#ObjectExpression
-		Comment?:              #Comment | fn.#StringExpression
-		Failover?:             #Failover | fn.#StringExpression
-		GeoLocation?:          #GeoLocation | fn.#ObjectExpression
-		GeoProximityLocation?: #GeoProximityLocation | fn.#ObjectExpression
-		HealthCheckId?:        #HealthCheckId | fn.#StringExpression
-		HostedZoneId?:         #HostedZoneId | fn.#StringExpression
-		HostedZoneName?:       #HostedZoneName | fn.#StringExpression
-		MultiValueAnswer?:     #MultiValueAnswer | fn.#BooleanExpression
-		Name!:                 #Name | fn.#StringExpression
-		Region?:               #Region | fn.#StringExpression
-		ResourceRecords?:      #ResourceRecords | fn.#ListExpression
-		SetIdentifier?:        #SetIdentifier | fn.#StringExpression
-		TTL?:                  #TTL | fn.#StringExpression
-		Type!:                 #Type | fn.#StringExpression
-		Weight?:               #Weight | fn.#NumberExpression
+		// Alias resource record sets only: Information about the AWS resource, such as
+		// a CloudFront distribution or an Amazon S3 bucket, that you want to route
+		// traffic to.
+		AliasTarget?: #AliasTarget
+
+		// The object that is specified in resource record set object when you are
+		// linking a resource record set to a CIDR location.
+		CidrRoutingConfig?: #CidrRoutingConfig
+
+		// Optional: Any comments you want to include about a change batch request.
+		Comment?: #Comment
+
+		// To configure failover, you add the Failover element to two resource record
+		// sets. For one resource record set, you specify PRIMARY as the value for
+		// Failover; for the other resource record set, you specify SECONDARY. In
+		// addition, you include the HealthCheckId element and specify the health check
+		// that you want Amazon Route 53 to perform for each resource record set.
+		Failover?: #Failover
+
+		// A complex type that lets you control how Amazon Route 53 responds to DNS
+		// queries based on the geographic origin of the query.
+		GeoLocation?: #GeoLocation
+
+		// Geoproximity resource record sets only: A complex type that lets you specify
+		// where your resources are located. Only one of LocalZoneGroup, Coordinates,
+		// or AWSRegion is allowed per request at a time.
+		GeoProximityLocation?: #GeoProximityLocation
+
+		// If you want Amazon Route 53 to return this resource record set in response to
+		// a DNS query only when the status of a health check is healthy, include the
+		// HealthCheckId element and specify the ID of the applicable health check.
+		HealthCheckId?: #HealthCheckId
+
+		// The ID of the hosted zone that you want to create records in.
+		HostedZoneId?: #HostedZoneId
+
+		// The name of the hosted zone that you want to create records in. You must
+		// include a trailing dot (for example, www.example.com.) as part of the
+		// HostedZoneName.
+		HostedZoneName?: #HostedZoneName
+
+		// To route traffic approximately randomly to multiple resources, such as web
+		// servers, create one multivalue answer record for each resource and specify
+		// true for MultiValueAnswer.
+		MultiValueAnswer?: #MultiValueAnswer
+
+		// The name of the record that you want to create, update, or delete.
+		Name!: #Name
+
+		// The Amazon EC2 Region where you created the resource that this resource record set refers to.
+		Region?: #Region
+
+		// One or more values that correspond with the value that you specified for the Type property.
+		ResourceRecords?: #ResourceRecords
+
+		// An identifier that differentiates among multiple resource record sets that
+		// have the same combination of name and type.
+		SetIdentifier?: #SetIdentifier
+
+		// The resource record cache time to live (TTL), in seconds.
+		TTL?: #TTL
+
+		// The DNS record type.
+		Type!: #Type
+
+		// Among resource record sets that have the same combination of DNS name and
+		// type, a value that determines the proportion of DNS queries that Amazon
+		// Route 53 responds to using the current resource record set. Route 53
+		// calculates the sum of the weights for the resource record sets that have the
+		// same combination of DNS name and type. Route 53 then responds to queries
+		// based on the ratio of a resource's weight to the total.
+		Weight?: #Weight
 		if HostedZoneId != _|_ if HostedZoneId."Fn::If" == _|_ {
 			HostedZoneName?: close({"Fn::If": _}) | error(
 				"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
@@ -54,7 +109,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #AliasTarget: close({
 	DNSName!:              strings.MaxRunes(1024) | fn.#StringExpression
 	EvaluateTargetHealth?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HostedZoneId!:         #HostedZoneId | fn.#StringExpression
+
+	// The value used depends on where you want to route traffic.
+	HostedZoneId!: #HostedZoneId
 }) |
 fn.#ObjectExpression
 
@@ -104,7 +161,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Coordinates?:    #Coordinates | fn.#ObjectExpression
+
+	// Contains the longitude and latitude for a geographic region.
+	Coordinates?:    #Coordinates
 	LocalZoneGroup?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	if AWSRegion != _|_ if AWSRegion."Fn::If" == _|_ {
 		LocalZoneGroup?: close({"Fn::If": _}) | error(

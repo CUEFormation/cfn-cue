@@ -25,7 +25,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		Filters!: #AwsSecurityFindingFilters & (null | bool | number | string | [...] | struct.MaxFields(10)) |
 		fn.#ObjectExpression
-		GroupByAttribute!: #NonEmptyString | fn.#StringExpression
+
+		// The grouping attribute for the insight's findings
+		GroupByAttribute!: #NonEmptyString
 		Name!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 	})
 }
@@ -182,9 +184,17 @@ fn.#ObjectExpression
 
 #ISO8601DateString: string | fn.#StringExpression
 
-#IpFilter: close({Cidr!: #NonEmptyString | fn.#StringExpression}) | fn.#ObjectExpression
+#IpFilter: close({
+	// A finding's CIDR value.
+	Cidr!: #NonEmptyString
+}) |
+fn.#ObjectExpression
 
-#KeywordFilter: close({Value!: #NonEmptyString | fn.#StringExpression}) | fn.#ObjectExpression
+#KeywordFilter: close({
+	// A value for the keyword.
+	Value!: #NonEmptyString
+}) |
+fn.#ObjectExpression
 
 #MapFilter: close({
 	Comparison!: "EQUALS" | "NOT_EQUALS" | fn.#StringExpression

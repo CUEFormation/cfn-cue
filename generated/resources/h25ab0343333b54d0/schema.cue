@@ -17,12 +17,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECR::PullThroughCacheRule"
 	Properties?: close({
-		CredentialArn?:            #CredentialArn | fn.#StringExpression
-		CustomRoleArn?:            #CustomRoleArn | fn.#StringExpression
-		EcrRepositoryPrefix?:      #EcrRepositoryPrefix | fn.#StringExpression
-		UpstreamRegistry?:         #UpstreamRegistry | fn.#StringExpression
-		UpstreamRegistryUrl?:      #UpstreamRegistryUrl | fn.#StringExpression
-		UpstreamRepositoryPrefix?: #UpstreamRepositoryPrefix | fn.#StringExpression
+		// The ARN of the Secrets Manager secret associated with the pull through cache rule.
+		CredentialArn?: #CredentialArn
+
+		// The ARN of the IAM role associated with the pull through cache rule.
+		CustomRoleArn?: #CustomRoleArn
+
+		// The Amazon ECR repository prefix associated with the pull through cache rule.
+		EcrRepositoryPrefix?: #EcrRepositoryPrefix
+
+		// The name of the upstream source registry associated with the pull through cache rule.
+		UpstreamRegistry?: #UpstreamRegistry
+
+		// The upstream registry URL associated with the pull through cache rule.
+		UpstreamRegistryUrl?: #UpstreamRegistryUrl
+
+		// The upstream repository prefix associated with the pull through cache rule.
+		UpstreamRepositoryPrefix?: #UpstreamRepositoryPrefix
 	})
 }
 

@@ -39,8 +39,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(1) &
 		=~"^https://([^/]+)/?(.*)$|^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
 		fn.#StringExpression
-		DirectInternetAccess?:                 "Disabled" | "Enabled" | fn.#StringExpression
-		InstanceMetadataServiceConfiguration?: #InstanceMetadataServiceConfiguration | fn.#ObjectExpression
+		DirectInternetAccess?: "Disabled" | "Enabled" | fn.#StringExpression
+
+		// Information on the IMDS configuration of the notebook instance.
+		InstanceMetadataServiceConfiguration?: #InstanceMetadataServiceConfiguration
 		InstanceType!: "ml.c4.2xlarge" |
 			"ml.c4.4xlarge" |
 			"ml.c4.8xlarge" |

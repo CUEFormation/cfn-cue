@@ -25,8 +25,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 		fn.#StringExpression
-		Tags?:              list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-		TaskConfiguration!: #TaskConfiguration | fn.#ObjectExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+
+		// The task execution configuration.
+		TaskConfiguration!: #TaskConfiguration
 		TaskName!:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 		WorkspaceName!:     strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	})

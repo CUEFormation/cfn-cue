@@ -33,7 +33,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		DockerfileTemplateData?: strings.MaxRunes(16000) & strings.MinRunes(1) & =~"^[^\\x00]+$" | fn.#StringExpression
 		DockerfileTemplateUri?:  string | fn.#StringExpression
 		ImageOsVersionOverride?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		InstanceConfiguration?:  #InstanceConfiguration | fn.#ObjectExpression
+
+		// A group of options that can be used to configure an instance for building and
+		// testing container images.
+		InstanceConfiguration?: #InstanceConfiguration
 		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			string) & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
 		fn.#StringExpression
@@ -44,7 +47,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 			{[=~".{1,}"]: string | fn.#StringExpression}}) |
 		fn.#ObjectExpression
-		TargetRepository?: #TargetContainerRepository | fn.#ObjectExpression
+
+		// The destination repository for the container image.
+		TargetRepository?: #TargetContainerRepository
 		Version?:          string | fn.#StringExpression
 		WorkingDirectory?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	})
@@ -123,8 +128,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #InstanceBlockDeviceMapping: close({
-	DeviceName?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Ebs?:         #EbsInstanceBlockDeviceSpecification | fn.#ObjectExpression
+	DeviceName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+
+	// Use to manage Amazon EBS-specific configuration for this mapping.
+	Ebs?:         #EbsInstanceBlockDeviceSpecification
 	NoDevice?:    strings.MaxRunes(0) & strings.MinRunes(0) | fn.#StringExpression
 	VirtualName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |

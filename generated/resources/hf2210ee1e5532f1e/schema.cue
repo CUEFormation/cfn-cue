@@ -33,9 +33,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties?: close({
 		ApiStages?:     list.UniqueItems() & [...#ApiStage] | fn.#ListExpression
 		Description?:   string | fn.#StringExpression
-		Quota?:         #QuotaSettings | fn.#ObjectExpression
+		Quota?:         #QuotaSettings
 		Tags?:          [...#Tag] | fn.#ListExpression
-		Throttle?:      #ThrottleSettings | fn.#ObjectExpression
+		Throttle?:      #ThrottleSettings
 		UsagePlanName?: string | fn.#StringExpression
 	})
 }

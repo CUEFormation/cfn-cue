@@ -21,11 +21,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!: "AWS::IoTWireless::TaskDefinition"
 	Properties!: close({
 		AutoCreateTasks!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		LoRaWANUpdateGatewayTaskEntry?: #LoRaWANUpdateGatewayTaskEntry | fn.#ObjectExpression
+
+		// The list of task definitions.
+		LoRaWANUpdateGatewayTaskEntry?: #LoRaWANUpdateGatewayTaskEntry
 		Name?:                          strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 		Tags?:                          list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 		TaskDefinitionType?:            "UPDATE" | fn.#StringExpression
-		Update?:                        #UpdateWirelessGatewayTaskCreate | fn.#ObjectExpression
+
+		// Information about the gateways to update.
+		Update?: #UpdateWirelessGatewayTaskCreate
 	})
 }
 

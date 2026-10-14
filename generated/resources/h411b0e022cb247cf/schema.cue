@@ -20,9 +20,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Panorama::Package"
 	Properties!: close({
-		PackageName!:     #NodePackageName | fn.#StringExpression
+		// A name for the package.
+		PackageName!:     #NodePackageName
 		StorageLocation?: close({}) | fn.#ObjectExpression
-		Tags?:            #TagList | fn.#ListExpression
+
+		// Tags for the package.
+		Tags?: #TagList
 	})
 }
 

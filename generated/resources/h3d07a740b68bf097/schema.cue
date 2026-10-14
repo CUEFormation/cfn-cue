@@ -16,11 +16,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::RuntimeEndpoint"
 	Properties!: close({
-		AgentRuntimeId!:      #AgentRuntimeId | fn.#StringExpression
-		AgentRuntimeVersion?: #AgentRuntimeVersion | fn.#StringExpression
-		Description?:         #AgentEndpointDescription | fn.#StringExpression
-		Name!:                #EndpointName | fn.#StringExpression
-		Tags?:                #TagsMap
+		// The ID of the parent Agent Runtime (required for creation)
+		AgentRuntimeId!: #AgentRuntimeId
+
+		// The version of the AgentCore Runtime to use for the endpoint.
+		AgentRuntimeVersion?: #AgentRuntimeVersion
+
+		// The description of the AgentCore Runtime endpoint.
+		Description?: #AgentEndpointDescription
+
+		// The name of the Agent Runtime Endpoint
+		Name!: #EndpointName
+		Tags?: #TagsMap
 	})
 }
 

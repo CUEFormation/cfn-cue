@@ -31,7 +31,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #AttributeId: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
 #Value: close({
-	AttributeId?:    #AttributeId | fn.#StringExpression
+	AttributeId?:    #AttributeId
 	AttributeValue?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

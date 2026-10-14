@@ -35,12 +35,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #EventDestination: close({
-	CloudWatchLogsDestination?: #CloudWatchLogsDestination | fn.#ObjectExpression
+	// An object that contains IamRoleArn and LogGroupArn associated with an Amazon
+	// CloudWatch event destination.
+	CloudWatchLogsDestination?: #CloudWatchLogsDestination
 	Enabled!:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EventDestinationName!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
-	KinesisFirehoseDestination?: #KinesisFirehoseDestination | fn.#ObjectExpression
+
+	// An object that contains IamRoleArn and DeliveryStreamArn associated with an
+	// Amazon Kinesis Firehose event destination.
+	KinesisFirehoseDestination?: #KinesisFirehoseDestination
 	MatchingEventTypes!:         list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SnsDestination?:             #SnsDestination | fn.#ObjectExpression
+
+	// An object that contains SNS TopicArn event destination.
+	SnsDestination?: #SnsDestination
 	if CloudWatchLogsDestination != _|_ if CloudWatchLogsDestination."Fn::If" == _|_ {
 		KinesisFirehoseDestination?: close({"Fn::If": _}) | error(
 			"KinesisFirehoseDestination cannot be used with CloudWatchLogsDestination; set exactly one of CloudWatchLogsDestination, KinesisFirehoseDestination, SnsDestination",

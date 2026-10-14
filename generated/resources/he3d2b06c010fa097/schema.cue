@@ -22,9 +22,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 		Name!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		Properties?:  _#defs."/$defs/Properties/definitions/Properties" | fn.#ObjectExpression
-		Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-		Vpc?:         strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+
+		// Properties of the private DNS namespace.
+		Properties?: _#defs."/$defs/Properties/definitions/Properties"
+		Tags?:       list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		Vpc?:        strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 	})
 }
 

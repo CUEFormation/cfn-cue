@@ -20,11 +20,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppIntegrations::Application"
 	Properties!: close({
-		ApplicationConfig?:       #ApplicationConfig | fn.#ObjectExpression
+		// The application configuration. Cannot be used when IsService is true.
+		ApplicationConfig?:       #ApplicationConfig
 		ApplicationSourceConfig!: close({ExternalUrlConfig!: #ExternalUrlConfig}) | fn.#ObjectExpression
 		ApplicationType?:         "STANDARD" | "SERVICE" | "MCP_SERVER" | fn.#StringExpression
 		Description?:             strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-		IframeConfig?:            #IframeConfig | fn.#ObjectExpression
+
+		// The iframe configuration
+		IframeConfig?: #IframeConfig
 		InitializationTimeout?: int & <=600000 & >=1 |
 			{
 				string &

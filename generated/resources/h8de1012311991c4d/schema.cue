@@ -45,9 +45,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		KeySchema?:            null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
 		...
 	}, _) & {...} & close({
-		AttributeDefinitions?:             list.UniqueItems() & [...#AttributeDefinition] | fn.#ListExpression
-		BillingMode?:                      "PAY_PER_REQUEST" | "PROVISIONED" | fn.#StringExpression
-		ContributorInsightsSpecification?: #ContributorInsightsSpecification | fn.#ObjectExpression
+		AttributeDefinitions?: list.UniqueItems() & [...#AttributeDefinition] | fn.#ListExpression
+		BillingMode?:          "PAY_PER_REQUEST" | "PROVISIONED" | fn.#StringExpression
+
+		// The settings used to specify whether to enable CloudWatch Contributor
+		// Insights for the table and define which events to monitor.
+		ContributorInsightsSpecification?: #ContributorInsightsSpecification
 		DeletionProtectionEnabled?: bool |
 			"true" |
 			"True" |
@@ -56,28 +59,76 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		GlobalSecondaryIndexes?:    [...#GlobalSecondaryIndex] | fn.#ListExpression
-		ImportSourceSpecification?: #ImportSourceSpecification | fn.#ObjectExpression
+		GlobalSecondaryIndexes?: [...#GlobalSecondaryIndex] | fn.#ListExpression
+
+		// Specifies the properties of data being imported from the S3 bucket source to the" table.
+		// If you specify the ``ImportSourceSpecification`` property, and also specify
+		// either the ``StreamSpecification``, the ``TableClass`` property, the
+		// ``DeletionProtectionEnabled`` property, or the ``WarmThroughput`` property,
+		// the IAM entity creating/updating stack must have ``UpdateTable`` permission.
+		ImportSourceSpecification?: #ImportSourceSpecification
 		KeySchema!: matchN(1, [
 			#KeySchema & (null | bool | number | string | list.MaxItems(2) & list.MinItems(1) | {...}),
 			string | {...}
 		]) &
 		(null | bool | number | string | list.MinItems(1) | {...}) |
 		fn.#ValueExpression
-		KinesisStreamSpecification?:       #KinesisStreamSpecification | fn.#ObjectExpression
-		LocalSecondaryIndexes?:            [...#LocalSecondaryIndex] | fn.#ListExpression
-		OnDemandThroughput?:               #OnDemandThroughput | fn.#ObjectExpression
-		PointInTimeRecoverySpecification?: #PointInTimeRecoverySpecification | fn.#ObjectExpression
-		ProvisionedThroughput?:            #ProvisionedThroughput | fn.#ObjectExpression
-		ResourcePolicy?:                   #ResourcePolicy | fn.#ObjectExpression
-		SSESpecification?:                 #SSESpecification | fn.#ObjectExpression
-		StreamSpecification?:              #StreamSpecification | fn.#ObjectExpression
-		TableClass?:                       "STANDARD" | "STANDARD_INFREQUENT_ACCESS" | fn.#StringExpression
-		TableName?:                        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:                             [...#Tag] | fn.#ListExpression
-		TimeToLiveSpecification?:          #TimeToLiveSpecification | fn.#ObjectExpression
-		VectorIndexes?:  list.MinItems(1) & list.UniqueItems() & [...#VectorIndex] | fn.#ListExpression
-		WarmThroughput?: #WarmThroughput | fn.#ObjectExpression
+
+		// The Kinesis Data Streams configuration for the specified table.
+		KinesisStreamSpecification?: #KinesisStreamSpecification
+		LocalSecondaryIndexes?:      [...#LocalSecondaryIndex] | fn.#ListExpression
+
+		// Sets the maximum number of read and write units for the specified on-demand
+		// table. If you use this property, you must specify ``MaxReadRequestUnits``,
+		// ``MaxWriteRequestUnits``, or both.
+		OnDemandThroughput?: #OnDemandThroughput
+
+		// The settings used to enable point in time recovery.
+		PointInTimeRecoverySpecification?: #PointInTimeRecoverySpecification
+
+		// Throughput for the specified table, which consists of values for
+		// ``ReadCapacityUnits`` and ``WriteCapacityUnits``. For more information about
+		// the contents of a provisioned throughput structure, see [Amazon DynamoDB
+		// Table
+		// ProvisionedThroughput](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_ProvisionedThroughput.html).
+		// If you set ``BillingMode`` as ``PROVISIONED``, you must specify this
+		// property. If you set ``BillingMode`` as ``PAY_PER_REQUEST``, you cannot
+		// specify this property.
+		ProvisionedThroughput?: #ProvisionedThroughput
+
+		// An AWS resource-based policy document in JSON format that will be attached to the table.
+		// When you attach a resource-based policy while creating a table, the policy
+		// application is *strongly consistent*.
+		// The maximum size supported for a resource-based policy document is 20 KB.
+		// DynamoDB counts whitespaces when calculating the size of a policy against
+		// this limit. For a full list of all considerations that apply for
+		// resource-based policies, see [Resource-based policy
+		// considerations](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/rbac-considerations.html).
+		// You need to specify the ``CreateTable`` and ``PutResourcePolicy`` IAM actions
+		// for authorizing a user to create a table with a resource-based policy.
+		ResourcePolicy?: #ResourcePolicy
+
+		// Specifies the settings to enable server-side encryption.
+		SSESpecification?: #SSESpecification
+
+		// The settings for the DDB table stream, which captures changes to items stored
+		// in the table. Including this property in your CFNlong template automatically
+		// enables streaming.
+		StreamSpecification?: #StreamSpecification
+		TableClass?:          "STANDARD" | "STANDARD_INFREQUENT_ACCESS" | fn.#StringExpression
+		TableName?:           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                [...#Tag] | fn.#ListExpression
+
+		// Specifies the Time to Live (TTL) settings for the table.
+		// For detailed information about the limits in DynamoDB, see [Limits in Amazon
+		// DynamoDB](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html)
+		// in the Amazon DynamoDB Developer Guide.
+		TimeToLiveSpecification?: #TimeToLiveSpecification
+		VectorIndexes?:           list.MinItems(1) & list.UniqueItems() & [...#VectorIndex] | fn.#ListExpression
+
+		// Represents the warm throughput (in read units per second and write units per
+		// second) for creating a table.
+		WarmThroughput?: #WarmThroughput
 	})
 }
 
@@ -108,7 +159,9 @@ fn.#ObjectExpression
 #DeprecatedKeySchema: close({HashKeyElement!: #DeprecatedHashKeyElement}) | fn.#ObjectExpression
 
 #GlobalSecondaryIndex: close({
-	ContributorInsightsSpecification?: #ContributorInsightsSpecification | fn.#ObjectExpression
+	// The settings used to specify whether to enable CloudWatch Contributor
+	// Insights for the global table and define which events to monitor.
+	ContributorInsightsSpecification?: #ContributorInsightsSpecification
 	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
 	KeySchema!: list.MinItems(1) & list.UniqueItems() & [...close({
 		AttributeName!: string | fn.#StringExpression
@@ -116,22 +169,53 @@ fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	OnDemandThroughput?:    #OnDemandThroughput | fn.#ObjectExpression
-	Projection!:            #Projection | fn.#ObjectExpression
-	ProvisionedThroughput?: #ProvisionedThroughput | fn.#ObjectExpression
-	WarmThroughput?:        #WarmThroughput | fn.#ObjectExpression
+
+	// The maximum number of read and write units for the specified global secondary
+	// index. If you use this parameter, you must specify ``MaxReadRequestUnits``,
+	// ``MaxWriteRequestUnits``, or both. You must use either
+	// ``OnDemandThroughput`` or ``ProvisionedThroughput`` based on your table's
+	// capacity mode.
+	OnDemandThroughput?: #OnDemandThroughput
+
+	// Represents attributes that are copied (projected) from the table into the
+	// global secondary index. These are in addition to the primary key attributes
+	// and index key attributes, which are automatically projected.
+	Projection!: #Projection
+
+	// Represents the provisioned throughput settings for the specified global
+	// secondary index. You must use either ``OnDemandThroughput`` or
+	// ``ProvisionedThroughput`` based on your table's capacity mode.
+	// For current minimum and maximum provisioned throughput values, see [Service,
+	// Account, and Table
+	// Quotas](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html)
+	// in the *Amazon DynamoDB Developer Guide*.
+	ProvisionedThroughput?: #ProvisionedThroughput
+
+	// Represents the warm throughput value (in read units per second and write
+	// units per second) for the specified secondary index. If you use this
+	// parameter, you must specify ``ReadUnitsPerSecond``, ``WriteUnitsPerSecond``,
+	// or both.
+	WarmThroughput?: #WarmThroughput
 }) |
 fn.#ObjectExpression
 
 #ImportSourceSpecification: close({
 	InputCompressionType?: string | fn.#StringExpression
 	InputFormat!:          string | fn.#StringExpression
-	InputFormatOptions?:   #InputFormatOptions | fn.#ObjectExpression
-	S3BucketSource!:       #S3BucketSource | fn.#ObjectExpression
+
+	// Additional properties that specify how the input is formatted,
+	InputFormatOptions?: #InputFormatOptions
+
+	// The S3 bucket that provides the source for the import.
+	S3BucketSource!: #S3BucketSource
 }) |
 fn.#ObjectExpression
 
-#InputFormatOptions: close({Csv?: #Csv | fn.#ObjectExpression}) | fn.#ObjectExpression
+#InputFormatOptions: close({
+	// The options for imported source files in CSV format. The values are Delimiter and HeaderList.
+	Csv?: #Csv
+}) |
+fn.#ObjectExpression
 
 #KeySchema: list.UniqueItems() & {
 	[...]
@@ -177,7 +261,11 @@ fn.#ObjectExpression
 	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
 	KeySchema!: #KeySchema & (null | bool | number | string | list.MaxItems(2) & list.MinItems(2) | {...}) |
 	fn.#ListExpression
-	Projection!: #Projection | fn.#ObjectExpression
+
+	// Represents attributes that are copied (projected) from the table into the
+	// local secondary index. These are in addition to the primary key attributes
+	// and index key attributes, which are automatically projected.
+	Projection!: #Projection
 }) |
 fn.#ObjectExpression
 
@@ -311,7 +399,24 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #StreamSpecification: close({
-	ResourcePolicy?: #ResourcePolicy | fn.#ObjectExpression
+	// Creates or updates a resource-based policy document that contains the
+	// permissions for DDB resources, such as a table's streams. Resource-based
+	// policies let you define access permissions by specifying who has access to
+	// each resource, and the actions they are allowed to perform on each resource.
+	// When you remove the ``StreamSpecification`` property from the template,
+	// DynamoDB disables the stream but retains any attached resource policy until
+	// the stream is deleted after 24 hours. When you modify the ``StreamViewType``
+	// property, DynamoDB creates a new stream and retains the old stream's
+	// resource policy. The old stream and its resource policy are deleted after
+	// the 24-hour retention period.
+	// In a CFNshort template, you can provide the policy in JSON or YAML format
+	// because CFNshort converts YAML to JSON before submitting it to DDB. For more
+	// information about resource-based policies, see [Using resource-based
+	// policies
+	// for](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/access-control-resource-based.html)
+	// and [Resource-based policy
+	// examples](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/rbac-examples.html).
+	ResourcePolicy?: #ResourcePolicy
 	StreamViewType!: "KEYS_ONLY" | "NEW_AND_OLD_IMAGES" | "NEW_IMAGE" | "OLD_IMAGE" | fn.#StringExpression
 	Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
 }) |

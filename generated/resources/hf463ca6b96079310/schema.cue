@@ -21,7 +21,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		AvailabilityZones!: [...string | fn.#StringExpression] | fn.#ListExpression
 		Destinations?:      [...#MultiplexOutputDestination] | fn.#ListExpression
-		MultiplexSettings!: #MultiplexSettings | fn.#ObjectExpression
+
+		// Configuration for a multiplex event.
+		MultiplexSettings!: #MultiplexSettings
 		Name!:              string | fn.#StringExpression
 		Tags?:              [...#Tags] | fn.#ListExpression
 	})

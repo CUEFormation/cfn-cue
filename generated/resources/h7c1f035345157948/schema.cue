@@ -26,7 +26,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		AutoUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
-		LoggingConfig?: #LoggingConfig | fn.#ObjectExpression
+
+		// Specifies logging configuration information for a type.
+		LoggingConfig?: #LoggingConfig
 		MajorVersion?:  strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression
 		PublicTypeArn?: strings.MaxRunes(1024) &
 		=~"arn:aws[A-Za-z0-9-]{0,64}:cloudformation:[A-Za-z0-9-]{1,64}:([0-9]{12})?:type/.+" |

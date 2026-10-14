@@ -44,7 +44,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"CognitoOauth2" |
 			fn.#StringExpression
 		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
-		Oauth2ProviderConfigInput?: #Oauth2ProviderConfigInput | fn.#ObjectExpression
+
+		// The configuration settings for the OAuth2 provider
+		Oauth2ProviderConfigInput?: #Oauth2ProviderConfigInput
 		Tags?:                      list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
 }
@@ -139,8 +141,10 @@ fn.#ObjectExpression
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	SubnetIds!:     [...=~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression] | fn.#ListExpression
-	Tags?:          #TagsMap | fn.#ObjectExpression
+	SubnetIds!: [...=~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression] | fn.#ListExpression
+
+	// Tags to apply to the managed VPC Lattice resource gateway
+	Tags?:          #TagsMap
 	VpcIdentifier!: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

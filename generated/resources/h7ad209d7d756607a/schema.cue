@@ -16,11 +16,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGatewayV2::Stage"
 	Properties!: close({
-		AccessLogSettings?:    #AccessLogSettings | fn.#ObjectExpression
-		ApiId!:                string | fn.#StringExpression
-		AutoDeploy?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ClientCertificateId?:  string | fn.#StringExpression
-		DefaultRouteSettings?: #RouteSettings | fn.#ObjectExpression
+		// Settings for logging access in this stage.
+		AccessLogSettings?:   #AccessLogSettings
+		ApiId!:               string | fn.#StringExpression
+		AutoDeploy?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ClientCertificateId?: string | fn.#StringExpression
+
+		// The default route settings for the stage.
+		DefaultRouteSettings?: #RouteSettings
 		DeploymentId?:         string | fn.#StringExpression
 		Description?:          string | fn.#StringExpression
 		RouteSettings?:        fn.#Object & {...} | string | fn.#StringObjectExpression

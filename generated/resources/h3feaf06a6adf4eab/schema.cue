@@ -21,9 +21,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECR::Repository"
 	Properties?: close({
-		EmptyOnDelete?:              #EmptyOnDelete | fn.#BooleanExpression
-		EncryptionConfiguration?:    #EncryptionConfiguration | fn.#ObjectExpression
-		ImageScanningConfiguration?: #ImageScanningConfiguration | fn.#ObjectExpression
+		// If true, deleting the repository force deletes the contents of the
+		// repository. If false, the repository must be empty before attempting to
+		// delete it.
+		EmptyOnDelete?: #EmptyOnDelete
+
+		// The encryption configuration for the repository. This determines how the
+		// contents of your repository are encrypted at rest.
+		EncryptionConfiguration?: #EncryptionConfiguration
+
+		// The ``imageScanningConfiguration`` parameter is being deprecated, in favor of
+		// specifying the image scanning configuration at the registry level. For more
+		// information, see ``PutRegistryScanningConfiguration``.
+		// The image scanning configuration for the repository. This determines whether
+		// images are scanned for known vulnerabilities after being pushed to the
+		// repository.
+		ImageScanningConfiguration?: #ImageScanningConfiguration
 		ImageTagMutability?: "MUTABLE" |
 			"IMMUTABLE" |
 			"MUTABLE_WITH_EXCLUSION" |
@@ -33,7 +46,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			...#ImageTagMutabilityExclusionFilter
 		] |
 			fn.#ListExpression
-		LifecyclePolicy?:      #LifecyclePolicy | fn.#ObjectExpression
+
+		// Creates or updates a lifecycle policy. For information about lifecycle policy
+		// syntax, see [Lifecycle policy
+		// template](https://docs.aws.amazon.com/AmazonECR/latest/userguide/LifecyclePolicies.html).
+		LifecyclePolicy?:      #LifecyclePolicy
 		RepositoryName?:       strings.MaxRunes(256) & strings.MinRunes(2) | fn.#StringExpression
 		RepositoryPolicyText?: fn.#Object & {...} | string | fn.#StringObjectExpression
 		Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
@@ -43,18 +60,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #EmptyOnDelete: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 #EncryptionConfiguration: close({
-	EncryptionType!: #EncryptionType | fn.#StringExpression
-	KmsKey?:         #KmsKey | fn.#StringExpression
+	// The encryption type to use.
+	// If you use the ``KMS`` encryption type, the contents of the repository will
+	// be encrypted using server-side encryption with KMSlong key stored in KMS.
+	// When you use KMS to encrypt your data, you can either use the default AWS
+	// managed KMS key for Amazon ECR, or specify your own KMS key, which you
+	// already created.
+	// If you use the ``KMS_DSSE`` encryption type, the contents of the repository
+	// will be encrypted with two layers of encryption using server-side encryption
+	// with the KMS Management Service key stored in KMS. Similar to the ``KMS``
+	// encryption type, you can either use the default AWS managed KMS key for
+	// Amazon ECR, or specify your own KMS key, which you've already created.
+	// If you use the ``AES256`` encryption type, Amazon ECR uses server-side
+	// encryption with Amazon S3-managed encryption keys which encrypts the images
+	// in the repository using an AES256 encryption algorithm.
+	// For more information, see [Amazon ECR encryption at
+	// rest](https://docs.aws.amazon.com/AmazonECR/latest/userguide/encryption-at-rest.html)
+	// in the *Amazon Elastic Container Registry User Guide*.
+	EncryptionType!: #EncryptionType
+
+	// If you use the ``KMS`` encryption type, specify the KMS key to use for
+	// encryption. The alias, key ID, or full ARN of the KMS key can be specified.
+	// The key must exist in the same Region as the repository. If no key is
+	// specified, the default AWS managed KMS key for Amazon ECR will be used.
+	KmsKey?: #KmsKey
 }) |
 fn.#ObjectExpression
 
 #EncryptionType: "AES256" | "KMS" | "KMS_DSSE" | fn.#StringExpression
 
-#ImageScanningConfiguration: close({ScanOnPush?: #ScanOnPush | fn.#BooleanExpression}) | fn.#ObjectExpression
+#ImageScanningConfiguration: close({
+	// The setting that determines whether images are scanned after being pushed to
+	// a repository. If set to ``true``, images will be scanned after being pushed.
+	// If this parameter is not specified, it will default to ``false`` and images
+	// will not be scanned unless a scan is manually started.
+	ScanOnPush?: #ScanOnPush
+}) |
+fn.#ObjectExpression
 
 #ImageTagMutabilityExclusionFilter: close({
-	ImageTagMutabilityExclusionFilterType!:  #ImageTagMutabilityExclusionFilterType | fn.#StringExpression
-	ImageTagMutabilityExclusionFilterValue!: #ImageTagMutabilityExclusionFilterValue | fn.#StringExpression
+	ImageTagMutabilityExclusionFilterType!:  #ImageTagMutabilityExclusionFilterType
+	ImageTagMutabilityExclusionFilterValue!: #ImageTagMutabilityExclusionFilterValue
 }) |
 fn.#ObjectExpression
 
@@ -66,8 +112,12 @@ fn.#StringExpression
 #KmsKey: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
 #LifecyclePolicy: close({
-	LifecyclePolicyText?: #LifecyclePolicyText | fn.#StringExpression
-	RegistryId?:          #RegistryId | fn.#StringExpression
+	// The JSON repository policy text to apply to the repository.
+	LifecyclePolicyText?: #LifecyclePolicyText
+
+	// The AWS account ID associated with the registry that contains the repository.
+	// If you do not specify a registry, the default registry is assumed.
+	RegistryId?: #RegistryId
 }) |
 fn.#ObjectExpression
 

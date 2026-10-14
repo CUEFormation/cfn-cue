@@ -21,10 +21,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ServiceDiscovery::Service"
 	Properties?: close({
-		Description?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		DnsConfig?:               #DnsConfig | fn.#ObjectExpression
-		HealthCheckConfig?:       #HealthCheckConfig | fn.#ObjectExpression
-		HealthCheckCustomConfig?: #HealthCheckCustomConfig | fn.#ObjectExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+
+		// DNS-related configurations for the service.
+		DnsConfig?: #DnsConfig
+
+		// Settings for health checks. Used when routing is DNS-based.
+		HealthCheckConfig?: #HealthCheckConfig
+
+		// Settings for custom health checks.
+		HealthCheckCustomConfig?: #HealthCheckCustomConfig
 		Name?:                    string | fn.#StringExpression
 		NamespaceId?:             strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 		ServiceAttributes?: struct.MaxFields(30) & close({

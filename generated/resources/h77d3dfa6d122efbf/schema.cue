@@ -15,7 +15,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::TrustStore"
 	Properties!: close({
-		CaCertificatesBundleSource?: #CaCertificatesBundleSource | fn.#ObjectExpression
+		// A CA certificates bundle source.
+		CaCertificatesBundleSource?: #CaCertificatesBundleSource
 		Name!:                       string | fn.#StringExpression
 		Tags?:                       [...#Tag] | fn.#ListExpression
 		UseClientCertificateOCSPEndpoint?: bool |
@@ -37,10 +38,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#CaCertificatesBundleSource: close(
-	{CaCertificatesBundleS3Location!: #CaCertificatesBundleS3Location | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#CaCertificatesBundleSource: close({
+	// The CA certificates bundle location in Amazon S3.
+	CaCertificatesBundleS3Location!: #CaCertificatesBundleS3Location
+}) |
+fn.#ObjectExpression
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression

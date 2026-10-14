@@ -19,14 +19,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ImageBuilder::InfrastructureConfiguration"
 	Properties!: close({
-		Description?:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		InstanceMetadataOptions?: #InstanceMetadataOptions | fn.#ObjectExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The instance metadata option settings for the infrastructure configuration.
+		InstanceMetadataOptions?: #InstanceMetadataOptions
 		InstanceProfileName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
 		InstanceTypes?:       [...string | fn.#StringExpression] | fn.#ListExpression
 		KeyPair?:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		Logging?:             #Logging | fn.#ObjectExpression
-		Name!:                =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-		Placement?:           #Placement | fn.#ObjectExpression
+
+		// The logging configuration of the infrastructure configuration.
+		Logging?: #Logging
+		Name!:    =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
+
+		// The placement option settings for the infrastructure configuration.
+		Placement?: #Placement
 		ResourceTags?: close({
 
 			{[=~".{1,}"]: string | fn.#StringExpression}}) |

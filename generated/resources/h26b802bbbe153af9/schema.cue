@@ -33,7 +33,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"DELETE_COMPLETE" |
 			"DELETE_FAILED" |
 			fn.#StringExpression
-		Tags?: #Tags | fn.#ListExpression
+
+		// A list of comma separated tags to add to the data catalog that is created.
+		Tags?: #Tags
 		Type!: "LAMBDA" | "GLUE" | "HIVE" | "FEDERATED" | fn.#StringExpression
 	})
 }

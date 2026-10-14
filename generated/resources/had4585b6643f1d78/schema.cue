@@ -20,18 +20,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::Command"
 	Properties!: close({
-		CommandId!:           strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		CreatedAt?:           string | fn.#StringExpression
-		Deprecated?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Description?:         strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" | fn.#StringExpression
-		DisplayName?:         strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" | fn.#StringExpression
-		LastUpdatedAt?:       string | fn.#StringExpression
-		MandatoryParameters?: #CommandParameterList | fn.#ListExpression
+		CommandId!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		CreatedAt?:     string | fn.#StringExpression
+		Deprecated?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Description?:   strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" | fn.#StringExpression
+		DisplayName?:   strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" | fn.#StringExpression
+		LastUpdatedAt?: string | fn.#StringExpression
+
+		// The list of mandatory parameters for the command.
+		MandatoryParameters?: #CommandParameterList
 		Namespace?:           "AWS-IoT" | "AWS-IoT-FleetWise" | fn.#StringExpression
-		Payload?:             #CommandPayload | fn.#ObjectExpression
-		PayloadTemplate?:     strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
-		PendingDeletion?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Preprocessor?:        #CommandPreprocessor | fn.#ObjectExpression
+
+		// The payload associated with the command.
+		Payload?:         #CommandPayload
+		PayloadTemplate?: strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
+		PendingDeletion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// The command preprocessor configuration.
+		Preprocessor?: #CommandPreprocessor
 		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2028) & strings.MinRunes(20)) |
 		fn.#StringExpression
 		Tags?: [...#Tag] | fn.#ListExpression

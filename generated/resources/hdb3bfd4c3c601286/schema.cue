@@ -20,24 +20,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::Trigger"
 	Properties!: close({
-		Actions!:                [...#Action] | fn.#ListExpression
-		Description?:            strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-		EventBatchingCondition?: #EventBatchingCondition | fn.#ObjectExpression
+		Actions!:     [...#Action] | fn.#ListExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+
+		// Batch condition that must be met (specified number of events received or
+		// batch time window expired) before EventBridge event trigger fires.
+		EventBatchingCondition?: #EventBatchingCondition
 		Name?:                   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Predicate?:              #Predicate | fn.#ObjectExpression
-		Schedule?:               string | fn.#StringExpression
-		StartOnCreation?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Tags?:                   fn.#Object & {...} | string | fn.#StringObjectExpression
-		Type!:                   "CONDITIONAL" | "EVENT" | "ON_DEMAND" | "SCHEDULED" | fn.#StringExpression
-		WorkflowName?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The predicate of this trigger, which defines when it will fire.
+		Predicate?:       #Predicate
+		Schedule?:        string | fn.#StringExpression
+		StartOnCreation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:            fn.#Object & {...} | string | fn.#StringObjectExpression
+		Type!:            "CONDITIONAL" | "EVENT" | "ON_DEMAND" | "SCHEDULED" | fn.#StringExpression
+		WorkflowName?:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	})
 }
 
 #Action: close({
-	Arguments?:             fn.#Object & {...} | string | fn.#StringObjectExpression
-	CrawlerName?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	JobName?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	NotificationProperty?:  #NotificationProperty | fn.#ObjectExpression
+	Arguments?:   fn.#Object & {...} | string | fn.#StringObjectExpression
+	CrawlerName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	JobName?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+	// Specifies configuration properties of a job run notification.
+	NotificationProperty?:  #NotificationProperty
 	SecurityConfiguration?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Timeout?: int & >=1 |
 		{

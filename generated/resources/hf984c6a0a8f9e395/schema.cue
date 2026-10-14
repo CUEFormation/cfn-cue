@@ -15,8 +15,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SES::ReceiptRule"
 	Properties!: close({
-		After?:       string | fn.#StringExpression
-		Rule!:        #Rule | fn.#ObjectExpression
+		After?: string | fn.#StringExpression
+
+		// A data structure that contains the specified rule's name, actions,
+		// recipients, domains, enabled status, scan status, and TLS policy.
+		Rule!:        #Rule
 		RuleSetName!: string | fn.#StringExpression
 	})
 }

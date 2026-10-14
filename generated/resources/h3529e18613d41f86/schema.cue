@@ -20,8 +20,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::EndpointConfig"
 	Properties!: close({
-		AsyncInferenceConfig?:   #AsyncInferenceConfig | fn.#ObjectExpression
-		DataCaptureConfig?:      #DataCaptureConfig | fn.#ObjectExpression
+		// Specifies configuration for how an endpoint performs asynchronous inference.
+		AsyncInferenceConfig?: #AsyncInferenceConfig
+
+		// Specifies how to capture endpoint data for model monitor. The data capture
+		// configuration applies to all production variants hosted at the endpoint.
+		DataCaptureConfig?:      #DataCaptureConfig
 		EnableNetworkIsolation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		EndpointConfigName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 		fn.#StringExpression
@@ -30,18 +34,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(20) &
 		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 		fn.#StringExpression
-		ExplainerConfig?: #ExplainerConfig | fn.#ObjectExpression
+
+		// A parameter to activate explainers.
+		ExplainerConfig?: #ExplainerConfig
 		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			string) &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(0) &
 		=~"^[a-zA-Z0-9:/_-]*$" |
 		fn.#StringExpression
-		MetricsConfig?:            #MetricsConfig | fn.#ObjectExpression
+
+		// Specifies the metrics that the endpoint publishes to Amazon CloudWatch, the
+		// frequency of publication, and whether to enable enhanced or detailed
+		// observability metrics.
+		MetricsConfig?:            #MetricsConfig
 		ProductionVariants!:       list.MaxItems(10) & list.MinItems(1) & [...#ProductionVariant] | fn.#ListExpression
 		ShadowProductionVariants?: list.MaxItems(10) & list.MinItems(1) & [...#ProductionVariant] | fn.#ListExpression
 		Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-		VpcConfig?:                #VpcConfig | fn.#ObjectExpression
+
+		// Specifies an Amazon Virtual Private Cloud (VPC) that your SageMaker jobs,
+		// hosted models, and compute resources have access to. You can control access
+		// to and from your resources by configuring a VPC.
+		VpcConfig?: #VpcConfig
 	})
 }
 
@@ -66,8 +80,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 
 #AsyncInferenceConfig: close({
-	ClientConfig?: #AsyncInferenceClientConfig | fn.#ObjectExpression
-	OutputConfig!: #AsyncInferenceOutputConfig | fn.#ObjectExpression
+	// Configures the behavior of the client used by SageMaker to interact with the
+	// model container during asynchronous inference.
+	ClientConfig?: #AsyncInferenceClientConfig
+
+	// Specifies the configuration for asynchronous inference invocation outputs.
+	OutputConfig!: #AsyncInferenceOutputConfig
 }) |
 fn.#ObjectExpression
 
@@ -94,7 +112,9 @@ fn.#ObjectExpression
 	strings.MinRunes(0) &
 	=~"^[a-zA-Z0-9:/_-]*$" |
 	fn.#StringExpression
-	NotificationConfig?: #AsyncInferenceNotificationConfig | fn.#ObjectExpression
+
+	// Specifies the configuration for notifications of inference results for asynchronous inference.
+	NotificationConfig?: #AsyncInferenceNotificationConfig
 	S3FailurePath?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" | fn.#StringExpression
 	S3OutputPath?:  strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" | fn.#StringExpression
 }) |
@@ -132,8 +152,12 @@ fn.#ObjectExpression
 
 #ClarifyExplainerConfig: close({
 	EnableExplanations?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	InferenceConfig?:    #ClarifyInferenceConfig | fn.#ObjectExpression
-	ShapConfig!:         #ClarifyShapConfig | fn.#ObjectExpression
+
+	// The inference configuration parameter for the model container.
+	InferenceConfig?: #ClarifyInferenceConfig
+
+	// The configuration for SHAP analysis.
+	ShapConfig!: #ClarifyShapConfig
 }) |
 fn.#ObjectExpression
 
@@ -257,9 +281,15 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ShapBaselineConfig!: #ClarifyShapBaselineConfig | fn.#ObjectExpression
-	TextConfig?:         #ClarifyTextConfig | fn.#ObjectExpression
-	UseLogit?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// The configuration for the SHAP baseline of the Kernal SHAP algorithm.
+	ShapBaselineConfig!: #ClarifyShapBaselineConfig
+
+	// A parameter that indicates if text features are treated as text and
+	// explanations are provided for individual units of text. Required for natural
+	// language processing (NLP) explainability only.
+	TextConfig?: #ClarifyTextConfig
+	UseLogit?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -283,7 +313,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DataCaptureConfig: close({
-	CaptureContentTypeHeader?: #CaptureContentTypeHeader | fn.#ObjectExpression
+	// A list of the JSON and CSV content type that the endpoint captures.
+	CaptureContentTypeHeader?: #CaptureContentTypeHeader
 	CaptureOptions!:           list.MaxItems(32) & list.MinItems(1) & [...#CaptureOption] | fn.#ListExpression
 	DestinationS3Uri!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" |
 	fn.#StringExpression
@@ -313,8 +344,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ExplainerConfig: close({ClarifyExplainerConfig?: #ClarifyExplainerConfig | fn.#ObjectExpression}) |
-	fn.#ObjectExpression
+#ExplainerConfig: close({
+	// A member of ExplainerConfig that contains configuration parameters for the
+	// SageMaker Clarify explainer.
+	ClarifyExplainerConfig?: #ClarifyExplainerConfig
+}) |
+fn.#ObjectExpression
 
 #InstancePool: close({
 	InstanceType!: "ml.c4.2xlarge" |
@@ -647,7 +682,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ScaleInPolicy?: #ScaleInPolicy | fn.#ObjectExpression
+
+	// Configures the scale-in behavior for managed instance scaling.
+	ScaleInPolicy?: #ScaleInPolicy
 	Status?:        ("DISABLED" | "ENABLED") & (strings.MaxRunes(10) & strings.MinRunes(1)) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -696,7 +733,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ProductionVariant: close({
-	CapacityReservationConfig?: #CapacityReservationConfig | fn.#ObjectExpression
+	// Settings for the capacity reservation for the compute instances that
+	// SageMaker AI reserves for an endpoint.
+	CapacityReservationConfig?: #CapacityReservationConfig
 	ContainerStartupHealthCheckTimeoutInSeconds?: int & <=3600 & >=60 |
 		{
 			string &
@@ -713,7 +752,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	CoreDumpConfig?:  #CoreDumpConfig | fn.#ObjectExpression
+
+	// Specifies configuration for a core dump from the model container when the process crashes.
+	CoreDumpConfig?:  #CoreDumpConfig
 	EnableSSMAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InferenceAmiVersion?: "al2-ami-sagemaker-inference-gpu-2" |
 		"al2-ami-sagemaker-inference-gpu-2-1" |
@@ -1053,8 +1094,14 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	ModelName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?$" |
 	fn.#StringExpression
-	RoutingConfig?:    #RoutingConfig | fn.#ObjectExpression
-	ServerlessConfig?: #ServerlessConfig | fn.#ObjectExpression
+
+	// Settings that control how the endpoint routes incoming traffic to the
+	// instances that the endpoint hosts.
+	RoutingConfig?: #RoutingConfig
+
+	// The serverless configuration for an endpoint. Specifies a serverless endpoint
+	// configuration instead of an instance-based endpoint configuration.
+	ServerlessConfig?: #ServerlessConfig
 	VariantInstanceProvisionTimeoutInSeconds?: int & <=3600 & >=300 |
 		{
 			string &
@@ -1093,7 +1140,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RoutingConfig: close({
-	PrefixAwareRoutingConfig?: #PrefixAwareRoutingConfig | fn.#ObjectExpression
+	// The configuration for prefix-aware routing. Specify this property only when
+	// you set RoutingStrategy to PREFIX_AWARE.
+	PrefixAwareRoutingConfig?: #PrefixAwareRoutingConfig
 	RoutingStrategy?: ("LEAST_OUTSTANDING_REQUESTS" | "PREFIX_AWARE" | "RANDOM") & (strings.MaxRunes(63) & strings.MinRunes(1)) |
 	fn.#StringExpression
 }) |

@@ -39,12 +39,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Command!:              #JobCommand | fn.#ObjectExpression
-		Connections?:          #ConnectionsList | fn.#ObjectExpression
-		DefaultArguments?:     fn.#Object & {...} | string | fn.#StringObjectExpression
-		Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-		ExecutionClass?:       "FLEX" | "STANDARD" | fn.#StringExpression
-		ExecutionProperty?:    #ExecutionProperty | fn.#ObjectExpression
+
+		// The code that executes a job.
+		Command!: #JobCommand
+
+		// Specifies the connections used by a job
+		Connections?:      #ConnectionsList
+		DefaultArguments?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Description?:      strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		ExecutionClass?:   "FLEX" | "STANDARD" | fn.#StringExpression
+
+		// The maximum number of concurrent runs that are allowed for this job.
+		ExecutionProperty?:    #ExecutionProperty
 		GlueVersion?:          strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
 		JobMode?:              "NOTEBOOK" | "SCRIPT" | "VISUAL" | fn.#StringExpression
 		JobRunQueuingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -90,7 +96,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		Name?:                    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 		NonOverridableArguments?: fn.#Object & {...} | string | fn.#StringObjectExpression
-		NotificationProperty?:    #NotificationProperty | fn.#ObjectExpression
+
+		// Specifies configuration properties of a notification.
+		NotificationProperty?: #NotificationProperty
 		NumberOfWorkers?: int & >=0 |
 			{
 				string &

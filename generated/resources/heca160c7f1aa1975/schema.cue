@@ -49,8 +49,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		RequestMappingTemplateS3Location?:  string | fn.#StringExpression
 		ResponseMappingTemplate?:           strings.MaxRunes(65536) & strings.MinRunes(0) | fn.#StringExpression
 		ResponseMappingTemplateS3Location?: string | fn.#StringExpression
-		Runtime?:                           #AppSyncRuntime | fn.#ObjectExpression
-		SyncConfig?:                        #SyncConfig | fn.#ObjectExpression
+
+		// Describes a runtime used by an AWS AppSync pipeline resolver or AWS AppSync
+		// function. Specifies the name and version of the runtime to use. Note that if
+		// a runtime is specified, code must also be specified.
+		Runtime?: #AppSyncRuntime
+
+		// Describes a Sync configuration for a resolver. Specifies which Conflict
+		// Detection strategy and Resolution strategy to use when the resolver is
+		// invoked.
+		SyncConfig?: #SyncConfig
 	})
 }
 

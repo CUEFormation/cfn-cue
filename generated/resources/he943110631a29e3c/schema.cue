@@ -24,14 +24,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }
 
 #BridgeFlowSource: close({
-	FlowArn!:                    string | fn.#StringExpression
-	FlowVpcInterfaceAttachment?: #VpcInterfaceAttachment | fn.#ObjectExpression
+	FlowArn!: string | fn.#StringExpression
+
+	// The name of the VPC interface attachment to use for this source.
+	FlowVpcInterfaceAttachment?: #VpcInterfaceAttachment
 }) |
 fn.#ObjectExpression
 
 #BridgeNetworkSource: close({
-	MulticastIp!:             string | fn.#StringExpression
-	MulticastSourceSettings?: #MulticastSourceSettings | fn.#ObjectExpression
+	MulticastIp!: string | fn.#StringExpression
+
+	// The settings related to the multicast source.
+	MulticastSourceSettings?: #MulticastSourceSettings
 	NetworkName!:             string | fn.#StringExpression
 	Port!: int |
 		{
@@ -47,7 +51,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Protocol!: #ProtocolEnum | fn.#StringExpression
+
+	// The network source protocol.
+	Protocol!: #ProtocolEnum
 }) |
 fn.#ObjectExpression
 

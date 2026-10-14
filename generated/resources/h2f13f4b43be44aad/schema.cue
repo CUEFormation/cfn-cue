@@ -21,8 +21,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 		Name!: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\\\-]*[a-z0-9])?$" |
 		fn.#StringExpression
-		Policy?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-		VpcConfiguration!: #VpcConfiguration | fn.#ObjectExpression
+		Policy?: fn.#Object & {...} | string | fn.#StringObjectExpression
+
+		// Virtual Private Cloud (VPC) from which requests can be made to the AccessPoint.
+		VpcConfiguration!: #VpcConfiguration
 	})
 }
 

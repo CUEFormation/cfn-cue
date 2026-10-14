@@ -252,8 +252,10 @@ fn.#ObjectExpression
 #WAFLogType: "WAF_LOGS" | fn.#StringExpression
 
 #WAFLoggingParameters: {
-	LogType?:        #WAFLogType
-	LoggingFilter?:  #LoggingFilter
-	RedactedFields?: #RedactedFields | fn.#ListExpression
+	LogType?:       #WAFLogType
+	LoggingFilter?: #LoggingFilter
+
+	// Fields not to be included in the logs.
+	RedactedFields?: #RedactedFields
 	...
 } | fn.#ObjectExpression

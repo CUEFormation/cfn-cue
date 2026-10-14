@@ -95,10 +95,11 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#VpnTunnelLogOptionsSpecification: close(
-	{CloudwatchLogOptions?: #CloudwatchLogOptionsSpecification | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#VpnTunnelLogOptionsSpecification: close({
+	// Options for sending VPN tunnel logs to CloudWatch.
+	CloudwatchLogOptions?: #CloudwatchLogOptionsSpecification
+}) |
+fn.#ObjectExpression
 
 #VpnTunnelOptionsSpecification: close({
 	DPDTimeoutAction?: "clear" | "none" | "restart" | fn.#StringExpression
@@ -119,10 +120,12 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	EnableTunnelLifecycleControl?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IKEVersions?:                  [...#IKEVersionsRequestListValue] | fn.#ListExpression
-	LogOptions?:                   #VpnTunnelLogOptionsSpecification | fn.#ObjectExpression
-	Phase1DHGroupNumbers?:         [...#Phase1DHGroupNumbersRequestListValue] | fn.#ListExpression
-	Phase1EncryptionAlgorithms?:   [...#Phase1EncryptionAlgorithmsRequestListValue] | fn.#ListExpression
-	Phase1IntegrityAlgorithms?:    [...#Phase1IntegrityAlgorithmsRequestListValue] | fn.#ListExpression
+
+	// Options for logging VPN tunnel activity.
+	LogOptions?:                 #VpnTunnelLogOptionsSpecification
+	Phase1DHGroupNumbers?:       [...#Phase1DHGroupNumbersRequestListValue] | fn.#ListExpression
+	Phase1EncryptionAlgorithms?: [...#Phase1EncryptionAlgorithmsRequestListValue] | fn.#ListExpression
+	Phase1IntegrityAlgorithms?:  [...#Phase1IntegrityAlgorithmsRequestListValue] | fn.#ListExpression
 	Phase1LifetimeSeconds?: int & <=28800 & >=900 |
 		{
 			string &

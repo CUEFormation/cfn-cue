@@ -41,8 +41,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #BatchTransformInput: close({
 	DataCapturedDestinationS3Uri!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
 	fn.#StringExpression
-	DatasetFormat!:        #DatasetFormat
-	EndTimeOffset?:        #MonitoringTimeOffsetString | fn.#StringExpression
+	DatasetFormat!: #DatasetFormat
+
+	// Monitoring end time offset, e.g. PT0H
+	EndTimeOffset?:        #MonitoringTimeOffsetString
 	FeaturesAttribute?:    strings.MaxRunes(256) | fn.#StringExpression
 	InferenceAttribute?:   strings.MaxRunes(256) | fn.#StringExpression
 	LocalPath!:            strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
@@ -68,7 +70,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	S3DataDistributionType?: "FullyReplicated" | "ShardedByS3Key" | fn.#StringExpression
 	S3InputMode?:            "Pipe" | "File" | fn.#StringExpression
-	StartTimeOffset?:        #MonitoringTimeOffsetString | fn.#StringExpression
+
+	// Monitoring start time offset, e.g. -PT1H
+	StartTimeOffset?: #MonitoringTimeOffsetString
 }) |
 fn.#ObjectExpression
 
@@ -110,7 +114,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ConstraintsResource: close({S3Uri?: #S3Uri | fn.#StringExpression}) | fn.#ObjectExpression
+#ConstraintsResource: close({
+	// The Amazon S3 URI for baseline constraint file in Amazon S3 that the current
+	// monitoring job should validated against.
+	S3Uri?: #S3Uri
+}) |
+fn.#ObjectExpression
 
 #Csv: {
 	Header?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -125,7 +134,8 @@ fn.#ObjectExpression
 } | fn.#ObjectExpression
 
 #EndpointInput: close({
-	EndTimeOffset?:        #MonitoringTimeOffsetString | fn.#StringExpression
+	// Monitoring end time offset, e.g. PT0H
+	EndTimeOffset?:        #MonitoringTimeOffsetString
 	EndpointName!:         #EndpointName
 	FeaturesAttribute?:    strings.MaxRunes(256) | fn.#StringExpression
 	InferenceAttribute?:   strings.MaxRunes(256) | fn.#StringExpression
@@ -152,7 +162,9 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	S3DataDistributionType?: "FullyReplicated" | "ShardedByS3Key" | fn.#StringExpression
 	S3InputMode?:            "Pipe" | "File" | fn.#StringExpression
-	StartTimeOffset?:        #MonitoringTimeOffsetString | fn.#StringExpression
+
+	// Monitoring start time offset, e.g. -PT1H
+	StartTimeOffset?: #MonitoringTimeOffsetString
 }) |
 fn.#ObjectExpression
 
@@ -167,7 +179,8 @@ fn.#StringExpression
 } | fn.#ObjectExpression
 
 #ModelBiasAppSpecification: close({
-	ConfigUri!: #S3Uri | fn.#StringExpression
+	// The S3 URI to an analysis configuration file
+	ConfigUri!: #S3Uri
 	Environment?: close({
 
 		{[=~"[\\S\\s]*"]: strings.MaxRunes(256) | fn.#StringExpression}

@@ -16,7 +16,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RDS::Integration"
 	Properties!: close({
-		AdditionalEncryptionContext?: #EncryptionContextMap | fn.#ObjectExpression
+		// An optional set of non-secret key–value pairs that contains additional
+		// contextual information about the data. For more information, see [Encryption
+		// context](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#encrypt_context)
+		// in the *Key Management Service Developer Guide*.
+		// You can only include this parameter if you specify the ``KMSKeyId`` parameter.
+		AdditionalEncryptionContext?: #EncryptionContextMap
 		DataFilter?: strings.MaxRunes(25600) & strings.MinRunes(1) & =~"[a-zA-Z0-9_ \"\\\\\\-$,*.:?+\\/]*" |
 		fn.#StringExpression
 		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression

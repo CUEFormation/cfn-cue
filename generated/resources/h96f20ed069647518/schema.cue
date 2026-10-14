@@ -16,7 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EMRContainers::VirtualCluster"
 	Properties!: close({
-		ContainerProvider!: #ContainerProvider | fn.#ObjectExpression
+		// Container provider of the virtual cluster.
+		ContainerProvider!: #ContainerProvider
 		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
 		SecurityConfigurationId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-9a-z]+" | fn.#StringExpression
 		SessionEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

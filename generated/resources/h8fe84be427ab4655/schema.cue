@@ -22,12 +22,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({
 		Description?:         strings.MaxRunes(255) & =~"^[\\S ]{0,255}$" | fn.#StringExpression
 		ExcludeResourceTags?: list.MaxItems(5) & list.UniqueItems() & [...] & [...#ResourceTag] | fn.#ListExpression
-		LockConfiguration?:   #UnlockDelay | fn.#ObjectExpression
-		ResourceTags?:        list.MaxItems(50) & list.UniqueItems() & [...] & [...#ResourceTag] | fn.#ListExpression
-		ResourceType!:        "EBS_SNAPSHOT" | "EC2_IMAGE" | "EBS_VOLUME" | fn.#StringExpression
-		RetentionPeriod!:     #RetentionPeriod | fn.#ObjectExpression
-		Status?:              =~"pending|available" | fn.#StringExpression
-		Tags?:                list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+
+		// Information about the retention rule lock configuration.
+		LockConfiguration?: #UnlockDelay
+		ResourceTags?:      list.MaxItems(50) & list.UniqueItems() & [...] & [...#ResourceTag] | fn.#ListExpression
+		ResourceType!:      "EBS_SNAPSHOT" | "EC2_IMAGE" | "EBS_VOLUME" | fn.#StringExpression
+
+		// Information about the retention period for which the retention rule is to retain resources.
+		RetentionPeriod!: #RetentionPeriod
+		Status?:          =~"pending|available" | fn.#StringExpression
+		Tags?:            list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
 }
 

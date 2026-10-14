@@ -21,7 +21,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		strings.MinRunes(1) &
 		=~"^arn:aws(-cn|-us-gov)?:config:[a-z0-9-]+:\\d{12}:connector/.+$" |
 		fn.#StringExpression
-		Configuration!: #CloudConnectorConfiguration | fn.#ObjectExpression
+
+		// The configuration for the cloud connector.
+		Configuration!: #CloudConnectorConfiguration
 		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*$" |
 		fn.#StringExpression
 		DisplayName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*$" |

@@ -16,13 +16,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaConnect::FlowSource"
 	Properties!: close({
-		Decryption?:  #Encryption | fn.#ObjectExpression
+		// The type of encryption that is used on the content ingested from this source.
+		Decryption?:  #Encryption
 		Description!: string | fn.#StringExpression
 		EntitlementArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:entitlement:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 			fn.#StringExpression
 		FlowArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 			fn.#StringExpression
-		GatewayBridgeSource?: #GatewayBridgeSource | fn.#ObjectExpression
+
+		// The source configuration for cloud flows receiving a stream from a bridge.
+		GatewayBridgeSource?: #GatewayBridgeSource
 		IngestPort?: int |
 			{
 				string &
@@ -149,7 +152,9 @@ fn.#ObjectExpression
 #GatewayBridgeSource: close({
 	BridgeArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:bridge:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 		fn.#StringExpression
-	VpcInterfaceAttachment?: #VpcInterfaceAttachment | fn.#ObjectExpression
+
+	// The name of the VPC interface attachment to use for this bridge source.
+	VpcInterfaceAttachment?: #VpcInterfaceAttachment
 }) |
 fn.#ObjectExpression
 
