@@ -3,10 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"struct"
-	"time"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -29,11 +28,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		TriggerMode?:             #TriggerMode
 	})
 }
-
-#Arn: strings.MaxRunes(2048) &
-strings.MinRunes(1) &
-=~"^arn:aws(?:-(?:cn|us-gov|iso|iso-b|iso-e|iso-f))?:airflow-serverless:([a-z]{2}-(?:[a-z]+-)+[0-9]{1}):([0-9]{12}):workflow/([a-zA-Z0-9][a-zA-Z0-9\\.\\-_]{0,254}-[a-zA-Z0-9]{10})$" |
-fn.#StringExpression
 
 #Code: close({S3Location?: #CodeS3Location}) | fn.#ObjectExpression
 
@@ -85,17 +79,9 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ScheduleConfiguration: close({CronExpression?: string | fn.#StringExpression}) | fn.#ObjectExpression
-
 #Tags: struct.MaxFields(50) & close({
 
 	{[=~"^[\\w\\d+\\-\\.\\:/@]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-#Timestamp: time.Time | fn.#StringExpression
-
 #TriggerMode: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-
-#WorkflowStatus: "READY" | "DELETING" | fn.#StringExpression
-
-#WorkflowVersion: strings.MaxRunes(32) & strings.MinRunes(32) & =~"^[a-z0-9]{32}$" | fn.#StringExpression

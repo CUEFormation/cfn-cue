@@ -18,8 +18,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({ExpiryEventsConfiguration!: #ExpiryEventsConfiguration})
 }
 
-#AccountId: string | fn.#StringExpression
-
 #ExpiryEventsConfiguration: close({
 	DaysBeforeExpiry?: int & <=45 & >=1 |
 		{

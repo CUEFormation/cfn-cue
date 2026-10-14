@@ -4,7 +4,6 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"time"
 	"strings"
 )
 
@@ -24,42 +23,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#BrowserProfileArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:browser-profile/[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$" |
-	fn.#StringExpression
-
 #BrowserProfileDescription: string | fn.#StringExpression
 
-#BrowserProfileId: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$" | fn.#StringExpression
-
 #BrowserProfileName: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
-
-#BrowserProfileStatus: "READY" | "DELETING" | "DELETED" | "SAVING" | fn.#StringExpression
-
-#BrowserProfileSummaries: [...#BrowserProfileSummary] | fn.#ListExpression
-
-#BrowserProfileSummary: close({
-	CreatedAt!:                 #CreatedAt
-	Description?:               #BrowserProfileDescription
-	LastSavedAt?:               #LastSavedAt
-	LastSavedBrowserId?:        #LastSavedBrowserId
-	LastSavedBrowserSessionId?: #LastSavedBrowserSessionId
-	LastUpdatedAt!:             #LastUpdatedAt
-	Name!:                      #BrowserProfileName
-	ProfileArn!:                #BrowserProfileArn
-	ProfileId!:                 #BrowserProfileId
-	Status!:                    #BrowserProfileStatus
-}) |
-fn.#ObjectExpression
-
-#CreatedAt: time.Time | fn.#StringExpression
-
-#LastSavedAt: time.Time | fn.#StringExpression
-
-#LastSavedBrowserId: =~"^((aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}))?$" | fn.#StringExpression
-
-#LastSavedBrowserSessionId: =~"^([0-9a-zA-Z]{1,40})?$" | fn.#StringExpression
-
-#LastUpdatedAt: time.Time | fn.#StringExpression
 
 #TagsMap: close({
 

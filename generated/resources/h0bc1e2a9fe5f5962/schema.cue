@@ -82,5 +82,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression

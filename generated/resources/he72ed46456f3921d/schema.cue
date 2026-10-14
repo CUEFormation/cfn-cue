@@ -57,12 +57,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DnsMap: close({
-	Http?:     string | fn.#StringExpression
-	Realtime?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #EventConfig: close({
 	AuthProviders!:             #AuthProviders
 	ConnectionAuthModes!:       #AuthModes

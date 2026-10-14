@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -30,20 +30,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?: #Tags
 	})
 }
-
-#IamIdentityCenter: close({
-	ApprovalPortalUrl?: string | fn.#StringExpression
-	InstanceArn!: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:.+:sso:::instance/(?:sso)?ins-[a-zA-Z0-9-.]{16}$" |
-	fn.#StringExpression
-	Region!: strings.MaxRunes(1000) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#IdentitySourceArn: string | fn.#StringExpression
-
-#IdentitySourceParameters: close({IamIdentityCenter!: #IamIdentityCenter}) | fn.#ObjectExpression
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression

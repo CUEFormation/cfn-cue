@@ -37,14 +37,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #IpAddressType: "ipv4" | "ipv6" | fn.#StringExpression
 
-#PrivateDnsNameConfiguration: close({
-	Name?:  string | fn.#StringExpression
-	State?: string | fn.#StringExpression
-	Type?:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression

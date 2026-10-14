@@ -63,16 +63,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#BgpPeer: close({
-	AddressFamily!:   =~"^(ipv4)|(ipv6)$" | fn.#StringExpression
-	AmazonAddress?:   =~"^[0-9a-fA-F:.]+/[0-9]+$" | fn.#StringExpression
-	Asn!:             =~"^[1-9][0-9]*$" | fn.#StringExpression
-	AuthKey?:         =~"^[A-Za-z0-9\\\\!\"#$%&'()*+,\\-./:;<=>?@\\[\\]\\^_`{|}~]{6,80}$" | fn.#StringExpression
-	BgpPeerId?:       =~"^dxpeer-[a-z0-9]{8}$" | fn.#StringExpression
-	CustomerAddress?: =~"^[0-9a-fA-F:.]+/[0-9]+$" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression

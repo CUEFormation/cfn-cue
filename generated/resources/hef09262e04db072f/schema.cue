@@ -82,53 +82,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Hardware: close({
-	CpuCount?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Disks?: list.UniqueItems() & [...#Disk] | fn.#ListExpression
-	RamSizeInGb?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
-#Location: close({
-	AvailabilityZone?: string | fn.#StringExpression
-	RegionName?:       string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#MonthlyTransfer: close({GbPerMonthAllocated?: string | fn.#StringExpression}) | fn.#ObjectExpression
-
-#Networking: close({
-	MonthlyTransfer?: #MonthlyTransfer
-	Ports!:           list.UniqueItems() & [...#Port] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
 #Port: close({
 	AccessDirection?: string | fn.#StringExpression
 	AccessFrom?:      string | fn.#StringExpression
@@ -166,25 +119,6 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
-#State: close({
-	Code?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

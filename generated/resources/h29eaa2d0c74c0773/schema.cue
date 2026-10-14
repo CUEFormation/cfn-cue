@@ -9,10 +9,6 @@ import (
 	"struct"
 )
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -61,23 +57,6 @@ fn.#ObjectExpression
 	=~"^arn:(aws|aws-cn|aws-iso|aws-iso-[a-z]{1}|aws-us-gov):iam::[0-9]{12}:role\\/(([^\\/][\\x21-\\x7E]+\\/){1,511})?[A-Za-z0-9_+=,.@-]{1,64}$" |
 	fn.#StringExpression
 	ExternalId?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#DisasterRecoverySource: close({
-	PolicyName?: string | fn.#StringExpression
-	Value?:      string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#EffectivePolicyValues: close({
-	AvailabilitySlo?:       #SloSource
-	MultiAzDrApproach?:     #DisasterRecoverySource
-	MultiAzRpo?:            #TargetSource
-	MultiAzRto?:            #TargetSource
-	MultiRegionDrApproach?: #DisasterRecoverySource
-	MultiRegionRpo?:        #TargetSource
-	MultiRegionRto?:        #TargetSource
 }) |
 fn.#ObjectExpression
 
@@ -186,51 +165,8 @@ fn.#ObjectExpression
 ) |
 	fn.#ObjectExpression
 
-#SloSource: close({
-	PolicyName?: string | fn.#StringExpression
-	Value?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#TargetSource: close({
-	PolicyName?: string | fn.#StringExpression
-	Value?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
 }) |
 fn.#ObjectExpression

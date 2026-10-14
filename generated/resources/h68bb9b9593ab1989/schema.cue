@@ -43,53 +43,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#CatalogProperties: close({
-	CustomProperties?: close({
-
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	DataLakeAccessProperties?: #DataLakeAccessProperties
-}) |
-fn.#ObjectExpression
-
-#DataLakeAccessProperties: close({
-	AllowFullTableExternalDataAccess?: "True" | "False" | fn.#StringExpression
-	CatalogType?:                      string | fn.#StringExpression
-	DataLakeAccess?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DataTransferRole?:       string | fn.#StringExpression
-	KmsKey?:                 string | fn.#StringExpression
-	ManagedWorkgroupName?:   string | fn.#StringExpression
-	ManagedWorkgroupStatus?: string | fn.#StringExpression
-	RedshiftDatabaseName?:   string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#DataLakePrincipal: close(
-	{DataLakePrincipalIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
-
 #FederatedCatalog: close({
 	ConnectionName?: string | fn.#StringExpression
 	Identifier?:     string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#PrincipalPermissions: close({
-	Permissions?: [
-		..."ALL" |
-			"SELECT" |
-			"ALTER" |
-			"DROP" |
-			"DELETE" |
-			"INSERT" |
-			"CREATE_DATABASE" |
-			"CREATE_TABLE" |
-			"DATA_LOCATION_ACCESS" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Principal?: #DataLakePrincipal
 }) |
 fn.#ObjectExpression
 

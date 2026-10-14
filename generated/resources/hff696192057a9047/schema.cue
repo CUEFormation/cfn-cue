@@ -207,17 +207,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#CloudWatchLogConfiguration: null |
-bool |
-number |
-string |
-[...] |
-{
-	LogGroupName?: fn.#Value
-	...
-} |
-fn.#ValueExpression
-
 #ComputeLimits: close({
 	MaximumCapacityUnits!: int |
 		{

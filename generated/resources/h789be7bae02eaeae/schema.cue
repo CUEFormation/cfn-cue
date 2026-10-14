@@ -49,5 +49,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Tags: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression

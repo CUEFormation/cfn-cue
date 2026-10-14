@@ -28,13 +28,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Arn: =~"^arn:aws(-[a-z]{1,4}){0,2}:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" | fn.#StringExpression
-
 #PlatformId: "AWSLambda-SHA384-ECDSA" | "Notation-OCI-SHA384-ECDSA" | fn.#StringExpression
-
-#ProfileName: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z_]{2,64}$" | fn.#StringExpression
-
-#ProfileVersion: =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
 
 #SignatureValidityPeriod: close({
 	Type?: "DAYS" | "MONTHS" | "YEARS" | fn.#StringExpression

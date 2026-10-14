@@ -6,7 +6,6 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"struct"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -68,14 +67,6 @@ fn.#ObjectExpression
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9 _=@:.+-/]*$" | fn.#StringExpression
 }) |
-fn.#ObjectExpression
-
-#TagMap: struct.MaxFields(50) & close({
-
-	{[=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$"]: strings.MaxRunes(256) &
-	strings.MinRunes(0) &
-	=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$" |
-	fn.#StringExpression}}) |
 fn.#ObjectExpression
 
 #iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |

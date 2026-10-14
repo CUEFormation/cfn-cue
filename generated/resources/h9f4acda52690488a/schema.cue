@@ -4,7 +4,6 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"time"
 	"list"
 	"strings"
 )
@@ -39,23 +38,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 	})
 }
-
-#AccessType: "PUBLIC" | "PRIVATE" | fn.#StringExpression
-
-#AutoScalingArns: close({
-	ApplicationAutoScalingPolicies?: [...string | fn.#StringExpression] | fn.#ListExpression
-	ScalableTarget?:                 string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ECSManagedResourceArns: close({
-	AutoScaling?:           #AutoScalingArns
-	IngressPath?:           #IngressPathArns
-	LogGroups?:             [...string | fn.#StringExpression] | fn.#ListExpression
-	MetricAlarms?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	ServiceSecurityGroups?: [...string | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
 
 #ExpressGatewayContainer: close({
 	AwsLogsConfiguration?: #ExpressGatewayServiceAwsLogsConfiguration
@@ -137,24 +119,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ExpressGatewayServiceConfiguration: close({
-	Cpu?:       string | fn.#StringExpression
-	CreatedAt?: time.Time | fn.#StringExpression
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	HealthCheckPath?:      string | fn.#StringExpression
-	IngressPaths?:         [...#IngressPathSummary] | fn.#ListExpression
-	Memory?:               string | fn.#StringExpression
-	NetworkConfiguration?: #ExpressGatewayServiceNetworkConfiguration
-	PrimaryContainer?:     #ExpressGatewayContainer
-	ScalingTarget?:        #ExpressGatewayScalingTarget
-	ServiceRevisionArn?:   string | fn.#StringExpression
-	TaskDefinitionArn?:    string | fn.#StringExpression
-	TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ExpressGatewayServiceNetworkConfiguration: close({
 	SecurityGroups?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -169,27 +133,6 @@ fn.#ObjectExpression
 	"AVERAGE_MEMORY" |
 	"REQUEST_COUNT_PER_TARGET" |
 	fn.#StringExpression
-
-#ExpressGatewayServiceStatus: close({StatusCode?: #ExpressGatewayServiceStatusCode}) | fn.#ObjectExpression
-
-#ExpressGatewayServiceStatusCode: "ACTIVE" | "DRAINING" | "INACTIVE" | fn.#StringExpression
-
-#IngressPathArns: close({
-	CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	ListenerArn?:                string | fn.#StringExpression
-	ListenerRuleArn?:            string | fn.#StringExpression
-	LoadBalancerArn?:            string | fn.#StringExpression
-	LoadBalancerSecurityGroups?: [...string | fn.#StringExpression] | fn.#ListExpression
-	TargetGroupArns?:            [...string | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#IngressPathSummary: close({
-	AccessType?: #AccessType
-	Endpoint?:   string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #KeyValuePair: close({
 	Name!:  string | fn.#StringExpression

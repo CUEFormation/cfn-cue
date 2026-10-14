@@ -131,18 +131,6 @@ fn.#ObjectExpression
 )]) |
 fn.#ValueExpression
 
-#ConnectionStatus: "CREATING" |
-	"CREATE_FAILED" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	"READY" |
-	"UPDATING" |
-	"UPDATE_FAILED" |
-	"DELETED" |
-	fn.#StringExpression
-
-#ConnectionType: string | fn.#StringExpression
-
 #CredentialMap: close({
 
 	{[=~".+"]: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression}}) |

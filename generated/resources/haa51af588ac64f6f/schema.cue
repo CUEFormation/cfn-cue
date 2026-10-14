@@ -121,12 +121,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Identity: close({
-	Arn?:  strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
-	Name?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression

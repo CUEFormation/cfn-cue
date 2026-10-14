@@ -53,27 +53,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Actor: close({
-	// Authentication credentials for this actor
-	Authentication?:       #Authentication
-	Description?:          string | fn.#StringExpression
-	EnableEmailMfa?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Identifier?:           string | fn.#StringExpression
-	MfaForwardingAddress?: string | fn.#StringExpression
-	Uris?:                 [...string | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#Assets: close({
-	Actors?:                 [...#Actor] | fn.#ListExpression
-	Documents?:              [...#DocumentInfo] | fn.#ListExpression
-	Endpoints?:              [...#Endpoint] | fn.#ListExpression
-	IntegratedRepositories?: [...#IntegratedRepository] | fn.#ListExpression
-	SourceCode?:             [...#SourceCodeRepository] | fn.#ListExpression
-	TrustedCaCertificates?:  [...#TrustedCaCertificate] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
 #Authentication: close({
 	ProviderType?: "SECRETS_MANAGER" | "AWS_LAMBDA" | "AWS_IAM_ROLE" | "AWS_INTERNAL" | fn.#StringExpression
 	Value?:        string | fn.#StringExpression

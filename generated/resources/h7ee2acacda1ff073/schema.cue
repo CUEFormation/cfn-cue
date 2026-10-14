@@ -28,8 +28,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #ArchiveRetention: close({RetentionPeriod!: #RetentionPeriod}) | fn.#ValueExpression
 
-#ArchiveState: "ACTIVE" | "PENDING_DELETION" | fn.#StringExpression
-
 #RetentionPeriod: "THREE_MONTHS" |
 	"SIX_MONTHS" |
 	"NINE_MONTHS" |

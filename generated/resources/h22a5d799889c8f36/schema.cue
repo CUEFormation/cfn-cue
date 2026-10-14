@@ -38,8 +38,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #AttributeName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" | fn.#StringExpression
 
-#CreatedAt: string | fn.#StringExpression
-
 #Description: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 
 #EntityName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9-]*$" | fn.#StringExpression
@@ -61,9 +59,6 @@ fn.#ObjectExpression
 	RuleBasedProperties?:  #IdMappingRuleBasedProperties
 }) |
 fn.#ObjectExpression
-
-#IdMappingWorkflowArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(idmappingworkflow/.*)$" |
-	fn.#StringExpression
 
 #IdMappingWorkflowInputSource: close({
 	InputSourceARN!: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(idnamespace/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(matchingworkflow/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):glue:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(table/[a-zA-Z_0-9-]{1,255}/[a-zA-Z_0-9-]{1,255})$" |
@@ -119,5 +114,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#UpdatedAt: string | fn.#StringExpression

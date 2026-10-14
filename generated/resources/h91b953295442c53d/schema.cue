@@ -49,12 +49,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#DomainResult: close({
-	Domain?: string | fn.#StringExpression
-	Status?: "active" | "inactive" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #GeoRestrictionCustomization: close({
 	Locations?:       [...string | fn.#StringExpression] | fn.#ListExpression
 	RestrictionType?: "blacklist" | "whitelist" | "none" | fn.#StringExpression

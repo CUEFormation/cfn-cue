@@ -48,8 +48,6 @@ fn.#ObjectExpression
 
 #AccountName: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{007E}]+$" | fn.#StringExpression
 
-#AssessmentArn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*:auditmanager:.*" | fn.#StringExpression
-
 #AssessmentDescription: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
 
 #AssessmentName: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.]+$" | fn.#StringExpression

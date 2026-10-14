@@ -59,28 +59,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #LogExport: "useractivitylog" | "userlog" | "connectionlog" | fn.#StringExpression
 
-#Namespace: close({
-	AdminPasswordSecretArn?:      string | fn.#StringExpression
-	AdminPasswordSecretKmsKeyId?: string | fn.#StringExpression
-	AdminUsername?:               string | fn.#StringExpression
-	CreationDate?:                string | fn.#StringExpression
-	DbName?:                      =~"[a-zA-Z][a-zA-Z_0-9+.@-]*" | fn.#StringExpression
-	DefaultIamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	IamRoles?: [...strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	LogExports?:    list.MaxItems(16) & [...] & [...#LogExport] | fn.#ListExpression
-	NamespaceArn?:  string | fn.#StringExpression
-	NamespaceId?:   string | fn.#StringExpression
-	NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" | fn.#StringExpression
-	Status?:        #NamespaceStatus
-}) |
-fn.#ObjectExpression
-
-#NamespaceStatus: "AVAILABLE" | "MODIFYING" | "DELETING" | fn.#StringExpression
-
 #SnapshotCopyConfiguration: close({
 	DestinationKmsKeyId?: string | fn.#StringExpression
 	DestinationRegion!:   string | fn.#StringExpression

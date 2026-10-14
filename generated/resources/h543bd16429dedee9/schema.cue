@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -45,34 +45,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?: [...#Tag] | fn.#ListExpression
 	})
 }
-
-#AssetHierarchy: close({
-	ChildAssetId!: string | fn.#StringExpression
-	ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
-	fn.#StringExpression
-	Id?: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-	fn.#StringExpression
-	LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#AssetProperty: close({
-	Alias?: string | fn.#StringExpression
-	ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
-	fn.#StringExpression
-	Id?: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-	fn.#StringExpression
-	LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
-	fn.#StringExpression
-	NotificationState?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	Unit?:              string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression

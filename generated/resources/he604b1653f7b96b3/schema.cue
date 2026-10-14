@@ -28,23 +28,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })]) |
 fn.#ObjectExpression
 
-#Regex: string | fn.#StringExpression
-
 #S3WordsList: close({
 	BucketName!: string | fn.#StringExpression
 	ObjectKey!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Status: "OK" |
-	"S3_OBJECT_NOT_FOUND" |
-	"S3_USER_ACCESS_DENIED" |
-	"S3_OBJECT_ACCESS_DENIED" |
-	"S3_THROTTLED" |
-	"S3_OBJECT_OVERSIZE" |
-	"S3_OBJECT_EMPTY" |
-	"UNKNOWN_ERROR" |
-	fn.#StringExpression
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression

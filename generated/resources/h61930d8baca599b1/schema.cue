@@ -31,8 +31,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-#Unit: close({}) | fn.#ObjectExpression
-
 #VpcInformation: close({
 	IpAddressType?: "IPV4" | "DUALSTACK" | fn.#StringExpression
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [

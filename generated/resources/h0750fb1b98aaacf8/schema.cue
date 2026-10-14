@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -80,14 +80,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#AutoScalingGroupArn: strings.MaxRunes(256) &
-strings.MinRunes(0) &
-=~"""
-	[ -\ud7ff\ue000-�𐀀-\U0010ffff\r
-	\t]*
-	""" |
-fn.#StringExpression
-
 #AutoScalingPolicy: close({
 	EstimatedInstanceWarmup?:     #EstimatedInstanceWarmup
 	TargetTrackingConfiguration!: #TargetTrackingConfiguration
@@ -95,8 +87,6 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #BalancingStrategy: "SPOT_ONLY" | "SPOT_PREFERRED" | "ON_DEMAND_ONLY" | fn.#StringExpression
-
-#CreationTime: string | fn.#StringExpression
 
 #DeleteOption: "SAFE_DELETE" | "FORCE_DELETE" | "RETAIN" | fn.#StringExpression
 
@@ -120,25 +110,6 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#GameServerGroup: close({
-	AutoScalingGroupArn?:        #AutoScalingGroupArn
-	BalancingStrategy?:          #BalancingStrategy
-	CreationTime?:               #CreationTime
-	GameServerGroupArn?:         #GameServerGroupArn
-	GameServerGroupName?:        #GameServerGroupName
-	GameServerProtectionPolicy?: #GameServerProtectionPolicy
-	InstanceDefinitions?:        #InstanceDefinitions
-	LastUpdatedTime?:            #LastUpdatedTime
-	RoleArn?:                    #RoleArn
-	Status?:                     #Status
-	StatusReason?:               #StatusReason
-	SuspendedActions?:           #SuspendedActions
-}) |
-fn.#ObjectExpression
-
-#GameServerGroupArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:.*:gameservergroup\\/[a-zA-Z0-9-\\.]*" |
-fn.#StringExpression
-
 #GameServerGroupName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\.]+" | fn.#StringExpression
 
 #GameServerProtectionPolicy: "NO_PROTECTION" | "FULL_PROTECTION" | fn.#StringExpression
@@ -152,8 +123,6 @@ fn.#ObjectExpression
 #InstanceDefinitions: list.MaxItems(20) & list.MinItems(2) & [...#InstanceDefinition] | fn.#ListExpression
 
 #InstanceType: string | fn.#StringExpression
-
-#LastUpdatedTime: string | fn.#StringExpression
 
 #LaunchTemplate: close({
 	LaunchTemplateId?:   #LaunchTemplateId
@@ -212,12 +181,6 @@ strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:.*:role\\/[\\w+=,.@-]+" |
 fn.#StringExpression
-
-#Status: "NEW" | "ACTIVATING" | "ACTIVE" | "DELETE_SCHEDULED" | "DELETING" | "DELETED" | "ERROR" | fn.#StringExpression
-
-#StatusReason: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-
-#SuspendedActions: [..."REPLACE_INSTANCE_TYPES" | fn.#StringExpression] | fn.#ListExpression
 
 #Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

@@ -107,12 +107,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#Endpoint: close({
-	Address?: string | fn.#StringExpression
-	Port?:    string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #KinesisFirehoseDestinationDetails: close({DeliveryStream!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #LogDeliveryConfigurationRequest: close({

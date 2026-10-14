@@ -27,5 +27,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression

@@ -40,8 +40,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Status: "PENDING" | "CONNECTED" | "REJECTED" | fn.#StringExpression
-
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression

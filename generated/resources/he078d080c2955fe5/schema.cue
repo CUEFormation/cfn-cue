@@ -125,13 +125,6 @@ fn.#StringExpression
 
 #RedactedFields: list.MaxItems(100) & list.UniqueItems() & [...#FieldToMatch] | fn.#ListExpression
 
-#RegionStatus: close({
-	Region?:  string | fn.#StringExpression
-	RuleArn?: string | fn.#StringExpression
-	Status?:  string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ResourceType: "AWS::EC2::VPC" |
 	"AWS::WAFv2::WebACL" |
 	"AWS::CloudTrail" |

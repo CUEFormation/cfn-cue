@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"time"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"time"
 	"list"
 )
 
@@ -29,14 +29,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:                   list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 	})
 }
-
-#BillInterval: close({
-	End?:   time.Time | fn.#StringExpression
-	Start?: time.Time | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#BillScenarioStatus: "READY" | "LOCKED" | "FAILED" | fn.#StringExpression
 
 #GroupSharingPreference: "OPEN" | "PRIORITIZED" | "RESTRICTED" | fn.#StringExpression
 

@@ -304,8 +304,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Name: strings.MaxRunes(128) & =~"\\S+" | fn.#StringExpression
-
 #Object: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
 #Operator: "PROJECTION" |
@@ -769,8 +767,6 @@ fn.#ObjectExpression
 	SourceConnectorProperties!: #SourceConnectorProperties
 }) |
 fn.#ObjectExpression
-
-#Status: "Active" | "Draft" | "Errored" | "Suspended" | fn.#StringExpression
 
 #SuccessResponseHandlingConfig: close({
 	BucketName?:   #BucketName

@@ -152,14 +152,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#IamRole: close({
-	AwsIntegration?: string | fn.#StringExpression
-	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Status?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #MaintenanceWindow: close({
 	DaysOfWeek?: [
 		..."MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY" | fn.#StringExpression

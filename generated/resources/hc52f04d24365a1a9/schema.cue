@@ -44,8 +44,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#ApplicationStatus: "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | "UPDATING" | fn.#StringExpression
-
 #AttachmentsConfiguration: close({AttachmentsControlMode!: #AttachmentsControlMode}) | fn.#ObjectExpression
 
 #AttachmentsControlMode: "ENABLED" | "DISABLED" | fn.#StringExpression

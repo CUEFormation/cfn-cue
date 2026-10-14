@@ -16,15 +16,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!:       "AWS::EKS::CertificateAuthority"
 	Properties!: close({ClusterName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression})
 }
-
-#ScheduledEvents: close({
-	FinalAutoActivation?: string | fn.#StringExpression
-	FirstAutoActivation?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#Validity: close({
-	NotAfter?:  string | fn.#StringExpression
-	NotBefore?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression

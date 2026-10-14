@@ -108,15 +108,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ConfluenceDocumentResource: close({
-	Name!:       string | fn.#StringExpression
-	PageId!:     string | fn.#StringExpression
-	SpaceKey!:   string | fn.#StringExpression
-	SpaceTitle?: string | fn.#StringExpression
-	Title?:      string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #GitHubCapabilitiesResource: close({
 	LeaveComments!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RemediateCode!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -138,50 +129,6 @@ fn.#ObjectExpression
 #GitLabRepositoryResource: close({
 	Name!:      string | fn.#StringExpression
 	Namespace!: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#IntegratedResource: close({
-	Integration!:       string | fn.#StringExpression
-	ProviderResources!: [...#ProviderResource] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#IntegratedResources: [...#IntegratedResource] | fn.#ListExpression
-
-#ProviderResource: matchN(2, [matchN(1, [{
-	GitHubRepository!: _
-	...
-}, {
-	GitLabRepository!: _
-	...
-}, {
-	BitbucketRepository!: _
-	...
-}, {
-	ConfluenceDocument!: _
-	...
-}]), matchN(1, [{
-	GitHubCapabilities!: _
-	...
-}, {
-	GitLabCapabilities!: _
-	...
-}, {
-	BitbucketCapabilities!: _
-	...
-}, {
-	ConfluenceCapabilities!: _
-	...
-}])]) & close({
-	BitbucketCapabilities?:  #BitbucketCapabilitiesResource
-	BitbucketRepository?:    #BitbucketRepositoryResource
-	ConfluenceCapabilities?: #ConfluenceCapabilitiesResource
-	ConfluenceDocument?:     #ConfluenceDocumentResource
-	GitHubCapabilities?:     #GitHubCapabilitiesResource
-	GitHubRepository?:       #GitHubRepositoryResource
-	GitLabCapabilities?:     #GitLabCapabilitiesResource
-	GitLabRepository?:       #GitLabRepositoryResource
 }) |
 fn.#ObjectExpression
 

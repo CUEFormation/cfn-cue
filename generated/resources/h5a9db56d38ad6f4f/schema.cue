@@ -57,8 +57,6 @@ fn.#ObjectExpression
 
 #EnabledAnalysisType: "TLS_SNI" | "HTTP_HOST" | fn.#StringExpression
 
-#EndpointId: string | fn.#StringExpression
-
 #ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws.*$" | fn.#StringExpression
 
 #SubnetMapping: close({

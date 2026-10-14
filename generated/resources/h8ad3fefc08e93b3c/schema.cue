@@ -97,9 +97,3 @@ fn.#ObjectExpression
 	S3KeyPrefix?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TagMap: close({
-	TagKey?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	TagValue?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-}) |
-fn.#ObjectExpression

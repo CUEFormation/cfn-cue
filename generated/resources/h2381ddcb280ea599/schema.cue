@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -82,76 +82,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
 }
-
-#EntityType: close({
-	Arn?:             string | fn.#StringExpression
-	CreatedTime?:     string | fn.#StringExpression
-	Description?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Inline?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LastUpdatedTime?: string | fn.#StringExpression
-	Name?:            string | fn.#StringExpression
-	Tags?:            list.MaxItems(200) & [...#Tag] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#EventVariable: close({
-	Arn?:             string | fn.#StringExpression
-	CreatedTime?:     string | fn.#StringExpression
-	DataSource?:      "EVENT" | fn.#StringExpression
-	DataType?:        "STRING" | "INTEGER" | "FLOAT" | "BOOLEAN" | fn.#StringExpression
-	DefaultValue?:    string | fn.#StringExpression
-	Description?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Inline?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LastUpdatedTime?: string | fn.#StringExpression
-	Name?:            string | fn.#StringExpression
-	Tags?:            list.MaxItems(200) & [...#Tag] | fn.#ListExpression
-	VariableType?: "AUTH_CODE" |
-		"AVS" |
-		"BILLING_ADDRESS_L1" |
-		"BILLING_ADDRESS_L2" |
-		"BILLING_CITY" |
-		"BILLING_COUNTRY" |
-		"BILLING_NAME" |
-		"BILLING_PHONE" |
-		"BILLING_STATE" |
-		"BILLING_ZIP" |
-		"CARD_BIN" |
-		"CATEGORICAL" |
-		"CURRENCY_CODE" |
-		"EMAIL_ADDRESS" |
-		"FINGERPRINT" |
-		"FRAUD_LABEL" |
-		"FREE_FORM_TEXT" |
-		"IP_ADDRESS" |
-		"NUMERIC" |
-		"ORDER_ID" |
-		"PAYMENT_TYPE" |
-		"PHONE_NUMBER" |
-		"PRICE" |
-		"PRODUCT_CATEGORY" |
-		"SHIPPING_ADDRESS_L1" |
-		"SHIPPING_ADDRESS_L2" |
-		"SHIPPING_CITY" |
-		"SHIPPING_COUNTRY" |
-		"SHIPPING_NAME" |
-		"SHIPPING_PHONE" |
-		"SHIPPING_STATE" |
-		"SHIPPING_ZIP" |
-		"USERAGENT" |
-		fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#Label: close({
-	Arn?:             string | fn.#StringExpression
-	CreatedTime?:     string | fn.#StringExpression
-	Description?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Inline?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LastUpdatedTime?: string | fn.#StringExpression
-	Name?:            string | fn.#StringExpression
-	Tags?:            list.MaxItems(200) & [...#Tag] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression

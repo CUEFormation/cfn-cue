@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -23,16 +23,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#FlowPublishState: "PUBLISHED" | "DRAFT" | "PENDING_APPROVAL" | fn.#StringExpression
-
 #Permission: close({
 	Actions!:   [...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#StepAliasMapping: close({
-	StepAlias!: string | fn.#StringExpression
-	StepId!:    strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -16,13 +16,5 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!:       "AWS::Notifications::NotificationHub"
 	Properties!: close({Region!: #Region})
 }
-
-#NotificationHubStatus: "ACTIVE" | "REGISTERING" | "DEREGISTERING" | "INACTIVE" | fn.#StringExpression
-
-#NotificationHubStatusSummary: close({
-	NotificationHubStatus!:       #NotificationHubStatus
-	NotificationHubStatusReason!: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #Region: strings.MaxRunes(25) & strings.MinRunes(2) | fn.#StringExpression

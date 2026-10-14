@@ -88,8 +88,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Arn: string | fn.#StringExpression
-
 #BackupPolicy: close({Status!: "DISABLED" | "ENABLED" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ElasticFileSystemTag: close({
@@ -123,26 +121,5 @@ fn.#ObjectExpression
 		"AFTER_90_DAYS" |
 		fn.#StringExpression
 	TransitionToPrimaryStorageClass?: "AFTER_1_ACCESS" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ReplicationConfiguration: close({
-	Destinations?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#ReplicationDestination] |
-		fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-#ReplicationDestination: close({
-	AvailabilityZoneName?: string | fn.#StringExpression
-	FileSystemId?: =~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$" |
-		fn.#StringExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	Region?: string | fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Status?:        string | fn.#StringExpression
-	StatusMessage?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

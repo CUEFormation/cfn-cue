@@ -74,8 +74,6 @@ fn.#ObjectExpression
 #QuotaSharePolicy: close({IdleResourceAssignmentStrategy?: =~"(?i)^(?:fifo)$" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-#ResourceArn: string | fn.#StringExpression
-
 #ShareAttributes: close({
 	ShareIdentifier?: string | fn.#StringExpression
 	WeightFactor?: <=1000 & >=0 |

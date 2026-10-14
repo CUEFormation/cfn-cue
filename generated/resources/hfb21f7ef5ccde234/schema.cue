@@ -3,10 +3,9 @@
 package schema
 
 import (
-	"time"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -39,5 +38,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	})
 }
-
-#DateTimeFormat: time.Time | fn.#StringExpression

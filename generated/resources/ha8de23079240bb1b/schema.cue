@@ -68,8 +68,6 @@ fn.#ValueExpression
 }) |
 fn.#ObjectExpression
 
-#GatewayRuleStatus: "CREATING" | "ACTIVE" | "UPDATING" | "DELETING" | fn.#StringExpression
-
 #IamPrincipal: close({
 	Arn!: strings.MaxRunes(2048) &
 	=~"^(arn:aws[a-zA-Z-]*:iam::(\\d{12}|\\*):(user|role)/[\\w+=,.@*?/-]+|arn:aws[a-zA-Z-]*:sts::(\\d{12}|\\*):assumed-role/[\\w+=,.@*?/-]+)$" |
@@ -106,8 +104,6 @@ fn.#ValueExpression
 fn.#ObjectExpression
 
 #StaticRoute: close({TargetName!: =~"^([0-9a-zA-Z][-]?){1,100}$" | fn.#StringExpression}) | fn.#ObjectExpression
-
-#SystemManagedBlock: close({ManagedBy!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #TargetTrafficSplitEntry: close({
 	Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression

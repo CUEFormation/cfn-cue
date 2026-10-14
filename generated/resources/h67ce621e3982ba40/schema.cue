@@ -42,22 +42,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ConnectorStatus: string | fn.#StringExpression
-
-#EnablementStatus: string | fn.#StringExpression
-
-#HealthIssue: close({
-	// The error code that identifies the type of health issue.
-	Code!:    #HealthIssueCode
-	Message!: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#HealthIssueCode: string | fn.#StringExpression
-
-#ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
-	fn.#StringExpression
-
 #Provider: close({Azure!: #AzureProviderConfiguration}) | fn.#ObjectExpression
 
 #Tags: {...} | fn.#ObjectExpression

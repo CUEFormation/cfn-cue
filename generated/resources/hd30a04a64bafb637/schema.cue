@@ -21,28 +21,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#DnsVerification: close({
-	DnsRecordName?: string | fn.#StringExpression
-	DnsRecordType?: "TXT" | fn.#StringExpression
-	Token?:         string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#HttpVerification: close({
-	RoutePath?: string | fn.#StringExpression
-	Token?:     string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#VerificationDetails: close({
-	DnsTxt?:    #DnsVerification
-	HttpRoute?: #HttpVerification
-	Method?:    "DNS_TXT" | "HTTP_ROUTE" | "PRIVATE_VPC" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -30,26 +30,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#ResourceExclusions: close({
-	EgressOnlyInternetGateway?: #VpcEncryptionControlExclusion
-	ElasticFileSystem?:         #VpcEncryptionControlExclusion
-	InternetGateway?:           #VpcEncryptionControlExclusion
-	Lambda?:                    #VpcEncryptionControlExclusion
-	NatGateway?:                #VpcEncryptionControlExclusion
-	VirtualPrivateGateway?:     #VpcEncryptionControlExclusion
-	VpcLattice?:                #VpcEncryptionControlExclusion
-	VpcPeering?:                #VpcEncryptionControlExclusion
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#VpcEncryptionControlExclusion: close({
-	State?:        string | fn.#StringExpression
-	StateMessage?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

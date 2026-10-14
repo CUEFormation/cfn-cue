@@ -417,8 +417,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RoleArn: string | fn.#StringExpression
-
 #S3Action: close({
 	BucketName!: string | fn.#StringExpression
 	CannedAcl?:  #CannedAccessControlList

@@ -41,18 +41,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#IamIdentityCenterApplicationArn: string | fn.#StringExpression
-
-#IamIdentityCenterConfigOptions: close({
-	ApplicationArn?:         #IamIdentityCenterApplicationArn
-	ApplicationDescription?: string | fn.#StringExpression
-	ApplicationName?:        string | fn.#StringExpression
-	GroupAttribute?:         #IamIdentityCenterGroupAttribute
-	InstanceArn!:            #IamIdentityCenterInstanceArn
-	UserAttribute?:          #IamIdentityCenterUserAttribute
-}) |
-fn.#ObjectExpression
-
 #IamIdentityCenterGroupAttribute: string | fn.#StringExpression
 
 #IamIdentityCenterInstanceArn: strings.MaxRunes(1224) &

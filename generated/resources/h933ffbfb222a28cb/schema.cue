@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 	"struct"
 )
@@ -43,8 +43,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" | fn.#StringExpression
-
 #DataAccessRole: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" | fn.#StringExpression
 
 #DataSourceConfigurationInput: matchN(1, [close(
@@ -55,16 +53,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	{SageMakerRunConfiguration?: #SageMakerRunConfigurationInput},
 )]) |
 fn.#ValueExpression
-
-#DataSourceStatus: "CREATING" |
-	"FAILED_CREATION" |
-	"READY" |
-	"UPDATING" |
-	"FAILED_UPDATE" |
-	"RUNNING" |
-	"DELETING" |
-	"FAILED_DELETION" |
-	fn.#StringExpression
 
 #EnableSetting: "ENABLED" | "DISABLED" | fn.#StringExpression
 
@@ -142,8 +130,6 @@ fn.#ObjectExpression
 	{RedshiftServerlessSource!: #RedshiftServerlessStorage},
 )]) |
 fn.#ValueExpression
-
-#Region: strings.MaxRunes(16) & strings.MinRunes(4) & =~"[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]" | fn.#StringExpression
 
 #RelationalFilterConfiguration: close({
 	DatabaseName!:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

@@ -2,8 +2,6 @@
 
 package schema
 
-import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,5 +12,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!:       "AWS::DevOpsGuru::LogAnomalyDetectionIntegration"
 	Properties?: close({})
 }
-
-#AccountId: =~"^\\d{12}$" | fn.#StringExpression

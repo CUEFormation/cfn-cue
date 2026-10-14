@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -31,49 +31,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#ConfigurationDefinition: close({
-	LocalDeploymentAdministrationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	LocalDeploymentExecutionRoleName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters!:                       #ConfigurationParametersMap
-	Type!:                             =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" | fn.#StringExpression
-	TypeVersion?:                      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	id?:                               string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ConfigurationParametersMap: close({
 
 	{[=~"^[A-Za-z0-9+=@_\\/\\s-]+$"]: strings.MaxRunes(40960) | fn.#StringExpression}}) |
 fn.#ObjectExpression
-
-#Status: "INITIALIZING" |
-	"DEPLOYING" |
-	"SUCCEEDED" |
-	"DELETING" |
-	"STOPPING" |
-	"FAILED" |
-	"STOPPED" |
-	"DELETE_FAILED" |
-	"STOP_FAILED" |
-	"NONE" |
-	fn.#StringExpression
-
-#StatusDetails: close({
-
-	{[=~".+"]: string | fn.#StringExpression}}) |
-fn.#ObjectExpression
-
-#StatusSummary: close({
-	LastUpdatedAt!: string | fn.#StringExpression
-	Status?:        #Status
-	StatusDetails?: #StatusDetails
-	StatusMessage?: string | fn.#StringExpression
-	StatusType!:    #StatusType
-}) |
-fn.#ObjectExpression
-
-#StatusType: "Deployment" | "AsyncExecutions" | fn.#StringExpression
 
 #TagsMap: close({
 

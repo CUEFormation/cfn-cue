@@ -40,20 +40,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #EndpointDetails: close({Vpc?: #Vpc}) | fn.#ObjectExpression
 
-#IdentityProviderDetails: close({
-	ApplicationArn?: strings.MaxRunes(1224) &
-	strings.MinRunes(10) &
-	=~"^arn:[\\w-]+:sso::\\d{12}:application/(sso)?ins-[a-zA-Z0-9-.]{16}/apl-[a-zA-Z0-9]{16}$" |
-	fn.#StringExpression
-	InstanceArn?: strings.MaxRunes(1224) &
-	strings.MinRunes(10) &
-	=~"^arn:[\\w-]+:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
-	fn.#StringExpression
-	Role?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:[a-z-]+:iam::[0-9]{12}:role[:/]\\S+$" |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression

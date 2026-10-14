@@ -45,8 +45,6 @@ fn.#ObjectExpression
 )]) |
 fn.#ValueExpression
 
-#RetrieverStatus: "CREATING" | "ACTIVE" | "FAILED" | fn.#StringExpression
-
 #RetrieverType: "NATIVE_INDEX" | "KENDRA_INDEX" | fn.#StringExpression
 
 #Tag: close({

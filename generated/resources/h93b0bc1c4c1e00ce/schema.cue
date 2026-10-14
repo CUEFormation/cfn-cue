@@ -27,12 +27,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #Action: string | fn.#StringExpression
 
-#Alias: close({
-	Status?: =~"^[A-Z]*$" | fn.#StringExpression
-	Value!:  =~"^[a-z0-9\\-]*$" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #AwsLambda: close({
 	FunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
 	fn.#StringExpression
@@ -45,17 +39,6 @@ fn.#ObjectExpression
 	CloudWatchMetricsEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SupportingAccessPoint!:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	TransformationConfigurations!: list.UniqueItems() & [...#TransformationConfiguration] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#PolicyStatus: close({IsPublic?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
-	fn.#ObjectExpression
-
-#PublicAccessBlockConfiguration: close({
-	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	BlockPublicPolicy?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IgnorePublicAcls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RestrictPublicBuckets?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 

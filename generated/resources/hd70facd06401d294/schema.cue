@@ -81,8 +81,6 @@ fn.#ObjectExpression
 
 #ContentType: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 
-#CreationTime: string | fn.#StringExpression
-
 #CustomerMetadataProperties: struct.MaxFields(50) & struct.MinFields(1) & close({
 
 	{[=~"^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)${1,128}"]: strings.MaxRunes(256) &
@@ -162,8 +160,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LastModifiedTime: string | fn.#StringExpression
-
 #MetadataProperties: close({
 	CommitId?:    strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 	GeneratedBy?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
@@ -209,8 +205,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ModelPackageArn: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-
 #ModelPackageContainerDefinition: close({
 	ContainerHostname?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" | fn.#StringExpression
 	Environment?:       #Environment
@@ -237,8 +231,6 @@ fn.#StringExpression
 
 #ModelPackageName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 fn.#StringExpression
-
-#ModelPackageStatus: "Pending" | "Deleting" | "InProgress" | "Completed" | "Failed" | fn.#StringExpression
 
 #ModelPackageStatusDetails: close({ValidationStatuses?: [...#ModelPackageStatusItem] | fn.#ListExpression}) |
 	fn.#ObjectExpression

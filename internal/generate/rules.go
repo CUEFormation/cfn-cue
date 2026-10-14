@@ -166,8 +166,8 @@ func (c *converter) applyRules(f *ast.File) error {
 		}
 		return true
 	})
-	for i := range c.rules {
-		if !placed[i] {
+	for i, r := range c.rules {
+		if r != nil && !placed[i] {
 			return fmt.Errorf("field rule %d was not placed by the JSON Schema extractor", i)
 		}
 	}

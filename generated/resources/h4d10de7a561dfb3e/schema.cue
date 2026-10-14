@@ -3,14 +3,10 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -28,49 +24,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
-
-#CoreNetworkEdge: close({
-	Asn?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EdgeLocation?:     string | fn.#StringExpression
-	InsideCidrBlocks?: [...string | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#CoreNetworkNetworkFunctionGroup: close({
-	EdgeLocations?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Name?:          string | fn.#StringExpression
-	Segments?: close({
-		SendTo?:  [...string | fn.#StringExpression] | fn.#ListExpression
-		SendVia?: [...string | fn.#StringExpression] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-}) |
-fn.#ObjectExpression
-
-#CoreNetworkSegment: close({
-	EdgeLocations?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	Name?:           string | fn.#StringExpression
-	SharedSegments?: [...string | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
 
 #Tag: close({
 	Key!:   strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression

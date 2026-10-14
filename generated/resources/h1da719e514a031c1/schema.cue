@@ -72,8 +72,6 @@ fn.#StringExpression
 
 #ApplicationServicePath: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-#AuthCode: strings.MaxRunes(4096) & =~"\\S+" | fn.#StringExpression
-
 #AuthenticationType: "OAUTH2" | "APIKEY" | "BASIC" | "CUSTOM" | fn.#StringExpression
 
 #BasicAuthCredentials: close({

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"time"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
 )
@@ -26,8 +26,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#CurrencyCode: "USD" | fn.#StringExpression
-
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
@@ -38,5 +36,3 @@ fn.#ObjectExpression
 	"AFTER_DISCOUNTS" |
 	"AFTER_DISCOUNTS_AND_COMMITMENTS" |
 	fn.#StringExpression
-
-#WorkloadEstimateStatus: "UPDATING" | "VALID" | "INVALID" | "ACTION_NEEDED" | fn.#StringExpression

@@ -27,8 +27,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#ChannelArn: strings.MaxRunes(256) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._/\\-:]+$)" | fn.#StringExpression
-
 #ChannelName: strings.MaxRunes(128) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._\\-]+$)" | fn.#StringExpression
 
 #Destination: close({
@@ -42,7 +40,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Timestamp: string | fn.#StringExpression
-
-#UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"(^[a-f0-9\\-]+$)" | fn.#StringExpression

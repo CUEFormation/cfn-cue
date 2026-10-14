@@ -72,8 +72,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #BlockOverrideDnsQueryType: "CNAME" | fn.#StringExpression
 
-#CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING" | fn.#StringExpression
-
 #ConfidenceThreshold: "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
 
 #DnsAdvancedProtection: "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA" | fn.#StringExpression

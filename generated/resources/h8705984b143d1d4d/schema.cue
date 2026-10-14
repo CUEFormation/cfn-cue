@@ -19,6 +19,4 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({ProjectName!: #ProjectName})
 }
 
-#Arn: strings.MaxRunes(1000) | fn.#StringExpression
-
 #ProjectName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9][a-zA-Z0-9_\\-]*" | fn.#StringExpression

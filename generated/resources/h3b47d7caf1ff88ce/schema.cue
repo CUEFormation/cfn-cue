@@ -28,17 +28,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#ClusterState: "CREATING" | "CREATE_FAILED" | "ACTIVE" | "DELETING" | "DELETED" | fn.#StringExpression
-
 #ClusterType: "ON_PREMISES" | "OUTPOSTS_RACK" | "OUTPOSTS_SERVER" | "EC2" | fn.#StringExpression
 
 #InterfaceMapping: close({
-	LogicalInterfaceName?: string | fn.#StringExpression
-	NetworkId?:            string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#InterfaceNetworkMapping: close({
 	LogicalInterfaceName?: string | fn.#StringExpression
 	NetworkId?:            string | fn.#StringExpression
 }) |

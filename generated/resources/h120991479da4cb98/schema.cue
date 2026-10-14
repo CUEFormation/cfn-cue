@@ -17,12 +17,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#HaStatus: "processing" | "active" | "standby" | "invalid" | fn.#StringExpression
-
 #InstanceId: =~"^i-[0-9a-f]{8,17}$" | fn.#StringExpression
 
-#LastUpdatedTime: string | fn.#StringExpression
-
 #SqlServerCredentials: string | fn.#StringExpression
-
-#SqlServerLicenseUsage: "full" | "waived" | fn.#StringExpression

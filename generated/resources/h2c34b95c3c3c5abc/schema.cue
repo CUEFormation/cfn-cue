@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -25,8 +25,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:          list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
 }
-
-#CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING" | fn.#StringExpression
 
 #Cidr: strings.MaxRunes(42) & strings.MinRunes(1) | fn.#StringExpression
 

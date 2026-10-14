@@ -80,22 +80,10 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#HubNetworkMode: "STANDARD" | "NETWORK_WIDE_EXCLUSION" | fn.#StringExpression
-
 #MetaData: struct.MaxFields(50) & struct.MinFields(1) & close({
 
 	{[=~"[a-zA-Z0-9_.,@/:#-]+"]: strings.MaxRunes(800) & =~"[a-zA-Z0-9_.,@/:#-]*" | fn.#StringExpression}}) |
 fn.#ObjectExpression
-
-#ProvisioningStatus: "UNASSOCIATED" |
-	"PRE_ASSOCIATED" |
-	"DISCOVERED" |
-	"ACTIVATED" |
-	"DELETION_FAILED" |
-	"DELETE_IN_PROGRESS" |
-	"ISOLATED" |
-	"DELETED" |
-	fn.#StringExpression
 
 #Role: "CONTROLLER" | "DEVICE" | fn.#StringExpression
 
@@ -103,8 +91,6 @@ fn.#ObjectExpression
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression
 
 #WiFiSimpleSetupConfiguration: close({
 	EnableAsProvisionee?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

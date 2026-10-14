@@ -181,95 +181,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#ComputeResources: close({
-	AllocationStrategy?: =~"(?i)^(?:best_fit|best_fit_progressive|best_fit_progressive_ordered|spot_capacity_optimized|spot_capacity_optimized_prioritized|spot_price_capacity_optimized)$" |
-		fn.#StringExpression
-	BidPercentage?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	CapacityTags?: close({
-
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	DesiredvCpus?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Ec2Configuration?: [...#Ec2ConfigurationObject] | fn.#ListExpression
-	Ec2KeyPair?:       string | fn.#StringExpression
-	ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	InstanceRole?:             string | fn.#StringExpression
-	InstanceTypes?:            [...string | fn.#StringExpression] | fn.#ListExpression
-	LaunchTemplate?:           #LaunchTemplateSpecification
-	ManagedInstancesProvider?: #ManagedInstancesProvider
-	MaxvCpus!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MinvCpus?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PlacementGroup?: string | fn.#StringExpression
-	ScalingPolicy?:  #ComputeScalingPolicy
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SpotIamFleetRole?: string | fn.#StringExpression
-	Subnets?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?: close({
-
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Type!: =~"(?i)^(?:ec2|ecs_managed_instances|fargate|fargate_spot|spot)$" | fn.#StringExpression
-	UpdateToLatestImageVersion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-}) |
-fn.#ObjectExpression
-
 #ComputeScalingPolicy: close({
 	MinScaleDownDelayMinutes?: int |
 		{
@@ -288,29 +199,8 @@ fn.#ObjectExpression
 }) |
 	fn.#ObjectExpression
 
-#Ec2ConfigurationObject: close({
-	BatchImageStatus?:       string | fn.#StringExpression
-	ImageIdOverride?:        string | fn.#StringExpression
-	ImageKubernetesVersion?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ImageType!:              strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #EcsSettings: close({ContainerInsights?: =~"(?i)^(?:disabled|enabled|enhanced)$" | fn.#StringExpression}) |
 	fn.#ObjectExpression
-
-#EksAccessEntry: close({
-	DesiredState?: =~"(?i)^(?:disabled|enabled|inherit_from_cluster)$" | fn.#StringExpression
-	Status?:       =~"(?i)^(?:active|inactive)$" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#EksConfiguration: close({
-	AccessEntry?:         #EksAccessEntry
-	EksClusterArn!:       string | fn.#StringExpression
-	KubernetesNamespace!: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #InfrastructureOptimization: close({
 	ScaleInAfter?: int |

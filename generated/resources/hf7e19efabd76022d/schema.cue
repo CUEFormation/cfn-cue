@@ -52,8 +52,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 	fn.#ObjectExpression
 
-#Arn: string | fn.#StringExpression
-
 #BucketEncryption: close(
 	{ServerSideEncryptionConfiguration!: list.UniqueItems() & [...#ServerSideEncryptionRule] | fn.#ListExpression},
 ) |

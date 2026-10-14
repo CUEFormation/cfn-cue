@@ -36,8 +36,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#OutputType: string | fn.#StringExpression
-
 #ProvisioningParameter: close({
 	Key!:   strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(4096) | fn.#StringExpression

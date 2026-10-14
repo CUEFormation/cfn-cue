@@ -98,8 +98,6 @@ fn.#ObjectExpression
 
 #CapacityProviderScalingMode: "Auto" | "Manual" | fn.#StringExpression
 
-#CapacityProviderState: "Pending" | "Active" | "Failed" | "Deleting" | fn.#StringExpression
-
 #CapacityProviderTelemetryConfig: close({
 	// The capacity provider's Amazon CloudWatch Logs configuration settings.
 	LoggingConfig?: #CapacityProviderLoggingConfig

@@ -17,11 +17,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 	})
 }
-
-#SecurityGroupVpcAssociationState: "associating" |
-	"associated" |
-	"association-failed" |
-	"disassociating" |
-	"disassociated" |
-	"disassociation-failed" |
-	fn.#StringExpression

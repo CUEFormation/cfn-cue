@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -34,11 +34,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Version!: string | fn.#StringExpression
 	})
 }
-
-#LatestVersion: close({
-	Arn?:   string | fn.#StringExpression
-	Major?: string | fn.#StringExpression
-	Minor?: string | fn.#StringExpression
-	Patch?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression

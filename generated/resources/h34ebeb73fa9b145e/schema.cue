@@ -136,17 +136,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RegistryRecordStatus: "DRAFT" |
-	"PENDING_APPROVAL" |
-	"APPROVED" |
-	"REJECTED" |
-	"DEPRECATED" |
-	"CREATING" |
-	"UPDATING" |
-	"CREATE_FAILED" |
-	"UPDATE_FAILED" |
-	fn.#StringExpression
-
 #SkillMdSource: close({FromUrl?: #SkillMdSourceFromUrl}) | fn.#ObjectExpression
 
 #SkillMdSourceFromUrl: close(

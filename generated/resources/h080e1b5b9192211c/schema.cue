@@ -64,8 +64,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	} |
 	fn.#NumberExpression
 
-#Id: string | fn.#StringExpression
-
 #InstanceId: string | fn.#StringExpression
 
 #VolumeId: string | fn.#StringExpression

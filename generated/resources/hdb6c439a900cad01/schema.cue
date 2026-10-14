@@ -2,10 +2,7 @@
 
 package schema
 
-import (
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
-)
+import "github.com/cueformation/cfn-cue/fn:fn"
 
 import cfnScalarStrings "strings"
 
@@ -77,11 +74,5 @@ fn.#ObjectExpression
 #ResponseParameterList: [...#ResponseParameter] | fn.#ListExpression
 
 #ResponseParameterMap: close({ResponseParameters?: #ResponseParameterList}) | fn.#ObjectExpression
-
-#Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #TlsConfig: close({ServerNameToVerify?: string | fn.#StringExpression}) | fn.#ObjectExpression

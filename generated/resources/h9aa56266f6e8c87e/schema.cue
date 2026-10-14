@@ -312,16 +312,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#HarnessAgentCoreRuntimeEnvironment: close({
-	AgentRuntimeArn?:          strings.MaxRunes(1011) & strings.MinRunes(20) | fn.#StringExpression
-	AgentRuntimeId?:           string | fn.#StringExpression
-	AgentRuntimeName?:         string | fn.#StringExpression
-	FilesystemConfigurations?: list.MaxItems(5) & [...] & [...#FilesystemConfiguration] | fn.#ListExpression
-	LifecycleConfiguration?:   #LifecycleConfiguration
-	NetworkConfiguration?:     #NetworkConfiguration
-}) |
-fn.#ObjectExpression
-
 #HarnessBedrockModelConfig: close({
 	AdditionalParams?: fn.#Object & {...} | fn.#ObjectExpression
 	ApiFormat?:        "converse_stream" | "responses" | "chat_completions" | fn.#StringExpression
@@ -399,9 +389,6 @@ fn.#ObjectExpression
 #HarnessDisabledMemoryConfiguration: close({}) | fn.#ObjectExpression
 
 #HarnessEnvironmentArtifact: close({ContainerConfiguration?: #ContainerConfiguration}) | fn.#ObjectExpression
-
-#HarnessEnvironmentProvider: close({AgentCoreRuntimeEnvironment?: #HarnessAgentCoreRuntimeEnvironment}) |
-	fn.#ObjectExpression
 
 #HarnessGatewayOutboundAuth: close({
 	AwsIam?: close({}) | fn.#ObjectExpression
@@ -655,40 +642,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#HarnessManagedMemoryConfiguration: close({
-	Arn?: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:memory/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
-		fn.#StringExpression
-	EncryptionKeyArn?: string | fn.#StringExpression
-	EventExpiryDuration?: int & <=365 & >=3 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=365 &
-							>=3,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Strategies?: list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [
-		..."SEMANTIC" | "SUMMARIZATION" | "USER_PREFERENCE" | "EPISODIC" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#HarnessMemoryConfiguration: close({
-	AgentCoreMemoryConfiguration?: #HarnessAgentCoreMemoryConfiguration
-	Disabled?:                     #HarnessDisabledMemoryConfiguration
-	ManagedMemoryConfiguration?:   #HarnessManagedMemoryConfiguration
-}) |
-fn.#ObjectExpression
-
 #HarnessModelConfiguration: close({
 	BedrockModelConfig?: #HarnessBedrockModelConfig
 	GeminiModelConfig?:  #HarnessGeminiModelConfig
@@ -842,15 +795,6 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
-
-#HarnessStatus: "CREATING" |
-	"CREATE_FAILED" |
-	"UPDATING" |
-	"UPDATE_FAILED" |
-	"READY" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	fn.#StringExpression
 
 #HarnessSummarizationConfiguration: close({
 	PreserveRecentMessages?: int |

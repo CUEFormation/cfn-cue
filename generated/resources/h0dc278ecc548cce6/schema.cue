@@ -76,52 +76,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#AirflowArn: strings.MaxRunes(1224) &
-strings.MinRunes(1) &
-=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:airflow:[a-z0-9\\-]+:\\d{12}:environment/\\w+" |
-fn.#StringExpression
-
 #AirflowVersion: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[0-9a-z.]+$" | fn.#StringExpression
 
-#CeleryExecutorQueue: strings.MaxRunes(1224) | fn.#StringExpression
-
-#CloudWatchLogGroupArn: strings.MaxRunes(1224) &
-=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:logs:[a-z0-9\\-]+:\\d{12}:log-group:\\w+" |
-fn.#StringExpression
-
-#ConfigKey: strings.MaxRunes(64) & =~"^[a-z]+([a-z._]*[a-z]+)?$" | fn.#StringExpression
-
-#ConfigValue: strings.MaxRunes(256) & =~".*" | fn.#StringExpression
-
-#CreatedAt: string | fn.#StringExpression
-
-#DatabaseVpcEndpointService: strings.MaxRunes(1224) | fn.#StringExpression
-
 #EndpointManagement: "CUSTOMER" | "SERVICE" | fn.#StringExpression
-
-#EnvironmentArn: strings.MaxRunes(1224) &
-strings.MinRunes(1) &
-=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:airflow:[a-z0-9\\-]+:\\d{12}:environment/\\w+" |
-fn.#StringExpression
 
 #EnvironmentClass: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 
 #EnvironmentName: strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-zA-Z][0-9a-zA-Z\\-_]*$" | fn.#StringExpression
-
-#EnvironmentStatus: "CREATING" |
-	"CREATE_FAILED" |
-	"AVAILABLE" |
-	"UPDATING" |
-	"DELETING" |
-	"DELETED" |
-	"UPDATE_FAILED" |
-	"UNAVAILABLE" |
-	"PENDING" |
-	fn.#StringExpression
-
-#ErrorCode: string | fn.#StringExpression
-
-#ErrorMessage: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 
 #ExecutionRoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(1224) &
@@ -133,32 +94,6 @@ fn.#StringExpression
 strings.MinRunes(1) &
 =~"^(((arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:kms:[a-z]{2}-[a-z]+-\\d:\\d+:)?key\\/)?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|(arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):kms:[a-z]{2}-[a-z]+-\\d:\\d+:)?alias/.+)$" |
 fn.#StringExpression
-
-#LastUpdate: close({
-	CreatedAt?:                 #UpdateCreatedAt
-	Error?:                     #UpdateError
-	Status?:                    #UpdateStatus
-	WorkerReplacementStrategy?: #WorkerReplacementStrategy
-}) |
-fn.#ObjectExpression
-
-#LoggingConfiguration: close({
-	DagProcessingLogs?: #ModuleLoggingConfiguration
-	SchedulerLogs?:     #ModuleLoggingConfiguration
-	TaskLogs?:          #ModuleLoggingConfiguration
-	WebserverLogs?:     #ModuleLoggingConfiguration
-	WorkerLogs?:        #ModuleLoggingConfiguration
-}) |
-fn.#ObjectExpression
-
-#LoggingConfigurationInput: close({
-	DagProcessingLogs?: #ModuleLoggingConfigurationInput
-	SchedulerLogs?:     #ModuleLoggingConfigurationInput
-	TaskLogs?:          #ModuleLoggingConfigurationInput
-	WebserverLogs?:     #ModuleLoggingConfigurationInput
-	WorkerLogs?:        #ModuleLoggingConfigurationInput
-}) |
-fn.#ObjectExpression
 
 #LoggingEnabled: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
@@ -228,19 +163,6 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#ModuleLoggingConfiguration: close({
-	CloudWatchLogGroupArn?: #CloudWatchLogGroupArn
-	Enabled?:               #LoggingEnabled
-	LogLevel?:              #LoggingLevel
-}) |
-fn.#ObjectExpression
-
-#ModuleLoggingConfigurationInput: close({
-	Enabled?:  #LoggingEnabled
-	LogLevel?: #LoggingLevel
-}) |
-fn.#ObjectExpression
-
 #NetworkConfiguration: close({
 	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [...#SecurityGroupId] | fn.#ListExpression
 	SubnetIds?:        list.MaxItems(2) & list.MinItems(2) & [...#SubnetId] | fn.#ListExpression
@@ -279,27 +201,9 @@ strings.MinRunes(1) &
 =~"^sg-[a-zA-Z0-9\\-._]+$" |
 fn.#StringExpression
 
-#ServiceRoleArn: strings.MaxRunes(1224) &
-=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-fn.#StringExpression
-
 #SubnetId: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^subnet-[a-zA-Z0-9\\-._]+$" | fn.#StringExpression
 
-#UpdateCreatedAt: string | fn.#StringExpression
-
-#UpdateError: close({
-	ErrorCode?:    #ErrorCode
-	ErrorMessage?: #ErrorMessage
-}) |
-fn.#ObjectExpression
-
-#UpdateStatus: "SUCCESS" | "PENDING" | "FAILED" | fn.#StringExpression
-
 #WebserverAccessMode: "PRIVATE_ONLY" | "PUBLIC_ONLY" | "PUBLIC_AND_PRIVATE" | fn.#StringExpression
-
-#WebserverUrl: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^https://.+$" | fn.#StringExpression
-
-#WebserverVpcEndpointService: strings.MaxRunes(1224) | fn.#StringExpression
 
 #WeeklyMaintenanceWindowStart: strings.MaxRunes(9) &
 strings.MinRunes(1) &

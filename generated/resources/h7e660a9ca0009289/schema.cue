@@ -124,14 +124,6 @@ fn.#ObjectExpression
 
 #IntermediateTableAnalysisRuleType: "CUSTOM" | fn.#StringExpression
 
-#IntermediateTableStatus: "CREATED" |
-	"POPULATE_STARTED" |
-	"POPULATE_SUCCESS" |
-	"POPULATE_FAILED" |
-	"DISALLOWED_BY_DATA_PROVIDER" |
-	"BASE_TABLE_REMOVED" |
-	fn.#StringExpression
-
 #OutputColumnThreshold: close({
 	MinimumIdentityCount!: int & <=100000 & >=0 |
 		{

@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -39,25 +39,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #AcmCertificateArn: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 	fn.#StringExpression
 
-#ActiveLinksCount: int |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression
-
-#Arn: strings.MaxRunes(2048) &
-strings.MinRunes(20) &
-=~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+$" |
-fn.#StringExpression
-
 #AutoScalingGroupNameList: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 
 #AutoScalingGroupsConfiguration: close({
@@ -70,18 +51,8 @@ fn.#ObjectExpression
 
 #Base64EncodedCertificateChain: strings.MaxRunes(2097152) & strings.MinRunes(1) | fn.#StringExpression
 
-#CertificateAssociationStatus: "PENDING_ASSOCIATION" |
-	"ASSOCIATED" |
-	"PENDING_DISASSOCIATION" |
-	"DISASSOCIATED" |
-	"EXPIRED" |
-	"FAILED" |
-	fn.#StringExpression
-
 #CertificateAuthorityCertificates: list.MaxItems(1) & list.UniqueItems() & [...] & [...#Base64EncodedCertificateChain] |
 	fn.#ListExpression
-
-#CreatedTimestamp: string | fn.#StringExpression
 
 #Description: =~"^[A-Za-z0-9 ]+$" | fn.#StringExpression
 
@@ -103,10 +74,6 @@ fn.#StringExpression
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#ExternalInboundEndpoint: #DomainName
-
-#GatewayId: =~"^(rtbapp-[a-z0-9-]{1,25}|rtb-gw-[a-z0-9-]{1,25})$" | fn.#StringExpression
 
 #GatewayType: "EXTERNAL" | "INTERNAL" | fn.#StringExpression
 
@@ -197,20 +164,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#InboundLinksCount: int |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression
-
 #ListenerConfig: close({Protocols!: list.MaxItems(2) & list.MinItems(1) & [...#Protocol] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
@@ -240,17 +193,6 @@ fn.#ObjectExpression
 
 #Protocol: "HTTP" | "HTTPS" | fn.#StringExpression
 
-#ResponderGatewayStatus: "PENDING_CREATION" |
-	"ACTIVE" |
-	"PENDING_DELETION" |
-	"DELETED" |
-	"ERROR" |
-	"PENDING_UPDATE" |
-	"ISOLATED" |
-	"PENDING_ISOLATION" |
-	"PENDING_RESTORATION" |
-	fn.#StringExpression
-
 #SecurityGroupIds: list.MinItems(1) & list.UniqueItems() & [
 	...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	string &
@@ -275,24 +217,8 @@ fn.#ObjectExpression
 
 #Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 
-#TotalLinksCount: int |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression
-
 #TrustStoreConfiguration: close({CertificateAuthorityCertificates!: #CertificateAuthorityCertificates}) |
 	fn.#ObjectExpression
-
-#UpdatedTimestamp: string | fn.#StringExpression
 
 #VpcId: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(50) &

@@ -244,11 +244,6 @@ fn.#ObjectExpression
 #BotAliasLocaleSettingsList: list.MaxItems(50) & list.UniqueItems() & [...#BotAliasLocaleSettingsItem] |
 	fn.#ListExpression
 
-#BotArn: strings.MaxRunes(1011) &
-strings.MinRunes(1) &
-=~"^arn:aws[a-zA-Z-]*:lex:[a-z]+-(?:[a-z]+-)*[0-9]:[0-9]{12}:bot/[0-9a-zA-Z]+$" |
-fn.#StringExpression
-
 #BotLocale: close({
 	AudioFillerSettings?:        #AudioFillerSettings
 	CustomVocabulary?:           #CustomVocabulary
@@ -297,12 +292,6 @@ fn.#ObjectExpression
 #Condition: close({ExpressionString!: #ConditionExpression}) | fn.#ObjectExpression
 
 #ConditionExpression: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-
-#Conditional: close({
-	ConditionalBranches!: #ConditionalBranches
-	IsActive!:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-}) |
-fn.#ObjectExpression
 
 #ConditionalBranch: close({
 	Condition!: #Condition
@@ -448,11 +437,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DataPrivacy: close(
-	{ChildDirected!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
-	fn.#ObjectExpression
-
 #DeepgramModelId: strings.MaxRunes(32) & strings.MinRunes(4) & =~"[A-Za-z0-9-_]+" | fn.#StringExpression
 
 #DeepgramSpeechModelConfig: close({
@@ -514,11 +498,6 @@ fn.#ObjectExpression
 	InvocationLabel?:          #Name
 }) |
 fn.#ObjectExpression
-
-#ErrorLogSettings: close(
-	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
-	fn.#ObjectExpression
 
 #ExternalSourceSetting: close({GrammarSlotTypeSetting?: #GrammarSlotTypeSetting}) | fn.#ObjectExpression
 
@@ -640,25 +619,6 @@ fn.#ObjectExpression
 	S3ObjectKey!:  #S3ObjectKey
 }) |
 fn.#ObjectExpression
-
-#Id: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$" | fn.#StringExpression
-
-#IdleSessionTTLInSeconds: int & <=86400 & >=60 |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-						int &
-						<=86400 &
-						>=60,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression
 
 #ImageResponseCard: close({
 	Buttons?:  list.MaxItems(5) & [...#Button] | fn.#ListExpression

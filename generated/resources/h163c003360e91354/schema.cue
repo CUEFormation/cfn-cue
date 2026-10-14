@@ -137,14 +137,6 @@ fn.#ObjectExpression
 ) |
 fn.#ObjectExpression
 
-#OnlineEvaluationConfigStatus: "ACTIVE" |
-	"CREATING" |
-	"CREATE_FAILED" |
-	"UPDATING" |
-	"UPDATE_FAILED" |
-	"DELETING" |
-	fn.#StringExpression
-
 #OutputConfig: close({CloudWatchConfig?: #CloudWatchOutputConfig}) | fn.#ObjectExpression
 
 #Rule: close({

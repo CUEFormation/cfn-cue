@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -27,15 +27,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:       list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
-
-#DomainEntry: close({
-	Id?:      string | fn.#StringExpression
-	IsAlias?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:    string | fn.#StringExpression
-	Target!:  string | fn.#StringExpression
-	Type!:    "A" | "AAAA" | "CNAME" | "MX" | "NS" | "SOA" | "SRV" | "TXT" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression

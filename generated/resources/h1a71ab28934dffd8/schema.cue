@@ -3,9 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"time"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -40,9 +39,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#BrowserArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):browser(-custom)?\\/(aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" |
-	fn.#StringExpression
-
 #BrowserEnterprisePolicies: list.MaxItems(10) & [...] & [...#BrowserEnterprisePolicy] | fn.#ListExpression
 
 #BrowserEnterprisePolicy: close({
@@ -56,8 +52,6 @@ fn.#ObjectExpression
 
 #BrowserEnterprisePolicyType: "MANAGED" | "RECOMMENDED" | fn.#StringExpression
 
-#BrowserId: =~"^(aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" | fn.#StringExpression
-
 #BrowserNetworkConfiguration: close({
 	NetworkMode!: #BrowserNetworkMode
 	VpcConfig?:   #VpcConfig
@@ -70,21 +64,6 @@ fn.#ObjectExpression
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
-
-#BrowserStatus: "CREATING" | "CREATE_FAILED" | "READY" | "DELETING" | "DELETE_FAILED" | "DELETED" | fn.#StringExpression
-
-#BrowserSummaries: [...#BrowserSummary] | fn.#ListExpression
-
-#BrowserSummary: close({
-	BrowserArn!:    #BrowserArn
-	BrowserId!:     #BrowserId
-	CreatedAt!:     time.Time | fn.#StringExpression
-	Description?:   string | fn.#StringExpression
-	LastUpdatedAt?: time.Time | fn.#StringExpression
-	Name?:          string | fn.#StringExpression
-	Status!:        #BrowserStatus
-}) |
-fn.#ObjectExpression
 
 #Certificate: close({
 	// Certificate location in Secrets Manager.

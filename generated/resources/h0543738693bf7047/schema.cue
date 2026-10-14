@@ -127,8 +127,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#SamlConfigurationStatus: "CONFIGURED" | "NOT_CONFIGURED" | fn.#StringExpression
-
 #VpcConfiguration: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
@@ -141,18 +139,3 @@ fn.#ObjectExpression
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-
-#WorkspaceStatus: "ACTIVE" |
-	"CREATING" |
-	"DELETING" |
-	"FAILED" |
-	"UPDATING" |
-	"UPGRADING" |
-	"VERSION_UPDATING" |
-	"DELETION_FAILED" |
-	"CREATION_FAILED" |
-	"UPDATE_FAILED" |
-	"UPGRADE_FAILED" |
-	"LICENSE_REMOVAL_FAILED" |
-	"VERSION_UPDATE_FAILED" |
-	fn.#StringExpression

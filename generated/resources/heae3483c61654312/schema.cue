@@ -210,8 +210,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	"ml.g7e.48xlarge" |
 	fn.#StringExpression
 
-#AppLifecycleManagement: close({IdleSettings?: #IdleSettings}) | fn.#ObjectExpression
-
 #AppType: "JupyterServer" |
 	"TensorBoard" |
 	"RStudioServerPro" |
@@ -352,31 +350,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#IdleSettings: close({
-	IdleTimeoutInMinutes?:    #IdleTimeoutInMinutes
-	LifecycleManagement?:     #LifecycleManagement
-	MaxIdleTimeoutInMinutes?: #MaxIdleTimeoutInMinutes
-	MinIdleTimeoutInMinutes?: #MinIdleTimeoutInMinutes
-}) |
-fn.#ObjectExpression
-
-#IdleTimeoutInMinutes: int & <=525600 & >=60 |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-						int &
-						<=525600 &
-						>=60,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression
-
 #JupyterLabAppSettings: close({
 	BuiltInLifecycleConfigArn?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
@@ -410,42 +383,6 @@ fn.#ObjectExpression
 	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-
-#LifecycleManagement: "ENABLED" | "DISABLED" | fn.#StringExpression
-
-#MaxIdleTimeoutInMinutes: int & <=525600 & >=60 |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-						int &
-						<=525600 &
-						>=60,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression
-
-#MinIdleTimeoutInMinutes: int & <=525600 & >=60 |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-						int &
-						<=525600 &
-						>=60,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression
 
 #MlTools: "DataWrangler" |
 	"FeatureStore" |

@@ -24,8 +24,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#AccessToken: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-
 #ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 
 #Tag: close({
@@ -33,5 +31,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TokenStatus: "CREATING" | "OPERATIONAL" | "DELETING" | fn.#StringExpression

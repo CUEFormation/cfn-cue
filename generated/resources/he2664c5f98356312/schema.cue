@@ -3,9 +3,8 @@
 package schema
 
 import (
-	"time"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -23,8 +22,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#CreationTime: time.Time | fn.#StringExpression
-
 #EncryptionConfiguration: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
@@ -40,7 +37,5 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#VectorBucketArn: string | fn.#StringExpression
 
 #VectorBucketName: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression

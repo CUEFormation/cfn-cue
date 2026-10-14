@@ -44,31 +44,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#AdditionalServiceDetails: fn.#Object & {...} & matchN(1, [close(
-	{MCPServer!: #RegisteredMCPServerDetails},
-), close(
-	{GitLab!: #RegisteredGitLabServiceDetails},
-), close(
-	{GitHub!: #RegisteredGitHubServiceDetails},
-), close(
-	{MCPServerSplunk!: #RegisteredMCPServerDetails},
-), close(
-	{MCPServerNewRelic!: #RegisteredNewRelicDetails},
-), close(
-	{Dynatrace!: #RegisteredDynatraceDetails},
-), close(
-	{ServiceNow!: #RegisteredServiceNowDetails},
-), close(
-	{PagerDuty!: #RegisteredPagerDutyDetails},
-), close(
-	{AzureIdentity!: #RegisteredAzureIdentityDetails},
-), close(
-	{MCPServerSigV4!: #RegisteredMCPServerSigV4Details},
-), close(
-	{MCPServerGrafana!: #RegisteredMCPServerGrafanaDetails},
-)]) |
-fn.#ObjectExpression
-
 #ApiKeyDetails: close({
 	ApiKeyHeader!: =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
 	ApiKeyName!:   =~"^[a-zA-Z0-9_\\s-]+$" | fn.#StringExpression
@@ -240,81 +215,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RegisteredAzureIdentityDetails: close({
-	ClientId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" | fn.#StringExpression
-	TenantId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" | fn.#StringExpression
-	WebIdentityRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+$" |
-		fn.#StringExpression
-	WebIdentityTokenAudiences!: [...string | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#RegisteredDynatraceDetails: close({AccountUrn!: string | fn.#StringExpression}) | fn.#ObjectExpression
-
-#RegisteredGitHubServiceDetails: close({
-	AppVariant?:  "READ_ONLY" | "READ_WRITE" | "CUSTOM_APP" | fn.#StringExpression
-	AuthMode?:    "app" | "pat" | fn.#StringExpression
-	HostingType?: "SAAS" | "SELF_MANAGED" | "DEDICATED" | fn.#StringExpression
-	Owner!:       string | fn.#StringExpression
-	OwnerType!:   "organization" | "user" | fn.#StringExpression
-	TargetUrl?:   string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#RegisteredGitLabServiceDetails: close({
-	GroupId?:   string | fn.#StringExpression
-	TargetUrl!: string | fn.#StringExpression
-	TokenType!: "personal" | "group" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#RegisteredMCPServerDetails: close({
-	ApiKeyHeader?:        string | fn.#StringExpression
-	AuthorizationMethod!: "oauth-client-credentials" | "api-key" | "bearer-token" | fn.#StringExpression
-	Description?:         string | fn.#StringExpression
-	Endpoint!:            string | fn.#StringExpression
-	Name!:                string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#RegisteredMCPServerGrafanaDetails: close({
-	AuthorizationMethod!: "bearer-token" | fn.#StringExpression
-	Description?:         string | fn.#StringExpression
-	Endpoint!:            string | fn.#StringExpression
-	Name?:                string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#RegisteredMCPServerSigV4Details: close({
-	CustomHeaders?: close({
-
-		{[=~"^[a-zA-Z0-9-_]+$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Description?: string | fn.#StringExpression
-	Endpoint!:    string | fn.#StringExpression
-	McpRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Name!:   string | fn.#StringExpression
-	Region!: string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Service!: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#RegisteredNewRelicDetails: close({
-	AccountId!:   string | fn.#StringExpression
-	Description?: string | fn.#StringExpression
-	Region!:      "US" | "EU" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#RegisteredPagerDutyDetails: close({Scopes!: [...string | fn.#StringExpression] | fn.#ListExpression}) |
-	fn.#ObjectExpression
-
-#RegisteredServiceNowDetails: close({InstanceUrl!: string | fn.#StringExpression}) | fn.#ObjectExpression
-
 #ServiceDetails: fn.#Object & {...} & matchN(1, [close(
 	{Dynatrace!: #DynatraceServiceDetails},
 ), close(
@@ -339,8 +239,6 @@ fn.#ObjectExpression
 	{MCPServerGrafana!: #MCPServerGrafanaDetails},
 )]) |
 fn.#ObjectExpression
-
-#ServiceId: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
 #ServiceNowAuthorizationConfig: close({OAuthClientCredentials?: #OAuthClientDetails}) | fn.#ObjectExpression
 

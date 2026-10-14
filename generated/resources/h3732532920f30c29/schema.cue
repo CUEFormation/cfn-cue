@@ -103,12 +103,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#IDCConfig: close({
-	ApplicationArn?: string | fn.#StringExpression
-	InstanceArn?:    string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #MicrosoftEntraConfig: close({
 	ApplicationConfigSecretArn?: =~"^arn:aws[a-z-]{0,7}:secretsmanager:[A-za-z0-9_/.-]{0,63}:[A-za-z0-9_/.-]{0,63}:secret:[A-Za-z0-9][A-za-z0-9_/.-]{8,519}$" |
 		fn.#StringExpression

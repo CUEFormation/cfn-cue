@@ -26,12 +26,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #ComputeNodeGroupConfiguration: close({ComputeNodeGroupId?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-#ErrorInfo: close({
-	Code?:    string | fn.#StringExpression
-	Message?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #SlurmCustomSetting: close({
 	ParameterName!:  string | fn.#StringExpression
 	ParameterValue!: string | fn.#StringExpression

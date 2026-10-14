@@ -53,33 +53,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#ArgoCd: close({
-	AwsIdc!: #AwsIdc
-	EndpointPrefix?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
-	fn.#StringExpression
-	Namespace?:        string | fn.#StringExpression
-	NetworkAccess?:    #NetworkAccess
-	RbacRoleMappings?: [...#ArgoCdRoleMapping] | fn.#ListExpression
-	ServerUrl?:        string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ArgoCdRoleMapping: close({
 	Identities!: [...#SsoIdentity] | fn.#ListExpression
 	Role!:       "ADMIN" | "EDITOR" | "VIEWER" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#AwsIdc: close({
-	IdcInstanceArn!:           string | fn.#StringExpression
-	IdcManagedApplicationArn?: string | fn.#StringExpression
-	IdcRegion?:                string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#CapabilityConfiguration: close({
-	Ack?:    #Ack
-	ArgoCd?: #ArgoCd
 }) |
 fn.#ObjectExpression
 

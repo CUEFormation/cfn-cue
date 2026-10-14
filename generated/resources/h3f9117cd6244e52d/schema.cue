@@ -30,16 +30,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #ProvisioningType: "FLEET_PROVISIONING" | "JITR" | fn.#StringExpression
 
-#Status: "CREATE_IN_PROGRESS" |
-	"CREATE_FAILED" |
-	"CREATED" |
-	"DELETE_IN_PROGRESS" |
-	"DELETE_FAILED" |
-	fn.#StringExpression
-
 #TagsMap: struct.MaxFields(50) & struct.MinFields(0) & close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression

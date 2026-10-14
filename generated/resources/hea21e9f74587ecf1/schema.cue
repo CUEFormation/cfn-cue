@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -23,13 +23,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	})
 }
-
-#DomainUnitGroupProperties: close({GroupId?: string | fn.#StringExpression}) | fn.#ObjectExpression
-
-#DomainUnitOwnerProperties: close({
-	Group?: #DomainUnitGroupProperties
-	User?:  #DomainUnitUserProperties
-}) |
-fn.#ObjectExpression
-
-#DomainUnitUserProperties: close({UserId?: string | fn.#StringExpression}) | fn.#ObjectExpression

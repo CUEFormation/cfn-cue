@@ -36,23 +36,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 ]) |
 fn.#ValueExpression
 
-#RouterNetworkInterfaceState: "CREATING" |
-	"ACTIVE" |
-	"UPDATING" |
-	"DELETING" |
-	"ERROR" |
-	"RECOVERING" |
-	fn.#StringExpression
-
-#RouterNetworkInterfaceType: "PUBLIC" | "VPC" | fn.#StringExpression
-
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression
 
 #VpcRouterNetworkInterfaceConfiguration: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [

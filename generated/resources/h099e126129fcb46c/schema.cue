@@ -98,16 +98,6 @@ fn.#ObjectExpression
 }) & matchN(>=1, [{BedrockEvaluatorModelConfig!: _}, {ResponsesEvaluatorModelConfig!: _}]) |
 fn.#ObjectExpression
 
-#EvaluatorStatus: "ACTIVE" |
-	"CREATING" |
-	"CREATE_FAILED" |
-	"UPDATING" |
-	"UPDATE_FAILED" |
-	"DELETING" |
-	fn.#StringExpression
-
-#EvaluatorType: "Builtin" | "ThirdParty" | "Custom" | "CustomCode" | "CustomDerived" | fn.#StringExpression
-
 #InferenceConfiguration: close({
 	MaxTokens?: int & >=1 |
 		{
@@ -282,8 +272,6 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-
-#Provider: "AWS" | "DeepEval" | "AutoEval" | "Custom" | fn.#StringExpression
 
 #RatingScale: close({
 	Categorical?: [...#CategoricalScaleDefinition] | fn.#ListExpression

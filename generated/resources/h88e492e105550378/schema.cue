@@ -42,13 +42,4 @@ fn.#ObjectExpression
 #PolicyStatement: close({Statement!: strings.MaxRunes(10000) & strings.MinRunes(35) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-#PolicyStatus: "CREATING" |
-	"ACTIVE" |
-	"UPDATING" |
-	"DELETING" |
-	"CREATE_FAILED" |
-	"UPDATE_FAILED" |
-	"DELETE_FAILED" |
-	fn.#StringExpression
-
 #PolicyValidationMode: "FAIL_ON_ANY_FINDINGS" | "IGNORE_ALL_FINDINGS" | fn.#StringExpression

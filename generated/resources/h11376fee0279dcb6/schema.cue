@@ -2,10 +2,7 @@
 
 package schema
 
-import (
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
-)
+import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -17,8 +14,4 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Properties!: close({Status!: #AutoshiftObserverNotificationStatus})
 }
 
-#AccountId: =~"^\\d{12}$" | fn.#StringExpression
-
 #AutoshiftObserverNotificationStatus: "ENABLED" | fn.#StringExpression
-
-#Region: strings.MaxRunes(30) & strings.MinRunes(5) & =~"^[a-z0-9-]*$" | fn.#StringExpression

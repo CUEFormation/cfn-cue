@@ -69,15 +69,6 @@ fn.#ObjectExpression
 )]) |
 fn.#ValueExpression
 
-#PluginBuildStatus: "READY" |
-	"CREATE_IN_PROGRESS" |
-	"CREATE_FAILED" |
-	"UPDATE_IN_PROGRESS" |
-	"UPDATE_FAILED" |
-	"DELETE_IN_PROGRESS" |
-	"DELETE_FAILED" |
-	fn.#StringExpression
-
 #PluginState: "ENABLED" | "DISABLED" | fn.#StringExpression
 
 #PluginType: "SERVICE_NOW" |

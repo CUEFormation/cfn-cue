@@ -25,8 +25,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#NodeConnectionState: "CONNECTED" | "DISCONNECTED" | fn.#StringExpression
-
 #NodeInterfaceMapping: close({
 	LogicalInterfaceName?:  string | fn.#StringExpression
 	NetworkInterfaceMode?:  "NAT" | "BRIDGE" | fn.#StringExpression
@@ -34,28 +32,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#NodeInterfaceMappingCreateRequest: close({
-	LogicalInterfaceName?:  string | fn.#StringExpression
-	NetworkInterfaceMode?:  "NAT" | "BRIDGE" | fn.#StringExpression
-	PhysicalInterfaceName?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #NodeRole: "BACKUP" | "ACTIVE" | fn.#StringExpression
-
-#NodeState: "CREATED" |
-	"REGISTERING" |
-	"READY_TO_ACTIVATE" |
-	"REGISTRATION_FAILED" |
-	"ACTIVATION_FAILED" |
-	"ACTIVE" |
-	"READY" |
-	"IN_USE" |
-	"DEREGISTERING" |
-	"DRAINING" |
-	"DEREGISTRATION_FAILED" |
-	"DEREGISTERED" |
-	fn.#StringExpression
 
 #SdiSourceMapping: close({
 	CardNumber?: int |

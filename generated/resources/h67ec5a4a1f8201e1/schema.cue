@@ -88,55 +88,6 @@ fn.#ObjectExpression
 ) |
 fn.#ObjectExpression
 
-#FirewallRule: close({
-	Action!:               "ALLOW" | "BLOCK" | "ALERT" | fn.#StringExpression
-	BlockOverrideDnsType?: "CNAME" | fn.#StringExpression
-	BlockOverrideDomain?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	BlockOverrideTtl?: int & <=604800 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=604800 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	BlockResponse?:                   "NODATA" | "NXDOMAIN" | "OVERRIDE" | fn.#StringExpression
-	ConfidenceThreshold?:             "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
-	DnsThreatProtection?:             "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA" | fn.#StringExpression
-	FirewallDomainListId?:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	FirewallDomainRedirectionAction?: "INSPECT_REDIRECTION_DOMAIN" | "TRUST_REDIRECTION_DOMAIN" | fn.#StringExpression
-
-	// Advanced firewall rule type. Mutually exclusive with FirewallDomainListId and
-	// DnsThreatProtection/ConfidenceThreshold.
-	FirewallRuleType?:           #FirewallRuleType
-	FirewallThreatProtectionId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Priority!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Qtype?:  strings.MaxRunes(16) & strings.MinRunes(1) | fn.#StringExpression
-	Status?: "COMPLETE" | "CREATING" | "CREATION_FAILED" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #FirewallRuleType: close({
 	FirewallAdvancedContentCategory?: #FirewallAdvancedContentCategoryConfig
 	FirewallAdvancedThreatCategory?:  #FirewallAdvancedThreatCategoryConfig

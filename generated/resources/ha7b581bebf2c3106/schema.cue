@@ -3,9 +3,8 @@
 package schema
 
 import (
-	"time"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -26,19 +25,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#CreatedAt: time.Time | fn.#StringExpression
-
-#DefinitionHash: strings.MaxRunes(128) & strings.MinRunes(128) & =~"^[0-9a-z]{128}$" | fn.#StringExpression
-
 #Description: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" | fn.#StringExpression
 
 #ForceDelete: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-
-#KmsKeyArn: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-strings.MaxRunes(2048) &
-strings.MinRunes(1) &
-=~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
-fn.#StringExpression
 
 #KmsKeyId: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 	string) &
@@ -48,11 +37,6 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 #Name: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$" | fn.#StringExpression
-
-#PolicyArn: strings.MaxRunes(2048) &
-strings.MinRunes(1) &
-=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:automated-reasoning-policy\\/[a-z0-9]{12}$" |
-fn.#StringExpression
 
 #PolicyDefinition: close({
 	// The rules definition block of an AutomatedReasoningPolicyDefinition.
@@ -105,8 +89,6 @@ fn.#ObjectExpression
 
 #PolicyDefinitionVariableList: list.MaxItems(200) & [...] & [...#PolicyDefinitionVariable] | fn.#ListExpression
 
-#PolicyId: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-z0-9]{12}$" | fn.#StringExpression
-
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
@@ -114,7 +96,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-
-#UpdatedAt: time.Time | fn.#StringExpression
-
-#Version: =~"^(([1-9][0-9]{0,11})|(DRAFT))$" | fn.#StringExpression

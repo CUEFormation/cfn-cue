@@ -21,10 +21,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#PhysicalId: string | fn.#StringExpression
-
 #Policy: fn.#Object & {...} | string | fn.#StringObjectExpression
 
 #ResourceArn: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
-
-#RevisionId: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^[0-9]+$" | fn.#StringExpression

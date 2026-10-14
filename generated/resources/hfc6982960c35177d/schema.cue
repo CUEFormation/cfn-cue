@@ -4,7 +4,6 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"time"
 	"strings"
 )
 
@@ -52,37 +51,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#AnycastIpList: close({
-	AnycastIps!: [...string | fn.#StringExpression] | fn.#ListExpression
-	Arn!:        string | fn.#StringExpression
-	Id!:         string | fn.#StringExpression
-
-	// The IP address type for the Anycast static IP list.
-	IpAddressType?: #IpAddressType
-	IpCount!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-
-	// The results for the IPAM CIDRs that defines a specific IP address range, IPAM
-	// pool, and associated Anycast IP address.
-	IpamCidrConfigResults?: #IpamCidrConfigResults
-	LastModifiedTime!:      time.Time | fn.#StringExpression
-	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
-	Status!: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #IpAddressType: "ipv4" | "dualstack" | fn.#StringExpression
 
 #IpamCidrConfig: close({
@@ -90,16 +58,6 @@ fn.#ObjectExpression
 	IpamPoolArn!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#IpamCidrConfigResult: close({
-	AnycastIp?:   string | fn.#StringExpression
-	Cidr?:        string | fn.#StringExpression
-	IpamPoolArn?: string | fn.#StringExpression
-	Status?:      string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#IpamCidrConfigResults: [...#IpamCidrConfigResult] | fn.#ListExpression
 
 #IpamCidrConfigs: [...#IpamCidrConfig] | fn.#ListExpression
 

@@ -132,8 +132,6 @@ fn.#ObjectExpression
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-#Uuid: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" | fn.#StringExpression
-
 #WorkflowEngine: ("WDL" | "NEXTFLOW" | "CWL") & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression
 
 #WorkflowParameter: close({
@@ -147,8 +145,3 @@ fn.#ObjectExpression
 
 	{[=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"]: #WorkflowParameter}}) |
 fn.#ObjectExpression
-
-#WorkflowStatus: ("CREATING" | "ACTIVE" | "UPDATING" | "DELETED" | "FAILED") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
-fn.#StringExpression
-
-#WorkflowType: "PRIVATE" & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression

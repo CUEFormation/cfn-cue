@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -43,11 +43,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		TaskReportConfig?: #TaskReportConfig
 	})
 }
-
-#DestinationNetworkInterfaceArns: list.MaxItems(128) & [
-	...=~"^arn:aws[\\-a-z]{0,}:ec2:[a-z\\-0-9]*:[0-9]{12}:network-interface/eni-[0-9a-f]+$" | fn.#StringExpression
-] |
-	fn.#ListExpression
 
 #FilterRule: close({
 	FilterType?: "SIMPLE_PATTERN" & strings.MaxRunes(128) & =~"^[A-Z0-9_]+$" | fn.#StringExpression
@@ -113,11 +108,6 @@ fn.#ObjectExpression
 	VerifyMode?:                  "POINT_IN_TIME_CONSISTENT" | "ONLY_FILES_TRANSFERRED" | "NONE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#SourceNetworkInterfaceArns: list.MaxItems(128) & [
-	...=~"^arn:aws[\\-a-z]{0,}:ec2:[a-z\\-0-9]*:[0-9]{12}:network-interface/eni-[0-9a-f]+$" | fn.#StringExpression
-] |
-	fn.#ListExpression
 
 #Tag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" | fn.#StringExpression

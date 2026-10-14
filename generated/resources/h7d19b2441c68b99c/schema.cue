@@ -173,13 +173,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #AlarmDetails: close({AlarmName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-#AutoPatchConfig: close({
-	DeploymentConfig?: #DeploymentConfig
-	PatchSchedule?:    #PatchSchedule
-	PatchingStrategy!: "WhenIdle" | "WhenAllIdle" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #AutoRollbackConfiguration: list.MaxItems(10) & list.MinItems(1) & [...#AlarmDetails] | fn.#ListExpression
 
 #CapacitySizeConfig: close({
@@ -274,94 +267,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ClusterInstanceGroup: close({
-	AutoPatchConfig?:      #AutoPatchConfig
-	CapacityRequirements?: #ClusterCapacityRequirements
-	CurrentCount?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ExecutionRole!: #ExecutionRole
-	ImageId?:       #ImageId
-	InstanceCount!: int & <=6758 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=6758 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	InstanceGroupName!:      #InstanceGroupName
-	InstanceRequirements?:   #InstanceRequirements
-	InstanceStorageConfigs?: #ClusterInstanceStorageConfigs
-	InstanceType?:           #InstanceType
-	KubernetesConfig?:       #ClusterKubernetesConfig
-	LifeCycleConfig?:        #ClusterLifeCycleConfig
-	MinInstanceCount?: int & <=6758 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=6758 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	NetworkInterface?:        #ClusterNetworkInterface
-	OnStartDeepHealthChecks?: #OnStartDeepHealthChecks
-	OverrideVpcConfig?:       #VpcConfig
-	ScheduledUpdateConfig?:   #ScheduledUpdateConfig
-	SlurmConfig?:             #ClusterSlurmConfig
-	ThreadsPerCore?: int & <=2 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=2 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TrainingPlanArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(50) &
-	=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ClusterInstanceGroupsList: list.MaxItems(100) & list.MinItems(1) & [...#ClusterInstanceGroup] | fn.#ListExpression
-
 #ClusterInstanceStorageConfig: fn.#Object & {...} & matchN(1, [close(
 	{EbsVolumeConfig?: #ClusterEbsVolumeConfig},
 ), close(
@@ -415,71 +320,6 @@ fn.#ObjectExpression
 	SlurmConfigStrategy?: "Overwrite" | "Managed" | "Merge" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#ClusterRestrictedInstanceGroup: close({
-	CurrentCount?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EnvironmentConfig?: #EnvironmentConfig
-	ExecutionRole!:     #ExecutionRole
-	InstanceCount!: int & <=6758 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=6758 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	InstanceGroupName!:       #InstanceGroupName
-	InstanceStorageConfigs?:  #ClusterInstanceStorageConfigs
-	InstanceType!:            #InstanceType
-	OnStartDeepHealthChecks?: #OnStartDeepHealthChecks
-	OverrideVpcConfig?:       #VpcConfig
-	ThreadsPerCore?: int & <=2 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=2 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TrainingPlanArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(50) &
-	=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ClusterRestrictedInstanceGroupsList: list.MaxItems(100) & list.MinItems(1) & [...#ClusterRestrictedInstanceGroup] |
-	fn.#ListExpression
 
 #ClusterSlurmConfig: close({
 	NodeType!: "Controller" | "Login" | "Compute" | fn.#StringExpression
@@ -581,8 +421,6 @@ fn.#StringExpression
 	close({Eks?: #ClusterOrchestratorEksConfig}), close({Slurm?: #ClusterOrchestratorSlurmConfig}),
 ]) |
 fn.#ObjectExpression
-
-#PatchSchedule: close({NextPatchDate?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #RestrictedInstanceGroupsConfig: close({SharedEnvironmentConfig!: #SharedEnvironmentConfig}) | fn.#ObjectExpression
 

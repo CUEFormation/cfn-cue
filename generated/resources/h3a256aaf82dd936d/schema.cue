@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -28,18 +28,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Source!: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^aws.([a-z0-9\\-])+$" | fn.#StringExpression
 	})
 }
-
-#EventRuleStatus: "ACTIVE" | "INACTIVE" | "CREATING" | "UPDATING" | "DELETING" | fn.#StringExpression
-
-#EventRuleStatusSummary: close({
-	Reason!: string | fn.#StringExpression
-	Status!: #EventRuleStatus
-}) |
-fn.#ObjectExpression
-
-#StatusSummaryByRegion: close({
-
-	{[=~"^([a-z]{1,2})-([a-z]{1,15}-)+([0-9])$"]: #EventRuleStatusSummary}}) |
-fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression

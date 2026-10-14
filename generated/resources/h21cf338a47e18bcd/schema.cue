@@ -46,21 +46,6 @@ fn.#ObjectExpression
 
 #ChannelName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" | fn.#StringExpression
 
-#ChannelStateInfo: close({
-	Code?:    string | fn.#StringExpression
-	Message?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ChannelStatus: "CREATING" |
-	"ACTIVE" |
-	"UPDATING" |
-	"DELETING" |
-	"FAILED" |
-	"SUSPENDING" |
-	"SUSPENDED" |
-	fn.#StringExpression
-
 #CloudWatchLogsLogDestination: close({
 	Enabled!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LogGroup?: string | fn.#StringExpression

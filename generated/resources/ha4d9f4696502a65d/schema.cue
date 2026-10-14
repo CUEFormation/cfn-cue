@@ -6,7 +6,6 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
-	"time"
 )
 
 import cfnScalarStrings "strings"
@@ -36,15 +35,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }
 
 #ApprovalStrategy: close({MofN!: #MofNApprovalStrategy}) | fn.#ObjectExpression
-
-#Approver: close({
-	ApproverId?:               string | fn.#StringExpression
-	PrimaryIdentityId!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	PrimaryIdentitySourceArn!: strings.MaxRunes(1000) | fn.#StringExpression
-	PrimaryIdentityStatus?:    string | fn.#StringExpression
-	ResponseTime?:             #Timestamp
-}) |
-fn.#ObjectExpression
 
 #MofNApprovalStrategy: close({
 	MinApprovalsRequired!: int |
@@ -79,5 +69,3 @@ fn.#ValueExpression
 fn.#ObjectExpression
 
 #Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-
-#Timestamp: time.Time | fn.#StringExpression

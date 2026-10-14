@@ -197,8 +197,6 @@ fn.#ObjectExpression
 ) |
 fn.#ObjectExpression
 
-#SpaceAppLifecycleManagement: close({IdleSettings?: #SpaceIdleSettings}) | fn.#ObjectExpression
-
 #SpaceCodeEditorAppSettings: close({DefaultResourceSpec?: #ResourceSpec}) | fn.#ObjectExpression
 
 #SpaceEbsVolumeSizeInGb: int & <=16384 & >=5 |
@@ -217,26 +215,6 @@ fn.#ObjectExpression
 			)
 	} |
 	fn.#NumberExpression
-
-#SpaceIdleSettings: close({
-	IdleTimeoutInMinutes?: int & <=525600 & >=60 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=525600 &
-							>=60,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-	fn.#ObjectExpression
 
 #SpaceJupyterLabAppSettings: close({
 	CodeRepositories?:    list.MaxItems(30) & [...] & [...#CodeRepository] | fn.#ListExpression

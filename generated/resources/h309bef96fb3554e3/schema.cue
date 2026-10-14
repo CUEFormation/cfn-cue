@@ -34,8 +34,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #AttributeName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" | fn.#StringExpression
 
-#CreatedAt: string | fn.#StringExpression
-
 #CustomerProfilesDomainArn: =~"^arn:(aws|aws-us-gov|aws-cn):profile:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(domains/[a-zA-Z_0-9-]{1,255})$" |
 	fn.#StringExpression
 
@@ -77,9 +75,6 @@ fn.#ObjectExpression
 	{EnableTransitiveMatching?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
-
-#MatchingWorkflowArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(matchingworkflow/.*)$" |
-	fn.#StringExpression
 
 #OutputAttribute: close({
 	Hashed?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -154,5 +149,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#UpdatedAt: string | fn.#StringExpression

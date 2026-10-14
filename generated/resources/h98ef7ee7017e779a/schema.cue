@@ -39,12 +39,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#FipsEndpoints: close({
-	CollectionEndpoint?: string | fn.#StringExpression
-	DashboardEndpoint?:  string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ServerlessVectorAcceleration: "ENABLED" | "DISABLED" | "ALLOWED" | fn.#StringExpression
 
 #StandbyReplicas: "ENABLED" | "DISABLED" | fn.#StringExpression

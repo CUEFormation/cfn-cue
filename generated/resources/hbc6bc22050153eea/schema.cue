@@ -26,9 +26,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TxtMethodConfig: close({
-	name?:  string | fn.#StringExpression
-	value?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression

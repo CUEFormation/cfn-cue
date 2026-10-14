@@ -5,7 +5,6 @@ package schema
 import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"time"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -21,18 +20,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:         #TagMap
 	})
 }
-
-#EmailContact: close({
-	Address!:      strings.MaxRunes(254) & strings.MinRunes(6) & =~"^(.+)@(.+)$" | fn.#StringExpression
-	Arn!:          =~"^arn:aws:notifications-contacts::[0-9]{12}:emailcontact/[a-z0-9]{27}$" | fn.#StringExpression
-	CreationTime!: time.Time | fn.#StringExpression
-	Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\w-.~]+" | fn.#StringExpression
-	Status!:       #EmailContactStatus
-	UpdateTime!:   time.Time | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#EmailContactStatus: "inactive" | "active" | fn.#StringExpression
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

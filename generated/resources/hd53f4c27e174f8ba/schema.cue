@@ -332,15 +332,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#TopicDetails: close({
-	ConfigOptions?:         #TopicConfigOptions
-	DataSets?:              [...#DatasetMetadata] | fn.#ListExpression
-	Description?:           strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Name?:                  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	UserExperienceVersion?: #TopicUserExperienceVersion
-}) |
-fn.#ObjectExpression
-
 #TopicFilter: close({
 	CategoryFilter?:        #TopicCategoryFilter
 	DateRangeFilter?:       #TopicDateRangeFilter

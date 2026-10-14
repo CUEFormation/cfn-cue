@@ -5,8 +5,8 @@ package schema
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
-	"time"
 	"list"
+	"time"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -59,16 +59,6 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#HealthStatus: close({
-	LastRefreshedAt?: time.Time | fn.#StringExpression
-
-	// Whether the scheduled report is healthy.
-	StatusCode!: #HealthStatusCode
-}) |
-fn.#ObjectExpression
-
-#HealthStatusCode: "HEALTHY" | "UNHEALTHY" | fn.#StringExpression
 
 #ScheduleConfig: close({
 	ScheduleExpression?:         strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression

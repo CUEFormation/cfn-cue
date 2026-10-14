@@ -23,8 +23,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#ModelPackageGroupArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
-
 #ModelPackageGroupDescription: strings.MaxRunes(1024) &
 strings.MinRunes(0) &
 =~"[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*" |

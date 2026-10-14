@@ -38,19 +38,6 @@ fn.#ObjectExpression
 
 #DestinationConfigurations: close({S3Destination!: #S3Destination}) | fn.#ObjectExpression
 
-#Export: close({
-	DataQuery!:                 #DataQuery
-	Description?:               strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
-	DestinationConfigurations!: #DestinationConfigurations
-	ExportArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws[-a-z0-9]*:(bcm-data-exports):[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" |
-	fn.#StringExpression
-	Name!:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9A-Za-z\\-_]+$" | fn.#StringExpression
-	RefreshCadence!: #RefreshCadence
-}) |
-fn.#ObjectExpression
-
 #FormatOption: "TEXT_OR_CSV" | "PARQUET" | fn.#StringExpression
 
 #FrequencyOption: "SYNCHRONOUS" | fn.#StringExpression

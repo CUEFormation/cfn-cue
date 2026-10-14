@@ -52,11 +52,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Arn: =~"arn:aws[a-z-]*:(billing)::[0-9]{12}:billingview/[a-zA-Z0-9/:_\\+=\\.\\-@]{0,75}[a-zA-Z0-9]" |
-	fn.#StringExpression
-
-#BillingViewType: "PRIMARY" | "BILLING_GROUP" | "CUSTOM" | fn.#StringExpression
-
 #DimensionKey: "LINKED_ACCOUNT" | fn.#StringExpression
 
 #Tag: close({

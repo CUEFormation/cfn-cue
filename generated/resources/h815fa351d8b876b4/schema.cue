@@ -22,8 +22,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#AccessGrantsInstanceArn: string | fn.#StringExpression
-
 #IdentityCenterArn: string | fn.#StringExpression
 
 #Tag: close({

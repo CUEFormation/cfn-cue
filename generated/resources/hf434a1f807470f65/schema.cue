@@ -4,7 +4,6 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"time"
 	"list"
 	"strings"
 )
@@ -27,16 +26,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 }
-
-#NodeSnapshot: close({
-	CacheClusterId?:      string | fn.#StringExpression
-	CacheNodeCreateTime?: time.Time | fn.#StringExpression
-	CacheNodeId?:         string | fn.#StringExpression
-	CacheSize?:           string | fn.#StringExpression
-	NodeGroupId?:         string | fn.#StringExpression
-	SnapshotCreateTime?:  time.Time | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

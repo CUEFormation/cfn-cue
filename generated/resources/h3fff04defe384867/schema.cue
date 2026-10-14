@@ -8,10 +8,6 @@ import (
 	"list"
 )
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -45,53 +41,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
 }
-
-#LoRaWAN: close({
-	DlClass!: ("ClassB" | "ClassC") & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression
-	NumberOfDevicesInGroup?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	NumberOfDevicesRequested?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RfRegion!: ("AS923-1" |
-		"AS923-2" |
-		"AS923-3" |
-		"AS923-4" |
-		"AU915" |
-		"CN470" |
-		"CN779" |
-		"EU433" |
-		"EU868" |
-		"IN865" |
-		"KR920" |
-		"RU864" |
-		"US915") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

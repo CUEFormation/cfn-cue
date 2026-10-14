@@ -87,18 +87,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #AuthenticationType: "Standard" | "IAM_Identity_Center" | fn.#StringExpression
 
-#BrowserType: "Chrome" | fn.#StringExpression
-
 #EncryptionContextMap: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
 #InstanceType: "standard.regular" | "standard.large" | "standard.xlarge" | fn.#StringExpression
-
-#PortalStatus: "Incomplete" | "Pending" | "Active" | fn.#StringExpression
-
-#RendererType: "AppStream" | fn.#StringExpression
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression

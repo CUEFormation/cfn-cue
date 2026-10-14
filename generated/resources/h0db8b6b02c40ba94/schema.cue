@@ -32,8 +32,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	})
 }
 
-#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" | fn.#StringExpression
-
 #RenderingEngine: close({
 	Name!:    "OGRE" | fn.#StringExpression
 	Version!: =~"1.x" | fn.#StringExpression

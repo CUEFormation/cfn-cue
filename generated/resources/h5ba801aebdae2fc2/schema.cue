@@ -33,8 +33,6 @@ fn.#StringExpression
 
 #IntegrationArn: strings.MaxRunes(140) & strings.MinRunes(1) | fn.#StringExpression
 
-#IntegrationAssociationId: string | fn.#StringExpression
-
 #IntegrationType: "LEX_BOT" |
 	"LAMBDA_FUNCTION" |
 	"APPLICATION" |
