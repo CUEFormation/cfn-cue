@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"regexp"
 	"sort"
 	"strings"
@@ -683,11 +684,13 @@ func (c *converter) pruneDefinitions(root map[string]any) {
 			}
 		}
 	}
+	rest := map[string]any{}
 	for k, v := range root {
 		if k != "definitions" {
-			visit(v)
+			rest[k] = v
 		}
 	}
+	visit(rest)
 	for i := 0; i < len(pending); i++ {
 		visit(defs[pending[i]])
 	}
@@ -712,11 +715,15 @@ func (c *converter) pruneDefinitions(root map[string]any) {
 }
 
 // definitionRef returns the provider definition a reference written by
-// localRef points into.
+// localRef points into. A nested name is a JSON Pointer token inside a URI
+// fragment, so percent-encoding is decoded before ~1 and ~0.
 func definitionRef(r string) (string, bool) {
 	rest, ok := strings.CutPrefix(r, "#/$defs/Properties/definitions/")
 	if ok {
 		name, _, _ := strings.Cut(rest, "/")
+		if decoded, e := url.PathUnescape(name); e == nil {
+			name = decoded
+		}
 		return strings.ReplaceAll(strings.ReplaceAll(name, "~1", "/"), "~0", "~"), true
 	}
 	if rest, ok = strings.CutPrefix(r, "#/$defs/"); ok {

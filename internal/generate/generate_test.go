@@ -147,16 +147,18 @@ func TestDefinitionNames(t *testing.T) {
 
 // TestPrunedDefinitions checks that resources packages drop provider
 // definitions the template input schema no longer reaches, transitively, while
-// literal packages keep every definition.
+// literal packages keep every definition. Percent-encoded references and,
+// in TestRootReferenceKept, references from the root schema keep their targets.
 func TestPrunedDefinitions(t *testing.T) {
 	root := `{"typeName":"AWS::Test::Pruned","type":"object","additionalProperties":false,
-		"properties":{"Id":{"$ref":"#/definitions/AccountId"},"Wrapper":{"$ref":"#/definitions/Wrapper"},"Odd":{"$ref":"#/definitions/odd~1name"}},
+		"properties":{"Id":{"$ref":"#/definitions/AccountId"},"Wrapper":{"$ref":"#/definitions/Wrapper"},"Odd":{"$ref":"#/definitions/odd~1name"},"Spaced":{"$ref":"#/definitions/odd%20space"}},
 		"readOnlyProperties":["/properties/Id"],
 		"definitions":{
 			"AccountId":{"allOf":[{"$ref":"#/definitions/Digits"}]},
 			"Digits":{"type":"string","pattern":"^[0-9]+$"},
 			"Wrapper":{"type":"object","additionalProperties":false,"properties":{"Inner":{"$ref":"#/definitions/Inner"}}},
 			"Inner":{"type":"string"},
+			"odd space":{"type":"string"},
 			"odd/name":{"type":"string"},
 			"odd/orphan":{"type":"string"},
 			"Orphan":{"type":"object","properties":{"X":{"type":"string"}}}}}`
@@ -187,8 +189,26 @@ func TestPrunedDefinitions(t *testing.T) {
 		}
 	}
 	resource := pkg.LookupPath(cue.MakePath(cue.Def("Resource")))
-	validate(t, resource, `{Type:"AWS::Test::Pruned",Properties:{Wrapper:{Inner:"x"},Odd:"y"}}`, true)
+	validate(t, resource, `{Type:"AWS::Test::Pruned",Properties:{Wrapper:{Inner:"x"},Odd:"y",Spaced:"z"}}`, true)
 	validate(t, resource, `{Type:"AWS::Test::Pruned",Properties:{Id:"123456789012"}}`, false)
+}
+
+// TestRootReferenceKept checks that a definition referenced by the root
+// schema's own $ref survives pruning. Read-only removal inlines a root $ref, so
+// this fixture has no read-only properties.
+func TestRootReferenceKept(t *testing.T) {
+	root := `{"typeName":"AWS::Test::RootRef","type":"object","$ref":"#/definitions/Shape",
+		"definitions":{"Shape":{"type":"object","properties":{"Name":{"type":"string"}},"required":["Name"]}}}`
+	out := filepath.Join(t.TempDir(), "generated")
+	if _, e := Generate(&Source{Label: "rootref", SHA256: "rootref", files: map[string][]byte{
+		"providers/us-east-1.json": []byte(`{"AWS::Test::RootRef":"rootref"}`),
+		"resources/rootref.json":   []byte(root),
+	}}, Options{Out: out, Regions: []string{"us-east-1"}}); e != nil {
+		t.Fatal(e)
+	}
+	if !build(t, out, "./resources/hrootref").LookupPath(cue.MakePath(cue.Def("Shape"))).Exists() {
+		t.Error("resources #Shape pruned")
+	}
 }
 func TestExtensions(t *testing.T) {
 	out := filepath.Join(t.TempDir(), "generated")
